@@ -34,8 +34,8 @@ bullScale = input.float(0.18, "DMI Scale (blue zone)", minval=0.01, maxval=1, st
 
 // ────────── COLOR‑BAND BREAKPOINTS ──────────
 bandBlue   = input.float( 1.0, "Blue Threshold",   group="Bands")
-bandGreen  = input.float( 0.40, "Green Threshold",  group="Bands")
-bandYellow = input.float( 0.20, "Yellow Threshold", group="Bands")
+bandGreen  = input.float( 0.60, "Green Threshold",  group="Bands")
+bandYellow = input.float( 0.30, "Yellow Threshold", group="Bands")
 bandOrange = 0.0
 bandRed    = -1.0
 
