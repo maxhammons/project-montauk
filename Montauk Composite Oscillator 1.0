@@ -1,0 +1,93 @@
+//@version=6
+indicator("Montauk Composite Oscillator 1.0", overlay=false)
+
+// ────────── FILTER TOGGLES ──────────
+showTrend = input.bool(true, "Enable TEMA Trend (Long-Term Trend)",  group="Filters")
+showMom   = input.bool(true, "Enable Quick EMA (Short-Term Momentum)",   group="Filters")
+showMACD  = input.bool(true, "Enable MACD (Bull Momentum Acceleration)",       group="Filters")
+showDMI   = input.bool(true, "Enable DMI (Bull Trend Strength)",        group="Filters")
+
+// ────────── WEIGHTS ──────────
+wTEMA = input.float(0.50, "TEMA Weight",  step=0.05, group="Weights")
+wEMA  = input.float(0.20, "EMA Weight",   step=0.05, group="Weights")
+wMACD = input.float(0.15, "MACD Weight",  step=0.05, group="Weights")
+wDMI  = input.float(0.15, "DMI Weight",   step=0.05, group="Weights")
+
+// ────────── NORMALIZATION SETTINGS ──────────
+// TEMA slope
+lenTEMA  = input.int(300, "TEMA Length",    group="TEMA")
+lookTEMA = input.int(10,  "Slope Lookback", group="TEMA")
+thrTEMA  = input.float(0.20, "Slope % Threshold", step=0.01, group="TEMA") * 0.01
+// EMA slope (longer lookback, wider threshold for smoother signal)
+lenEMA   = input.int(7, "EMA Length",      group="EMA")
+lookEMA  = input.int(5,  "Slope Lookback",  group="EMA")
+thrEMA   = input.float(-0.15, "Red Slope Thresh", step=0.01, group="EMA") * 0.01
+// MACD histogram
+fastM    = input.int(30,  "MACD Fast",   group="MACD")
+slowM    = input.int(180, "MACD Slow",   group="MACD")
+sigM     = input.int(10,   "MACD Signal", group="MACD")
+histThr  = input.float(0.04, "MACD Hist Threshold", step=0.001, group="MACD")
+// DMI bull strength
+lenADX   = input.int(60, "ADX Length",     group="DMI")
+smADX    = input.int(30, "ADX Smoothing",  group="DMI")
+bullScale = input.float(0.18, "DMI Scale (blue zone)", minval=0.01, maxval=1, step=0.01, group="DMI")
+
+// ────────── COLOR‑BAND BREAKPOINTS ──────────
+bandBlue   = input.float( 1.0, "Blue Threshold",   group="Bands")
+bandGreen  = input.float( 0.40, "Green Threshold",  group="Bands")
+bandYellow = input.float( 0.20, "Yellow Threshold", group="Bands")
+bandOrange = 0.0
+bandRed    = -1.0
+
+// helper tanh (works in v6)
+_tanh(x) => (math.exp(2*x)-1)/(math.exp(2*x)+1)
+
+// ——— 1) TEMA trend (bounded –1…+1)
+ema1 = ta.ema(close, lenTEMA)
+ema2 = ta.ema(ema1,  lenTEMA)
+ema3 = ta.ema(ema2,  lenTEMA)
+tema = 3*ema1 - 3*ema2 + ema3
+sPct = tema != 0 ? (tema - tema[lookTEMA]) / tema : 0.0
+normT = _tanh(sPct / thrTEMA)
+
+// ——— 2) EMA momentum (bounded)
+qE    = ta.ema(close, lenEMA)
+qSlp  = (qE - qE[lookEMA]) / lookEMA
+normE = _tanh(qSlp / math.abs(thrEMA))
+
+// ——— 3) MACD histogram (bounded)
+[_,_,hist] = ta.macd(close, fastM, slowM, sigM)
+normM = _tanh(hist / histThr)
+
+// ——— 4) DMI bull strength (contrast‑enhanced)
+[pDI, mDI, _] = ta.dmi(lenADX, smADX)
+bullRaw  = nz((pDI - mDI) / math.max(pDI + mDI, 0.0001))
+bullNorm = _tanh(bullRaw / bullScale)   // expand around 0 → ±1 faster
+
+// ────────── COMPOSITE OSCILLATOR ──────────
+num = (showTrend ? wTEMA*normT   : 0) +
+      (showMom   ? wEMA *normE   : 0) +
+      (showMACD  ? wMACD*normM   : 0) +
+      (showDMI   ? wDMI *bullNorm: 0)
+
+den = (showTrend? wTEMA : 0) + (showMom? wEMA : 0) + (showMACD? wMACD : 0) + (showDMI? wDMI : 0)
+den := den == 0 ? 1e-9 : den                // never divide by zero
+rawComp = num / den
+
+var float comp = na
+comp := nz(rawComp, comp[1])                 // carry forward last good value
+
+// ────────── HORIZONTAL BANDS & FILLS ──────────
+lineBlue   = plot(bandBlue,   "Blue",   color=color.blue,   linewidth=1)
+lineGreen  = plot(bandGreen,  "Green",  color=color.green,  linewidth=1)
+lineYellow = plot(bandYellow, "Yellow", color=color.yellow, linewidth=1)
+lineOrange = plot(bandOrange, "Orange", color=color.orange, linewidth=1)
+lineRed    = plot(bandRed,    "Red",    color=color.red,    linewidth=1)
+
+fill(lineBlue,  lineGreen,  color.new(color.blue,   85))
+fill(lineGreen, lineYellow, color.new(color.green,  85))
+fill(lineYellow,lineOrange, color.new(color.yellow, 85))
+fill(lineOrange,lineRed,    color.new(color.orange, 85))
+
+// ────────── PLOT COMPOSITE ──────────
+plot(comp, "Composite", color=color.white, linewidth=2)
