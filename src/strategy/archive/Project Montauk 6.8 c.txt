@@ -1,0 +1,55 @@
+//@version=5
+// ────────────────────────────────────────────────────────────
+//  Project Montauk 6.8 c
+//     • MACD-line zero crosses with dynamic look-back buffer
+// ────────────────────────────────────────────────────────────
+strategy("Project Montauk 6.8 c – MACD zero-cross + dynamic buffer",
+         overlay            = true,
+         default_qty_type   = strategy.percent_of_equity,
+         default_qty_value  = 100,
+         pyramiding         = 0)
+
+// ── Inputs ─────────────────────────────────────────────────
+macdFast   = input.int(12,  "MACD fast length",     minval = 1)
+macdSlow   = input.int(26,  "MACD slow length",     minval = 1)
+macdSig    = input.int(9,   "MACD signal length",   minval = 1)
+
+bufLen     = input.int(50,  "Buffer look-back (bars)", minval = 1)
+bufPct     = input.float(0.2, "Buffer % of max MACD",   step   = 0.01)
+
+// ── Price line (OHLC/4) ───────────────────────────────────
+priceLine  = (open + high + low + close) / 4
+plot(priceLine, title="Price (OHLC/4)", color=color.white)
+
+// ── MACD calculation ──────────────────────────────────────
+[macdLine, macdSignal, macdHist] = ta.macd(priceLine, macdFast, macdSlow, macdSig)
+
+// ── Dynamic buffer around zero ────────────────────────────
+// 1) max absolute MACD over the last bufLen bars
+maxAmp     = ta.highest(math.abs(macdLine), bufLen)
+// 2) buffer = bufPct * that max
+buffer     = bufPct * maxAmp
+upperThr   =       buffer
+lowerThr   = -1 * buffer
+
+// ── Trade signals ─────────────────────────────────────────
+// buy when MACD line crosses up through upperThr
+// sell when MACD line crosses down through lowerThr
+buySignal  = ta.crossover(macdLine, upperThr)
+sellSignal = ta.crossunder(macdLine, lowerThr)
+
+if buySignal  and strategy.position_size == 0
+    strategy.entry("Long", strategy.long)
+
+if sellSignal and strategy.position_size > 0
+    strategy.close("Long", comment="MACD buffer cross")
+
+// ── Plot MACD ───────────────────────────────────────
+macdColor  = macdHist >= 0 ? color.green : color.red
+plot(macdLine,   title="MACD line",   color=color.blue,    linewidth=2)
+plot(macdSignal, title="Signal line", color=color.orange,  linewidth=1)
+
+// ── Plot thresholds & zero line ───────────────────────────
+hline(0,           "Zero",           color=color.gray, linestyle=hline.style_solid)
+plot(upperThr,     "Upper buffer",   color=color.teal,   linewidth=1)
+plot(lowerThr,     "Lower buffer",   color=color.teal,   linewidth=1)

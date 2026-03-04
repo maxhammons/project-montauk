@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Montauk Strategy Comparison — Backtest Results</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0f; color: #e0e0e0; padding: 24px; max-width: 1200px; margin: 0 auto; }
+  h1 { font-size: 1.8em; margin-bottom: 4px; color: #fff; }
+  .subtitle { color: #888; font-size: 0.95em; margin-bottom: 32px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+  .card { background: #151520; border: 1px solid #2a2a3a; border-radius: 12px; padding: 20px; }
+  .card h3 { font-size: 0.8em; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .card .value { font-size: 1.8em; font-weight: 700; }
+  .card .sub { font-size: 0.85em; color: #888; margin-top: 4px; }
+  .positive { color: #4ade80; }
+  .negative { color: #f87171; }
+  .neutral { color: #60a5fa; }
+  .section { margin-bottom: 40px; }
+  .section h2 { font-size: 1.3em; margin-bottom: 16px; border-bottom: 1px solid #2a2a3a; padding-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+  th { text-align: left; padding: 10px 12px; background: #1a1a2a; color: #aaa; font-weight: 600; text-transform: uppercase; font-size: 0.8em; letter-spacing: 0.5px; }
+  td { padding: 10px 12px; border-bottom: 1px solid #1a1a2a; }
+  tr:hover td { background: #151525; }
+  .winner { border-color: #4ade80; box-shadow: 0 0 20px rgba(74, 222, 128, 0.1); }
+  .insight { background: #1a1a2a; border-left: 3px solid #60a5fa; padding: 16px; border-radius: 0 8px 8px 0; margin: 16px 0; font-size: 0.95em; line-height: 1.6; }
+  .insight-win { border-left-color: #4ade80; }
+  .insight-warn { border-left-color: #fbbf24; }
+  .trade-row-win td:first-child { border-left: 3px solid #4ade80; }
+  .trade-row-loss td:first-child { border-left: 3px solid #f87171; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75em; font-weight: 600; }
+  .badge-green { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
+  .badge-red { background: rgba(248, 113, 113, 0.15); color: #f87171; }
+  .badge-blue { background: rgba(96, 165, 250, 0.15); color: #60a5fa; }
+  .badge-yellow { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+  .exit-breakdown { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<h1>Montauk Strategy Comparison</h1>
+<p class="subtitle">TECL · May 2010 – Feb 2026 · Montauk 8.2 vs Oscillator Crossover Variants vs Buy &amp; Hold</p>
+
+<!-- ───── Summary Cards ───── -->
+<div class="grid">
+  <div class="card winner">
+    <h3>Montauk 8.2 <span class="badge badge-green">BEST RISK-ADJ</span></h3>
+    <div class="value positive">$94.06</div>
+    <div class="sub">per $1 · 33.5% CAGR · MAR 0.51</div>
+  </div>
+  <div class="card">
+    <h3>Osc Variant A — Simple</h3>
+    <div class="value neutral">$20.02</div>
+    <div class="sub">per $1 · 21.0% CAGR · MAR 0.29</div>
+  </div>
+  <div class="card">
+    <h3>Osc Variant B — Steep Exit</h3>
+    <div class="value" style="color:#888;">$4.27</div>
+    <div class="sub">per $1 · 9.7% CAGR · MAR 0.18</div>
+  </div>
+  <div class="card">
+    <h3>Buy &amp; Hold <span class="badge badge-yellow">BEST RAW</span></h3>
+    <div class="value" style="color:#fbbf24;">$134.56</div>
+    <div class="sub">per $1 · 36.6% CAGR · ~90%+ DD</div>
+  </div>
+</div>
+
+<!-- ───── Metrics Table ───── -->
+<div class="section">
+  <h2>Full Metrics Comparison</h2>
+  <table>
+    <thead>
+      <tr><th>Metric</th><th>Montauk 8.2</th><th>Osc Var A (Simple)</th><th>Osc Var B (Steep)</th><th>Buy &amp; Hold</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Final Equity (per $1)</td>
+        <td class="positive">$94.06</td>
+        <td>$20.02</td>
+        <td>$4.27</td>
+        <td style="color:#fbbf24">$134.56</td>
+      </tr>
+      <tr>
+        <td>CAGR</td>
+        <td class="positive">33.5%</td>
+        <td>21.0%</td>
+        <td>9.7%</td>
+        <td style="color:#fbbf24">36.6%</td>
+      </tr>
+      <tr>
+        <td>Max Drawdown</td>
+        <td>-65.1%</td>
+        <td class="negative">-72.5%</td>
+        <td class="positive">-53.6%</td>
+        <td class="negative">~-90%+</td>
+      </tr>
+      <tr>
+        <td>MAR Ratio (CAGR/MaxDD)</td>
+        <td class="positive"><strong>0.51</strong></td>
+        <td>0.29</td>
+        <td>0.18</td>
+        <td>~0.4</td>
+      </tr>
+      <tr>
+        <td>Exposure (Time in Market)</td>
+        <td>83.2%</td>
+        <td>85.5%</td>
+        <td class="positive">33.5%</td>
+        <td>100%</td>
+      </tr>
+      <tr>
+        <td>Total Trades</td>
+        <td>16</td>
+        <td>17</td>
+        <td>17</td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <td>Trades/Year</td>
+        <td>1.0</td>
+        <td>1.1</td>
+        <td>1.1</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td>Win Rate</td>
+        <td class="positive">50%</td>
+        <td>41%</td>
+        <td>47%</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td>Avg Bars Held</td>
+        <td>206</td>
+        <td>199</td>
+        <td>78</td>
+        <td>3,963</td>
+      </tr>
+      <tr>
+        <td>Avg Trade Return</td>
+        <td class="positive">+49.3%</td>
+        <td>+47.6%</td>
+        <td>+16.0%</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td>Best Trade</td>
+        <td>+175.5%</td>
+        <td class="positive">+279.5%</td>
+        <td>+169.2%</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td>Worst Trade</td>
+        <td class="positive">-24.4%</td>
+        <td class="negative">-41.2%</td>
+        <td>-23.5%</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ───── Analysis ───── -->
+<div class="section">
+  <h2>Analysis</h2>
+
+  <div class="insight insight-win">
+    <strong>Montauk 8.2 dominates on risk-adjusted return.</strong> At $94.06 per dollar with a 0.51 MAR ratio, it nearly matches buy-and-hold's raw return (70% of $134.56) while cutting max drawdown from ~90%+ to 65%. The multi-exit stack (Quick EMA drives 62% of exits, ATR 31%) catches both slow rollovers and shock drops. The worst single trade is just -24.4% versus -41.2% for the oscillator.
+  </div>
+
+  <div class="insight">
+    <strong>Why 8.2 beats the oscillator strategies by 4–22x.</strong> The Montauk strategy's EMA-crossover entries (15 > 30) with trend slope confirmation are more precise than a single -0.5 composite threshold. Critically, 8.2's exits are layered and calibrated — the Quick EMA exit catches momentum collapses early (avg trade return for Quick EMA exits: +31.6%), while ATR catches crashes. The oscillator has only one exit signal, so it either exits too late (Variant A) or too early (Variant B).
+  </div>
+
+  <div class="insight insight-warn">
+    <strong>The oscillator still has value — as confirmation, not as a standalone system.</strong> The -0.5 crossover entry timing largely agrees with 8.2's entries (similar trade dates), but the oscillator's single-threshold exit can't compete with 8.2's prioritized exit stack. Consider using the oscillator as an additional entry gate (suppress buys when composite is below -0.5) rather than as the primary entry/exit driver.
+  </div>
+
+  <div class="insight">
+    <strong>Variant B's steep-slope exit remains the weakest approach.</strong> It chops big winners into small ones — the 2012–2015 bull becomes +11.6% instead of 8.2's +155.0%, and the 2016–2018 run is +4.8% vs +175.5%. The slope trigger fires on healthy pullbacks, not just regime changes.
+  </div>
+</div>
+
+<!-- ───── 8.2 Exit Breakdown ───── -->
+<div class="section">
+  <h2>Montauk 8.2 — Exit Reason Breakdown</h2>
+  <table style="max-width: 700px;">
+    <thead><tr><th>Exit Type</th><th>Count</th><th>% of Exits</th><th>Avg Return</th><th>Role</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="badge badge-blue">Quick EMA</span></td>
+        <td>10</td>
+        <td>62%</td>
+        <td class="positive">+31.6%</td>
+        <td>Catches momentum rollovers before they become deep losses</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-red">ATR Exit</span></td>
+        <td>5</td>
+        <td>31%</td>
+        <td class="positive">+98.5%</td>
+        <td>Crash catcher — fires on shock drops, often after long winning runs</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-yellow">Open</span></td>
+        <td>1</td>
+        <td>6%</td>
+        <td class="negative">-19.7%</td>
+        <td>Currently in position (2025-10-15 → present)</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="insight" style="margin-top:16px;">
+    Note: No EMA Cross exits fired during this period — the 500-bar long EMA acts as a deep structural backstop. Most exits are handled by the quicker Quick EMA (-8.2% threshold) and ATR (3× ATR(40)) exits well before the structural cross triggers.
+  </div>
+</div>
+
+<!-- ───── 8.2 Trade Log ───── -->
+<div class="section">
+  <h2>Trade Log — Montauk 8.2</h2>
+  <table>
+    <thead><tr><th>#</th><th>Entry</th><th>Exit</th><th>Entry $</th><th>Exit $</th><th>Return</th><th>Bars</th><th>Exit Reason</th></tr></thead>
+    <tbody>
+      <tr class="trade-row-loss"><td>1</td><td>2009-02-09</td><td>2009-02-23</td><td>$0.39</td><td>$0.24</td><td class="negative">-38.5%</td><td>9</td><td>Quick EMA</td></tr>
+      <tr class="trade-row-win"><td>2</td><td>2009-03-25</td><td>2009-11-20</td><td>$0.34</td><td>$0.83</td><td class="positive">+144.1%</td><td>168</td><td>ATR Exit</td></tr>
+      <tr class="trade-row-loss"><td>3</td><td>2009-11-25</td><td>2010-05-24</td><td>$0.86</td><td>$0.75</td><td class="negative">-12.8%</td><td>122</td><td>Quick EMA</td></tr>
+      <tr class="trade-row-loss"><td>4</td><td>2010-09-20</td><td>2011-08-08</td><td>$0.82</td><td>$0.76</td><td class="negative">-7.3%</td><td>223</td><td>Quick EMA</td></tr>
+      <tr class="trade-row-loss"><td>5</td><td>2011-10-17</td><td>2011-11-25</td><td>$1.00</td><td>$0.79</td><td class="negative">-21.0%</td><td>28</td><td>Quick EMA</td></tr>
+      <tr class="trade-row-win"><td>6</td><td>2011-12-09</td><td>2015-08-25</td><td>$1.00</td><td>$2.55</td><td class="positive">+155.0%</td><td>931</td><td>Quick EMA</td></tr>
+      <tr class="trade-row-loss"><td>7</td><td>2015-10-16</td><td>2016-01-13</td><td>$3.45</td><td>$2.89</td><td class="negative">-16.2%</td><td>60</td><td>Quick EMA</td></tr>
+      <tr class="trade-row-win"><td>8</td><td>2016-03-07</td><td>2016-09-09</td><td>$3.34</td><td>$4.35</td><td class="positive">+30.2%</td><td>130</td><td>ATR Exit</td></tr>
+      <tr class="trade-row-win"><td>9</td><td>2016-09-14</td><td>2018-02-02</td><td>$4.53</td><td>$12.48</td><td class="positive">+175.5%</td><td>349</td><td>ATR Exit</td></tr>
+      <tr class="trade-row-loss"><td>10</td><td>2018-02-07</td><td>2018-02-09</td><td>$11.40</td><td>$10.70</td><td class="negative">-6.1%</td><td>2</td><td>Quick EMA</td></tr>
+      <tr class="trade-row-loss"><td>11</td><td>2018-02-23</td><td>2018-10-15</td><td>$13.20</td><td>$13.03</td><td class="negative">-1.3%</td><td>162</td><td>Quick EMA</td></tr>
+      <tr class="trade-row-win"><td>12</td><td>2019-02-11</td><td>2020-02-24</td><td>$10.84</td><td>$26.39</td><td class="positive">+143.5%</td><td>260</td><td>ATR Exit</td></tr>
+      <tr class="trade-row-win"><td>13</td><td>2020-05-19</td><td>2020-09-03</td><td>$18.08</td><td>$33.62</td><td class="positive">+86.0%</td><td>75</td><td>ATR Exit</td></tr>
+      <tr class="trade-row-win"><td>14</td><td>2020-09-09</td><td>2022-01-21</td><td>$30.53</td><td>$59.57</td><td class="positive">+95.1%</td><td>345</td><td>Quick EMA</td></tr>
+      <tr class="trade-row-loss"><td>15</td><td>2022-08-03</td><td>2022-09-01</td><td>$42.14</td><td>$31.86</td><td class="negative">-24.4%</td><td>21</td><td>Quick EMA</td></tr>
+      <tr class="trade-row-win"><td>16</td><td>2022-12-02</td><td>2024-07-30</td><td>$29.03</td><td>$75.33</td><td class="positive">+159.5%</td><td>414</td><td>Quick EMA</td></tr>
+      <tr class="trade-row-loss"><td>17</td><td>2024-09-25</td><td>2025-03-04</td><td>$86.05</td><td>$71.14</td><td class="negative">-17.3%</td><td>108</td><td>Quick EMA</td></tr>
+      <tr class="trade-row-win"><td>18</td><td>2025-05-15</td><td>2025-10-10</td><td>$75.62</td><td>$118.89</td><td class="positive">+57.2%</td><td>102</td><td>ATR Exit</td></tr>
+      <tr class="trade-row-loss"><td>19</td><td>2025-10-15</td><td>2026-02-23</td><td>$125.65</td><td>$100.92</td><td class="negative">-19.7%</td><td>89</td><td>Open</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ───── Oscillator Trade Logs ───── -->
+<div class="section">
+  <h2>Trade Log — Oscillator Variant A (Simple -0.5 Crossover)</h2>
+  <table>
+    <thead><tr><th>#</th><th>Entry</th><th>Exit</th><th>Entry $</th><th>Exit $</th><th>Return</th><th>Bars</th></tr></thead>
+    <tbody>
+      <tr class="trade-row-loss"><td>1</td><td>2010-08-03</td><td>2010-08-23</td><td>$0.80</td><td>$0.66</td><td class="negative">-17.5%</td><td>14</td></tr>
+      <tr class="trade-row-win"><td>2</td><td>2010-09-22</td><td>2011-06-13</td><td>$0.80</td><td>$0.98</td><td class="positive">+22.5%</td><td>182</td></tr>
+      <tr class="trade-row-loss"><td>3</td><td>2011-07-11</td><td>2011-08-19</td><td>$1.14</td><td>$0.67</td><td class="negative">-41.2%</td><td>29</td></tr>
+      <tr class="trade-row-win"><td>4</td><td>2011-10-17</td><td>2012-05-31</td><td>$1.00</td><td>$1.16</td><td class="positive">+16.0%</td><td>156</td></tr>
+      <tr class="trade-row-loss"><td>5</td><td>2012-07-03</td><td>2012-11-07</td><td>$1.25</td><td>$1.16</td><td class="negative">-7.2%</td><td>87</td></tr>
+      <tr class="trade-row-win"><td>6</td><td>2012-12-17</td><td>2015-07-14</td><td>$1.21</td><td>$3.64</td><td class="positive">+200.8%</td><td>646</td></tr>
+      <tr class="trade-row-loss"><td>7</td><td>2015-07-15</td><td>2015-08-25</td><td>$3.64</td><td>$2.55</td><td class="negative">-29.9%</td><td>29</td></tr>
+      <tr class="trade-row-loss"><td>8</td><td>2015-10-20</td><td>2016-01-15</td><td>$3.46</td><td>$2.78</td><td class="negative">-19.7%</td><td>60</td></tr>
+      <tr class="trade-row-win"><td>9</td><td>2016-03-07</td><td>2018-10-29</td><td>$3.34</td><td>$11.34</td><td class="positive">+239.5%</td><td>668</td></tr>
+      <tr class="trade-row-loss"><td>10</td><td>2019-02-04</td><td>2020-03-19</td><td>$10.77</td><td>$9.72</td><td class="negative">-9.7%</td><td>283</td></tr>
+      <tr class="trade-row-win"><td>11</td><td>2020-05-07</td><td>2022-02-04</td><td>$17.13</td><td>$65.00</td><td class="positive">+279.5%</td><td>441</td></tr>
+      <tr class="trade-row-loss"><td>12</td><td>2022-04-07</td><td>2022-04-19</td><td>$56.19</td><td>$50.73</td><td class="negative">-9.7%</td><td>7</td></tr>
+      <tr class="trade-row-loss"><td>13</td><td>2022-07-29</td><td>2022-09-14</td><td>$40.10</td><td>$29.96</td><td class="negative">-25.3%</td><td>32</td></tr>
+      <tr class="trade-row-loss"><td>14</td><td>2022-11-15</td><td>2023-01-05</td><td>$28.31</td><td>$20.37</td><td class="negative">-28.0%</td><td>34</td></tr>
+      <tr class="trade-row-win"><td>15</td><td>2023-01-19</td><td>2024-08-14</td><td>$23.75</td><td>$78.41</td><td class="positive">+230.1%</td><td>394</td></tr>
+      <tr class="trade-row-loss"><td>16</td><td>2024-08-23</td><td>2025-03-12</td><td>$87.84</td><td>$63.90</td><td class="negative">-27.3%</td><td>136</td></tr>
+      <tr class="trade-row-win"><td>17</td><td>2025-05-15</td><td>2026-02-17</td><td>$75.62</td><td>$103.19</td><td class="positive">+36.5%</td><td>190</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section">
+  <h2>Trade Log — Oscillator Variant B (Steep MA Exit)</h2>
+  <table>
+    <thead><tr><th>#</th><th>Entry</th><th>Exit</th><th>Entry $</th><th>Exit $</th><th>Return</th><th>Bars</th></tr></thead>
+    <tbody>
+      <tr class="trade-row-loss"><td>1</td><td>2010-08-03</td><td>2010-08-23</td><td>$0.80</td><td>$0.66</td><td class="negative">-17.5%</td><td>14</td></tr>
+      <tr class="trade-row-win"><td>2</td><td>2010-09-22</td><td>2011-03-21</td><td>$0.80</td><td>$1.12</td><td class="positive">+40.0%</td><td>124</td></tr>
+      <tr class="trade-row-loss"><td>3</td><td>2011-07-11</td><td>2011-08-05</td><td>$1.14</td><td>$0.91</td><td class="negative">-20.2%</td><td>19</td></tr>
+      <tr class="trade-row-loss"><td>4</td><td>2011-10-17</td><td>2011-11-28</td><td>$1.00</td><td>$0.87</td><td class="negative">-13.0%</td><td>29</td></tr>
+      <tr class="trade-row-loss"><td>5</td><td>2012-07-03</td><td>2012-10-24</td><td>$1.25</td><td>$1.23</td><td class="negative">-1.6%</td><td>79</td></tr>
+      <tr class="trade-row-win"><td>6</td><td>2012-12-17</td><td>2013-04-26</td><td>$1.21</td><td>$1.35</td><td class="positive">+11.6%</td><td>89</td></tr>
+      <tr class="trade-row-loss"><td>7</td><td>2015-07-15</td><td>2015-08-20</td><td>$3.64</td><td>$3.34</td><td class="negative">-8.2%</td><td>26</td></tr>
+      <tr class="trade-row-win"><td>8</td><td>2015-10-20</td><td>2016-01-05</td><td>$3.46</td><td>$3.46</td><td class="positive">+0.0%</td><td>52</td></tr>
+      <tr class="trade-row-win"><td>9</td><td>2016-03-07</td><td>2016-05-10</td><td>$3.34</td><td>$3.50</td><td class="positive">+4.8%</td><td>45</td></tr>
+      <tr class="trade-row-win"><td>10</td><td>2019-02-04</td><td>2019-05-31</td><td>$10.77</td><td>$12.40</td><td class="positive">+15.1%</td><td>81</td></tr>
+      <tr class="trade-row-win"><td>11</td><td>2020-05-07</td><td>2021-05-25</td><td>$17.13</td><td>$46.12</td><td class="positive">+169.2%</td><td>264</td></tr>
+      <tr class="trade-row-loss"><td>12</td><td>2022-04-07</td><td>2022-04-19</td><td>$56.19</td><td>$50.73</td><td class="negative">-9.7%</td><td>7</td></tr>
+      <tr class="trade-row-loss"><td>13</td><td>2022-07-29</td><td>2022-09-08</td><td>$40.10</td><td>$31.72</td><td class="negative">-20.9%</td><td>28</td></tr>
+      <tr class="trade-row-loss"><td>14</td><td>2022-11-15</td><td>2023-01-04</td><td>$28.31</td><td>$21.65</td><td class="negative">-23.5%</td><td>33</td></tr>
+      <tr class="trade-row-win"><td>15</td><td>2023-01-19</td><td>2023-10-02</td><td>$23.75</td><td>$44.52</td><td class="positive">+87.5%</td><td>176</td></tr>
+      <tr class="trade-row-win"><td>16</td><td>2024-08-23</td><td>2025-01-15</td><td>$87.84</td><td>$89.50</td><td class="positive">+1.9%</td><td>98</td></tr>
+      <tr class="trade-row-win"><td>17</td><td>2025-05-15</td><td>2026-01-08</td><td>$75.62</td><td>$117.82</td><td class="positive">+55.8%</td><td>164</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ───── Parameters ───── -->
+<div class="section">
+  <h2>Backtest Parameters</h2>
+  <table style="max-width: 800px;">
+    <thead><tr><th>Parameter</th><th>Montauk 8.2</th><th>Oscillator Variants</th></tr></thead>
+    <tbody>
+      <tr><td>Entry signal</td><td>EMA(15) > EMA(30) + trend slope + sideways filter</td><td>Smoothed composite SMA(20) crosses above -0.5</td></tr>
+      <tr><td>Exit signals</td><td>Quick EMA (-8.2% Δ), ATR (3× ATR(40)), EMA cross (15 vs 500)</td><td>A: crosses below -0.5 · B: steep slope OR below -0.5</td></tr>
+      <tr><td>Optional filters</td><td>TEMA (off), Trail Stop (off), TEMA Slope Exit (off)</td><td>—</td></tr>
+      <tr><td>Cooldown</td><td>2 bars</td><td>None</td></tr>
+      <tr><td>Position sizing</td><td>100% equity</td><td>100% equity</td></tr>
+      <tr><td>Comparison start</td><td colspan="2">2010-05-24 (bar 350, after TEMA warmup)</td></tr>
+      <tr><td>End date</td><td colspan="2">2026-02-23</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section" style="color:#666; font-size:0.8em; text-align:center; padding-top: 24px; border-top: 1px solid #1a1a2a;">
+  Project Montauk · Strategy Comparison Backtest · Generated Feb 2026
+</div>
+
+</body>
+</html>

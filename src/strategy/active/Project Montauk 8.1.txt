@@ -1,0 +1,151 @@
+//@version=6
+strategy("Project Montauk 8.1",
+     overlay=true,
+     shorttitle="Montauk 8.1",
+     calc_on_every_tick=false,
+     process_orders_on_close=true)
+
+// 1. Inputs
+shortEmaLen         = input.int(15,   title="Short EMA Length",                  minval=1, group="1 - EMAs")
+medEmaLen           = input.int(30,   title="Medium EMA Length",                 minval=1, group="1 - EMAs")
+longEmaLen          = input.int(500,  title="Long EMA Length",                   minval=1, group="1 - EMAs")
+
+// Trend filter
+enableTrend         = input.bool(true,  title="Enable Trend Filter",                              group="2 - Trend Filter")
+trendEmaLen         = input.int(70,     title="Trend EMA Length",             minval=1,           group="2 - Trend Filter")
+slopeLookback       = input.int(10,     title="Slope Lookback Bars",         minval=1,           group="2 - Trend Filter")
+minTrendSlope       = input.float(0.0,  title="Min Trend EMA Slope",        step=0.0001,        group="2 - Trend Filter")
+
+// TEMA filters
+enableSlopeFilter   = input.bool(false,  title="Enable No-Buy When TEMA Slope Negative",          group="3 - TEMA Filters")
+enableBelowFilter   = input.bool(false,  title="Enable No-Buy When Price Below TEMA",             group="3 - TEMA Filters")
+tripleEmaLen        = input.int(200,     title="Triple EMA Length",            minval=1,           group="3 - TEMA Filters")
+tripleSlopeLookback = input.int(1,       title="TEMA Slope Lookback Bars",      minval=1,          group="3 - TEMA Filters")
+
+// Sideways-market filter (Donchian range)
+enableSidewaysFilter = input.bool(true,  title="Enable Sideways Market Filter",                    group="4 - Sideways Filter")
+rangeLen            = input.int(60,      title="Range Lookback Bars",          minval=1,           group="4 - Sideways Filter")
+maxRangePct         = input.float(30.0,  title="Max Range (%)",                step=0.1,          group="4 - Sideways Filter")
+
+// Sell confirmation
+enableSellConfirm   = input.bool(true,   title="Enable Sell Confirmation",                          group="5 - Sell Confirmation")
+sellConfirmBars     = input.int(2,       title="Sell Confirm Bars",            minval=1,           group="5 - Sell Confirmation")
+sellBufferPct       = input.float(0.2,   title="Sell Buffer (%)",              step=0.01,         group="5 - Sell Confirmation")
+
+// Sell cooldown
+enableSellCooldown  = input.bool(true,   title="Enable Sell Cooldown",                             group="6 - Sell Cooldown")
+sellCooldownBars    = input.int(2,       title="Sell Cooldown (bars)",          minval=0,          group="6 - Sell Cooldown")
+
+// ATR exit
+enableATRExit       = input.bool(true,   title="Enable ATR Exit",                                   group="7 - ATR Exit")
+atrPeriod           = input.int(40,      title="ATR Period",                  minval=1,           group="7 - ATR Exit")
+atrMultiplier       = input.float(3.0,   title="ATR Multiplier",              step=0.1,          group="7 - ATR Exit")
+
+// Quick EMA Exit  (Option C: % change over window)
+enableQuickExit     = input.bool(true,   title="Enable Quick EMA Exit",                             group="8 - Quick EMA Exit")
+quickEmaLen         = input.int(15,      title="Quick EMA Length",            minval=1,           group="8 - Quick EMA Exit")
+quickLookbackBars   = input.int(5,       title="Quick Exit Lookback Bars",    minval=1,           group="8 - Quick EMA Exit")
+quickDeltaPctThresh = input.float(-7.0,  title="Quick EMA Δ% Threshold over window (%)", step=0.1, group="8 - Quick EMA Exit")
+// Note: negative value = required % DROP over the window, e.g. -7 = exit if ≤ -7%
+
+// 2. Calculate EMAs
+emaShort  = ta.ema(close, shortEmaLen)
+emaMed    = ta.ema(close, medEmaLen)
+emaLong   = ta.ema(close, longEmaLen)
+emaTrend  = ta.ema(close, trendEmaLen)
+quickEma  = ta.ema(close, quickEmaLen)
+
+// 3. Trend filter
+trendSlope = (emaTrend - emaTrend[slopeLookback]) / slopeLookback
+trendOk    = not enableTrend or (trendSlope > minTrendSlope)
+
+// 4. Manual TEMA calculation
+ema1 = ta.ema(close, tripleEmaLen)
+ema2 = ta.ema(ema1,   tripleEmaLen)
+ema3 = ta.ema(ema2,   tripleEmaLen)
+tema = 3 * ema1 - 3 * ema2 + ema3
+
+// 5. TEMA slope & price filters
+temaSlope = (tema - tema[tripleSlopeLookback]) / tripleSlopeLookback
+slopeOk   = not enableSlopeFilter or (temaSlope > 0)
+aboveOk   = not enableBelowFilter or (close > tema)
+
+// 6. Sideways-market filter (Donchian range)
+rng       = ta.highest(high, rangeLen) - ta.lowest(low, rangeLen)
+rngPct    = rng / ta.sma(close, rangeLen) * 100
+sideways  = rngPct < maxRangePct
+sidewaysOk = not enableSidewaysFilter or not sideways
+
+// 7. Entry conditions
+buyZone = emaShort > emaMed
+buyOk   = buyZone and trendOk and slopeOk and aboveOk and sidewaysOk
+
+// 8. EMA cross exit
+rawSell    = ta.crossunder(emaShort, emaLong)
+
+// 9. Sell confirmation
+bufferOk    = emaShort < emaLong * (1 - sellBufferPct/100)
+allBelow    = ta.lowest(emaShort < emaLong ? 1 : 0, sellConfirmBars) == 1
+confirmSell = not enableSellConfirm or allBelow
+
+// 10. ATR exit
+atr      = ta.atr(atrPeriod)
+atrExit  = enableATRExit and close < close[1] - atr * atrMultiplier
+
+// 11. Quick EMA exit  (Option C)
+// Old logic (slope in $/bar) was:
+// quickSlope = (quickEma - quickEma[quickLookbackBars]) / quickLookbackBars
+// quickExit  = enableQuickExit and quickSlope < quickSlopeThreshold
+quickEmaPast  = quickEma[quickLookbackBars]
+quickDeltaPct = quickEmaPast != 0 ? 100.0 * (quickEma - quickEmaPast) / quickEmaPast : 0.0
+quickExit     = enableQuickExit and quickDeltaPct <= quickDeltaPctThresh
+
+// 12. Track last sell for cooldown
+var int lastSellBar = na
+
+// 13. Compute exit flags
+isCrossExit = rawSell and bufferOk and confirmSell
+isAtrExit   = atrExit
+isQuickExit = quickExit
+
+// 14. Exit reason label
+var string exitReason = na
+if strategy.position_size > 0
+    if isCrossExit
+        exitReason := "EMA Cross"
+    else if isAtrExit
+        exitReason := "ATR Exit"
+    else if isQuickExit
+        exitReason := "Quick EMA"
+    else
+        exitReason := "Other"
+
+// 15. Unified exit (hold through sideways)
+allowExit = not (enableSidewaysFilter and sideways)
+exitCond  = strategy.position_size > 0 and allowExit and (isCrossExit or isAtrExit or isQuickExit)
+if exitCond
+    strategy.close("Long")
+    lastSellBar := bar_index
+    label.new(bar_index, high, exitReason,
+              yloc=yloc.abovebar,
+              style=label.style_label_down,
+              color=color.red, textcolor=color.white, size=size.tiny)
+
+// 16. Entry execution with cooldown
+canEnter = strategy.position_size == 0 and (not enableSellCooldown or na(lastSellBar) or (bar_index - lastSellBar) > sellCooldownBars)
+if buyOk and canEnter
+    strategy.entry("Long", strategy.long)
+
+// 17. Background shading for no-trade zones
+temaZone     = (enableSlopeFilter and temaSlope <= 0) or (enableBelowFilter and close < tema)
+sidewaysZone = enableSidewaysFilter and sideways
+bgcolor(temaZone     ? color.new(color.red,    90) : na)
+bgcolor(sidewaysZone ? color.new(color.orange, 90) : na)
+
+// 18. Plot EMAs
+plot(emaShort, title="Short EMA",   color=color.new(color.orange, 0))
+plot(emaMed,   title="Medium EMA",  color=color.new(color.teal,   0))
+plot(emaLong,  title="Long EMA",    color=color.new(color.purple, 0))
+plot(emaTrend, title="Trend EMA",   color=color.new(color.white,  80))
+plot(quickEma, title="Quick EMA",   color=color.new(#ff0000,      60))
+plot(tema,     title="Triple EMA",  color=color.new(color.yellow, 0))
