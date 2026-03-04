@@ -1,0 +1,4 @@
+//@version=6
+strategy("Project Montauk 9.0", overlay=true)
+
+label.new(bar_index, high, "hello world", style=label.style_label_down, color=color.white, textcolor=color.black)
