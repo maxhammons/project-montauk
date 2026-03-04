@@ -92,6 +92,15 @@ These are strategy versions with extra visual debugging for development:
 - **Cooldown logic**: After every exit, a configurable cooldown (bars) prevents immediate re-entry
 - **Price smoothing**: Montauk 6.x versions use OHLC/4 smoothed price; 7.x+ use standard close
 
+## Remote Sessions (Phone / Off-Computer Work)
+
+When running in a remote session (e.g. Claude Code on mobile), follow these rules:
+
+- **Save all outputs** (reports, backtests, code reviews, new strategy files, analysis) to the `remote/` folder at the project root
+- **Use timestamped filenames** to prevent overwrites: `[type]-YYYY-MM-DD.txt` (e.g. `backtest-2026-03-08.txt`, `report-2026-03-08.txt`, `strategy-review-2026-03-08.txt`)
+- **Commit and push directly to `main`** — do not create a new branch
+- This ensures the desktop auto-syncs via `git pull` without any manual merging
+
 ## Working with This Code
 
 - **To edit the active strategy**: Modify `src/strategy/active/Project Montauk 8.1.txt`, then paste into TradingView Pine Editor
