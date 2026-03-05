@@ -1,0 +1,402 @@
+//@version=6
+strategy("Project Montauk 8.2.1",
+     overlay=true,
+     shorttitle="Montauk 8.2.1",
+     initial_capital=1000,
+     default_qty_type=strategy.percent_of_equity,
+     default_qty_value=100,
+     pyramiding=0,
+     commission_type=strategy.commission.percent,
+     commission_value=0,
+     slippage=0,
+     calc_on_every_tick=false,
+     process_orders_on_close=true)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Group 1 — EMAs
+// ─────────────────────────────────────────────────────────────────────────────
+shortEmaLen         = input.int(15,   title="Short EMA Length",                        minval=1, group="1 - EMAs")
+medEmaLen           = input.int(30,   title="Medium EMA Length",                       minval=1, group="1 - EMAs")
+longEmaLen          = input.int(500,  title="Long EMA Length",                         minval=1, group="1 - EMAs")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Group 2 — Trend Filter
+// ─────────────────────────────────────────────────────────────────────────────
+enableTrend         = input.bool(true,  title="Enable Trend Filter",                              group="2 - Trend Filter")
+trendEmaLen         = input.int(70,     title="Trend EMA Length",          minval=1,              group="2 - Trend Filter")
+slopeLookback       = input.int(10,     title="Slope Lookback Bars",        minval=1,             group="2 - Trend Filter")
+minTrendSlope       = input.float(0.0,  title="Min Trend EMA Slope",        step=0.0001,          group="2 - Trend Filter")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Group 3 — TEMA Filters  (entry gates only)
+// ─────────────────────────────────────────────────────────────────────────────
+enableSlopeFilter   = input.bool(false, title="Enable No-Buy When TEMA Slope Negative",           group="3 - TEMA Filters")
+enableBelowFilter   = input.bool(false, title="Enable No-Buy When Price Below TEMA",              group="3 - TEMA Filters")
+tripleEmaLen        = input.int(200,    title="Triple EMA Length",          minval=1,             group="3 - TEMA Filters")
+tripleSlopeLookback = input.int(1,      title="TEMA Entry Slope Lookback",  minval=1,             group="3 - TEMA Filters")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Group 4 — Sideways Filter
+// ─────────────────────────────────────────────────────────────────────────────
+enableSidewaysFilter = input.bool(true, title="Enable Sideways Market Filter",                    group="4 - Sideways Filter")
+rangeLen             = input.int(60,    title="Range Lookback Bars",        minval=1,             group="4 - Sideways Filter")
+maxRangePct          = input.float(30.0,title="Max Range (%)",              step=0.1,             group="4 - Sideways Filter")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Group 5 — Sell Confirmation
+// ─────────────────────────────────────────────────────────────────────────────
+enableSellConfirm   = input.bool(true,  title="Enable Sell Confirmation",                         group="5 - Sell Confirmation")
+sellConfirmBars     = input.int(2,      title="Sell Confirm Bars",          minval=1,             group="5 - Sell Confirmation")
+sellBufferPct       = input.float(0.2,  title="Sell Buffer (%)",            step=0.01,            group="5 - Sell Confirmation")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Group 6 — Sell Cooldown
+// ─────────────────────────────────────────────────────────────────────────────
+enableSellCooldown  = input.bool(true,  title="Enable Sell Cooldown",                             group="6 - Sell Cooldown")
+sellCooldownBars    = input.int(2,      title="Sell Cooldown (bars)",       minval=0,             group="6 - Sell Cooldown")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Group 7 — ATR Exit
+// ─────────────────────────────────────────────────────────────────────────────
+enableATRExit       = input.bool(true,  title="Enable ATR Exit",                                  group="7 - ATR Exit")
+atrPeriod           = input.int(40,     title="ATR Period",                 minval=1,             group="7 - ATR Exit")
+atrMultiplier       = input.float(3.0,  title="ATR Multiplier",             step=0.1,             group="7 - ATR Exit")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Group 8 — Quick EMA Exit
+// ─────────────────────────────────────────────────────────────────────────────
+enableQuickExit     = input.bool(true,  title="Enable Quick EMA Exit",                            group="8 - Quick EMA Exit")
+quickEmaLen         = input.int(15,     title="Quick EMA Length",           minval=1,             group="8 - Quick EMA Exit")
+quickLookbackBars   = input.int(5,      title="Quick Exit Lookback Bars",   minval=1,             group="8 - Quick EMA Exit")
+quickDeltaPctThresh = input.float(-8.2, title="Quick EMA Δ% Threshold (%)", step=0.1,            group="8 - Quick EMA Exit")
+// Negative value = required % drop. e.g. -8.2 exits if EMA dropped >= 8.2% over the window.
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Group 9 — Conviction Slider
+// Visual-only UI element. Shows proximity to exit triggers (in position) or
+// entry gates (flat). Does not affect trade logic.
+// ─────────────────────────────────────────────────────────────────────────────
+enableSlider        = input.bool(true,  title="Enable Conviction Slider",                         group="9 - Conviction Slider")
+sliderCrossThresh   = input.float(0.03, title="EMA Cross Norm Threshold",   step=0.005,           group="9 - Conviction Slider")
+sliderAtrThresh     = input.float(0.50, title="ATR Distance Norm Threshold",step=0.05,            group="9 - Conviction Slider")
+sliderQuickThresh   = input.float(0.50, title="Quick EMA Norm Threshold",   step=0.05,            group="9 - Conviction Slider")
+sliderBuyThresh     = input.float(0.01, title="Buy Zone Norm Threshold",    step=0.005,           group="9 - Conviction Slider")
+sliderTrendThresh   = input.float(0.10, title="Trend Slope Norm Threshold", step=0.01,            group="9 - Conviction Slider")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Group 10 — Trailing Peak Stop  (default OFF)
+// Tracks the highest close since entry. Exits if price falls more than
+// trailDropPct% below that peak. Catches slow, grinding drawdowns that
+// the EMA cross and ATR exits miss.
+//
+// Starting point for TECL: 25%. A 3x ETF has wide normal swings —
+// values below 15% risk false exits during healthy bull consolidations.
+// ─────────────────────────────────────────────────────────────────────────────
+enableTrailStop     = input.bool(false, title="Enable Trailing Peak Stop",                        group="10 - Trailing Peak Stop")
+trailDropPct        = input.float(25.0, title="Max Drop From Peak (%)",     step=0.5, minval=1.0, group="10 - Trailing Peak Stop")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Group 11 — TEMA Slope Exit  (default OFF)
+// Exits when the TEMA slope turns negative over a configurable lookback.
+// Uses a separate lookback from the entry filter (Group 3) so the two can
+// be tuned independently — entry and exit sensitivity are decoupled.
+//
+// Lookback of 1 is very sensitive (fires on any single down bar).
+// 5–10 bars recommended to filter noise while catching real reversals.
+// ─────────────────────────────────────────────────────────────────────────────
+enableTemaExit      = input.bool(false, title="Enable TEMA Slope Exit",                           group="11 - TEMA Slope Exit")
+temaExitLookback    = input.int(5,      title="TEMA Exit Slope Lookback",   minval=1,             group="11 - TEMA Slope Exit")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EMA Calculations
+// ─────────────────────────────────────────────────────────────────────────────
+emaShort  = ta.ema(close, shortEmaLen)
+emaMed    = ta.ema(close, medEmaLen)
+emaLong   = ta.ema(close, longEmaLen)
+emaTrend  = ta.ema(close, trendEmaLen)
+quickEma  = ta.ema(close, quickEmaLen)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Trend Filter
+// ─────────────────────────────────────────────────────────────────────────────
+trendSlope = (emaTrend - emaTrend[slopeLookback]) / slopeLookback
+trendOk    = not enableTrend or (trendSlope > minTrendSlope)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TEMA (Triple EMA)
+// ─────────────────────────────────────────────────────────────────────────────
+ema1 = ta.ema(close, tripleEmaLen)
+ema2 = ta.ema(ema1,  tripleEmaLen)
+ema3 = ta.ema(ema2,  tripleEmaLen)
+tema = 3 * ema1 - 3 * ema2 + ema3
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TEMA Entry Filters
+// ─────────────────────────────────────────────────────────────────────────────
+temaSlope = (tema - tema[tripleSlopeLookback]) / tripleSlopeLookback
+slopeOk   = not enableSlopeFilter or (temaSlope > 0)
+aboveOk   = not enableBelowFilter or (close > tema)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sideways Filter (Donchian range)
+// ─────────────────────────────────────────────────────────────────────────────
+rng        = ta.highest(high, rangeLen) - ta.lowest(low, rangeLen)
+rngPct     = rng / ta.sma(close, rangeLen) * 100
+sideways   = rngPct < maxRangePct
+sidewaysOk = not enableSidewaysFilter or not sideways
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Entry Conditions
+// ─────────────────────────────────────────────────────────────────────────────
+buyZone = emaShort > emaMed
+buyOk   = buyZone and trendOk and slopeOk and aboveOk and sidewaysOk
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Exit 1 — EMA Cross  (short crosses below long, with buffer + confirmation)
+// ─────────────────────────────────────────────────────────────────────────────
+recentCross = ta.barssince(ta.crossunder(emaShort, emaLong)) < sellConfirmBars
+bufferOk    = emaShort < emaLong * (1 - sellBufferPct / 100)
+allBelow    = ta.lowest(emaShort < emaLong ? 1 : 0, sellConfirmBars) == 1
+confirmSell = not enableSellConfirm or allBelow
+isCrossExit = recentCross and bufferOk and confirmSell
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Exit 2 — ATR Shock  (single-bar crash catcher)
+// ─────────────────────────────────────────────────────────────────────────────
+atr       = ta.atr(atrPeriod)
+isAtrExit = enableATRExit and close < close[1] - atr * atrMultiplier
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Exit 3 — Quick EMA  (fast momentum collapse, % change over window)
+// ─────────────────────────────────────────────────────────────────────────────
+quickEmaPast  = quickEma[quickLookbackBars]
+quickDeltaPct = quickEmaPast != 0 ? 100.0 * (quickEma - quickEmaPast) / quickEmaPast : 0.0
+isQuickExit   = enableQuickExit and quickDeltaPct <= quickDeltaPctThresh
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Exit 4 — Trailing Peak Stop  (slow drawdown catcher)
+// Initializes peak on the first bar the position is open, then ratchets up.
+// Resets to na when flat so each trade starts fresh from its own entry price.
+// ─────────────────────────────────────────────────────────────────────────────
+var float peakSinceEntry = na
+if strategy.position_size > 0
+    peakSinceEntry := na(peakSinceEntry) ? close : math.max(peakSinceEntry, close)
+else
+    peakSinceEntry := na
+
+isTrailExit = enableTrailStop and strategy.position_size > 0 and
+     not na(peakSinceEntry) and close < peakSinceEntry * (1 - trailDropPct / 100)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Exit 5 — TEMA Slope Exit  (trend-reversal catcher)
+// Separate lookback from Group 3 entry slope — tuned independently.
+// ─────────────────────────────────────────────────────────────────────────────
+temaExitSlope = (tema - tema[temaExitLookback]) / temaExitLookback
+isTemaExit    = enableTemaExit and strategy.position_size > 0 and temaExitSlope < 0
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Cooldown Tracking
+// ─────────────────────────────────────────────────────────────────────────────
+var int lastSellBar = na
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Exit Reason  (for on-chart label)
+// ─────────────────────────────────────────────────────────────────────────────
+var string exitReason = na
+if strategy.position_size > 0
+    if isCrossExit
+        exitReason := "EMA Cross"
+    else if isAtrExit
+        exitReason := "ATR Exit"
+    else if isQuickExit
+        exitReason := "Quick EMA"
+    else if isTrailExit
+        exitReason := "Trail Stop"
+    else if isTemaExit
+        exitReason := "TEMA Slope"
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Unified Exit
+// All exits flow through allowExit, consistent with existing ATR/Quick behavior.
+// Exits are suppressed during a Donchian sideways window when that filter is on.
+// Disable the Sideways Filter (Group 4) if you want exits to fire unconditionally.
+// ─────────────────────────────────────────────────────────────────────────────
+allowExit = not (enableSidewaysFilter and sideways)
+exitCond  = strategy.position_size > 0 and allowExit and
+     (isCrossExit or isAtrExit or isQuickExit or isTrailExit or isTemaExit)
+
+if exitCond
+    strategy.close("Long")
+    lastSellBar := bar_index
+    label.new(bar_index, high, exitReason,
+              yloc=yloc.abovebar,
+              style=label.style_label_down,
+              color=color.red, textcolor=color.white, size=size.tiny)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Entry with Cooldown
+// ─────────────────────────────────────────────────────────────────────────────
+canEnter = strategy.position_size == 0 and
+     (not enableSellCooldown or na(lastSellBar) or (bar_index - lastSellBar) > sellCooldownBars)
+if buyOk and canEnter
+    strategy.entry("Long", strategy.long)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Background Shading  (no-trade zones)
+// ─────────────────────────────────────────────────────────────────────────────
+temaZone     = (enableSlopeFilter and temaSlope <= 0) or (enableBelowFilter and close < tema)
+sidewaysZone = enableSidewaysFilter and sideways
+bgcolor(temaZone     ? color.new(color.red,    90) : na)
+bgcolor(sidewaysZone ? color.new(color.orange, 90) : na)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Plot EMAs
+// ─────────────────────────────────────────────────────────────────────────────
+plot(emaShort, title="Short EMA",  color=color.new(color.orange, 0))
+plot(emaMed,   title="Medium EMA", color=color.new(color.teal,   0))
+plot(emaLong,  title="Long EMA",   color=color.new(color.purple, 0))
+plot(emaTrend, title="Trend EMA",  color=color.new(color.white,  80))
+plot(quickEma, title="Quick EMA",  color=color.new(#ff0000,      60))
+plot(tema,     title="Triple EMA", color=color.new(color.yellow, 0))
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Plot Trailing Stop Level
+// Visible on chart when enabled and in a position. Ratchets upward with price.
+// ─────────────────────────────────────────────────────────────────────────────
+trailStopLevel = enableTrailStop and strategy.position_size > 0 and not na(peakSinceEntry)
+     ? peakSinceEntry * (1 - trailDropPct / 100)
+     : na
+plot(trailStopLevel, title="Trail Stop Level",
+     color=color.new(color.red, 20), style=plot.style_linebr, linewidth=1)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Conviction Slider  (Group 9)
+// Visual-only. Shows proximity to nearest exit trigger (in position) or
+// weakest entry gate (flat). Driven by tanh normalization — center gap is
+// the flip point between failing and passing.
+// ─────────────────────────────────────────────────────────────────────────────
+_tanh(x) =>
+    e2x = math.exp(2.0 * x)
+    (e2x - 1.0) / (e2x + 1.0)
+
+// Exit gate proximities (positive = safe distance, 0 = at trigger)
+crossDist  = emaLong != 0 ? (emaShort - emaLong) / emaLong : 0.0
+crossNorm  = _tanh(crossDist / sliderCrossThresh)
+
+atrFloor   = nz(close[1], close) - atr * atrMultiplier
+atrDist    = atr * atrMultiplier != 0 ? (close - atrFloor) / (atr * atrMultiplier) : 1.0
+atrNorm    = _tanh(atrDist / sliderAtrThresh)
+
+quickDistRaw = math.abs(quickDeltaPctThresh) != 0 ? (quickDeltaPct - quickDeltaPctThresh) / math.abs(quickDeltaPctThresh) : 1.0
+quickNorm    = _tanh(quickDistRaw / sliderQuickThresh)
+
+// Entry gate proximities
+buyDist    = emaMed != 0 ? (emaShort - emaMed) / emaMed : 0.0
+buyNorm    = _tanh(buyDist / sliderBuyThresh)
+trendNorm  = _tanh(trendSlope / sliderTrendThresh)
+
+// Composite slider value
+float exitSlider = 1.0
+if enableATRExit
+    exitSlider := math.min(exitSlider, atrNorm)
+if enableQuickExit
+    exitSlider := math.min(exitSlider, quickNorm)
+exitSlider := math.min(exitSlider, crossNorm)
+
+float entrySlider = 1.0
+entrySlider := math.min(entrySlider, buyNorm)
+if enableTrend
+    entrySlider := math.min(entrySlider, trendNorm)
+
+sliderVal = strategy.position_size > 0 ? exitSlider : entrySlider
+
+// Driver label (weakest gate)
+string driverName  = "—"
+float  driverValue = 0.0
+
+if strategy.position_size > 0
+    driverName  := "EMA Cross"
+    driverValue := crossNorm
+    if enableATRExit and atrNorm < driverValue
+        driverName  := "ATR"
+        driverValue := atrNorm
+    if enableQuickExit and quickNorm < driverValue
+        driverName  := "Quick EMA"
+        driverValue := quickNorm
+else
+    driverName  := "Buy Zone"
+    driverValue := buyNorm
+    if enableTrend and trendNorm < driverValue
+        driverName  := "Trend"
+        driverValue := trendNorm
+
+// Slider table rendering
+int   SLIDER_COLS = 21
+int   MID_COL     = 10
+float CELL_W      = 1.2
+float GAP_W       = 0.4
+var table sliderTable = table.new(position.top_right, SLIDER_COLS, 4,
+     border_width=0, frame_width=0)
+
+if enableSlider and barstate.islast
+    int sliderIdx = 0
+    if sliderVal <= 0.0
+        sliderIdx := int(math.round((sliderVal + 1.0) * 9.0))
+        sliderIdx := math.max(0, math.min(9, sliderIdx))
+    else
+        sliderIdx := 11 + int(math.round(sliderVal * 9.0))
+        sliderIdx := math.max(11, math.min(20, sliderIdx))
+
+    // Row 0: sideways badge
+    for c = 0 to SLIDER_COLS - 1
+        float w = c == MID_COL ? GAP_W : CELL_W
+        table.cell(sliderTable, c, 0, "", bgcolor=color.new(color.black, 100),
+             text_size=size.small, width=w)
+    if enableSidewaysFilter and sideways
+        table.cell(sliderTable, SLIDER_COLS - 1, 0, "△ SIDEWAYS",
+             text_color=color.yellow, bgcolor=color.new(color.black, 100),
+             text_size=size.small, text_halign=text.align_right, width=CELL_W)
+
+    // Row 1: gradient bar
+    for c = 0 to SLIDER_COLS - 1
+        if c == MID_COL
+            table.cell(sliderTable, c, 1, "",
+                 bgcolor=color.new(color.black, 100), text_size=size.normal, width=GAP_W)
+        else
+            float pct = 0.0
+            if c < MID_COL
+                pct := c / 9.0 * 0.5
+            else
+                pct := 0.5 + (c - 11.0) / 9.0 * 0.5
+            int r = 0
+            int g = 0
+            if pct < 0.5
+                r := 255
+                g := int(math.round(pct * 2.0 * 255))
+            else
+                r := int(math.round((1.0 - pct) * 2.0 * 255))
+                g := 255
+            color barColor = color.rgb(r, g, 0)
+            string cellText = c == sliderIdx ? "●" : ""
+            color  textCol  = c == sliderIdx ? color.white : color.new(color.white, 100)
+            table.cell(sliderTable, c, 1, cellText,
+                 text_color=textCol, bgcolor=barColor, text_size=size.normal, width=CELL_W)
+
+    // Row 2: pointer arrow
+    for c = 0 to SLIDER_COLS - 1
+        float w = c == MID_COL ? GAP_W : CELL_W
+        string arrowText = c == sliderIdx ? "▲" : ""
+        color  arrowCol  = c == sliderIdx ? color.white : color.new(color.white, 100)
+        table.cell(sliderTable, c, 2, arrowText,
+             text_color=arrowCol, bgcolor=color.new(color.black, 100),
+             text_size=size.small, width=w)
+
+    // Row 3: driver label
+    string driverText = "Driver: " + driverName + "  " + str.tostring(driverValue, "#.##")
+    for c = 0 to SLIDER_COLS - 1
+        float w = c == MID_COL ? GAP_W : CELL_W
+        table.cell(sliderTable, c, 3, "", bgcolor=color.new(color.black, 100),
+             text_size=size.small, width=w)
+    table.cell(sliderTable, 0, 3, driverText,
+         text_color=color.gray, bgcolor=color.new(color.black, 100),
+         text_size=size.small, text_halign=text.align_left, width=CELL_W)
