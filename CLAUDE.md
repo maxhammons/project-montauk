@@ -123,7 +123,7 @@ The `/spike` skill runs a continuous strategy optimization loop. It uses a Pytho
 
 ### How to use
 
-1. **Install deps** (first time only): `pip3 install pandas numpy yfinance requests`
+1. **Install deps** (first time only): `pip3 install pandas numpy requests`
 2. **Run `/spike`** in Claude Code — this kicks off the multi-phase optimization loop
 3. All output goes to `remote/` — **the active strategy is never modified**
 4. Winning configurations are output as ready-to-paste Pine Script v6

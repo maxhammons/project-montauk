@@ -8,7 +8,7 @@ Run a multi-phase optimization loop on the Montauk trading strategy. This proces
 
 Before starting, install dependencies if needed:
 ```bash
-cd /home/user/project-montauk && pip3 install pandas numpy yfinance requests 2>/dev/null
+cd /home/user/project-montauk && pip3 install pandas numpy requests 2>/dev/null
 ```
 
 ## Phase 0 — Establish Baseline
