@@ -1,198 +1,297 @@
 # /spike — Continuous Strategy Optimization
 
-Run a multi-phase optimization loop on the Montauk trading strategy. This process proposes improvements, backtests them, validates against overfitting, and produces a report with the best candidates as ready-to-paste Pine Script.
+Autonomous optimization loop for Montauk. Runs unattended for hours. Never modifies active strategy files — all output goes to `remote/`.
 
-**This is a READ-ONLY process** — it never modifies files in `src/strategy/active/` or `src/indicator/active/`. All output goes to `remote/`.
+## Critical Rules for Unattended Operation
 
-## Prerequisites
+1. **WRITE STATE TO DISK AFTER EVERY STEP.** Context will compress during long sessions. After every sweep, test, or validation, append results to `remote/spike-state.json` using the Python helper below. When resuming after context compression, ALWAYS read this file first.
 
-Before starting, install dependencies if needed:
+2. **NEVER modify files outside `remote/` and `scripts/`.** Do not touch `src/strategy/active/`, `src/indicator/active/`, `CLAUDE.md`, or `backtest_engine.py`. If you want to test structural changes, copy `backtest_engine.py` to `scripts/backtest_engine_experimental.py` and modify that copy.
+
+3. **NEVER stop to ask the user a question.** Make decisions autonomously using the rules below. If something fails, log it to state and move on.
+
+4. **SAVE the report incrementally.** Write/update `remote/optimization-YYYY-MM-DD.md` after EACH phase completes, not just at the end.
+
+## Setup (run once at start)
+
 ```bash
 cd /home/user/project-montauk && pip3 install pandas numpy requests 2>/dev/null
 ```
 
-## Phase 0 — Establish Baseline
+Initialize the state file:
 
-Run the baseline backtest first. This is what every candidate is measured against.
+```bash
+python3 -c "
+import json, os
+from datetime import datetime
+state = {
+    'started': datetime.now().isoformat(),
+    'phase': 0,
+    'baseline': {},
+    'sweep_winners': {},
+    'toggle_results': {},
+    'candidates': [],
+    'validated': [],
+    'best_config': {},
+    'iteration': 0
+}
+os.makedirs('remote', exist_ok=True)
+with open('remote/spike-state.json', 'w') as f:
+    json.dump(state, f, indent=2)
+print('State initialized')
+"
+```
+
+## State Management
+
+After EVERY meaningful result, update the state file. Use this pattern:
+
+```bash
+python3 -c "
+import json
+with open('remote/spike-state.json') as f:
+    state = json.load(f)
+# Example: state['sweep_winners']['atr_multiplier'] = {'best_value': 3.0, 'best_mar': 0.51}
+# Example: state['phase'] = 2
+with open('remote/spike-state.json', 'w') as f:
+    json.dump(state, f, indent=2)
+"
+```
+
+If you have lost context (e.g. after compression), read the state file FIRST:
+
+```bash
+python3 -c "
+import json
+with open('remote/spike-state.json') as f:
+    state = json.load(f)
+print(json.dumps(state, indent=2))
+"
+```
+
+## Phase 0 — Baseline
 
 ```bash
 cd /home/user/project-montauk && python3 scripts/run_optimization.py baseline
 ```
 
-Record the baseline MAR ratio, CAGR, max drawdown, and trade count. These are the numbers to beat.
+Save baseline metrics to state. These are the numbers to beat:
+- `baseline.mar_ratio`
+- `baseline.cagr_pct`
+- `baseline.max_drawdown_pct`
+- `baseline.num_trades`
 
-## Phase 1 — Parameter Sweeps (find the low-hanging fruit)
+Update state: `state['baseline'] = {mar, cagr, max_dd, trades}`, `state['phase'] = 1`.
+Write the first section of the report to `remote/optimization-YYYY-MM-DD.md`.
 
-Sweep each key parameter one at a time. Run these sweeps and look for improvements:
+## Phase 1 — Parameter Sweeps
+
+Run each sweep. After EACH sweep, immediately save the best value to state.
+
+**Decision rule**: A sweep winner is the value with the highest MAR ratio, BUT only if:
+- MAR > baseline MAR (or within 2% of it)
+- Trades >= 8 (reject if too few trades — likely overfit)
+- Trades/year < 5 (reject if churning)
+
+Sweeps to run (one at a time):
 
 ```bash
-# EMA lengths
 python3 scripts/run_optimization.py sweep --param short_ema_len --min 5 --max 25 --step 2
 python3 scripts/run_optimization.py sweep --param med_ema_len --min 15 --max 60 --step 5
 python3 scripts/run_optimization.py sweep --param long_ema_len --min 200 --max 800 --step 50
-
-# Trend filter
 python3 scripts/run_optimization.py sweep --param trend_ema_len --min 30 --max 120 --step 10
 python3 scripts/run_optimization.py sweep --param slope_lookback --min 3 --max 20 --step 2
-
-# ATR exit
 python3 scripts/run_optimization.py sweep --param atr_period --min 10 --max 60 --step 5
 python3 scripts/run_optimization.py sweep --param atr_multiplier --min 1.5 --max 5.0 --step 0.5
-
-# Quick EMA exit
 python3 scripts/run_optimization.py sweep --param quick_ema_len --min 5 --max 25 --step 2
 python3 scripts/run_optimization.py sweep --param quick_lookback_bars --min 2 --max 10 --step 1
 python3 scripts/run_optimization.py sweep --param quick_delta_pct_thresh --min -15.0 --max -3.0 --step 1.0
-
-# Sideways filter
 python3 scripts/run_optimization.py sweep --param range_len --min 20 --max 100 --step 10
 python3 scripts/run_optimization.py sweep --param max_range_pct --min 10 --max 50 --step 5
-
-# Cooldown
 python3 scripts/run_optimization.py sweep --param sell_cooldown_bars --min 0 --max 10 --step 1
+python3 scripts/run_optimization.py sweep --param sell_confirm_bars --min 1 --max 5 --step 1
 ```
 
-After each sweep, note which values produced the best MAR ratio. Don't combine winners yet — just collect them.
+After ALL sweeps: save state, update report, advance to Phase 2.
 
 ## Phase 2 — Toggle Experiments
 
-Test enabling/disabling optional filters:
+Test enabling/disabling each optional filter. Run each test and compare MAR to baseline.
 
 ```bash
-# Enable TEMA slope filter
+python3 scripts/run_optimization.py test --params '{"enable_sell_confirm": false}'
 python3 scripts/run_optimization.py test --params '{"enable_slope_filter": true}'
-
-# Enable price-below-TEMA filter
 python3 scripts/run_optimization.py test --params '{"enable_below_filter": true}'
-
-# Both TEMA filters
 python3 scripts/run_optimization.py test --params '{"enable_slope_filter": true, "enable_below_filter": true}'
-
-# Enable trailing stop at various levels
+python3 scripts/run_optimization.py test --params '{"enable_trail_stop": true, "trail_drop_pct": 15}'
 python3 scripts/run_optimization.py test --params '{"enable_trail_stop": true, "trail_drop_pct": 20}'
 python3 scripts/run_optimization.py test --params '{"enable_trail_stop": true, "trail_drop_pct": 25}'
 python3 scripts/run_optimization.py test --params '{"enable_trail_stop": true, "trail_drop_pct": 30}'
-
-# Enable TEMA slope exit
+python3 scripts/run_optimization.py test --params '{"enable_tema_exit": true, "tema_exit_lookback": 3}'
 python3 scripts/run_optimization.py test --params '{"enable_tema_exit": true, "tema_exit_lookback": 5}'
 python3 scripts/run_optimization.py test --params '{"enable_tema_exit": true, "tema_exit_lookback": 10}'
-
-# Disable sideways filter (it suppresses exits too)
 python3 scripts/run_optimization.py test --params '{"enable_sideways_filter": false}'
-
-# Disable sell confirmation (fix known EMA cross bug)
-python3 scripts/run_optimization.py test --params '{"enable_sell_confirm": false}'
 ```
+
+**Decision rule**: A toggle is "helpful" if candidate MAR > baseline MAR. Record all results to state.
+
+Save state, update report, advance to Phase 3.
 
 ## Phase 3 — Combine Winners
 
-Take the top 3-5 individual improvements from Phase 1-2 and combine them. Test the combined configuration:
+Build combined configurations from Phase 1-2 winners.
 
+**Decision rules for combining**:
+1. Start with the single biggest MAR improver from Phase 1.
+2. Layer on the second-biggest improver. Test the combination.
+3. If the combination MAR > either individual MAR, keep it and add the third.
+4. If the combination MAR < either individual, drop the second and try the third instead.
+5. Continue until adding more changes stops helping.
+6. Layer on any helpful toggles from Phase 2.
+
+Test each combination:
 ```bash
-# Example: combine best short_ema_len + best atr_multiplier + TEMA filter
-python3 scripts/run_optimization.py test --params '{"short_ema_len": <best>, "atr_multiplier": <best>, "enable_slope_filter": true}'
+python3 scripts/run_optimization.py test --params '{"param1": val1, "param2": val2, ...}'
 ```
 
-If the combination is better than baseline, proceed to validation.
+**Keep the top 3 combinations** that beat baseline. Save them to `state['candidates']`.
+
+Save state, update report, advance to Phase 4.
 
 ## Phase 4 — Walk-Forward Validation
 
-Every candidate that beats baseline must pass walk-forward validation. This is the overfitting check.
+Validate EACH candidate from Phase 3:
 
 ```bash
-python3 scripts/run_optimization.py validate --params '{"short_ema_len": <best>, ...}'
+python3 scripts/run_optimization.py validate --params '{"param1": val1, ...}'
 ```
 
-A candidate PASSES validation if:
-- MAR ratio improves (or stays equal) across ALL time windows
-- Has at least 3 trades per window
-- Results are consistent across train and test periods
+**Decision rules**:
+- **PASS**: Validation says "PASS", consistent_improvement is True or MAR improves in majority of windows
+- **FAIL**: Validation says "FAIL", or MAR is worse in 2+ windows, or trades < 3 in any window
 
-A candidate FAILS if:
-- Great on train, bad on test (overfit)
-- Only improves in one time window
-- Very few trades (lucky runs)
+Move passing candidates to `state['validated']`. Drop failures.
 
-**Run stability check on final candidates only** (it's slow):
+If ANY candidates pass, save state, update report, advance to Phase 5.
+If NO candidates pass, go to Phase 5 (Refinement) anyway.
+
+## Phase 5 — Refinement Loop
+
+This is where the hours of runtime pay off. Go back and dig deeper.
+
+### 5a — Narrow sweeps around winners
+For each Phase 1 winner, re-sweep with 5x finer resolution:
+- If best `atr_multiplier` was 3.0 (step 0.5), re-sweep 2.0-4.0 step 0.1
+- If best `short_ema_len` was 11 (step 2), re-sweep 8-14 step 1
+
+### 5b — Cross-parameter interactions
+Test pairs of parameters that might interact:
+- `short_ema_len` × `med_ema_len` (entry timing)
+- `atr_multiplier` × `atr_period` (exit sensitivity)
+- `quick_delta_pct_thresh` × `quick_lookback_bars` (momentum exit)
+
+Use multi-sweep:
 ```bash
-python3 scripts/run_optimization.py validate --params '...' --stability
+python3 scripts/run_optimization.py multi-sweep --spec '{"short_ema_len": [10,12,14,16], "med_ema_len": [20,25,30,35,40]}'
 ```
 
-## Phase 5 — Structural Experiments
+### 5c — New combinations from refined values
+Build new candidates from refined winners. Test and validate (Phase 3-4 again).
 
-If parameter tuning hits a ceiling, try structural changes by modifying `scripts/backtest_engine.py` directly. Ideas to explore:
+### 5d — Loop decision
+After each refinement cycle, increment `state['iteration']`.
 
-1. **Fix the EMA Cross exit bug**: Remove `rawSell` from exit condition (it requires crossunder AND confirmation, which are mutually exclusive with sellConfirmBars >= 2)
-2. **Adaptive ATR multiplier**: Tighten in high-vol regimes, loosen in low-vol
-3. **Oscillator-gated exit**: Exit faster when composite oscillator < -0.5
-4. **Multi-timeframe trend**: Add weekly EMA confirmation to entry
-5. **Regime-aware parameters**: Different EMA lengths in high-vol vs low-vol
+**CONTINUE looping if**:
+- The latest iteration found a new validated candidate better than the previous best
+- Total runtime < 8 hours
+- There are still untested parameter interactions
 
-For each structural change:
-1. Modify `backtest_engine.py` (add the new logic + parameter)
-2. Run baseline comparison
-3. If promising, run full validation
-4. If it passes, generate Pine Script equivalent
+**STOP looping if**:
+- Two consecutive iterations produced no improvement
+- All major parameter pairs have been tested
+- Already have 3+ validated candidates
 
-**IMPORTANT**: After structural experiments, restore `backtest_engine.py` to its original state before trying the next experiment. Keep changes isolated.
+## Phase 6 — Generate Output
 
-## Phase 6 — Generate Report and Pine Script
+For each validated candidate:
 
-For every candidate that passes validation, generate a report and Pine Script:
-
+1. Generate Pine Script:
 ```bash
-# Generate Pine Script for the winner
-python3 scripts/generate_pine.py '{"short_ema_len": <best>, ...}' "9.0-candidate-1"
+python3 scripts/generate_pine.py '{"param1": val1, ...}' "9.0-candidate-N"
 ```
 
-Save the final report to `remote/`:
-- `remote/optimization-YYYY-MM-DD.md` — Full report with all results
-- `remote/candidate-YYYY-MM-DD.txt` — Pine Script ready to paste into TradingView
+2. Save Pine Script to `remote/candidate-YYYY-MM-DD-N.txt`
 
-## Report Format
-
-The optimization report saved to `remote/` should include:
+3. Finalize the report in `remote/optimization-YYYY-MM-DD.md` with:
 
 ```markdown
 # Montauk Optimization Report — YYYY-MM-DD
 
 ## Baseline (8.2 defaults)
-CAGR: X%  MaxDD: X%  MAR: X  Trades: X
+| Metric | Value |
+|--------|-------|
+| CAGR | X% |
+| Max Drawdown | X% |
+| MAR | X |
+| Trades | X |
 
-## Phase 1 Results — Parameter Sweeps
-[Table of best value for each parameter]
+## Phase 1 — Parameter Sweep Results
+| Parameter | Baseline Value | Best Value | Baseline MAR | Best MAR | Delta |
+|-----------|---------------|------------|-------------|---------|-------|
 
-## Phase 2 Results — Toggle Experiments
-[Which filters helped/hurt]
+## Phase 2 — Toggle Experiments
+| Configuration | MAR | vs Baseline |
+|--------------|-----|------------|
 
-## Phase 3 Results — Combined Candidates
-[Top 3 combined configs with metrics]
+## Phase 3 — Top Combined Candidates
+| Candidate | Config | MAR | CAGR | MaxDD |
+|-----------|--------|-----|------|-------|
 
 ## Phase 4 — Validation Results
-[Walk-forward results for each candidate]
+| Candidate | Walk-Forward | Named Windows | Stability | Verdict |
+|-----------|-------------|---------------|-----------|---------|
+
+## Phase 5 — Refinement Results
+[Narrowed sweep results, cross-parameter findings]
 
 ## Winning Configuration
-[Final params that passed validation]
-[Comparison table vs baseline]
+[Best validated params with full comparison to baseline]
 
 ## Pine Script
-[Full script or file reference]
+See: remote/candidate-YYYY-MM-DD-N.txt
+
+## Iteration Log
+[How many loops, what was tried, what worked]
 ```
 
-## Optimization Principles
+4. Commit results:
+```bash
+cd /home/user/project-montauk
+git add remote/
+git commit -m "Add /spike optimization results — YYYY-MM-DD"
+git push -u origin main
+```
 
-1. **One change at a time** in Phase 1-2. Only combine after individual testing.
-2. **MAR ratio is king** — it balances return vs risk. CAGR alone is misleading.
-3. **Trades/year should stay low** (under 5). High churn = overfitting to noise.
-4. **Avg hold time should stay high** (50+ bars). This is a trend system, not a scalper.
-5. **Check the bear market windows** — the strategy's job is to AVOID the 2021-22 bear. If a change improves bull returns but holds through the bear, reject it.
-6. **Be skeptical of big improvements** — if MAR doubles, it's probably overfit. Look for 10-30% improvements that are consistent.
-7. **The EMA Cross exit bug is real** — fixing it is likely the single biggest improvement available. Try it early.
+## Decision Quick Reference
 
-## Loop Behavior
+| Situation | Action |
+|-----------|--------|
+| Sweep value has MAR > baseline but < 8 trades | REJECT (overfit) |
+| Sweep value has MAR > baseline but trades/yr > 5 | REJECT (churning) |
+| Combined config MAR < individual winner MARs | DROP the weaker addition |
+| Validation fails on 1 window but passes others | PASS with note |
+| Validation fails on 2+ windows | FAIL — reject candidate |
+| Two iterations with no improvement | STOP refinement |
+| Context feels compressed / lost track | READ spike-state.json |
+| Python script errors | Log error to state, skip that test, continue |
+| Something unexpected happens | Log it, move to next step |
 
-When invoked with `/spike`, run through Phases 0-4 systematically. After each phase, summarize findings before proceeding. If a phase produces no improvements, note that and move on.
+## Anti-Overfitting Principles
 
-The goal is to run for as long as it takes to find genuine, validated improvements. Don't rush to Phase 6 — thoroughness matters more than speed.
-
-If running in a long session, cycle back through Phase 1-3 with narrower ranges around promising values. For example, if `atr_multiplier=2.5` was best in the first sweep (range 1.5-5.0, step 0.5), re-sweep 2.0-3.0 with step 0.1.
+1. **MAR ratio is the primary metric** (CAGR / Max Drawdown). Not CAGR alone.
+2. **Trades must stay low** (< 5/year). This is a trend system, not a scalper.
+3. **Hold time must stay high** (50+ bars average). Short holds = noise trading.
+4. **Be skeptical of big improvements.** If MAR doubles, it's probably overfit. Target 10-30% improvements.
+5. **The 2021-22 bear is the key test.** If a change improves bull returns but holds through the bear, reject it.
+6. **Validation is non-negotiable.** No candidate ships without walk-forward validation.
+7. **One change at a time in sweeps.** Only combine after individual testing.

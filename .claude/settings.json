@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill",
+      "Bash(python3 scripts/*)",
+      "Bash(pip3 install *)",
+      "Bash(cd /home/user/project-montauk*)",
+      "Bash(cat /home/user/project-montauk/remote/*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(git status*)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git checkout *)",
+      "Bash(git branch*)",
+      "Read",
+      "Write(/remote/**)",
+      "Edit(/remote/**)",
+      "Edit(/scripts/**)",
+      "Write(/scripts/**)"
+    ]
+  }
+}
