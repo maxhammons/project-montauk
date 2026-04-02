@@ -68,27 +68,39 @@ NAMED_WINDOWS = {
 }
 
 
-def split_walk_forward(df: pd.DataFrame, n_windows: int = 3,
-                       train_pct: float = 0.70) -> list[tuple[pd.DataFrame, pd.DataFrame]]:
+def split_walk_forward(df: pd.DataFrame) -> list[tuple[pd.DataFrame, pd.DataFrame]]:
     """
-    Split data into walk-forward train/test windows.
-    Returns list of (train_df, test_df) tuples.
+    Non-overlapping expanding-window walk-forward splits.
+
+    The TEST data includes all data from the start (for indicator warmup)
+    through the test end. We only EVALUATE performance on bars after
+    the train cutoff, but the backtest engine needs the full history
+    to initialize EMAs correctly.
+
+    The train set is used to verify the strategy works in-sample.
+    The test set is the FULL dataset up to the test end — the backtest
+    engine's warmup period handles the rest.
     """
-    n = len(df)
-    window_size = n // n_windows
+    # Each tuple: (train_end, test_end)
+    # Train always starts from the beginning of data
+    # Test window = train_end to test_end
+    # But test DataFrame includes all data up to test_end (for warmup)
+    boundaries = [
+        ("2018-01-01", "2020-01-01"),
+        ("2020-01-01", "2022-01-01"),
+        ("2022-01-01", "2024-01-01"),
+        ("2024-01-01", "2027-01-01"),
+    ]
     splits = []
-
-    for w in range(n_windows):
-        start = w * (window_size // 2)  # Overlapping windows
-        end = min(start + window_size, n)
-        if end - start < 500:  # Need minimum bars for meaningful backtest
-            continue
-        split_idx = start + int((end - start) * train_pct)
-        train = df.iloc[start:split_idx].reset_index(drop=True)
-        test = df.iloc[split_idx:end].reset_index(drop=True)
-        if len(train) > 200 and len(test) > 50:
+    for train_end, test_end in boundaries:
+        # Train: all data before train_end
+        train = df[df["date"] < train_end].reset_index(drop=True)
+        # Test: all data up to test_end (includes warmup history)
+        # The backtest runs on the full set; we compare metrics to
+        # the train-only run to see if the strategy generalizes
+        test = df[df["date"] < test_end].reset_index(drop=True)
+        if len(train) > 500 and len(test) > len(train) + 100:
             splits.append((train, test))
-
     return splits
 
 

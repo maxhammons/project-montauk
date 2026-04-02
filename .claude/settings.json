@@ -3,9 +3,12 @@
     "allow": [
       "Skill",
       "Bash(python3 scripts/*)",
+      "Bash(python3 -c *)",
       "Bash(pip3 install *)",
       "Bash(cd /home/user/project-montauk*)",
       "Bash(cat /home/user/project-montauk/remote/*)",
+      "Bash(mkdir *)",
+      "Bash(cp *)",
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git push *)",

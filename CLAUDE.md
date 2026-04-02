@@ -11,12 +11,13 @@ Project Montauk/
 │   ├── Montauk Charter.md               # Coding rules, guardrails, and evaluation criteria
 │   └── pinescriptv6-main/               # Pine Script v6 reference (structured repo)
 ├── scripts/                   # Python backtesting & optimization tools
-│   ├── data.py                # TECL data fetcher (yfinance + CSV fallback)
+│   ├── data.py                # TECL data fetcher (Yahoo Finance API + CSV merge)
 │   ├── backtest_engine.py     # Python replica of Montauk 8.2 strategy logic
 │   ├── validation.py          # Walk-forward validation & anti-overfitting
-│   ├── run_optimization.py    # CLI runner for backtests, sweeps, validation
+│   ├── run_optimization.py    # CLI runner for backtests, sweeps, grid search
+│   ├── spike_state.py         # State management for /spike (crash-safe JSON)
 │   ├── generate_pine.py       # Convert winning params back to Pine Script v6
-│   └── requirements.txt       # Python deps: pandas, numpy, yfinance
+│   └── requirements.txt       # Python deps: pandas, numpy, requests
 ├── .claude/skills/
 │   └── spike.md               # /spike skill — continuous optimization loop
 └── src/
@@ -140,12 +141,22 @@ python3 scripts/run_optimization.py test --params '{"short_ema_len": 12}'
 # Sweep a single parameter
 python3 scripts/run_optimization.py sweep --param atr_multiplier --min 1.5 --max 5.0 --step 0.5
 
+# Grid search (parameter interactions)
+python3 scripts/run_optimization.py grid --spec '{"short_ema_len": [10,15], "med_ema_len": [25,30]}'
+
 # Walk-forward validation (anti-overfitting)
 python3 scripts/run_optimization.py validate --params '{"short_ema_len": 12}'
 
 # Generate Pine Script from params
 python3 scripts/generate_pine.py '{"short_ema_len": 12}' "9.0-candidate"
+
+# State management (used by /spike)
+python3 scripts/spike_state.py init           # fresh state
+python3 scripts/spike_state.py read           # print current state
+python3 scripts/spike_state.py elapsed        # hours since start
 ```
+
+All commands output a `###JSON###` line at the end for machine parsing.
 
 ### Key metrics (from Charter)
 
