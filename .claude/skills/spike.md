@@ -2,6 +2,17 @@
 
 Autonomous optimization loop for Montauk. Runs unattended for hours. Never modifies active strategy files — all output goes to `remote/`.
 
+## Goal
+
+Montauk's purpose is **regime timing**: be in during bull markets, be out during bears and flat periods. By skipping the down legs, the strategy aims to beat buy-and-hold even without perfect timing. Perfect timing is impossible — close-enough timing across big swings is the target.
+
+The primary metric is **Regime Score** (0.0–1.0):
+- **Bull Capture Ratio**: fraction of each detected bull leg the strategy participated in
+- **Bear Avoidance Ratio**: fraction of each detected bear leg the strategy sat out
+- **Composite**: `0.5 × bull_capture + 0.5 × bear_avoidance`
+
+A regime score improvement means the strategy is better at catching upswings and/or dodging downswings. MAR (CAGR/MaxDD) is tracked as a secondary sanity check but is NOT the optimization target.
+
 ## Critical Rules for Unattended Operation
 
 1. **WRITE STATE AFTER EVERY STEP.** Use `python3 scripts/spike_state.py` for all state operations. Context WILL compress during long sessions. After every sweep/test/validation, save results to state immediately.
@@ -33,7 +44,7 @@ Extract the `###JSON###` line. Save to state:
 
 ```bash
 python3 scripts/spike_state.py set phase 1
-python3 scripts/spike_state.py set-json baseline '{"mar": 0.XX, "cagr": XX.X, "max_dd": XX.X, "trades": N}'
+python3 scripts/spike_state.py set-json baseline '{"regime_score": 0.XXX, "bull_capture": 0.XXX, "bear_avoidance": 0.XXX, "mar": 0.XX, "cagr": XX.X, "max_dd": XX.X, "trades": N}'
 ```
 
 Write baseline section to `remote/optimization-YYYY-MM-DD.md`. Then:
@@ -62,10 +73,10 @@ python3 scripts/run_optimization.py sweep --param sell_cooldown_bars --min 0 --m
 python3 scripts/run_optimization.py sweep --param sell_confirm_bars --min 1 --max 5 --step 1
 ```
 
-The JSON output includes `filtered_best` which already applies quality filters (min trades, max churn). After each sweep, if `filtered_best.improves` is true, save the winner:
+The JSON output includes `filtered_best` which already applies quality filters (min trades, max churn). After each sweep, if `filtered_best.improves` is true (regime score improved), save the winner:
 
 ```bash
-python3 scripts/spike_state.py set-json sweep_winners '{"PARAM_NAME": {"best_value": X, "best_mar": X.XXX, "baseline_mar": X.XXX}}'
+python3 scripts/spike_state.py set-json sweep_winners '{"PARAM_NAME": {"best_value": X, "best_score": X.XXX, "baseline_score": X.XXX, "best_bull_capture": X.XXX, "best_bear_avoidance": X.XXX}}'
 ```
 
 After ALL sweeps: update report, advance phase:
@@ -91,10 +102,10 @@ python3 scripts/run_optimization.py test --params '{"enable_tema_exit": true, "t
 python3 scripts/run_optimization.py test --params '{"enable_sideways_filter": false}'
 ```
 
-JSON output has `"better": true/false` and `"mar_delta"`. Save results:
+JSON output has `"better": true/false` and `"regime_score_delta"`. A toggle is "better" if it improves regime score. Save results:
 
 ```bash
-python3 scripts/spike_state.py set-json toggle_results '{"DESCRIPTION": {"params": {...}, "mar_delta": X.XXX, "better": true}}'
+python3 scripts/spike_state.py set-json toggle_results '{"DESCRIPTION": {"params": {...}, "regime_score_delta": X.XXX, "better": true}}'
 ```
 
 After all toggles: update report, advance:
@@ -108,20 +119,21 @@ python3 scripts/spike_state.py append report_sections_written '"phase2"'
 Build combined configurations. Follow these steps EXACTLY:
 
 1. Read state: `python3 scripts/spike_state.py get sweep_winners` and `python3 scripts/spike_state.py get toggle_results`
-2. Sort sweep winners by `(best_mar - baseline_mar)` descending. Discard any where improvement <= 0.
-3. Sort toggle results by `mar_delta` descending. Keep only those where `better` is true.
+2. Sort sweep winners by `(best_score - baseline_score)` descending. Discard any where improvement <= 0.
+3. Sort toggle results by `regime_score_delta` descending. Keep only those where `better` is true.
 4. Start with the top sweep winner as the base config.
 5. Add the second sweep winner. Test the combination:
    ```bash
    python3 scripts/run_optimization.py test --params '{"param1": val1, "param2": val2}'
    ```
-6. If combination MAR > either individual MAR: KEEP. Add the third winner and test again.
-7. If combination MAR < either individual MAR: DROP the second, try the third instead.
-8. After exhausting sweep winners (or 5 layers max), add helpful toggles one at a time.
-9. Save the top 3 combinations to state as candidates:
-   ```bash
-   python3 scripts/spike_state.py append candidates '{"params": {...}, "mar": X.XXX, "cagr": XX.X, "max_dd": XX.X}'
-   ```
+6. If combination regime score > either individual score: KEEP. Add the third winner and test again.
+7. If combination regime score < either individual score: DROP the second, try the third instead.
+8. After exhausting sweep winners (or 5 layers max), add helpful toggles one at a time using the same logic.
+9. When evaluating combinations, also check bull_capture and bear_avoidance separately — prefer a combination that improves both over one that maximizes one at the expense of the other.
+10. Save the top 3 combinations to state as candidates:
+    ```bash
+    python3 scripts/spike_state.py append candidates '{"params": {...}, "regime_score": X.XXX, "bull_capture": X.XXX, "bear_avoidance": X.XXX, "mar": X.XXX, "cagr": XX.X, "max_dd": XX.X}'
+    ```
 
 Update report, advance:
 ```bash
@@ -137,14 +149,16 @@ Validate each candidate:
 python3 scripts/run_optimization.py validate --params '{"param1": val1, ...}'
 ```
 
-JSON output has `"passes"`, `"consistent"`, `"rejection_reasons"`, and per-window results.
+JSON output has `"passes"`, `"consistent"`, `"rejection_reasons"`, and per-window results including `candidate_test_regime_score` and `baseline_test_regime_score` for each window.
 
-**PASS criteria**: `passes` is true, AND candidate MAR improves in at least 3 of 4 walk-forward windows.
-**FAIL criteria**: `passes` is false, OR MAR worse in 2+ windows, OR any rejection reason mentions trade count.
+**PASS criteria**: `passes` is true, AND candidate regime score improves over baseline in at least 3 of 4 walk-forward windows.
+**FAIL criteria**: `passes` is false, OR regime score worse in 2+ windows, OR any rejection reason mentions trade count.
+
+Special attention to the **2021–22 bear window** and **2024_onward window** — these are the hardest regimes. A candidate that improves bear avoidance in those windows is worth more than one that only improves bull capture.
 
 Save passing candidates:
 ```bash
-python3 scripts/spike_state.py append validated '{"params": {...}, "avg_test_mar": X.XX, "consistent": true}'
+python3 scripts/spike_state.py append validated '{"params": {...}, "avg_test_regime_score": X.XXX, "avg_bull_capture": X.XXX, "avg_bear_avoidance": X.XXX, "consistent": true}'
 ```
 
 Update report, advance:
@@ -160,7 +174,7 @@ This is where hours of runtime pay off. Iterate until convergence.
 ### 5a — Narrow sweeps around winners
 For each Phase 1 winner, re-sweep at 5x finer resolution:
 - Example: if best `atr_multiplier` was 3.0 (from step 0.5), re-sweep 2.0–4.0 step 0.1
-- Example: if best `short_ema_len` was 11 (from step 2), re-sweep 8–14 step 1
+- Example: if best `quick_ema_len` was 5 (from step 2), re-sweep 3–9 step 1
 
 ### 5b — Grid search for correlated parameters
 Test parameter INTERACTIONS using the grid command:
@@ -168,10 +182,11 @@ Test parameter INTERACTIONS using the grid command:
 ```bash
 python3 scripts/run_optimization.py grid --spec '{"short_ema_len": [10,12,14,16,18], "med_ema_len": [20,25,30,35,40]}'
 python3 scripts/run_optimization.py grid --spec '{"atr_period": [20,30,40,50], "atr_multiplier": [2.0,2.5,3.0,3.5,4.0]}'
-python3 scripts/run_optimization.py grid --spec '{"quick_lookback_bars": [3,4,5,6,7], "quick_delta_pct_thresh": [-10,-8,-6,-5,-4]}'
+python3 scripts/run_optimization.py grid --spec '{"quick_ema_len": [4,5,6,7,8,9], "quick_lookback_bars": [3,4,5,6,7]}'
+python3 scripts/run_optimization.py grid --spec '{"quick_delta_pct_thresh": [-10,-8,-6,-5,-4], "quick_ema_len": [5,7,9]}'
 ```
 
-The JSON output returns the top 5 combinations sorted by MAR.
+The JSON output returns the top 5 combinations sorted by regime score.
 
 ### 5c — New candidates
 Build new candidates from refined/grid winners. Test and validate (repeat Phase 3–4 logic).
@@ -183,13 +198,13 @@ Increment iteration: `python3 scripts/spike_state.py set iteration N`
 Check elapsed: `python3 scripts/spike_state.py elapsed`
 
 **CONTINUE (go back to 5a) if ALL of these are true**:
-- Latest iteration found a validated candidate better than previous best
+- Latest iteration found a validated candidate with higher regime score than previous best
 - Elapsed time < 7.5 hours
 - There are still untested grid pairs
 
 **STOP (go to Phase 6) if ANY of these are true**:
-- Two consecutive iterations produced no improvement
-- All 3 grid pairs above have been tested
+- Two consecutive iterations produced no regime score improvement
+- All grid pairs above have been tested
 - Elapsed time >= 7.5 hours
 - Already have 3+ validated candidates
 
@@ -201,41 +216,45 @@ python3 scripts/generate_pine.py '{"param1": val1, ...}' "9.0-candidate-N"
 ```
 
 Finalize `remote/optimization-YYYY-MM-DD.md` with:
-- Baseline metrics
-- Phase 1 sweep winner table
+- Baseline metrics (regime score, bull capture, bear avoidance, MAR, CAGR, MaxDD)
+- Phase 1 sweep winner table — ranked by regime score improvement
 - Phase 2 toggle results
 - Phase 3 top combinations
-- Phase 4 validation results
+- Phase 4 validation results — highlight bear window performance
 - Phase 5 refinement findings
-- Winning configuration with full comparison
+- Winning configuration with full comparison to 8.2.1 baseline
+- Interpretation: does it enter earlier in bulls? Exit sooner in bears? Both?
 - Pine Script file reference
 
-Commit:
+Commit and push:
 ```bash
-cd /home/user/project-montauk && git add remote/ && git commit -m "Add /spike optimization results" && git push -u origin main
+cd /home/user/project-montauk && git add remote/ && git commit -m "spike: optimization results YYYY-MM-DD" && git push -u origin <current-branch>
 ```
 
 ## Decision Quick Reference
 
 | Situation | Action |
 |-----------|--------|
-| JSON has `filtered_best.improves: false` | Skip — this param is fine at default |
-| JSON has `better: false` | Skip — this toggle hurts |
-| Combined MAR < individual winner MAR | Drop the weaker addition |
+| JSON has `filtered_best.improves: false` | Skip — this param doesn't help regime timing |
+| JSON has `better: false` | Skip — this toggle hurts regime score |
+| Combined regime score < either individual | Drop the weaker addition |
+| Bull capture improves but bear avoidance drops equally | Neutral — keep looking |
+| Bear avoidance improves, bull capture drops slightly | Generally KEEP — bear avoidance is harder to recover from |
 | Validation `passes: false` | Reject candidate |
 | Validation passes but `consistent: false` | PASS with note — still usable |
-| Two iterations with no improvement | Stop refinement, go to Phase 6 |
+| Two iterations with no regime score improvement | Stop refinement, go to Phase 6 |
 | Python script errors | Log error to state (`spike_state.py append errors '"..."'`), skip, continue |
 | Context compressed / lost track | Run `spike_state.py read`, resume from `state.phase` |
 | Elapsed >= 7.5 hours | Skip to Phase 6 |
 
 ## Anti-Overfitting Principles
 
-1. **MAR ratio (CAGR / MaxDD) is the primary metric.** Not CAGR alone.
-2. **This is a robustness scanner, not a magic optimizer.** With ~16 trades over 16 years, parameter optimization has limited statistical power. The goal is to find configurations that are ROBUST across all market regimes, not "optimal" on the full backtest.
-3. **Be skeptical of big improvements.** If MAR doubles, it's probably overfit. Target 10-30% improvements that are consistent across windows.
-4. **Trades/year must stay under 5.** This is a trend system, not a scalper.
-5. **Avg hold time should stay above 50 bars.** Short holds = noise trading.
-6. **The 2021-22 bear is the key test.** If a change improves bull returns but holds through the bear, reject it.
+1. **Regime Score is the primary metric.** It measures what Montauk actually tries to do: catch bulls, avoid bears. MAR is a secondary sanity check.
+2. **This is a robustness scanner, not a magic optimizer.** With ~16–20 trades over 16 years, parameter optimization has limited statistical power. The goal is configurations ROBUST across all market regimes, not "optimal" on the full backtest.
+3. **Be skeptical of big improvements.** If regime score jumps by >15%, it's probably overfit. Target 5–15% improvements that hold across walk-forward windows.
+4. **Trades/year must stay under 5.** This is a trend system, not a scalper. Frequent trading means noise, not regime timing.
+5. **Avg hold time should stay above 50 bars.** Short holds mean the strategy is reacting to noise, not regimes.
+6. **The 2021–22 bear and 2024_onward are the key tests.** These are the hardest recent regimes. If a change helps survive them, that's signal. If it only helps in bull runs, it's likely curve-fitting.
 7. **Validation is non-negotiable.** No candidate ships without walk-forward validation.
 8. **One change at a time in sweeps.** Use grid search for interaction testing.
+9. **A good regime score with lower CAGR can still be the right answer.** Skipping losses compounds better than chasing gains on a 3x leveraged ETF.
