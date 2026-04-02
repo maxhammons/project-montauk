@@ -12,14 +12,19 @@ Project Montauk/
 │   └── pinescriptv6-main/               # Pine Script v6 reference (structured repo)
 ├── scripts/                   # Python backtesting & optimization tools
 │   ├── data.py                # TECL data fetcher (Yahoo Finance API + CSV merge)
-│   ├── backtest_engine.py     # Python replica of Montauk 8.2 strategy logic
+│   ├── backtest_engine.py     # Python replica of Montauk 8.2.1 strategy logic + regime scoring
 │   ├── validation.py          # Walk-forward validation & anti-overfitting
 │   ├── run_optimization.py    # CLI runner for backtests, sweeps, grid search
 │   ├── spike_state.py         # State management for /spike (crash-safe JSON)
 │   ├── generate_pine.py       # Convert winning params back to Pine Script v6
 │   └── requirements.txt       # Python deps: pandas, numpy, requests
-├── .claude/skills/
-│   └── spike.md               # /spike skill — continuous optimization loop
+├── .claude/commands/
+│   ├── spike.md               # /spike skill — continuous optimization loop
+│   └── sync.md                # /sync skill
+├── remote/                    # All outputs from remote/mobile sessions
+│   ├── report-YYYY-MM-DD.md   # Optimization reports
+│   └── spike-state.json       # /spike session state
+│   NOTE: remote/scripts/ and remote/remote/ are stale legacy folders — use scripts/ at root
 └── src/
     ├── strategy/
     │   ├── active/            # Current production strategy
@@ -32,7 +37,7 @@ Project Montauk/
 
 ## Active Code (what's running in TradingView)
 
-### Strategy: `src/strategy/active/Project Montauk 8.1.txt`
+### Strategy: `src/strategy/active/Project Montauk 8.2.1.txt`
 
 The current production strategy. Pine Script v6 overlay strategy for TECL.
 
@@ -45,11 +50,13 @@ The current production strategy. Pine Script v6 overlay strategy for TECL.
 - Not in post-exit cooldown (2 bars)
 
 **Exit conditions** (checked in priority order):
-1. **EMA Cross Exit**: EMA-short crosses below EMA-long (500) with 2-bar confirmation and 0.2% buffer
-2. **ATR Exit**: Price falls below previous close minus 3x ATR(14)
-3. **Quick EMA Exit**: 15-bar EMA percent change over window exceeds -7% threshold
+1. **EMA Cross Exit**: `barssince(crossunder(emaShort, emaLong)) < confirmBars` with 0.2% buffer — fires within the confirmation window, not only on the exact cross bar
+2. **ATR Exit**: Price falls below previous close minus 3x ATR(40)
+3. **Quick EMA Exit**: 15-bar EMA percent change over 5-bar window exceeds -8.2% threshold
+4. **Trailing Stop** (optional, default OFF): Price drops >25% from peak since entry
+5. **TEMA Slope Exit** (optional, default OFF): TEMA slope turns negative
 
-**Key parameters are organized into 8 input groups** for TradingView UI clarity: EMAs, Trend Filter, TEMA Filters, Sideways Filter, Sell Confirmation, Sell Cooldown, ATR Exit, Quick EMA Exit.
+**Key parameters are organized into input groups** for TradingView UI clarity: EMAs, Trend Filter, TEMA Filters, Sideways Filter, Sell Confirmation, Sell Cooldown, ATR Exit, Quick EMA Exit, Trailing Stop, TEMA Slope Exit.
 
 ### Indicator: `src/indicator/active/Montauk Composite Oscillator 1.3.txt`
 
@@ -82,7 +89,9 @@ All versions target TECL. Early versions (1.x) were originally named "FMC" (Flas
 | 7-7 | `archive/Project Montauk 7-7.txt` | v6 | Removed drop-sell filter from 7-6 for cleaner logic |
 | 7.8 | `archive/Project Montauk 7.8.txt` | v6 | Production version with exit-reason label tracking on chart |
 | 7.9 | `archive/Project Montauk 7.9.txt` | v6 | Added TEMA filters and Donchian-based sideways market detection |
-| **8.1** | **`active/Project Montauk 8.1.txt`** | **v6** | **Current. Organized input groups, quick exit changed from slope to % delta** |
+| 8.1 | `archive/Project Montauk 8.1.txt` | v6 | Organized input groups, quick exit changed from slope to % delta |
+| 8.2 | `archive/Project Montauk 8.2.txt` | v6 | Added trailing stop and TEMA slope exit (both default OFF) |
+| **8.2.1** | **`active/Project Montauk 8.2.1.txt`** | **v6** | **Current. Fixed EMA cross exit to use `barssince(crossunder) < confirmBars` — fires within window, not only on exact cross bar** |
 
 ### Debug Builds
 
@@ -97,7 +106,7 @@ These are strategy versions with extra visual debugging for development:
 
 - **All strategies are overlay strategies** (plotted on the price chart, not in a separate pane)
 - **The indicator runs in a separate pane** (oscillator output, not overlaid on price)
-- **Position sizing**: 8.1 uses 100% of equity per trade (single position, long only)
+- **Position sizing**: 8.2.1 uses 100% of equity per trade (single position, long only)
 - **No shorting**: All strategies are long-only
 - **Cooldown logic**: After every exit, a configurable cooldown (bars) prevents immediate re-entry
 - **Price smoothing**: Montauk 6.x versions use OHLC/4 smoothed price; 7.x+ use standard close
@@ -107,20 +116,21 @@ These are strategy versions with extra visual debugging for development:
 When running in a remote session (e.g. Claude Code on mobile), follow these rules:
 
 - **Save all outputs** (reports, backtests, code reviews, new strategy files, analysis) to the `remote/` folder at the project root
+- **State file** goes to `remote/spike-state.json` — NOT `remote/remote/spike-state.json`
 - **Use timestamped filenames** to prevent overwrites: `[type]-YYYY-MM-DD.txt` (e.g. `backtest-2026-03-08.txt`, `report-2026-03-08.txt`, `strategy-review-2026-03-08.txt`)
 - **Commit and push directly to `main`** — do not create a new branch
 - This ensures the desktop auto-syncs via `git pull` without any manual merging
 
 ## Working with This Code
 
-- **To edit the active strategy**: Modify `src/strategy/active/Project Montauk 8.1.txt`, then paste into TradingView Pine Editor
+- **To edit the active strategy**: Modify `src/strategy/active/Project Montauk 8.2.1.txt`, then paste into TradingView Pine Editor
 - **To edit the active indicator**: Modify `src/indicator/active/Montauk Composite Oscillator 1.3.txt`, then paste into TradingView Pine Editor
 - **When creating a new version**: Copy the active file to the appropriate archive folder first, then modify the active copy
 - **Strategy and indicator are separate scripts in TradingView** - the strategy handles entries/exits, the indicator provides visual confirmation in a separate chart pane
 
 ## Optimization Tools (`/spike`)
 
-The `/spike` skill runs a continuous strategy optimization loop. It uses a Python backtesting engine that faithfully replicates Montauk 8.2's logic, enabling rapid parameter sweeps and walk-forward validation without TradingView.
+The `/spike` skill runs a continuous strategy optimization loop. It uses a Python backtesting engine that faithfully replicates Montauk 8.2.1's logic, enabling rapid parameter sweeps and walk-forward validation without TradingView.
 
 ### How to use
 
@@ -131,8 +141,10 @@ The `/spike` skill runs a continuous strategy optimization loop. It uses a Pytho
 
 ### CLI tools (used by `/spike`, also available standalone)
 
+All commands should be run from the project root. Scripts live in `scripts/`.
+
 ```bash
-# Run baseline backtest with 8.2 defaults
+# Run baseline backtest with 8.2.1 defaults
 python3 scripts/run_optimization.py baseline
 
 # Test specific parameter overrides
@@ -158,13 +170,27 @@ python3 scripts/spike_state.py elapsed        # hours since start
 
 All commands output a `###JSON###` line at the end for machine parsing.
 
-### Key metrics (from Charter)
+### Primary optimization target: Regime Score
 
-| Metric | Target direction |
-|--------|-----------------|
-| MAR Ratio (CAGR/MaxDD) | Higher is better — primary optimization target |
-| CAGR | Higher |
-| Max Drawdown | Lower |
+The optimizer uses **regime score** as its primary metric — not MAR. Regime score measures how well the strategy achieves its core goal: entering near the end of bear markets and exiting near the end of bull markets, across all cycles in the full 2009–present history.
+
+It is computed as:
+- **Bull capture ratio**: For each detected bull period (trough → peak, ≥30% move), what fraction of the total gain did the strategy capture?
+- **Bear avoidance ratio**: For each detected bear period (peak → trough, ≥30% drawdown), what fraction of the loss did the strategy avoid?
+- **Composite**: `0.5 × bull_capture + 0.5 × bear_avoidance` (0.0–1.0, higher is better)
+
+Bear periods are detected algorithmically from the full TECL price history — no hardcoded dates. MAR and other metrics are still reported for reference.
+
+### Key metrics
+
+| Metric | Role |
+|--------|------|
+| **Regime Score** | **Primary optimization target** — regime capture quality |
+| Bull Capture Ratio | Fraction of each bull leg participated in |
+| Bear Avoidance Ratio | Fraction of each bear leg avoided |
+| MAR Ratio (CAGR/MaxDD) | Secondary — overall risk-adjusted return |
+| CAGR | Return |
+| Max Drawdown | Risk |
 | Trades/Year | Low (<5) — avoid churn |
 | Avg Bars Held | High (50+) — trend system, not scalper |
 
