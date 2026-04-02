@@ -1,14 +1,14 @@
 {
   "_description": "Cross-session best. Updated by /spike when a new validated best is found. Never reset by spike_state init.",
-  "regime_score": 0.5524,
-  "bull_capture": 0.5584,
-  "bear_avoidance": 0.5463,
-  "vs_bah_multiple": 0.458,
-  "mar": 0.422,
-  "cagr": 27.46,
-  "max_dd": 65.1,
-  "params": {},
-  "notes": "Baseline 8.2.1 defaults — no optimization yet",
+  "regime_score": 0.603,
+  "bull_capture": 0.541,
+  "bear_avoidance": 0.665,
+  "vs_bah_multiple": 1.135,
+  "mar": 0.554,
+  "cagr": 35.77,
+  "max_dd": 64.6,
+  "params": {"sell_cooldown_bars": 8, "sell_confirm_bars": 1, "atr_period": 50, "enable_vol_exit": true, "vol_spike_mult": 2.3},
+  "notes": "Combo G: Combo E + vol_spike_mult=2.3. First vs_bah>1.0 (1.135x). Validation PASS all 4 WF windows. Avg RS=0.589 (+9.1%). 2024_onward: 0.397->0.496 (best improvement). 20 trades, avg_bars=142, trades/yr=1.4, false_signal=0%. Bootstrap 39% (timing param, expected). CAUTION: plateau width=1 for vol_spike_mult (2.3 only — at 2.5 drops to 0.575). 2021_2022_bear MAR goes negative (-0.087). Narrow threshold.",
   "date": "2026-04-02",
-  "session": "initial"
+  "session": "spike-2026-04-02"
 }

@@ -1,0 +1,14 @@
+=== Montauk 8.3-conservative — Parameter diff vs 8.2.1 ===
+Generated: 2026-04-02
+
+CHANGED:
+  sellCooldownBars         2        → 8         (sell_cooldown_bars)
+  sellConfirmBars          2        → 1         (sell_confirm_bars)
+  atrPeriod                40       → 50        (atr_period)
+
+NEW (not in 8.2.1 — add manually):
+  enable_vol_exit          True    
+  vol_spike_mult           2.5     
+
+All other parameters: unchanged from 8.2.1 defaults.
+Apply to: src/strategy/active/Project Montauk 8.2.1.txt

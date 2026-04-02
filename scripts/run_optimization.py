@@ -202,7 +202,9 @@ def cmd_sweep(df: pd.DataFrame, args):
     param_name = args.param
     values = np.arange(args.min_val, args.max_val + args.step / 2, args.step)
 
-    if param_name.endswith("_len") or param_name.endswith("_bars"):
+    import dataclasses
+    _param_types = {f.name: f.type for f in dataclasses.fields(StrategyParams())}
+    if _param_types.get(param_name) in (int, "int"):
         values = values.astype(int)
 
     baseline = run_backtest(df, StrategyParams())

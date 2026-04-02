@@ -78,6 +78,37 @@ class StrategyParams:
     enable_tema_exit: bool = False
     tema_exit_lookback: int = 5
 
+    # Group 12 — ATR Ratio Volatility Filter (default OFF)
+    enable_atr_ratio_filter: bool = False
+    atr_ratio_len: int = 100
+    atr_ratio_max: float = 2.0
+
+    # Group 13 — ADX Trend Strength Filter (default OFF)
+    enable_adx_filter: bool = False
+    adx_len: int = 14
+    adx_min: float = 20.0
+
+    # Group 14 — ROC Momentum Entry Filter (default OFF)
+    enable_roc_filter: bool = False
+    roc_len: int = 20
+
+    # Group 15 — Bear Depth Guard (default OFF)
+    # Block re-entry if equity is >X% below its recent peak
+    enable_bear_guard: bool = False
+    bear_guard_pct: float = 20.0
+    bear_guard_lookback: int = 60
+
+    # Group 16 — Asymmetric ATR Exit (default OFF)
+    # In high-vol environments, tighten exit multiplier
+    enable_asymmetric_exit: bool = False
+    asym_atr_ratio_threshold: float = 1.5  # trigger when atr_ratio > this
+    asym_exit_multiplier: float = 1.5       # tighter multiplier during high-vol
+
+    # Group 17 — Volume Spike Exit (default OFF)
+    enable_vol_exit: bool = False
+    vol_spike_len: int = 20    # EMA length for average volume
+    vol_spike_mult: float = 2.5  # exit if volume > mult × avg AND price down
+
     # Capital
     initial_capital: float = 1000.0
     commission_pct: float = 0.0
@@ -158,6 +189,48 @@ def sma(series: np.ndarray, length: int) -> np.ndarray:
     for i in range(length - 1, len(series)):
         out[i] = np.mean(series[i - length + 1:i + 1])
     return out
+
+
+def adx(hi: np.ndarray, lo: np.ndarray, cl: np.ndarray, period: int) -> np.ndarray:
+    """ADX (Average Directional Index) using Wilder's smoothing."""
+    n = len(cl)
+    out = np.full(n, np.nan)
+    if n < period * 2:
+        return out
+    tr_arr = np.full(n, np.nan)
+    dm_plus = np.full(n, np.nan)
+    dm_minus = np.full(n, np.nan)
+    for i in range(1, n):
+        h_diff = hi[i] - hi[i - 1]
+        l_diff = lo[i - 1] - lo[i]
+        tr_arr[i] = max(hi[i] - lo[i], abs(hi[i] - cl[i - 1]), abs(lo[i] - cl[i - 1]))
+        dm_plus[i] = h_diff if h_diff > l_diff and h_diff > 0 else 0.0
+        dm_minus[i] = l_diff if l_diff > h_diff and l_diff > 0 else 0.0
+    # Wilder's smoothing
+    alpha = 1.0 / period
+    sm_tr = np.full(n, np.nan)
+    sm_dp = np.full(n, np.nan)
+    sm_dm = np.full(n, np.nan)
+    sm_tr[period] = np.nansum(tr_arr[1:period + 1])
+    sm_dp[period] = np.nansum(dm_plus[1:period + 1])
+    sm_dm[period] = np.nansum(dm_minus[1:period + 1])
+    for i in range(period + 1, n):
+        sm_tr[i] = sm_tr[i - 1] - sm_tr[i - 1] / period + tr_arr[i]
+        sm_dp[i] = sm_dp[i - 1] - sm_dp[i - 1] / period + dm_plus[i]
+        sm_dm[i] = sm_dm[i - 1] - sm_dm[i - 1] / period + dm_minus[i]
+    di_plus = np.where(sm_tr > 0, 100.0 * sm_dp / sm_tr, np.nan)
+    di_minus = np.where(sm_tr > 0, 100.0 * sm_dm / sm_tr, np.nan)
+    dx = np.where((di_plus + di_minus) > 0,
+                  100.0 * np.abs(di_plus - di_minus) / (di_plus + di_minus), np.nan)
+    # Smooth DX with Wilder's to get ADX
+    adx_arr = np.full(n, np.nan)
+    first_valid = period * 2
+    if first_valid < n:
+        adx_arr[first_valid] = np.nanmean(dx[period:first_valid + 1])
+        for i in range(first_valid + 1, n):
+            if not np.isnan(adx_arr[i - 1]) and not np.isnan(dx[i]):
+                adx_arr[i] = adx_arr[i - 1] * (1 - alpha) + dx[i] * alpha
+    return adx_arr
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -534,6 +607,7 @@ def run_backtest(df: pd.DataFrame, params: StrategyParams | None = None,
     hi = df["high"].values.astype(np.float64)
     lo = df["low"].values.astype(np.float64)
     cl = df["close"].values.astype(np.float64)
+    vol = df["volume"].values.astype(np.float64) if "volume" in df.columns else np.ones(len(cl))
     n = len(cl)
 
     # ── Pre-compute all indicators ──
@@ -544,6 +618,9 @@ def run_backtest(df: pd.DataFrame, params: StrategyParams | None = None,
     quick_ema_arr = ema(cl, params.quick_ema_len)
     tema_vals = tema(cl, params.triple_ema_len)
     atr_vals = atr(hi, lo, cl, params.atr_period)
+    atr_ema_vals = ema(atr_vals, params.atr_ratio_len)  # long-term ATR average
+    adx_vals = adx(hi, lo, cl, params.adx_len)
+    vol_ema_vals = ema(vol, params.vol_spike_len)  # average volume
     high_vals = highest(hi, params.range_len)
     low_vals = lowest(lo, params.range_len)
     sma_vals = sma(cl, params.range_len)
@@ -556,6 +633,7 @@ def run_backtest(df: pd.DataFrame, params: StrategyParams | None = None,
     entry_price = 0.0
     last_sell_bar = -9999
     peak_since_entry = np.nan
+    equity_peak = params.initial_capital  # for bear depth guard
     trades: list[Trade] = []
     current_trade: Optional[Trade] = None
     bars_in_position = np.zeros(n)
@@ -563,7 +641,8 @@ def run_backtest(df: pd.DataFrame, params: StrategyParams | None = None,
     # Minimum bar to start trading (need longest indicator warm-up)
     warmup = max(params.long_ema_len, params.trend_ema_len,
                  params.triple_ema_len * 3,  # TEMA needs 3x warmup
-                 params.atr_period, params.range_len) + 10
+                 params.atr_period, params.range_len,
+                 params.atr_ratio_len) + 10
 
     pending_entry = False          # entry signal queued, execute at next bar's close
     pending_exit_reason = ""       # exit signal queued, execute at next bar's close
@@ -638,9 +717,39 @@ def run_backtest(df: pd.DataFrame, params: StrategyParams | None = None,
         sideways = rng_pct < params.max_range_pct
         sideways_ok = (not params.enable_sideways_filter) or (not sideways)
 
+        # ── ATR ratio volatility filter ──
+        if (params.enable_atr_ratio_filter and
+                not np.isnan(atr_vals[i]) and not np.isnan(atr_ema_vals[i]) and
+                atr_ema_vals[i] > 0):
+            atr_ratio_ok = (atr_vals[i] / atr_ema_vals[i]) <= params.atr_ratio_max
+        else:
+            atr_ratio_ok = True
+
+        # ── ADX trend strength filter ──
+        if params.enable_adx_filter and not np.isnan(adx_vals[i]):
+            adx_ok = adx_vals[i] >= params.adx_min
+        else:
+            adx_ok = True
+
+        # ── ROC momentum entry filter ──
+        if params.enable_roc_filter and i >= params.roc_len and cl[i - params.roc_len] > 0:
+            roc_ok = cl[i] > cl[i - params.roc_len]
+        else:
+            roc_ok = True
+
+        # ── Bear depth guard ──
+        current_equity = equity + (shares * (cl[i] - entry_price) if position_size > 0 else 0)
+        equity_curve[i] = current_equity  # update for rolling peak
+        if params.enable_bear_guard:
+            lookback_start = max(0, i - params.bear_guard_lookback)
+            rolling_peak = np.max(equity_curve[lookback_start:i + 1])
+            bear_guard_ok = rolling_peak <= 0 or current_equity >= rolling_peak * (1 - params.bear_guard_pct / 100)
+        else:
+            bear_guard_ok = True
+
         # ── Entry conditions ──
         buy_zone = ema_short[i] > ema_med[i]
-        buy_ok = buy_zone and trend_ok and slope_ok and above_ok and sideways_ok
+        buy_ok = buy_zone and trend_ok and slope_ok and above_ok and sideways_ok and atr_ratio_ok and adx_ok and roc_ok and bear_guard_ok
 
         # ── Exit 1: EMA Cross (8.2.1 logic: barssince(crossunder) < confirmBars) ──
         # A cross occurred recently if ema_short crossed below ema_long within the
@@ -670,7 +779,12 @@ def run_backtest(df: pd.DataFrame, params: StrategyParams | None = None,
         # ── Exit 2: ATR Shock ──
         is_atr_exit = False
         if params.enable_atr_exit and i >= 1 and not np.isnan(atr_vals[i]):
-            is_atr_exit = cl[i] < cl[i - 1] - atr_vals[i] * params.atr_multiplier
+            eff_multiplier = params.atr_multiplier
+            if (params.enable_asymmetric_exit and
+                    not np.isnan(atr_ema_vals[i]) and atr_ema_vals[i] > 0 and
+                    atr_vals[i] / atr_ema_vals[i] > params.asym_atr_ratio_threshold):
+                eff_multiplier = params.asym_exit_multiplier
+            is_atr_exit = cl[i] < cl[i - 1] - atr_vals[i] * eff_multiplier
 
         # ── Exit 3: Quick EMA ──
         is_quick_exit = False
@@ -699,6 +813,14 @@ def run_backtest(df: pd.DataFrame, params: StrategyParams | None = None,
                 tema_exit_slope = (tema_vals[i] - tema_vals[i - te_lb]) / te_lb
                 is_tema_exit = tema_exit_slope < 0
 
+        # ── Exit 6: Volume Spike Exit ──
+        is_vol_exit = False
+        if (params.enable_vol_exit and position_size > 0 and i >= 1 and
+                not np.isnan(vol_ema_vals[i]) and vol_ema_vals[i] > 0):
+            vol_spike = vol[i] > vol_ema_vals[i] * params.vol_spike_mult
+            price_down = cl[i] < cl[i - 1]
+            is_vol_exit = vol_spike and price_down
+
         # ── Unified exit (sideways suppresses exits) ──
         allow_exit = not (params.enable_sideways_filter and sideways)
 
@@ -714,6 +836,8 @@ def run_backtest(df: pd.DataFrame, params: StrategyParams | None = None,
                 exit_reason = "Trail Stop"
             elif is_tema_exit:
                 exit_reason = "TEMA Slope"
+            elif is_vol_exit:
+                exit_reason = "Vol Spike"
 
             if exit_reason:
                 pending_exit_reason = exit_reason  # fill at next bar's close
