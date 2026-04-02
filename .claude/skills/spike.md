@@ -1,19 +1,23 @@
 # /spike — Continuous Strategy Optimization
 
-Autonomous loop for Montauk. Runs until time limit. Never stops early due to "enough candidates." Never modifies `src/` — all output goes to `remote/`.
+Autonomous loop for Montauk. Runs until 7.5-hour time limit. **Never stops early** due to "enough candidates" — keep finding better configs until time runs out. Never modifies `src/` — all output goes to `remote/`.
 
 ## Goal
 
-Catch bulls, avoid bears. Primary metric: **Regime Score** (`0.5 × bull_capture + 0.5 × bear_avoidance`). Secondary: `vs_bah_multiple` — does the strategy account beat $100 held in TECL from the date of the first trade? MAR is a sanity check only.
+Catch bulls, avoid bears. The strategy skips the down legs so that, even with imperfect timing, it beats buy-and-hold on TECL over time. Perfect timing is impossible; close-enough timing on big regime swings is the target.
+
+**Primary metric: Regime Score** = `0.5 × bull_capture + 0.5 × bear_avoidance` (0–1, higher = better)  
+**Ultimate goal: `vs_bah_multiple > 1.0`** — strategy account beats $100 held in TECL from the date of the first trade.  
+MAR is a secondary sanity check only.
 
 ## Critical Rules
 
-1. **State after every step.** Context WILL compress. Use `spike_state.py` after every command.
+1. **State after every step.** Context WILL compress. `spike_state.py` after every command.
 2. **On resume:** `python3 scripts/spike_state.py read` → check `phase` and `report_sections_written`.
 3. **JSON only.** Parse the `###JSON###` line. Ignore human-readable output above it.
 4. **Never stop to ask.** Make decisions using the rules below.
 5. **Never modify `src/`.** Active strategy is read-only.
-6. **Check time before each phase:** `python3 scripts/spike_state.py elapsed`. Stop loop at 7.5 hours.
+6. **Check time before each phase:** `python3 scripts/spike_state.py elapsed`. Phase 6 when ≥ 7.5h.
 
 ## Setup
 
@@ -22,8 +26,9 @@ cd /home/user/project-montauk && pip3 install pandas numpy requests
 python3 scripts/spike_state.py init
 ```
 
-## Phase 0 — Baseline
+## Phase 0 — Baseline + Parity Check
 
+### 0a — Run baseline
 ```bash
 python3 scripts/run_optimization.py baseline
 ```
@@ -31,20 +36,33 @@ python3 scripts/run_optimization.py baseline
 Save to state:
 ```bash
 python3 scripts/spike_state.py set phase 1
-python3 scripts/spike_state.py set-json baseline '{"regime_score":0.XXX,"bull_capture":0.XXX,"bear_avoidance":0.XXX,"mar":0.XX,"cagr":XX.X,"max_dd":XX.X,"vs_bah_multiple":0.XXX,"bah_start_date":"YYYY-MM-DD"}'
+python3 scripts/spike_state.py set-json baseline '{"regime_score":0.XXX,"bull_capture":0.XXX,"bear_avoidance":0.XXX,"vs_bah_multiple":0.XXX,"bah_start_date":"YYYY-MM-DD","mar":0.XX,"cagr":XX.X,"max_dd":XX.X,"false_signal_rate":XX.X}'
 ```
 
-Append to `remote/spike-YYYY-MM-DD.md` — **baseline section** (see Report Format below).
+### 0b — TradingView parity check (run once per session)
+
+Read `src/strategy/active/Project Montauk 8.2.1.txt` and compare the engine's trade log against the actual TradingView trade history (if available from a previous report in `remote/`). Check:
+- Do entry/exit dates match within 1 bar?
+- Does trade count match?
+- Are exit reasons consistent?
+
+If discrepancies exist, note them in the report and adjust interpretation accordingly. Do NOT fix the engine mid-session — log the discrepancy and continue.
+
+### 0c — Cross-session context
+
+Read `remote/best-ever.json`. If `best-ever.regime_score > baseline.regime_score`, you are starting ahead of baseline — use `best-ever.params` as the starting point for Phase 1 sweeps (test the best-ever config first before sweeping defaults).
+
+Write baseline section to `remote/spike-YYYY-MM-DD.md`.
 
 ## Phase 1 — Parameter Sweeps
 
-One at a time. After each: parse `###JSON###` only.
+One at a time. Parse `###JSON###` only. Order: most likely impactful first based on prior session results.
 
 ```bash
+python3 scripts/run_optimization.py sweep --param quick_ema_len --min 3 --max 25 --step 2
 python3 scripts/run_optimization.py sweep --param short_ema_len --min 5 --max 25 --step 2
 python3 scripts/run_optimization.py sweep --param med_ema_len --min 15 --max 60 --step 5
 python3 scripts/run_optimization.py sweep --param atr_multiplier --min 1.5 --max 5.0 --step 0.5
-python3 scripts/run_optimization.py sweep --param quick_ema_len --min 5 --max 25 --step 2
 python3 scripts/run_optimization.py sweep --param quick_lookback_bars --min 2 --max 10 --step 1
 python3 scripts/run_optimization.py sweep --param quick_delta_pct_thresh --min -15.0 --max -3.0 --step 1.0
 python3 scripts/run_optimization.py sweep --param atr_period --min 10 --max 60 --step 5
@@ -56,10 +74,14 @@ python3 scripts/run_optimization.py sweep --param range_len --min 20 --max 100 -
 python3 scripts/run_optimization.py sweep --param max_range_pct --min 10 --max 50 --step 5
 ```
 
+Check `plateau_width` in JSON: wide plateau (≥5 values near best) = robust; narrow spike (1–2 values) = fragile, treat cautiously.
+
 If `filtered_best.improves: true` → save winner:
 ```bash
-python3 scripts/spike_state.py set-json sweep_winners '{"PARAM":{"best_value":X,"best_score":X.XXX,"delta":X.XXX}}'
+python3 scripts/spike_state.py set-json sweep_winners '{"PARAM":{"best_value":X,"best_score":X.XXX,"delta":X.XXX,"plateau_width":N}}'
 ```
+
+Also note if best value improves `vs_bah_multiple`.
 
 Advance: `python3 scripts/spike_state.py set phase 2`
 
@@ -79,7 +101,7 @@ python3 scripts/run_optimization.py test --params '{"enable_tema_exit":true,"tem
 python3 scripts/run_optimization.py test --params '{"enable_sideways_filter":false}'
 ```
 
-Save winners (regime_score_delta > 0):
+Save toggles where `regime_score_delta > 0`:
 ```bash
 python3 scripts/spike_state.py set-json toggle_results '{"LABEL":{"params":{...},"regime_score_delta":X.XXX}}'
 ```
@@ -88,24 +110,39 @@ Advance: `python3 scripts/spike_state.py set phase 3`
 
 ## Phase 3 — Combine & Validate
 
-1. Read `sweep_winners` and `toggle_results` from state.
-2. Sort by delta descending. Build combos greedily — add one param at a time, test, keep if regime score improves.
-3. Validate top 3 combos:
+1. Read `sweep_winners` and `toggle_results` from state. Sort by delta descending.
+2. Build combos greedily: start with top winner, add one at a time, keep if regime score improves.
+3. Prefer wide-plateau params over narrow spikes when building combos.
+4. Validate top 3 combos:
+
 ```bash
 python3 scripts/run_optimization.py validate --params '{"p1":v1,"p2":v2}'
 ```
-**PASS**: `passes:true` AND regime score improves in ≥3 of 4 WF windows.
+
+**PASS**: `passes:true` AND regime score improves over baseline in ≥3 of 4 WF windows.  
+Special weight: improvements in the 2021–22 bear and 2024_onward windows are the most valuable.
+
+Run bootstrap on any passing candidate:
+```bash
+python3 scripts/run_optimization.py bootstrap --params '{"p1":v1}'
+```
+Note `percentile_rank` — candidates scoring ≥75th percentile have non-random results.
 
 Save passing candidates:
 ```bash
-python3 scripts/spike_state.py append validated '{"params":{...},"regime_score":X.XXX,"bull_capture":X.XXX,"bear_avoidance":X.XXX,"vs_bah_multiple":X.XXX}'
+python3 scripts/spike_state.py append validated '{"params":{...},"regime_score":X.XXX,"bull_capture":X.XXX,"bear_avoidance":X.XXX,"vs_bah_multiple":X.XXX,"bootstrap_pct":XX.X}'
+```
+
+Update best-ever if this candidate beats `remote/best-ever.json`:
+```bash
+# Read best-ever, compare regime_score, if better overwrite with new values
 ```
 
 Advance: `python3 scripts/spike_state.py set phase 4`
 
 ## Phase 4 — Refinement Grid
 
-Fine-sweep around Phase 1 winners (5× resolution), then grid-search interactions:
+Fine-sweep around Phase 1 winners (3–5× finer resolution), then grid-search interactions:
 
 ```bash
 python3 scripts/run_optimization.py grid --spec '{"short_ema_len":[10,12,14,16,18],"med_ema_len":[20,25,30,35,40]}'
@@ -114,92 +151,126 @@ python3 scripts/run_optimization.py grid --spec '{"quick_ema_len":[4,5,6,7,8,9],
 python3 scripts/run_optimization.py grid --spec '{"quick_delta_pct_thresh":[-10,-8,-6,-5,-4],"quick_ema_len":[5,7,9]}'
 ```
 
-Validate any combo that beats best validated regime score. Save to state as before.
+Validate and bootstrap any grid combo that beats the best validated regime score from Phase 3. Save to state.
 
 Advance: `python3 scripts/spike_state.py set phase 5`
 
-## Phase 5 — Propose New Parameters (Infinite Loop Core)
+## Phase 5 — Infinite Proposal Loop
 
-This phase never ends until elapsed >= 7.5h. Each iteration:
+**This phase loops until elapsed ≥ 7.5h.** Each iteration: propose → implement → test → validate → loop.
 
-### 5a — Propose
+### 5a — Check time and state
+```bash
+python3 scripts/spike_state.py elapsed
+python3 scripts/spike_state.py set iteration N   # increment
+```
+If elapsed ≥ 7.5h → skip to Phase 6.
 
-Read `src/strategy/active/Project Montauk 8.2.1.txt` and `scripts/backtest_engine.py`. Reason about what new filter, exit condition, or entry gate might better detect regime changes. Think in terms of:
-- **Bear detection**: what signals reliably precede a regime change from bull→bear? (e.g. volatility spike, EMA fan collapse, volume surge on down days)
-- **Bull re-entry**: what confirms a trough is in and a new bull leg is starting? (e.g. multiple EMAs re-aligning, ATR normalizing after a spike)
-- **Noise rejection**: what filter would prevent whipsaw entries during choppy/flat regimes?
+### 5b — Pick a signal category to explore
 
-Pick **one new parameter or filter** not currently in the code. Implement it minimally in `scripts/backtest_engine.py` — add to `StrategyParams`, wire into entry/exit logic, keep the change under ~30 lines. Default value must reproduce current 8.2.1 behavior exactly when set to its off/default state.
+Track which categories have been tried. Each iteration pick the next UNTRIED category:
 
-### 5b — Sweep & Validate
+| # | Category | Signal ideas |
+|---|----------|-------------|
+| 1 | Volatility regime | ATR ratio (current/long-avg), Bollinger width, realized vol spike |
+| 2 | Trend alignment | Multiple EMA fan (all EMAs trending same direction), ADX threshold |
+| 3 | Momentum confirmation | Rate-of-change filter on entry, MACD histogram direction |
+| 4 | Price structure | Higher-highs/higher-lows count, distance from long-term mean |
+| 5 | Noise rejection | Minimum move requirement between exit and re-entry |
+| 6 | Asymmetric exit | Faster exit in high-vol environments, slower in low-vol |
+| 7 | Bear depth guard | Don't re-enter if equity is X% below recent equity peak |
+| 8 | Volume | Volume spike as bear confirmation (exit faster on high-vol down days) |
 
+Save which categories have been tried:
+```bash
+python3 scripts/spike_state.py append toggle_results '"tried_category_N"'
+```
+
+### 5c — Design and implement the parameter
+
+Read `src/strategy/active/Project Montauk 8.2.1.txt` for the Pine Script logic, and `scripts/backtest_engine.py` for the Python engine.
+
+Implement a **minimal** new parameter in `scripts/backtest_engine.py`:
+- Add to `StrategyParams` with a sensible default that reproduces 8.2.1 behavior when at default
+- Wire into entry or exit logic (< 30 lines of new code)
+- The parameter must have a clear on/off toggle or a "disabled" default value
+
+### 5d — Sweep and validate
 ```bash
 python3 scripts/run_optimization.py sweep --param NEW_PARAM --min X --max Y --step Z
 ```
 
-If it improves regime score: validate, save to state. Whether it passes or fails, log it:
-```bash
-python3 scripts/spike_state.py append toggle_results '{"NEW_PARAM_label":{"params":{...},"regime_score_delta":X.XXX,"tested_iteration":N}}'
-```
+If it improves regime score: validate, bootstrap, save. If it passes and beats best-ever, update `remote/best-ever.json`.
 
-### 5c — Loop decision
+Whether it passes or fails, log it and move to next iteration.
 
-```bash
-python3 scripts/spike_state.py elapsed
-python3 scripts/spike_state.py set iteration N  # increment
-```
+### 5e — Beat B&H milestone check
 
-**Continue** (back to 5a) unless elapsed >= 7.5h.
-**Never stop** because "we have enough candidates" — keep proposing and testing new ideas.
+After each validated candidate, check `vs_bah_multiple`. If any candidate has `vs_bah_multiple > 1.0`:
+- Flag it prominently in the report with **"BEATS BUY-AND-HOLD"**
+- Commit immediately (don't wait for Phase 6)
+
+### 5f — Loop
+
+Go to 5a.
+
+---
 
 ## Phase 6 — Generate Output
 
-For each validated candidate, generate Pine Script:
+For each validated candidate, generate parameter diff (NOT full Pine Script):
 ```bash
 python3 scripts/generate_pine.py '{"p1":v1}' "9.0-candidate-N"
 ```
+This writes a compact diff to `remote/diff-YYYY-MM-DD-9.0-candidate-N.txt`. That's all that's needed to implement in TradingView.
 
-Finalize `remote/spike-YYYY-MM-DD.md`. Commit:
+Finalize `remote/spike-YYYY-MM-DD.md` (see Report Format). Update `remote/best-ever.json` if any candidate beats the stored best.
+
+Commit and push:
 ```bash
-git add remote/ scripts/backtest_engine.py && git commit -m "spike: results YYYY-MM-DD" && git push -u origin $(git branch --show-current)
+git add remote/ scripts/backtest_engine.py && git commit -m "spike: results YYYY-MM-DD itr-N RS=X.XXX" && git push -u origin $(git branch --show-current)
 ```
 
 ---
 
-## Report Format (compact — minimize tokens)
+## Report Format (compact — every section is a table, no prose)
 
-Every section uses the minimal table format below. No prose paragraphs. No per-trade lists.
-
-### Baseline
+### Baseline section
 ```
 | Metric | Value |
 |--------|-------|
 | Regime Score | 0.552 (Bull 0.558 / Bear 0.546) |
 | vs B&H | 0.46× ($36k vs $79k from 2011-07-11) |
-| CAGR / MaxDD / MAR | 27.5% / 65% / 0.42 |
-| Trades/yr · Avg bars | 1.2 · 171 |
+| CAGR/MaxDD/MAR | 27.5% / 65% / 0.42 |
+| Trades/yr · Avg bars · False signals | 1.2 · 171 · 0% |
+| Bootstrap percentile | — (run separately) |
 ```
 
-### Sweep Results
+### Sweep winners (only params where `filtered_best.improves: true`)
 ```
-| Param | Default | Best | ΔRS | ΔBull | ΔBear |
-|-------|---------|------|-----|-------|-------|
-| quick_ema_len | 15 | 5 | +0.061 | -0.071 | +0.192 |
-```
-(Only include params where `filtered_best.improves: true`)
-
-### Candidates
-```
-| ID | Params | RS | Bull | Bear | vs B&H | MAR | T/yr | Bars | WF |
-|----|--------|----|------|------|--------|-----|------|------|----|
-| A  | qel=5  | 0.613 | 0.488 | 0.738 | 0.46× | 0.33 | 2.6 | 62 | PASS |
+| Param | Default | Best | ΔRS | ΔBull | ΔBear | Plateau |
+|-------|---------|------|-----|-------|-------|---------|
+| quick_ema_len | 15 | 5 | +0.061 | -0.071 | +0.192 | 3 vals |
 ```
 
-### New Parameters Tested (Phase 5)
+### Candidates (one row per validated candidate)
 ```
-| Iter | Param | Description | ΔRS | Pass? |
-|------|-------|-------------|-----|-------|
-| 1 | rsi_filter_len | RSI<70 entry gate | +0.012 | yes |
+| ID | Params | RS | Bull | Bear | vs B&H | T/yr | Bars | Btstrp | WF |
+|----|--------|----|------|------|--------|------|------|--------|----|
+| A  | qel=5  | 0.613 | 0.49 | 0.74 | 0.46× | 2.6 | 62 | 81% | PASS |
+```
+
+### Phase 5 proposals (one row per iteration)
+```
+| Itr | Category | Param | ΔRS | Plateau | Btstrp | WF |
+|-----|----------|-------|-----|---------|--------|----|
+| 1   | Volatility | atr_ratio_len | +0.012 | 4 | 78% | PASS |
+```
+
+### Best-ever update (if applicable)
+```
+NEW BEST: RS=X.XXX  vs B&H=X.XXXx  params={...}
+[BEATS BUY-AND-HOLD]  ← if vs_bah_multiple > 1.0
 ```
 
 ---
@@ -209,29 +280,33 @@ Every section uses the minimal table format below. No prose paragraphs. No per-t
 | Situation | Action |
 |-----------|--------|
 | `filtered_best.improves: false` | Skip — no regime improvement |
-| `regime_score_delta <= 0` | Skip toggle |
-| Combo RS < either individual | Drop weaker param, try next |
-| Bear avoidance ↑, bull capture ↓ slightly | Keep — bear avoidance harder to fix |
+| `plateau_width` = 1 or 2 | Treat as fragile — require validation to be consistent before using |
+| Bear avoidance ↑, bull capture ↓ slightly | Keep — bear avoidance harder to recover from |
 | Bull capture ↑, bear avoidance ↓ equally | Neutral — keep searching |
+| Regime score > baseline but `false_signal_rate` doubled | Suspect — check if noise trades are driving the score |
 | Validation: RS worse in 2+ WF windows | Reject |
-| `vs_bah_multiple` < baseline | Note in report, don't reject on this alone |
-| `vs_bah_multiple` > 1.0 | Flag prominently — strategy beating B&H |
+| Bootstrap `percentile_rank` < 75% | Note in report — not statistically strong, don't reject but flag |
+| `vs_bah_multiple` crosses 1.0 | Flag prominently, commit immediately |
 | Script error | `spike_state.py append errors '"..."'` → continue |
 | Context compressed | `spike_state.py read` → resume from `phase` |
-| Elapsed ≥ 7.5h | Go to Phase 6 |
+| Elapsed ≥ 7.5h | Phase 6 |
+| Two iterations with no improvement in Phase 5 | Continue anyway — try next signal category |
 
-## Quality Floors (reject anything below these)
+## Quality Floors
 
-| Metric | Floor |
-|--------|-------|
-| Trades/year | < 5 |
-| Avg bars held | > 50 |
-| Regime score improvement | > 0 (any positive) |
-| WF windows improved | ≥ 3 of 4 |
+| Metric | Floor | Reason |
+|--------|-------|--------|
+| Trades/year | < 5 | Trend system, not scalper |
+| Avg bars held | > 50 | Short holds = noise |
+| Regime score vs baseline | > 0 | Any improvement counts |
+| WF windows improved | ≥ 3 of 4 | Robustness check |
 
 ## Anti-Overfitting
 
-- Target 5–15% regime score improvements. >20% is suspicious.
-- 2021–22 bear and 2024_onward are the hardest windows — improvements there are signal.
-- New parameters MUST default to reproducing current 8.2.1 behavior exactly.
-- `vs_bah_multiple > 1.0` is the long-term goal. Narrowing the gap each iteration is progress.
+- Target 5–15% RS improvements. >20% is suspicious on ~18 trades over 16 years.
+- 2021–22 bear and 2024_onward are hardest windows — improvements there are signal.
+- New params MUST reproduce 8.2.1 exactly at their default value.
+- Wide plateau (≥5 sweep values near best) = robust. Narrow spike = fragile.
+- `vs_bah_multiple > 1.0` is the long-term goal. Each session should narrow the gap.
+- Bootstrap ≥75th percentile = non-random. Below that, weight results less.
+- When a new param is proposed: if it only helps in bull windows and not bear, it's likely curve-fitting.

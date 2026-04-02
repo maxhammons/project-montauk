@@ -1,0 +1,14 @@
+{
+  "_description": "Cross-session best. Updated by /spike when a new validated best is found. Never reset by spike_state init.",
+  "regime_score": 0.5524,
+  "bull_capture": 0.5584,
+  "bear_avoidance": 0.5463,
+  "vs_bah_multiple": 0.458,
+  "mar": 0.422,
+  "cagr": 27.46,
+  "max_dd": 65.1,
+  "params": {},
+  "notes": "Baseline 8.2.1 defaults — no optimization yet",
+  "date": "2026-04-02",
+  "session": "initial"
+}

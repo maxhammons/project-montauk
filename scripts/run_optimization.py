@@ -56,6 +56,7 @@ def result_to_dict(r: BacktestResult) -> dict:
         "win_rate_pct": round(r.win_rate_pct, 1),
         "worst_10_bar_loss_pct": round(r.worst_10_bar_loss_pct, 1),
         "exit_reasons": r.exit_reasons,
+        "false_signal_rate_pct": round(r.false_signal_rate_pct, 1),
         "bah_return_pct": round(r.bah_return_pct, 2),
         "bah_final_equity": round(r.bah_final_equity, 2),
         "vs_bah_multiple": round(r.vs_bah_multiple, 3),
@@ -241,6 +242,11 @@ def cmd_sweep(df: pd.DataFrame, args):
                 filtered_best_val = entry["value"]
                 filtered_best = entry
 
+    # Plateau width: number of sweep values within 0.005 of best score
+    # A wide plateau = robust. A narrow spike = fragile.
+    plateau_threshold = 0.005
+    plateau_width = sum(1 for e in all_results if abs(e["regime_score"] - best_score) <= plateau_threshold)
+
     print(f"  Raw best: {param_name}={best_val}  RegimeScore={best_score:.3f}")
     if filtered_best_val is not None:
         print(f"  Filtered best: {param_name}={filtered_best_val}  RegimeScore={filtered_best_score:.3f}  (IMPROVES baseline)")
@@ -259,7 +265,61 @@ def cmd_sweep(df: pd.DataFrame, args):
             "score": round(filtered_best_score, 4),
             "improves": filtered_best_val is not None,
         } if filtered_best else {"value": None, "score": round(b_score, 4), "improves": False},
+        "plateau_width": plateau_width,
         "all_results": all_results,
+    })
+
+
+def cmd_bootstrap(df: pd.DataFrame, args):
+    """Permutation test: shuffle trade PnL order 1000 times, check if regime score is significant."""
+    overrides = json.loads(args.params) if hasattr(args, 'params') and args.params else {}
+    base_dict = StrategyParams().to_dict()
+    base_dict.update(overrides)
+    params = StrategyParams.from_dict(base_dict)
+    result = run_backtest(df, params)
+
+    if not result.trades:
+        print("No trades to bootstrap.")
+        emit_json({"command": "bootstrap", "error": "no_trades"})
+        return
+
+    actual_score = get_regime_score(result)
+    actual_return = result.total_return_pct
+
+    # Permutation test: shuffle trade returns, recompute final equity
+    pnl_series = [t.pnl_pct / 100.0 for t in result.trades]
+    n_sim = 1000
+    sim_returns = []
+    rng = np.random.default_rng(42)
+
+    for _ in range(n_sim):
+        shuffled = rng.permutation(pnl_series)
+        equity = 1.0
+        for pnl in shuffled:
+            equity *= (1 + pnl)
+        sim_returns.append((equity - 1) * 100)
+
+    sim_returns = np.array(sim_returns)
+    percentile = float(np.mean(sim_returns < actual_return) * 100)
+    beats_median = actual_return > float(np.median(sim_returns))
+
+    print(f"\n=== BOOTSTRAP TEST ===")
+    print(f"Actual Return:   {actual_return:>8.1f}%")
+    print(f"Sim Median:      {np.median(sim_returns):>8.1f}%")
+    print(f"Sim 95th pct:    {np.percentile(sim_returns, 95):>8.1f}%")
+    print(f"Percentile rank: {percentile:>8.1f}%  ({'significant' if percentile >= 75 else 'not significant'})")
+    print(f"Regime Score:    {actual_score:.4f}")
+
+    emit_json({
+        "command": "bootstrap",
+        "actual_return_pct": round(actual_return, 2),
+        "actual_regime_score": round(actual_score, 4),
+        "sim_median_return_pct": round(float(np.median(sim_returns)), 2),
+        "sim_p95_return_pct": round(float(np.percentile(sim_returns, 95)), 2),
+        "percentile_rank": round(percentile, 1),
+        "significant": percentile >= 75,
+        "n_trades": len(result.trades),
+        "n_simulations": n_sim,
     })
 
 
@@ -335,6 +395,9 @@ def main():
     p_grid = sub.add_parser("grid")
     p_grid.add_argument("--spec", required=True)
 
+    p_bootstrap = sub.add_parser("bootstrap")
+    p_bootstrap.add_argument("--params", default=None)
+
     args = parser.parse_args()
     if not args.command:
         parser.print_help()
@@ -349,6 +412,7 @@ def main():
         "validate": cmd_validate,
         "sweep": cmd_sweep,
         "grid": cmd_grid,
+        "bootstrap": cmd_bootstrap,
     }
 
     start = time.time()

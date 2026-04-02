@@ -5,7 +5,8 @@ Mirrors the Pine Script logic bar-by-bar:
   - EMA-based entry (short > med) with trend filter
   - Exit stack: EMA cross, ATR shock, Quick EMA, Trailing stop, TEMA slope
   - Cooldown, sideways filter, TEMA entry gates
-  - process_orders_on_close=True (signals and fills on same bar's close)
+  - 1-bar execution delay: signals fire on bar i, fills execute on bar i+1's close
+    (matches TradingView default behavior — orders placed on bar close fill next bar)
 
 All indicator calculations use exponential moving averages matching
 Pine Script's ta.ema() recursive formula.
@@ -469,6 +470,7 @@ class BacktestResult:
     win_rate_pct: float = 0.0
     worst_10_bar_loss_pct: float = 0.0
     exit_reasons: dict = field(default_factory=dict)
+    false_signal_rate_pct: float = 0.0   # % of trades held < 10 bars (noise trades)
     # Buy-and-hold comparison (from date of first strategy trade)
     bah_return_pct: float = 0.0       # TECL return if held from first trade to end
     bah_final_equity: float = 0.0     # $100 account just holding TECL
@@ -488,6 +490,7 @@ class BacktestResult:
             f"Trades/Year:     {self.trades_per_year:>8.1f}",
             f"Avg Bars Held:   {self.avg_bars_held:>8.1f}",
             f"Win Rate:        {self.win_rate_pct:>8.1f}%",
+            f"False Signals:   {self.false_signal_rate_pct:>8.1f}%",
             f"Worst 10-Bar:    {self.worst_10_bar_loss_pct:>8.1f}%",
             f"Exit Reasons:    {self.exit_reasons}",
         ]
@@ -562,11 +565,48 @@ def run_backtest(df: pd.DataFrame, params: StrategyParams | None = None,
                  params.triple_ema_len * 3,  # TEMA needs 3x warmup
                  params.atr_period, params.range_len) + 10
 
+    pending_entry = False          # entry signal queued, execute at next bar's close
+    pending_exit_reason = ""       # exit signal queued, execute at next bar's close
+
     for i in range(n):
         equity_curve[i] = equity + (shares * cl[i] - shares * entry_price if position_size > 0 else 0)
 
         if i < warmup:
             continue
+
+        # ── Execute pending orders (filled at this bar's close, 1 bar after signal) ──
+        if pending_exit_reason and position_size > 0:
+            exit_price = cl[i]
+            pnl = shares * (exit_price - entry_price)
+            commission = equity * params.commission_pct / 100 * 2
+            equity += pnl - commission
+            position_size = 0
+            last_sell_bar = i
+            peak_since_entry = np.nan
+            shares = 0.0
+            if current_trade:
+                current_trade.exit_bar = i
+                current_trade.exit_date = str(dates[i])[:10]
+                current_trade.exit_price = exit_price
+                current_trade.exit_reason = pending_exit_reason
+                current_trade.pnl_pct = (exit_price / entry_price - 1) * 100
+                current_trade.bars_held = i - current_trade.entry_bar
+                trades.append(current_trade)
+                current_trade = None
+            entry_price = 0.0
+            pending_exit_reason = ""
+
+        if pending_entry and position_size == 0:
+            entry_price = cl[i]
+            shares = equity / entry_price
+            position_size = 1
+            peak_since_entry = np.nan
+            current_trade = Trade(
+                entry_bar=i,
+                entry_date=str(dates[i])[:10],
+                entry_price=entry_price
+            )
+            pending_entry = False
 
         # Check for NaN indicators
         if np.isnan(ema_short[i]) or np.isnan(ema_med[i]) or np.isnan(ema_long[i]):
@@ -676,27 +716,7 @@ def run_backtest(df: pd.DataFrame, params: StrategyParams | None = None,
                 exit_reason = "TEMA Slope"
 
             if exit_reason:
-                # Close position at this bar's close
-                exit_price = cl[i]
-                pnl = shares * (exit_price - entry_price)
-                commission = equity * params.commission_pct / 100 * 2  # round trip
-                equity += pnl - commission
-                position_size = 0
-                last_sell_bar = i
-                peak_since_entry = np.nan
-
-                if current_trade:
-                    current_trade.exit_bar = i
-                    current_trade.exit_date = str(dates[i])[:10]
-                    current_trade.exit_price = exit_price
-                    current_trade.exit_reason = exit_reason
-                    current_trade.pnl_pct = (exit_price / entry_price - 1) * 100
-                    current_trade.bars_held = i - current_trade.entry_bar
-                    trades.append(current_trade)
-                    current_trade = None
-
-                shares = 0.0
-                entry_price = 0.0
+                pending_exit_reason = exit_reason  # fill at next bar's close
 
         # ── Entry with cooldown ──
         if position_size == 0:
@@ -705,16 +725,8 @@ def run_backtest(df: pd.DataFrame, params: StrategyParams | None = None,
                 if (i - last_sell_bar) <= params.sell_cooldown_bars:
                     can_enter = False
 
-            if buy_ok and can_enter:
-                entry_price = cl[i]
-                shares = equity / entry_price
-                position_size = 1
-                peak_since_entry = np.nan
-                current_trade = Trade(
-                    entry_bar=i,
-                    entry_date=str(dates[i])[:10],
-                    entry_price=entry_price
-                )
+            if buy_ok and can_enter and not pending_exit_reason:
+                pending_entry = True  # fill at next bar's close
 
         # Track position for exposure calc
         if position_size > 0:
@@ -723,8 +735,24 @@ def run_backtest(df: pd.DataFrame, params: StrategyParams | None = None,
         # Update equity curve
         equity_curve[i] = equity + (shares * (cl[i] - entry_price) if position_size > 0 else 0)
 
+    # Execute any pending orders that reached end of data
+    if pending_exit_reason and position_size > 0 and current_trade:
+        exit_price = cl[-1]
+        pnl = shares * (exit_price - entry_price)
+        equity += pnl
+        current_trade.exit_bar = n - 1
+        current_trade.exit_date = str(dates[-1])[:10]
+        current_trade.exit_price = exit_price
+        current_trade.exit_reason = pending_exit_reason
+        current_trade.pnl_pct = (exit_price / entry_price - 1) * 100
+        current_trade.bars_held = (n - 1) - current_trade.entry_bar
+        trades.append(current_trade)
+        equity_curve[-1] = equity
+        position_size = 0
+        current_trade = None
+
     # Close any open position at end
-    if position_size > 0 and current_trade:
+    if not pending_exit_reason and position_size > 0 and current_trade:
         exit_price = cl[-1]
         pnl = shares * (exit_price - entry_price)
         equity += pnl
@@ -768,6 +796,10 @@ def run_backtest(df: pd.DataFrame, params: StrategyParams | None = None,
     # Win rate
     wins = sum(1 for t in trades if t.pnl_pct > 0)
     win_rate = wins / len(trades) * 100 if trades else 0.0
+
+    # False signal rate (trades held < 10 bars — noise, not regime)
+    false_signals = sum(1 for t in trades if t.bars_held < 10)
+    false_signal_rate = false_signals / len(trades) * 100 if trades else 0.0
 
     # Worst 10-bar loss
     worst_10 = 0.0
@@ -818,6 +850,7 @@ def run_backtest(df: pd.DataFrame, params: StrategyParams | None = None,
         win_rate_pct=win_rate,
         worst_10_bar_loss_pct=worst_10,
         exit_reasons=exit_reasons,
+        false_signal_rate_pct=round(false_signal_rate, 1),
         bah_return_pct=round(bah_return_pct, 2),
         bah_final_equity=round(bah_final_equity, 2),
         vs_bah_multiple=round(vs_bah_multiple, 3),
