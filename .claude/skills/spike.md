@@ -1,4 +1,4 @@
-# /spike — Continuous Strategy Optimization
+# /spike — Continuous Strategy Optimization (v3)
 
 Autonomous loop for Montauk. Runs until 7.5-hour time limit. **Never stops early** due to "enough candidates" — keep finding better configs until time runs out. Never modifies `src/` — all output goes to `remote/`.
 
