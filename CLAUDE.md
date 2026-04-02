@@ -18,9 +18,10 @@ Project Montauk/
 │   ├── spike_state.py         # State management for /spike (crash-safe JSON)
 │   ├── generate_pine.py       # Convert winning params back to Pine Script v6
 │   └── requirements.txt       # Python deps: pandas, numpy, requests
+├── .claude/skills/
+│   └── spike.md               # /spike skill — canonical source
 ├── .claude/commands/
-│   ├── spike.md               # /spike skill — continuous optimization loop
-│   └── sync.md                # /sync skill
+│   └── spike.md -> ../skills/spike.md   # symlink (Claude Code reads from commands/)
 ├── remote/                    # All outputs from remote/mobile sessions
 │   ├── report-YYYY-MM-DD.md   # Optimization reports
 │   └── spike-state.json       # /spike session state
