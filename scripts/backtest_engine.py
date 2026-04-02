@@ -469,6 +469,11 @@ class BacktestResult:
     win_rate_pct: float = 0.0
     worst_10_bar_loss_pct: float = 0.0
     exit_reasons: dict = field(default_factory=dict)
+    # Buy-and-hold comparison (from date of first strategy trade)
+    bah_return_pct: float = 0.0       # TECL return if held from first trade to end
+    bah_final_equity: float = 0.0     # $100 account just holding TECL
+    vs_bah_multiple: float = 0.0      # strategy_final / bah_final (>1.0 = strategy wins)
+    bah_start_date: str = ""          # date first trade was entered
     # Regime scoring (primary optimization target)
     regime_score: Optional[object] = None  # RegimeScore or None
 
@@ -486,6 +491,14 @@ class BacktestResult:
             f"Worst 10-Bar:    {self.worst_10_bar_loss_pct:>8.1f}%",
             f"Exit Reasons:    {self.exit_reasons}",
         ]
+        if self.bah_start_date:
+            sign = "+" if self.vs_bah_multiple >= 1.0 else ""
+            alpha = (self.vs_bah_multiple - 1.0) * 100
+            lines.append(
+                f"vs Buy & Hold:   {sign}{alpha:.1f}%  "
+                f"(Strategy ${self.params.get('initial_capital', 100000) * (1 + self.total_return_pct/100):.0f}  "
+                f"B&H ${self.bah_final_equity:.0f}  from {self.bah_start_date})"
+            )
         if self.regime_score:
             lines.append(self.regime_score.summary_str())
         return "\n".join(lines)
@@ -774,6 +787,22 @@ def run_backtest(df: pd.DataFrame, params: StrategyParams | None = None,
     if score_regimes:
         regime_score = score_regime_capture(trades, cl, dates)
 
+    # ── Buy-and-hold comparison (from first trade entry) ──
+    bah_return_pct = 0.0
+    bah_final_equity = params.initial_capital
+    vs_bah_multiple = 1.0
+    bah_start_date = ""
+    if trades:
+        first_bar = trades[0].entry_bar
+        bah_start_date = trades[0].entry_date
+        bah_start_price = cl[first_bar]
+        bah_end_price = cl[-1]
+        if bah_start_price > 0:
+            bah_return_pct = (bah_end_price / bah_start_price - 1) * 100
+            bah_final_equity = params.initial_capital * (bah_end_price / bah_start_price)
+            if bah_final_equity > 0:
+                vs_bah_multiple = equity_curve[-1] / bah_final_equity
+
     return BacktestResult(
         params=params.to_dict(),
         trades=trades,
@@ -789,6 +818,10 @@ def run_backtest(df: pd.DataFrame, params: StrategyParams | None = None,
         win_rate_pct=win_rate,
         worst_10_bar_loss_pct=worst_10,
         exit_reasons=exit_reasons,
+        bah_return_pct=round(bah_return_pct, 2),
+        bah_final_equity=round(bah_final_equity, 2),
+        vs_bah_multiple=round(vs_bah_multiple, 3),
+        bah_start_date=bah_start_date,
         regime_score=regime_score,
     )
 

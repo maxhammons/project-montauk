@@ -44,7 +44,7 @@ Extract the `###JSON###` line. Save to state:
 
 ```bash
 python3 scripts/spike_state.py set phase 1
-python3 scripts/spike_state.py set-json baseline '{"regime_score": 0.XXX, "bull_capture": 0.XXX, "bear_avoidance": 0.XXX, "mar": 0.XX, "cagr": XX.X, "max_dd": XX.X, "trades": N}'
+python3 scripts/spike_state.py set-json baseline '{"regime_score": 0.XXX, "bull_capture": 0.XXX, "bear_avoidance": 0.XXX, "mar": 0.XX, "cagr": XX.X, "max_dd": XX.X, "trades": N, "bah_return_pct": XXXX.X, "vs_bah_multiple": 0.XXX, "bah_start_date": "YYYY-MM-DD"}'
 ```
 
 Write baseline section to `remote/optimization-YYYY-MM-DD.md`. Then:
@@ -216,13 +216,14 @@ python3 scripts/generate_pine.py '{"param1": val1, ...}' "9.0-candidate-N"
 ```
 
 Finalize `remote/optimization-YYYY-MM-DD.md` with:
-- Baseline metrics (regime score, bull capture, bear avoidance, MAR, CAGR, MaxDD)
+- Baseline metrics (regime score, bull capture, bear avoidance, MAR, CAGR, MaxDD, vs buy-and-hold)
 - Phase 1 sweep winner table — ranked by regime score improvement
 - Phase 2 toggle results
 - Phase 3 top combinations
 - Phase 4 validation results — highlight bear window performance
 - Phase 5 refinement findings
 - Winning configuration with full comparison to 8.2.1 baseline
+- **vs Buy & Hold summary**: $100 in strategy vs $100 held in TECL from first trade date — which account has more money today, and by how much
 - Interpretation: does it enter earlier in bulls? Exit sooner in bears? Both?
 - Pine Script file reference
 
@@ -258,3 +259,4 @@ cd /home/user/project-montauk && git add remote/ && git commit -m "spike: optimi
 7. **Validation is non-negotiable.** No candidate ships without walk-forward validation.
 8. **One change at a time in sweeps.** Use grid search for interaction testing.
 9. **A good regime score with lower CAGR can still be the right answer.** Skipping losses compounds better than chasing gains on a 3x leveraged ETF.
+10. **vs_bah_multiple > 1.0 is the ultimate test.** If the strategy account has less money than just holding TECL from the first trade, regime timing isn't paying off enough to justify the missed time in market. Use this as a gut-check, not a hard rejection criterion — a candidate that improves regime score and narrows the gap to buy-and-hold is heading in the right direction.

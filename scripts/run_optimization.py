@@ -56,6 +56,10 @@ def result_to_dict(r: BacktestResult) -> dict:
         "win_rate_pct": round(r.win_rate_pct, 1),
         "worst_10_bar_loss_pct": round(r.worst_10_bar_loss_pct, 1),
         "exit_reasons": r.exit_reasons,
+        "bah_return_pct": round(r.bah_return_pct, 2),
+        "bah_final_equity": round(r.bah_final_equity, 2),
+        "vs_bah_multiple": round(r.vs_bah_multiple, 3),
+        "bah_start_date": r.bah_start_date,
         "regime_score": round(get_regime_score(r), 4),
     }
     if r.regime_score:
