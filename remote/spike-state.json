@@ -1,0 +1,18 @@
+{
+  "started": "2026-04-01T17:09:34.380311",
+  "phase": 1,
+  "iteration": 0,
+  "baseline": {},
+  "sweep_winners": {
+    "atr_multiplier": {
+      "best_value": 3.0,
+      "best_mar": 0.51
+    }
+  },
+  "toggle_results": {},
+  "candidates": [],
+  "validated": [],
+  "best_config": {},
+  "report_sections_written": [],
+  "errors": []
+}

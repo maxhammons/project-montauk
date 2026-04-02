@@ -10,6 +10,16 @@ Project Montauk/
 ├── reference/
 │   ├── Montauk Charter.md               # Coding rules, guardrails, and evaluation criteria
 │   └── pinescriptv6-main/               # Pine Script v6 reference (structured repo)
+├── scripts/                   # Python backtesting & optimization tools
+│   ├── data.py                # TECL data fetcher (Yahoo Finance API + CSV merge)
+│   ├── backtest_engine.py     # Python replica of Montauk 8.2 strategy logic
+│   ├── validation.py          # Walk-forward validation & anti-overfitting
+│   ├── run_optimization.py    # CLI runner for backtests, sweeps, grid search
+│   ├── spike_state.py         # State management for /spike (crash-safe JSON)
+│   ├── generate_pine.py       # Convert winning params back to Pine Script v6
+│   └── requirements.txt       # Python deps: pandas, numpy, requests
+├── .claude/skills/
+│   └── spike.md               # /spike skill — continuous optimization loop
 └── src/
     ├── strategy/
     │   ├── active/            # Current production strategy
@@ -107,6 +117,56 @@ When running in a remote session (e.g. Claude Code on mobile), follow these rule
 - **To edit the active indicator**: Modify `src/indicator/active/Montauk Composite Oscillator 1.3.txt`, then paste into TradingView Pine Editor
 - **When creating a new version**: Copy the active file to the appropriate archive folder first, then modify the active copy
 - **Strategy and indicator are separate scripts in TradingView** - the strategy handles entries/exits, the indicator provides visual confirmation in a separate chart pane
+
+## Optimization Tools (`/spike`)
+
+The `/spike` skill runs a continuous strategy optimization loop. It uses a Python backtesting engine that faithfully replicates Montauk 8.2's logic, enabling rapid parameter sweeps and walk-forward validation without TradingView.
+
+### How to use
+
+1. **Install deps** (first time only): `pip3 install pandas numpy requests`
+2. **Run `/spike`** in Claude Code — this kicks off the multi-phase optimization loop
+3. All output goes to `remote/` — **the active strategy is never modified**
+4. Winning configurations are output as ready-to-paste Pine Script v6
+
+### CLI tools (used by `/spike`, also available standalone)
+
+```bash
+# Run baseline backtest with 8.2 defaults
+python3 scripts/run_optimization.py baseline
+
+# Test specific parameter overrides
+python3 scripts/run_optimization.py test --params '{"short_ema_len": 12}'
+
+# Sweep a single parameter
+python3 scripts/run_optimization.py sweep --param atr_multiplier --min 1.5 --max 5.0 --step 0.5
+
+# Grid search (parameter interactions)
+python3 scripts/run_optimization.py grid --spec '{"short_ema_len": [10,15], "med_ema_len": [25,30]}'
+
+# Walk-forward validation (anti-overfitting)
+python3 scripts/run_optimization.py validate --params '{"short_ema_len": 12}'
+
+# Generate Pine Script from params
+python3 scripts/generate_pine.py '{"short_ema_len": 12}' "9.0-candidate"
+
+# State management (used by /spike)
+python3 scripts/spike_state.py init           # fresh state
+python3 scripts/spike_state.py read           # print current state
+python3 scripts/spike_state.py elapsed        # hours since start
+```
+
+All commands output a `###JSON###` line at the end for machine parsing.
+
+### Key metrics (from Charter)
+
+| Metric | Target direction |
+|--------|-----------------|
+| MAR Ratio (CAGR/MaxDD) | Higher is better — primary optimization target |
+| CAGR | Higher |
+| Max Drawdown | Lower |
+| Trades/Year | Low (<5) — avoid churn |
+| Avg Bars Held | High (50+) — trend system, not scalper |
 
 ## Reference Files
 
