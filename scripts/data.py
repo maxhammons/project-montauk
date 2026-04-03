@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 TECL data fetcher — CSV fallback + yfinance for fresh data.
 """

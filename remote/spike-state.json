@@ -1,129 +1,13 @@
 {
-  "started": "2026-04-02T07:50:33.891337",
-  "phase": 5,
-  "iteration": 6,
-  "baseline": {
-    "regime_score": 0.548,
-    "bull_capture": 0.555,
-    "bear_avoidance": 0.541,
-    "vs_bah_multiple": 0.922,
-    "bah_start_date": "2011-07-12",
-    "mar": 0.525,
-    "cagr": 33.88,
-    "max_dd": 64.6,
-    "false_signal_rate": 5.9
-  },
-  "sweep_winners": {
-    "sell_cooldown_bars": {
-      "best_value": 8,
-      "best_score": 0.565,
-      "delta": 0.017,
-      "plateau_width": 3
-    },
-    "quick_ema_len": {
-      "best_value": 3,
-      "best_score": 0.613,
-      "delta": 0.065,
-      "plateau_width": 1,
-      "flag": "fragile_vs_bah_collapse"
-    },
-    "quick_delta_pct_thresh": {
-      "best_value": -3.0,
-      "best_score": 0.625,
-      "delta": 0.077,
-      "plateau_width": 1,
-      "flag": "fragile_suspicious"
-    },
-    "quick_lookback_bars": {
-      "best_value": 6,
-      "best_score": 0.581,
-      "delta": 0.033,
-      "plateau_width": 2,
-      "flag": "fragile_suspicious"
-    }
-  },
-  "toggle_results": {
-    "enable_sell_confirm_false": {
-      "params": {
-        "enable_sell_confirm": false
-      },
-      "regime_score_delta": 0.003
-    },
-    "trail_stop_15": {
-      "params": {
-        "enable_trail_stop": true,
-        "trail_drop_pct": 15
-      },
-      "regime_score_delta": 0.064,
-      "flag": "vs_bah_collapses"
-    },
-    "trail_stop_20": {
-      "params": {
-        "enable_trail_stop": true,
-        "trail_drop_pct": 20
-      },
-      "regime_score_delta": 0.016,
-      "flag": "vs_bah_collapses"
-    },
-    "trail_stop_25": {
-      "params": {
-        "enable_trail_stop": true,
-        "trail_drop_pct": 25
-      },
-      "regime_score_delta": 0.027,
-      "flag": "vs_bah_collapses"
-    },
-    "tried_cat1_volatility_atr_ratio": {
-      "result": "no_effect"
-    }
-  },
+  "started": "2026-04-03T13:27:17.340777",
+  "phase": 0,
+  "iteration": 0,
+  "baseline": {},
+  "sweep_winners": {},
+  "toggle_results": {},
   "candidates": [],
-  "validated": [
-    {
-      "params": {
-        "sell_cooldown_bars": 8,
-        "sell_confirm_bars": 1
-      },
-      "regime_score": 0.568,
-      "bull_capture": 0.557,
-      "bear_avoidance": 0.579,
-      "vs_bah_multiple": 0.733,
-      "bootstrap_pct": 30.1,
-      "wf": "PASS_all4",
-      "notes": "improves_all_4_wf_windows_2021bear+0.061"
-    },
-    {
-      "params": {
-        "sell_cooldown_bars": 8,
-        "sell_confirm_bars": 1,
-        "atr_period": 50
-      },
-      "regime_score": 0.57,
-      "bull_capture": 0.558,
-      "bear_avoidance": 0.582,
-      "vs_bah_multiple": 0.829,
-      "bootstrap_pct": 2.0,
-      "wf": "PASS_all4_2024_improved",
-      "notes": "best_so_far_all4_wf_pass_including_2024_onward"
-    }
-  ],
+  "validated": [],
   "best_config": {},
   "report_sections_written": [],
-  "errors": [],
-  "validated_best": {
-    "regime_score": 0.603,
-    "bull_capture": 0.541,
-    "bear_avoidance": 0.665,
-    "vs_bah_multiple": 1.135,
-    "params": {
-      "sell_cooldown_bars": 8,
-      "sell_confirm_bars": 1,
-      "atr_period": 50,
-      "enable_vol_exit": true,
-      "vol_spike_mult": 2.3
-    },
-    "label": "Combo G",
-    "wf_pass": true,
-    "caution": "plateau_width=1, 2021_2022_bear MAR negative"
-  }
+  "errors": []
 }

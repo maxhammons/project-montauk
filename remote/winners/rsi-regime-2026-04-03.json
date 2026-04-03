@@ -1,0 +1,27 @@
+{
+  "date": "2026-04-03",
+  "strategy": "rsi_regime",
+  "fitness": 1.8104,
+  "vs_bah": 2.698,
+  "cagr": 46.4,
+  "max_dd": 65.8,
+  "mar": 0.705,
+  "trades": 10,
+  "trades_yr": 0.6,
+  "win_rate": 100.0,
+  "params": {
+    "rsi_len": 14,
+    "trend_len": 150,
+    "entry_rsi": 35.0,
+    "exit_rsi": 80.0,
+    "panic_rsi": 15,
+    "cooldown": 5
+  },
+  "logic": {
+    "entry": "RSI(14) crosses up through 35 AND price > EMA(150)",
+    "exit_overbought": "RSI(14) >= 80",
+    "exit_panic": "RSI(14) < 15",
+    "cooldown": "5 bars after exit"
+  },
+  "notes": "Found in 54-second test run (2,625 evals). Needs full 8h run to verify stability. 100% win rate on 10 trades is suspicious — could be overfitting to this specific RSI/trend combo."
+}

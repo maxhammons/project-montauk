@@ -1,0 +1,181 @@
+{
+  "date": "2026-04-03",
+  "elapsed_hours": 0.01,
+  "total_evaluations": 1330,
+  "generations": 19,
+  "constraint": "<=3.0 trades/yr",
+  "rankings": [
+    {
+      "rank": 1,
+      "strategy": "rsi_regime",
+      "fitness": 2.1803,
+      "params": {
+        "trend_len": 150,
+        "rsi_len": 10,
+        "entry_rsi": 35.0,
+        "panic_rsi": 15,
+        "cooldown": 5,
+        "exit_rsi": 85
+      },
+      "metrics": {
+        "vs_bah": 3.4913,
+        "cagr": 48.61,
+        "max_dd": 75.1,
+        "mar": 0.647,
+        "trades": 12,
+        "trades_yr": 0.7,
+        "win_rate": 75.0,
+        "exit_reasons": {
+          "R": 11,
+          "End of Data": 1
+        }
+      }
+    },
+    {
+      "rank": 2,
+      "strategy": "breakout",
+      "fitness": 0.5049,
+      "params": {
+        "breakout_pct": 0.9,
+        "atr_mult": 4.0,
+        "trail_pct": 25,
+        "cooldown": 15,
+        "lookback": 30,
+        "atr_period": 30
+      },
+      "metrics": {
+        "vs_bah": 0.7453,
+        "cagr": 35.88,
+        "max_dd": 64.5,
+        "mar": 0.556,
+        "trades": 20,
+        "trades_yr": 1.2,
+        "win_rate": 60.0,
+        "exit_reasons": {
+          "T": 18,
+          "A": 2
+        }
+      }
+    },
+    {
+      "rank": 3,
+      "strategy": "montauk_821",
+      "fitness": 0.4556,
+      "params": {
+        "quick_ema": 3,
+        "slope_lookback": 3,
+        "quick_lookback": 2,
+        "quick_thresh": -8.0,
+        "trend_ema": 40,
+        "atr_mult": 5.0,
+        "short_ema": 19,
+        "sell_buffer": 0.6,
+        "cooldown": 7,
+        "med_ema": 20,
+        "atr_period": 50
+      },
+      "metrics": {
+        "vs_bah": 0.6275,
+        "cagr": 34.53,
+        "max_dd": 54.8,
+        "mar": 0.63,
+        "trades": 28,
+        "trades_yr": 1.6,
+        "win_rate": 53.6,
+        "exit_reasons": {
+          "Q": 28
+        }
+      }
+    },
+    {
+      "rank": 4,
+      "strategy": "golden_cross",
+      "fitness": 0.0994,
+      "params": {
+        "fast_len": 80,
+        "slow_len": 175,
+        "cooldown": 20
+      },
+      "metrics": {
+        "vs_bah": 0.1592,
+        "cagr": 24.25,
+        "max_dd": 75.1,
+        "mar": 0.323,
+        "trades": 10,
+        "trades_yr": 0.6,
+        "win_rate": 70.0,
+        "exit_reasons": {
+          "D": 10
+        }
+      }
+    },
+    {
+      "rank": 5,
+      "strategy": "bollinger_squeeze",
+      "fitness": 0.0605,
+      "params": {
+        "trend_len": 40,
+        "exit_squeeze_mult": 0.4,
+        "squeeze_mult": 0.9,
+        "bb_len": 40,
+        "cooldown": 0,
+        "width_smooth": 25
+      },
+      "metrics": {
+        "vs_bah": 0.0828,
+        "cagr": 19.63,
+        "max_dd": 53.9,
+        "mar": 0.364,
+        "trades": 28,
+        "trades_yr": 1.6,
+        "win_rate": 64.3,
+        "exit_reasons": {
+          "B": 28
+        }
+      }
+    },
+    {
+      "rank": 6,
+      "strategy": "trend_stack",
+      "fitness": 0.0311,
+      "params": {
+        "mid_ema": 40,
+        "anchor_ema": 100,
+        "fast_ema": 5,
+        "slow_ema": 50,
+        "cooldown": 15
+      },
+      "metrics": {
+        "vs_bah": 0.0413,
+        "cagr": 14.89,
+        "max_dd": 49.3,
+        "mar": 0.302,
+        "trades": 51,
+        "trades_yr": 3.0,
+        "win_rate": 43.1,
+        "exit_reasons": {
+          "S": 51
+        }
+      }
+    },
+    {
+      "rank": 7,
+      "strategy": "tema_momentum",
+      "fitness": 0.0,
+      "params": {},
+      "metrics": null
+    }
+  ],
+  "best_ever": {
+    "strategy": "rsi_regime",
+    "fitness": 2.1803,
+    "params": {
+      "trend_len": 150,
+      "rsi_len": 10,
+      "entry_rsi": 35.0,
+      "panic_rsi": 15,
+      "cooldown": 5,
+      "exit_rsi": 85
+    }
+  }
+}

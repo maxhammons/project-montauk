@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 Walk-forward validation and anti-overfitting framework.
 

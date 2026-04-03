@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 """
 Generate a parameter diff report for a Montauk strategy candidate.
 

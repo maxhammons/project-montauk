@@ -1,0 +1,289 @@
+[
+  {
+    "id": 1,
+    "category": "volatility_regime",
+    "name": "atr_ratio_entry_gate",
+    "description": "Block entries when current ATR is unusually high vs its long-term average — high vol = bear territory",
+    "status": "implemented",
+    "toggle": "enable_atr_ratio_filter",
+    "params": {
+      "atr_ratio_len": {"min": 50, "max": 200, "step": 25, "default": 100},
+      "atr_ratio_max": {"min": 1.0, "max": 3.0, "step": 0.25, "default": 2.0}
+    },
+    "logic": "entry_gate: atr[i] / ema(atr, atr_ratio_len)[i] <= atr_ratio_max",
+    "wires_into": "entry"
+  },
+  {
+    "id": 2,
+    "category": "trend_strength",
+    "name": "adx_entry_gate",
+    "description": "Only enter when ADX confirms a trending market — avoids choppy sideways",
+    "status": "implemented",
+    "toggle": "enable_adx_filter",
+    "params": {
+      "adx_len": {"min": 10, "max": 30, "step": 5, "default": 14},
+      "adx_min": {"min": 15, "max": 30, "step": 5, "default": 20}
+    },
+    "logic": "entry_gate: adx(adx_len)[i] >= adx_min",
+    "wires_into": "entry"
+  },
+  {
+    "id": 3,
+    "category": "momentum",
+    "name": "roc_entry_gate",
+    "description": "Only enter when price is above where it was N bars ago — confirms upward momentum",
+    "status": "implemented",
+    "toggle": "enable_roc_filter",
+    "params": {
+      "roc_len": {"min": 10, "max": 40, "step": 5, "default": 20}
+    },
+    "logic": "entry_gate: close[i] > close[i - roc_len]",
+    "wires_into": "entry"
+  },
+  {
+    "id": 4,
+    "category": "bear_depth",
+    "name": "bear_depth_guard",
+    "description": "Block re-entry if account equity is far below its recent peak — we're still in a drawdown",
+    "status": "implemented",
+    "toggle": "enable_bear_guard",
+    "params": {
+      "bear_guard_pct": {"min": 10, "max": 30, "step": 5, "default": 20},
+      "bear_guard_lookback": {"min": 30, "max": 120, "step": 15, "default": 60}
+    },
+    "logic": "entry_gate: equity >= rolling_peak(bear_guard_lookback) * (1 - bear_guard_pct/100)",
+    "wires_into": "entry"
+  },
+  {
+    "id": 5,
+    "category": "asymmetric_exit",
+    "name": "asymmetric_atr_exit",
+    "description": "Tighten ATR exit multiplier when volatility is elevated — exit faster in high-vol environments",
+    "status": "implemented",
+    "toggle": "enable_asymmetric_exit",
+    "params": {
+      "asym_atr_ratio_threshold": {"min": 1.0, "max": 2.5, "step": 0.25, "default": 1.5},
+      "asym_exit_multiplier": {"min": 1.0, "max": 3.0, "step": 0.5, "default": 1.5}
+    },
+    "logic": "if atr_ratio > threshold: use tighter multiplier for ATR exit",
+    "wires_into": "exit"
+  },
+  {
+    "id": 6,
+    "category": "volume",
+    "name": "vol_spike_exit",
+    "description": "Exit when volume spikes above average AND price closes down — capitulation signal",
+    "status": "implemented",
+    "toggle": "enable_vol_exit",
+    "params": {
+      "vol_spike_len": {"min": 10, "max": 40, "step": 5, "default": 20},
+      "vol_spike_mult": {"min": 1.5, "max": 4.0, "step": 0.25, "default": 2.5}
+    },
+    "logic": "exit: volume > ema(volume, vol_spike_len) * vol_spike_mult AND close < prev_close",
+    "wires_into": "exit"
+  },
+  {
+    "id": 7,
+    "category": "trail_stop",
+    "name": "trailing_peak_stop",
+    "description": "Exit if price drops X% from peak since entry — locks in gains on extended runs",
+    "status": "implemented",
+    "toggle": "enable_trail_stop",
+    "params": {
+      "trail_drop_pct": {"min": 10, "max": 40, "step": 5, "default": 25}
+    },
+    "logic": "exit: close < peak_since_entry * (1 - trail_drop_pct/100)",
+    "wires_into": "exit"
+  },
+  {
+    "id": 8,
+    "category": "tema_exit",
+    "name": "tema_slope_exit",
+    "description": "Exit when TEMA slope turns negative — long-term trend reversal signal",
+    "status": "implemented",
+    "toggle": "enable_tema_exit",
+    "params": {
+      "tema_exit_lookback": {"min": 3, "max": 20, "step": 2, "default": 5}
+    },
+    "logic": "exit: (tema[i] - tema[i - lookback]) / lookback < 0",
+    "wires_into": "exit"
+  },
+  {
+    "id": 9,
+    "category": "volatility_regime",
+    "name": "bollinger_width_gate",
+    "description": "Block entries when Bollinger Band width is expanding rapidly — volatility regime shift underway",
+    "status": "queued",
+    "toggle": "enable_bb_width_filter",
+    "params": {
+      "bb_len": {"min": 15, "max": 40, "step": 5, "default": 20},
+      "bb_width_max": {"min": 0.05, "max": 0.30, "step": 0.05, "default": 0.15},
+      "bb_width_lookback": {"min": 5, "max": 20, "step": 5, "default": 10}
+    },
+    "logic": "bb_width = (upper - lower) / sma; entry_gate: bb_width[i] < bb_width_max OR bb_width[i] < bb_width[i - lookback]",
+    "wires_into": "entry",
+    "implementation": "upper = sma(cl, bb_len) + 2*stddev(cl, bb_len); lower = sma - 2*stddev; width = (upper-lower)/sma; gate on width or width expansion rate"
+  },
+  {
+    "id": 10,
+    "category": "trend_alignment",
+    "name": "ema_fan_entry",
+    "description": "Only enter when short/med/trend EMAs are properly stacked (short > med > trend) — full trend alignment",
+    "status": "queued",
+    "toggle": "enable_ema_fan",
+    "params": {},
+    "logic": "entry_gate: ema_short > ema_med > ema_trend (all three ordered)",
+    "wires_into": "entry",
+    "implementation": "Simple boolean: ema_short[i] > ema_med[i] AND ema_med[i] > ema_trend[i]. No new indicators needed — uses existing EMAs."
+  },
+  {
+    "id": 11,
+    "category": "momentum",
+    "name": "macd_histogram_gate",
+    "description": "Only enter when MACD histogram is positive and rising — confirms momentum acceleration",
+    "status": "queued",
+    "toggle": "enable_macd_gate",
+    "params": {
+      "macd_fast": {"min": 8, "max": 16, "step": 2, "default": 12},
+      "macd_slow": {"min": 20, "max": 32, "step": 4, "default": 26},
+      "macd_signal": {"min": 5, "max": 12, "step": 1, "default": 9}
+    },
+    "logic": "hist = ema(cl, fast) - ema(cl, slow); signal = ema(hist, signal_len); gate: hist > signal AND hist > hist[1]",
+    "wires_into": "entry",
+    "implementation": "Compute MACD line = ema(fast) - ema(slow), signal = ema(macd, signal_len), histogram = macd - signal. Gate: histogram > 0 AND histogram > histogram[i-1]."
+  },
+  {
+    "id": 12,
+    "category": "noise_rejection",
+    "name": "min_move_reentry",
+    "description": "After exit, require price to move at least X% before re-entering — prevents whipsaw re-entries",
+    "status": "queued",
+    "toggle": "enable_min_move",
+    "params": {
+      "min_move_pct": {"min": 3, "max": 20, "step": 2, "default": 8}
+    },
+    "logic": "entry_gate: abs(close - last_exit_price) / last_exit_price > min_move_pct/100",
+    "wires_into": "entry",
+    "implementation": "Track last_exit_price. On entry check: abs(cl[i] - last_exit_price) / last_exit_price >= min_move_pct / 100. Reset on each exit."
+  },
+  {
+    "id": 13,
+    "category": "price_structure",
+    "name": "higher_lows_gate",
+    "description": "Only enter when recent swing lows are rising — structural uptrend confirmation",
+    "status": "queued",
+    "toggle": "enable_higher_lows",
+    "params": {
+      "hl_lookback": {"min": 20, "max": 60, "step": 10, "default": 40},
+      "hl_min_count": {"min": 2, "max": 4, "step": 1, "default": 2}
+    },
+    "logic": "Find local minima in lookback window, require at least hl_min_count consecutive higher lows",
+    "wires_into": "entry",
+    "implementation": "Scan lo[i-lookback:i] for local minima (lo[j] < lo[j-1] AND lo[j] < lo[j+1]). Collect the last N minima. Gate: each min > previous min for at least hl_min_count."
+  },
+  {
+    "id": 14,
+    "category": "mean_reversion_guard",
+    "name": "distance_from_mean",
+    "description": "Block entries when price is extremely far above long-term mean — extended moves snap back on TECL",
+    "status": "queued",
+    "toggle": "enable_mean_distance",
+    "params": {
+      "mean_len": {"min": 100, "max": 500, "step": 50, "default": 200},
+      "max_above_pct": {"min": 50, "max": 200, "step": 25, "default": 100}
+    },
+    "logic": "entry_gate: (close - sma(close, mean_len)) / sma(close, mean_len) * 100 < max_above_pct",
+    "wires_into": "entry",
+    "implementation": "distance_pct = (cl[i] - sma_vals_long[i]) / sma_vals_long[i] * 100. Gate: distance_pct < max_above_pct. Uses a new long SMA."
+  },
+  {
+    "id": 15,
+    "category": "volatility_regime",
+    "name": "realized_vol_exit",
+    "description": "Exit when realized volatility spikes — measures actual price movement, not just ATR",
+    "status": "queued",
+    "toggle": "enable_rvol_exit",
+    "params": {
+      "rvol_len": {"min": 10, "max": 30, "step": 5, "default": 20},
+      "rvol_mult": {"min": 1.5, "max": 3.0, "step": 0.5, "default": 2.0},
+      "rvol_avg_len": {"min": 50, "max": 200, "step": 25, "default": 100}
+    },
+    "logic": "rvol = stddev(daily_returns, rvol_len); avg_rvol = ema(rvol, rvol_avg_len); exit: rvol > avg_rvol * rvol_mult",
+    "wires_into": "exit",
+    "implementation": "daily_ret = (cl[i] - cl[i-1]) / cl[i-1]. rvol = rolling stddev of daily_ret over rvol_len. avg_rvol = ema of rvol over rvol_avg_len. Exit when rvol > avg_rvol * rvol_mult."
+  },
+  {
+    "id": 16,
+    "category": "trend_strength",
+    "name": "ema_slope_momentum_exit",
+    "description": "Exit when the trend EMA slope decelerates sharply — trend is losing steam before the cross happens",
+    "status": "queued",
+    "toggle": "enable_slope_decel_exit",
+    "params": {
+      "slope_decel_lookback": {"min": 3, "max": 10, "step": 1, "default": 5},
+      "slope_decel_thresh": {"min": -0.5, "max": -0.1, "step": 0.1, "default": -0.3}
+    },
+    "logic": "slope = ema_trend[i] - ema_trend[i-1]; accel = slope - slope_prev_avg; exit: accel < thresh",
+    "wires_into": "exit",
+    "implementation": "slope_now = ema_trend[i] - ema_trend[i-1]; slope_prev = avg of slope over lookback bars; decel = slope_now - slope_prev; exit when decel < thresh."
+  },
+  {
+    "id": 17,
+    "category": "momentum",
+    "name": "rsi_overbought_exit",
+    "description": "Exit when RSI reaches overbought extremes — mean reversion risk on leveraged ETF",
+    "status": "queued",
+    "toggle": "enable_rsi_exit",
+    "params": {
+      "rsi_len": {"min": 7, "max": 21, "step": 2, "default": 14},
+      "rsi_exit_level": {"min": 75, "max": 90, "step": 5, "default": 80}
+    },
+    "logic": "exit: rsi(rsi_len) > rsi_exit_level",
+    "wires_into": "exit",
+    "implementation": "Standard RSI with Wilder's smoothing. Compute gains/losses arrays, smooth with RMA, RS = avg_gain/avg_loss, RSI = 100 - 100/(1+RS). Exit when RSI > level."
+  },
+  {
+    "id": 18,
+    "category": "volume",
+    "name": "volume_dry_up_gate",
+    "description": "Block entries when volume is abnormally low — thin markets move on noise, not conviction",
+    "status": "queued",
+    "toggle": "enable_low_vol_gate",
+    "params": {
+      "low_vol_len": {"min": 10, "max": 40, "step": 5, "default": 20},
+      "low_vol_min": {"min": 0.3, "max": 0.8, "step": 0.1, "default": 0.5}
+    },
+    "logic": "entry_gate: volume > ema(volume, low_vol_len) * low_vol_min",
+    "wires_into": "entry",
+    "implementation": "Uses existing vol_ema_vals. Gate: vol[i] > vol_ema_vals[i] * low_vol_min."
+  },
+  {
+    "id": 19,
+    "category": "price_structure",
+    "name": "new_high_momentum",
+    "description": "Only enter near new N-bar highs — breakout confirmation, price making new territory",
+    "status": "queued",
+    "toggle": "enable_breakout_gate",
+    "params": {
+      "breakout_len": {"min": 20, "max": 80, "step": 10, "default": 50},
+      "breakout_pct": {"min": 0.90, "max": 1.0, "step": 0.02, "default": 0.95}
+    },
+    "logic": "entry_gate: close > highest(high, breakout_len) * breakout_pct",
+    "wires_into": "entry",
+    "implementation": "Uses existing highest() function. Gate: cl[i] > highest(hi, breakout_len)[i] * breakout_pct. Close to but not necessarily above the N-bar high."
+  },
+  {
+    "id": 20,
+    "category": "noise_rejection",
+    "name": "consecutive_down_exit",
+    "description": "Exit after N consecutive down closes — persistent selling pressure, not just a one-bar dip",
+    "status": "queued",
+    "toggle": "enable_consec_down_exit",
+    "params": {
+      "consec_down_bars": {"min": 3, "max": 7, "step": 1, "default": 4}
+    },
+    "logic": "exit: close[i] < close[i-1] for N consecutive bars",
+    "wires_into": "exit",
+    "implementation": "Track consecutive_down counter. Increment when cl[i] < cl[i-1], reset to 0 otherwise. Exit when counter >= consec_down_bars."
+  }
+]
