@@ -338,17 +338,438 @@ def tema_momentum(ind: Indicators, p: dict) -> tuple:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Strategy 8: MFI Regime — Volume-weighted RSI analog
+# MFI adds volume confirmation to RSI-style oversold/overbought signals.
+# On TECL, volume spikes confirm regime shifts, so this may beat plain RSI.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def mfi_regime(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    mfi = ind.mfi(p.get("mfi_len", 14))
+    trend_ema = ind.ema(p.get("trend_len", 150))
+    atr_vals = ind.atr(p.get("atr_period", 40))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    entry_level = p.get("entry_mfi", 35)
+    exit_level = p.get("exit_mfi", 80)
+    panic_level = p.get("panic_mfi", 15)
+
+    for i in range(1, n):
+        if np.isnan(mfi[i]) or np.isnan(mfi[i-1]):
+            continue
+
+        # Entry: MFI crosses up through entry level + price above trend EMA
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+        if mfi[i-1] < entry_level and mfi[i] >= entry_level and trend_ok:
+            entries[i] = True
+
+        # Exit: MFI reaches overbought
+        if mfi[i] >= exit_level:
+            exits[i] = True
+            labels[i] = "MFI Overbought"
+            continue
+
+        # Exit: MFI panic (capitulation sell)
+        if mfi[i] < panic_level:
+            exits[i] = True
+            labels[i] = "MFI Panic"
+            continue
+
+        # Exit: ATR shock
+        if not np.isnan(atr_vals[i]) and i >= 1:
+            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 3.5):
+                exits[i] = True
+                labels[i] = "ATR Shock"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 9: Williams %R Regime — Oversold recovery with trend filter
+# WillR is more sensitive than RSI for price-channel-based signals.
+# Entry: WillR recovers from deep oversold. Exit: WillR reaches overbought.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def willr_regime(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    willr = ind.willr(p.get("willr_len", 14))
+    trend_ema = ind.ema(p.get("trend_len", 150))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    # WillR ranges from -100 (oversold) to 0 (overbought)
+    entry_level = p.get("entry_willr", -70)   # e.g. -70 = "was oversold"
+    exit_level = p.get("exit_willr", -10)     # e.g. -10 = "overbought"
+    panic_level = p.get("panic_willr", -90)   # extreme oversold = exit
+
+    for i in range(1, n):
+        if np.isnan(willr[i]) or np.isnan(willr[i-1]):
+            continue
+
+        # Entry: WillR crosses up through entry level + price above trend EMA
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+        if willr[i-1] < entry_level and willr[i] >= entry_level and trend_ok:
+            entries[i] = True
+
+        # Exit: WillR reaches overbought
+        if willr[i] >= exit_level:
+            exits[i] = True
+            labels[i] = "WillR Overbought"
+            continue
+
+        # Exit: WillR extreme panic
+        if willr[i] < panic_level:
+            exits[i] = True
+            labels[i] = "WillR Panic"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 10: Stochastic Regime — K/D crossover with trend filter
+# Stochastic captures short-term mean reversion better in trending markets.
+# Enter when Stoch K crosses D from oversold zone. Exit when overbought.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def stoch_regime(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    stoch_k = ind.stoch_k(p.get("stoch_len", 14), p.get("smooth_k", 3))
+    stoch_d = ind.stoch_d(p.get("stoch_len", 14), p.get("smooth_k", 3), p.get("smooth_d", 3))
+    trend_ema = ind.ema(p.get("trend_len", 150))
+    atr_vals = ind.atr(p.get("atr_period", 40))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    oversold = p.get("oversold", 25)
+    overbought = p.get("overbought", 80)
+
+    for i in range(1, n):
+        if np.isnan(stoch_k[i]) or np.isnan(stoch_d[i]) or np.isnan(stoch_k[i-1]) or np.isnan(stoch_d[i-1]):
+            continue
+
+        # Entry: K crosses above D from oversold zone + price above trend EMA
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+        k_cross_up = stoch_k[i-1] <= stoch_d[i-1] and stoch_k[i] > stoch_d[i]
+        was_oversold = stoch_k[i-1] < oversold or stoch_d[i-1] < oversold
+        if k_cross_up and was_oversold and trend_ok:
+            entries[i] = True
+
+        # Exit: both K and D in overbought
+        if stoch_k[i] >= overbought and stoch_d[i] >= overbought:
+            exits[i] = True
+            labels[i] = "Stoch Overbought"
+            continue
+
+        # Exit: K crosses below D from overbought zone
+        k_cross_down = stoch_k[i-1] >= stoch_d[i-1] and stoch_k[i] < stoch_d[i]
+        if k_cross_down and stoch_k[i-1] >= overbought:
+            exits[i] = True
+            labels[i] = "Stoch Cross Down"
+            continue
+
+        # Exit: ATR shock
+        if not np.isnan(atr_vals[i]) and i >= 1:
+            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 3.5):
+                exits[i] = True
+                labels[i] = "ATR Shock"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 11: MACD Regime — Zero-line cross with trend anchor
+# Based on Montauk 6.x heritage. MACD histogram zero-cross for regime shifts.
+# Only enter in uptrend (price above long EMA). ATR exit for protection.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def macd_regime(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    macd_hist = ind.macd_hist(p.get("fast", 12), p.get("slow", 26), p.get("signal", 9))
+    macd_line = ind.macd_line(p.get("fast", 12), p.get("slow", 26))
+    trend_ema = ind.ema(p.get("trend_len", 200))
+    atr_vals = ind.atr(p.get("atr_period", 40))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    for i in range(1, n):
+        if np.isnan(macd_hist[i]) or np.isnan(macd_hist[i-1]) or np.isnan(macd_line[i]):
+            continue
+
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+
+        # Entry: MACD histogram crosses zero from below + above trend EMA
+        if macd_hist[i-1] < 0 and macd_hist[i] >= 0 and trend_ok:
+            entries[i] = True
+
+        # Exit: MACD line crosses below zero
+        if macd_line[i] < 0:
+            exits[i] = True
+            labels[i] = "MACD Below Zero"
+            continue
+
+        # Exit: MACD histogram crosses zero from above (momentum fading)
+        if macd_hist[i-1] >= 0 and macd_hist[i] < 0:
+            exits[i] = True
+            labels[i] = "MACD Hist Cross"
+            continue
+
+        # Exit: ATR shock
+        if not np.isnan(atr_vals[i]) and i >= 1:
+            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 3.0):
+                exits[i] = True
+                labels[i] = "ATR Shock"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 12: ADX Trend — Only trade when trend is directionally strong
+# ADX > threshold confirms a real trend. DI+/DI- gives direction.
+# Designed to avoid the choppy sideways periods that kill leveraged ETFs.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def adx_trend(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    adx = ind.adx(p.get("adx_len", 14))
+    di_plus = ind.di_plus(p.get("adx_len", 14))
+    di_minus = ind.di_minus(p.get("adx_len", 14))
+    trend_ema = ind.ema(p.get("trend_len", 100))
+    atr_vals = ind.atr(p.get("atr_period", 40))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    adx_thresh = p.get("adx_thresh", 25)
+
+    for i in range(1, n):
+        if np.isnan(adx[i]) or np.isnan(di_plus[i]) or np.isnan(di_minus[i]):
+            continue
+
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+        strong_trend = adx[i] > adx_thresh
+        bull_direction = di_plus[i] > di_minus[i]
+
+        # Entry: ADX shows strong trend + DI+ > DI- + above long EMA
+        if strong_trend and bull_direction and trend_ok:
+            entries[i] = True
+
+        # Exit: DI- crosses above DI+ (bearish direction flip)
+        if di_minus[i] > di_plus[i]:
+            exits[i] = True
+            labels[i] = "DI Bear Cross"
+            continue
+
+        # Exit: ADX drops below threshold (trend dying)
+        if adx[i] < p.get("adx_exit", 20):
+            exits[i] = True
+            labels[i] = "ADX Weak"
+            continue
+
+        # Exit: ATR shock
+        if not np.isnan(atr_vals[i]) and i >= 1:
+            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 3.0):
+                exits[i] = True
+                labels[i] = "ATR Shock"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 13: RSI + EMA Hybrid — RSI entry timing with EMA cross protection
+# Combines the best of rsi_regime (precise entry timing) with montauk_821
+# (EMA cross exit for trend protection). ATR as backstop.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def rsi_ema_hybrid(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    rsi = ind.rsi(p.get("rsi_len", 10))
+    ema_s = ind.ema(p.get("short_ema", 15))
+    ema_m = ind.ema(p.get("med_ema", 40))
+    trend_ema = ind.ema(p.get("trend_len", 150))
+    atr_vals = ind.atr(p.get("atr_period", 40))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    entry_rsi = p.get("entry_rsi", 35)
+
+    for i in range(1, n):
+        if np.isnan(rsi[i]) or np.isnan(rsi[i-1]) or np.isnan(ema_s[i]) or np.isnan(ema_m[i]):
+            continue
+
+        # Entry: RSI recovery from oversold + EMA trend aligned + price above anchor
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+        ema_aligned = ema_s[i] > ema_m[i]
+        rsi_recovery = rsi[i-1] < entry_rsi and rsi[i] >= entry_rsi
+
+        if rsi_recovery and trend_ok:
+            entries[i] = True
+
+        # Exit: EMA cross (short below med)
+        if ema_s[i] < ema_m[i] * (1 - p.get("ema_buffer", 0.3) / 100):
+            exits[i] = True
+            labels[i] = "EMA Cross"
+            continue
+
+        # Exit: RSI extreme (overbought exit)
+        if rsi[i] >= p.get("exit_rsi", 80):
+            exits[i] = True
+            labels[i] = "RSI Overbought"
+            continue
+
+        # Exit: ATR shock
+        if not np.isnan(atr_vals[i]) and i >= 1:
+            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 3.0):
+                exits[i] = True
+                labels[i] = "ATR Shock"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 14: CCI Regime — Commodity Channel Index oversold recovery
+# CCI has wider range than RSI (-300 to +300), may catch extremes better.
+# Enter on CCI recovery past -100. Exit on CCI overbought above +200.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def cci_regime(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    cci = ind.cci(p.get("cci_len", 20))
+    trend_ema = ind.ema(p.get("trend_len", 150))
+    atr_vals = ind.atr(p.get("atr_period", 40))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    entry_level = p.get("entry_cci", -100)
+    exit_level = p.get("exit_cci", 200)
+    panic_level = p.get("panic_cci", -200)
+
+    for i in range(1, n):
+        if np.isnan(cci[i]) or np.isnan(cci[i-1]):
+            continue
+
+        # Entry: CCI crosses up through entry level + above trend EMA
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+        if cci[i-1] < entry_level and cci[i] >= entry_level and trend_ok:
+            entries[i] = True
+
+        # Exit: CCI reaches overbought
+        if cci[i] >= exit_level:
+            exits[i] = True
+            labels[i] = "CCI Overbought"
+            continue
+
+        # Exit: CCI panic capitulation
+        if cci[i] < panic_level:
+            exits[i] = True
+            labels[i] = "CCI Panic"
+            continue
+
+        # Exit: ATR shock
+        if not np.isnan(atr_vals[i]) and i >= 1:
+            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 3.5):
+                exits[i] = True
+                labels[i] = "ATR Shock"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 15: Volatility Regime — Enter in low-vol uptrends, exit on vol spikes
+# TECL bull runs often begin with volatility compression. When realized vol
+# drops below its own moving average while price is trending up = entry.
+# When vol spikes (bear signal) = exit. Adds ATR shock as backstop.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def volatility_regime(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    trend_ema = ind.ema(p.get("trend_len", 100))
+    atr_vals = ind.atr(p.get("atr_period", 20))
+    atr_slow = ind.atr(p.get("atr_slow", 60))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    vol_smooth = p.get("vol_smooth", 20)
+    # Use ATR as volatility proxy; smooth it for the regime signal
+    atr_smooth = _ema_helper(atr_vals, vol_smooth)
+
+    for i in range(vol_smooth + 1, n):
+        if np.isnan(atr_vals[i]) or np.isnan(atr_smooth[i]) or np.isnan(trend_ema[i]):
+            continue
+
+        # Vol ratio: current ATR vs smoothed ATR
+        vol_ratio = atr_vals[i] / atr_smooth[i] if atr_smooth[i] > 0 else 1.0
+        price_above_trend = cl[i] > trend_ema[i]
+        low_vol = vol_ratio < p.get("low_vol_thresh", 0.9)
+
+        # Entry: volatility compressed + price in uptrend
+        if low_vol and price_above_trend:
+            entries[i] = True
+
+        # Exit: volatility spikes (regime change warning)
+        if vol_ratio > p.get("vol_spike_thresh", 1.5):
+            exits[i] = True
+            labels[i] = "Vol Spike"
+            continue
+
+        # Exit: price falls below trend EMA (trend broken)
+        if cl[i] < trend_ema[i] * (1 - p.get("trend_buffer", 0.02)):
+            exits[i] = True
+            labels[i] = "Trend Break"
+            continue
+
+        # Exit: ATR shock (sudden large move)
+        if i >= 1 and not np.isnan(atr_slow[i]):
+            if cl[i] < cl[i-1] - atr_slow[i] * p.get("atr_mult", 3.0):
+                exits[i] = True
+                labels[i] = "ATR Shock"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Registry — all strategies the optimizer can test
 # ─────────────────────────────────────────────────────────────────────────────
 
 STRATEGY_REGISTRY = {
-    "montauk_821":      montauk_821,
-    "golden_cross":     golden_cross,
-    "rsi_regime":       rsi_regime,
-    "breakout":         breakout,
-    "bollinger_squeeze": bollinger_squeeze,
-    "trend_stack":      trend_stack,
-    "tema_momentum":    tema_momentum,
+    "montauk_821":        montauk_821,
+    "golden_cross":       golden_cross,
+    "rsi_regime":         rsi_regime,
+    "breakout":           breakout,
+    "bollinger_squeeze":  bollinger_squeeze,
+    "trend_stack":        trend_stack,
+    "tema_momentum":      tema_momentum,
+    "mfi_regime":         mfi_regime,
+    "willr_regime":       willr_regime,
+    "stoch_regime":       stoch_regime,
+    "macd_regime":        macd_regime,
+    "adx_trend":          adx_trend,
+    "rsi_ema_hybrid":     rsi_ema_hybrid,
+    "cci_regime":         cci_regime,
+    "volatility_regime":  volatility_regime,
 }
 
 # Parameter spaces for each strategy: {param: (min, max, step, type)}
@@ -390,5 +811,54 @@ STRATEGY_PARAMS = {
         "slope_lookback": (3, 15, 2, int), "min_slope": (0.0, 1.0, 0.2, float),
         "exit_slope": (0.0, 1.0, 0.2, float), "atr_period": (20, 60, 10, int),
         "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 20, 5, int),
+    },
+    "mfi_regime": {
+        "mfi_len": (7, 21, 2, int), "trend_len": (50, 200, 25, int),
+        "entry_mfi": (20, 45, 5, float), "exit_mfi": (70, 90, 5, float),
+        "panic_mfi": (10, 25, 5, float), "atr_period": (20, 60, 10, int),
+        "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 20, 5, int),
+    },
+    "willr_regime": {
+        "willr_len": (7, 28, 3, int), "trend_len": (50, 200, 25, int),
+        "entry_willr": (-85, -50, 5, float), "exit_willr": (-20, -5, 5, float),
+        "panic_willr": (-98, -85, 5, float), "cooldown": (0, 20, 5, int),
+    },
+    "stoch_regime": {
+        "stoch_len": (7, 21, 2, int), "smooth_k": (1, 5, 1, int),
+        "smooth_d": (1, 5, 1, int), "trend_len": (50, 200, 25, int),
+        "oversold": (15, 35, 5, float), "overbought": (70, 90, 5, float),
+        "atr_period": (20, 60, 10, int), "atr_mult": (2.0, 5.0, 0.5, float),
+        "cooldown": (0, 20, 5, int),
+    },
+    "macd_regime": {
+        "fast": (5, 20, 3, int), "slow": (15, 50, 5, int), "signal": (5, 15, 2, int),
+        "trend_len": (100, 300, 50, int), "atr_period": (20, 60, 10, int),
+        "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 20, 5, int),
+    },
+    "adx_trend": {
+        "adx_len": (7, 28, 3, int), "adx_thresh": (15, 35, 5, float),
+        "adx_exit": (10, 25, 5, float), "trend_len": (50, 200, 25, int),
+        "atr_period": (20, 60, 10, int), "atr_mult": (2.0, 5.0, 0.5, float),
+        "cooldown": (0, 20, 5, int),
+    },
+    "rsi_ema_hybrid": {
+        "rsi_len": (7, 21, 2, int), "short_ema": (5, 25, 5, int),
+        "med_ema": (20, 80, 10, int), "trend_len": (75, 250, 25, int),
+        "entry_rsi": (25, 45, 5, float), "exit_rsi": (70, 90, 5, float),
+        "ema_buffer": (0.0, 1.0, 0.2, float), "atr_period": (20, 60, 10, int),
+        "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 15, 3, int),
+    },
+    "cci_regime": {
+        "cci_len": (10, 40, 5, int), "trend_len": (50, 200, 25, int),
+        "entry_cci": (-150, -50, 25, float), "exit_cci": (100, 300, 50, float),
+        "panic_cci": (-300, -150, 50, float), "atr_period": (20, 60, 10, int),
+        "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 20, 5, int),
+    },
+    "volatility_regime": {
+        "trend_len": (50, 200, 25, int), "atr_period": (10, 30, 5, int),
+        "atr_slow": (40, 100, 20, int), "vol_smooth": (10, 40, 5, int),
+        "low_vol_thresh": (0.6, 1.0, 0.1, float), "vol_spike_thresh": (1.2, 2.5, 0.3, float),
+        "trend_buffer": (0.01, 0.05, 0.01, float), "atr_mult": (2.0, 5.0, 0.5, float),
+        "cooldown": (0, 20, 5, int),
     },
 }
