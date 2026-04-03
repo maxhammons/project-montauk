@@ -1,0 +1,25 @@
+{
+  "date": "2026-04-03",
+  "strategy": "cci_regime",
+  "fitness": 0.9723,
+  "params": {
+    "cci_len": 15,
+    "exit_cci": 250,
+    "atr_mult": 3.0,
+    "trend_len": 200,
+    "atr_period": 50,
+    "entry_cci": -150,
+    "panic_cci": -300,
+    "cooldown": 15
+  },
+  "metrics": {
+    "vs_bah": 1.5939,
+    "cagr": 42.0,
+    "max_dd": 78.0,
+    "mar": 0.539,
+    "trades": 17,
+    "trades_yr": 1.0,
+    "win_rate": 94.1
+  },
+  "note": "First session - only 4 generations. Needs longer run to find optimum."
+}

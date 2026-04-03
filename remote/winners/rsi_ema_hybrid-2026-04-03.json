@@ -1,0 +1,27 @@
+{
+  "date": "2026-04-03",
+  "strategy": "rsi_ema_hybrid",
+  "fitness": 0.8308,
+  "params": {
+    "atr_mult": 3.5,
+    "entry_rsi": 45,
+    "med_ema": 20,
+    "trend_len": 175,
+    "rsi_len": 11,
+    "short_ema": 20,
+    "atr_period": 20,
+    "ema_buffer": 0.8,
+    "cooldown": 12,
+    "exit_rsi": 85
+  },
+  "metrics": {
+    "vs_bah": 1.362,
+    "cagr": 40.71,
+    "max_dd": 78.0,
+    "mar": 0.522,
+    "trades": 9,
+    "trades_yr": 0.5,
+    "win_rate": 88.9
+  },
+  "note": "First session - only 4 generations. Only 9 trades over 17 years = very regime-selective."
+}
