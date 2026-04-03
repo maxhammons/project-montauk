@@ -1,0 +1,96 @@
+//@version=6
+strategy("Montauk RSI Regime",
+     overlay=true,
+     shorttitle="RSI Regime",
+     initial_capital=1000,
+     default_qty_type=strategy.percent_of_equity,
+     default_qty_value=100,
+     pyramiding=0,
+     commission_type=strategy.commission.percent,
+     commission_value=0,
+     slippage=0,
+     calc_on_every_tick=false,
+     process_orders_on_close=true)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Group 1 — RSI
+// ─────────────────────────────────────────────────────────────────────────────
+rsiLen      = input.int(14,   title="RSI Length",             minval=1,   group="1 - RSI")
+entryRsi    = input.float(35.0, title="Entry RSI Threshold",  step=0.5,   group="1 - RSI")
+exitRsi     = input.float(80.0, title="Exit RSI (Overbought)",step=0.5,   group="1 - RSI")
+panicRsi    = input.int(15,   title="Panic Exit RSI",         minval=1,   group="1 - RSI")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Group 2 — Trend Filter
+// ─────────────────────────────────────────────────────────────────────────────
+enableTrend = input.bool(true,  title="Enable Trend Filter",              group="2 - Trend Filter")
+trendLen    = input.int(150,    title="Trend EMA Length",    minval=1,    group="2 - Trend Filter")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Group 3 — Cooldown
+// ─────────────────────────────────────────────────────────────────────────────
+enableCooldown  = input.bool(true, title="Enable Sell Cooldown",          group="3 - Cooldown")
+cooldownBars    = input.int(5,     title="Cooldown (bars)",  minval=0,    group="3 - Cooldown")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Indicators
+// ─────────────────────────────────────────────────────────────────────────────
+rsi      = ta.rsi(close, rsiLen)
+trendEma = ta.ema(close, trendLen)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Entry Conditions
+// RSI(14) crosses up through entryRsi threshold AND price > EMA(trendLen)
+// ─────────────────────────────────────────────────────────────────────────────
+trendOk  = not enableTrend or (close > trendEma)
+entryOk  = ta.crossover(rsi, entryRsi) and trendOk
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Exit Conditions
+// Exit 1 — Overbought: RSI >= exitRsi
+// Exit 2 — Panic:      RSI < panicRsi (sharp crash / capitulation)
+// ─────────────────────────────────────────────────────────────────────────────
+isOverboughtExit = rsi >= exitRsi
+isPanicExit      = rsi < panicRsi
+
+exitCond = strategy.position_size > 0 and (isOverboughtExit or isPanicExit)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Exit Reason Label
+// ─────────────────────────────────────────────────────────────────────────────
+var string exitReason = na
+if strategy.position_size > 0
+    if isOverboughtExit
+        exitReason := "RSI OB"
+    else if isPanicExit
+        exitReason := "Panic"
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Cooldown Tracking
+// ─────────────────────────────────────────────────────────────────────────────
+var int lastSellBar = na
+
+if exitCond
+    strategy.close("Long")
+    lastSellBar := bar_index
+    label.new(bar_index, high, exitReason,
+              yloc=yloc.abovebar,
+              style=label.style_label_down,
+              color=color.red, textcolor=color.white, size=size.tiny)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Entry with Cooldown
+// ─────────────────────────────────────────────────────────────────────────────
+canEnter = strategy.position_size == 0 and
+     (not enableCooldown or na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+
+if entryOk and canEnter
+    strategy.entry("Long", strategy.long)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Plots
+// ─────────────────────────────────────────────────────────────────────────────
+plot(trendEma, title="Trend EMA", color=color.new(color.white, 60))
+
+// Shade below trend EMA (no-buy zone)
+bgcolor(enableTrend and close < trendEma ? color.new(color.red, 90) : na)
