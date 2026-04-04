@@ -28,14 +28,21 @@ Before writing any new code, read the current state:
 
 1. Read `remote/history/leaderboard.json` — the all-time top 20
 2. Read `scripts/strategies.py` — all existing strategy functions
-3. For each top strategy on the leaderboard:
+3. **Check the `converged` field on each entry.** Skip strategies marked `"converged": true` — they've plateaued and further optimization is wasted effort. Focus only on strategies that are still `active` or have low `runs_without_improvement`.
+4. For each **non-converged** top strategy on the leaderboard:
    - Read its function code
    - Read its best params and metrics from the leaderboard
    - Think about WHY it works (or doesn't) — what market conditions does it exploit?
    - Consider: can its logic be refined? Can you add a smarter exit? A better entry filter?
-4. Write improved variants as NEW strategy functions (don't modify the original — the optimizer needs both to compare)
+5. Write improved variants as NEW strategy functions (don't modify the original — the optimizer needs both to compare)
 
-**Example optimizations:**
+**Convergence rules:**
+- Strategies auto-converge after 3 consecutive runs with no fitness improvement
+- Converged strategies are still tested by the optimizer (their params may shift), but Claude should NOT spend tokens writing new variants of them
+- To manually flag/unflag: `python3 scripts/spike_state.py converge <name>` / `unconverge <name>`
+- If ALL leaderboard strategies are converged, spend 100% of effort on new ideas instead
+
+**Example optimizations (for non-converged strategies only):**
 - A strategy exits too late → add an ATR trailing stop variant
 - A strategy enters on RSI 35 → try a version that also requires positive MACD slope
 - A strategy uses a single EMA → try a version with adaptive EMA length based on volatility

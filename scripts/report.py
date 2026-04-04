@@ -101,16 +101,24 @@ def _detail_block(entry: dict) -> str:
 
 
 def _leaderboard_table(leaderboard: list) -> str:
-    """Generate the all-time leaderboard table (top 20)."""
+    """Generate the all-time leaderboard table (top 20) with convergence status."""
     if not leaderboard:
         return "*No historical data yet.*"
 
     lines = []
-    lines.append("| # | Strategy | vs B&H | CAGR | Max DD | MAR | Fitness | Date |")
-    lines.append("|---|----------|--------|------|--------|-----|---------|------|")
+    lines.append("| # | Strategy | vs B&H | CAGR | Max DD | MAR | Fitness | Status | Date |")
+    lines.append("|---|----------|--------|------|--------|-----|---------|--------|------|")
 
     for i, entry in enumerate(leaderboard[:20], 1):
         m = entry.get("metrics", {})
+        converged = entry.get("converged", False)
+        rwi = entry.get("runs_without_improvement", 0)
+        if converged:
+            status = "CONVERGED"
+        elif rwi > 0:
+            status = f"{rwi} runs flat"
+        else:
+            status = "active"
         lines.append(
             f"| {i} "
             f"| {entry.get('strategy', '?')} "
@@ -119,6 +127,7 @@ def _leaderboard_table(leaderboard: list) -> str:
             f"| {_fmt_pct(m.get('max_dd', 0))} "
             f"| {m.get('mar', 0):.3f} "
             f"| {_fmt_fitness(entry.get('fitness', 0))} "
+            f"| {status} "
             f"| {entry.get('date', '?')} |"
         )
     return "\n".join(lines)

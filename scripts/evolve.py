@@ -105,9 +105,21 @@ def get_top_from_history(history: dict, strategy_name: str, n: int = 8) -> list:
     return [c["params"] for c in candidates[:n]]
 
 
+CONVERGE_RUNS = 3  # auto-flag as converged after this many runs with no improvement
+
+
 def update_leaderboard(results: dict, leaderboard_path: str) -> list:
     """
-    Update the all-time top-20 leaderboard.
+    Update the all-time top-20 leaderboard with convergence tracking.
+
+    Each strategy (by name) tracks:
+    - best_fitness: highest fitness ever seen for this strategy name
+    - runs_without_improvement: consecutive runs where this strategy didn't beat its best
+    - converged: True when runs_without_improvement >= CONVERGE_RUNS
+
+    Convergence is per-strategy-name (not per-config). Once a strategy is converged,
+    Claude should skip optimizing it and focus effort elsewhere.
+
     Returns the updated leaderboard list.
     """
     # Load strategy descriptions for context
@@ -125,23 +137,84 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
         except Exception:
             pass
 
-    # Add this run's rankings
+    # Build per-strategy convergence state from existing leaderboard
+    # Track the best entry per strategy name (highest fitness)
+    strategy_state = {}  # strategy_name -> {best_fitness, runs_without_improvement, converged}
+    for entry in leaderboard:
+        name = entry["strategy"]
+        if name not in strategy_state:
+            strategy_state[name] = {
+                "best_fitness": entry.get("fitness", 0),
+                "runs_without_improvement": entry.get("runs_without_improvement", 0),
+                "converged": entry.get("converged", False),
+            }
+        else:
+            # Keep highest fitness
+            if entry.get("fitness", 0) > strategy_state[name]["best_fitness"]:
+                strategy_state[name]["best_fitness"] = entry["fitness"]
+
+    # Check this run's results against previous bests
     date = results.get("date", datetime.now().strftime("%Y-%m-%d"))
+    strategies_in_run = set()
     for entry in results.get("rankings", []):
         if not entry.get("metrics"):
             continue
+        name = entry["strategy"]
+        strategies_in_run.add(name)
+        new_fitness = entry["fitness"]
+
+        if name not in strategy_state:
+            strategy_state[name] = {
+                "best_fitness": new_fitness,
+                "runs_without_improvement": 0,
+                "converged": False,
+            }
+        else:
+            prev_best = strategy_state[name]["best_fitness"]
+            # Improvement threshold: must beat previous best by >0.1% to count
+            if new_fitness > prev_best * 1.001:
+                strategy_state[name]["best_fitness"] = new_fitness
+                strategy_state[name]["runs_without_improvement"] = 0
+                strategy_state[name]["converged"] = False
+            else:
+                strategy_state[name]["runs_without_improvement"] += 1
+
+        # Auto-converge check (only if not manually unconverged)
+        rwi = strategy_state[name]["runs_without_improvement"]
+        if rwi >= CONVERGE_RUNS and not strategy_state[name].get("manual_unconverge"):
+            if not strategy_state[name]["converged"]:
+                strategy_state[name]["converged"] = True
+                print(f"[leaderboard] {name} auto-converged after {rwi} runs with no improvement")
+
+        # Build leaderboard entry
         lb_entry = {
-            "strategy": entry["strategy"],
-            "fitness": entry["fitness"],
+            "strategy": name,
+            "fitness": new_fitness,
             "params": entry.get("params", {}),
             "metrics": entry["metrics"],
             "date": date,
+            "converged": strategy_state[name]["converged"],
+            "runs_without_improvement": strategy_state[name]["runs_without_improvement"],
         }
-        # Include description so Claude can understand the strategy from leaderboard alone
-        desc = STRATEGY_DESCRIPTIONS.get(entry["strategy"])
+        desc = STRATEGY_DESCRIPTIONS.get(name)
         if desc:
             lb_entry["description"] = desc
         leaderboard.append(lb_entry)
+
+    # Increment runs_without_improvement for strategies NOT in this run
+    # (they were registered but produced no results — still counts as no improvement)
+    for name in strategy_state:
+        if name not in strategies_in_run:
+            strategy_state[name]["runs_without_improvement"] += 1
+            if strategy_state[name]["runs_without_improvement"] >= CONVERGE_RUNS:
+                strategy_state[name]["converged"] = True
+
+    # Propagate convergence state to existing leaderboard entries
+    for entry in leaderboard:
+        name = entry["strategy"]
+        if name in strategy_state:
+            entry["converged"] = strategy_state[name]["converged"]
+            entry["runs_without_improvement"] = strategy_state[name]["runs_without_improvement"]
 
     # Deduplicate: keep best per config hash
     seen = {}
@@ -157,6 +230,26 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
         json.dump(leaderboard, f, indent=2, cls=_Enc)
 
     return leaderboard
+
+
+def set_converged(leaderboard_path: str, strategy_name: str, converged: bool) -> bool:
+    """Manually flag/unflag a strategy as converged. Returns True on success."""
+    if not os.path.exists(leaderboard_path):
+        return False
+    with open(leaderboard_path) as f:
+        leaderboard = json.load(f)
+    found = False
+    for entry in leaderboard:
+        if entry["strategy"] == strategy_name:
+            entry["converged"] = converged
+            if not converged:
+                entry["runs_without_improvement"] = 0
+                entry["manual_unconverge"] = True
+            found = True
+    if found:
+        with open(leaderboard_path, "w") as f:
+            json.dump(leaderboard, f, indent=2, cls=_Enc)
+    return found
 
 
 # ─────────────────────────────────────────────────────────────────────────────
