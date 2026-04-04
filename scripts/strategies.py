@@ -351,6 +351,44 @@ STRATEGY_REGISTRY = {
     "tema_momentum":    tema_momentum,
 }
 
+# Brief descriptions for leaderboard context — Claude reads these to understand
+# what each strategy does without re-reading the full source code.
+# UPDATE THIS when adding or modifying strategies.
+STRATEGY_DESCRIPTIONS = {
+    "montauk_821": (
+        "EMA crossover (short > med) with trend slope filter. "
+        "Exits: ATR shock (price drops > N*ATR), quick EMA momentum drop "
+        "(% change over lookback), EMA cross reversal. Current production baseline."
+    ),
+    "golden_cross": (
+        "Classic SMA crossover: buy when fast SMA crosses above slow SMA, "
+        "sell on death cross. Simple, low-frequency, trend-following."
+    ),
+    "rsi_regime": (
+        "Enter when RSI crosses up through entry level while price is above "
+        "trend EMA. Exit on RSI overbought or RSI panic (extreme low). "
+        "Exploits mean-reversion in leveraged ETFs."
+    ),
+    "breakout": (
+        "Enter on new N-bar high (close near highest high). "
+        "Exit via trailing stop (% from peak) or ATR shock. Momentum rider."
+    ),
+    "bollinger_squeeze": (
+        "Enter when Bollinger Band width expands from below-average squeeze, "
+        "with price above SMA and trend EMA. Exit when width contracts back "
+        "or price drops below lower band. Volatility breakout."
+    ),
+    "trend_stack": (
+        "Enter when 4 EMAs are perfectly stacked (fast > mid > slow > anchor). "
+        "Exit the moment any EMA breaks the stack order. Pure trend alignment."
+    ),
+    "tema_momentum": (
+        "Enter when TEMA slope is positive and price is above trend EMA. "
+        "Exit when TEMA slope turns negative or ATR shock. "
+        "TEMA reacts faster than EMA to regime changes."
+    ),
+}
+
 # Parameter spaces for each strategy: {param: (min, max, step, type)}
 STRATEGY_PARAMS = {
     "montauk_821": {
