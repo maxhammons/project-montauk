@@ -125,17 +125,22 @@ Generate 5-10 strategies total (mix of new ideas + leaderboard variants). Don't 
 
 The optimizer runs in the cloud so Max can close his laptop.
 
-1. **Commit** all new/modified strategies in `scripts/strategies.py`
-2. **Push** to `main`
-3. **Trigger the workflow:**
+1. **Check for in-progress runs** — BEFORE doing anything else:
+   ```bash
+   gh run list --workflow=spike.yml --status=in_progress --status=queued --json databaseId,status --jq 'length'
+   ```
+   If the result is > 0, **STOP**. Tell Max: "A spike run is already in progress. Wait for it to finish or cancel it (`gh run cancel <id>`) before starting a new one." Do NOT proceed.
+2. **Commit** all new/modified strategies in `scripts/strategies.py`
+3. **Push** to `main`
+4. **Trigger the workflow:**
    ```bash
    gh workflow run spike.yml -f hours=<N> -f pop_size=60
    ```
-4. **Confirm launch** — show Max the run URL:
+5. **Confirm launch** — show Max the run URL:
    ```bash
    sleep 3 && gh run list --workflow=spike.yml --limit=1 --json url,status --jq '.[0]'
    ```
-5. **Tell Max:** "Spike is running. Close your laptop whenever — results auto-commit to `spike/` when done. Run `/spike results` to check later."
+6. **Tell Max:** "Spike is running. Close your laptop whenever — results auto-commit to `spike/` when done. Run `/spike results` to check later."
 
 That's it for this session. The GH Action handles everything autonomously:
 - Tests ALL registered strategies with evolutionary parameter optimization
