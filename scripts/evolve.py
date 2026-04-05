@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import signal
 import sys
 import time
 import random
@@ -190,9 +191,17 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False):
     strategy_bests = {name: (0.0, {}, None) for name in STRATEGY_REGISTRY}
     history = []
 
+    # Allow Ctrl+C or kill to save results gracefully
+    _interrupted = [False]
+    def _handle_signal(sig, frame):
+        print(f"\n[interrupted — saving results...]")
+        _interrupted[0] = True
+    signal.signal(signal.SIGINT, _handle_signal)
+    signal.signal(signal.SIGTERM, _handle_signal)
+
     print(f"\n── Evolving ──")
 
-    while time.time() < end_time:
+    while time.time() < end_time and not _interrupted[0]:
         generation += 1
 
         for strat_name, fn in STRATEGY_REGISTRY.items():

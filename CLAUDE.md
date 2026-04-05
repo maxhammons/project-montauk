@@ -21,7 +21,7 @@ Project Montauk/
 ├── .claude/skills/
 │   └── spike.md               # /spike skill — canonical source
 ├── .claude/commands/
-│   └── spike.md -> ../skills/spike.md   # symlink (Claude Code reads from commands/)
+│   └── *.md -> ../skills/*.md   # each file in skills/ is symlinked here (Claude Code reads from commands/)
 ├── remote/                    # All outputs from remote/mobile sessions
 │   ├── report-YYYY-MM-DD.md   # Optimization reports
 │   └── spike-state.json       # /spike session state

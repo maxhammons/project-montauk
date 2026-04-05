@@ -78,15 +78,33 @@ Generate as many strategies as you can. More variety = higher chance of finding 
 
 Generate 5-10 new strategies per session. More is better — the optimizer handles the rest.
 
-## Step 2 — Launch optimizer (zero tokens)
+## Step 2 — Launch optimizer
+
+After writing strategies, launch the optimizer in the background using the Bash tool with `run_in_background: true`:
 
 ```bash
-cd /path/to/project-montauk
-pip3 install pandas numpy requests  # first time only
-python3 scripts/evolve.py --hours 8
+cd "/Users/maxhammons/Documents/Projects/Project Montauk" && nohup python3 -u scripts/evolve.py --hours 8 > remote/evolve-log-$(date +%Y-%m-%d).txt 2>&1
 ```
 
-This runs autonomously all night:
+Tell the user: "Optimizer is running in the background for 8 hours. To stop it early and save results, say **stop spike**."
+
+## Stopping early (if user says "stop spike" or "stop the optimizer")
+
+Find and kill the process — it will save full results before exiting:
+
+```bash
+pgrep -f evolve.py
+```
+
+Then kill it:
+
+```bash
+kill $(pgrep -f evolve.py)
+```
+
+Wait 5 seconds, then proceed to Step 3 to report results.
+
+This runs autonomously:
 - Tests ALL registered strategies with evolutionary parameter optimization
 - ~500,000+ evaluations in 8 hours
 - Compares everything against 8.2.1 baseline
@@ -95,12 +113,21 @@ This runs autonomously all night:
 
 ## Step 3 — Report results (Claude, ~2 min)
 
+ALWAYS do all of these steps without waiting to be asked:
+
 1. Read `remote/evolve-results-YYYY-MM-DD.json`
-2. Compare #1 ranked strategy vs 8.2.1 baseline
-3. Save winning config to `remote/winners/[strategy]-[date].json`
-4. Write compact report to `remote/spike-YYYY-MM-DD.md`
-5. Commit and push
-6. **ASK the user** if they want Pine Script generated. Do NOT generate it automatically — it costs tokens and the user may want to run more sessions first.
+2. Read `remote/best-ever.json`
+3. Write report to `remote/spike-YYYY-MM-DD.md` with the following sections:
+   - **Session summary**: duration, evals, generations, strategies tested
+   - **All-time best** (from best-ever.json): strategy name, vs B&H, CAGR, Max DD, trades/yr, full params
+   - **This session rankings**: table of all strategies with vs B&H, CAGR, Max DD, trades/yr, MAR
+   - **For the #1 strategy** — everything needed to write Pine Script without reading any other file:
+     - Plain-English description of entry logic (what conditions trigger a buy)
+     - Plain-English description of every exit condition (what triggers a sell, in priority order)
+     - Full winning params with values and what each one controls
+     - Complete Python source code of the strategy function (copy it verbatim from strategies.py)
+   - **Next steps**: what to run next, what to fix, what to watch
+4. **ASK the user** if they want Pine Script generated. Do NOT generate it automatically — it costs tokens and the user may want to run more sessions first.
 
 ## Converting winner to Pine Script (only when asked)
 

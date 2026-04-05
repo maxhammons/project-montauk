@@ -1,0 +1,176 @@
+=== Montauk Multi-Strategy Optimizer ===
+Duration: 0.33h | Pop: 40/strategy | Strategies: 14
+Constraint: ≤3.0 trades/year
+Started: 2026-04-03 21:16
+
+[data] CSV: 4340 bars, ending 2026-04-01
+[data] yfinance disabled, using CSV only
+Data: 4340 bars, 2008-12-31 to 2026-04-01
+
+── Baselines ──
+  montauk_821            score=0.0472  bah=0.064x  trades/yr=2.8  CAGR=17.9%  DD=52.4%
+  golden_cross           score=0.0427  bah=0.068x  trades/yr=0.5  CAGR=18.3%  DD=75.1%
+  rsi_regime             score=0.1647  bah=0.245x  trades/yr=0.8  CAGR=27.4%  DD=65.8%
+  breakout               score=0.0243  bah=0.036x  trades/yr=1.4  CAGR=14.0%  DD=64.8%
+  bollinger_squeeze      score=0.0193  bah=0.025x  trades/yr=1.8  CAGR=11.6%  DD=45.9%
+  trend_stack            score=0.0047  bah=0.006x  trades/yr=2.7  CAGR=3.2%  DD=56.1%
+  tema_momentum          score=0.0000  bah=0.004x  trades/yr=0.0  CAGR=0.0%  DD=0.0%
+  adx_regime             score=0.0036  bah=0.005x  trades/yr=2.1  CAGR=1.2%  DD=47.8%
+  macd_recovery          score=0.0000  bah=0.004x  trades/yr=0.0  CAGR=0.0%  DD=0.0%
+  donchian_regime        score=0.0000  bah=0.756x  trades/yr=0.1  CAGR=36.0%  DD=78.0%
+  recovery_momentum      score=0.0182  bah=0.027x  trades/yr=0.8  CAGR=12.2%  DD=66.5%
+  composite_regime       score=0.0000  bah=0.004x  trades/yr=0.0  CAGR=0.0%  DD=0.0%
+  chandelier_exit        score=0.0258  bah=0.035x  trades/yr=2.2  CAGR=13.7%  DD=50.8%
+  stoch_recovery         score=0.0017  bah=0.003x  trades/yr=3.5  CAGR=-1.1%  DD=73.5%
+
+Loaded best-ever: rsi_regime fitness=2.1803
+
+── Evolving ──
+Gen    32: BEST=2.1803 (rsi_regime)  evals=17,920 (58/s)  0.2h left
+    rsi_regime             1.1308  bah=1.685x  t/yr=0.8  DD=65.8%
+    composite_regime       1.0522  bah=1.725x  t/yr=0.6  DD=78.0%
+    recovery_momentum      0.7203  bah=1.077x  t/yr=0.6  DD=66.2%
+    breakout               0.6177  bah=0.932x  t/yr=2.7  DD=67.5%
+    montauk_821            0.4000  bah=0.555x  t/yr=2.3  DD=55.9%
+    chandelier_exit        0.2805  bah=0.370x  t/yr=2.1  DD=48.4%
+    adx_regime             0.0964  bah=0.137x  t/yr=3.5  DD=34.4%
+    stoch_recovery         0.0870  bah=0.112x  t/yr=2.6  DD=43.9%
+    golden_cross           0.0729  bah=0.117x  t/yr=0.6  DD=75.1%
+    bollinger_squeeze      0.0646  bah=0.088x  t/yr=1.6  DD=53.9%
+    trend_stack            0.0312  bah=0.047x  t/yr=3.4  DD=48.4%
+Gen    64: BEST=2.1803 (rsi_regime)  evals=35,840 (58/s)  0.2h left
+    recovery_momentum      1.2856  bah=1.837x  t/yr=0.7  DD=60.0%
+    rsi_regime             1.1308  bah=1.685x  t/yr=0.8  DD=65.8%
+    composite_regime       1.0522  bah=1.725x  t/yr=0.6  DD=78.0%
+    breakout               0.6177  bah=0.932x  t/yr=2.7  DD=67.5%
+    montauk_821            0.4311  bah=0.604x  t/yr=2.3  DD=57.2%
+    chandelier_exit        0.2805  bah=0.370x  t/yr=2.1  DD=48.4%
+    golden_cross           0.0994  bah=0.159x  t/yr=0.6  DD=75.1%
+    adx_regime             0.0964  bah=0.137x  t/yr=3.5  DD=34.4%
+    stoch_recovery         0.0870  bah=0.112x  t/yr=2.6  DD=43.9%
+    bollinger_squeeze      0.0646  bah=0.088x  t/yr=1.6  DD=53.9%
+    trend_stack            0.0312  bah=0.047x  t/yr=3.4  DD=48.4%
+Gen    96: BEST=2.1803 (rsi_regime)  evals=53,760 (58/s)  0.1h left
+    recovery_momentum      1.2856  bah=1.837x  t/yr=0.7  DD=60.0%
+    rsi_regime             1.1308  bah=1.685x  t/yr=0.8  DD=65.8%
+    composite_regime       1.0522  bah=1.725x  t/yr=0.6  DD=78.0%
+    breakout               0.6177  bah=0.932x  t/yr=2.7  DD=67.5%
+    montauk_821            0.4974  bah=0.706x  t/yr=2.2  DD=59.0%
+    chandelier_exit        0.2805  bah=0.370x  t/yr=2.1  DD=48.4%
+    golden_cross           0.0994  bah=0.159x  t/yr=0.6  DD=75.1%
+    adx_regime             0.0964  bah=0.137x  t/yr=3.5  DD=34.4%
+    stoch_recovery         0.0870  bah=0.112x  t/yr=2.6  DD=43.9%
+    bollinger_squeeze      0.0646  bah=0.088x  t/yr=1.6  DD=53.9%
+    trend_stack            0.0312  bah=0.047x  t/yr=3.4  DD=48.4%
+
+============================================================
+DONE — 0.3h, 70,000 evals, 125 generations
+============================================================
+
+── 8.2.1 Baseline (the strategy to beat) ──
+  vs B&H=0.064x  CAGR=17.9%  DD=52.4%  trades/yr=2.8
+
+── Strategy Rankings (vs 8.2.1) ──
+  #1 recovery_momentum      fitness=1.2856  bah=1.837x  t/yr=0.7  CAGR=43.2%  DD=60.0%  MAR=0.72  BEATS 8.2.1 by +2770%
+     params: {"bounce_pct": 15.0, "trend_len": 50, "peak_lb": 40, "crash_pct": 30.0, "quick_thresh": -7.0, "atr_mult": 4.5, "atr_period": 10, "quick_lb": 5, "quick_ema": 20}
+     trades: 12 (0.7/yr)
+       2009-03-10 → 2009-03-11  +8.3%  M
+       2009-03-12 → 2010-05-24  +167.9%  M
+       2011-09-16 → 2015-08-25  +174.2%  M
+       2015-10-05 → 2016-01-13  -9.1%  M
+       2016-02-25 → 2018-10-30  +268.8%  M
+       ... +7 more
+  #2 rsi_regime             fitness=1.1308  bah=1.685x  t/yr=0.8  CAGR=42.5%  DD=65.8%  MAR=0.65  BEATS 8.2.1 by +2533%
+     params: {"exit_rsi": 75, "entry_rsi": 40, "panic_rsi": 20, "trend_len": 200, "rsi_len": 17}
+     trades: 13 (0.8/yr)
+       2009-02-24 → 2009-07-23  +180.8%  R
+       2010-01-27 → 2010-04-14  +27.6%  R
+       2010-05-10 → 2010-10-18  +6.5%  R
+       2011-03-11 → 2012-02-03  +5.0%  R
+       2012-04-25 → 2014-11-28  +148.3%  R
+       ... +8 more
+  #3 composite_regime       fitness=1.0522  bah=1.725x  t/yr=0.6  CAGR=42.6%  DD=78.0%  MAR=0.55  BEATS 8.2.1 by +2595%
+     params: {"macd_slow": 36, "exit_thresh": -0.4, "trend_len": 50, "rsi_len": 7, "tema_len": 80, "entry_thresh": 0.0, "macd_sig": 15, "w_tema": 0.4, "tema_lb": 3, "atr_period": 40, "w_rsi": 0.2, "w_macd": 0.6, "macd_fast": 12, "atr_mult": 3.0}
+     trades: 11 (0.6/yr)
+       2009-01-26 → 2009-11-20  +159.4%  A
+       2009-12-18 → 2016-06-24  +272.5%  A
+       2016-06-30 → 2016-09-09  +19.2%  A
+       2016-09-15 → 2017-05-17  +49.6%  A
+       2017-05-19 → 2017-06-09  +3.8%  A
+       ... +6 more
+  #4 breakout               fitness=0.6177  bah=0.932x  t/yr=2.7  CAGR=37.7%  DD=67.5%  MAR=0.56  BEATS 8.2.1 by +1357%
+     params: {"lookback": 20, "breakout_pct": 0.9, "atr_mult": 2.0, "atr_period": 20, "trail_pct": 30}
+     trades: 46 (2.7/yr)
+       2009-02-05 → 2009-02-23  -31.4%  T
+       2009-03-17 → 2009-11-20  +176.7%  A
+       2009-12-18 → 2010-01-22  -7.7%  A
+       2010-02-19 → 2010-05-26  -15.1%  T
+       2010-06-15 → 2011-01-28  +48.8%  A
+       ... +41 more
+  #5 montauk_821            fitness=0.4974  bah=0.706x  t/yr=2.2  CAGR=35.5%  DD=59.0%  MAR=0.60  BEATS 8.2.1 by +1002%
+     params: {"short_ema": 25, "sell_buffer": 1.0, "quick_thresh": -12.0, "slope_lookback": 15, "trend_ema": 60, "atr_mult": 3.0, "atr_period": 50, "quick_lookback": 10, "quick_ema": 13, "med_ema": 55}
+     trades: 38 (2.2/yr)
+       2009-04-03 → 2009-11-20  +102.4%  A
+       2009-11-23 → 2010-02-01  -11.5%  Q
+       2010-03-11 → 2010-05-17  -8.2%  Q
+       2010-09-24 → 2011-03-22  +27.9%  E
+       2011-05-03 → 2011-06-03  -12.8%  E
+       ... +33 more
+  #6 chandelier_exit        fitness=0.2805  bah=0.370x  t/yr=2.1  CAGR=30.5%  DD=48.4%  MAR=0.63  BEATS 8.2.1 by +478%
+     params: {"long_ema": 50, "short_ema": 15, "trend_len": 100, "chan_len": 40, "atr_mult": 4.0, "atr_period": 25, "ema_buffer": 0.03}
+     trades: 37 (2.1/yr)
+       2009-03-27 → 2009-11-20  +137.1%  C
+       2009-12-14 → 2009-12-15  -1.1%  C
+       2010-03-09 → 2010-05-05  +2.1%  C
+       2010-09-20 → 2010-11-16  +14.6%  C
+       2011-04-28 → 2011-05-24  -13.3%  C
+       ... +32 more
+  #7 golden_cross           fitness=0.0994  bah=0.159x  t/yr=0.6  CAGR=24.2%  DD=75.1%  MAR=0.32  BEATS 8.2.1 by +149%
+     params: {"fast_len": 80, "slow_len": 175}
+     trades: 10 (0.6/yr)
+       2010-12-02 → 2011-06-23  -3.8%  D
+       2012-01-30 → 2012-08-09  +19.1%  D
+       2012-11-01 → 2013-01-16  -0.8%  D
+       2013-05-01 → 2015-09-10  +113.4%  D
+       2016-01-13 → 2016-03-01  +15.9%  D
+       ... +5 more
+  #8 adx_regime             fitness=0.0964  bah=0.137x  t/yr=3.5  CAGR=23.2%  DD=34.4%  MAR=0.67  BEATS 8.2.1 by +114%
+     params: {"adx_rise_lb": 10, "trend_len": 50, "adx_min": 15.0, "atr_mult": 3.0, "atr_period": 40, "adx_len": 13, "adx_exit": 15.0, "di_buffer": 0.15}
+     trades: 61 (3.5/yr)
+       2009-04-13 → 2009-06-23  +21.4%  D
+       2009-07-16 → 2009-10-30  +33.3%  D
+       2009-12-30 → 2010-01-19  -1.0%  A
+       2010-03-15 → 2010-04-27  +10.4%  D
+       2010-09-22 → 2010-11-16  +17.5%  D
+       ... +56 more
+  #9 stoch_recovery         fitness=0.0870  bah=0.112x  t/yr=2.6  CAGR=21.7%  DD=43.9%  MAR=0.49  BEATS 8.2.1 by +74%
+     params: {"exit_level": 85.0, "trend_len": 200, "entry_level": 15.0, "atr_mult": 2.5, "stoch_len": 19, "atr_period": 40, "panic_level": 5.0}
+     trades: 44 (2.6/yr)
+       2009-03-11 → 2009-03-19  +23.1%  S
+       2009-07-10 → 2009-07-17  +30.0%  S
+       2009-11-04 → 2009-11-11  +16.3%  S
+       2009-11-25 → 2009-12-21  +9.3%  S
+       2010-02-03 → 2010-03-02  +8.7%  S
+       ... +39 more
+  #10 bollinger_squeeze      fitness=0.0646  bah=0.088x  t/yr=1.6  CAGR=20.1%  DD=53.9%  MAR=0.37  BEATS 8.2.1 by +38%
+     params: {"width_smooth": 30, "squeeze_mult": 0.9, "trend_len": 40, "exit_squeeze_mult": 0.3, "bb_len": 40}
+     trades: 27 (1.6/yr)
+       2009-06-01 → 2010-01-28  +43.6%  B
+       2010-03-16 → 2010-05-06  -12.2%  B
+       2010-07-22 → 2011-03-10  +50.0%  B
+       2011-04-27 → 2011-06-08  -19.5%  B
+       2011-10-10 → 2012-05-04  +47.3%  B
+       ... +22 more
+  #11 trend_stack            fitness=0.0312  bah=0.047x  t/yr=3.4  CAGR=15.7%  DD=48.4%  MAR=0.33  loses to 8.2.1 by -27%
+     params: {"slow_ema": 60, "fast_ema": 10, "anchor_ema": 80, "mid_ema": 25}
+     trades: 58 (3.4/yr)
+       2009-04-27 → 2009-07-08  +11.4%  S
+       2009-07-15 → 2009-11-03  +37.7%  S
+       2009-11-05 → 2009-11-25  -6.5%  S
+       2009-12-21 → 2010-01-22  -10.6%  S
+       2010-03-11 → 2010-05-05  -1.0%  S
+       ... +53 more
+
+Results: /Users/maxhammons/Documents/Projects/Project Montauk/remote/evolve-results-2026-04-03.json
+
+###JSON### {"date": "2026-04-03", "elapsed_hours": 0.33, "total_evaluations": 70000, "generations": 125, "constraint": "<=3.0 trades/yr", "rankings": [{"rank": 1, "strategy": "recovery_momentum", "fitness": 1.2856, "params": {"bounce_pct": 15.0, "trend_len": 50, "peak_lb": 40, "crash_pct": 30.0, "quick_thresh": -7.0, "atr_mult": 4.5, "atr_period": 10, "quick_lb": 5, "cooldown": 0, "quick_ema": 20}, "metrics": {"vs_bah": 1.8366, "cagr": 43.17, "max_dd": 60.0, "mar": 0.72, "trades": 12, "trades_yr": 0.7, "win_rate": 66.7, "exit_reasons": {"M": 11, "End of Data": 1}}}, {"rank": 2, "strategy": "rsi_regime", "fitness": 1.1308, "params": {"exit_rsi": 75, "entry_rsi": 40, "panic_rsi": 20, "trend_len": 200, "rsi_len": 17, "cooldown": 15}, "metrics": {"vs_bah": 1.6853, "cagr": 42.46, "max_dd": 65.8, "mar": 0.645, "trades": 13, "trades_yr": 0.8, "win_rate": 100.0, "exit_reasons": {"R": 12, "End of Data": 1}}}, {"rank": 3, "strategy": "composite_regime", "fitness": 1.0522, "params": {"macd_slow": 36, "exit_thresh": -0.4, "trend_len": 50, "rsi_len": 7, "tema_len": 80, "entry_thresh": 0.0, "cooldown": 0, "macd_sig": 15, "w_tema": 0.4, "tema_lb": 3, "atr_period": 40, "w_rsi": 0.2, "w_macd": 0.6, "macd_fast": 12, "atr_mult": 3.0}, "metrics": {"vs_bah": 1.7249, "cagr": 42.65, "max_dd": 78.0, "mar": 0.547, "trades": 11, "trades_yr": 0.6, "win_rate": 90.9, "exit_reasons": {"A": 10, "End of Data": 1}}}, {"rank": 4, "strategy": "breakout", "fitness": 0.6177, "params": {"lookback": 20, "breakout_pct": 0.9, "atr_mult": 2.0, "atr_period": 20, "cooldown": 0, "trail_pct": 30}, "metrics": {"vs_bah": 0.9324, "cagr": 37.66, "max_dd": 67.5, "mar": 0.558, "trades": 46, "trades_yr": 2.7, "win_rate": 58.7, "exit_reasons": {"T": 7, "A": 38, "End of Data": 1}}}, {"rank": 5, "strategy": "montauk_821", "fitness": 0.4974, "params": {"short_ema": 25, "sell_buffer": 1.0, "quick_thresh": -12.0, "slope_lookback": 15, "trend_ema": 60, "atr_mult": 3.0, "atr_period": 50, "cooldown": 0, "quick_lookback": 10, "quick_ema": 13, "med_ema": 55}, "metrics": {"vs_bah": 0.7055, "cagr": 35.45, "max_dd": 59.0, "mar": 0.6, "trades": 38, "trades_yr": 2.2, "win_rate": 52.6, "exit_reasons": {"A": 11, "Q": 13, "E": 14}}}, {"rank": 6, "strategy": "chandelier_exit", "fitness": 0.2805, "params": {"long_ema": 50, "short_ema": 15, "trend_len": 100, "chan_len": 40, "atr_mult": 4.0, "atr_period": 25, "ema_buffer": 0.03, "cooldown": 10}, "metrics": {"vs_bah": 0.37, "cagr": 30.47, "max_dd": 48.4, "mar": 0.63, "trades": 37, "trades_yr": 2.1, "win_rate": 59.5, "exit_reasons": {"C": 37}}}, {"rank": 7, "strategy": "golden_cross", "fitness": 0.0994, "params": {"fast_len": 80, "slow_len": 175, "cooldown": 10}, "metrics": {"vs_bah": 0.1592, "cagr": 24.25, "max_dd": 75.1, "mar": 0.323, "trades": 10, "trades_yr": 0.6, "win_rate": 70.0, "exit_reasons": {"D": 10}}}, {"rank": 8, "strategy": "adx_regime", "fitness": 0.0964, "params": {"adx_rise_lb": 10, "trend_len": 50, "adx_min": 15.0, "atr_mult": 3.0, "atr_period": 40, "cooldown": 15, "adx_len": 13, "adx_exit": 15.0, "di_buffer": 0.15}, "metrics": {"vs_bah": 0.137, "cagr": 23.17, "max_dd": 34.4, "mar": 0.674, "trades": 61, "trades_yr": 3.5, "win_rate": 63.9, "exit_reasons": {"D": 40, "A": 21}}}, {"rank": 9, "strategy": "stoch_recovery", "fitness": 0.087, "params": {"exit_level": 85.0, "trend_len": 200, "entry_level": 15.0, "atr_mult": 2.5, "stoch_len": 19, "atr_period": 40, "cooldown": 0, "panic_level": 5.0}, "metrics": {"vs_bah": 0.1115, "cagr": 21.71, "max_dd": 43.9, "mar": 0.495, "trades": 44, "trades_yr": 2.6, "win_rate": 88.6, "exit_reasons": {"S": 42, "A": 2}}}, {"rank": 10, "strategy": "bollinger_squeeze", "fitness": 0.0646, "params": {"width_smooth": 30, "squeeze_mult": 0.9, "trend_len": 40, "exit_squeeze_mult": 0.3, "cooldown": 10, "bb_len": 40}, "metrics": {"vs_bah": 0.0885, "cagr": 20.09, "max_dd": 53.9, "mar": 0.373, "trades": 27, "trades_yr": 1.6, "win_rate": 66.7, "exit_reasons": {"B": 27}}}, {"rank": 11, "strategy": "trend_stack", "fitness": 0.0312, "params": {"slow_ema": 60, "fast_ema": 10, "anchor_ema": 80, "mid_ema": 25, "cooldown": 0}, "metrics": {"vs_bah": 0.0468, "cagr": 15.74, "max_dd": 48.4, "mar": 0.325, "trades": 58, "trades_yr": 3.4, "win_rate": 43.1, "exit_reasons": {"S": 58}}}, {"rank": 12, "strategy": "tema_momentum", "fitness": 0.0, "params": {}, "metrics": null}, {"rank": 13, "strategy": "macd_recovery", "fitness": 0.0, "params": {}, "metrics": null}, {"rank": 14, "strategy": "donchian_regime", "fitness": 0.0, "params": {}, "metrics": null}], "best_ever": {"strategy": "rsi_regime", "fitness": 2.1803, "params": {"trend_len": 150, "rsi_len": 10, "entry_rsi": 35.0, "panic_rsi": 15, "cooldown": 5, "exit_rsi": 85}}}
