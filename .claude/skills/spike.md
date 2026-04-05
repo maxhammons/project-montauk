@@ -119,7 +119,7 @@ ind.volume         ind.dates           ind.n
 
 **Use ANY combination.** Invent new composite signals. The only constraints are: long TECL, ≤3 trades/year.
 
-Generate 5-10 strategies total (mix of new ideas + leaderboard variants). Don't self-censor — the optimizer sorts out what works.
+**Strategy cap: max 15 in STRATEGY_REGISTRY.** Before adding new strategies, count the current entries. If at or over 15, remove the worst performers first (lowest fitness on leaderboard, or converged strategies that never beat 8.2.1). Delete the function, its REGISTRY entry, and its PARAMS entry. This keeps optimizer time focused instead of spread thin.
 
 ### Step 4 — Commit, push, and launch GitHub Actions
 
