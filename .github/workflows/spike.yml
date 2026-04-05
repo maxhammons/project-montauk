@@ -52,4 +52,6 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add spike/
           git diff --cached --quiet || git commit -m "spike: automated run $(date +%Y-%m-%d)"
+          # Pull with rebase in case main moved during the 5-hour run
+          git pull --rebase origin main
           git push
