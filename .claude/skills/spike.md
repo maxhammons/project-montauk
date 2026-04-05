@@ -18,7 +18,10 @@ Goal: beat buy-and-hold on TECL with ≤3 trades/year. 8.2.1 is the baseline. Fi
 
 ### Step 1 — Ask duration
 
-Ask the user: **"How long should the optimizer run? (e.g., 1h, 4h, 8h)"**
+Ask the user: **"How long should the optimizer run? (1-5 hours, default 5)"**
+
+Hard cap is 5 hours (GitHub Actions free tier limit). If they say more than 5, use 5.
+If they just say "go" or "run it", use 5 hours.
 
 Do NOT proceed until they answer.
 
@@ -26,7 +29,7 @@ Do NOT proceed until they answer.
 
 Before writing any new code, read the current state:
 
-1. Read `remote/history/leaderboard.json` — the all-time top 20
+1. Read `spike/leaderboard.json` — the all-time top 20
 2. Read `scripts/strategies.py` — all existing strategy functions
 3. **Check the `converged` field on each entry.** Skip strategies marked `"converged": true` — they've plateaued and further optimization is wasted effort. Focus only on strategies that are still `active` or have low `runs_without_improvement`.
 4. For each **non-converged** top strategy on the leaderboard:
@@ -118,43 +121,72 @@ ind.volume         ind.dates           ind.n
 
 Generate 5-10 strategies total (mix of new ideas + leaderboard variants). Don't self-censor — the optimizer sorts out what works.
 
-### Step 4 — Launch the optimizer (zero tokens)
+### Step 4 — Commit, push, and launch GitHub Actions
 
-```bash
-python3 scripts/spike_runner.py --hours <N>
-```
+The optimizer runs in the cloud so Max can close his laptop.
 
-Run this in the background. It handles everything:
+1. **Commit** all new/modified strategies in `scripts/strategies.py`
+2. **Push** to `main`
+3. **Trigger the workflow:**
+   ```bash
+   gh workflow run spike.yml -f hours=<N> -f pop_size=60
+   ```
+4. **Confirm launch** — show Max the run URL:
+   ```bash
+   sleep 3 && gh run list --workflow=spike.yml --limit=1 --json url,status --jq '.[0]'
+   ```
+5. **Tell Max:** "Spike is running. Close your laptop whenever — results auto-commit to `spike/` when done. Run `/spike results` to check later."
+
+That's it for this session. The GH Action handles everything autonomously:
 - Tests ALL registered strategies with evolutionary parameter optimization
 - Seeds populations from historical winners (doesn't repeat past work)
 - Deduplicates configs across runs via JSONL history
-- ~500,000+ evaluations in 8 hours
 - Auto-generates markdown report with top-10 table
 - Updates all-time leaderboard (top 20)
-- Saves everything to `remote/runs/YYYY-MM-DD/`
+- Commits results to `spike/runs/YYYY-MM-DD/` and pushes
 
-### Step 5 — Show results
+### Step 5 — Show results (separate invocation)
 
-When the optimizer finishes:
+When Max runs `/spike results` (or asks to see results), OR when returning after a run:
 
-1. Read `remote/runs/<date>/report.md`
-2. Show the user the top-10 table and key findings
-3. Commit all changes (new strategies + results) and push
-4. **ASK the user** if they want Pine Script generated for any winner
+1. `git pull` to get the GH Action's commit
+2. Find the latest run: `ls spike/runs/ | sort | tail -1`
+3. Read `spike/runs/<date>/report.md`
+4. Show the top-10 table and key findings
+5. **Generate full Pine Script v6 for the #1 winner** (see below)
+6. Commit the Pine Script and push
 
-## Converting winner to Pine Script (only when asked)
+## Pine Script generation (automatic for #1 winner)
 
-Only when the user explicitly asks. Read the winning Python function, understand the logic, write equivalent Pine Script v6. Use the reference docs in `reference/pinescriptv6-main/` for correct syntax.
+After every spike run, convert the winning strategy to production-ready Pine Script v6:
 
-Save to: `src/strategy/testing/Project Montauk [version]-candidate.txt`
+1. Read the winning Python function from `scripts/strategies.py`
+2. Read its best parameters from the run results
+3. Read `src/strategy/active/Project Montauk 8.2.1.txt` as a structural template (input groups, position sizing, chart labels, etc.)
+4. Use the Pine Script v6 reference in `reference/pinescriptv6-main/` for correct syntax — do NOT guess at API
+5. Write equivalent Pine Script that:
+   - Implements the same entry/exit logic as the Python function
+   - Hardcodes the winning parameters as `input.*` defaults (so they're visible and tunable in TradingView)
+   - Matches the 8.2.1 structure: input groups, exit-reason labels, cooldown logic, 100% equity sizing
+6. Save to: `src/strategy/testing/Project Montauk <version>-candidate.txt`
+   - Version = next major after 8.2.1 (e.g., `9.0`, `9.1`, etc.)
+   - Check what already exists in `src/strategy/testing/` to avoid overwriting
+7. Also save a copy in the run folder: `spike/runs/<date>/candidate.txt`
 
-## CLI options
+If the user asks for Pine Script for additional winners (not just #1), generate those too with distinct version suffixes (e.g., `9.0-A`, `9.0-B`).
 
-| Flag | Default | What |
-|------|---------|------|
-| `--hours N` | (required) | Duration — user chooses |
-| `--pop-size N` | 40 | Population per strategy per generation |
-| `--quick` | off | Shorter report intervals |
+## Checking on a run
+
+```bash
+# Is it still running?
+gh run list --workflow=spike.yml --limit=1
+
+# Watch live logs
+gh run watch
+
+# Pull results after completion
+git pull
+```
 
 ## Key files
 
@@ -165,26 +197,31 @@ Save to: `src/strategy/testing/Project Montauk [version]-candidate.txt`
 | `scripts/evolve.py` | Evolutionary optimizer (with history + dedup) |
 | `scripts/spike_runner.py` | **Main entry point — wraps everything** |
 | `scripts/report.py` | Auto-generates markdown reports |
-| `remote/runs/YYYY-MM-DD/` | Per-session output (report, results, log) |
-| `remote/history/leaderboard.json` | All-time top 20 strategies |
-| `remote/history/tested-configs.jsonl` | Every config ever tested (append-only) |
-| `remote/best-ever.json` | Single best config found |
+| `spike/runs/YYYY-MM-DD/` | Per-session output (report, results, log) |
+| `spike/leaderboard.json` | All-time top 20 strategies |
+| `spike/tested-configs.jsonl` | Every config ever tested (append-only) |
+| `spike/best-ever.json` | Single best config found |
+| `src/strategy/testing/` | **Pine Script candidates** — auto-generated for TradingView |
+| `src/strategy/active/Project Montauk 8.2.1.txt` | Template for Pine Script generation (read-only) |
 
 ## Directory structure
 
 ```
-remote/
+spike/
 ├── runs/                              # One folder per spike session
 │   ├── 2026-04-04/
 │   │   ├── report.md                  # The deliverable: top-10 table + details
 │   │   ├── results.json               # Full optimizer output (with trade lists)
+│   │   ├── candidate.txt              # Pine Script v6 for the #1 winner
 │   │   └── log.txt                    # Console output
 │   └── 2026-04-04-2/                  # Second run same day
-├── history/
-│   ├── leaderboard.json               # All-time top 20
-│   └── tested-configs.jsonl           # Append-only config history
+├── leaderboard.json                   # All-time top 20
+├── tested-configs.jsonl               # Append-only config history
 ├── best-ever.json                     # Single best
 └── winners/                           # Named winner snapshots
+
+src/strategy/testing/                  # Pine Script candidates ready for TradingView
+└── Project Montauk 9.0-candidate.txt  # Latest winner (auto-generated by /spike)
 ```
 
 ## Constraints

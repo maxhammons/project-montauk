@@ -5,11 +5,11 @@ from __future__ import annotations
 Generate a parameter diff report for a Montauk strategy candidate.
 
 Compares proposed parameter values against the 8.2.1 defaults and outputs a
-compact text report to remote/. Does NOT write Pine Script files.
+compact text report to spike/runs/. Does NOT write Pine Script files.
 
 Usage:
   python3 scripts/generate_pine.py '{"short_ema_len": 12, "atr_multiplier": 2.5}' "9.0-candidate-A"
-  python3 scripts/generate_pine.py '{"short_ema_len": 12}' "9.0-candidate-1" --output remote/my-diff.txt
+  python3 scripts/generate_pine.py '{"short_ema_len": 12}' "9.0-candidate-1" --output spike/runs/my-diff.txt
 """
 
 import json
@@ -102,7 +102,7 @@ def generate_diff(params: dict, version_name: str, output_path: str | None = Non
 
     if output_path is None:
         safe_version = version_name.replace(" ", "-").replace("/", "-")
-        output_path = os.path.join(PROJECT_ROOT, "remote", f"diff-{date_str}-{safe_version}.txt")
+        output_path = os.path.join(PROJECT_ROOT, "spike", "runs", f"diff-{date_str}-{safe_version}.txt")
 
     os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else ".", exist_ok=True)
     with open(output_path, "w") as f:

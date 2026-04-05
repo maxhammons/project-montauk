@@ -247,18 +247,25 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         results_path = sys.argv[1]
     else:
-        # Find most recent evolve-results file
-        remote = os.path.join(project_root, "remote")
-        candidates = [f for f in os.listdir(remote) if f.startswith("evolve-results-")]
-        if not candidates:
-            print("No evolve-results files found")
+        # Find most recent results.json in spike/runs/
+        runs_dir = os.path.join(project_root, "spike", "runs")
+        if not os.path.isdir(runs_dir):
+            print("No runs directory found")
             sys.exit(1)
-        results_path = os.path.join(remote, sorted(candidates)[-1])
+        run_dirs = sorted([d for d in os.listdir(runs_dir) if os.path.isdir(os.path.join(runs_dir, d))])
+        if not run_dirs:
+            print("No run directories found")
+            sys.exit(1)
+        latest = os.path.join(runs_dir, run_dirs[-1], "results.json")
+        if not os.path.exists(latest):
+            print(f"No results.json in {run_dirs[-1]}")
+            sys.exit(1)
+        results_path = latest
 
     with open(results_path) as f:
         results = json.load(f)
 
-    run_dir = os.path.join(project_root, "remote", "runs", "test")
+    run_dir = os.path.dirname(results_path)
     report = generate_report(results, run_dir)
     print(report)
     print(f"\nSaved to: {os.path.join(run_dir, 'report.md')}")

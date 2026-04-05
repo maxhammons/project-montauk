@@ -23,7 +23,7 @@ import tempfile
 from datetime import datetime
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STATE_FILE = os.path.join(PROJECT_ROOT, "remote", "spike-state.json")
+STATE_FILE = os.path.join(PROJECT_ROOT, "spike", "spike-state.json")
 
 
 def _ensure_dir():

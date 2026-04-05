@@ -31,7 +31,7 @@ from data import get_tecl_data
 from strategy_engine import Indicators, backtest, BacktestResult
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-HISTORY_DIR = os.path.join(PROJECT_ROOT, "remote", "history")
+HISTORY_DIR = os.path.join(PROJECT_ROOT, "spike")
 HISTORY_FILE = os.path.join(HISTORY_DIR, "tested-configs.jsonl")
 
 
@@ -420,7 +420,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     best_ever_result = None
 
     # Load previous best
-    best_path = os.path.join(PROJECT_ROOT, "remote", "best-ever.json")
+    best_path = os.path.join(PROJECT_ROOT, "spike", "best-ever.json")
     if os.path.exists(best_path):
         try:
             with open(best_path) as f:
@@ -651,7 +651,10 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     if run_dir:
         out_path = os.path.join(run_dir, "results.json")
     else:
-        out_path = os.path.join(PROJECT_ROOT, "remote", f"evolve-results-{date_str}.json")
+        # Even without spike_runner, save into the runs/ structure
+        fallback_dir = os.path.join(PROJECT_ROOT, "spike", "runs", date_str)
+        os.makedirs(fallback_dir, exist_ok=True)
+        out_path = os.path.join(fallback_dir, "results.json")
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     with open(out_path, "w") as f:
         json.dump(results, f, indent=2, cls=_Enc)
@@ -664,7 +667,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
             "strategy": best_ever_name,
             "fitness": best_ever_score,
         } if best_ever_score > 0 else None
-        report_dir = run_dir or os.path.join(PROJECT_ROOT, "remote", "runs", date_str)
+        report_dir = run_dir or os.path.join(PROJECT_ROOT, "spike", "runs", date_str)
         report_text = generate_report(
             results, report_dir,
             leaderboard=leaderboard,

@@ -24,12 +24,10 @@ Project Montauk/
 │   └── spike.md               # /spike skill — canonical source
 ├── .claude/commands/
 │   └── spike.md -> ../skills/spike.md   # symlink (Claude Code reads from commands/)
-├── remote/                    # All outputs from optimization runs
-│   ├── runs/                  # One subfolder per spike session
-│   │   └── YYYY-MM-DD/        # report.md, results.json, log.txt, meta.json
-│   ├── history/
-│   │   ├── leaderboard.json   # All-time top 20 (with descriptions for Claude)
-│   │   └── tested-configs.jsonl  # Every config ever tested (append-only, dedup source)
+├── spike/                     # All /spike optimization output
+│   ├── runs/YYYY-MM-DD/       # Per-session: report.md, results.json, log.txt, candidate.txt
+│   ├── leaderboard.json       # All-time top 20 strategies
+│   ├── tested-configs.jsonl   # Every config ever tested (append-only, dedup source)
 │   ├── best-ever.json         # Single best config found across all sessions
 │   └── winners/               # Named winner snapshots
 └── src/
@@ -118,16 +116,6 @@ These are strategy versions with extra visual debugging for development:
 - **Cooldown logic**: After every exit, a configurable cooldown (bars) prevents immediate re-entry
 - **Price smoothing**: Montauk 6.x versions use OHLC/4 smoothed price; 7.x+ use standard close
 
-## Remote Sessions (Phone / Off-Computer Work)
-
-When running in a remote session (e.g. Claude Code on mobile), follow these rules:
-
-- **Save all outputs** (reports, backtests, code reviews, new strategy files, analysis) to the `remote/` folder at the project root
-- **State file** goes to `remote/spike-state.json` — NOT `remote/remote/spike-state.json`
-- **Use timestamped filenames** to prevent overwrites: `[type]-YYYY-MM-DD.txt` (e.g. `backtest-2026-03-08.txt`, `report-2026-03-08.txt`, `strategy-review-2026-03-08.txt`)
-- **Commit and push directly to `main`** — do not create a new branch
-- This ensures the desktop auto-syncs via `git pull` without any manual merging
-
 ## Working with This Code
 
 - **To edit the active strategy**: Modify `src/strategy/active/Project Montauk 8.2.1.txt`, then paste into TradingView Pine Editor
@@ -141,40 +129,25 @@ The `/spike` skill runs a fully autonomous strategy optimization loop. One quest
 
 ### How to use
 
-1. **Install deps** (first time only): `pip3 install pandas numpy requests`
-2. **Run `/spike`** in Claude Code — asks duration, then runs autonomously
-3. All output goes to `remote/runs/YYYY-MM-DD/` — **the active strategy is never modified**
-4. Results accumulate across runs — history seeding + dedup means the optimizer gets smarter over time
+1. **Run `/spike`** in Claude Code — asks duration, generates strategies, triggers GitHub Actions
+2. **Close your laptop** — the optimizer runs in the cloud and auto-commits results
+3. **Come back later** — run `/spike results` or just ask "how did spike go?" to see results and generate Pine Script
+4. All output goes to `spike/runs/YYYY-MM-DD/` — **the active strategy is never modified**
 
 ### What `/spike` does
 
 1. **Asks** how long to run
-2. **Reads** the leaderboard (`remote/history/leaderboard.json`) to understand what's winning
+2. **Reads** the leaderboard (`spike/leaderboard.json`) to understand what's winning
 3. **Generates** new strategies + improves existing leaderboard winners (50/50 split)
-4. **Launches** `python3 scripts/spike_runner.py --hours N` (fully autonomous Python)
-5. **Shows** you the auto-generated report and commits
-
-### CLI tools (also available standalone)
-
-```bash
-# Run the full spike pipeline (main entry point)
-python3 scripts/spike_runner.py --hours 8
-
-# Run just the optimizer (without the wrapper)
-python3 scripts/evolve.py --hours 8 --quick
-
-# List registered strategies
-python3 scripts/evolve.py --list
-
-# Generate Pine Script from winning params (only when asked)
-python3 scripts/generate_pine.py '{"short_ema_len": 12}' "9.0-candidate"
-```
+4. **Commits and pushes** the new strategies
+5. **Triggers** GitHub Actions workflow (`gh workflow run spike.yml`)
+6. **Shows** you the run URL — done, close your laptop
 
 ### History system
 
 The optimizer remembers everything across runs:
-- **`remote/history/tested-configs.jsonl`**: Every config ever tested (append-only, 1 line per config)
-- **`remote/history/leaderboard.json`**: All-time top 20 with strategy descriptions
+- **`spike/tested-configs.jsonl`**: Every config ever tested (append-only, 1 line per config)
+- **`spike/leaderboard.json`**: All-time top 20 with strategy descriptions
 - Each run seeds 20% of its population from historical winners
 - Exact duplicates are skipped via config hashing (saves 30-40% compute on repeat runs)
 
