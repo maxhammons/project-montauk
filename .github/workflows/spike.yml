@@ -66,5 +66,10 @@ jobs:
           git commit -m "spike: automated run $(date +%Y-%m-%d)"
           # Fetch latest main and rebase our commit on top
           git fetch origin main
-          git rebase origin/main
+          if ! git rebase origin/main; then
+            # Conflict in spike/ files — keep this run's results (during rebase, --theirs = our commit)
+            git checkout --theirs -- spike/
+            git add spike/
+            GIT_EDITOR=true git rebase --continue
+          fi
           git push
