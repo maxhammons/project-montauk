@@ -15,6 +15,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import signal
@@ -30,6 +31,8 @@ from data import get_tecl_data
 from strategy_engine import Indicators, backtest, BacktestResult
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+HISTORY_DIR = os.path.join(PROJECT_ROOT, "remote", "history")
+HISTORY_FILE = os.path.join(HISTORY_DIR, "tested-configs.jsonl")
 
 
 class _Enc(json.JSONEncoder):
@@ -39,6 +42,215 @@ class _Enc(json.JSONEncoder):
         if isinstance(o, (np.bool_,)): return bool(o)
         if isinstance(o, np.ndarray): return o.tolist()
         return super().default(o)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Config hashing & history — don't repeat yourself across runs
+# ─────────────────────────────────────────────────────────────────────────────
+
+def config_hash(strategy_name: str, params: dict) -> str:
+    """Deterministic hash for a strategy + params combo."""
+    # Sort params, round floats to avoid floating point noise
+    clean = {}
+    for k, v in sorted(params.items()):
+        if isinstance(v, float):
+            clean[k] = round(v, 4)
+        else:
+            clean[k] = v
+    key = f"{strategy_name}:{json.dumps(clean, sort_keys=True)}"
+    return hashlib.sha256(key.encode()).hexdigest()[:16]
+
+
+def load_history() -> dict:
+    """
+    Load tested configs from JSONL history file.
+    Returns dict: {config_hash: {strategy, params, fitness, metrics, date}}
+    """
+    history = {}
+    if not os.path.exists(HISTORY_FILE):
+        return history
+    try:
+        with open(HISTORY_FILE) as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                entry = json.loads(line)
+                h = entry.get("hash", "")
+                # Keep the best result for each hash
+                if h not in history or entry.get("fitness", 0) > history[h].get("fitness", 0):
+                    history[h] = entry
+    except Exception as e:
+        print(f"[history] Warning: failed to load history: {e}")
+    return history
+
+
+def save_history_batch(entries: list):
+    """Append a batch of tested configs to the JSONL history file."""
+    os.makedirs(HISTORY_DIR, exist_ok=True)
+    try:
+        with open(HISTORY_FILE, "a") as f:
+            for entry in entries:
+                f.write(json.dumps(entry, cls=_Enc) + "\n")
+    except Exception as e:
+        print(f"[history] Warning: failed to save history: {e}")
+
+
+def get_top_from_history(history: dict, strategy_name: str, n: int = 8) -> list:
+    """Get top N param sets for a strategy from history."""
+    candidates = [
+        entry for entry in history.values()
+        if entry.get("strategy") == strategy_name and entry.get("fitness", 0) > 0
+    ]
+    candidates.sort(key=lambda x: x.get("fitness", 0), reverse=True)
+    return [c["params"] for c in candidates[:n]]
+
+
+CONVERGE_RUNS = 3  # auto-flag as converged after this many runs with no improvement
+
+
+def update_leaderboard(results: dict, leaderboard_path: str) -> list:
+    """
+    Update the all-time top-20 leaderboard with convergence tracking.
+
+    Each strategy (by name) tracks:
+    - best_fitness: highest fitness ever seen for this strategy name
+    - runs_without_improvement: consecutive runs where this strategy didn't beat its best
+    - converged: True when runs_without_improvement >= CONVERGE_RUNS
+
+    Convergence is per-strategy-name (not per-config). Once a strategy is converged,
+    Claude should skip optimizing it and focus effort elsewhere.
+
+    Returns the updated leaderboard list.
+    """
+    # Load strategy descriptions for context
+    try:
+        from strategies import STRATEGY_DESCRIPTIONS
+    except ImportError:
+        STRATEGY_DESCRIPTIONS = {}
+
+    # Load existing
+    leaderboard = []
+    if os.path.exists(leaderboard_path):
+        try:
+            with open(leaderboard_path) as f:
+                leaderboard = json.load(f)
+        except Exception:
+            pass
+
+    # Build per-strategy convergence state from existing leaderboard
+    # Track the best entry per strategy name (highest fitness)
+    strategy_state = {}  # strategy_name -> {best_fitness, runs_without_improvement, converged}
+    for entry in leaderboard:
+        name = entry["strategy"]
+        if name not in strategy_state:
+            strategy_state[name] = {
+                "best_fitness": entry.get("fitness", 0),
+                "runs_without_improvement": entry.get("runs_without_improvement", 0),
+                "converged": entry.get("converged", False),
+            }
+        else:
+            # Keep highest fitness
+            if entry.get("fitness", 0) > strategy_state[name]["best_fitness"]:
+                strategy_state[name]["best_fitness"] = entry["fitness"]
+
+    # Check this run's results against previous bests
+    date = results.get("date", datetime.now().strftime("%Y-%m-%d"))
+    strategies_in_run = set()
+    for entry in results.get("rankings", []):
+        if not entry.get("metrics"):
+            continue
+        name = entry["strategy"]
+        strategies_in_run.add(name)
+        new_fitness = entry["fitness"]
+
+        if name not in strategy_state:
+            strategy_state[name] = {
+                "best_fitness": new_fitness,
+                "runs_without_improvement": 0,
+                "converged": False,
+            }
+        else:
+            prev_best = strategy_state[name]["best_fitness"]
+            # Improvement threshold: must beat previous best by >0.1% to count
+            if new_fitness > prev_best * 1.001:
+                strategy_state[name]["best_fitness"] = new_fitness
+                strategy_state[name]["runs_without_improvement"] = 0
+                strategy_state[name]["converged"] = False
+            else:
+                strategy_state[name]["runs_without_improvement"] += 1
+
+        # Auto-converge check (only if not manually unconverged)
+        rwi = strategy_state[name]["runs_without_improvement"]
+        if rwi >= CONVERGE_RUNS and not strategy_state[name].get("manual_unconverge"):
+            if not strategy_state[name]["converged"]:
+                strategy_state[name]["converged"] = True
+                print(f"[leaderboard] {name} auto-converged after {rwi} runs with no improvement")
+
+        # Build leaderboard entry
+        lb_entry = {
+            "strategy": name,
+            "fitness": new_fitness,
+            "params": entry.get("params", {}),
+            "metrics": entry["metrics"],
+            "date": date,
+            "converged": strategy_state[name]["converged"],
+            "runs_without_improvement": strategy_state[name]["runs_without_improvement"],
+        }
+        desc = STRATEGY_DESCRIPTIONS.get(name)
+        if desc:
+            lb_entry["description"] = desc
+        leaderboard.append(lb_entry)
+
+    # Increment runs_without_improvement for strategies NOT in this run
+    # (they were registered but produced no results — still counts as no improvement)
+    for name in strategy_state:
+        if name not in strategies_in_run:
+            strategy_state[name]["runs_without_improvement"] += 1
+            if strategy_state[name]["runs_without_improvement"] >= CONVERGE_RUNS:
+                strategy_state[name]["converged"] = True
+
+    # Propagate convergence state to existing leaderboard entries
+    for entry in leaderboard:
+        name = entry["strategy"]
+        if name in strategy_state:
+            entry["converged"] = strategy_state[name]["converged"]
+            entry["runs_without_improvement"] = strategy_state[name]["runs_without_improvement"]
+
+    # Deduplicate: keep best per config hash
+    seen = {}
+    for entry in leaderboard:
+        h = config_hash(entry["strategy"], entry.get("params", {}))
+        if h not in seen or entry["fitness"] > seen[h]["fitness"]:
+            seen[h] = entry
+    leaderboard = sorted(seen.values(), key=lambda x: x["fitness"], reverse=True)[:20]
+
+    # Save
+    os.makedirs(os.path.dirname(leaderboard_path), exist_ok=True)
+    with open(leaderboard_path, "w") as f:
+        json.dump(leaderboard, f, indent=2, cls=_Enc)
+
+    return leaderboard
+
+
+def set_converged(leaderboard_path: str, strategy_name: str, converged: bool) -> bool:
+    """Manually flag/unflag a strategy as converged. Returns True on success."""
+    if not os.path.exists(leaderboard_path):
+        return False
+    with open(leaderboard_path) as f:
+        leaderboard = json.load(f)
+    found = False
+    for entry in leaderboard:
+        if entry["strategy"] == strategy_name:
+            entry["converged"] = converged
+            if not converged:
+                entry["runs_without_improvement"] = 0
+                entry["manual_unconverge"] = True
+            found = True
+    if found:
+        with open(leaderboard_path, "w") as f:
+            json.dump(leaderboard, f, indent=2, cls=_Enc)
+    return found
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -120,7 +332,18 @@ def evaluate(ind: Indicators, df, strategy_fn, params: dict, name: str) -> tuple
         return 0.0, None
 
 
-def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False):
+def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
+           run_dir: str | None = None) -> dict:
+    """
+    Run the evolutionary optimizer. Returns the results dict.
+
+    Parameters
+    ----------
+    hours : how long to run
+    pop_size : population per strategy per generation
+    quick : shorter report intervals
+    run_dir : directory to save results (optional, for spike_runner)
+    """
     # Late import to pick up any new strategies added between runs
     from strategies import STRATEGY_REGISTRY, STRATEGY_PARAMS
 
@@ -135,6 +358,19 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False):
     df = get_tecl_data(use_yfinance=False)
     ind = Indicators(df)
     print(f"Data: {len(df)} bars, {df['date'].min().date()} to {df['date'].max().date()}\n")
+
+    # ── Load history for seeding & dedup ──
+    history = load_history()
+    dedup_cache = {}  # hash -> fitness (skip re-evaluation)
+    for h, entry in history.items():
+        if entry.get("fitness", 0) > 0:
+            dedup_cache[h] = entry["fitness"]
+    history_stats = {"cached_configs": 0, "new_configs": 0, "seeded_per_strategy": 0}
+    new_history_entries = []  # batch-save at end
+
+    if history:
+        print(f"[history] Loaded {len(history):,} configs from previous runs")
+        print(f"[history] Dedup cache: {len(dedup_cache):,} configs with known fitness\n")
 
     # ── Baseline: run each strategy with default (midpoint) params ──
     print("── Baselines ──")
@@ -156,10 +392,23 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False):
             print(f"  {name:<22} FAILED")
 
     # ── Initialize populations (one per strategy) ──
+    # Seed with historical winners + defaults + random
     populations = {}
+    max_seed = max(2, int(pop_size * 0.2))  # 20% from history
     for name in STRATEGY_REGISTRY:
         space = STRATEGY_PARAMS.get(name, {})
         pop = [baselines[name]["params"].copy()]
+
+        # Seed from history
+        hist_winners = get_top_from_history(history, name, n=max_seed)
+        for hw in hist_winners:
+            if len(pop) < pop_size:
+                pop.append(hw)
+        if hist_winners:
+            history_stats["seeded_per_strategy"] = max(
+                history_stats["seeded_per_strategy"], len(hist_winners))
+
+        # Fill rest with random
         while len(pop) < pop_size:
             pop.append(random_params(space))
         populations[name] = pop
@@ -189,7 +438,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False):
     last_report = start_time
     report_interval = 60 if quick else 300
     strategy_bests = {name: (0.0, {}, None) for name in STRATEGY_REGISTRY}
-    history = []
+    convergence_history = []
 
     # Allow Ctrl+C or kill to save results gracefully
     _interrupted = [False]
@@ -208,12 +457,36 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False):
             space = STRATEGY_PARAMS.get(strat_name, {})
             pop = populations[strat_name]
 
-            # Evaluate
+            # Evaluate with dedup cache
             scored = []
             for params in pop:
-                score, result = evaluate(ind, df, fn, params, strat_name)
-                total_evals += 1
-                scored.append((score, params, result))
+                h = config_hash(strat_name, params)
+                if h in dedup_cache:
+                    # Reuse cached fitness (no result object — just score)
+                    scored.append((dedup_cache[h], params, None))
+                    history_stats["cached_configs"] += 1
+                else:
+                    score, result = evaluate(ind, df, fn, params, strat_name)
+                    total_evals += 1
+                    scored.append((score, params, result))
+                    dedup_cache[h] = score
+                    history_stats["new_configs"] += 1
+                    # Queue for history save
+                    if result:
+                        new_history_entries.append({
+                            "hash": h,
+                            "strategy": strat_name,
+                            "params": params,
+                            "fitness": round(score, 4),
+                            "metrics": {
+                                "vs_bah": round(result.vs_bah_multiple, 4),
+                                "cagr": round(result.cagr_pct, 2),
+                                "max_dd": round(result.max_drawdown_pct, 1),
+                                "mar": round(result.mar_ratio, 3),
+                                "trades_yr": round(result.trades_per_year, 1),
+                            },
+                            "date": datetime.now().strftime("%Y-%m-%d"),
+                        })
             scored.sort(key=lambda x: x[0], reverse=True)
 
             # Update strategy best
@@ -254,7 +527,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False):
 
         # Track convergence
         gen_best = max(strategy_bests[s][0] for s in strategy_bests)
-        history.append((generation, round(gen_best, 4)))
+        convergence_history.append((generation, round(gen_best, 4)))
 
         # Progress report
         now = time.time()
@@ -306,6 +579,27 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False):
                 if len(result.trades) > 5:
                     print(f"       ... +{len(result.trades)-5} more")
 
+    # ── Re-evaluate strategy bests that were cached (no result object) ──
+    # Needed for full metrics in the final report
+    for strat_name in list(strategy_bests.keys()):
+        score, params, result = strategy_bests[strat_name]
+        if result is None and score > 0 and strat_name in STRATEGY_REGISTRY:
+            _, result = evaluate(ind, df, STRATEGY_REGISTRY[strat_name], params, strat_name)
+            strategy_bests[strat_name] = (score, params, result)
+
+    # Re-sort after re-evaluation
+    rankings = sorted(strategy_bests.items(), key=lambda x: -x[1][0])
+
+    # ── Save history ──
+    if new_history_entries:
+        save_history_batch(new_history_entries)
+        print(f"\n[history] Saved {len(new_history_entries):,} new configs to history")
+
+    history_stats["total_history"] = len(dedup_cache)
+
+    # ── Update leaderboard ──
+    leaderboard_path = os.path.join(HISTORY_DIR, "leaderboard.json")
+
     # Save results
     results = {
         "date": datetime.now().strftime("%Y-%m-%d"),
@@ -313,6 +607,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False):
         "total_evaluations": total_evals,
         "generations": generation,
         "constraint": f"<={MAX_TRADES_PER_YEAR} trades/yr",
+        "history_stats": history_stats,
         "rankings": [
             {
                 "rank": i + 1,
@@ -329,6 +624,16 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False):
                     "win_rate": round(result.win_rate_pct, 1),
                     "exit_reasons": result.exit_reasons,
                 } if result else None,
+                "trades": [
+                    {
+                        "entry_date": t.entry_date,
+                        "exit_date": t.exit_date,
+                        "pnl_pct": round(t.pnl_pct, 1),
+                        "exit_reason": t.exit_reason,
+                        "bars_held": t.bars_held,
+                    }
+                    for t in (result.trades if result else [])
+                ],
             }
             for i, (name, (score, params, result)) in enumerate(rankings)
         ],
@@ -339,14 +644,40 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False):
         },
     }
 
+    leaderboard = update_leaderboard(results, leaderboard_path)
+
+    # Save results JSON
     date_str = datetime.now().strftime("%Y-%m-%d")
-    out_path = os.path.join(PROJECT_ROOT, "remote", f"evolve-results-{date_str}.json")
+    if run_dir:
+        out_path = os.path.join(run_dir, "results.json")
+    else:
+        out_path = os.path.join(PROJECT_ROOT, "remote", f"evolve-results-{date_str}.json")
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     with open(out_path, "w") as f:
         json.dump(results, f, indent=2, cls=_Enc)
     print(f"\nResults: {out_path}")
 
+    # Generate markdown report
+    try:
+        from report import generate_report
+        prev_best_snapshot = {
+            "strategy": best_ever_name,
+            "fitness": best_ever_score,
+        } if best_ever_score > 0 else None
+        report_dir = run_dir or os.path.join(PROJECT_ROOT, "remote", "runs", date_str)
+        report_text = generate_report(
+            results, report_dir,
+            leaderboard=leaderboard,
+            previous_best=prev_best_snapshot,
+            history_stats=history_stats,
+        )
+        print(f"Report: {os.path.join(report_dir, 'report.md')}")
+    except Exception as e:
+        print(f"[report] Warning: report generation failed: {e}")
+
     print(f"\n###JSON### {json.dumps(results, cls=_Enc)}")
+
+    return results
 
 
 def save_best(path, score, name, params, result):

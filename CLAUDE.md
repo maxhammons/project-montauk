@@ -12,20 +12,26 @@ Project Montauk/
 │   └── pinescriptv6-main/               # Pine Script v6 reference (structured repo)
 ├── scripts/                   # Python backtesting & optimization tools
 │   ├── data.py                # TECL data fetcher (Yahoo Finance API + CSV merge)
-│   ├── backtest_engine.py     # Python replica of Montauk 8.2.1 strategy logic + regime scoring
-│   ├── validation.py          # Walk-forward validation & anti-overfitting
-│   ├── run_optimization.py    # CLI runner for backtests, sweeps, grid search
+│   ├── strategies.py          # Strategy library — all strategy functions + registry
+│   ├── strategy_engine.py     # Backtest engine + indicator cache
+│   ├── evolve.py              # Multi-strategy evolutionary optimizer (with history/dedup)
+│   ├── spike_runner.py        # Main /spike entry point — wraps everything
+│   ├── report.py              # Auto-generates markdown reports from results
 │   ├── spike_state.py         # State management for /spike (crash-safe JSON)
 │   ├── generate_pine.py       # Convert winning params back to Pine Script v6
 │   └── requirements.txt       # Python deps: pandas, numpy, requests
 ├── .claude/skills/
 │   └── spike.md               # /spike skill — canonical source
 ├── .claude/commands/
-│   └── *.md -> ../skills/*.md   # each file in skills/ is symlinked here (Claude Code reads from commands/)
-├── remote/                    # All outputs from remote/mobile sessions
-│   ├── report-YYYY-MM-DD.md   # Optimization reports
-│   └── spike-state.json       # /spike session state
-│   NOTE: remote/scripts/ and remote/remote/ are stale legacy folders — use scripts/ at root
+│   └── spike.md -> ../skills/spike.md   # symlink (Claude Code reads from commands/)
+├── remote/                    # All outputs from optimization runs
+│   ├── runs/                  # One subfolder per spike session
+│   │   └── YYYY-MM-DD/        # report.md, results.json, log.txt, meta.json
+│   ├── history/
+│   │   ├── leaderboard.json   # All-time top 20 (with descriptions for Claude)
+│   │   └── tested-configs.jsonl  # Every config ever tested (append-only, dedup source)
+│   ├── best-ever.json         # Single best config found across all sessions
+│   └── winners/               # Named winner snapshots
 └── src/
     ├── strategy/
     │   ├── active/            # Current production strategy
@@ -131,45 +137,46 @@ When running in a remote session (e.g. Claude Code on mobile), follow these rule
 
 ## Optimization Tools (`/spike`)
 
-The `/spike` skill runs a continuous strategy optimization loop. It uses a Python backtesting engine that faithfully replicates Montauk 8.2.1's logic, enabling rapid parameter sweeps and walk-forward validation without TradingView.
+The `/spike` skill runs a fully autonomous strategy optimization loop. One question ("how many hours?"), then hands-free. Claude generates/improves strategies, Python optimizes them overnight, and a markdown report with top-10 table is auto-generated.
 
 ### How to use
 
 1. **Install deps** (first time only): `pip3 install pandas numpy requests`
-2. **Run `/spike`** in Claude Code — this kicks off the multi-phase optimization loop
-3. All output goes to `remote/` — **the active strategy is never modified**
-4. Winning configurations are output as ready-to-paste Pine Script v6
+2. **Run `/spike`** in Claude Code — asks duration, then runs autonomously
+3. All output goes to `remote/runs/YYYY-MM-DD/` — **the active strategy is never modified**
+4. Results accumulate across runs — history seeding + dedup means the optimizer gets smarter over time
 
-### CLI tools (used by `/spike`, also available standalone)
+### What `/spike` does
 
-All commands should be run from the project root. Scripts live in `scripts/`.
+1. **Asks** how long to run
+2. **Reads** the leaderboard (`remote/history/leaderboard.json`) to understand what's winning
+3. **Generates** new strategies + improves existing leaderboard winners (50/50 split)
+4. **Launches** `python3 scripts/spike_runner.py --hours N` (fully autonomous Python)
+5. **Shows** you the auto-generated report and commits
+
+### CLI tools (also available standalone)
 
 ```bash
-# Run baseline backtest with 8.2.1 defaults
-python3 scripts/run_optimization.py baseline
+# Run the full spike pipeline (main entry point)
+python3 scripts/spike_runner.py --hours 8
 
-# Test specific parameter overrides
-python3 scripts/run_optimization.py test --params '{"short_ema_len": 12}'
+# Run just the optimizer (without the wrapper)
+python3 scripts/evolve.py --hours 8 --quick
 
-# Sweep a single parameter
-python3 scripts/run_optimization.py sweep --param atr_multiplier --min 1.5 --max 5.0 --step 0.5
+# List registered strategies
+python3 scripts/evolve.py --list
 
-# Grid search (parameter interactions)
-python3 scripts/run_optimization.py grid --spec '{"short_ema_len": [10,15], "med_ema_len": [25,30]}'
-
-# Walk-forward validation (anti-overfitting)
-python3 scripts/run_optimization.py validate --params '{"short_ema_len": 12}'
-
-# Generate Pine Script from params
+# Generate Pine Script from winning params (only when asked)
 python3 scripts/generate_pine.py '{"short_ema_len": 12}' "9.0-candidate"
-
-# State management (used by /spike)
-python3 scripts/spike_state.py init           # fresh state
-python3 scripts/spike_state.py read           # print current state
-python3 scripts/spike_state.py elapsed        # hours since start
 ```
 
-All commands output a `###JSON###` line at the end for machine parsing.
+### History system
+
+The optimizer remembers everything across runs:
+- **`remote/history/tested-configs.jsonl`**: Every config ever tested (append-only, 1 line per config)
+- **`remote/history/leaderboard.json`**: All-time top 20 with strategy descriptions
+- Each run seeds 20% of its population from historical winners
+- Exact duplicates are skipped via config hashing (saves 30-40% compute on repeat runs)
 
 ### Primary optimization target: Regime Score
 

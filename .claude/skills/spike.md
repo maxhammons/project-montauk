@@ -4,13 +4,55 @@ Goal: beat buy-and-hold on TECL with ≤3 trades/year. 8.2.1 is the baseline. Fi
 
 ## How it works
 
-**Claude writes Python strategy functions. Python tests them overnight. Only the winner becomes Pine Script.**
+**One question. Then fully autonomous.**
 
-Writing Pine Script for each idea = slow + expensive. Writing a 20-line Python function = fast + testable 500,000 times overnight.
+1. Ask: "How long should the optimizer run?"
+2. Claude does two things (50/50 split):
+   - **Invents new strategies** — fresh ideas added to `scripts/strategies.py`
+   - **Optimizes leaderboard strategies** — reads top performers from history, studies their logic, tunes their parameters or improves their code
+3. Python optimizer runs autonomously for the requested duration
+4. Auto-generated report with top-10 table, leaderboard, history stats
+5. Claude shows you the results, commits, and pushes
 
-## Step 1 — Generate strategies (Claude, ~10 min of tokens)
+## The Flow (step by step)
 
-Open `scripts/strategies.py` and add new strategy functions. Each one is ~20 lines:
+### Step 1 — Ask duration
+
+Ask the user: **"How long should the optimizer run? (e.g., 1h, 4h, 8h)"**
+
+Do NOT proceed until they answer.
+
+### Step 2 — Study the leaderboard (~50% of Claude's effort)
+
+Before writing any new code, read the current state:
+
+1. Read `remote/history/leaderboard.json` — the all-time top 20
+2. Read `scripts/strategies.py` — all existing strategy functions
+3. **Check the `converged` field on each entry.** Skip strategies marked `"converged": true` — they've plateaued and further optimization is wasted effort. Focus only on strategies that are still `active` or have low `runs_without_improvement`.
+4. For each **non-converged** top strategy on the leaderboard:
+   - Read its function code
+   - Read its best params and metrics from the leaderboard
+   - Think about WHY it works (or doesn't) — what market conditions does it exploit?
+   - Consider: can its logic be refined? Can you add a smarter exit? A better entry filter?
+5. Write improved variants as NEW strategy functions (don't modify the original — the optimizer needs both to compare)
+
+**Convergence rules:**
+- Strategies auto-converge after 3 consecutive runs with no fitness improvement
+- Converged strategies are still tested by the optimizer (their params may shift), but Claude should NOT spend tokens writing new variants of them
+- To manually flag/unflag: `python3 scripts/spike_state.py converge <name>` / `unconverge <name>`
+- If ALL leaderboard strategies are converged, spend 100% of effort on new ideas instead
+
+**Example optimizations (for non-converged strategies only):**
+- A strategy exits too late → add an ATR trailing stop variant
+- A strategy enters on RSI 35 → try a version that also requires positive MACD slope
+- A strategy uses a single EMA → try a version with adaptive EMA length based on volatility
+- Two top strategies use different entry signals → try combining them
+
+Name variants clearly: `rsi_regime_v2`, `breakout_with_vol_filter`, etc.
+
+### Step 3 — Generate new strategies (~50% of Claude's effort)
+
+Open `scripts/strategies.py` and add brand new strategy functions. Each one is ~20 lines:
 
 ```python
 def my_strategy(ind: Indicators, p: dict) -> tuple:
@@ -72,62 +114,33 @@ ind.close          ind.high            ind.low             ind.open
 ind.volume         ind.dates           ind.n
 ```
 
-**Use ANY combination.** There are no restrictions on what indicators or logic you can use. Combine them however you want. Invent new composite signals. The only constraints are: long TECL, ≤3 trades/year.
+**Use ANY combination.** Invent new composite signals. The only constraints are: long TECL, ≤3 trades/year.
 
-Generate as many strategies as you can. More variety = higher chance of finding something that beats 8.2.1. Don't self-censor ideas — the optimizer will sort out what works.
+Generate 5-10 strategies total (mix of new ideas + leaderboard variants). Don't self-censor — the optimizer sorts out what works.
 
-Generate 5-10 new strategies per session. More is better — the optimizer handles the rest.
-
-## Step 2 — Launch optimizer
-
-After writing strategies, launch the optimizer in the background using the Bash tool with `run_in_background: true`:
+### Step 4 — Launch the optimizer (zero tokens)
 
 ```bash
-cd "/Users/maxhammons/Documents/Projects/Project Montauk" && nohup python3 -u scripts/evolve.py --hours 8 > remote/evolve-log-$(date +%Y-%m-%d).txt 2>&1
+python3 scripts/spike_runner.py --hours <N>
 ```
 
-Tell the user: "Optimizer is running in the background for 8 hours. To stop it early and save results, say **stop spike**."
-
-## Stopping early (if user says "stop spike" or "stop the optimizer")
-
-Find and kill the process — it will save full results before exiting:
-
-```bash
-pgrep -f evolve.py
-```
-
-Then kill it:
-
-```bash
-kill $(pgrep -f evolve.py)
-```
-
-Wait 5 seconds, then proceed to Step 3 to report results.
-
-This runs autonomously:
+Run this in the background. It handles everything:
 - Tests ALL registered strategies with evolutionary parameter optimization
+- Seeds populations from historical winners (doesn't repeat past work)
+- Deduplicates configs across runs via JSONL history
 - ~500,000+ evaluations in 8 hours
-- Compares everything against 8.2.1 baseline
-- Hard constraint: ≤3 trades/year, penalizes high drawdown
-- Saves best to `remote/best-ever.json`, full results to `remote/evolve-results-YYYY-MM-DD.json`
+- Auto-generates markdown report with top-10 table
+- Updates all-time leaderboard (top 20)
+- Saves everything to `remote/runs/YYYY-MM-DD/`
 
-## Step 3 — Report results (Claude, ~2 min)
+### Step 5 — Show results
 
-ALWAYS do all of these steps without waiting to be asked:
+When the optimizer finishes:
 
-1. Read `remote/evolve-results-YYYY-MM-DD.json`
-2. Read `remote/best-ever.json`
-3. Write report to `remote/spike-YYYY-MM-DD.md` with the following sections:
-   - **Session summary**: duration, evals, generations, strategies tested
-   - **All-time best** (from best-ever.json): strategy name, vs B&H, CAGR, Max DD, trades/yr, full params
-   - **This session rankings**: table of all strategies with vs B&H, CAGR, Max DD, trades/yr, MAR
-   - **For the #1 strategy** — everything needed to write Pine Script without reading any other file:
-     - Plain-English description of entry logic (what conditions trigger a buy)
-     - Plain-English description of every exit condition (what triggers a sell, in priority order)
-     - Full winning params with values and what each one controls
-     - Complete Python source code of the strategy function (copy it verbatim from strategies.py)
-   - **Next steps**: what to run next, what to fix, what to watch
-4. **ASK the user** if they want Pine Script generated. Do NOT generate it automatically — it costs tokens and the user may want to run more sessions first.
+1. Read `remote/runs/<date>/report.md`
+2. Show the user the top-10 table and key findings
+3. Commit all changes (new strategies + results) and push
+4. **ASK the user** if they want Pine Script generated for any winner
 
 ## Converting winner to Pine Script (only when asked)
 
@@ -139,10 +152,9 @@ Save to: `src/strategy/testing/Project Montauk [version]-candidate.txt`
 
 | Flag | Default | What |
 |------|---------|------|
-| `--hours N` | 8 | Duration |
+| `--hours N` | (required) | Duration — user chooses |
 | `--pop-size N` | 40 | Population per strategy per generation |
 | `--quick` | off | Shorter report intervals |
-| `--list` | — | Show registered strategies and exit |
 
 ## Key files
 
@@ -150,10 +162,30 @@ Save to: `src/strategy/testing/Project Montauk [version]-candidate.txt`
 |------|------|
 | `scripts/strategies.py` | **Strategy library — add new strategies here** |
 | `scripts/strategy_engine.py` | Backtest engine + indicator cache |
-| `scripts/evolve.py` | Multi-strategy evolutionary optimizer |
-| `scripts/parity_check.py` | Verify Python engine matches TradingView |
-| `remote/evolve-results-*.json` | Per-session results |
-| `remote/best-ever.json` | Best config found across all sessions |
+| `scripts/evolve.py` | Evolutionary optimizer (with history + dedup) |
+| `scripts/spike_runner.py` | **Main entry point — wraps everything** |
+| `scripts/report.py` | Auto-generates markdown reports |
+| `remote/runs/YYYY-MM-DD/` | Per-session output (report, results, log) |
+| `remote/history/leaderboard.json` | All-time top 20 strategies |
+| `remote/history/tested-configs.jsonl` | Every config ever tested (append-only) |
+| `remote/best-ever.json` | Single best config found |
+
+## Directory structure
+
+```
+remote/
+├── runs/                              # One folder per spike session
+│   ├── 2026-04-04/
+│   │   ├── report.md                  # The deliverable: top-10 table + details
+│   │   ├── results.json               # Full optimizer output (with trade lists)
+│   │   └── log.txt                    # Console output
+│   └── 2026-04-04-2/                  # Second run same day
+├── history/
+│   ├── leaderboard.json               # All-time top 20
+│   └── tested-configs.jsonl           # Append-only config history
+├── best-ever.json                     # Single best
+└── winners/                           # Named winner snapshots
+```
 
 ## Constraints
 

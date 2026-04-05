@@ -144,6 +144,26 @@ def cmd_elapsed():
     print(f"{hours:.2f}")
 
 
+def cmd_converge(strategy_name: str):
+    """Flag a strategy as converged (skip future optimization)."""
+    from evolve import set_converged, HISTORY_DIR
+    lb_path = os.path.join(HISTORY_DIR, "leaderboard.json")
+    if set_converged(lb_path, strategy_name, True):
+        print(f"Flagged '{strategy_name}' as converged")
+    else:
+        print(f"Strategy '{strategy_name}' not found on leaderboard")
+
+
+def cmd_unconverge(strategy_name: str):
+    """Unflag a strategy (resume optimization)."""
+    from evolve import set_converged, HISTORY_DIR
+    lb_path = os.path.join(HISTORY_DIR, "leaderboard.json")
+    if set_converged(lb_path, strategy_name, False):
+        print(f"Unflagged '{strategy_name}' — will be optimized again")
+    else:
+        print(f"Strategy '{strategy_name}' not found on leaderboard")
+
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: spike_state.py <command> [args...]")
@@ -167,6 +187,10 @@ def main():
         cmd_append(sys.argv[2], sys.argv[3])
     elif cmd == "elapsed":
         cmd_elapsed()
+    elif cmd == "converge":
+        cmd_converge(sys.argv[2])
+    elif cmd == "unconverge":
+        cmd_unconverge(sys.argv[2])
     else:
         print(f"Unknown command: {cmd}")
         sys.exit(1)
