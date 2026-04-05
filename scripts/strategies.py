@@ -646,6 +646,479 @@ def keltner_rsi(ind: Indicators, p: dict) -> tuple:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Strategy 14: RSI Regime v2 — RSI regime entry with MACD histogram confirmation
+# Same core idea as rsi_regime but requires MACD histogram positive on entry
+# to filter out false recoveries where momentum hasn't actually turned.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def rsi_regime_v2(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    rsi = ind.rsi(p.get("rsi_len", 13))
+    trend_ema = ind.ema(p.get("trend_len", 150))
+    cl = ind.close
+    macd_h = ind.macd_hist(p.get("macd_fast", 12), p.get("macd_slow", 26), p.get("macd_sig", 9))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    entry_rsi = p.get("entry_rsi", 35)
+    exit_rsi = p.get("exit_rsi", 80)
+
+    for i in range(1, n):
+        if np.isnan(rsi[i]) or np.isnan(rsi[i-1]):
+            continue
+
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+        macd_ok = np.isnan(macd_h[i]) or macd_h[i] > p.get("macd_floor", 0)
+
+        # Entry: RSI crosses up through entry level + trend + MACD confirming
+        if rsi[i-1] < entry_rsi and rsi[i] >= entry_rsi and trend_ok and macd_ok:
+            entries[i] = True
+
+        # Exit: RSI overbought
+        if rsi[i] >= exit_rsi:
+            exits[i] = True
+            labels[i] = "RSI OB"
+
+        # Exit: RSI panic
+        if rsi[i] < p.get("panic_rsi", 15):
+            exits[i] = True
+            labels[i] = "RSI Panic"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 15: RSI Regime + Trailing Stop — Same entry as rsi_regime but
+# replaces fixed RSI exit with ATR trailing stop. Lets winners run further
+# in strong trends instead of exiting at a fixed RSI level.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def rsi_regime_trail(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    rsi = ind.rsi(p.get("rsi_len", 13))
+    trend_ema = ind.ema(p.get("trend_len", 150))
+    cl = ind.close
+    atr_vals = ind.atr(p.get("atr_period", 40))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    entry_rsi = p.get("entry_rsi", 35)
+    trail_mult = p.get("trail_mult", 3.0)
+    peak = np.nan
+
+    for i in range(1, n):
+        if np.isnan(rsi[i]) or np.isnan(rsi[i-1]):
+            continue
+
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+
+        # Entry: RSI crosses up through entry level + trend
+        if rsi[i-1] < entry_rsi and rsi[i] >= entry_rsi and trend_ok:
+            entries[i] = True
+            peak = cl[i]
+
+        # Track peak
+        if not np.isnan(peak):
+            peak = max(peak, cl[i])
+
+            # Exit: ATR trailing stop from peak
+            if not np.isnan(atr_vals[i]):
+                trail_level = peak - atr_vals[i] * trail_mult
+                if cl[i] < trail_level:
+                    exits[i] = True
+                    labels[i] = "ATR Trail"
+                    peak = np.nan
+                    continue
+
+        # Exit: RSI panic (keep this as safety)
+        if rsi[i] < p.get("panic_rsi", 15):
+            exits[i] = True
+            labels[i] = "RSI Panic"
+            peak = np.nan
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 16: RSI + ADX Adaptive — Use ADX to filter entries. Only enter
+# RSI recovery when market is transitioning from weak to strong trend (ADX
+# rising through threshold). Avoids entering during range-bound chop.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def rsi_adx_filter(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    rsi = ind.rsi(p.get("rsi_len", 13))
+    trend_ema = ind.ema(p.get("trend_len", 150))
+    cl = ind.close
+    adx = ind.adx(p.get("adx_len", 14))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    entry_rsi = p.get("entry_rsi", 35)
+    exit_rsi = p.get("exit_rsi", 80)
+    adx_min = p.get("adx_min", 20)
+
+    for i in range(1, n):
+        if np.isnan(rsi[i]) or np.isnan(rsi[i-1]):
+            continue
+
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+        adx_ok = np.isnan(adx[i]) or adx[i] > adx_min
+
+        # Entry: RSI crosses up + trend + ADX showing trend strength
+        if rsi[i-1] < entry_rsi and rsi[i] >= entry_rsi and trend_ok and adx_ok:
+            entries[i] = True
+
+        # Exit: RSI overbought
+        if rsi[i] >= exit_rsi:
+            exits[i] = True
+            labels[i] = "RSI OB"
+
+        # Exit: RSI panic
+        if rsi[i] < p.get("panic_rsi", 15):
+            exits[i] = True
+            labels[i] = "RSI Panic"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 17: Breakout + Volume Filter — Same as breakout but requires
+# volume > N * avg volume on breakout bar. Filters out low-conviction breaks.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def breakout_vol(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    lookback = p.get("lookback", 20)
+    h = ind.highest(lookback)
+    atr_vals = ind.atr(p.get("atr_period", 30))
+    vol_avg = ind.vol_ema(p.get("vol_avg_len", 20))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    peak = np.nan
+    trail_pct = p.get("trail_pct", 30)
+    vol_mult = p.get("vol_mult", 1.3)
+
+    for i in range(1, n):
+        if np.isnan(h[i]):
+            continue
+
+        # Entry: new high + volume confirmation
+        vol_ok = np.isnan(vol_avg[i]) or vol_avg[i] == 0 or ind.volume[i] > vol_avg[i] * vol_mult
+        if cl[i] >= h[i] * p.get("breakout_pct", 0.9) and vol_ok:
+            entries[i] = True
+            peak = cl[i]
+
+        # Track peak + trailing stop
+        if not np.isnan(peak):
+            peak = max(peak, cl[i])
+            if cl[i] < peak * (1 - trail_pct / 100):
+                exits[i] = True
+                labels[i] = "Trail Stop"
+                peak = np.nan
+                continue
+
+        # Exit: ATR shock
+        if not np.isnan(atr_vals[i]) and i >= 1:
+            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 4.0):
+                exits[i] = True
+                labels[i] = "ATR Shock"
+                peak = np.nan
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 18: Parabolic SAR Rider — Enter when PSAR flips below price
+# (bullish), exit when PSAR flips above (bearish). Adaptive trailing stop
+# built into the indicator. Add trend filter to avoid whipsaws.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def psar_rider(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    psar = ind.psar()
+    trend_ema = ind.ema(p.get("trend_len", 100))
+    atr_vals = ind.atr(p.get("atr_period", 30))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    for i in range(1, n):
+        if np.isnan(psar[i]) or np.isnan(psar[i-1]):
+            continue
+
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+
+        # Entry: PSAR flips from above to below price
+        was_bearish = psar[i-1] > cl[i-1]
+        is_bullish = psar[i] < cl[i]
+        if was_bearish and is_bullish and trend_ok:
+            entries[i] = True
+
+        # Exit: PSAR flips above price
+        was_bullish = psar[i-1] < cl[i-1]
+        is_bearish = psar[i] > cl[i]
+        if was_bullish and is_bearish:
+            exits[i] = True
+            labels[i] = "PSAR Flip"
+            continue
+
+        # Exit: ATR shock
+        if not np.isnan(atr_vals[i]) and i >= 1:
+            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 3.5):
+                exits[i] = True
+                labels[i] = "ATR Shock"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 19: Dual Momentum — Combine absolute momentum (ROC > 0 over N
+# bars) with relative momentum (price > long EMA). Only be in when BOTH
+# confirm bullish regime. Classic Antonacci dual-momentum approach.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def dual_momentum(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    roc = ind.roc(p.get("roc_len", 60))
+    trend_ema = ind.ema(p.get("trend_len", 150))
+    atr_vals = ind.atr(p.get("atr_period", 30))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    roc_thresh = p.get("roc_entry", 0.0)
+    roc_exit = p.get("roc_exit", -5.0)
+
+    for i in range(1, n):
+        if np.isnan(roc[i]) or np.isnan(roc[i-1]):
+            continue
+
+        above_trend = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+
+        # Entry: absolute momentum positive + above trend (relative momentum)
+        if roc[i-1] < roc_thresh and roc[i] >= roc_thresh and above_trend:
+            entries[i] = True
+
+        # Exit: absolute momentum turns significantly negative
+        if roc[i] < roc_exit:
+            exits[i] = True
+            labels[i] = "Mom Fade"
+            continue
+
+        # Exit: price drops below trend
+        if not np.isnan(trend_ema[i]) and cl[i] < trend_ema[i] * (1 - p.get("trend_buffer", 2.0) / 100):
+            exits[i] = True
+            labels[i] = "Below Trend"
+            continue
+
+        # Exit: ATR shock
+        if not np.isnan(atr_vals[i]) and i >= 1:
+            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 3.5):
+                exits[i] = True
+                labels[i] = "ATR Shock"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 20: Volatility Regime — Enter when realized vol drops below
+# threshold (calm market = strong trend likely starting), exit when vol
+# spikes (regime disruption). Low-vol precedes strong trending periods.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def vol_regime(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    rvol = ind.realized_vol(p.get("vol_len", 20))
+    rvol_long = ind.realized_vol(p.get("vol_long_len", 60))
+    trend_ema = ind.ema(p.get("trend_len", 100))
+    atr_vals = ind.atr(p.get("atr_period", 30))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    for i in range(1, n):
+        if np.isnan(rvol[i]) or np.isnan(rvol_long[i]):
+            continue
+
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+
+        # Entry: short vol drops below long vol * threshold (compression)
+        vol_compressed = rvol[i] < rvol_long[i] * p.get("vol_ratio", 0.8)
+        vol_was_high = rvol[i-1] >= rvol_long[i-1] * p.get("vol_ratio", 0.8) if not np.isnan(rvol[i-1]) else False
+
+        if vol_compressed and vol_was_high and trend_ok:
+            entries[i] = True
+
+        # Exit: vol spikes above long vol * exit ratio
+        if rvol[i] > rvol_long[i] * p.get("vol_exit_ratio", 1.5):
+            exits[i] = True
+            labels[i] = "Vol Spike"
+            continue
+
+        # Exit: ATR shock
+        if not np.isnan(atr_vals[i]) and i >= 1:
+            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 3.5):
+                exits[i] = True
+                labels[i] = "ATR Shock"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 21: Ichimoku Regime — Enter when price is above both Tenkan and
+# Kijun lines (cloud bullish), exit when price drops below Kijun.
+# Very different signal source from everything else in the library.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def ichimoku_regime(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    tenkan = ind.ichimoku_tenkan(p.get("tenkan_len", 9))
+    kijun = ind.ichimoku_kijun(p.get("kijun_len", 26))
+    trend_ema = ind.ema(p.get("trend_len", 100))
+    atr_vals = ind.atr(p.get("atr_period", 30))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    for i in range(1, n):
+        if np.isnan(tenkan[i]) or np.isnan(kijun[i]):
+            continue
+
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+
+        # Entry: Tenkan crosses above Kijun (TK cross) + price above both + trend
+        tk_cross = tenkan[i] > kijun[i] and (np.isnan(tenkan[i-1]) or tenkan[i-1] <= kijun[i-1])
+        price_above = cl[i] > tenkan[i] and cl[i] > kijun[i]
+
+        if tk_cross and price_above and trend_ok:
+            entries[i] = True
+
+        # Exit: price drops below Kijun
+        if cl[i] < kijun[i] * (1 - p.get("kijun_buffer", 1.0) / 100):
+            exits[i] = True
+            labels[i] = "Below Kijun"
+            continue
+
+        # Exit: ATR shock
+        if not np.isnan(atr_vals[i]) and i >= 1:
+            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 3.5):
+                exits[i] = True
+                labels[i] = "ATR Shock"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 22: CCI + Williams %R — Enter when CCI crosses above -100
+# (oversold recovery) while Williams %R confirms upward momentum.
+# Both are oscillators but use different math — their agreement is powerful.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def cci_willr(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    cci = ind.cci(p.get("cci_len", 20))
+    willr = ind.willr(p.get("willr_len", 14))
+    trend_ema = ind.ema(p.get("trend_len", 150))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    cci_entry = p.get("cci_entry", -100)
+    cci_exit = p.get("cci_exit", 100)
+    willr_entry = p.get("willr_entry", -80)
+
+    for i in range(1, n):
+        if np.isnan(cci[i]) or np.isnan(cci[i-1]) or np.isnan(willr[i]):
+            continue
+
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+
+        # Entry: CCI crosses up through entry level + Williams %R oversold + trend
+        if cci[i-1] < cci_entry and cci[i] >= cci_entry and willr[i] > willr_entry and trend_ok:
+            entries[i] = True
+
+        # Exit: CCI overbought
+        if cci[i] >= cci_exit:
+            exits[i] = True
+            labels[i] = "CCI OB"
+
+        # Exit: CCI crashes
+        if cci[i] < p.get("cci_panic", -200):
+            exits[i] = True
+            labels[i] = "CCI Panic"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 23: Stochastic Regime — Enter on stochastic %K crossing above
+# %D from oversold zone, exit from overbought. Stochastic is particularly
+# effective on leveraged ETFs due to their mean-reverting nature.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def stoch_regime(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    stoch_k = ind.stoch_k(p.get("stoch_len", 14))
+    stoch_d = ind.stoch_d(p.get("stoch_len", 14))
+    trend_ema = ind.ema(p.get("trend_len", 150))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    os_level = p.get("oversold", 20)
+    ob_level = p.get("overbought", 80)
+
+    for i in range(1, n):
+        if np.isnan(stoch_k[i]) or np.isnan(stoch_d[i]):
+            continue
+
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+
+        # Entry: %K crosses above %D from oversold zone + trend
+        k_cross_d = stoch_k[i] > stoch_d[i] and (np.isnan(stoch_k[i-1]) or stoch_k[i-1] <= stoch_d[i-1])
+        in_oversold = stoch_k[i] < os_level or stoch_d[i] < os_level
+
+        if k_cross_d and in_oversold and trend_ok:
+            entries[i] = True
+
+        # Exit: overbought zone + %K crosses below %D
+        k_cross_d_down = stoch_k[i] < stoch_d[i] and (np.isnan(stoch_k[i-1]) or stoch_k[i-1] >= stoch_d[i-1])
+        if k_cross_d_down and stoch_k[i] > ob_level:
+            exits[i] = True
+            labels[i] = "Stoch OB"
+
+        # Exit: extreme panic
+        if stoch_k[i] < p.get("panic_level", 5):
+            exits[i] = True
+            labels[i] = "Stoch Panic"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Registry — all strategies the optimizer can test
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -663,6 +1136,16 @@ STRATEGY_REGISTRY = {
     "composite_momentum": composite_momentum,
     "donchian_trend":     donchian_trend,
     "keltner_rsi":        keltner_rsi,
+    "rsi_regime_v2":      rsi_regime_v2,
+    "rsi_regime_trail":   rsi_regime_trail,
+    "rsi_adx_filter":     rsi_adx_filter,
+    "breakout_vol":       breakout_vol,
+    "psar_rider":         psar_rider,
+    "dual_momentum":      dual_momentum,
+    "vol_regime":         vol_regime,
+    "ichimoku_regime":    ichimoku_regime,
+    "cci_willr":          cci_willr,
+    "stoch_regime":       stoch_regime,
 }
 
 # Parameter spaces for each strategy: {param: (min, max, step, type)}
@@ -743,5 +1226,63 @@ STRATEGY_PARAMS = {
         "trend_len": (50, 200, 25, int), "rsi_min": (40, 65, 5, float),
         "rsi_exit": (25, 50, 5, float), "atr_period": (10, 40, 10, int),
         "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 20, 5, int),
+    },
+    "rsi_regime_v2": {
+        "rsi_len": (7, 21, 2, int), "trend_len": (50, 200, 25, int),
+        "entry_rsi": (25, 45, 5, float), "exit_rsi": (65, 85, 5, float),
+        "panic_rsi": (10, 25, 5, float), "macd_fast": (8, 16, 4, int),
+        "macd_slow": (20, 32, 4, int), "macd_sig": (5, 13, 4, int),
+        "macd_floor": (-2.0, 2.0, 1.0, float), "cooldown": (0, 20, 5, int),
+    },
+    "rsi_regime_trail": {
+        "rsi_len": (7, 21, 2, int), "trend_len": (50, 200, 25, int),
+        "entry_rsi": (25, 45, 5, float), "panic_rsi": (10, 25, 5, float),
+        "atr_period": (20, 60, 10, int), "trail_mult": (2.0, 6.0, 0.5, float),
+        "cooldown": (0, 20, 5, int),
+    },
+    "rsi_adx_filter": {
+        "rsi_len": (7, 21, 2, int), "trend_len": (50, 200, 25, int),
+        "entry_rsi": (25, 45, 5, float), "exit_rsi": (65, 85, 5, float),
+        "panic_rsi": (10, 25, 5, float), "adx_len": (7, 28, 7, int),
+        "adx_min": (10, 30, 5, float), "cooldown": (0, 20, 5, int),
+    },
+    "breakout_vol": {
+        "lookback": (20, 120, 10, int), "breakout_pct": (0.85, 1.0, 0.03, float),
+        "trail_pct": (15, 40, 5, float), "atr_period": (10, 40, 10, int),
+        "atr_mult": (2.0, 5.0, 0.5, float), "vol_avg_len": (10, 40, 10, int),
+        "vol_mult": (1.0, 2.0, 0.2, float), "cooldown": (0, 20, 5, int),
+    },
+    "psar_rider": {
+        "trend_len": (50, 200, 25, int), "atr_period": (20, 60, 10, int),
+        "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 20, 5, int),
+    },
+    "dual_momentum": {
+        "roc_len": (20, 120, 20, int), "trend_len": (50, 200, 25, int),
+        "roc_entry": (-5.0, 10.0, 2.5, float), "roc_exit": (-15.0, 0.0, 2.5, float),
+        "trend_buffer": (0.0, 5.0, 1.0, float), "atr_period": (20, 60, 10, int),
+        "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 20, 5, int),
+    },
+    "vol_regime": {
+        "vol_len": (10, 40, 10, int), "vol_long_len": (40, 120, 20, int),
+        "trend_len": (50, 200, 25, int), "vol_ratio": (0.5, 0.9, 0.1, float),
+        "vol_exit_ratio": (1.2, 2.0, 0.2, float), "atr_period": (20, 60, 10, int),
+        "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 20, 5, int),
+    },
+    "ichimoku_regime": {
+        "tenkan_len": (5, 15, 2, int), "kijun_len": (15, 40, 5, int),
+        "trend_len": (50, 200, 25, int), "kijun_buffer": (0.0, 3.0, 0.5, float),
+        "atr_period": (20, 60, 10, int), "atr_mult": (2.0, 5.0, 0.5, float),
+        "cooldown": (0, 20, 5, int),
+    },
+    "cci_willr": {
+        "cci_len": (10, 30, 5, int), "willr_len": (7, 21, 7, int),
+        "trend_len": (50, 200, 25, int), "cci_entry": (-150, -50, 25, float),
+        "cci_exit": (80, 150, 20, float), "willr_entry": (-90, -60, 10, float),
+        "cci_panic": (-300, -150, 50, float), "cooldown": (0, 20, 5, int),
+    },
+    "stoch_regime": {
+        "stoch_len": (7, 21, 7, int), "trend_len": (50, 200, 25, int),
+        "oversold": (10, 30, 5, float), "overbought": (70, 90, 5, float),
+        "panic_level": (3, 10, 2, float), "cooldown": (0, 20, 5, int),
     },
 }
