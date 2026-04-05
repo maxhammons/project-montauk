@@ -338,17 +338,331 @@ def tema_momentum(ind: Indicators, p: dict) -> tuple:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Strategy 8: MACD Zero Cross — Enter when MACD line crosses above zero,
+# exit when it crosses below. Catches momentum regime shifts cleanly.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def macd_zero_cross(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    fast = p.get("macd_fast", 12)
+    slow = p.get("macd_slow", 26)
+    sig = p.get("macd_sig", 9)
+    macd = ind.macd_line(fast, slow)
+    signal = ind.macd_signal(fast, slow, sig)
+    hist = ind.macd_hist(fast, slow, sig)
+    trend_ema = ind.ema(p.get("trend_len", 100))
+    atr_vals = ind.atr(p.get("atr_period", 30))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    for i in range(1, n):
+        if np.isnan(macd[i]) or np.isnan(macd[i-1]):
+            continue
+
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+
+        # Entry: MACD crosses above zero + above trend
+        if macd[i-1] < 0 and macd[i] >= 0 and trend_ok:
+            entries[i] = True
+
+        # Exit: MACD crosses below zero
+        if macd[i-1] >= 0 and macd[i] < 0:
+            exits[i] = True
+            labels[i] = "MACD Cross Zero"
+            continue
+
+        # Exit: ATR shock
+        if not np.isnan(atr_vals[i]) and i >= 1:
+            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 3.0):
+                exits[i] = True
+                labels[i] = "ATR Shock"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 9: DMI Trend — Enter on ADX strength + DI+ dominance
+# ADX measures trend strength; high ADX + DI+ > DI- = strong bull regime
+# ─────────────────────────────────────────────────────────────────────────────
+
+def dmi_trend(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    adx_len = p.get("adx_len", 14)
+    adx = ind.adx(adx_len)
+    di_plus = ind.di_plus(adx_len)
+    di_minus = ind.di_minus(adx_len)
+    trend_ema = ind.ema(p.get("trend_len", 100))
+    atr_vals = ind.atr(p.get("atr_period", 20))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    adx_thresh = p.get("adx_thresh", 25.0)
+    di_margin = p.get("di_margin", 5.0)
+
+    for i in range(1, n):
+        if np.isnan(adx[i]) or np.isnan(di_plus[i]) or np.isnan(di_minus[i]):
+            continue
+
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+        strong_trend = adx[i] > adx_thresh
+        bull_direction = di_plus[i] > di_minus[i] + di_margin
+
+        # Entry: strong trend + bullish direction + above trend EMA
+        entries[i] = strong_trend and bull_direction and trend_ok
+
+        # Exit: DI- dominates
+        if di_minus[i] > di_plus[i] + di_margin * 0.5:
+            exits[i] = True
+            labels[i] = "DI- Dominant"
+            continue
+
+        # Exit: ATR shock
+        if not np.isnan(atr_vals[i]) and i >= 1:
+            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 3.0):
+                exits[i] = True
+                labels[i] = "ATR Shock"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 10: ROC Momentum — Enter when Rate of Change exceeds threshold,
+# exit when momentum stalls. ROC directly measures pace of price change.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def roc_momentum(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    roc = ind.roc(p.get("roc_len", 20))
+    roc_smooth = _ema_helper(roc, p.get("roc_smooth", 5))
+    trend_ema = ind.ema(p.get("trend_len", 80))
+    atr_vals = ind.atr(p.get("atr_period", 30))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    entry_thresh = p.get("entry_roc", 5.0)
+    exit_thresh = p.get("exit_roc", -2.0)
+
+    for i in range(1, n):
+        if np.isnan(roc_smooth[i]) or np.isnan(roc_smooth[i-1]):
+            continue
+
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+
+        # Entry: smoothed ROC crosses above threshold + trend OK
+        if roc_smooth[i-1] < entry_thresh and roc_smooth[i] >= entry_thresh and trend_ok:
+            entries[i] = True
+
+        # Exit: ROC drops below exit threshold
+        if roc_smooth[i] < exit_thresh:
+            exits[i] = True
+            labels[i] = "ROC Fade"
+            continue
+
+        # Exit: ATR shock
+        if not np.isnan(atr_vals[i]) and i >= 1:
+            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 3.5):
+                exits[i] = True
+                labels[i] = "ATR Shock"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 11: Composite Momentum — Combine RSI + MACD hist + ROC into a
+# single score. Enter when composite is positive and rising, exit on reversal.
+# Similar to the Montauk Composite Oscillator indicator but used for entries.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def composite_momentum(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+
+    # RSI normalized to -1..+1
+    rsi = ind.rsi(p.get("rsi_len", 14))
+    rsi_norm = (rsi - 50.0) / 50.0  # -1 to +1
+
+    # MACD histogram normalized by ATR
+    fast = p.get("macd_fast", 12)
+    slow_m = p.get("macd_slow", 26)
+    sig = p.get("macd_sig", 9)
+    hist = ind.macd_hist(fast, slow_m, sig)
+    atr_vals = ind.atr(p.get("atr_period", 20))
+    hist_norm = np.where(atr_vals > 0, hist / atr_vals, 0.0)
+    hist_norm = np.clip(hist_norm, -2.0, 2.0) / 2.0  # -1 to +1
+
+    # ROC normalized
+    roc = ind.roc(p.get("roc_len", 10))
+    roc_norm = np.tanh(roc / p.get("roc_scale", 10.0))  # -1 to +1
+
+    trend_ema = ind.ema(p.get("trend_len", 100))
+
+    w_rsi = p.get("w_rsi", 0.3)
+    w_hist = p.get("w_hist", 0.4)
+    w_roc = p.get("w_roc", 0.3)
+
+    composite = w_rsi * rsi_norm + w_hist * hist_norm + w_roc * roc_norm
+    comp_smooth = _ema_helper(composite, p.get("smooth_len", 3))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    entry_level = p.get("entry_level", 0.1)
+    exit_level = p.get("exit_level", -0.1)
+
+    for i in range(1, n):
+        if np.isnan(comp_smooth[i]) or np.isnan(comp_smooth[i-1]):
+            continue
+
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+
+        # Entry: composite crosses above entry level + trend
+        if comp_smooth[i-1] < entry_level and comp_smooth[i] >= entry_level and trend_ok:
+            entries[i] = True
+
+        # Exit: composite drops below exit level
+        if comp_smooth[i] < exit_level:
+            exits[i] = True
+            labels[i] = "Composite Drop"
+            continue
+
+        # Exit: ATR shock
+        if not np.isnan(atr_vals[i]) and i >= 1:
+            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 3.0):
+                exits[i] = True
+                labels[i] = "ATR Shock"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 12: Donchian Trend — Enter on upper channel breakout,
+# exit on middle line cross. Turtle-trading style regime entry.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def donchian_trend(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    entry_len = p.get("entry_len", 55)
+    exit_len = p.get("exit_len", 20)
+
+    don_hi_entry = ind.donchian_upper(entry_len)
+    don_mid_exit = ind.donchian_mid(exit_len)
+    don_lo_exit = ind.donchian_lower(exit_len)
+    atr_vals = ind.atr(p.get("atr_period", 20))
+    trend_ema = ind.ema(p.get("trend_len", 100))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    for i in range(1, n):
+        if np.isnan(don_hi_entry[i]) or np.isnan(don_hi_entry[i-1]):
+            continue
+
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+
+        # Entry: price breaks above N-day high (Turtle entry)
+        if cl[i] >= don_hi_entry[i-1] and trend_ok:
+            entries[i] = True
+
+        # Exit: price drops below mid of shorter channel
+        if not np.isnan(don_mid_exit[i]) and cl[i] < don_mid_exit[i]:
+            exits[i] = True
+            labels[i] = "Below Mid"
+            continue
+
+        # Exit: ATR shock
+        if not np.isnan(atr_vals[i]) and i >= 1:
+            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 3.0):
+                exits[i] = True
+                labels[i] = "ATR Shock"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 13: Keltner + RSI Filter — Enter when price breaks above Keltner
+# channel with RSI confirmation. Combines volatility expansion with momentum.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def keltner_rsi(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    ema_len = p.get("ema_len", 20)
+    atr_len = p.get("atr_len", 10)
+    mult = p.get("kelt_mult", 2.0)
+
+    kelt_upper = ind.keltner_upper(ema_len, atr_len, mult)
+    kelt_lower = ind.keltner_lower(ema_len, atr_len, mult)
+    ema_mid = ind.ema(ema_len)
+    rsi = ind.rsi(p.get("rsi_len", 14))
+    trend_ema = ind.ema(p.get("trend_len", 100))
+    atr_vals = ind.atr(p.get("atr_period", 20))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    for i in range(1, n):
+        if np.isnan(kelt_upper[i]) or np.isnan(rsi[i]):
+            continue
+
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+        rsi_ok = rsi[i] > p.get("rsi_min", 50)
+
+        # Entry: price above upper Keltner + RSI confirming momentum + trend
+        if cl[i] > kelt_upper[i] and rsi_ok and trend_ok:
+            entries[i] = True
+
+        # Exit: price drops below EMA midline
+        if not np.isnan(ema_mid[i]) and cl[i] < ema_mid[i]:
+            exits[i] = True
+            labels[i] = "Below EMA Mid"
+            continue
+
+        # Exit: RSI drops below exit level
+        if rsi[i] < p.get("rsi_exit", 40):
+            exits[i] = True
+            labels[i] = "RSI Exit"
+            continue
+
+        # Exit: ATR shock
+        if not np.isnan(atr_vals[i]) and i >= 1:
+            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 3.0):
+                exits[i] = True
+                labels[i] = "ATR Shock"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Registry — all strategies the optimizer can test
 # ─────────────────────────────────────────────────────────────────────────────
 
 STRATEGY_REGISTRY = {
-    "montauk_821":      montauk_821,
-    "golden_cross":     golden_cross,
-    "rsi_regime":       rsi_regime,
-    "breakout":         breakout,
-    "bollinger_squeeze": bollinger_squeeze,
-    "trend_stack":      trend_stack,
-    "tema_momentum":    tema_momentum,
+    "montauk_821":        montauk_821,
+    "golden_cross":       golden_cross,
+    "rsi_regime":         rsi_regime,
+    "breakout":           breakout,
+    "bollinger_squeeze":  bollinger_squeeze,
+    "trend_stack":        trend_stack,
+    "tema_momentum":      tema_momentum,
+    "macd_zero_cross":    macd_zero_cross,
+    "dmi_trend":          dmi_trend,
+    "roc_momentum":       roc_momentum,
+    "composite_momentum": composite_momentum,
+    "donchian_trend":     donchian_trend,
+    "keltner_rsi":        keltner_rsi,
 }
 
 # Parameter spaces for each strategy: {param: (min, max, step, type)}
@@ -389,6 +703,45 @@ STRATEGY_PARAMS = {
         "tema_len": (20, 100, 10, int), "trend_len": (50, 200, 25, int),
         "slope_lookback": (3, 15, 2, int), "min_slope": (0.0, 1.0, 0.2, float),
         "exit_slope": (0.0, 1.0, 0.2, float), "atr_period": (20, 60, 10, int),
+        "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 20, 5, int),
+    },
+    "macd_zero_cross": {
+        "macd_fast": (8, 20, 2, int), "macd_slow": (20, 40, 4, int),
+        "macd_sig": (5, 15, 2, int), "trend_len": (50, 200, 25, int),
+        "atr_period": (10, 50, 10, int), "atr_mult": (2.0, 5.0, 0.5, float),
+        "cooldown": (0, 20, 5, int),
+    },
+    "dmi_trend": {
+        "adx_len": (7, 28, 7, int), "adx_thresh": (15.0, 35.0, 5.0, float),
+        "di_margin": (2.0, 15.0, 2.0, float), "trend_len": (50, 200, 25, int),
+        "atr_period": (10, 40, 10, int), "atr_mult": (2.0, 5.0, 0.5, float),
+        "cooldown": (0, 20, 5, int),
+    },
+    "roc_momentum": {
+        "roc_len": (10, 40, 5, int), "roc_smooth": (3, 15, 2, int),
+        "trend_len": (50, 200, 25, int), "entry_roc": (2.0, 15.0, 2.0, float),
+        "exit_roc": (-8.0, 0.0, 2.0, float), "atr_period": (10, 40, 10, int),
+        "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 20, 5, int),
+    },
+    "composite_momentum": {
+        "rsi_len": (7, 21, 7, int), "macd_fast": (8, 16, 4, int),
+        "macd_slow": (20, 32, 4, int), "macd_sig": (7, 13, 3, int),
+        "roc_len": (5, 20, 5, int), "roc_scale": (5.0, 20.0, 5.0, float),
+        "trend_len": (50, 200, 50, int), "smooth_len": (2, 8, 2, int),
+        "entry_level": (0.0, 0.3, 0.1, float), "exit_level": (-0.3, 0.0, 0.1, float),
+        "atr_period": (10, 40, 10, int), "atr_mult": (2.0, 5.0, 0.5, float),
+        "cooldown": (0, 20, 5, int),
+    },
+    "donchian_trend": {
+        "entry_len": (30, 90, 10, int), "exit_len": (10, 40, 5, int),
+        "trend_len": (50, 200, 25, int), "atr_period": (10, 40, 10, int),
+        "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 20, 5, int),
+    },
+    "keltner_rsi": {
+        "ema_len": (10, 40, 5, int), "atr_len": (5, 20, 5, int),
+        "kelt_mult": (1.0, 3.0, 0.5, float), "rsi_len": (7, 21, 7, int),
+        "trend_len": (50, 200, 25, int), "rsi_min": (40, 65, 5, float),
+        "rsi_exit": (25, 50, 5, float), "atr_period": (10, 40, 10, int),
         "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 20, 5, int),
     },
 }
