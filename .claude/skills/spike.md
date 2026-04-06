@@ -119,7 +119,16 @@ ind.volume         ind.dates           ind.n
 
 **Use ANY combination.** Invent new composite signals. The only constraints are: long TECL, ≤3 trades/year.
 
-**Strategy cap: max 15 in STRATEGY_REGISTRY.** Before adding new strategies, count the current entries. If at or over 15, remove the worst performers first (lowest fitness on leaderboard, or converged strategies that never beat 8.2.1). Delete the function, its REGISTRY entry, and its PARAMS entry. This keeps optimizer time focused instead of spread thin.
+**Strategy cap: max 15 in STRATEGY_REGISTRY.** Before adding new strategies, **aggressively prune dead weight:**
+
+1. **Auto-prune in optimizer:** `evolve.py` automatically skips strategies that have been in 2+ runs and never reached fitness 0.05 (baseline). They still exist in code but get zero compute time.
+2. **Claude must delete before adding:** Before writing any new strategy, check the leaderboard. Delete any strategy (function + REGISTRY + PARAMS) that meets ANY of these:
+   - Fitness below 0.05 after 2+ runs (already auto-skipped, but clean up the code too)
+   - Converged AND below top 5 on the leaderboard
+   - Never produced a single trade across any run
+3. **Net count must stay ≤ 15.** If at 15 after pruning, delete one more before adding.
+
+This keeps optimizer time focused instead of spread thin. A bad strategy costs ~20% of a run's compute — cutting 3 duds is like adding an extra hour.
 
 ### Step 4 — Commit, push, and launch GitHub Actions
 
@@ -204,7 +213,7 @@ git pull
 | `scripts/report.py` | Auto-generates markdown reports |
 | `spike/runs/YYYY-MM-DD/` | Per-session output (report, results, log) |
 | `spike/leaderboard.json` | All-time top 20 strategies |
-| `spike/tested-configs.jsonl` | Every config ever tested (append-only) |
+| `spike/hash-index.json` | Compact dedup index: {hash: fitness} |
 | `spike/best-ever.json` | Single best config found |
 | `src/strategy/testing/` | **Pine Script candidates** — auto-generated for TradingView |
 | `src/strategy/active/Project Montauk 8.2.1.txt` | Template for Pine Script generation (read-only) |
@@ -221,7 +230,7 @@ spike/
 │   │   └── log.txt                    # Console output
 │   └── 2026-04-04-2/                  # Second run same day
 ├── leaderboard.json                   # All-time top 20
-├── tested-configs.jsonl               # Append-only config history
+├── hash-index.json                    # Compact dedup index {hash: fitness}
 ├── best-ever.json                     # Single best
 └── winners/                           # Named winner snapshots
 

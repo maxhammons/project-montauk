@@ -27,7 +27,7 @@ Project Montauk/
 ├── spike/                     # All /spike optimization output
 │   ├── runs/YYYY-MM-DD/       # Per-session: report.md, results.json, log.txt, candidate.txt
 │   ├── leaderboard.json       # All-time top 20 strategies
-│   ├── tested-configs.jsonl   # Every config ever tested (append-only, dedup source)
+│   ├── hash-index.json        # Compact dedup index: {hash: fitness}
 │   ├── best-ever.json         # Single best config found across all sessions
 │   └── winners/               # Named winner snapshots
 └── src/
@@ -146,7 +146,7 @@ The `/spike` skill runs a fully autonomous strategy optimization loop. One quest
 ### History system
 
 The optimizer remembers everything across runs:
-- **`spike/tested-configs.jsonl`**: Every config ever tested (append-only, 1 line per config)
+- **`spike/hash-index.json`**: Compact dedup index mapping config hashes to fitness scores
 - **`spike/leaderboard.json`**: All-time top 20 with strategy descriptions
 - Each run seeds 20% of its population from historical winners
 - Exact duplicates are skipped via config hashing (saves 30-40% compute on repeat runs)

@@ -61,15 +61,26 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Only commit spike/ output files — never scripts/ or other code
           git add spike/
           git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "spike: automated run $(date +%Y-%m-%d)"
           # Fetch latest main and rebase our commit on top
           git fetch origin main
           if ! git rebase origin/main; then
-            # Conflict in spike/ files — keep this run's results (during rebase, --theirs = our commit)
-            git checkout --theirs -- spike/
-            git add spike/
-            GIT_EDITOR=true git rebase --continue
+            # If code changed on main during the run, accept main's version for
+            # everything except spike/ (where we keep our results)
+            git diff --name-only --diff-filter=U | while read -r f; do
+              case "$f" in
+                spike/*) git checkout --theirs -- "$f" ;;  # keep our run results
+                *)       git checkout --ours -- "$f" ;;    # keep main's code changes
+              esac
+            done
+            git add -A
+            GIT_EDITOR=true git rebase --continue || {
+              echo "::warning::Rebase failed — aborting and retrying with merge"
+              git rebase --abort
+              git pull --no-rebase origin main -X ours
+            }
           fi
           git push

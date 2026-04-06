@@ -32,7 +32,8 @@ from strategy_engine import Indicators, backtest, BacktestResult
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HISTORY_DIR = os.path.join(PROJECT_ROOT, "spike")
-HISTORY_FILE = os.path.join(HISTORY_DIR, "tested-configs.jsonl")
+HISTORY_FILE = os.path.join(HISTORY_DIR, "tested-configs.jsonl")  # legacy, no longer written
+HASH_INDEX_FILE = os.path.join(HISTORY_DIR, "hash-index.json")   # compact: {hash: fitness}
 
 
 class _Enc(json.JSONEncoder):
@@ -61,52 +62,82 @@ def config_hash(strategy_name: str, params: dict) -> str:
     return hashlib.sha256(key.encode()).hexdigest()[:16]
 
 
-def load_history() -> dict:
+def load_hash_index() -> dict:
     """
-    Load tested configs from JSONL history file.
-    Returns dict: {config_hash: {strategy, params, fitness, metrics, date}}
+    Load the compact hash index: {config_hash: fitness}.
+    Falls back to migrating from legacy JSONL if the index doesn't exist yet.
     """
-    history = {}
-    if not os.path.exists(HISTORY_FILE):
-        return history
-    try:
-        with open(HISTORY_FILE) as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                entry = json.loads(line)
-                h = entry.get("hash", "")
-                # Keep the best result for each hash
-                if h not in history or entry.get("fitness", 0) > history[h].get("fitness", 0):
-                    history[h] = entry
-    except Exception as e:
-        print(f"[history] Warning: failed to load history: {e}")
-    return history
+    # Try compact index first
+    if os.path.exists(HASH_INDEX_FILE):
+        try:
+            with open(HASH_INDEX_FILE) as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"[history] Warning: failed to load hash index: {e}")
+            return {}
+
+    # Migrate from legacy JSONL if it exists
+    if os.path.exists(HISTORY_FILE):
+        print("[history] Migrating legacy JSONL to compact hash index...")
+        index = {}
+        try:
+            with open(HISTORY_FILE) as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    entry = json.loads(line)
+                    h = entry.get("hash", "")
+                    fit = entry.get("fitness", 0)
+                    if h and (h not in index or fit > index[h]):
+                        index[h] = round(fit, 4)
+            save_hash_index(index)
+            print(f"[history] Migrated {len(index):,} unique configs to hash-index.json")
+            return index
+        except Exception as e:
+            print(f"[history] Warning: migration failed: {e}")
+            return {}
+
+    return {}
 
 
-def save_history_batch(entries: list):
-    """Append a batch of tested configs to the JSONL history file."""
+def save_hash_index(index: dict):
+    """Save the compact hash index to disk. Prunes zero-fitness entries to control size."""
     os.makedirs(HISTORY_DIR, exist_ok=True)
+    # Only keep configs that actually produced results (fitness > 0).
+    # Zero-fitness configs failed fast (< 3 trades) and are cheap to re-evaluate.
+    # This keeps the index under ~20 MB even after many runs.
+    pruned = {h: f for h, f in index.items() if f > 0}
+    dropped = len(index) - len(pruned)
+    if dropped > 0:
+        print(f"[history] Pruned {dropped:,} zero-fitness entries from hash index")
     try:
-        with open(HISTORY_FILE, "a") as f:
-            for entry in entries:
-                f.write(json.dumps(entry, cls=_Enc) + "\n")
+        with open(HASH_INDEX_FILE, "w") as f:
+            json.dump(pruned, f, cls=_Enc)
     except Exception as e:
-        print(f"[history] Warning: failed to save history: {e}")
+        print(f"[history] Warning: failed to save hash index: {e}")
 
 
-def get_top_from_history(history: dict, strategy_name: str, n: int = 8) -> list:
-    """Get top N param sets for a strategy from history."""
-    candidates = [
-        entry for entry in history.values()
-        if entry.get("strategy") == strategy_name and entry.get("fitness", 0) > 0
-    ]
-    candidates.sort(key=lambda x: x.get("fitness", 0), reverse=True)
-    return [c["params"] for c in candidates[:n]]
+def get_top_from_leaderboard(leaderboard_path: str, strategy_name: str, n: int = 8) -> list:
+    """Get top N param sets for a strategy from the leaderboard."""
+    if not os.path.exists(leaderboard_path):
+        return []
+    try:
+        with open(leaderboard_path) as f:
+            lb = json.load(f)
+        candidates = [
+            entry for entry in lb
+            if entry.get("strategy") == strategy_name and entry.get("fitness", 0) > 0
+        ]
+        candidates.sort(key=lambda x: x.get("fitness", 0), reverse=True)
+        return [c["params"] for c in candidates[:n]]
+    except Exception:
+        return []
 
 
 CONVERGE_RUNS = 3  # auto-flag as converged after this many runs with no improvement
+PRUNE_RUNS = 2     # skip strategies below baseline after this many runs
+BASELINE_FLOOR = 0.05  # minimum fitness to survive pruning (approx montauk_821 default)
 
 
 def update_leaderboard(results: dict, leaderboard_path: str) -> list:
@@ -351,7 +382,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     end_time = start_time + hours * 3600
 
     print(f"=== Montauk Multi-Strategy Optimizer ===")
-    print(f"Duration: {hours}h | Pop: {pop_size}/strategy | Strategies: {len(STRATEGY_REGISTRY)}")
+    print(f"Duration: {hours}h | Pop: {pop_size}/strategy | Registered: {len(STRATEGY_REGISTRY)}")
     print(f"Constraint: ≤{MAX_TRADES_PER_YEAR} trades/year")
     print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
 
@@ -359,17 +390,11 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     ind = Indicators(df)
     print(f"Data: {len(df)} bars, {df['date'].min().date()} to {df['date'].max().date()}\n")
 
-    # ── Load history for seeding & dedup ──
-    history = load_history()
-    dedup_cache = {}  # hash -> fitness (skip re-evaluation)
-    for h, entry in history.items():
-        if entry.get("fitness", 0) > 0:
-            dedup_cache[h] = entry["fitness"]
+    # ── Load hash index for dedup ──
+    dedup_cache = load_hash_index()  # hash -> fitness
     history_stats = {"cached_configs": 0, "new_configs": 0, "seeded_per_strategy": 0}
-    new_history_entries = []  # batch-save at end
 
-    if history:
-        print(f"[history] Loaded {len(history):,} configs from previous runs")
+    if dedup_cache:
         print(f"[history] Dedup cache: {len(dedup_cache):,} configs with known fitness\n")
 
     # ── Baseline: run each strategy with default (midpoint) params ──
@@ -391,22 +416,61 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
         else:
             print(f"  {name:<22} FAILED")
 
+    # ── Auto-prune underperformers ──
+    # Skip strategies that have been in 2+ runs and never cracked the fitness floor
+    leaderboard_path = os.path.join(HISTORY_DIR, "leaderboard.json")
+    prune_info = {}  # strategy -> {runs, best_fitness}
+    if os.path.exists(leaderboard_path):
+        try:
+            with open(leaderboard_path) as f:
+                lb = json.load(f)
+            for entry in lb:
+                name = entry["strategy"]
+                rwi = entry.get("runs_without_improvement", 0)
+                fit = entry.get("fitness", 0)
+                if name not in prune_info or fit > prune_info[name]["best_fitness"]:
+                    prune_info[name] = {
+                        "total_runs": rwi + 1,  # rwi=0 means at least 1 run
+                        "best_fitness": fit,
+                    }
+        except Exception:
+            pass
+
+    skipped_strategies = set()
+    # Always keep montauk_821 (baseline) and never skip strategies not yet on leaderboard
+    for name in list(STRATEGY_REGISTRY.keys()):
+        if name == "montauk_821":
+            continue
+        info = prune_info.get(name)
+        if info and info["total_runs"] >= PRUNE_RUNS and info["best_fitness"] < BASELINE_FLOOR:
+            skipped_strategies.add(name)
+
+    if skipped_strategies:
+        print(f"\n── Auto-pruned ({len(skipped_strategies)} strategies below fitness floor {BASELINE_FLOOR} after {PRUNE_RUNS}+ runs) ──")
+        for name in sorted(skipped_strategies):
+            best = prune_info[name]["best_fitness"]
+            print(f"  SKIP {name:<22} best={best:.4f} (below {BASELINE_FLOOR})")
+        print()
+
+    active_strategies = {k: v for k, v in STRATEGY_REGISTRY.items() if k not in skipped_strategies}
+    print(f"Active strategies: {len(active_strategies)}/{len(STRATEGY_REGISTRY)}")
+
     # ── Initialize populations (one per strategy) ──
     # Seed with historical winners + defaults + random
     populations = {}
     max_seed = max(2, int(pop_size * 0.2))  # 20% from history
-    for name in STRATEGY_REGISTRY:
+    for name in active_strategies:
         space = STRATEGY_PARAMS.get(name, {})
         pop = [baselines[name]["params"].copy()]
 
-        # Seed from history
-        hist_winners = get_top_from_history(history, name, n=max_seed)
-        for hw in hist_winners:
+        # Seed from leaderboard (top configs from previous runs)
+        lb_winners = get_top_from_leaderboard(leaderboard_path, name, n=max_seed)
+        for lw in lb_winners:
             if len(pop) < pop_size:
-                pop.append(hw)
-        if hist_winners:
+                pop.append(lw)
+        if lb_winners:
             history_stats["seeded_per_strategy"] = max(
-                history_stats["seeded_per_strategy"], len(hist_winners))
+                history_stats["seeded_per_strategy"], len(lb_winners))
 
         # Fill rest with random
         while len(pop) < pop_size:
@@ -437,7 +501,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     total_evals = 0
     last_report = start_time
     report_interval = 60 if quick else 300
-    strategy_bests = {name: (0.0, {}, None) for name in STRATEGY_REGISTRY}
+    strategy_bests = {name: (0.0, {}, None) for name in active_strategies}
     convergence_history = []
 
     # Allow Ctrl+C or kill to save results gracefully
@@ -453,7 +517,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     while time.time() < end_time and not _interrupted[0]:
         generation += 1
 
-        for strat_name, fn in STRATEGY_REGISTRY.items():
+        for strat_name, fn in active_strategies.items():
             space = STRATEGY_PARAMS.get(strat_name, {})
             pop = populations[strat_name]
 
@@ -471,22 +535,6 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
                     scored.append((score, params, result))
                     dedup_cache[h] = score
                     history_stats["new_configs"] += 1
-                    # Queue for history save
-                    if result:
-                        new_history_entries.append({
-                            "hash": h,
-                            "strategy": strat_name,
-                            "params": params,
-                            "fitness": round(score, 4),
-                            "metrics": {
-                                "vs_bah": round(result.vs_bah_multiple, 4),
-                                "cagr": round(result.cagr_pct, 2),
-                                "max_dd": round(result.max_drawdown_pct, 1),
-                                "mar": round(result.mar_ratio, 3),
-                                "trades_yr": round(result.trades_per_year, 1),
-                            },
-                            "date": datetime.now().strftime("%Y-%m-%d"),
-                        })
             scored.sort(key=lambda x: x[0], reverse=True)
 
             # Update strategy best
@@ -583,17 +631,16 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     # Needed for full metrics in the final report
     for strat_name in list(strategy_bests.keys()):
         score, params, result = strategy_bests[strat_name]
-        if result is None and score > 0 and strat_name in STRATEGY_REGISTRY:
-            _, result = evaluate(ind, df, STRATEGY_REGISTRY[strat_name], params, strat_name)
+        if result is None and score > 0 and strat_name in active_strategies:
+            _, result = evaluate(ind, df, active_strategies[strat_name], params, strat_name)
             strategy_bests[strat_name] = (score, params, result)
 
     # Re-sort after re-evaluation
     rankings = sorted(strategy_bests.items(), key=lambda x: -x[1][0])
 
-    # ── Save history ──
-    if new_history_entries:
-        save_history_batch(new_history_entries)
-        print(f"\n[history] Saved {len(new_history_entries):,} new configs to history")
+    # ── Save hash index ──
+    save_hash_index(dedup_cache)
+    print(f"\n[history] Saved hash index: {len(dedup_cache):,} unique configs")
 
     history_stats["total_history"] = len(dedup_cache)
 
