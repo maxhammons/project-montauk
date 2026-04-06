@@ -483,16 +483,15 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     best_ever_params = {}
     best_ever_result = None
 
-    # Load previous best
-    best_path = os.path.join(PROJECT_ROOT, "spike", "best-ever.json")
-    if os.path.exists(best_path):
+    # Load previous best from leaderboard (sorted by fitness, [0] = best)
+    if os.path.exists(leaderboard_path):
         try:
-            with open(best_path) as f:
-                prev = json.load(f)
-            if prev.get("fitness", 0) > best_ever_score:
-                best_ever_score = prev["fitness"]
-                best_ever_name = prev.get("strategy", "")
-                best_ever_params = prev.get("params", {})
+            with open(leaderboard_path) as f:
+                lb = json.load(f)
+            if lb and lb[0].get("fitness", 0) > best_ever_score:
+                best_ever_score = lb[0]["fitness"]
+                best_ever_name = lb[0].get("strategy", "")
+                best_ever_params = lb[0].get("params", {})
                 print(f"\nLoaded best-ever: {best_ever_name} fitness={best_ever_score:.4f}")
         except Exception:
             pass
@@ -547,8 +546,6 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
                 best_ever_name = strat_name
                 best_ever_params = scored[0][1].copy()
                 best_ever_result = scored[0][2]
-                save_best(best_path, best_ever_score, best_ever_name,
-                          best_ever_params, best_ever_result)
 
             # Selection + reproduction
             n_elite = max(2, int(pop_size * 0.2))
@@ -730,20 +727,6 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     return results
 
 
-def save_best(path, score, name, params, result):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    data = {
-        "fitness": round(score, 4),
-        "strategy": name,
-        "params": params,
-        "vs_bah": round(result.vs_bah_multiple, 4) if result else 0,
-        "cagr": round(result.cagr_pct, 2) if result else 0,
-        "max_dd": round(result.max_drawdown_pct, 1) if result else 0,
-        "trades_yr": round(result.trades_per_year, 1) if result else 0,
-    }
-    with open(path, "w") as f:
-        json.dump(data, f, indent=2, cls=_Enc)
-
 
 def main():
     parser = argparse.ArgumentParser(description="Montauk Multi-Strategy Optimizer")
@@ -751,7 +734,25 @@ def main():
     parser.add_argument("--pop-size", type=int, default=40)
     parser.add_argument("--quick", action="store_true")
     parser.add_argument("--list", action="store_true", help="List strategies and exit")
+    parser.add_argument("--converge", type=str, help="Flag strategy as converged")
+    parser.add_argument("--unconverge", type=str, help="Unflag strategy (resume optimization)")
     args = parser.parse_args()
+
+    if args.converge:
+        lb_path = os.path.join(HISTORY_DIR, "leaderboard.json")
+        if set_converged(lb_path, args.converge, True):
+            print(f"Flagged '{args.converge}' as converged")
+        else:
+            print(f"Strategy '{args.converge}' not found on leaderboard")
+        return
+
+    if args.unconverge:
+        lb_path = os.path.join(HISTORY_DIR, "leaderboard.json")
+        if set_converged(lb_path, args.unconverge, False):
+            print(f"Unflagged '{args.unconverge}' — will be optimized again")
+        else:
+            print(f"Strategy '{args.unconverge}' not found on leaderboard")
+        return
 
     if args.list:
         from strategies import STRATEGY_REGISTRY, STRATEGY_PARAMS

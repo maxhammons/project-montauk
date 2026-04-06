@@ -148,7 +148,7 @@ def generate_report(
     results : dict from evolve() — rankings, metadata, etc.
     run_dir : path to save report.md
     leaderboard : all-time top 20 list
-    previous_best : best-ever before this run started
+    previous_best : leaderboard #1 before this run started
     history_stats : dict with reuse/new counts
 
     Returns the report text.

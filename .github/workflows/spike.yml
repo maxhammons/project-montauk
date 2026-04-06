@@ -30,7 +30,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history so rebase always works
+          fetch-depth: 1
 
       - name: Ensure latest main
         run: |

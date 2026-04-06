@@ -19,11 +19,8 @@ All output goes to spike/runs/<date>/. The active strategy is never modified.
 from __future__ import annotations
 
 import argparse
-import io
-import json
 import os
 import sys
-import time
 from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -101,18 +98,6 @@ def main():
             quick=args.quick,
             run_dir=run_dir,
         )
-
-        # Save run metadata
-        meta = {
-            "started": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "hours": args.hours,
-            "pop_size": args.pop_size,
-            "run_dir": run_dir,
-            "report": os.path.join(run_dir, "report.md"),
-            "results": os.path.join(run_dir, "results.json"),
-        }
-        with open(os.path.join(run_dir, "meta.json"), "w") as f:
-            json.dump(meta, f, indent=2)
 
         print(f"\n{'='*60}")
         print(f"SPIKE COMPLETE")

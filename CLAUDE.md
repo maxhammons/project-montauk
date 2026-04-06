@@ -17,9 +17,8 @@ Project Montauk/
 │   ├── evolve.py              # Multi-strategy evolutionary optimizer (with history/dedup)
 │   ├── spike_runner.py        # Main /spike entry point — wraps everything
 │   ├── report.py              # Auto-generates markdown reports from results
-│   ├── spike_state.py         # State management for /spike (crash-safe JSON)
-│   ├── generate_pine.py       # Convert winning params back to Pine Script v6
-│   └── requirements.txt       # Python deps: pandas, numpy, requests
+│   ├── requirements.txt       # Python deps: pandas, numpy, requests
+│   └── archive/               # Old scripts (validation.py, generate_pine.py, etc.)
 ├── .claude/skills/
 │   └── spike.md               # /spike skill — canonical source
 ├── .claude/commands/
@@ -27,9 +26,7 @@ Project Montauk/
 ├── spike/                     # All /spike optimization output
 │   ├── runs/YYYY-MM-DD/       # Per-session: report.md, results.json, log.txt, candidate.txt
 │   ├── leaderboard.json       # All-time top 20 strategies
-│   ├── hash-index.json        # Compact dedup index: {hash: fitness}
-│   ├── best-ever.json         # Single best config found across all sessions
-│   └── winners/               # Named winner snapshots
+│   └── hash-index.json        # Compact dedup index: {hash: fitness}
 └── src/
     ├── strategy/
     │   ├── active/            # Current production strategy
