@@ -308,94 +308,180 @@ def macd_zero_cross(ind: Indicators, p: dict) -> tuple:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Strategy 9: DMI Trend — Enter on ADX strength + DI+ dominance
-# ADX measures trend strength; high ADX + DI+ > DI- = strong bull regime
+# Strategy 9: RSI + Vol Regime — RSI dip entry (proven winner) but only when
+# realized vol is declining (crash ending). Filters out mid-crash false dips.
 # ─────────────────────────────────────────────────────────────────────────────
 
-def dmi_trend(ind: Indicators, p: dict) -> tuple:
+def rsi_vol_regime(ind: Indicators, p: dict) -> tuple:
     n = ind.n
     cl = ind.close
-    adx_len = p.get("adx_len", 14)
-    adx = ind.adx(adx_len)
-    di_plus = ind.di_plus(adx_len)
-    di_minus = ind.di_minus(adx_len)
-    trend_ema = ind.ema(p.get("trend_len", 100))
-    atr_vals = ind.atr(p.get("atr_period", 20))
+    rsi = ind.rsi(p.get("rsi_len", 13))
+    trend_ema = ind.ema(p.get("trend_len", 150))
+    vol_short = ind.realized_vol(p.get("vol_short", 15))
+    vol_long = ind.realized_vol(p.get("vol_long", 60))
 
     entries = np.zeros(n, dtype=bool)
     exits = np.zeros(n, dtype=bool)
     labels = np.array([""] * n)
 
-    adx_thresh = p.get("adx_thresh", 25.0)
-    di_margin = p.get("di_margin", 5.0)
+    entry_rsi = p.get("entry_rsi", 35)
+    exit_rsi = p.get("exit_rsi", 80)
+    vol_ratio_max = p.get("vol_ratio_max", 0.95)  # short vol < long vol = calming
 
     for i in range(1, n):
-        if np.isnan(adx[i]) or np.isnan(di_plus[i]) or np.isnan(di_minus[i]):
+        if np.isnan(rsi[i]) or np.isnan(rsi[i-1]):
             continue
 
         trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
-        strong_trend = adx[i] > adx_thresh
-        bull_direction = di_plus[i] > di_minus[i] + di_margin
 
-        # Entry: strong trend + bullish direction + above trend EMA
-        entries[i] = strong_trend and bull_direction and trend_ok
+        # Vol filter: short vol declining relative to long vol (storm passing)
+        vol_ok = True
+        if not np.isnan(vol_short[i]) and not np.isnan(vol_long[i]) and vol_long[i] > 0:
+            vol_ok = (vol_short[i] / vol_long[i]) < vol_ratio_max
 
-        # Exit: DI- dominates
-        if di_minus[i] > di_plus[i] + di_margin * 0.5:
+        # Entry: RSI crosses up + trend OK + vol calming
+        if rsi[i-1] < entry_rsi and rsi[i] >= entry_rsi and trend_ok and vol_ok:
+            entries[i] = True
+
+        # Exit: RSI overbought
+        if rsi[i] >= exit_rsi:
             exits[i] = True
-            labels[i] = "DI- Dominant"
+            labels[i] = "RSI Overbought"
             continue
 
-        # Exit: ATR shock
-        if not np.isnan(atr_vals[i]) and i >= 1:
-            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 3.0):
+        # Exit: RSI panic
+        if rsi[i] < p.get("panic_rsi", 15):
+            exits[i] = True
+            labels[i] = "RSI Panic"
+            continue
+
+        # Exit: vol spike (new crash starting)
+        if not np.isnan(vol_short[i]) and not np.isnan(vol_long[i]) and vol_long[i] > 0:
+            if vol_short[i] / vol_long[i] > p.get("vol_exit_ratio", 1.5):
                 exits[i] = True
-                labels[i] = "ATR Shock"
+                labels[i] = "Vol Spike"
 
     return entries, exits, labels
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Strategy 10: ROC Momentum — Enter when Rate of Change exceeds threshold,
-# exit when momentum stalls. ROC directly measures pace of price change.
+# Strategy 10: Mean Revert Channel — Enter on Donchian channel bounce with
+# RSI confirmation. TECL overshoots both ways; buy the lower band bounce.
 # ─────────────────────────────────────────────────────────────────────────────
 
-def roc_momentum(ind: Indicators, p: dict) -> tuple:
+def mean_revert_channel(ind: Indicators, p: dict) -> tuple:
     n = ind.n
     cl = ind.close
-    roc = ind.roc(p.get("roc_len", 20))
-    roc_smooth = _ema_helper(roc, p.get("roc_smooth", 5))
-    trend_ema = ind.ema(p.get("trend_len", 80))
-    atr_vals = ind.atr(p.get("atr_period", 30))
+    lookback = p.get("channel_len", 60)
+    don_low = ind.lowest(lookback)
+    don_high = ind.highest(lookback)
+    rsi = ind.rsi(p.get("rsi_len", 14))
+    trend_ema = ind.ema(p.get("trend_len", 150))
 
     entries = np.zeros(n, dtype=bool)
     exits = np.zeros(n, dtype=bool)
     labels = np.array([""] * n)
 
-    entry_thresh = p.get("entry_roc", 5.0)
-    exit_thresh = p.get("exit_roc", -2.0)
+    bounce_pct = p.get("bounce_pct", 20)  # % of channel range from bottom
+    exit_pct = p.get("exit_pct", 85)      # % of channel range for exit
 
     for i in range(1, n):
-        if np.isnan(roc_smooth[i]) or np.isnan(roc_smooth[i-1]):
+        if np.isnan(don_low[i]) or np.isnan(don_high[i]) or np.isnan(rsi[i]):
+            continue
+        chan_range = don_high[i] - don_low[i]
+        if chan_range <= 0:
+            continue
+
+        pos_in_channel = (cl[i] - don_low[i]) / chan_range * 100
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+
+        # Entry: price near bottom of channel + RSI recovering + trend OK
+        rsi_recovering = not np.isnan(rsi[i-1]) and rsi[i] > rsi[i-1]
+        if pos_in_channel < bounce_pct and rsi_recovering and trend_ok:
+            entries[i] = True
+
+        # Exit: price reaches upper channel zone
+        if pos_in_channel > exit_pct:
+            exits[i] = True
+            labels[i] = "Channel Top"
+            continue
+
+        # Exit: RSI panic
+        if rsi[i] < p.get("panic_rsi", 15):
+            exits[i] = True
+            labels[i] = "RSI Panic"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy 10b: Regime Composite — Ensemble approach: enter when 2 of 3
+# signals agree (RSI dip, MACD turning, vol calming). Exit on 2 of 3 bearish.
+# Reduces false signals through signal diversity.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def regime_composite(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    rsi = ind.rsi(p.get("rsi_len", 14))
+    macd_h = ind.macd_hist(p.get("macd_fast", 12), p.get("macd_slow", 30), p.get("macd_sig", 9))
+    vol_short = ind.realized_vol(p.get("vol_short", 15))
+    vol_long = ind.realized_vol(p.get("vol_long", 60))
+    trend_ema = ind.ema(p.get("trend_len", 150))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    entry_rsi = p.get("entry_rsi", 40)
+    exit_rsi = p.get("exit_rsi", 75)
+    min_signals = p.get("min_signals", 2)
+
+    for i in range(2, n):
+        if np.isnan(rsi[i]) or np.isnan(rsi[i-1]):
             continue
 
         trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
 
-        # Entry: smoothed ROC crosses above threshold + trend OK
-        if roc_smooth[i-1] < entry_thresh and roc_smooth[i] >= entry_thresh and trend_ok:
+        # Count entry signals
+        entry_count = 0
+        # Signal 1: RSI recovering from low
+        if rsi[i-1] < entry_rsi and rsi[i] >= entry_rsi:
+            entry_count += 1
+        # Signal 2: MACD histogram turning positive
+        if not np.isnan(macd_h[i]) and not np.isnan(macd_h[i-1]):
+            if macd_h[i] > macd_h[i-1] and macd_h[i] > 0:
+                entry_count += 1
+        # Signal 3: Vol calming (short < long)
+        if not np.isnan(vol_short[i]) and not np.isnan(vol_long[i]) and vol_long[i] > 0:
+            if vol_short[i] / vol_long[i] < p.get("vol_ratio_max", 0.9):
+                entry_count += 1
+
+        if entry_count >= min_signals and trend_ok:
             entries[i] = True
 
-        # Exit: ROC drops below exit threshold
-        if roc_smooth[i] < exit_thresh:
+        # Count exit signals
+        exit_count = 0
+        # Signal 1: RSI overbought
+        if rsi[i] >= exit_rsi:
+            exit_count += 1
+        # Signal 2: MACD histogram deeply negative
+        if not np.isnan(macd_h[i]) and macd_h[i] < p.get("macd_exit", -1.0):
+            exit_count += 1
+        # Signal 3: Vol spiking
+        if not np.isnan(vol_short[i]) and not np.isnan(vol_long[i]) and vol_long[i] > 0:
+            if vol_short[i] / vol_long[i] > p.get("vol_exit_ratio", 1.3):
+                exit_count += 1
+
+        if exit_count >= min_signals:
             exits[i] = True
-            labels[i] = "ROC Fade"
+            labels[i] = "Composite Exit"
             continue
 
-        # Exit: ATR shock
-        if not np.isnan(atr_vals[i]) and i >= 1:
-            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 3.5):
-                exits[i] = True
-                labels[i] = "ATR Shock"
+        # Exit: RSI panic (always immediate)
+        if rsi[i] < p.get("panic_rsi", 15):
+            exits[i] = True
+            labels[i] = "RSI Panic"
 
     return entries, exits, labels
 
@@ -785,9 +871,6 @@ STRATEGY_REGISTRY = {
     "rsi_regime":         rsi_regime,
     "breakout":           breakout,
     "bollinger_squeeze":  bollinger_squeeze,
-    "macd_zero_cross":    macd_zero_cross,
-    "dmi_trend":          dmi_trend,
-    "roc_momentum":       roc_momentum,
     "keltner_rsi":        keltner_rsi,
     "rsi_regime_trail":   rsi_regime_trail,
     "rsi_macd_combo":     rsi_macd_combo,
@@ -795,6 +878,9 @@ STRATEGY_REGISTRY = {
     "vol_regime":         vol_regime,
     "ichimoku_trend":     ichimoku_trend,
     "dual_momentum":      dual_momentum,
+    "rsi_vol_regime":     rsi_vol_regime,
+    "mean_revert_channel": mean_revert_channel,
+    "regime_composite":   regime_composite,
 }
 
 # Parameter spaces for each strategy: {param: (min, max, step, type)}
@@ -826,23 +912,28 @@ STRATEGY_PARAMS = {
         "trend_len": (30, 100, 10, int), "squeeze_mult": (0.5, 1.0, 0.1, float),
         "exit_squeeze_mult": (0.3, 0.8, 0.1, float), "cooldown": (0, 20, 5, int),
     },
-    "macd_zero_cross": {
-        "macd_fast": (8, 20, 2, int), "macd_slow": (20, 40, 4, int),
-        "macd_sig": (5, 15, 2, int), "trend_len": (50, 200, 25, int),
-        "atr_period": (10, 50, 10, int), "atr_mult": (2.0, 5.0, 0.5, float),
+    "rsi_vol_regime": {
+        "rsi_len": (7, 21, 2, int), "trend_len": (50, 200, 25, int),
+        "entry_rsi": (25, 45, 5, float), "exit_rsi": (65, 85, 5, float),
+        "panic_rsi": (10, 25, 5, float), "vol_short": (10, 30, 5, int),
+        "vol_long": (40, 100, 10, int), "vol_ratio_max": (0.7, 1.0, 0.05, float),
+        "vol_exit_ratio": (1.2, 2.0, 0.2, float), "cooldown": (0, 20, 5, int),
+    },
+    "mean_revert_channel": {
+        "channel_len": (30, 100, 10, int), "rsi_len": (7, 21, 2, int),
+        "trend_len": (50, 200, 25, int), "bounce_pct": (10, 35, 5, float),
+        "exit_pct": (70, 95, 5, float), "panic_rsi": (10, 25, 5, float),
         "cooldown": (0, 20, 5, int),
     },
-    "dmi_trend": {
-        "adx_len": (7, 28, 7, int), "adx_thresh": (15.0, 35.0, 5.0, float),
-        "di_margin": (2.0, 15.0, 2.0, float), "trend_len": (50, 200, 25, int),
-        "atr_period": (10, 40, 10, int), "atr_mult": (2.0, 5.0, 0.5, float),
+    "regime_composite": {
+        "rsi_len": (7, 21, 2, int), "trend_len": (50, 200, 25, int),
+        "entry_rsi": (30, 50, 5, float), "exit_rsi": (65, 85, 5, float),
+        "panic_rsi": (10, 25, 5, float), "macd_fast": (8, 16, 2, int),
+        "macd_slow": (20, 40, 4, int), "macd_sig": (5, 13, 2, int),
+        "macd_exit": (-5.0, -0.5, 0.5, float), "vol_short": (10, 30, 5, int),
+        "vol_long": (40, 100, 10, int), "vol_ratio_max": (0.7, 1.0, 0.05, float),
+        "vol_exit_ratio": (1.1, 1.8, 0.1, float), "min_signals": (2, 3, 1, int),
         "cooldown": (0, 20, 5, int),
-    },
-    "roc_momentum": {
-        "roc_len": (10, 40, 5, int), "roc_smooth": (3, 15, 2, int),
-        "trend_len": (50, 200, 25, int), "entry_roc": (2.0, 15.0, 2.0, float),
-        "exit_roc": (-8.0, 0.0, 2.0, float), "atr_period": (10, 40, 10, int),
-        "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 20, 5, int),
     },
     "keltner_rsi": {
         "ema_len": (10, 40, 5, int), "atr_len": (5, 20, 5, int),
