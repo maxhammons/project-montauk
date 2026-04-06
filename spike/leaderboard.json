@@ -1,5 +1,72 @@
 [
   {
+    "strategy": "rsi_vol_regime",
+    "fitness": 2.5982,
+    "params": {
+      "vol_ratio_max": 1.0,
+      "vol_exit_ratio": 1.6,
+      "vol_long": 60,
+      "entry_rsi": 40,
+      "trend_len": 100,
+      "panic_rsi": 10,
+      "cooldown": 10,
+      "vol_short": 25,
+      "rsi_len": 7,
+      "exit_rsi": 85
+    },
+    "metrics": {
+      "vs_bah": 3.8097,
+      "cagr": 49.36,
+      "max_dd": 63.6,
+      "mar": 0.776,
+      "trades": 25,
+      "trades_yr": 1.4,
+      "win_rate": 92.0,
+      "exit_reasons": {
+        "R": 25
+      }
+    },
+    "date": "2026-04-06",
+    "converged": false,
+    "runs_without_improvement": 0
+  },
+  {
+    "strategy": "regime_composite",
+    "fitness": 1.6622,
+    "params": {
+      "macd_sig": 5,
+      "vol_ratio_max": 1.0,
+      "rsi_len": 9,
+      "vol_exit_ratio": 1.1,
+      "vol_long": 90,
+      "macd_slow": 36,
+      "exit_rsi": 75,
+      "entry_rsi": 40,
+      "trend_len": 75,
+      "panic_rsi": 10,
+      "cooldown": 10,
+      "vol_short": 30,
+      "macd_fast": 14,
+      "min_signals": 2,
+      "macd_exit": -4.5
+    },
+    "metrics": {
+      "vs_bah": 2.6617,
+      "cagr": 46.29,
+      "max_dd": 75.1,
+      "mar": 0.616,
+      "trades": 12,
+      "trades_yr": 0.7,
+      "win_rate": 100.0,
+      "exit_reasons": {
+        "C": 12
+      }
+    },
+    "date": "2026-04-06",
+    "converged": false,
+    "runs_without_improvement": 0
+  },
+  {
     "strategy": "rsi_regime",
     "fitness": 1.4306,
     "params": {
@@ -26,8 +93,36 @@
     "date": "2026-04-04",
     "description": "Enter when RSI crosses up through entry level while price is above trend EMA. Exit on RSI overbought or RSI panic (extreme low). Exploits mean-reversion in leveraged ETFs.",
     "converged": false,
-    "runs_without_improvement": 0,
+    "runs_without_improvement": 1,
     "manual_unconverge": true
+  },
+  {
+    "strategy": "breakout",
+    "fitness": 0.6,
+    "params": {
+      "breakout_pct": 0.9,
+      "trail_pct": 25,
+      "lookback": 30,
+      "cooldown": 20,
+      "atr_mult": 2.5,
+      "atr_period": 20
+    },
+    "metrics": {
+      "vs_bah": 0.8772,
+      "cagr": 37.17,
+      "max_dd": 63.2,
+      "mar": 0.588,
+      "trades": 27,
+      "trades_yr": 1.6,
+      "win_rate": 59.3,
+      "exit_reasons": {
+        "A": 16,
+        "T": 11
+      }
+    },
+    "date": "2026-04-06",
+    "converged": false,
+    "runs_without_improvement": 0
   },
   {
     "strategy": "breakout",
@@ -57,7 +152,7 @@
     "date": "2026-04-04",
     "description": "Enter on new N-bar high (close near highest high). Exit via trailing stop (% from peak) or ATR shock. Momentum rider.",
     "converged": false,
-    "runs_without_improvement": 1
+    "runs_without_improvement": 0
   },
   {
     "strategy": "breakout",
@@ -86,8 +181,74 @@
     },
     "date": "2026-04-04",
     "converged": false,
-    "runs_without_improvement": 1,
+    "runs_without_improvement": 0,
     "description": "Enter on new N-bar high (close near highest high). Exit via trailing stop (% from peak) or ATR shock. Momentum rider."
+  },
+  {
+    "strategy": "montauk_821",
+    "fitness": 0.35,
+    "params": {
+      "quick_lookback": 9,
+      "quick_thresh": -9.0,
+      "med_ema": 55,
+      "short_ema": 25,
+      "cooldown": 9,
+      "trend_ema": 60,
+      "slope_lookback": 15,
+      "atr_mult": 3.5,
+      "quick_ema": 19,
+      "sell_buffer": 1.0,
+      "atr_period": 15
+    },
+    "metrics": {
+      "vs_bah": 0.4964,
+      "cagr": 32.72,
+      "max_dd": 59.0,
+      "mar": 0.554,
+      "trades": 23,
+      "trades_yr": 1.3,
+      "win_rate": 65.2,
+      "exit_reasons": {
+        "Q": 8,
+        "E": 13,
+        "A": 2
+      }
+    },
+    "date": "2026-04-06",
+    "converged": false,
+    "runs_without_improvement": 0
+  },
+  {
+    "strategy": "rsi_regime_trail",
+    "fitness": 0.3357,
+    "params": {
+      "trail_pct": 35,
+      "entry_rsi": 45,
+      "trend_len": 200,
+      "cooldown": 10,
+      "panic_rsi": 10,
+      "rsi_len": 7,
+      "atr_mult": 2.5,
+      "atr_period": 20
+    },
+    "metrics": {
+      "vs_bah": 0.4955,
+      "cagr": 32.7,
+      "max_dd": 64.5,
+      "mar": 0.507,
+      "trades": 20,
+      "trades_yr": 1.2,
+      "win_rate": 70.0,
+      "exit_reasons": {
+        "T": 4,
+        "A": 14,
+        "R": 1,
+        "End of Data": 1
+      }
+    },
+    "date": "2026-04-06",
+    "converged": false,
+    "runs_without_improvement": 0
   },
   {
     "strategy": "montauk_821",
@@ -125,6 +286,38 @@
     "description": "EMA crossover (short > med) with trend slope filter. Exits: ATR shock (price drops > N*ATR), quick EMA momentum drop (% change over lookback), EMA cross reversal. Current production baseline."
   },
   {
+    "strategy": "dual_momentum",
+    "fitness": 0.3065,
+    "params": {
+      "atr_period": 40,
+      "abs_thresh": 2.5,
+      "trend_len": 50,
+      "cooldown": 15,
+      "abs_period": 40,
+      "atr_mult": 3.5,
+      "abs_exit": -6.0,
+      "short_period": 10,
+      "short_exit": -15.0,
+      "short_thresh": 2.0
+    },
+    "metrics": {
+      "vs_bah": 0.3967,
+      "cagr": 31.0,
+      "max_dd": 45.5,
+      "mar": 0.681,
+      "trades": 43,
+      "trades_yr": 2.5,
+      "win_rate": 58.1,
+      "exit_reasons": {
+        "A": 29,
+        "S": 14
+      }
+    },
+    "date": "2026-04-06",
+    "converged": false,
+    "runs_without_improvement": 0
+  },
+  {
     "strategy": "montauk_821",
     "fitness": 0.2513,
     "params": {
@@ -160,6 +353,94 @@
     "runs_without_improvement": 0
   },
   {
+    "strategy": "vol_regime",
+    "fitness": 0.2368,
+    "params": {
+      "vol_entry_ratio": 0.8,
+      "vol_exit_ratio": 1.4,
+      "vol_long": 40,
+      "trend_len": 200,
+      "cooldown": 10,
+      "vol_short": 15,
+      "trend_buffer": 4.0
+    },
+    "metrics": {
+      "vs_bah": 0.3112,
+      "cagr": 29.17,
+      "max_dd": 47.8,
+      "mar": 0.61,
+      "trades": 25,
+      "trades_yr": 1.4,
+      "win_rate": 56.0,
+      "exit_reasons": {
+        "V": 11,
+        "B": 14
+      }
+    },
+    "date": "2026-04-06",
+    "converged": false,
+    "runs_without_improvement": 0
+  },
+  {
+    "strategy": "ichimoku_trend",
+    "fitness": 0.118,
+    "params": {
+      "tenkan_len": 11,
+      "cooldown": 0,
+      "cloud_buffer": 1.0,
+      "cloud_len": 30,
+      "kijun_len": 35,
+      "atr_mult": 3.5,
+      "atr_period": 40
+    },
+    "metrics": {
+      "vs_bah": 0.1689,
+      "cagr": 24.67,
+      "max_dd": 29.6,
+      "mar": 0.834,
+      "trades": 62,
+      "trades_yr": 3.6,
+      "win_rate": 45.2,
+      "exit_reasons": {
+        "B": 59,
+        "A": 2,
+        "T": 1
+      }
+    },
+    "date": "2026-04-06",
+    "converged": false,
+    "runs_without_improvement": 0
+  },
+  {
+    "strategy": "mean_revert_channel",
+    "fitness": 0.1178,
+    "params": {
+      "bounce_pct": 35,
+      "exit_pct": 90,
+      "channel_len": 30,
+      "trend_len": 200,
+      "panic_rsi": 15,
+      "cooldown": 10,
+      "rsi_len": 7
+    },
+    "metrics": {
+      "vs_bah": 0.1515,
+      "cagr": 23.89,
+      "max_dd": 44.5,
+      "mar": 0.537,
+      "trades": 42,
+      "trades_yr": 2.4,
+      "win_rate": 81.0,
+      "exit_reasons": {
+        "C": 40,
+        "R": 2
+      }
+    },
+    "date": "2026-04-06",
+    "converged": false,
+    "runs_without_improvement": 0
+  },
+  {
     "strategy": "golden_cross",
     "fitness": 0.0994,
     "params": {
@@ -181,7 +462,7 @@
     },
     "date": "2026-04-04",
     "converged": false,
-    "runs_without_improvement": 0,
+    "runs_without_improvement": 1,
     "description": "Classic SMA crossover: buy when fast SMA crosses above slow SMA, sell on death cross. Simple, low-frequency, trend-following."
   },
   {
@@ -207,7 +488,7 @@
     "date": "2026-04-04",
     "description": "Classic SMA crossover: buy when fast SMA crosses above slow SMA, sell on death cross. Simple, low-frequency, trend-following.",
     "converged": false,
-    "runs_without_improvement": 0
+    "runs_without_improvement": 1
   },
   {
     "strategy": "bollinger_squeeze",
@@ -235,7 +516,7 @@
     },
     "date": "2026-04-04",
     "converged": false,
-    "runs_without_improvement": 0,
+    "runs_without_improvement": 1,
     "description": "Enter when Bollinger Band width expands from below-average squeeze, with price above SMA and trend EMA. Exit when width contracts back or price drops below lower band. Volatility breakout."
   },
   {
@@ -265,33 +546,70 @@
     "date": "2026-04-04",
     "description": "Enter when Bollinger Band width expands from below-average squeeze, with price above SMA and trend EMA. Exit when width contracts back or price drops below lower band. Volatility breakout.",
     "converged": false,
+    "runs_without_improvement": 1
+  },
+  {
+    "strategy": "rsi_adx_power",
+    "fitness": 0.0594,
+    "params": {
+      "adx_min": 15.0,
+      "adx_len": 21,
+      "entry_rsi": 40,
+      "trend_len": 200,
+      "panic_rsi": 25,
+      "di_exit_margin": 10.0,
+      "cooldown": 5,
+      "rsi_len": 7,
+      "exit_rsi": 85
+    },
+    "metrics": {
+      "vs_bah": 0.0853,
+      "cagr": 19.83,
+      "max_dd": 36.2,
+      "mar": 0.548,
+      "trades": 61,
+      "trades_yr": 3.5,
+      "win_rate": 45.9,
+      "exit_reasons": {
+        "R": 26,
+        "D": 35
+      }
+    },
+    "date": "2026-04-06",
+    "converged": false,
     "runs_without_improvement": 0
   },
   {
-    "strategy": "trend_stack",
-    "fitness": 0.0332,
+    "strategy": "keltner_rsi",
+    "fitness": 0.0494,
     "params": {
-      "fast_ema": 20,
-      "mid_ema": 35,
-      "slow_ema": 40,
-      "anchor_ema": 80,
-      "cooldown": 5
+      "rsi_exit": 35,
+      "ema_len": 35,
+      "atr_len": 15,
+      "rsi_min": 40,
+      "trend_len": 100,
+      "cooldown": 20,
+      "rsi_len": 7,
+      "kelt_mult": 1.0,
+      "atr_mult": 3.0,
+      "atr_period": 10
     },
     "metrics": {
-      "vs_bah": 0.0435,
-      "cagr": 15.25,
-      "max_dd": 47.2,
-      "mar": 0.323,
-      "trades": 43,
-      "trades_yr": 2.5,
-      "win_rate": 44.2,
+      "vs_bah": 0.0981,
+      "cagr": 20.81,
+      "max_dd": 49.6,
+      "mar": 0.42,
+      "trades": 71,
+      "trades_yr": 4.1,
+      "win_rate": 46.5,
       "exit_reasons": {
-        "S": 43
+        "B": 60,
+        "R": 9,
+        "A": 2
       }
     },
-    "date": "2026-04-04",
-    "description": "Enter when 4 EMAs are perfectly stacked (fast > mid > slow > anchor). Exit the moment any EMA breaks the stack order. Pure trend alignment.",
+    "date": "2026-04-06",
     "converged": false,
-    "runs_without_improvement": 1
+    "runs_without_improvement": 0
   }
 ]
