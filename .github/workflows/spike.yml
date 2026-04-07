@@ -13,6 +13,11 @@ on:
         required: false
         default: "60"
         type: string
+      strategies:
+        description: "Comma-separated strategy names to run (blank = all)"
+        required: false
+        default: ""
+        type: string
 
 concurrency:
   group: spike
@@ -53,9 +58,15 @@ jobs:
           POP=${{ github.event.inputs.pop_size }}
           # Hard cap at 5 hours to stay within GH Actions free tier limit
           HOURS=$(python3 -c "print(min(float('$HOURS'), 5.0))")
+          STRATS="${{ github.event.inputs.strategies }}"
+          STRATS_FLAG=""
+          if [ -n "$STRATS" ]; then
+            STRATS_FLAG="--strategies $STRATS"
+          fi
           python3 -u scripts/spike_runner.py \
             --hours "$HOURS" \
-            --pop-size "$POP"
+            --pop-size "$POP" \
+            $STRATS_FLAG
 
       - name: Commit and push results
         run: |

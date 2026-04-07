@@ -1,5 +1,41 @@
 [
   {
+    "strategy": "regime_score",
+    "fitness": 12.2417,
+    "params": {
+      "rsi_len": 7,
+      "ma_len": 200,
+      "w_rsi": 0.1,
+      "exit_thresh": 0.7,
+      "panic_rsi": 10,
+      "w_vol": 0.4,
+      "w_price_ma": 0.2,
+      "vol_short": 30,
+      "dd_center": -35.0,
+      "cooldown": 5,
+      "entry_thresh": 0.5,
+      "vol_long": 60,
+      "dd_lookback": 100,
+      "w_drawdown": 0.3
+    },
+    "metrics": {
+      "vs_bah": 19.0829,
+      "cagr": 63.99,
+      "max_dd": 71.7,
+      "mar": 0.893,
+      "trades": 14,
+      "trades_yr": 0.8,
+      "win_rate": 85.7,
+      "exit_reasons": {
+        "S": 13,
+        "End of Data": 1
+      }
+    },
+    "date": "2026-04-06",
+    "converged": false,
+    "runs_without_improvement": 0
+  },
+  {
     "strategy": "regime_composite",
     "fitness": 2.9185,
     "params": {
@@ -34,7 +70,7 @@
     },
     "date": "2026-04-06",
     "converged": false,
-    "runs_without_improvement": 1
+    "runs_without_improvement": 2
   },
   {
     "strategy": "regime_score",
@@ -101,8 +137,8 @@
       }
     },
     "date": "2026-04-06",
-    "converged": false,
-    "runs_without_improvement": 2
+    "converged": true,
+    "runs_without_improvement": 3
   },
   {
     "strategy": "regime_composite",
@@ -138,7 +174,7 @@
     },
     "date": "2026-04-06",
     "converged": false,
-    "runs_without_improvement": 1
+    "runs_without_improvement": 2
   },
   {
     "strategy": "rsi_regime",
@@ -167,7 +203,7 @@
     "date": "2026-04-04",
     "description": "Enter when RSI crosses up through entry level while price is above trend EMA. Exit on RSI overbought or RSI panic (extreme low). Exploits mean-reversion in leveraged ETFs.",
     "converged": true,
-    "runs_without_improvement": 3,
+    "runs_without_improvement": 4,
     "manual_unconverge": true
   },
   {
@@ -195,8 +231,8 @@
       }
     },
     "date": "2026-04-06",
-    "converged": false,
-    "runs_without_improvement": 2
+    "converged": true,
+    "runs_without_improvement": 3
   },
   {
     "strategy": "breakout",
@@ -225,8 +261,8 @@
     },
     "date": "2026-04-04",
     "description": "Enter on new N-bar high (close near highest high). Exit via trailing stop (% from peak) or ATR shock. Momentum rider.",
-    "converged": false,
-    "runs_without_improvement": 2
+    "converged": true,
+    "runs_without_improvement": 3
   },
   {
     "strategy": "breakout",
@@ -254,8 +290,8 @@
       }
     },
     "date": "2026-04-04",
-    "converged": false,
-    "runs_without_improvement": 2,
+    "converged": true,
+    "runs_without_improvement": 3,
     "description": "Enter on new N-bar high (close near highest high). Exit via trailing stop (% from peak) or ATR shock. Momentum rider."
   },
   {
@@ -289,7 +325,7 @@
     },
     "date": "2026-04-06",
     "converged": false,
-    "runs_without_improvement": 1
+    "runs_without_improvement": 2
   },
   {
     "strategy": "montauk_821",
@@ -322,8 +358,8 @@
       }
     },
     "date": "2026-04-06",
-    "converged": false,
-    "runs_without_improvement": 2
+    "converged": true,
+    "runs_without_improvement": 3
   },
   {
     "strategy": "rsi_regime_trail",
@@ -354,8 +390,8 @@
       }
     },
     "date": "2026-04-06",
-    "converged": false,
-    "runs_without_improvement": 2
+    "converged": true,
+    "runs_without_improvement": 3
   },
   {
     "strategy": "montauk_821",
@@ -388,8 +424,8 @@
       }
     },
     "date": "2026-04-04",
-    "converged": false,
-    "runs_without_improvement": 2,
+    "converged": true,
+    "runs_without_improvement": 3,
     "description": "EMA crossover (short > med) with trend slope filter. Exits: ATR shock (price drops > N*ATR), quick EMA momentum drop (% change over lookback), EMA cross reversal. Current production baseline."
   },
   {
@@ -421,8 +457,8 @@
       }
     },
     "date": "2026-04-06",
-    "converged": false,
-    "runs_without_improvement": 2
+    "converged": true,
+    "runs_without_improvement": 3
   },
   {
     "strategy": "montauk_821",
@@ -456,8 +492,8 @@
     },
     "date": "2026-04-04",
     "description": "EMA crossover (short > med) with trend slope filter. Exits: ATR shock (price drops > N*ATR), quick EMA momentum drop (% change over lookback), EMA cross reversal. Current production baseline.",
-    "converged": false,
-    "runs_without_improvement": 2
+    "converged": true,
+    "runs_without_improvement": 3
   },
   {
     "strategy": "vol_regime",
@@ -485,8 +521,8 @@
       }
     },
     "date": "2026-04-06",
-    "converged": false,
-    "runs_without_improvement": 2
+    "converged": true,
+    "runs_without_improvement": 3
   },
   {
     "strategy": "ichimoku_trend",
@@ -515,8 +551,8 @@
       }
     },
     "date": "2026-04-06",
-    "converged": false,
-    "runs_without_improvement": 2
+    "converged": true,
+    "runs_without_improvement": 3
   },
   {
     "strategy": "mean_revert_channel",
@@ -544,8 +580,8 @@
       }
     },
     "date": "2026-04-06",
-    "converged": false,
-    "runs_without_improvement": 2
+    "converged": true,
+    "runs_without_improvement": 3
   },
   {
     "strategy": "golden_cross",
@@ -569,7 +605,7 @@
     },
     "date": "2026-04-04",
     "converged": true,
-    "runs_without_improvement": 3,
+    "runs_without_improvement": 4,
     "description": "Classic SMA crossover: buy when fast SMA crosses above slow SMA, sell on death cross. Simple, low-frequency, trend-following."
   },
   {
@@ -595,35 +631,6 @@
     "date": "2026-04-04",
     "description": "Classic SMA crossover: buy when fast SMA crosses above slow SMA, sell on death cross. Simple, low-frequency, trend-following.",
     "converged": true,
-    "runs_without_improvement": 3
-  },
-  {
-    "strategy": "bollinger_squeeze",
-    "fitness": 0.0776,
-    "params": {
-      "exit_squeeze_mult": 0.6,
-      "trend_len": 30,
-      "width_smooth": 15,
-      "squeeze_mult": 1.0,
-      "bb_len": 25,
-      "cooldown": 5
-    },
-    "metrics": {
-      "vs_bah": 0.1163,
-      "cagr": 22.01,
-      "max_dd": 66.6,
-      "mar": 0.33,
-      "trades": 51,
-      "trades_yr": 3.0,
-      "win_rate": 56.9,
-      "exit_reasons": {
-        "S": 8,
-        "B": 43
-      }
-    },
-    "date": "2026-04-04",
-    "converged": true,
-    "runs_without_improvement": 3,
-    "description": "Enter when Bollinger Band width expands from below-average squeeze, with price above SMA and trend EMA. Exit when width contracts back or price drops below lower band. Volatility breakout."
+    "runs_without_improvement": 4
   }
 ]
