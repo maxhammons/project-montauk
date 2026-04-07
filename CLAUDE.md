@@ -120,6 +120,17 @@ These are strategy versions with extra visual debugging for development:
 - **When creating a new version**: Copy the active file to the appropriate archive folder first, then modify the active copy
 - **Strategy and indicator are separate scripts in TradingView** - the strategy handles entries/exits, the indicator provides visual confirmation in a separate chart pane
 
+### Project Organization
+
+Keep the folder and file structure clean and easy to navigate. The owner needs to be able to jump in and quickly understand what's going on at a glance.
+
+- **Use clear, descriptive file names** — version numbers, dates, and purpose should be obvious from the name
+- **Put files in the right place** — follow the directory structure above; don't dump things in the root or create ad-hoc folders
+- **Archive, don't delete** — old versions go to `archive/`, not the trash
+- **Clean up after yourself** — remove temp files, don't leave orphaned outputs or half-finished work lying around
+- **Keep output organized by date** — spike runs go in `spike/runs/YYYY-MM-DD/`, not loose in the project root
+- **When in doubt, match the existing pattern** — look at how similar files are already named and placed
+
 ## Optimization Tools (`/spike`)
 
 The `/spike` skill runs a fully autonomous strategy optimization loop. One question ("how many hours?"), then hands-free. Claude generates/improves strategies, Python optimizes them overnight, and a markdown report with top-10 table is auto-generated.

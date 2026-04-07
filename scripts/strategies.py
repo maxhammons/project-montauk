@@ -924,6 +924,14 @@ def accumulation_breakout(ind: Indicators, p: dict) -> tuple:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Experimental strategies — loaded from scripts/experimental/
+# ─────────────────────────────────────────────────────────────────────────────
+from experimental.rsi_regime_variants import (
+    regime_score,
+    REGIME_SCORE_PARAMS,
+)
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Registry — all strategies the optimizer can test
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -943,6 +951,8 @@ STRATEGY_REGISTRY = {
     "williams_midline_reclaim": williams_midline_reclaim,
     "cci_flow_reacceleration":  cci_flow_reacceleration,
     "accumulation_breakout":    accumulation_breakout,
+    # Experimental (scripts/experimental/)
+    "regime_score":             regime_score,
 }
 
 # Parameter spaces for each strategy: {param: (min, max, step, type)}
@@ -1054,4 +1064,6 @@ STRATEGY_PARAMS = {
         "mfi_len": (10, 24, 2, int), "exit_mfi": (75, 90, 5, float),
         "trend_buffer": (0.0, 4.0, 0.5, float), "cooldown": (5, 20, 5, int),
     },
+    # Experimental (scripts/experimental/)
+    "regime_score": REGIME_SCORE_PARAMS,
 }

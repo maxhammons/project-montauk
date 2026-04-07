@@ -75,7 +75,14 @@ def main():
                         help="Population per strategy per generation (default: 40)")
     parser.add_argument("--quick", action="store_true",
                         help="Shorter progress report intervals")
+    parser.add_argument("--strategies", type=str, default=None,
+                        help="Comma-separated list of strategy names to run (default: all)")
     args = parser.parse_args()
+
+    # Parse strategy filter
+    strategy_filter = None
+    if args.strategies:
+        strategy_filter = [s.strip() for s in args.strategies.split(",")]
 
     # Create run directory
     run_dir = create_run_dir()
@@ -97,6 +104,7 @@ def main():
             pop_size=args.pop_size,
             quick=args.quick,
             run_dir=run_dir,
+            strategies=strategy_filter,
         )
 
         print(f"\n{'='*60}")

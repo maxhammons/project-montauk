@@ -1,0 +1,21 @@
+Spike Runner started: 2026-04-06 21:50:01
+Duration: 5.0h | Pop: 15 | Run dir: /Users/maxhammons/Documents/Projects/Project Montauk/spike/runs/2026-04-06-3
+
+=== Montauk Multi-Strategy Optimizer ===
+Duration: 5.0h | Pop: 15/strategy | Registered: 1
+Constraint: ≤3.0 trades/year
+Started: 2026-04-06 21:50
+
+[data] CSV: 4340 bars, ending 2026-04-01
+[data] yfinance disabled, using CSV only
+Data: 4340 bars, 2008-12-31 to 2026-04-01
+
+[history] Dedup cache: 664,330 configs with known fitness
+
+── Baselines ──
+  regime_score           score=0.0438  bah=0.068x  trades/yr=0.9  CAGR=18.3%  DD=71.7%
+Active strategies: 1/1
+
+Loaded best-ever: regime_composite fitness=2.9185
+
+── Evolving ──

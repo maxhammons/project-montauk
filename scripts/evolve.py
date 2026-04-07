@@ -364,7 +364,7 @@ def evaluate(ind: Indicators, df, strategy_fn, params: dict, name: str) -> tuple
 
 
 def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
-           run_dir: str | None = None) -> dict:
+           run_dir: str | None = None, strategies: list[str] | None = None) -> dict:
     """
     Run the evolutionary optimizer. Returns the results dict.
 
@@ -374,15 +374,27 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     pop_size : population per strategy per generation
     quick : shorter report intervals
     run_dir : directory to save results (optional, for spike_runner)
+    strategies : optional list of strategy names to run (default: all)
     """
     # Late import to pick up any new strategies added between runs
     from strategies import STRATEGY_REGISTRY, STRATEGY_PARAMS
+
+    # Filter to requested strategies if specified
+    if strategies:
+        unknown = [s for s in strategies if s not in STRATEGY_REGISTRY]
+        if unknown:
+            print(f"WARNING: Unknown strategies: {unknown}")
+        STRATEGY_REGISTRY_FILTERED = {k: v for k, v in STRATEGY_REGISTRY.items() if k in strategies}
+        STRATEGY_PARAMS_FILTERED = {k: v for k, v in STRATEGY_PARAMS.items() if k in strategies}
+    else:
+        STRATEGY_REGISTRY_FILTERED = STRATEGY_REGISTRY
+        STRATEGY_PARAMS_FILTERED = STRATEGY_PARAMS
 
     start_time = time.time()
     end_time = start_time + hours * 3600
 
     print(f"=== Montauk Multi-Strategy Optimizer ===")
-    print(f"Duration: {hours}h | Pop: {pop_size}/strategy | Registered: {len(STRATEGY_REGISTRY)}")
+    print(f"Duration: {hours}h | Pop: {pop_size}/strategy | Registered: {len(STRATEGY_REGISTRY_FILTERED)}")
     print(f"Constraint: ≤{MAX_TRADES_PER_YEAR} trades/year")
     print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
 
@@ -400,8 +412,8 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     # ── Baseline: run each strategy with default (midpoint) params ──
     print("── Baselines ──")
     baselines = {}
-    for name, fn in STRATEGY_REGISTRY.items():
-        space = STRATEGY_PARAMS.get(name, {})
+    for name, fn in STRATEGY_REGISTRY_FILTERED.items():
+        space = STRATEGY_PARAMS_FILTERED.get(name, {})
         default_params = {k: (lo + hi) / 2 for k, (lo, hi, step, typ) in space.items()}
         # Round ints
         for k, (lo, hi, step, typ) in space.items():
@@ -438,7 +450,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
 
     skipped_strategies = set()
     # Always keep montauk_821 (baseline) and never skip strategies not yet on leaderboard
-    for name in list(STRATEGY_REGISTRY.keys()):
+    for name in list(STRATEGY_REGISTRY_FILTERED.keys()):
         if name == "montauk_821":
             continue
         info = prune_info.get(name)
@@ -452,15 +464,15 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
             print(f"  SKIP {name:<22} best={best:.4f} (below {BASELINE_FLOOR})")
         print()
 
-    active_strategies = {k: v for k, v in STRATEGY_REGISTRY.items() if k not in skipped_strategies}
-    print(f"Active strategies: {len(active_strategies)}/{len(STRATEGY_REGISTRY)}")
+    active_strategies = {k: v for k, v in STRATEGY_REGISTRY_FILTERED.items() if k not in skipped_strategies}
+    print(f"Active strategies: {len(active_strategies)}/{len(STRATEGY_REGISTRY_FILTERED)}")
 
     # ── Initialize populations (one per strategy) ──
     # Seed with historical winners + defaults + random
     populations = {}
     max_seed = max(2, int(pop_size * 0.2))  # 20% from history
     for name in active_strategies:
-        space = STRATEGY_PARAMS.get(name, {})
+        space = STRATEGY_PARAMS_FILTERED.get(name, {})
         pop = [baselines[name]["params"].copy()]
 
         # Seed from leaderboard (top configs from previous runs)
@@ -517,7 +529,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
         generation += 1
 
         for strat_name, fn in active_strategies.items():
-            space = STRATEGY_PARAMS.get(strat_name, {})
+            space = STRATEGY_PARAMS_FILTERED.get(strat_name, {})
             pop = populations[strat_name]
 
             # Evaluate with dedup cache
