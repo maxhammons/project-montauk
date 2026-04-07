@@ -1,7 +1,7 @@
 //@version=6
-strategy("Montauk RSI Regime",
+strategy("Montauk 9.0b — RSI Vol Regime",
      overlay=true,
-     shorttitle="RSI Regime",
+     shorttitle="Montauk 9.0b",
      initial_capital=1000,
      default_qty_type=strategy.percent_of_equity,
      default_qty_value=100,
@@ -14,65 +14,84 @@ strategy("Montauk RSI Regime",
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Group 1 — RSI
+// Entry on RSI cross-up; exit when RSI overbought or panic-low
 // ─────────────────────────────────────────────────────────────────────────────
-rsiLen      = input.int(14,   title="RSI Length",             minval=1,   group="1 - RSI")
-entryRsi    = input.float(35.0, title="Entry RSI Threshold",  step=0.5,   group="1 - RSI")
-exitRsi     = input.float(80.0, title="Exit RSI (Overbought)",step=0.5,   group="1 - RSI")
-panicRsi    = input.int(15,   title="Panic Exit RSI",         minval=1,   group="1 - RSI")
+rsiLen       = input.int(7,   title="RSI Length",          minval=1,    group="1 - RSI")
+entryRsi     = input.float(40.0, title="Entry RSI Threshold",  step=1.0, group="1 - RSI")
+exitRsi      = input.float(85.0, title="Exit RSI (Overbought)", step=1.0, group="1 - RSI")
+panicRsi     = input.float(10.0, title="Exit RSI (Panic Low)",  step=1.0, group="1 - RSI")
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Group 2 — Trend Filter
+// Entry only allowed when close > trend EMA (regime filter)
 // ─────────────────────────────────────────────────────────────────────────────
-enableTrend = input.bool(true,  title="Enable Trend Filter",              group="2 - Trend Filter")
-trendLen    = input.int(150,    title="Trend EMA Length",    minval=1,    group="2 - Trend Filter")
+trendLen     = input.int(100, title="Trend EMA Length",    minval=1,    group="2 - Trend Filter")
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Group 3 — Cooldown
+// Group 3 — Volatility Regime
+// Entry filter: short vol / long vol < vol_ratio_max  (storm passing)
+// Exit trigger: short vol / long vol > vol_exit_ratio  (new crash starting)
+// Realized vol = stddev of simple daily returns over N bars
 // ─────────────────────────────────────────────────────────────────────────────
-enableCooldown  = input.bool(true, title="Enable Sell Cooldown",          group="3 - Cooldown")
-cooldownBars    = input.int(5,     title="Cooldown (bars)",  minval=0,    group="3 - Cooldown")
+volShortLen  = input.int(25,  title="Vol Short Length",    minval=2,    group="3 - Volatility Regime")
+volLongLen   = input.int(60,  title="Vol Long Length",     minval=2,    group="3 - Volatility Regime")
+volRatioMax  = input.float(1.0, title="Entry Vol Ratio Max (short/long)", step=0.05, group="3 - Volatility Regime")
+volExitRatio = input.float(1.6, title="Exit Vol Ratio (short/long)",      step=0.05, group="3 - Volatility Regime")
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Indicators
+// Group 4 — Sell Cooldown
+// ─────────────────────────────────────────────────────────────────────────────
+enableCooldown   = input.bool(true, title="Enable Sell Cooldown",                    group="4 - Sell Cooldown")
+sellCooldownBars = input.int(10,    title="Sell Cooldown (bars)", minval=0,          group="4 - Sell Cooldown")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Calculations
 // ─────────────────────────────────────────────────────────────────────────────
 rsi      = ta.rsi(close, rsiLen)
 trendEma = ta.ema(close, trendLen)
 
+// Realized volatility = stddev(daily simple returns, N)
+// daily_return[i] = (close[i] - close[i-1]) / close[i-1]
+dailyReturn = close[1] != 0.0 ? (close - close[1]) / close[1] : 0.0
+volShort    = ta.stdev(dailyReturn, volShortLen)
+volLong     = ta.stdev(dailyReturn, volLongLen)
+volRatio    = volLong > 0.0 ? volShort / volLong : 1.0
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Entry Conditions
-// RSI(14) crosses up through entryRsi threshold AND price > EMA(trendLen)
 // ─────────────────────────────────────────────────────────────────────────────
-trendOk  = not enableTrend or (close > trendEma)
-entryOk  = ta.crossover(rsi, entryRsi) and trendOk
+trendOk     = close > trendEma
+volEntryOk  = volRatio < volRatioMax
+rsiCrossUp  = ta.crossover(rsi, entryRsi)
+
+entrySignal = rsiCrossUp and trendOk and volEntryOk
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Exit Conditions
-// Exit 1 — Overbought: RSI >= exitRsi
-// Exit 2 — Panic:      RSI < panicRsi (sharp crash / capitulation)
 // ─────────────────────────────────────────────────────────────────────────────
-isOverboughtExit = rsi >= exitRsi
-isPanicExit      = rsi < panicRsi
-
-exitCond = strategy.position_size > 0 and (isOverboughtExit or isPanicExit)
+isRsiOverbought = rsi >= exitRsi
+isRsiPanic      = rsi < panicRsi
+isVolSpike      = volRatio > volExitRatio
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Exit Reason Label
+// Exit Reason  (for on-chart label)
 // ─────────────────────────────────────────────────────────────────────────────
 var string exitReason = na
 if strategy.position_size > 0
-    if isOverboughtExit
-        exitReason := "RSI OB"
-    else if isPanicExit
-        exitReason := "Panic"
+    if isRsiOverbought
+        exitReason := "RSI Overbought"
+    else if isRsiPanic
+        exitReason := "RSI Panic"
+    else if isVolSpike
+        exitReason := "Vol Spike"
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Cooldown Tracking
+// Unified Exit
 // ─────────────────────────────────────────────────────────────────────────────
-var int lastSellBar = na
+exitCond = strategy.position_size > 0 and (isRsiOverbought or isRsiPanic or isVolSpike)
 
 if exitCond
     strategy.close("Long")
-    lastSellBar := bar_index
     label.new(bar_index, high, exitReason,
               yloc=yloc.abovebar,
               style=label.style_label_down,
@@ -81,16 +100,24 @@ if exitCond
 // ─────────────────────────────────────────────────────────────────────────────
 // Entry with Cooldown
 // ─────────────────────────────────────────────────────────────────────────────
-canEnter = strategy.position_size == 0 and
-     (not enableCooldown or na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+var int lastSellBar = na
 
-if entryOk and canEnter
+if exitCond
+    lastSellBar := bar_index
+
+canEnter = strategy.position_size == 0 and
+     (not enableCooldown or na(lastSellBar) or (bar_index - lastSellBar) > sellCooldownBars)
+
+if entrySignal and canEnter
     strategy.entry("Long", strategy.long)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Background Shading
+// Red tint when below trend EMA (no-trade zone)
+// ─────────────────────────────────────────────────────────────────────────────
+bgcolor(close < trendEma ? color.new(color.red, 92) : na)
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Plots
 // ─────────────────────────────────────────────────────────────────────────────
-plot(trendEma, title="Trend EMA", color=color.new(color.white, 60))
-
-// Shade below trend EMA (no-buy zone)
-bgcolor(enableTrend and close < trendEma ? color.new(color.red, 90) : na)
+plot(trendEma, title="Trend EMA (100)", color=color.new(color.white, 60), linewidth=1)

@@ -1,7 +1,7 @@
 //@version=6
-strategy("Project Montauk 9.0 — RSI Regime",
+strategy("Montauk 9.0a — RSI Regime",
      overlay=true,
-     shorttitle="Montauk 9.0",
+     shorttitle="Montauk 9.0a",
      initial_capital=1000,
      default_qty_type=strategy.percent_of_equity,
      default_qty_value=100,
@@ -21,17 +21,17 @@ strategy("Project Montauk 9.0 — RSI Regime",
 // a new bull leg. Hold until RSI reaches extreme overbought (85) or panics
 // back below 15. Produces ~0.7 trades/year — pure regime-level timing.
 //
-// All-time best params (optimizer, 2026-04-03):
-//   rsi_len=10, trend_len=150, entry_rsi=35, exit_rsi=85, panic_rsi=15, cooldown=5
-//   Result: 3.49x vs buy-and-hold, 48.6% CAGR, 75.1% max DD, 0.7 trades/yr
+// All-time best params (optimizer, 2026-04-04):
+//   rsi_len=13, trend_len=150, entry_rsi=35, exit_rsi=80, panic_rsi=15, cooldown=5
+//   Result: 2.132x vs buy-and-hold, 44.4% CAGR, 65.8% max DD, 0.6 trades/yr
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Group 1 — RSI
 // ─────────────────────────────────────────────────────────────────────────────
-rsiLen   = input.int(10,    "RSI Length",                    minval=1,              group="1 - RSI")
+rsiLen   = input.int(13,    "RSI Length",                    minval=1,              group="1 - RSI")
 entryRSI = input.float(35.0, "Entry RSI — cross above to buy", minval=1, maxval=98, step=1.0, group="1 - RSI")
-exitRSI  = input.float(85.0, "Exit RSI — overbought",        minval=2, maxval=99,  step=1.0, group="1 - RSI")
+exitRSI  = input.float(80.0, "Exit RSI — overbought",        minval=2, maxval=99,  step=1.0, group="1 - RSI")
 panicRSI = input.float(15.0, "Panic RSI — extreme sell",     minval=1, maxval=98,  step=1.0, group="1 - RSI")
 
 // ─────────────────────────────────────────────────────────────────────────────
