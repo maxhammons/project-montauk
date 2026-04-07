@@ -1,0 +1,170 @@
+Spike Runner started: 2026-04-07 04:53:23
+Duration: 5.0h | Pop: 15 | Run dir: /home/runner/work/project-montauk/project-montauk/spike/runs/2026-04-07
+
+=== Montauk Multi-Strategy Optimizer ===
+Duration: 5.0h | Pop: 15/strategy | Registered: 1
+Constraint: ≤3.0 trades/year
+Started: 2026-04-07 04:53
+
+[data] CSV: 4340 bars, ending 2026-04-01
+[data] yfinance disabled, using CSV only
+Data: 4340 bars, 2008-12-31 to 2026-04-01
+
+[history] Dedup cache: 665,705 configs with known fitness
+
+── Baselines ──
+  regime_score           score=0.0438  bah=0.068x  trades/yr=0.9  CAGR=18.3%  DD=71.7%
+Active strategies: 1/1
+
+Loaded best-ever: regime_score fitness=12.2417
+
+── Evolving ──
+Gen   789: BEST=13.0449 (regime_score)  evals=5,201 (17/s)  4.9h left
+    regime_score           13.0449  bah=20.335x  t/yr=0.6  DD=71.7%
+Gen  1572: BEST=13.0737 (regime_score)  evals=10,435 (17/s)  4.8h left
+    regime_score           13.0737  bah=20.380x  t/yr=1.0  DD=71.7%
+Gen  2363: BEST=13.0737 (regime_score)  evals=15,673 (17/s)  4.7h left
+    regime_score           13.0737  bah=20.380x  t/yr=1.0  DD=71.7%
+Gen  3181: BEST=13.0737 (regime_score)  evals=20,922 (17/s)  4.7h left
+    regime_score           13.0737  bah=20.380x  t/yr=1.0  DD=71.7%
+Gen  4013: BEST=13.0737 (regime_score)  evals=26,162 (17/s)  4.6h left
+    regime_score           13.0737  bah=20.380x  t/yr=1.0  DD=71.7%
+Gen  4854: BEST=18.3082 (regime_score)  evals=31,399 (17/s)  4.5h left
+    regime_score           18.3082  bah=28.540x  t/yr=1.5  DD=71.7%
+Gen  5621: BEST=25.6058 (regime_score)  evals=36,641 (17/s)  4.4h left
+    regime_score           25.6058  bah=39.916x  t/yr=1.3  DD=71.7%
+Gen  6395: BEST=28.2741 (regime_score)  evals=41,884 (17/s)  4.3h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen  7183: BEST=28.2741 (regime_score)  evals=47,121 (17/s)  4.2h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen  7980: BEST=28.2741 (regime_score)  evals=52,362 (17/s)  4.2h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen  8794: BEST=28.2741 (regime_score)  evals=57,609 (17/s)  4.1h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen  9608: BEST=28.2741 (regime_score)  evals=62,852 (17/s)  4.0h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 10439: BEST=28.2741 (regime_score)  evals=68,084 (17/s)  3.9h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 11292: BEST=28.2741 (regime_score)  evals=73,324 (17/s)  3.8h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 12144: BEST=28.2741 (regime_score)  evals=78,571 (17/s)  3.7h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 13005: BEST=28.2741 (regime_score)  evals=83,804 (17/s)  3.7h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 13868: BEST=28.2741 (regime_score)  evals=89,029 (17/s)  3.6h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 14746: BEST=28.2741 (regime_score)  evals=94,271 (17/s)  3.5h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 15634: BEST=28.2741 (regime_score)  evals=99,513 (17/s)  3.4h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 16533: BEST=28.2741 (regime_score)  evals=104,746 (17/s)  3.3h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 17427: BEST=28.2741 (regime_score)  evals=109,978 (17/s)  3.2h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 18342: BEST=28.2741 (regime_score)  evals=115,222 (17/s)  3.2h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 19259: BEST=28.2741 (regime_score)  evals=120,455 (17/s)  3.1h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 20189: BEST=28.2741 (regime_score)  evals=125,684 (17/s)  3.0h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 21118: BEST=28.2741 (regime_score)  evals=130,925 (17/s)  2.9h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 22061: BEST=28.2741 (regime_score)  evals=136,165 (17/s)  2.8h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 23009: BEST=28.2741 (regime_score)  evals=141,403 (17/s)  2.7h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 23959: BEST=28.2741 (regime_score)  evals=146,636 (17/s)  2.7h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 24910: BEST=28.2741 (regime_score)  evals=151,883 (17/s)  2.6h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 25874: BEST=28.2741 (regime_score)  evals=157,118 (17/s)  2.5h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 26848: BEST=28.2741 (regime_score)  evals=162,355 (17/s)  2.4h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 27826: BEST=28.2741 (regime_score)  evals=167,600 (17/s)  2.3h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 28813: BEST=28.2741 (regime_score)  evals=172,844 (17/s)  2.2h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 29800: BEST=28.2741 (regime_score)  evals=178,083 (17/s)  2.2h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 30797: BEST=28.2741 (regime_score)  evals=183,325 (17/s)  2.1h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 31782: BEST=28.2741 (regime_score)  evals=188,569 (17/s)  2.0h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 32794: BEST=28.2741 (regime_score)  evals=193,801 (17/s)  1.9h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 33795: BEST=28.2741 (regime_score)  evals=199,037 (17/s)  1.8h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 34815: BEST=28.2741 (regime_score)  evals=204,278 (17/s)  1.7h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 35822: BEST=28.2741 (regime_score)  evals=209,517 (17/s)  1.7h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 36846: BEST=28.2741 (regime_score)  evals=214,770 (17/s)  1.6h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 37886: BEST=28.2741 (regime_score)  evals=220,021 (17/s)  1.5h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 38925: BEST=28.2741 (regime_score)  evals=225,288 (17/s)  1.4h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 39968: BEST=28.2741 (regime_score)  evals=230,536 (17/s)  1.3h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 41020: BEST=28.2741 (regime_score)  evals=235,793 (17/s)  1.2h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 42084: BEST=28.2741 (regime_score)  evals=241,044 (17/s)  1.2h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 43136: BEST=28.2741 (regime_score)  evals=246,301 (17/s)  1.1h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 44210: BEST=28.2741 (regime_score)  evals=251,559 (17/s)  1.0h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 45268: BEST=28.2741 (regime_score)  evals=256,811 (17/s)  0.9h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 46355: BEST=28.2741 (regime_score)  evals=262,073 (17/s)  0.8h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 47432: BEST=28.2741 (regime_score)  evals=267,323 (17/s)  0.7h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 48527: BEST=28.2741 (regime_score)  evals=272,579 (17/s)  0.7h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 49597: BEST=28.2741 (regime_score)  evals=277,837 (17/s)  0.6h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 50705: BEST=28.2741 (regime_score)  evals=283,088 (17/s)  0.5h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 51812: BEST=28.2741 (regime_score)  evals=288,349 (17/s)  0.4h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 52916: BEST=28.2741 (regime_score)  evals=293,598 (17/s)  0.3h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 54029: BEST=28.2741 (regime_score)  evals=298,858 (17/s)  0.2h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 55137: BEST=28.2741 (regime_score)  evals=304,110 (17/s)  0.2h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+Gen 56241: BEST=28.2741 (regime_score)  evals=309,354 (17/s)  0.1h left
+    regime_score           28.2741  bah=44.075x  t/yr=1.4  DD=71.7%
+
+============================================================
+DONE — 5.0h, 314,447 evals, 57330 generations
+============================================================
+
+── Strategy Rankings (vs 8.2.1) ──
+  #1 regime_score           fitness=28.2741  bah=44.075x  t/yr=1.4  CAGR=72.1%  DD=71.7%  MAR=1.01
+     params: {"rsi_len": 7, "dd_center": -35.0, "w_vol": 0.4, "ma_len": 200, "dd_lookback": 200, "exit_thresh": 0.7, "w_price_ma": 0.2, "w_drawdown": 0.1, "panic_rsi": 10, "vol_long": 50, "vol_short": 25, "entry_thresh": 0.55, "w_rsi": 0.3}
+     trades: 24 (1.4/yr)
+       2009-02-23 → 2009-11-17  +341.7%  S
+       2010-01-22 → 2011-02-14  +67.9%  S
+       2011-04-18 → 2012-03-14  +43.1%  S
+       2012-05-17 → 2012-05-18  -4.3%  R
+       2012-06-01 → 2013-05-08  +47.2%  S
+       ... +19 more
+[history] Pruned 61,546 zero-fitness entries from hash index
+
+[history] Saved hash index: 980,152 unique configs
+
+Results: /home/runner/work/project-montauk/project-montauk/spike/runs/2026-04-07/results.json
+Report: /home/runner/work/project-montauk/project-montauk/spike/runs/2026-04-07/report.md
+
+###JSON### {"date": "2026-04-07", "elapsed_hours": 5.0, "total_evaluations": 314447, "generations": 57330, "constraint": "<=3.0 trades/yr", "history_stats": {"cached_configs": 545503, "new_configs": 314447, "seeded_per_strategy": 2, "total_history": 980152}, "rankings": [{"rank": 1, "strategy": "regime_score", "fitness": 28.2741, "params": {"rsi_len": 7, "dd_center": -35.0, "w_vol": 0.4, "ma_len": 200, "dd_lookback": 200, "exit_thresh": 0.7, "w_price_ma": 0.2, "w_drawdown": 0.1, "panic_rsi": 10, "vol_long": 50, "vol_short": 25, "cooldown": 0, "entry_thresh": 0.55, "w_rsi": 0.3}, "metrics": {"vs_bah": 44.075, "cagr": 72.14, "max_dd": 71.7, "mar": 1.007, "trades": 24, "trades_yr": 1.4, "win_rate": 83.3, "exit_reasons": {"S": 22, "R": 1, "End of Data": 1}}, "trades": [{"entry_date": "2009-02-23", "exit_date": "2009-11-17", "pnl_pct": 341.7, "exit_reason": "S", "bars_held": 187}, {"entry_date": "2010-01-22", "exit_date": "2011-02-14", "pnl_pct": 67.9, "exit_reason": "S", "bars_held": 268}, {"entry_date": "2011-04-18", "exit_date": "2012-03-14", "pnl_pct": 43.1, "exit_reason": "S", "bars_held": 228}, {"entry_date": "2012-05-17", "exit_date": "2012-05-18", "pnl_pct": -4.3, "exit_reason": "R", "bars_held": 1}, {"entry_date": "2012-06-01", "exit_date": "2013-05-08", "pnl_pct": 47.2, "exit_reason": "S", "bars_held": 233}, {"entry_date": "2013-06-24", "exit_date": "2013-07-16", "pnl_pct": 20.6, "exit_reason": "S", "bars_held": 15}, {"entry_date": "2013-08-27", "exit_date": "2014-02-13", "pnl_pct": 52.0, "exit_reason": "S", "bars_held": 117}, {"entry_date": "2014-03-14", "exit_date": "2014-08-19", "pnl_pct": 40.8, "exit_reason": "S", "bars_held": 109}, {"entry_date": "2014-12-10", "exit_date": "2016-07-14", "pnl_pct": 20.4, "exit_reason": "S", "bars_held": 400}, {"entry_date": "2016-11-01", "exit_date": "2017-06-02", "pnl_pct": 77.2, "exit_reason": "S", "bars_held": 146}, {"entry_date": "2017-08-10", "exit_date": "2018-02-23", "pnl_pct": 66.5, "exit_reason": "S", "bars_held": 135}, {"entry_date": "2018-03-22", "exit_date": "2018-07-25", "pnl_pct": 35.7, "exit_reason": "S", "bars_held": 86}, {"entry_date": "2018-11-20", "exit_date": "2019-04-22", "pnl_pct": 65.0, "exit_reason": "S", "bars_held": 102}, {"entry_date": "2019-05-07", "exit_date": "2019-06-07", "pnl_pct": -3.6, "exit_reason": "S", "bars_held": 22}, {"entry_date": "2019-08-02", "exit_date": "2019-09-05", "pnl_pct": 7.2, "exit_reason": "S", "bars_held": 23}, {"entry_date": "2019-10-02", "exit_date": "2020-02-06", "pnl_pct": 105.6, "exit_reason": "S", "bars_held": 87}, {"entry_date": "2020-03-09", "exit_date": "2021-02-08", "pnl_pct": 189.9, "exit_reason": "S", "bars_held": 232}, {"entry_date": "2021-05-04", "exit_date": "2021-10-18", "pnl_pct": 46.9, "exit_reason": "S", "bars_held": 116}, {"entry_date": "2022-01-20", "exit_date": "2023-05-26", "pnl_pct": -26.4, "exit_reason": "S", "bars_held": 339}, {"entry_date": "2023-09-26", "exit_date": "2024-01-19", "pnl_pct": 77.3, "exit_reason": "S", "bars_held": 79}, {"entry_date": "2024-04-17", "exit_date": "2024-05-15", "pnl_pct": 20.3, "exit_reason": "S", "bars_held": 20}, {"entry_date": "2024-08-05", "exit_date": "2024-08-19", "pnl_pct": 43.8, "exit_reason": "S", "bars_held": 10}, {"entry_date": "2024-09-06", "exit_date": "2025-10-27", "pnl_pct": 121.8, "exit_reason": "S", "bars_held": 285}, {"entry_date": "2025-12-17", "exit_date": "2026-04-01", "pnl_pct": -15.5, "exit_reason": "End of Data", "bars_held": 72}]}], "best_ever": {"strategy": "regime_score", "fitness": 28.2741, "params": {"rsi_len": 7, "dd_center": -35.0, "w_vol": 0.4, "ma_len": 200, "dd_lookback": 200, "exit_thresh": 0.7, "w_price_ma": 0.2, "w_drawdown": 0.1, "panic_rsi": 10, "vol_long": 50, "vol_short": 25, "cooldown": 0, "entry_thresh": 0.55, "w_rsi": 0.3}}}
+
+============================================================
+SPIKE COMPLETE
+============================================================
+Report:      /home/runner/work/project-montauk/project-montauk/spike/runs/2026-04-07/report.md
+Results:     /home/runner/work/project-montauk/project-montauk/spike/runs/2026-04-07/results.json
+Log:         /home/runner/work/project-montauk/project-montauk/spike/runs/2026-04-07/log.txt
+Leaderboard: /home/runner/work/project-montauk/project-montauk/spike/leaderboard.json
