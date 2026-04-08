@@ -262,6 +262,10 @@ class RegimeScore:
     num_bear_periods: int
     bull_detail: list           # per-bull: {start, end, move_pct, captured_pct}
     bear_detail: list           # per-bear: {start, end, move_pct, avoided_pct}
+    # Per-cycle scores for HHI/jackknife (added Sprint 1)
+    bull_capture_scores: list | None = None   # per-bull capture ratios
+    bear_avoidance_scores: list | None = None # per-bear avoidance ratios
+    hhi: float | None = None                  # Herfindahl-Hirschman Index on cycle contributions
 
     def summary_str(self) -> str:
         lines = [
@@ -269,6 +273,8 @@ class RegimeScore:
             f"  Bull Capture:  {self.bull_capture_ratio:>8.3f}  ({self.num_bull_periods} periods)",
             f"  Bear Avoidance:{self.bear_avoidance_ratio:>8.3f}  ({self.num_bear_periods} periods)",
         ]
+        if self.hhi is not None:
+            lines.append(f"  Cycle HHI:     {self.hhi:>8.3f}  ({'concentrated' if self.hhi > 0.25 else 'diversified'})")
         return "\n".join(lines)
 
 
@@ -435,6 +441,10 @@ def score_regime_capture(
     dates: np.ndarray,
     bear_threshold: float = 0.30,
     bull_threshold: float = 0.20,
+    min_duration: int = 20,
+    boundary_shift: int = 0,
+    exclude_bear_idx: int | None = None,
+    exclude_bull_idx: int | None = None,
 ) -> RegimeScore:
     """
     Score how well the strategy captures bull markets and avoids bear markets.
@@ -444,6 +454,12 @@ def score_regime_capture(
 
     For each bear period: compute what fraction of the price loss the strategy
     avoided by being out of the market.
+
+    Parameters
+    ----------
+    boundary_shift : shift all regime boundaries by this many bars (for perturbation testing)
+    exclude_bear_idx : skip the bear period at this index (for jackknife)
+    exclude_bull_idx : skip the bull period at this index (for jackknife)
 
     Returns a RegimeScore with composite = 0.5 * bull_capture + 0.5 * bear_avoidance.
     """
@@ -457,20 +473,50 @@ def score_regime_capture(
         in_market[entry:exit_b + 1] = True
 
     # Detect regimes
-    bears = detect_bear_regimes(close, dates, bear_threshold=bear_threshold)
+    bears = detect_bear_regimes(close, dates, bear_threshold=bear_threshold, min_duration=min_duration)
     bulls = detect_bull_regimes(close, dates, bears, bull_threshold=bull_threshold)
+
+    # Apply boundary shift if requested (perturbation test)
+    if boundary_shift != 0:
+        shifted_bears = []
+        for bear in bears:
+            new_start = max(0, min(n - 1, bear.start_idx + boundary_shift))
+            new_end = max(0, min(n - 1, bear.end_idx + boundary_shift))
+            if new_end > new_start:
+                shifted_bears.append(Regime(
+                    kind=bear.kind, start_idx=new_start, end_idx=new_end,
+                    start_date=bear.start_date, end_date=bear.end_date,
+                    start_price=bear.start_price, end_price=bear.end_price,
+                    move_pct=bear.move_pct,
+                ))
+        bears = shifted_bears
+
+        shifted_bulls = []
+        for bull in bulls:
+            new_start = max(0, min(n - 1, bull.start_idx + boundary_shift))
+            new_end = max(0, min(n - 1, bull.end_idx + boundary_shift))
+            if new_end > new_start:
+                shifted_bulls.append(Regime(
+                    kind=bull.kind, start_idx=new_start, end_idx=new_end,
+                    start_date=bull.start_date, end_date=bull.end_date,
+                    start_price=bull.start_price, end_price=bull.end_price,
+                    move_pct=bull.move_pct,
+                ))
+        bulls = shifted_bulls
 
     # ── Score bear avoidance ──
     bear_detail = []
-    bear_avoidance_scores = []
-    for bear in bears:
+    bear_avoidance_scores_list = []
+    for i, bear in enumerate(bears):
+        if exclude_bear_idx is not None and i == exclude_bear_idx:
+            continue
         s, e = bear.start_idx, bear.end_idx
         if e <= s:
             continue
         bear_bars = e - s
         bars_out = np.sum(~in_market[s:e])
         avoidance = bars_out / bear_bars if bear_bars > 0 else 1.0
-        bear_avoidance_scores.append(avoidance)
+        bear_avoidance_scores_list.append(avoidance)
         bear_detail.append({
             "start": bear.start_date,
             "end": bear.end_date,
@@ -480,15 +526,17 @@ def score_regime_capture(
 
     # ── Score bull capture ──
     bull_detail = []
-    bull_capture_scores = []
-    for bull in bulls:
+    bull_capture_scores_list = []
+    for i, bull in enumerate(bulls):
+        if exclude_bull_idx is not None and i == exclude_bull_idx:
+            continue
         s, e = bull.start_idx, bull.end_idx
         if e <= s:
             continue
         bull_bars = e - s
         bars_in = np.sum(in_market[s:e])
         capture = bars_in / bull_bars if bull_bars > 0 else 0.0
-        bull_capture_scores.append(capture)
+        bull_capture_scores_list.append(capture)
         bull_detail.append({
             "start": bull.start_date,
             "end": bull.end_date,
@@ -496,18 +544,33 @@ def score_regime_capture(
             "captured_pct": round(capture * 100, 1),
         })
 
-    bull_capture = float(np.mean(bull_capture_scores)) if bull_capture_scores else 0.0
-    bear_avoidance = float(np.mean(bear_avoidance_scores)) if bear_avoidance_scores else 1.0
+    bull_capture = float(np.mean(bull_capture_scores_list)) if bull_capture_scores_list else 0.0
+    bear_avoidance = float(np.mean(bear_avoidance_scores_list)) if bear_avoidance_scores_list else 1.0
     composite = 0.5 * bull_capture + 0.5 * bear_avoidance
+
+    # ── Compute HHI on cycle contributions ──
+    all_scores = bull_capture_scores_list + bear_avoidance_scores_list
+    if len(all_scores) >= 2:
+        total = sum(all_scores)
+        if total > 0:
+            shares = [s / total for s in all_scores]
+            hhi = sum(s ** 2 for s in shares)
+        else:
+            hhi = 1.0
+    else:
+        hhi = 1.0  # single cycle = maximally concentrated
 
     return RegimeScore(
         bull_capture_ratio=round(bull_capture, 4),
         bear_avoidance_ratio=round(bear_avoidance, 4),
         composite=round(composite, 4),
-        num_bull_periods=len(bulls),
-        num_bear_periods=len(bears),
+        num_bull_periods=len([b for i, b in enumerate(bulls) if exclude_bull_idx is None or i != exclude_bull_idx]),
+        num_bear_periods=len([b for i, b in enumerate(bears) if exclude_bear_idx is None or i != exclude_bear_idx]),
         bull_detail=bull_detail,
         bear_detail=bear_detail,
+        bull_capture_scores=bull_capture_scores_list,
+        bear_avoidance_scores=bear_avoidance_scores_list,
+        hhi=round(hhi, 4),
     )
 
 

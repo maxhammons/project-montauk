@@ -1,0 +1,3 @@
+Spike Runner started: 2026-04-07 16:45:15
+Duration: 5.0h | Pop: 40 | Run dir: /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/2026-04-07-2
+

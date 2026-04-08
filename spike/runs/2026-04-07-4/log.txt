@@ -1,0 +1,60 @@
+Spike Runner started: 2026-04-07 16:59:43
+Duration: 5.0h | Pop: 40 | Run dir: /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/2026-04-07-4
+
+=== Montauk Multi-Strategy Optimizer ===
+Duration: 5.0h | Pop: 40/strategy | Registered: 13
+Constraint: ≤3.0 trades/year
+Started: 2026-04-07 16:59
+
+[data] CSV: 4340 bars, ending 2026-04-01
+[data] yfinance disabled, using CSV only
+Data: 4340 bars, 2008-12-31 to 2026-04-01
+
+[history] Dedup cache: 923,595 configs with known fitness
+
+── Baselines ──
+  montauk_821            score=0.4638  bah=0.061x  trades/yr=2.8  CAGR=17.5%  DD=52.6%
+  rsi_regime             score=0.2137  bah=0.242x  trades/yr=0.8  CAGR=27.3%  DD=65.8%
+  breakout               score=0.4267  bah=0.035x  trades/yr=1.4  CAGR=13.8%  DD=65.0%
+  rsi_regime_trail       score=0.0000  bah=0.006x  trades/yr=0.7  CAGR=3.0%  DD=62.4%
+  vol_regime             score=0.3941  bah=0.012x  trades/yr=1.7  CAGR=7.0%  DD=58.5%
+  ichimoku_trend         score=0.0000  bah=0.011x  trades/yr=3.1  CAGR=6.5%  DD=47.6%
+  dual_momentum          score=0.4894  bah=0.012x  trades/yr=2.9  CAGR=7.0%  DD=48.7%
+  rsi_vol_regime         score=0.0000  bah=0.027x  trades/yr=0.1  CAGR=12.1%  DD=26.6%
+  stoch_drawdown_recovery score=0.1768  bah=0.038x  trades/yr=1.6  CAGR=14.4%  DD=62.4%
+  williams_midline_reclaim score=0.0000  bah=0.007x  trades/yr=0.9  CAGR=3.5%  DD=18.6%
+  adx_trend              score=0.4005  bah=0.003x  trades/yr=1.4  CAGR=-2.3%  DD=56.4%
+  keltner_squeeze        score=0.0000  bah=0.005x  trades/yr=0.6  CAGR=1.5%  DD=24.3%
+  psar_trend             score=0.0000  bah=0.003x  trades/yr=5.6  CAGR=-1.1%  DD=61.7%
+Active strategies: 13/13
+
+Loaded best-ever: ichimoku_trend fitness=0.5544
+
+── Evolving ──
+Gen   287: BEST=0.5577 (vol_regime)  evals=22,801 (76/s)  4.9h left
+    vol_regime             0.5577  RS=0.695  bah=0.033x  t/yr=2.8  DD=39.6%
+    keltner_squeeze        0.5007  RS=0.558  bah=0.011x  t/yr=2.6  DD=20.6%
+    williams_midline_reclaim 0.4966  RS=0.552  bah=0.018x  t/yr=2.9  DD=20.1%
+    rsi_regime_trail       0.4331  RS=0.590  bah=0.027x  t/yr=2.2  DD=53.1%
+Gen   718: BEST=0.5578 (vol_regime)  evals=45,838 (76/s)  4.8h left
+    keltner_squeeze        0.5186  RS=0.574  bah=0.026x  t/yr=2.3  DD=19.2%
+    williams_midline_reclaim 0.4966  RS=0.552  bah=0.018x  t/yr=2.9  DD=20.1%
+    rsi_regime_trail       0.4331  RS=0.590  bah=0.027x  t/yr=2.2  DD=53.1%
+Gen  1282: BEST=0.5578 (vol_regime)  evals=69,962 (78/s)  4.7h left
+    keltner_squeeze        0.5186  RS=0.574  bah=0.026x  t/yr=2.3  DD=19.2%
+    williams_midline_reclaim 0.4966  RS=0.552  bah=0.018x  t/yr=2.9  DD=20.1%
+    rsi_regime_trail       0.4331  RS=0.590  bah=0.027x  t/yr=2.2  DD=53.1%
+Gen  1849: BEST=0.5578 (vol_regime)  evals=93,937 (78/s)  4.7h left
+    keltner_squeeze        0.5186  RS=0.574  bah=0.026x  t/yr=2.3  DD=19.2%
+    williams_midline_reclaim 0.4967  RS=0.552  bah=0.016x  t/yr=2.9  DD=20.1%
+Gen  2459: BEST=0.5578 (vol_regime)  evals=117,617 (78/s)  4.6h left
+    keltner_squeeze        0.5186  RS=0.574  bah=0.026x  t/yr=2.3  DD=19.2%
+    williams_midline_reclaim 0.4967  RS=0.552  bah=0.016x  t/yr=2.9  DD=20.1%
+Gen  3116: BEST=0.5578 (vol_regime)  evals=141,524 (79/s)  4.5h left
+    breakout               0.5294  RS=0.678  bah=0.071x  t/yr=2.5  DD=43.9%
+    keltner_squeeze        0.5186  RS=0.574  bah=0.026x  t/yr=2.3  DD=19.2%
+    williams_midline_reclaim 0.4967  RS=0.552  bah=0.016x  t/yr=2.9  DD=20.1%
+Gen  3823: BEST=0.5578 (vol_regime)  evals=165,326 (79/s)  4.4h left
+    breakout               0.5294  RS=0.678  bah=0.071x  t/yr=2.5  DD=43.9%
+    keltner_squeeze        0.5186  RS=0.574  bah=0.026x  t/yr=2.3  DD=19.2%
+    williams_midline_reclaim 0.4967  RS=0.552  bah=0.016x  t/yr=2.9  DD=20.1%

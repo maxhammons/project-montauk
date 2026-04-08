@@ -490,6 +490,8 @@ class BacktestResult:
     bah_start_date: str = ""
     exit_reasons: dict = field(default_factory=dict)
     strategy_name: str = ""
+    regime_score: object = None  # RegimeScore from backtest_engine, attached by evolve.py
+    params: dict = field(default_factory=dict)  # strategy params, attached by evolve.py
 
 
 def backtest(df: pd.DataFrame,
@@ -498,6 +500,7 @@ def backtest(df: pd.DataFrame,
              exit_labels: np.ndarray | None = None,
              cooldown_bars: int = 0,
              initial_capital: float = 1000.0,
+             slippage_pct: float = 0.05,
              strategy_name: str = "") -> BacktestResult:
     """
     Run a backtest given boolean entry/exit signal arrays.
@@ -510,6 +513,9 @@ def backtest(df: pd.DataFrame,
     exit_labels : string array, label for each exit signal (optional)
     cooldown_bars : bars to wait after exit before re-entering
     initial_capital : starting equity
+    slippage_pct : simulated slippage per trade as % of price (0.05 = 5 bps each way).
+                   Research: zero-slippage backtests inflate results by 50-100+ bps/yr.
+                   TECL bid-ask spread is typically 2-5 bps; we add execution impact.
     strategy_name : label for this strategy
 
     Returns BacktestResult.
@@ -536,16 +542,17 @@ def backtest(df: pd.DataFrame,
 
         # Exit
         if position > 0 and exits[i]:
-            pnl = shares * (cl[i] - entry_price)
+            exit_price = cl[i] * (1 - slippage_pct / 100)  # slippage: sell slightly lower
+            pnl = shares * (exit_price - entry_price)
             equity += pnl
             position = 0
             last_sell_bar = i
             if current_trade:
                 current_trade.exit_bar = i
                 current_trade.exit_date = str(dates[i])[:10]
-                current_trade.exit_price = cl[i]
+                current_trade.exit_price = exit_price
                 current_trade.exit_reason = str(exit_labels[i])
-                current_trade.pnl_pct = (cl[i] / entry_price - 1) * 100
+                current_trade.pnl_pct = (exit_price / entry_price - 1) * 100
                 current_trade.bars_held = i - current_trade.entry_bar
                 trades.append(current_trade)
                 current_trade = None
@@ -555,7 +562,7 @@ def backtest(df: pd.DataFrame,
         # Entry
         if position == 0 and entries[i]:
             if (i - last_sell_bar) > cooldown_bars:
-                entry_price = cl[i]
+                entry_price = cl[i] * (1 + slippage_pct / 100)  # slippage: buy slightly higher
                 shares = equity / entry_price
                 position = 1
                 current_trade = Trade(entry_bar=i, entry_date=str(dates[i])[:10],

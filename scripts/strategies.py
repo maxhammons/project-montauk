@@ -273,123 +273,149 @@ def rsi_vol_regime(ind: Indicators, p: dict) -> tuple:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Strategy 10: Mean Revert Channel — Enter on Donchian channel bounce with
-# RSI confirmation. TECL overshoots both ways; buy the lower band bounce.
+# Strategy: ADX Trend Strength — Enter when ADX rises above threshold with
+# DI+ > DI-, exit when ADX falls or DI- dominates. Catches trend inception.
+# Only 6 params — designed for low complexity penalty.
 # ─────────────────────────────────────────────────────────────────────────────
 
-def mean_revert_channel(ind: Indicators, p: dict) -> tuple:
+def adx_trend(ind: Indicators, p: dict) -> tuple:
     n = ind.n
     cl = ind.close
-    lookback = p.get("channel_len", 60)
-    don_low = ind.lowest(lookback)
-    don_high = ind.highest(lookback)
-    rsi = ind.rsi(p.get("rsi_len", 14))
-    trend_ema = ind.ema(p.get("trend_len", 150))
+    adx_len = p.get("adx_len", 14)
+    adx = ind.adx(adx_len)
+    di_plus = ind.di_plus(adx_len)
+    di_minus = ind.di_minus(adx_len)
+    trend_ema = ind.ema(p.get("trend_len", 100))
 
     entries = np.zeros(n, dtype=bool)
     exits = np.zeros(n, dtype=bool)
     labels = np.array([""] * n)
 
-    bounce_pct = p.get("bounce_pct", 20)  # % of channel range from bottom
-    exit_pct = p.get("exit_pct", 85)      # % of channel range for exit
+    entry_adx = p.get("entry_adx", 20.0)
+    exit_adx = p.get("exit_adx", 15.0)
 
     for i in range(1, n):
-        if np.isnan(don_low[i]) or np.isnan(don_high[i]) or np.isnan(rsi[i]):
+        if np.isnan(adx[i]) or np.isnan(adx[i-1]):
             continue
-        chan_range = don_high[i] - don_low[i]
-        if chan_range <= 0:
+        if np.isnan(di_plus[i]) or np.isnan(di_minus[i]):
             continue
 
-        pos_in_channel = (cl[i] - don_low[i]) / chan_range * 100
         trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
 
-        # Entry: price near bottom of channel + RSI recovering + trend OK
-        rsi_recovering = not np.isnan(rsi[i-1]) and rsi[i] > rsi[i-1]
-        if pos_in_channel < bounce_pct and rsi_recovering and trend_ok:
+        # Entry: ADX crosses above threshold + DI+ > DI- + trend OK
+        if adx[i-1] < entry_adx and adx[i] >= entry_adx and di_plus[i] > di_minus[i] and trend_ok:
             entries[i] = True
 
-        # Exit: price reaches upper channel zone
-        if pos_in_channel > exit_pct:
+        # Exit 1: ADX drops below exit level (trend dying)
+        if adx[i] < exit_adx:
             exits[i] = True
-            labels[i] = "Channel Top"
+            labels[i] = "ADX Fade"
             continue
 
-        # Exit: RSI panic
-        if rsi[i] < p.get("panic_rsi", 15):
+        # Exit 2: DI- crosses above DI+ (bears take over)
+        if di_minus[i] > di_plus[i] and di_minus[i-1] <= di_plus[i-1]:
             exits[i] = True
-            labels[i] = "RSI Panic"
+            labels[i] = "DI Cross"
 
     return entries, exits, labels
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Strategy 10b: Regime Composite — Ensemble approach: enter when 2 of 3
-# signals agree (RSI dip, MACD turning, vol calming). Exit on 2 of 3 bearish.
-# Reduces false signals through signal diversity.
+# Strategy: Keltner Squeeze — Bollinger Bands compress inside Keltner Channel
+# (the "squeeze"), then expand out. Volatility contraction → expansion.
+# Classic low-frequency breakout signal. 7 params.
 # ─────────────────────────────────────────────────────────────────────────────
 
-def regime_composite(ind: Indicators, p: dict) -> tuple:
+def keltner_squeeze(ind: Indicators, p: dict) -> tuple:
     n = ind.n
     cl = ind.close
-    rsi = ind.rsi(p.get("rsi_len", 14))
-    macd_h = ind.macd_hist(p.get("macd_fast", 12), p.get("macd_slow", 30), p.get("macd_sig", 9))
-    vol_short = ind.realized_vol(p.get("vol_short", 15))
-    vol_long = ind.realized_vol(p.get("vol_long", 60))
-    trend_ema = ind.ema(p.get("trend_len", 150))
+    bb_len = p.get("bb_len", 20)
+    bb_mult = p.get("bb_mult", 2.0)
+    kelt_len = p.get("kelt_len", 20)
+    kelt_mult = p.get("kelt_mult", 1.5)
+
+    bb_upper = ind.bb_upper(bb_len, bb_mult)
+    bb_lower = ind.bb_lower(bb_len, bb_mult)
+    kelt_upper = ind.keltner_upper(kelt_len, kelt_len, kelt_mult)
+    kelt_lower = ind.keltner_lower(kelt_len, kelt_len, kelt_mult)
+    trend_ema = ind.ema(p.get("trend_len", 100))
+    mom = ind.mom(p.get("mom_len", 12))
 
     entries = np.zeros(n, dtype=bool)
     exits = np.zeros(n, dtype=bool)
     labels = np.array([""] * n)
 
-    entry_rsi = p.get("entry_rsi", 40)
-    exit_rsi = p.get("exit_rsi", 75)
-    min_signals = p.get("min_signals", 2)
+    for i in range(1, n):
+        if (np.isnan(bb_upper[i]) or np.isnan(kelt_upper[i])
+                or np.isnan(bb_lower[i]) or np.isnan(kelt_lower[i])):
+            continue
+        if np.isnan(mom[i]) or np.isnan(mom[i-1]):
+            continue
 
-    for i in range(2, n):
-        if np.isnan(rsi[i]) or np.isnan(rsi[i-1]):
+        # Squeeze: BB inside Keltner
+        squeeze_now = bb_lower[i] > kelt_lower[i] and bb_upper[i] < kelt_upper[i]
+        squeeze_prev = (not np.isnan(bb_lower[i-1]) and not np.isnan(kelt_lower[i-1])
+                        and bb_lower[i-1] > kelt_lower[i-1]
+                        and bb_upper[i-1] < kelt_upper[i-1])
+
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
+
+        # Entry: squeeze just released (was squeezing, now not) + momentum positive + trend OK
+        if squeeze_prev and not squeeze_now and mom[i] > 0 and trend_ok:
+            entries[i] = True
+
+        # Exit 1: Momentum turns negative after being positive
+        if mom[i-1] > 0 and mom[i] <= 0:
+            exits[i] = True
+            labels[i] = "Mom Reversal"
+            continue
+
+        # Exit 2: New squeeze forms (trend consolidating)
+        if not squeeze_prev and squeeze_now:
+            exits[i] = True
+            labels[i] = "Re-Squeeze"
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy: PSAR Trend Follow — Parabolic SAR as primary regime signal.
+# Simplest possible trend follower. Enter above PSAR + trend EMA, exit below.
+# Only 5 params — maximizes complexity bonus.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def psar_trend(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    psar = ind.psar()
+    trend_ema = ind.ema(p.get("trend_len", 100))
+    atr_vals = ind.atr(p.get("atr_period", 30))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    for i in range(1, n):
+        if np.isnan(psar[i]) or np.isnan(psar[i-1]):
             continue
 
         trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
 
-        # Count entry signals
-        entry_count = 0
-        # Signal 1: RSI recovering from low
-        if rsi[i-1] < entry_rsi and rsi[i] >= entry_rsi:
-            entry_count += 1
-        # Signal 2: MACD histogram turning positive
-        if not np.isnan(macd_h[i]) and not np.isnan(macd_h[i-1]):
-            if macd_h[i] > macd_h[i-1] and macd_h[i] > 0:
-                entry_count += 1
-        # Signal 3: Vol calming (short < long)
-        if not np.isnan(vol_short[i]) and not np.isnan(vol_long[i]) and vol_long[i] > 0:
-            if vol_short[i] / vol_long[i] < p.get("vol_ratio_max", 0.9):
-                entry_count += 1
-
-        if entry_count >= min_signals and trend_ok:
+        # Entry: price crosses above PSAR + trend OK
+        if cl[i-1] <= psar[i-1] and cl[i] > psar[i] and trend_ok:
             entries[i] = True
 
-        # Count exit signals
-        exit_count = 0
-        # Signal 1: RSI overbought
-        if rsi[i] >= exit_rsi:
-            exit_count += 1
-        # Signal 2: MACD histogram deeply negative
-        if not np.isnan(macd_h[i]) and macd_h[i] < p.get("macd_exit", -1.0):
-            exit_count += 1
-        # Signal 3: Vol spiking
-        if not np.isnan(vol_short[i]) and not np.isnan(vol_long[i]) and vol_long[i] > 0:
-            if vol_short[i] / vol_long[i] > p.get("vol_exit_ratio", 1.3):
-                exit_count += 1
-
-        if exit_count >= min_signals:
+        # Exit 1: price crosses below PSAR
+        if cl[i-1] >= psar[i-1] and cl[i] < psar[i]:
             exits[i] = True
-            labels[i] = "Composite Exit"
+            labels[i] = "PSAR Flip"
             continue
 
-        # Exit: RSI panic (always immediate)
-        if rsi[i] < p.get("panic_rsi", 15):
-            exits[i] = True
-            labels[i] = "RSI Panic"
+        # Exit 2: ATR shock
+        if not np.isnan(atr_vals[i]) and i >= 1:
+            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 3.5):
+                exits[i] = True
+                labels[i] = "ATR Shock"
 
     return entries, exits, labels
 
@@ -609,71 +635,6 @@ def dual_momentum(ind: Indicators, p: dict) -> tuple:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Strategy 17: Flow Exhaustion Reclaim — MFI + OBV entry after capitulation
-# Buys when money flow recovers from panic, OBV is constructive, vol calming.
-# ─────────────────────────────────────────────────────────────────────────────
-
-def flow_exhaustion_reclaim(ind: Indicators, p: dict) -> tuple:
-    n = ind.n
-    cl = ind.close
-    mfi = ind.mfi(p.get("mfi_len", 14))
-    obv = ind.obv()
-    obv_ema = ind.ema_of("flow_obv", obv, p.get("obv_ema_len", 55))
-    tema = ind.tema(p.get("tema_len", 120))
-    tema_slope = ind.slope("flow_tema", tema, p.get("tema_slope_lb", 10))
-    vol_short = ind.realized_vol(p.get("vol_short", 15))
-    vol_long = ind.realized_vol(p.get("vol_long", 60))
-    exit_ema = ind.ema(p.get("exit_ema_len", 80))
-
-    entries = np.zeros(n, dtype=bool)
-    exits = np.zeros(n, dtype=bool)
-    labels = np.array([""] * n)
-
-    entry_mfi = p.get("entry_mfi", 30)
-    exit_mfi = p.get("exit_mfi", 80)
-    vol_ratio_max = p.get("vol_ratio_max", 0.9)
-    vol_exit_ratio = p.get("vol_exit_ratio", 1.5)
-
-    for i in range(1, n):
-        if np.isnan(mfi[i]) or np.isnan(mfi[i-1]) or np.isnan(obv_ema[i]):
-            continue
-        if np.isnan(tema_slope[i]):
-            continue
-
-        # Vol filter: short vol declining relative to long vol
-        vol_ok = True
-        if not np.isnan(vol_short[i]) and not np.isnan(vol_long[i]) and vol_long[i] > 0:
-            vol_ok = (vol_short[i] / vol_long[i]) < vol_ratio_max
-
-        # Entry: MFI crosses up + OBV above its EMA + TEMA slope positive + vol calming
-        if (mfi[i-1] < entry_mfi and mfi[i] >= entry_mfi
-                and obv[i] > obv_ema[i]
-                and tema_slope[i] > 0
-                and vol_ok):
-            entries[i] = True
-
-        # Exit 1: MFI overbought
-        if mfi[i] >= exit_mfi:
-            exits[i] = True
-            labels[i] = "MFI Overbought"
-            continue
-
-        # Exit 2: Flow breakdown — OBV drops below EMA and price below exit EMA
-        if obv[i] < obv_ema[i] and not np.isnan(exit_ema[i]) and cl[i] < exit_ema[i]:
-            exits[i] = True
-            labels[i] = "Flow Breakdown"
-            continue
-
-        # Exit 3: Vol spike
-        if not np.isnan(vol_short[i]) and not np.isnan(vol_long[i]) and vol_long[i] > 0:
-            if vol_short[i] / vol_long[i] > vol_exit_ratio:
-                exits[i] = True
-                labels[i] = "Vol Spike"
-
-    return entries, exits, labels
-
-
-# ─────────────────────────────────────────────────────────────────────────────
 # Strategy 18: Stochastic Drawdown Recovery — Slow stochastic crossover
 # from oversold, but only after a deep drawdown or in confirmed uptrend.
 # ─────────────────────────────────────────────────────────────────────────────
@@ -796,143 +757,7 @@ def williams_midline_reclaim(ind: Indicators, p: dict) -> tuple:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Strategy 20: CCI Flow Re-acceleration — CCI re-acceleration from washed-out
-# correction with expanding volume participation. Second-derivative turn.
-# ─────────────────────────────────────────────────────────────────────────────
-
-def cci_flow_reacceleration(ind: Indicators, p: dict) -> tuple:
-    n = ind.n
-    cl = ind.close
-    cci = ind.cci(p.get("cci_len", 30))
-    trend_ema = ind.ema(p.get("trend_len", 125))
-    tema = ind.tema(p.get("tema_len", 100))
-    tema_slope = ind.slope("cci_tema", tema, p.get("tema_slope_lb", 10))
-    vol_fast = ind.vol_ema(p.get("vol_fast_len", 10))
-    vol_slow = ind.vol_ema(p.get("vol_slow_len", 40))
-    atr_vals = ind.atr(p.get("atr_period", 20))
-
-    entries = np.zeros(n, dtype=bool)
-    exits = np.zeros(n, dtype=bool)
-    labels = np.array([""] * n)
-
-    entry_cci = p.get("entry_cci", -75.0)
-    exit_cci = p.get("exit_cci", 175.0)
-    fail_cci = p.get("fail_cci", 0.0)
-    volume_ratio_min = p.get("volume_ratio_min", 1.2)
-
-    for i in range(1, n):
-        if np.isnan(cci[i]) or np.isnan(cci[i-1]) or np.isnan(tema_slope[i]):
-            continue
-
-        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
-
-        # Volume expansion: fast vol EMA > slow vol EMA
-        vol_expanding = True
-        if not np.isnan(vol_fast[i]) and not np.isnan(vol_slow[i]) and vol_slow[i] > 0:
-            vol_expanding = (vol_fast[i] / vol_slow[i]) > volume_ratio_min
-
-        # Entry: CCI crosses up through entry level + trend OK + TEMA rising + volume expanding
-        if (cci[i-1] < entry_cci and cci[i] >= entry_cci
-                and trend_ok
-                and tema_slope[i] > 0
-                and vol_expanding):
-            entries[i] = True
-
-        # Exit 1: CCI overheat
-        if cci[i] >= exit_cci:
-            exits[i] = True
-            labels[i] = "CCI Overheat"
-            continue
-
-        # Exit 2: CCI failure — drops below fail level while under trend
-        if not np.isnan(trend_ema[i]) and cci[i] < fail_cci and cl[i] < trend_ema[i]:
-            exits[i] = True
-            labels[i] = "CCI Failure"
-            continue
-
-        # Exit 3: ATR shock
-        if not np.isnan(atr_vals[i]) and i >= 1:
-            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 3.5):
-                exits[i] = True
-                labels[i] = "ATR Shock"
-
-    return entries, exits, labels
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Strategy 21: Accumulation Breakout — Donchian breakout with OBV + volume
-# confirmation. Only accepts breakouts backed by real accumulation.
-# ─────────────────────────────────────────────────────────────────────────────
-
-def accumulation_breakout(ind: Indicators, p: dict) -> tuple:
-    n = ind.n
-    cl = ind.close
-    don_high = ind.donchian_upper(p.get("breakout_len", 120))
-    trend_ema = ind.ema(p.get("trend_len", 150))
-    obv = ind.obv()
-    obv_ema = ind.ema_of("accum_obv", obv, p.get("obv_ema_len", 55))
-    vol_fast = ind.vol_ema(p.get("vol_fast_len", 10))
-    vol_slow = ind.vol_ema(p.get("vol_slow_len", 40))
-    don_mid_exit = ind.donchian_mid(p.get("exit_len", 80))
-    mfi = ind.mfi(p.get("mfi_len", 14))
-
-    entries = np.zeros(n, dtype=bool)
-    exits = np.zeros(n, dtype=bool)
-    labels = np.array([""] * n)
-
-    breakout_buffer = p.get("breakout_buffer", 0.99)
-    volume_ratio_min = p.get("volume_ratio_min", 1.2)
-    exit_mfi = p.get("exit_mfi", 82)
-    trend_buffer = p.get("trend_buffer", 2.0)
-
-    for i in range(1, n):
-        if np.isnan(don_high[i]) or np.isnan(obv_ema[i]):
-            continue
-
-        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i]
-
-        # Volume confirmation: fast vol > slow vol
-        vol_confirmed = True
-        if not np.isnan(vol_fast[i]) and not np.isnan(vol_slow[i]) and vol_slow[i] > 0:
-            vol_confirmed = (vol_fast[i] / vol_slow[i]) > volume_ratio_min
-
-        # Entry: price at/near Donchian high + above trend + OBV > its EMA + volume expanding
-        if (cl[i] >= don_high[i] * breakout_buffer
-                and trend_ok
-                and obv[i] > obv_ema[i]
-                and vol_confirmed):
-            entries[i] = True
-
-        # Exit 1: Distribution break — price below Donchian mid + OBV below EMA
-        if not np.isnan(don_mid_exit[i]) and cl[i] < don_mid_exit[i] and obv[i] < obv_ema[i]:
-            exits[i] = True
-            labels[i] = "Distribution Break"
-            continue
-
-        # Exit 2: MFI overbought
-        if not np.isnan(mfi[i]) and mfi[i] >= exit_mfi:
-            exits[i] = True
-            labels[i] = "MFI Overbought"
-            continue
-
-        # Exit 3: Below trend
-        if not np.isnan(trend_ema[i]) and cl[i] < trend_ema[i] * (1 - trend_buffer / 100):
-            exits[i] = True
-            labels[i] = "Below Trend"
-
-    return entries, exits, labels
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Experimental strategies — loaded from scripts/experimental/
-# ─────────────────────────────────────────────────────────────────────────────
-from experimental.rsi_regime_variants import (
-    regime_score,
-    REGIME_SCORE_PARAMS,
-)
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Registry — all strategies the optimizer can test
+# Registry — all strategies the optimizer can test (max 15)
 # ─────────────────────────────────────────────────────────────────────────────
 
 STRATEGY_REGISTRY = {
@@ -944,15 +769,11 @@ STRATEGY_REGISTRY = {
     "ichimoku_trend":           ichimoku_trend,
     "dual_momentum":            dual_momentum,
     "rsi_vol_regime":           rsi_vol_regime,
-    "mean_revert_channel":      mean_revert_channel,
-    "regime_composite":         regime_composite,
-    "flow_exhaustion_reclaim":  flow_exhaustion_reclaim,
     "stoch_drawdown_recovery":  stoch_drawdown_recovery,
     "williams_midline_reclaim": williams_midline_reclaim,
-    "cci_flow_reacceleration":  cci_flow_reacceleration,
-    "accumulation_breakout":    accumulation_breakout,
-    # Experimental (scripts/experimental/)
-    "regime_score":             regime_score,
+    "adx_trend":                adx_trend,
+    "keltner_squeeze":          keltner_squeeze,
+    "psar_trend":               psar_trend,
 }
 
 # Parameter spaces for each strategy: {param: (min, max, step, type)}
@@ -982,21 +803,20 @@ STRATEGY_PARAMS = {
         "vol_long": (40, 100, 10, int), "vol_ratio_max": (0.7, 1.0, 0.05, float),
         "vol_exit_ratio": (1.2, 2.0, 0.2, float), "cooldown": (0, 20, 5, int),
     },
-    "mean_revert_channel": {
-        "channel_len": (30, 100, 10, int), "rsi_len": (7, 21, 2, int),
-        "trend_len": (50, 200, 25, int), "bounce_pct": (10, 35, 5, float),
-        "exit_pct": (70, 95, 5, float), "panic_rsi": (10, 25, 5, float),
+    "adx_trend": {
+        "adx_len": (10, 30, 4, int), "trend_len": (50, 200, 25, int),
+        "entry_adx": (15.0, 30.0, 5.0, float), "exit_adx": (10.0, 20.0, 5.0, float),
         "cooldown": (0, 20, 5, int),
     },
-    "regime_composite": {
-        "rsi_len": (7, 21, 2, int), "trend_len": (50, 200, 25, int),
-        "entry_rsi": (30, 50, 5, float), "exit_rsi": (65, 85, 5, float),
-        "panic_rsi": (10, 25, 5, float), "macd_fast": (8, 16, 2, int),
-        "macd_slow": (20, 40, 4, int), "macd_sig": (5, 13, 2, int),
-        "macd_exit": (-5.0, -0.5, 0.5, float), "vol_short": (10, 30, 5, int),
-        "vol_long": (40, 100, 10, int), "vol_ratio_max": (0.7, 1.0, 0.05, float),
-        "vol_exit_ratio": (1.1, 1.8, 0.1, float), "min_signals": (2, 3, 1, int),
+    "keltner_squeeze": {
+        "bb_len": (15, 30, 5, int), "bb_mult": (1.5, 2.5, 0.5, float),
+        "kelt_len": (15, 30, 5, int), "kelt_mult": (1.0, 2.0, 0.5, float),
+        "trend_len": (50, 200, 25, int), "mom_len": (8, 20, 4, int),
         "cooldown": (0, 20, 5, int),
+    },
+    "psar_trend": {
+        "trend_len": (50, 200, 25, int), "atr_period": (10, 40, 10, int),
+        "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 20, 5, int),
     },
     "rsi_regime_trail": {
         "rsi_len": (7, 21, 2, int), "trend_len": (50, 200, 25, int),
@@ -1023,14 +843,6 @@ STRATEGY_PARAMS = {
         "short_exit": (-15.0, -3.0, 2.0, float), "atr_period": (10, 40, 10, int),
         "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 20, 5, int),
     },
-    "flow_exhaustion_reclaim": {
-        "mfi_len": (10, 24, 2, int), "entry_mfi": (20, 45, 5, float),
-        "exit_mfi": (70, 90, 5, float), "obv_ema_len": (30, 100, 10, int),
-        "tema_len": (80, 180, 20, int), "tema_slope_lb": (5, 20, 5, int),
-        "vol_short": (10, 25, 5, int), "vol_long": (40, 90, 10, int),
-        "vol_ratio_max": (0.75, 1.0, 0.05, float), "vol_exit_ratio": (1.2, 1.8, 0.1, float),
-        "exit_ema_len": (50, 120, 10, int), "cooldown": (5, 20, 5, int),
-    },
     "stoch_drawdown_recovery": {
         "dd_lookback": (100, 300, 50, int), "dd_thresh": (-50.0, -20.0, 5.0, float),
         "stoch_len": (14, 40, 4, int), "smooth_k": (3, 10, 2, int),
@@ -1047,23 +859,4 @@ STRATEGY_PARAMS = {
         "vol_ratio_max": (0.75, 1.0, 0.05, float), "vol_exit_ratio": (1.2, 1.8, 0.1, float),
         "cooldown": (5, 20, 5, int),
     },
-    "cci_flow_reacceleration": {
-        "cci_len": (20, 50, 5, int), "entry_cci": (-150.0, -25.0, 25.0, float),
-        "exit_cci": (100.0, 250.0, 25.0, float), "fail_cci": (-50.0, 25.0, 25.0, float),
-        "trend_len": (100, 175, 25, int), "tema_len": (80, 140, 20, int),
-        "tema_slope_lb": (5, 20, 5, int), "vol_fast_len": (5, 20, 5, int),
-        "vol_slow_len": (30, 60, 10, int), "volume_ratio_min": (1.0, 1.5, 0.1, float),
-        "atr_period": (10, 30, 5, int), "atr_mult": (2.5, 5.0, 0.5, float),
-        "cooldown": (5, 20, 5, int),
-    },
-    "accumulation_breakout": {
-        "breakout_len": (80, 180, 20, int), "breakout_buffer": (0.98, 1.0, 0.01, float),
-        "trend_len": (100, 200, 25, int), "obv_ema_len": (30, 100, 10, int),
-        "vol_fast_len": (5, 20, 5, int), "vol_slow_len": (30, 60, 10, int),
-        "volume_ratio_min": (1.0, 1.6, 0.1, float), "exit_len": (50, 100, 10, int),
-        "mfi_len": (10, 24, 2, int), "exit_mfi": (75, 90, 5, float),
-        "trend_buffer": (0.0, 4.0, 0.5, float), "cooldown": (5, 20, 5, int),
-    },
-    # Experimental (scripts/experimental/)
-    "regime_score": REGIME_SCORE_PARAMS,
 }

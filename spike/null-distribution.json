@@ -1,0 +1,85 @@
+{
+  "samples_per_family": 40,
+  "n_valid": 434,
+  "elapsed_seconds": 9.6,
+  "rs_mean": 0.5381,
+  "rs_std": 0.0868,
+  "rs_min": 0.3003,
+  "rs_max": 0.6944,
+  "rs_p95": 0.6632,
+  "rs_p99": 0.673,
+  "beta_alpha": 17.23,
+  "beta_beta": 14.79,
+  "per_family": {
+    "montauk_821": {
+      "mean": 0.6325,
+      "std": 0.0674,
+      "n": 39
+    },
+    "rsi_regime": {
+      "mean": 0.4591,
+      "std": 0.0523,
+      "n": 27
+    },
+    "breakout": {
+      "mean": 0.6185,
+      "std": 0.0385,
+      "n": 40
+    },
+    "rsi_regime_trail": {
+      "mean": 0.498,
+      "std": 0.0377,
+      "n": 27
+    },
+    "vol_regime": {
+      "mean": 0.5791,
+      "std": 0.042,
+      "n": 40
+    },
+    "ichimoku_trend": {
+      "mean": 0.6217,
+      "std": 0.0391,
+      "n": 39
+    },
+    "dual_momentum": {
+      "mean": 0.6299,
+      "std": 0.0271,
+      "n": 40
+    },
+    "rsi_vol_regime": {
+      "mean": 0.4847,
+      "std": 0.0425,
+      "n": 23
+    },
+    "mean_revert_channel": {
+      "mean": 0.4323,
+      "std": 0.0424,
+      "n": 22
+    },
+    "regime_composite": {
+      "mean": 0.4879,
+      "std": 0.0242,
+      "n": 4
+    },
+    "stoch_drawdown_recovery": {
+      "mean": 0.4422,
+      "std": 0.0445,
+      "n": 40
+    },
+    "williams_midline_reclaim": {
+      "mean": 0.5054,
+      "std": 0.0084,
+      "n": 37
+    },
+    "accumulation_breakout": {
+      "mean": 0.5068,
+      "std": 0.0207,
+      "n": 22
+    },
+    "regime_score": {
+      "mean": 0.4569,
+      "std": 0.0581,
+      "n": 34
+    }
+  }
+}
