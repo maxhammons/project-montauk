@@ -1,0 +1,4267 @@
+{
+  "date": "2026-04-08",
+  "elapsed_hours": 5.0,
+  "total_evaluations": 493629,
+  "generations": 10142,
+  "constraint": "<=3.0 trades/yr",
+  "history_stats": {
+    "cached_configs": 7417131,
+    "new_configs": 493629,
+    "seeded_per_strategy": 2,
+    "total_history": 1382576
+  },
+  "rankings": [
+    {
+      "rank": 1,
+      "strategy": "ichimoku_trend",
+      "fitness": 0.5696,
+      "params": {
+        "tenkan_len": 13,
+        "kijun_len": 40,
+        "cloud_len": 50,
+        "cloud_buffer": 0.0,
+        "atr_period": 30,
+        "atr_mult": 2.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "vs_bah": 0.0363,
+        "cagr": 14.04,
+        "max_dd": 36.9,
+        "mar": 0.381,
+        "trades": 50,
+        "trades_yr": 2.9,
+        "win_rate": 38.0,
+        "exit_reasons": {
+          "B": 37,
+          "A": 10,
+          "T": 3
+        },
+        "regime_score": 0.6985,
+        "bull_capture": 0.464,
+        "bear_avoidance": 0.933,
+        "hhi": 0.0458,
+        "n_params": 6
+      },
+      "trades": [
+        {
+          "entry_date": "2009-03-27",
+          "exit_date": "2009-07-07",
+          "pnl_pct": 37.0,
+          "exit_reason": "B",
+          "bars_held": 69
+        },
+        {
+          "entry_date": "2009-07-27",
+          "exit_date": "2009-10-30",
+          "pnl_pct": 18.2,
+          "exit_reason": "B",
+          "bars_held": 68
+        },
+        {
+          "entry_date": "2009-12-29",
+          "exit_date": "2010-01-22",
+          "pnl_pct": -16.1,
+          "exit_reason": "B",
+          "bars_held": 16
+        },
+        {
+          "entry_date": "2010-03-10",
+          "exit_date": "2010-05-04",
+          "pnl_pct": 2.0,
+          "exit_reason": "B",
+          "bars_held": 38
+        },
+        {
+          "entry_date": "2010-07-26",
+          "exit_date": "2010-07-29",
+          "pnl_pct": -6.2,
+          "exit_reason": "B",
+          "bars_held": 3
+        },
+        {
+          "entry_date": "2010-09-20",
+          "exit_date": "2011-01-28",
+          "pnl_pct": 52.3,
+          "exit_reason": "A",
+          "bars_held": 91
+        },
+        {
+          "entry_date": "2011-05-03",
+          "exit_date": "2011-05-16",
+          "pnl_pct": -6.5,
+          "exit_reason": "B",
+          "bars_held": 9
+        },
+        {
+          "entry_date": "2011-10-12",
+          "exit_date": "2011-11-17",
+          "pnl_pct": -0.1,
+          "exit_reason": "B",
+          "bars_held": 26
+        },
+        {
+          "entry_date": "2012-01-11",
+          "exit_date": "2012-04-19",
+          "pnl_pct": 45.4,
+          "exit_reason": "B",
+          "bars_held": 68
+        },
+        {
+          "entry_date": "2012-12-18",
+          "exit_date": "2012-12-21",
+          "pnl_pct": -4.0,
+          "exit_reason": "B",
+          "bars_held": 3
+        },
+        {
+          "entry_date": "2013-03-05",
+          "exit_date": "2013-04-05",
+          "pnl_pct": -3.8,
+          "exit_reason": "B",
+          "bars_held": 22
+        },
+        {
+          "entry_date": "2013-05-08",
+          "exit_date": "2013-06-20",
+          "pnl_pct": -7.8,
+          "exit_reason": "B",
+          "bars_held": 30
+        },
+        {
+          "entry_date": "2013-07-15",
+          "exit_date": "2013-08-21",
+          "pnl_pct": -3.8,
+          "exit_reason": "B",
+          "bars_held": 27
+        },
+        {
+          "entry_date": "2013-09-20",
+          "exit_date": "2013-10-08",
+          "pnl_pct": -8.3,
+          "exit_reason": "B",
+          "bars_held": 12
+        },
+        {
+          "entry_date": "2013-10-16",
+          "exit_date": "2014-01-24",
+          "pnl_pct": 24.0,
+          "exit_reason": "A",
+          "bars_held": 68
+        },
+        {
+          "entry_date": "2014-02-25",
+          "exit_date": "2014-03-14",
+          "pnl_pct": -3.1,
+          "exit_reason": "B",
+          "bars_held": 13
+        },
+        {
+          "entry_date": "2014-05-05",
+          "exit_date": "2014-07-31",
+          "pnl_pct": 21.5,
+          "exit_reason": "A",
+          "bars_held": 61
+        },
+        {
+          "entry_date": "2014-08-19",
+          "exit_date": "2014-09-25",
+          "pnl_pct": -3.3,
+          "exit_reason": "B",
+          "bars_held": 26
+        },
+        {
+          "entry_date": "2014-11-03",
+          "exit_date": "2014-12-12",
+          "pnl_pct": -1.0,
+          "exit_reason": "B",
+          "bars_held": 28
+        },
+        {
+          "entry_date": "2014-12-26",
+          "exit_date": "2014-12-29",
+          "pnl_pct": -1.7,
+          "exit_reason": "T",
+          "bars_held": 1
+        },
+        {
+          "entry_date": "2015-02-20",
+          "exit_date": "2015-03-10",
+          "pnl_pct": -9.4,
+          "exit_reason": "B",
+          "bars_held": 12
+        },
+        {
+          "entry_date": "2015-04-24",
+          "exit_date": "2015-05-06",
+          "pnl_pct": -6.8,
+          "exit_reason": "B",
+          "bars_held": 8
+        },
+        {
+          "entry_date": "2015-10-07",
+          "exit_date": "2015-11-13",
+          "pnl_pct": 8.5,
+          "exit_reason": "B",
+          "bars_held": 27
+        },
+        {
+          "entry_date": "2016-03-03",
+          "exit_date": "2016-04-26",
+          "pnl_pct": 7.6,
+          "exit_reason": "B",
+          "bars_held": 37
+        },
+        {
+          "entry_date": "2016-06-08",
+          "exit_date": "2016-06-17",
+          "pnl_pct": -7.3,
+          "exit_reason": "B",
+          "bars_held": 7
+        },
+        {
+          "entry_date": "2016-07-15",
+          "exit_date": "2016-09-09",
+          "pnl_pct": 7.0,
+          "exit_reason": "B",
+          "bars_held": 39
+        },
+        {
+          "entry_date": "2016-09-29",
+          "exit_date": "2016-11-01",
+          "pnl_pct": -3.9,
+          "exit_reason": "B",
+          "bars_held": 23
+        },
+        {
+          "entry_date": "2017-05-01",
+          "exit_date": "2017-05-17",
+          "pnl_pct": -1.6,
+          "exit_reason": "A",
+          "bars_held": 12
+        },
+        {
+          "entry_date": "2017-07-25",
+          "exit_date": "2017-08-10",
+          "pnl_pct": -4.6,
+          "exit_reason": "A",
+          "bars_held": 12
+        },
+        {
+          "entry_date": "2018-03-01",
+          "exit_date": "2018-03-22",
+          "pnl_pct": -4.7,
+          "exit_reason": "B",
+          "bars_held": 15
+        },
+        {
+          "entry_date": "2018-05-14",
+          "exit_date": "2018-06-25",
+          "pnl_pct": -2.6,
+          "exit_reason": "B",
+          "bars_held": 29
+        },
+        {
+          "entry_date": "2018-07-18",
+          "exit_date": "2018-07-30",
+          "pnl_pct": -8.8,
+          "exit_reason": "B",
+          "bars_held": 8
+        },
+        {
+          "entry_date": "2019-02-01",
+          "exit_date": "2019-05-13",
+          "pnl_pct": 29.0,
+          "exit_reason": "B",
+          "bars_held": 69
+        },
+        {
+          "entry_date": "2019-06-21",
+          "exit_date": "2019-08-02",
+          "pnl_pct": 1.0,
+          "exit_reason": "B",
+          "bars_held": 29
+        },
+        {
+          "entry_date": "2019-09-17",
+          "exit_date": "2019-09-24",
+          "pnl_pct": -5.1,
+          "exit_reason": "B",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2019-10-11",
+          "exit_date": "2020-01-27",
+          "pnl_pct": 55.7,
+          "exit_reason": "A",
+          "bars_held": 72
+        },
+        {
+          "entry_date": "2020-10-23",
+          "exit_date": "2020-10-26",
+          "pnl_pct": -6.6,
+          "exit_reason": "T",
+          "bars_held": 1
+        },
+        {
+          "entry_date": "2020-11-18",
+          "exit_date": "2021-02-25",
+          "pnl_pct": 22.2,
+          "exit_reason": "B",
+          "bars_held": 66
+        },
+        {
+          "entry_date": "2021-04-05",
+          "exit_date": "2021-05-04",
+          "pnl_pct": -3.9,
+          "exit_reason": "B",
+          "bars_held": 21
+        },
+        {
+          "entry_date": "2021-06-08",
+          "exit_date": "2021-09-20",
+          "pnl_pct": 27.7,
+          "exit_reason": "B",
+          "bars_held": 72
+        },
+        {
+          "entry_date": "2021-10-25",
+          "exit_date": "2021-11-26",
+          "pnl_pct": 12.9,
+          "exit_reason": "A",
+          "bars_held": 23
+        },
+        {
+          "entry_date": "2022-04-01",
+          "exit_date": "2022-04-05",
+          "pnl_pct": -1.1,
+          "exit_reason": "B",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2022-07-29",
+          "exit_date": "2022-08-26",
+          "pnl_pct": -10.7,
+          "exit_reason": "B",
+          "bars_held": 20
+        },
+        {
+          "entry_date": "2022-11-11",
+          "exit_date": "2022-11-28",
+          "pnl_pct": -6.3,
+          "exit_reason": "B",
+          "bars_held": 10
+        },
+        {
+          "entry_date": "2023-01-27",
+          "exit_date": "2023-02-22",
+          "pnl_pct": -2.8,
+          "exit_reason": "B",
+          "bars_held": 17
+        },
+        {
+          "entry_date": "2023-03-30",
+          "exit_date": "2023-04-25",
+          "pnl_pct": -10.7,
+          "exit_reason": "B",
+          "bars_held": 17
+        },
+        {
+          "entry_date": "2023-11-14",
+          "exit_date": "2024-01-02",
+          "pnl_pct": 7.4,
+          "exit_reason": "A",
+          "bars_held": 32
+        },
+        {
+          "entry_date": "2024-05-15",
+          "exit_date": "2024-07-11",
+          "pnl_pct": 25.0,
+          "exit_reason": "A",
+          "bars_held": 38
+        },
+        {
+          "entry_date": "2025-05-08",
+          "exit_date": "2025-09-02",
+          "pnl_pct": 60.3,
+          "exit_reason": "T",
+          "bars_held": 79
+        },
+        {
+          "entry_date": "2025-09-19",
+          "exit_date": "2025-10-10",
+          "pnl_pct": -1.2,
+          "exit_reason": "A",
+          "bars_held": 15
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "strategy": "vol_regime",
+      "fitness": 0.5578,
+      "params": {
+        "vol_entry_ratio": 0.7,
+        "cooldown": 15,
+        "vol_long": 40,
+        "trend_len": 50,
+        "vol_short": 10,
+        "vol_exit_ratio": 1.6,
+        "trend_buffer": 1.0
+      },
+      "metrics": {
+        "vs_bah": 0.0369,
+        "cagr": 14.16,
+        "max_dd": 37.5,
+        "mar": 0.378,
+        "trades": 51,
+        "trades_yr": 3.0,
+        "win_rate": 49.0,
+        "exit_reasons": {
+          "B": 46,
+          "V": 5
+        },
+        "regime_score": 0.6865,
+        "bull_capture": 0.4924,
+        "bear_avoidance": 0.8807,
+        "hhi": 0.0445,
+        "n_params": 6
+      },
+      "trades": [
+        {
+          "entry_date": "2009-04-14",
+          "exit_date": "2009-07-07",
+          "pnl_pct": 17.0,
+          "exit_reason": "B",
+          "bars_held": 58
+        },
+        {
+          "entry_date": "2009-07-29",
+          "exit_date": "2009-11-20",
+          "pnl_pct": 16.8,
+          "exit_reason": "B",
+          "bars_held": 81
+        },
+        {
+          "entry_date": "2010-01-19",
+          "exit_date": "2010-01-22",
+          "pnl_pct": -16.9,
+          "exit_reason": "B",
+          "bars_held": 3
+        },
+        {
+          "entry_date": "2010-03-02",
+          "exit_date": "2010-05-04",
+          "pnl_pct": 12.5,
+          "exit_reason": "B",
+          "bars_held": 44
+        },
+        {
+          "entry_date": "2010-08-05",
+          "exit_date": "2010-08-10",
+          "pnl_pct": -5.0,
+          "exit_reason": "B",
+          "bars_held": 3
+        },
+        {
+          "entry_date": "2010-09-16",
+          "exit_date": "2011-01-31",
+          "pnl_pct": 62.7,
+          "exit_reason": "V",
+          "bars_held": 94
+        },
+        {
+          "entry_date": "2011-05-05",
+          "exit_date": "2011-05-16",
+          "pnl_pct": -5.0,
+          "exit_reason": "B",
+          "bars_held": 7
+        },
+        {
+          "entry_date": "2011-09-19",
+          "exit_date": "2011-09-21",
+          "pnl_pct": -5.5,
+          "exit_reason": "B",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2012-01-05",
+          "exit_date": "2012-04-20",
+          "pnl_pct": 45.3,
+          "exit_reason": "B",
+          "bars_held": 73
+        },
+        {
+          "entry_date": "2012-08-10",
+          "exit_date": "2012-10-09",
+          "pnl_pct": 0.6,
+          "exit_reason": "B",
+          "bars_held": 41
+        },
+        {
+          "entry_date": "2013-01-16",
+          "exit_date": "2013-02-21",
+          "pnl_pct": -0.9,
+          "exit_reason": "B",
+          "bars_held": 24
+        },
+        {
+          "entry_date": "2013-05-14",
+          "exit_date": "2013-06-20",
+          "pnl_pct": -8.4,
+          "exit_reason": "B",
+          "bars_held": 26
+        },
+        {
+          "entry_date": "2013-08-02",
+          "exit_date": "2013-08-27",
+          "pnl_pct": -8.0,
+          "exit_reason": "B",
+          "bars_held": 17
+        },
+        {
+          "entry_date": "2013-11-01",
+          "exit_date": "2014-01-28",
+          "pnl_pct": 8.3,
+          "exit_reason": "B",
+          "bars_held": 58
+        },
+        {
+          "entry_date": "2014-03-11",
+          "exit_date": "2014-04-07",
+          "pnl_pct": -4.3,
+          "exit_reason": "B",
+          "bars_held": 19
+        },
+        {
+          "entry_date": "2014-05-09",
+          "exit_date": "2014-08-07",
+          "pnl_pct": 18.9,
+          "exit_reason": "B",
+          "bars_held": 62
+        },
+        {
+          "entry_date": "2014-11-04",
+          "exit_date": "2014-12-12",
+          "pnl_pct": -1.3,
+          "exit_reason": "B",
+          "bars_held": 27
+        },
+        {
+          "entry_date": "2015-02-10",
+          "exit_date": "2015-03-10",
+          "pnl_pct": 0.2,
+          "exit_reason": "B",
+          "bars_held": 19
+        },
+        {
+          "entry_date": "2015-04-09",
+          "exit_date": "2015-04-17",
+          "pnl_pct": -3.7,
+          "exit_reason": "B",
+          "bars_held": 6
+        },
+        {
+          "entry_date": "2015-10-06",
+          "exit_date": "2015-12-11",
+          "pnl_pct": 12.4,
+          "exit_reason": "B",
+          "bars_held": 47
+        },
+        {
+          "entry_date": "2016-03-10",
+          "exit_date": "2016-04-27",
+          "pnl_pct": 6.8,
+          "exit_reason": "B",
+          "bars_held": 33
+        },
+        {
+          "entry_date": "2016-06-08",
+          "exit_date": "2016-06-17",
+          "pnl_pct": -7.3,
+          "exit_reason": "B",
+          "bars_held": 7
+        },
+        {
+          "entry_date": "2016-07-13",
+          "exit_date": "2016-09-15",
+          "pnl_pct": 18.9,
+          "exit_reason": "V",
+          "bars_held": 45
+        },
+        {
+          "entry_date": "2016-10-10",
+          "exit_date": "2016-11-01",
+          "pnl_pct": -6.0,
+          "exit_reason": "B",
+          "bars_held": 16
+        },
+        {
+          "entry_date": "2016-12-21",
+          "exit_date": "2017-05-18",
+          "pnl_pct": 39.1,
+          "exit_reason": "V",
+          "bars_held": 101
+        },
+        {
+          "entry_date": "2017-07-19",
+          "exit_date": "2018-02-05",
+          "pnl_pct": 32.6,
+          "exit_reason": "B",
+          "bars_held": 138
+        },
+        {
+          "entry_date": "2018-03-12",
+          "exit_date": "2018-03-22",
+          "pnl_pct": -18.5,
+          "exit_reason": "B",
+          "bars_held": 8
+        },
+        {
+          "entry_date": "2018-05-08",
+          "exit_date": "2018-06-25",
+          "pnl_pct": 4.4,
+          "exit_reason": "B",
+          "bars_held": 33
+        },
+        {
+          "entry_date": "2018-08-13",
+          "exit_date": "2018-10-05",
+          "pnl_pct": 2.0,
+          "exit_reason": "B",
+          "bars_held": 38
+        },
+        {
+          "entry_date": "2019-02-05",
+          "exit_date": "2019-05-13",
+          "pnl_pct": 20.1,
+          "exit_reason": "B",
+          "bars_held": 67
+        },
+        {
+          "entry_date": "2019-06-18",
+          "exit_date": "2019-08-02",
+          "pnl_pct": 5.0,
+          "exit_reason": "B",
+          "bars_held": 32
+        },
+        {
+          "entry_date": "2019-09-17",
+          "exit_date": "2019-09-27",
+          "pnl_pct": -5.3,
+          "exit_reason": "B",
+          "bars_held": 8
+        },
+        {
+          "entry_date": "2019-11-07",
+          "exit_date": "2020-02-04",
+          "pnl_pct": 52.3,
+          "exit_reason": "V",
+          "bars_held": 59
+        },
+        {
+          "entry_date": "2020-08-25",
+          "exit_date": "2020-09-08",
+          "pnl_pct": -18.0,
+          "exit_reason": "B",
+          "bars_held": 9
+        },
+        {
+          "entry_date": "2020-10-20",
+          "exit_date": "2020-10-26",
+          "pnl_pct": -8.7,
+          "exit_reason": "B",
+          "bars_held": 4
+        },
+        {
+          "entry_date": "2020-11-24",
+          "exit_date": "2021-02-25",
+          "pnl_pct": 18.4,
+          "exit_reason": "B",
+          "bars_held": 62
+        },
+        {
+          "entry_date": "2021-04-09",
+          "exit_date": "2021-05-04",
+          "pnl_pct": -10.8,
+          "exit_reason": "B",
+          "bars_held": 17
+        },
+        {
+          "entry_date": "2021-06-08",
+          "exit_date": "2021-09-20",
+          "pnl_pct": 27.7,
+          "exit_reason": "B",
+          "bars_held": 72
+        },
+        {
+          "entry_date": "2021-10-26",
+          "exit_date": "2021-12-08",
+          "pnl_pct": 26.3,
+          "exit_reason": "V",
+          "bars_held": 30
+        },
+        {
+          "entry_date": "2022-03-29",
+          "exit_date": "2022-04-06",
+          "pnl_pct": -16.8,
+          "exit_reason": "B",
+          "bars_held": 6
+        },
+        {
+          "entry_date": "2022-11-25",
+          "exit_date": "2022-11-29",
+          "pnl_pct": -9.3,
+          "exit_reason": "B",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2023-04-17",
+          "exit_date": "2023-04-25",
+          "pnl_pct": -10.6,
+          "exit_reason": "B",
+          "bars_held": 6
+        },
+        {
+          "entry_date": "2023-07-11",
+          "exit_date": "2023-08-04",
+          "pnl_pct": -3.2,
+          "exit_reason": "B",
+          "bars_held": 18
+        },
+        {
+          "entry_date": "2023-11-09",
+          "exit_date": "2024-01-04",
+          "pnl_pct": 13.7,
+          "exit_reason": "B",
+          "bars_held": 37
+        },
+        {
+          "entry_date": "2024-03-26",
+          "exit_date": "2024-04-04",
+          "pnl_pct": -5.6,
+          "exit_reason": "B",
+          "bars_held": 6
+        },
+        {
+          "entry_date": "2024-05-17",
+          "exit_date": "2024-07-19",
+          "pnl_pct": 9.2,
+          "exit_reason": "B",
+          "bars_held": 42
+        },
+        {
+          "entry_date": "2024-08-21",
+          "exit_date": "2024-08-28",
+          "pnl_pct": -8.4,
+          "exit_reason": "B",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2024-09-20",
+          "exit_date": "2024-10-01",
+          "pnl_pct": -3.0,
+          "exit_reason": "B",
+          "bars_held": 7
+        },
+        {
+          "entry_date": "2024-12-02",
+          "exit_date": "2024-12-18",
+          "pnl_pct": -5.6,
+          "exit_reason": "B",
+          "bars_held": 12
+        },
+        {
+          "entry_date": "2025-02-11",
+          "exit_date": "2025-02-21",
+          "pnl_pct": -2.6,
+          "exit_reason": "B",
+          "bars_held": 7
+        },
+        {
+          "entry_date": "2025-07-02",
+          "exit_date": "2025-11-13",
+          "pnl_pct": 34.0,
+          "exit_reason": "B",
+          "bars_held": 94
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "strategy": "montauk_821",
+      "fitness": 0.5546,
+      "params": {
+        "atr_mult": 3.5,
+        "med_ema": 23,
+        "atr_period": 50,
+        "sell_buffer": 0.0,
+        "quick_lookback": 3,
+        "slope_lookback": 12,
+        "short_ema": 21,
+        "quick_thresh": -9.0,
+        "trend_ema": 80,
+        "cooldown": 9,
+        "quick_ema": 4
+      },
+      "metrics": {
+        "vs_bah": 0.0886,
+        "cagr": 20.1,
+        "max_dd": 39.5,
+        "mar": 0.509,
+        "trades": 50,
+        "trades_yr": 2.9,
+        "win_rate": 44.0,
+        "exit_reasons": {
+          "A": 7,
+          "Q": 12,
+          "E": 31
+        },
+        "regime_score": 0.6911,
+        "bull_capture": 0.6465,
+        "bear_avoidance": 0.7357,
+        "hhi": 0.0418,
+        "n_params": 10
+      },
+      "trades": [
+        {
+          "entry_date": "2009-03-24",
+          "exit_date": "2009-11-20",
+          "pnl_pct": 143.9,
+          "exit_reason": "A",
+          "bars_held": 169
+        },
+        {
+          "entry_date": "2009-12-22",
+          "exit_date": "2010-01-25",
+          "pnl_pct": -11.5,
+          "exit_reason": "Q",
+          "bars_held": 21
+        },
+        {
+          "entry_date": "2010-03-08",
+          "exit_date": "2010-05-06",
+          "pnl_pct": -7.6,
+          "exit_reason": "Q",
+          "bars_held": 42
+        },
+        {
+          "entry_date": "2010-09-22",
+          "exit_date": "2011-03-09",
+          "pnl_pct": 56.1,
+          "exit_reason": "E",
+          "bars_held": 116
+        },
+        {
+          "entry_date": "2011-04-29",
+          "exit_date": "2011-05-23",
+          "pnl_pct": -11.8,
+          "exit_reason": "E",
+          "bars_held": 16
+        },
+        {
+          "entry_date": "2011-07-14",
+          "exit_date": "2011-08-04",
+          "pnl_pct": -14.8,
+          "exit_reason": "Q",
+          "bars_held": 15
+        },
+        {
+          "entry_date": "2011-10-19",
+          "exit_date": "2011-11-21",
+          "pnl_pct": -8.4,
+          "exit_reason": "Q",
+          "bars_held": 23
+        },
+        {
+          "entry_date": "2012-01-10",
+          "exit_date": "2012-04-24",
+          "pnl_pct": 37.9,
+          "exit_reason": "E",
+          "bars_held": 72
+        },
+        {
+          "entry_date": "2012-08-08",
+          "exit_date": "2012-10-11",
+          "pnl_pct": -0.1,
+          "exit_reason": "E",
+          "bars_held": 45
+        },
+        {
+          "entry_date": "2013-01-14",
+          "exit_date": "2013-04-18",
+          "pnl_pct": -1.7,
+          "exit_reason": "E",
+          "bars_held": 65
+        },
+        {
+          "entry_date": "2013-05-02",
+          "exit_date": "2013-06-24",
+          "pnl_pct": -7.6,
+          "exit_reason": "E",
+          "bars_held": 36
+        },
+        {
+          "entry_date": "2013-07-12",
+          "exit_date": "2013-08-29",
+          "pnl_pct": -4.4,
+          "exit_reason": "E",
+          "bars_held": 34
+        },
+        {
+          "entry_date": "2013-09-13",
+          "exit_date": "2014-02-03",
+          "pnl_pct": 18.1,
+          "exit_reason": "E",
+          "bars_held": 97
+        },
+        {
+          "entry_date": "2014-02-18",
+          "exit_date": "2014-04-11",
+          "pnl_pct": -7.0,
+          "exit_reason": "E",
+          "bars_held": 38
+        },
+        {
+          "entry_date": "2014-04-30",
+          "exit_date": "2014-10-03",
+          "pnl_pct": 29.3,
+          "exit_reason": "E",
+          "bars_held": 109
+        },
+        {
+          "entry_date": "2014-11-03",
+          "exit_date": "2015-01-07",
+          "pnl_pct": -1.3,
+          "exit_reason": "E",
+          "bars_held": 44
+        },
+        {
+          "entry_date": "2015-02-12",
+          "exit_date": "2015-03-26",
+          "pnl_pct": -7.1,
+          "exit_reason": "E",
+          "bars_held": 29
+        },
+        {
+          "entry_date": "2015-04-22",
+          "exit_date": "2015-06-15",
+          "pnl_pct": -2.0,
+          "exit_reason": "E",
+          "bars_held": 37
+        },
+        {
+          "entry_date": "2015-07-24",
+          "exit_date": "2015-07-27",
+          "pnl_pct": -2.8,
+          "exit_reason": "E",
+          "bars_held": 1
+        },
+        {
+          "entry_date": "2015-10-20",
+          "exit_date": "2015-12-18",
+          "pnl_pct": 0.5,
+          "exit_reason": "E",
+          "bars_held": 42
+        },
+        {
+          "entry_date": "2016-03-09",
+          "exit_date": "2016-05-02",
+          "pnl_pct": 1.7,
+          "exit_reason": "E",
+          "bars_held": 37
+        },
+        {
+          "entry_date": "2016-05-27",
+          "exit_date": "2016-06-27",
+          "pnl_pct": -16.8,
+          "exit_reason": "E",
+          "bars_held": 20
+        },
+        {
+          "entry_date": "2016-07-12",
+          "exit_date": "2016-11-02",
+          "pnl_pct": 13.2,
+          "exit_reason": "E",
+          "bars_held": 80
+        },
+        {
+          "entry_date": "2016-11-23",
+          "exit_date": "2016-12-02",
+          "pnl_pct": -7.2,
+          "exit_reason": "E",
+          "bars_held": 6
+        },
+        {
+          "entry_date": "2016-12-16",
+          "exit_date": "2017-05-17",
+          "pnl_pct": 39.5,
+          "exit_reason": "A",
+          "bars_held": 103
+        },
+        {
+          "entry_date": "2017-06-01",
+          "exit_date": "2017-06-09",
+          "pnl_pct": -3.7,
+          "exit_reason": "A",
+          "bars_held": 6
+        },
+        {
+          "entry_date": "2017-06-23",
+          "exit_date": "2017-06-30",
+          "pnl_pct": -8.3,
+          "exit_reason": "E",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2017-07-17",
+          "exit_date": "2018-02-02",
+          "pnl_pct": 55.1,
+          "exit_reason": "A",
+          "bars_held": 139
+        },
+        {
+          "entry_date": "2018-02-23",
+          "exit_date": "2018-03-23",
+          "pnl_pct": -17.0,
+          "exit_reason": "Q",
+          "bars_held": 20
+        },
+        {
+          "entry_date": "2018-05-10",
+          "exit_date": "2018-10-10",
+          "pnl_pct": -4.7,
+          "exit_reason": "A",
+          "bars_held": 106
+        },
+        {
+          "entry_date": "2019-02-14",
+          "exit_date": "2019-05-17",
+          "pnl_pct": 26.5,
+          "exit_reason": "E",
+          "bars_held": 64
+        },
+        {
+          "entry_date": "2019-06-18",
+          "exit_date": "2019-08-05",
+          "pnl_pct": -7.8,
+          "exit_reason": "Q",
+          "bars_held": 33
+        },
+        {
+          "entry_date": "2019-09-06",
+          "exit_date": "2019-10-02",
+          "pnl_pct": -11.5,
+          "exit_reason": "E",
+          "bars_held": 18
+        },
+        {
+          "entry_date": "2019-10-16",
+          "exit_date": "2020-02-24",
+          "pnl_pct": 51.4,
+          "exit_reason": "A",
+          "bars_held": 88
+        },
+        {
+          "entry_date": "2020-05-21",
+          "exit_date": "2020-09-03",
+          "pnl_pct": 81.5,
+          "exit_reason": "A",
+          "bars_held": 73
+        },
+        {
+          "entry_date": "2020-10-08",
+          "exit_date": "2020-10-28",
+          "pnl_pct": -17.6,
+          "exit_reason": "Q",
+          "bars_held": 14
+        },
+        {
+          "entry_date": "2020-11-11",
+          "exit_date": "2021-03-04",
+          "pnl_pct": 9.2,
+          "exit_reason": "E",
+          "bars_held": 76
+        },
+        {
+          "entry_date": "2021-04-05",
+          "exit_date": "2021-05-12",
+          "pnl_pct": -15.4,
+          "exit_reason": "E",
+          "bars_held": 27
+        },
+        {
+          "entry_date": "2021-06-07",
+          "exit_date": "2021-09-28",
+          "pnl_pct": 22.8,
+          "exit_reason": "E",
+          "bars_held": 79
+        },
+        {
+          "entry_date": "2021-10-20",
+          "exit_date": "2022-01-07",
+          "pnl_pct": 11.0,
+          "exit_reason": "Q",
+          "bars_held": 55
+        },
+        {
+          "entry_date": "2022-08-08",
+          "exit_date": "2022-08-23",
+          "pnl_pct": -5.5,
+          "exit_reason": "Q",
+          "bars_held": 11
+        },
+        {
+          "entry_date": "2023-01-27",
+          "exit_date": "2023-08-10",
+          "pnl_pct": 66.4,
+          "exit_reason": "E",
+          "bars_held": 134
+        },
+        {
+          "entry_date": "2023-09-05",
+          "exit_date": "2023-09-12",
+          "pnl_pct": -10.9,
+          "exit_reason": "E",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2023-11-10",
+          "exit_date": "2024-01-04",
+          "pnl_pct": 5.6,
+          "exit_reason": "Q",
+          "bars_held": 36
+        },
+        {
+          "entry_date": "2024-01-19",
+          "exit_date": "2024-04-10",
+          "pnl_pct": 2.3,
+          "exit_reason": "E",
+          "bars_held": 56
+        },
+        {
+          "entry_date": "2024-05-15",
+          "exit_date": "2024-07-19",
+          "pnl_pct": 7.2,
+          "exit_reason": "Q",
+          "bars_held": 44
+        },
+        {
+          "entry_date": "2024-09-26",
+          "exit_date": "2025-01-07",
+          "pnl_pct": 2.9,
+          "exit_reason": "E",
+          "bars_held": 70
+        },
+        {
+          "entry_date": "2025-02-19",
+          "exit_date": "2025-02-25",
+          "pnl_pct": -16.5,
+          "exit_reason": "Q",
+          "bars_held": 4
+        },
+        {
+          "entry_date": "2025-05-19",
+          "exit_date": "2025-11-19",
+          "pnl_pct": 56.5,
+          "exit_reason": "E",
+          "bars_held": 128
+        },
+        {
+          "entry_date": "2025-12-09",
+          "exit_date": "2025-12-12",
+          "pnl_pct": -14.4,
+          "exit_reason": "E",
+          "bars_held": 3
+        }
+      ]
+    },
+    {
+      "rank": 4,
+      "strategy": "dual_momentum",
+      "fitness": 0.5516,
+      "params": {
+        "atr_mult": 3.5,
+        "trend_len": 125,
+        "atr_period": 40,
+        "short_thresh": 4.0,
+        "short_exit": -5.0,
+        "abs_period": 60,
+        "cooldown": 10,
+        "abs_exit": -5.0,
+        "abs_thresh": 0.0,
+        "short_period": 25
+      },
+      "metrics": {
+        "vs_bah": 0.1221,
+        "cagr": 22.35,
+        "max_dd": 41.9,
+        "mar": 0.534,
+        "trades": 50,
+        "trades_yr": 2.9,
+        "win_rate": 50.0,
+        "exit_reasons": {
+          "S": 33,
+          "A": 17
+        },
+        "regime_score": 0.6978,
+        "bull_capture": 0.5757,
+        "bear_avoidance": 0.8199,
+        "hhi": 0.0421,
+        "n_params": 9
+      },
+      "trades": [
+        {
+          "entry_date": "2009-04-03",
+          "exit_date": "2009-07-07",
+          "pnl_pct": 17.0,
+          "exit_reason": "S",
+          "bars_held": 64
+        },
+        {
+          "entry_date": "2009-09-04",
+          "exit_date": "2009-11-20",
+          "pnl_pct": 9.1,
+          "exit_reason": "S",
+          "bars_held": 54
+        },
+        {
+          "entry_date": "2009-12-29",
+          "exit_date": "2010-01-22",
+          "pnl_pct": -16.1,
+          "exit_reason": "A",
+          "bars_held": 16
+        },
+        {
+          "entry_date": "2010-03-01",
+          "exit_date": "2010-04-01",
+          "pnl_pct": 10.1,
+          "exit_reason": "A",
+          "bars_held": 23
+        },
+        {
+          "entry_date": "2010-09-20",
+          "exit_date": "2011-03-09",
+          "pnl_pct": 52.3,
+          "exit_reason": "S",
+          "bars_held": 118
+        },
+        {
+          "entry_date": "2011-04-26",
+          "exit_date": "2011-05-02",
+          "pnl_pct": -0.1,
+          "exit_reason": "A",
+          "bars_held": 4
+        },
+        {
+          "entry_date": "2011-07-07",
+          "exit_date": "2011-07-18",
+          "pnl_pct": -8.3,
+          "exit_reason": "A",
+          "bars_held": 7
+        },
+        {
+          "entry_date": "2011-10-27",
+          "exit_date": "2011-11-18",
+          "pnl_pct": -15.5,
+          "exit_reason": "S",
+          "bars_held": 16
+        },
+        {
+          "entry_date": "2011-12-07",
+          "exit_date": "2011-12-09",
+          "pnl_pct": -1.1,
+          "exit_reason": "S",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2012-01-17",
+          "exit_date": "2012-04-19",
+          "pnl_pct": 45.4,
+          "exit_reason": "S",
+          "bars_held": 65
+        },
+        {
+          "entry_date": "2012-08-06",
+          "exit_date": "2012-10-11",
+          "pnl_pct": 2.9,
+          "exit_reason": "S",
+          "bars_held": 47
+        },
+        {
+          "entry_date": "2013-01-23",
+          "exit_date": "2013-04-17",
+          "pnl_pct": -1.6,
+          "exit_reason": "S",
+          "bars_held": 58
+        },
+        {
+          "entry_date": "2013-05-02",
+          "exit_date": "2013-06-20",
+          "pnl_pct": -2.1,
+          "exit_reason": "S",
+          "bars_held": 34
+        },
+        {
+          "entry_date": "2013-07-11",
+          "exit_date": "2014-01-29",
+          "pnl_pct": 24.0,
+          "exit_reason": "S",
+          "bars_held": 139
+        },
+        {
+          "entry_date": "2014-02-14",
+          "exit_date": "2014-04-10",
+          "pnl_pct": -3.5,
+          "exit_reason": "S",
+          "bars_held": 38
+        },
+        {
+          "entry_date": "2014-05-12",
+          "exit_date": "2014-10-01",
+          "pnl_pct": 22.2,
+          "exit_reason": "S",
+          "bars_held": 99
+        },
+        {
+          "entry_date": "2014-10-31",
+          "exit_date": "2014-12-16",
+          "pnl_pct": -5.6,
+          "exit_reason": "S",
+          "bars_held": 31
+        },
+        {
+          "entry_date": "2015-01-22",
+          "exit_date": "2015-01-27",
+          "pnl_pct": -9.9,
+          "exit_reason": "S",
+          "bars_held": 3
+        },
+        {
+          "entry_date": "2015-03-16",
+          "exit_date": "2015-03-25",
+          "pnl_pct": -4.0,
+          "exit_reason": "A",
+          "bars_held": 7
+        },
+        {
+          "entry_date": "2015-04-16",
+          "exit_date": "2015-06-09",
+          "pnl_pct": 1.3,
+          "exit_reason": "S",
+          "bars_held": 37
+        },
+        {
+          "entry_date": "2015-07-20",
+          "exit_date": "2015-07-23",
+          "pnl_pct": -7.3,
+          "exit_reason": "A",
+          "bars_held": 3
+        },
+        {
+          "entry_date": "2015-10-23",
+          "exit_date": "2015-12-09",
+          "pnl_pct": -2.4,
+          "exit_reason": "S",
+          "bars_held": 32
+        },
+        {
+          "entry_date": "2016-03-17",
+          "exit_date": "2016-04-27",
+          "pnl_pct": -4.1,
+          "exit_reason": "S",
+          "bars_held": 28
+        },
+        {
+          "entry_date": "2016-05-31",
+          "exit_date": "2016-06-22",
+          "pnl_pct": -4.5,
+          "exit_reason": "A",
+          "bars_held": 16
+        },
+        {
+          "entry_date": "2016-07-12",
+          "exit_date": "2016-11-02",
+          "pnl_pct": 13.2,
+          "exit_reason": "S",
+          "bars_held": 80
+        },
+        {
+          "entry_date": "2016-12-07",
+          "exit_date": "2017-05-17",
+          "pnl_pct": 45.5,
+          "exit_reason": "A",
+          "bars_held": 110
+        },
+        {
+          "entry_date": "2017-06-22",
+          "exit_date": "2017-06-29",
+          "pnl_pct": -6.5,
+          "exit_reason": "S",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2017-07-17",
+          "exit_date": "2018-02-05",
+          "pnl_pct": 36.1,
+          "exit_reason": "A",
+          "bars_held": 140
+        },
+        {
+          "entry_date": "2018-03-09",
+          "exit_date": "2018-03-23",
+          "pnl_pct": -24.2,
+          "exit_reason": "S",
+          "bars_held": 10
+        },
+        {
+          "entry_date": "2018-05-02",
+          "exit_date": "2018-10-05",
+          "pnl_pct": 33.5,
+          "exit_reason": "S",
+          "bars_held": 109
+        },
+        {
+          "entry_date": "2019-02-19",
+          "exit_date": "2019-05-13",
+          "pnl_pct": 13.8,
+          "exit_reason": "S",
+          "bars_held": 58
+        },
+        {
+          "entry_date": "2019-06-18",
+          "exit_date": "2019-08-05",
+          "pnl_pct": -7.8,
+          "exit_reason": "S",
+          "bars_held": 33
+        },
+        {
+          "entry_date": "2019-09-09",
+          "exit_date": "2019-09-27",
+          "pnl_pct": -4.3,
+          "exit_reason": "A",
+          "bars_held": 14
+        },
+        {
+          "entry_date": "2019-10-25",
+          "exit_date": "2020-02-24",
+          "pnl_pct": 46.6,
+          "exit_reason": "S",
+          "bars_held": 81
+        },
+        {
+          "entry_date": "2020-06-03",
+          "exit_date": "2020-09-03",
+          "pnl_pct": 63.8,
+          "exit_reason": "A",
+          "bars_held": 65
+        },
+        {
+          "entry_date": "2020-10-12",
+          "exit_date": "2020-10-28",
+          "pnl_pct": -27.2,
+          "exit_reason": "A",
+          "bars_held": 12
+        },
+        {
+          "entry_date": "2020-11-30",
+          "exit_date": "2021-02-25",
+          "pnl_pct": 13.3,
+          "exit_reason": "S",
+          "bars_held": 59
+        },
+        {
+          "entry_date": "2021-04-01",
+          "exit_date": "2021-05-10",
+          "pnl_pct": -1.0,
+          "exit_reason": "A",
+          "bars_held": 26
+        },
+        {
+          "entry_date": "2021-06-09",
+          "exit_date": "2021-09-20",
+          "pnl_pct": 27.5,
+          "exit_reason": "S",
+          "bars_held": 71
+        },
+        {
+          "entry_date": "2021-10-22",
+          "exit_date": "2022-01-07",
+          "pnl_pct": 10.9,
+          "exit_reason": "S",
+          "bars_held": 53
+        },
+        {
+          "entry_date": "2023-02-23",
+          "exit_date": "2023-03-01",
+          "pnl_pct": -6.8,
+          "exit_reason": "A",
+          "bars_held": 4
+        },
+        {
+          "entry_date": "2023-03-20",
+          "exit_date": "2023-08-07",
+          "pnl_pct": 57.9,
+          "exit_reason": "S",
+          "bars_held": 96
+        },
+        {
+          "entry_date": "2023-11-03",
+          "exit_date": "2024-04-08",
+          "pnl_pct": 59.7,
+          "exit_reason": "S",
+          "bars_held": 105
+        },
+        {
+          "entry_date": "2024-05-15",
+          "exit_date": "2024-07-19",
+          "pnl_pct": 7.2,
+          "exit_reason": "S",
+          "bars_held": 44
+        },
+        {
+          "entry_date": "2024-10-14",
+          "exit_date": "2024-10-15",
+          "pnl_pct": -6.2,
+          "exit_reason": "A",
+          "bars_held": 1
+        },
+        {
+          "entry_date": "2024-11-05",
+          "exit_date": "2024-11-18",
+          "pnl_pct": 2.4,
+          "exit_reason": "S",
+          "bars_held": 9
+        },
+        {
+          "entry_date": "2024-12-23",
+          "exit_date": "2025-01-10",
+          "pnl_pct": -12.4,
+          "exit_reason": "A",
+          "bars_held": 11
+        },
+        {
+          "entry_date": "2025-02-14",
+          "exit_date": "2025-02-24",
+          "pnl_pct": -10.8,
+          "exit_reason": "A",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2025-05-28",
+          "exit_date": "2025-09-02",
+          "pnl_pct": 36.0,
+          "exit_reason": "S",
+          "bars_held": 66
+        },
+        {
+          "entry_date": "2025-09-18",
+          "exit_date": "2025-11-13",
+          "pnl_pct": 7.9,
+          "exit_reason": "S",
+          "bars_held": 40
+        }
+      ]
+    },
+    {
+      "rank": 5,
+      "strategy": "breakout",
+      "fitness": 0.5294,
+      "params": {
+        "lookback": 40,
+        "breakout_pct": 0.96,
+        "trail_pct": 15,
+        "atr_period": 30,
+        "atr_mult": 2.5,
+        "cooldown": 15
+      },
+      "metrics": {
+        "vs_bah": 0.0711,
+        "cagr": 18.57,
+        "max_dd": 43.9,
+        "mar": 0.423,
+        "trades": 43,
+        "trades_yr": 2.5,
+        "win_rate": 53.5,
+        "exit_reasons": {
+          "T": 34,
+          "A": 9
+        },
+        "regime_score": 0.6783,
+        "bull_capture": 0.5979,
+        "bear_avoidance": 0.7588,
+        "hhi": 0.0425,
+        "n_params": 5
+      },
+      "trades": [
+        {
+          "entry_date": "2009-04-03",
+          "exit_date": "2009-05-13",
+          "pnl_pct": -0.1,
+          "exit_reason": "T",
+          "bars_held": 27
+        },
+        {
+          "entry_date": "2009-06-05",
+          "exit_date": "2009-07-07",
+          "pnl_pct": -14.4,
+          "exit_reason": "T",
+          "bars_held": 21
+        },
+        {
+          "entry_date": "2009-07-30",
+          "exit_date": "2009-11-20",
+          "pnl_pct": 15.2,
+          "exit_reason": "T",
+          "bars_held": 80
+        },
+        {
+          "entry_date": "2009-12-30",
+          "exit_date": "2010-01-22",
+          "pnl_pct": -17.7,
+          "exit_reason": "T",
+          "bars_held": 15
+        },
+        {
+          "entry_date": "2010-03-16",
+          "exit_date": "2010-05-05",
+          "pnl_pct": -2.1,
+          "exit_reason": "T",
+          "bars_held": 35
+        },
+        {
+          "entry_date": "2010-09-20",
+          "exit_date": "2010-11-16",
+          "pnl_pct": 14.5,
+          "exit_reason": "T",
+          "bars_held": 41
+        },
+        {
+          "entry_date": "2010-12-09",
+          "exit_date": "2011-02-22",
+          "pnl_pct": 19.0,
+          "exit_reason": "A",
+          "bars_held": 50
+        },
+        {
+          "entry_date": "2011-05-03",
+          "exit_date": "2011-06-06",
+          "pnl_pct": -14.5,
+          "exit_reason": "T",
+          "bars_held": 23
+        },
+        {
+          "entry_date": "2011-07-19",
+          "exit_date": "2011-08-02",
+          "pnl_pct": -14.1,
+          "exit_reason": "T",
+          "bars_held": 10
+        },
+        {
+          "entry_date": "2011-10-11",
+          "exit_date": "2011-11-18",
+          "pnl_pct": -2.2,
+          "exit_reason": "T",
+          "bars_held": 28
+        },
+        {
+          "entry_date": "2012-01-17",
+          "exit_date": "2012-04-23",
+          "pnl_pct": 39.5,
+          "exit_reason": "T",
+          "bars_held": 67
+        },
+        {
+          "entry_date": "2012-07-19",
+          "exit_date": "2012-10-19",
+          "pnl_pct": 0.7,
+          "exit_reason": "T",
+          "bars_held": 65
+        },
+        {
+          "entry_date": "2012-12-19",
+          "exit_date": "2013-06-24",
+          "pnl_pct": 8.7,
+          "exit_reason": "T",
+          "bars_held": 127
+        },
+        {
+          "entry_date": "2013-07-17",
+          "exit_date": "2014-07-31",
+          "pnl_pct": 78.5,
+          "exit_reason": "A",
+          "bars_held": 262
+        },
+        {
+          "entry_date": "2014-08-22",
+          "exit_date": "2014-10-10",
+          "pnl_pct": -14.6,
+          "exit_reason": "T",
+          "bars_held": 34
+        },
+        {
+          "entry_date": "2014-11-03",
+          "exit_date": "2014-12-16",
+          "pnl_pct": -6.8,
+          "exit_reason": "T",
+          "bars_held": 30
+        },
+        {
+          "entry_date": "2015-02-12",
+          "exit_date": "2015-07-08",
+          "pnl_pct": -10.1,
+          "exit_reason": "T",
+          "bars_held": 100
+        },
+        {
+          "entry_date": "2015-10-15",
+          "exit_date": "2016-01-06",
+          "pnl_pct": -2.4,
+          "exit_reason": "T",
+          "bars_held": 56
+        },
+        {
+          "entry_date": "2016-03-03",
+          "exit_date": "2016-06-24",
+          "pnl_pct": 0.5,
+          "exit_reason": "A",
+          "bars_held": 79
+        },
+        {
+          "entry_date": "2016-07-19",
+          "exit_date": "2016-09-09",
+          "pnl_pct": 5.5,
+          "exit_reason": "A",
+          "bars_held": 37
+        },
+        {
+          "entry_date": "2016-10-03",
+          "exit_date": "2017-05-17",
+          "pnl_pct": 47.9,
+          "exit_reason": "A",
+          "bars_held": 156
+        },
+        {
+          "entry_date": "2017-07-14",
+          "exit_date": "2017-11-29",
+          "pnl_pct": 35.3,
+          "exit_reason": "A",
+          "bars_held": 96
+        },
+        {
+          "entry_date": "2017-12-21",
+          "exit_date": "2018-02-02",
+          "pnl_pct": 7.5,
+          "exit_reason": "A",
+          "bars_held": 28
+        },
+        {
+          "entry_date": "2018-03-08",
+          "exit_date": "2018-03-22",
+          "pnl_pct": -13.1,
+          "exit_reason": "T",
+          "bars_held": 10
+        },
+        {
+          "entry_date": "2018-05-14",
+          "exit_date": "2018-10-10",
+          "pnl_pct": -4.2,
+          "exit_reason": "T",
+          "bars_held": 104
+        },
+        {
+          "entry_date": "2019-02-04",
+          "exit_date": "2019-05-13",
+          "pnl_pct": 23.1,
+          "exit_reason": "T",
+          "bars_held": 68
+        },
+        {
+          "entry_date": "2019-07-01",
+          "exit_date": "2019-08-05",
+          "pnl_pct": -14.3,
+          "exit_reason": "T",
+          "bars_held": 24
+        },
+        {
+          "entry_date": "2019-10-11",
+          "exit_date": "2020-01-31",
+          "pnl_pct": 55.9,
+          "exit_reason": "A",
+          "bars_held": 76
+        },
+        {
+          "entry_date": "2020-05-07",
+          "exit_date": "2020-06-11",
+          "pnl_pct": 12.7,
+          "exit_reason": "T",
+          "bars_held": 24
+        },
+        {
+          "entry_date": "2020-07-06",
+          "exit_date": "2020-09-03",
+          "pnl_pct": 34.1,
+          "exit_reason": "T",
+          "bars_held": 43
+        },
+        {
+          "entry_date": "2020-12-01",
+          "exit_date": "2021-02-25",
+          "pnl_pct": 8.9,
+          "exit_reason": "T",
+          "bars_held": 58
+        },
+        {
+          "entry_date": "2021-04-08",
+          "exit_date": "2021-05-10",
+          "pnl_pct": -11.1,
+          "exit_reason": "T",
+          "bars_held": 22
+        },
+        {
+          "entry_date": "2021-06-14",
+          "exit_date": "2021-09-30",
+          "pnl_pct": 11.3,
+          "exit_reason": "T",
+          "bars_held": 76
+        },
+        {
+          "entry_date": "2021-10-25",
+          "exit_date": "2022-01-07",
+          "pnl_pct": 9.7,
+          "exit_reason": "T",
+          "bars_held": 52
+        },
+        {
+          "entry_date": "2022-07-29",
+          "exit_date": "2022-08-26",
+          "pnl_pct": -10.7,
+          "exit_reason": "T",
+          "bars_held": 20
+        },
+        {
+          "entry_date": "2022-11-11",
+          "exit_date": "2022-12-16",
+          "pnl_pct": -15.0,
+          "exit_reason": "T",
+          "bars_held": 24
+        },
+        {
+          "entry_date": "2023-02-01",
+          "exit_date": "2023-02-21",
+          "pnl_pct": -7.1,
+          "exit_reason": "T",
+          "bars_held": 13
+        },
+        {
+          "entry_date": "2023-03-21",
+          "exit_date": "2023-08-08",
+          "pnl_pct": 50.9,
+          "exit_reason": "T",
+          "bars_held": 96
+        },
+        {
+          "entry_date": "2023-11-06",
+          "exit_date": "2024-04-17",
+          "pnl_pct": 39.6,
+          "exit_reason": "T",
+          "bars_held": 111
+        },
+        {
+          "entry_date": "2024-05-15",
+          "exit_date": "2024-07-17",
+          "pnl_pct": 12.7,
+          "exit_reason": "T",
+          "bars_held": 42
+        },
+        {
+          "entry_date": "2024-09-26",
+          "exit_date": "2025-01-10",
+          "pnl_pct": -4.0,
+          "exit_reason": "T",
+          "bars_held": 72
+        },
+        {
+          "entry_date": "2025-02-18",
+          "exit_date": "2025-02-25",
+          "pnl_pct": -16.5,
+          "exit_reason": "T",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2025-05-12",
+          "exit_date": "2025-10-10",
+          "pnl_pct": 70.9,
+          "exit_reason": "A",
+          "bars_held": 105
+        }
+      ]
+    },
+    {
+      "rank": 6,
+      "strategy": "keltner_squeeze",
+      "fitness": 0.5186,
+      "params": {
+        "kelt_len": 30,
+        "trend_len": 75,
+        "mom_len": 16,
+        "bb_mult": 1.5,
+        "kelt_mult": 1.5,
+        "cooldown": 0,
+        "bb_len": 15
+      },
+      "metrics": {
+        "vs_bah": 0.0259,
+        "cagr": 11.82,
+        "max_dd": 19.2,
+        "mar": 0.615,
+        "trades": 40,
+        "trades_yr": 2.3,
+        "win_rate": 60.0,
+        "exit_reasons": {
+          "M": 29,
+          "R": 11
+        },
+        "regime_score": 0.5737,
+        "bull_capture": 0.2482,
+        "bear_avoidance": 0.8991,
+        "hhi": 0.0532,
+        "n_params": 6
+      },
+      "trades": [
+        {
+          "entry_date": "2009-06-01",
+          "exit_date": "2009-06-23",
+          "pnl_pct": -7.4,
+          "exit_reason": "M",
+          "bars_held": 16
+        },
+        {
+          "entry_date": "2009-12-23",
+          "exit_date": "2010-01-20",
+          "pnl_pct": 0.9,
+          "exit_reason": "M",
+          "bars_held": 17
+        },
+        {
+          "entry_date": "2010-03-10",
+          "exit_date": "2010-04-06",
+          "pnl_pct": 5.1,
+          "exit_reason": "R",
+          "bars_held": 18
+        },
+        {
+          "entry_date": "2010-04-12",
+          "exit_date": "2010-05-04",
+          "pnl_pct": -5.9,
+          "exit_reason": "M",
+          "bars_held": 16
+        },
+        {
+          "entry_date": "2010-12-06",
+          "exit_date": "2011-02-23",
+          "pnl_pct": 15.6,
+          "exit_reason": "M",
+          "bars_held": 54
+        },
+        {
+          "entry_date": "2011-04-25",
+          "exit_date": "2011-05-11",
+          "pnl_pct": 1.5,
+          "exit_reason": "R",
+          "bars_held": 12
+        },
+        {
+          "entry_date": "2011-10-11",
+          "exit_date": "2011-11-09",
+          "pnl_pct": 3.1,
+          "exit_reason": "M",
+          "bars_held": 21
+        },
+        {
+          "entry_date": "2012-01-06",
+          "exit_date": "2012-01-11",
+          "pnl_pct": 1.9,
+          "exit_reason": "R",
+          "bars_held": 3
+        },
+        {
+          "entry_date": "2012-01-18",
+          "exit_date": "2012-04-10",
+          "pnl_pct": 42.8,
+          "exit_reason": "M",
+          "bars_held": 57
+        },
+        {
+          "entry_date": "2012-07-31",
+          "exit_date": "2012-08-02",
+          "pnl_pct": -3.2,
+          "exit_reason": "R",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2012-08-06",
+          "exit_date": "2012-09-28",
+          "pnl_pct": 12.0,
+          "exit_reason": "M",
+          "bars_held": 38
+        },
+        {
+          "entry_date": "2013-01-04",
+          "exit_date": "2013-01-15",
+          "pnl_pct": -3.2,
+          "exit_reason": "M",
+          "bars_held": 7
+        },
+        {
+          "entry_date": "2013-03-08",
+          "exit_date": "2013-03-25",
+          "pnl_pct": -0.8,
+          "exit_reason": "R",
+          "bars_held": 11
+        },
+        {
+          "entry_date": "2013-09-10",
+          "exit_date": "2013-10-03",
+          "pnl_pct": -1.9,
+          "exit_reason": "M",
+          "bars_held": 17
+        },
+        {
+          "entry_date": "2013-10-16",
+          "exit_date": "2014-01-24",
+          "pnl_pct": 24.0,
+          "exit_reason": "M",
+          "bars_held": 68
+        },
+        {
+          "entry_date": "2014-04-01",
+          "exit_date": "2014-04-08",
+          "pnl_pct": -6.6,
+          "exit_reason": "M",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2014-05-23",
+          "exit_date": "2014-08-01",
+          "pnl_pct": 12.8,
+          "exit_reason": "M",
+          "bars_held": 48
+        },
+        {
+          "entry_date": "2015-04-27",
+          "exit_date": "2015-05-20",
+          "pnl_pct": 0.9,
+          "exit_reason": "M",
+          "bars_held": 17
+        },
+        {
+          "entry_date": "2017-04-24",
+          "exit_date": "2017-06-14",
+          "pnl_pct": 10.2,
+          "exit_reason": "M",
+          "bars_held": 36
+        },
+        {
+          "entry_date": "2018-05-09",
+          "exit_date": "2018-05-30",
+          "pnl_pct": 2.8,
+          "exit_reason": "R",
+          "bars_held": 14
+        },
+        {
+          "entry_date": "2018-06-01",
+          "exit_date": "2018-06-25",
+          "pnl_pct": -7.0,
+          "exit_reason": "M",
+          "bars_held": 16
+        },
+        {
+          "entry_date": "2018-08-27",
+          "exit_date": "2018-09-19",
+          "pnl_pct": -3.4,
+          "exit_reason": "M",
+          "bars_held": 16
+        },
+        {
+          "entry_date": "2019-02-06",
+          "exit_date": "2019-05-07",
+          "pnl_pct": 36.1,
+          "exit_reason": "M",
+          "bars_held": 62
+        },
+        {
+          "entry_date": "2019-09-05",
+          "exit_date": "2019-09-06",
+          "pnl_pct": -0.6,
+          "exit_reason": "R",
+          "bars_held": 1
+        },
+        {
+          "entry_date": "2019-09-11",
+          "exit_date": "2019-09-16",
+          "pnl_pct": -1.4,
+          "exit_reason": "R",
+          "bars_held": 3
+        },
+        {
+          "entry_date": "2019-09-17",
+          "exit_date": "2019-09-18",
+          "pnl_pct": 0.1,
+          "exit_reason": "R",
+          "bars_held": 1
+        },
+        {
+          "entry_date": "2019-10-28",
+          "exit_date": "2019-12-03",
+          "pnl_pct": 7.3,
+          "exit_reason": "M",
+          "bars_held": 25
+        },
+        {
+          "entry_date": "2020-05-20",
+          "exit_date": "2020-07-28",
+          "pnl_pct": 23.3,
+          "exit_reason": "M",
+          "bars_held": 47
+        },
+        {
+          "entry_date": "2020-09-30",
+          "exit_date": "2020-10-06",
+          "pnl_pct": -3.2,
+          "exit_reason": "M",
+          "bars_held": 4
+        },
+        {
+          "entry_date": "2020-12-03",
+          "exit_date": "2021-01-15",
+          "pnl_pct": 5.4,
+          "exit_reason": "M",
+          "bars_held": 29
+        },
+        {
+          "entry_date": "2021-04-06",
+          "exit_date": "2021-04-30",
+          "pnl_pct": 3.7,
+          "exit_reason": "M",
+          "bars_held": 18
+        },
+        {
+          "entry_date": "2021-06-15",
+          "exit_date": "2021-08-17",
+          "pnl_pct": 26.2,
+          "exit_reason": "M",
+          "bars_held": 44
+        },
+        {
+          "entry_date": "2022-07-29",
+          "exit_date": "2022-08-22",
+          "pnl_pct": -1.8,
+          "exit_reason": "M",
+          "bars_held": 16
+        },
+        {
+          "entry_date": "2023-03-21",
+          "exit_date": "2023-04-24",
+          "pnl_pct": 3.3,
+          "exit_reason": "M",
+          "bars_held": 23
+        },
+        {
+          "entry_date": "2023-05-01",
+          "exit_date": "2023-05-02",
+          "pnl_pct": -2.9,
+          "exit_reason": "M",
+          "bars_held": 1
+        },
+        {
+          "entry_date": "2023-05-11",
+          "exit_date": "2023-05-16",
+          "pnl_pct": 2.2,
+          "exit_reason": "R",
+          "bars_held": 3
+        },
+        {
+          "entry_date": "2023-05-17",
+          "exit_date": "2023-07-10",
+          "pnl_pct": 33.5,
+          "exit_reason": "M",
+          "bars_held": 35
+        },
+        {
+          "entry_date": "2024-10-11",
+          "exit_date": "2024-10-25",
+          "pnl_pct": -1.4,
+          "exit_reason": "R",
+          "bars_held": 10
+        },
+        {
+          "entry_date": "2024-12-06",
+          "exit_date": "2024-12-18",
+          "pnl_pct": -10.9,
+          "exit_reason": "M",
+          "bars_held": 8
+        },
+        {
+          "entry_date": "2025-09-12",
+          "exit_date": "2025-10-14",
+          "pnl_pct": 10.4,
+          "exit_reason": "M",
+          "bars_held": 22
+        }
+      ]
+    },
+    {
+      "rank": 7,
+      "strategy": "adx_trend",
+      "fitness": 0.5116,
+      "params": {
+        "trend_len": 100,
+        "exit_adx": 10.0,
+        "adx_len": 10,
+        "entry_adx": 25.0,
+        "cooldown": 0
+      },
+      "metrics": {
+        "vs_bah": 0.007,
+        "cagr": 3.65,
+        "max_dd": 33.8,
+        "mar": 0.108,
+        "trades": 52,
+        "trades_yr": 3.0,
+        "win_rate": 51.9,
+        "exit_reasons": {
+          "D": 52
+        },
+        "regime_score": 0.6156,
+        "bull_capture": 0.2995,
+        "bear_avoidance": 0.9318,
+        "hhi": 0.0501,
+        "n_params": 4
+      },
+      "trades": [
+        {
+          "entry_date": "2009-03-23",
+          "exit_date": "2009-03-30",
+          "pnl_pct": -8.7,
+          "exit_reason": "D",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2009-04-28",
+          "exit_date": "2009-05-13",
+          "pnl_pct": -6.9,
+          "exit_reason": "D",
+          "bars_held": 11
+        },
+        {
+          "entry_date": "2009-06-01",
+          "exit_date": "2009-06-17",
+          "pnl_pct": -0.1,
+          "exit_reason": "D",
+          "bars_held": 12
+        },
+        {
+          "entry_date": "2009-07-20",
+          "exit_date": "2009-08-11",
+          "pnl_pct": 2.9,
+          "exit_reason": "D",
+          "bars_held": 16
+        },
+        {
+          "entry_date": "2009-08-26",
+          "exit_date": "2009-10-01",
+          "pnl_pct": 3.8,
+          "exit_reason": "D",
+          "bars_held": 25
+        },
+        {
+          "entry_date": "2009-11-10",
+          "exit_date": "2009-11-20",
+          "pnl_pct": -15.4,
+          "exit_reason": "D",
+          "bars_held": 8
+        },
+        {
+          "entry_date": "2009-12-31",
+          "exit_date": "2010-01-12",
+          "pnl_pct": -2.1,
+          "exit_reason": "D",
+          "bars_held": 7
+        },
+        {
+          "entry_date": "2010-03-12",
+          "exit_date": "2010-04-27",
+          "pnl_pct": 9.2,
+          "exit_reason": "D",
+          "bars_held": 31
+        },
+        {
+          "entry_date": "2010-10-13",
+          "exit_date": "2010-11-12",
+          "pnl_pct": 9.7,
+          "exit_reason": "D",
+          "bars_held": 22
+        },
+        {
+          "entry_date": "2010-12-09",
+          "exit_date": "2010-12-31",
+          "pnl_pct": 3.5,
+          "exit_reason": "D",
+          "bars_held": 15
+        },
+        {
+          "entry_date": "2011-01-06",
+          "exit_date": "2011-01-28",
+          "pnl_pct": 1.5,
+          "exit_reason": "D",
+          "bars_held": 15
+        },
+        {
+          "entry_date": "2012-01-19",
+          "exit_date": "2012-03-06",
+          "pnl_pct": 22.8,
+          "exit_reason": "D",
+          "bars_held": 32
+        },
+        {
+          "entry_date": "2012-08-15",
+          "exit_date": "2012-09-26",
+          "pnl_pct": 5.7,
+          "exit_reason": "D",
+          "bars_held": 29
+        },
+        {
+          "entry_date": "2013-05-06",
+          "exit_date": "2013-06-05",
+          "pnl_pct": -0.8,
+          "exit_reason": "D",
+          "bars_held": 21
+        },
+        {
+          "entry_date": "2013-07-18",
+          "exit_date": "2013-07-19",
+          "pnl_pct": -5.0,
+          "exit_reason": "D",
+          "bars_held": 1
+        },
+        {
+          "entry_date": "2013-10-29",
+          "exit_date": "2013-11-20",
+          "pnl_pct": 0.4,
+          "exit_reason": "D",
+          "bars_held": 16
+        },
+        {
+          "entry_date": "2013-12-09",
+          "exit_date": "2013-12-12",
+          "pnl_pct": -5.8,
+          "exit_reason": "D",
+          "bars_held": 3
+        },
+        {
+          "entry_date": "2014-02-18",
+          "exit_date": "2014-03-13",
+          "pnl_pct": -2.7,
+          "exit_reason": "D",
+          "bars_held": 17
+        },
+        {
+          "entry_date": "2014-05-29",
+          "exit_date": "2014-07-10",
+          "pnl_pct": 8.9,
+          "exit_reason": "D",
+          "bars_held": 29
+        },
+        {
+          "entry_date": "2014-08-21",
+          "exit_date": "2014-09-15",
+          "pnl_pct": -1.7,
+          "exit_reason": "D",
+          "bars_held": 16
+        },
+        {
+          "entry_date": "2015-02-20",
+          "exit_date": "2015-03-06",
+          "pnl_pct": -5.0,
+          "exit_reason": "D",
+          "bars_held": 10
+        },
+        {
+          "entry_date": "2015-10-20",
+          "exit_date": "2015-11-13",
+          "pnl_pct": 1.6,
+          "exit_reason": "D",
+          "bars_held": 18
+        },
+        {
+          "entry_date": "2016-03-17",
+          "exit_date": "2016-04-12",
+          "pnl_pct": 2.8,
+          "exit_reason": "D",
+          "bars_held": 17
+        },
+        {
+          "entry_date": "2016-05-26",
+          "exit_date": "2016-06-13",
+          "pnl_pct": -3.0,
+          "exit_reason": "D",
+          "bars_held": 11
+        },
+        {
+          "entry_date": "2016-07-19",
+          "exit_date": "2016-08-24",
+          "pnl_pct": 11.3,
+          "exit_reason": "D",
+          "bars_held": 26
+        },
+        {
+          "entry_date": "2016-12-16",
+          "exit_date": "2016-12-30",
+          "pnl_pct": -2.3,
+          "exit_reason": "D",
+          "bars_held": 9
+        },
+        {
+          "entry_date": "2017-02-13",
+          "exit_date": "2017-03-21",
+          "pnl_pct": 7.2,
+          "exit_reason": "D",
+          "bars_held": 25
+        },
+        {
+          "entry_date": "2017-04-27",
+          "exit_date": "2017-05-17",
+          "pnl_pct": 1.0,
+          "exit_reason": "D",
+          "bars_held": 14
+        },
+        {
+          "entry_date": "2017-07-17",
+          "exit_date": "2017-08-10",
+          "pnl_pct": -1.5,
+          "exit_reason": "D",
+          "bars_held": 18
+        },
+        {
+          "entry_date": "2017-10-12",
+          "exit_date": "2017-10-25",
+          "pnl_pct": 2.1,
+          "exit_reason": "D",
+          "bars_held": 9
+        },
+        {
+          "entry_date": "2018-01-09",
+          "exit_date": "2018-02-02",
+          "pnl_pct": -0.6,
+          "exit_reason": "D",
+          "bars_held": 17
+        },
+        {
+          "entry_date": "2018-06-12",
+          "exit_date": "2018-06-19",
+          "pnl_pct": -2.4,
+          "exit_reason": "D",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2019-02-13",
+          "exit_date": "2019-03-07",
+          "pnl_pct": 3.2,
+          "exit_reason": "D",
+          "bars_held": 15
+        },
+        {
+          "entry_date": "2019-06-20",
+          "exit_date": "2019-07-31",
+          "pnl_pct": 6.7,
+          "exit_reason": "D",
+          "bars_held": 28
+        },
+        {
+          "entry_date": "2019-11-11",
+          "exit_date": "2019-12-02",
+          "pnl_pct": 2.1,
+          "exit_reason": "D",
+          "bars_held": 14
+        },
+        {
+          "entry_date": "2019-12-17",
+          "exit_date": "2020-02-21",
+          "pnl_pct": 32.2,
+          "exit_reason": "D",
+          "bars_held": 44
+        },
+        {
+          "entry_date": "2020-06-05",
+          "exit_date": "2020-06-12",
+          "pnl_pct": -7.3,
+          "exit_reason": "D",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2020-07-20",
+          "exit_date": "2020-07-24",
+          "pnl_pct": -11.6,
+          "exit_reason": "D",
+          "bars_held": 4
+        },
+        {
+          "entry_date": "2020-08-06",
+          "exit_date": "2020-09-04",
+          "pnl_pct": 4.5,
+          "exit_reason": "D",
+          "bars_held": 21
+        },
+        {
+          "entry_date": "2021-04-09",
+          "exit_date": "2021-04-29",
+          "pnl_pct": -0.8,
+          "exit_reason": "D",
+          "bars_held": 14
+        },
+        {
+          "entry_date": "2021-06-29",
+          "exit_date": "2021-07-19",
+          "pnl_pct": 0.5,
+          "exit_reason": "D",
+          "bars_held": 13
+        },
+        {
+          "entry_date": "2021-12-29",
+          "exit_date": "2022-01-05",
+          "pnl_pct": -12.8,
+          "exit_reason": "D",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2023-01-24",
+          "exit_date": "2023-02-21",
+          "pnl_pct": 2.8,
+          "exit_reason": "D",
+          "bars_held": 19
+        },
+        {
+          "entry_date": "2023-03-24",
+          "exit_date": "2023-04-21",
+          "pnl_pct": 2.2,
+          "exit_reason": "D",
+          "bars_held": 19
+        },
+        {
+          "entry_date": "2023-05-19",
+          "exit_date": "2023-08-02",
+          "pnl_pct": 30.1,
+          "exit_reason": "D",
+          "bars_held": 50
+        },
+        {
+          "entry_date": "2023-08-30",
+          "exit_date": "2023-09-12",
+          "pnl_pct": -8.0,
+          "exit_reason": "D",
+          "bars_held": 8
+        },
+        {
+          "entry_date": "2024-05-16",
+          "exit_date": "2024-05-31",
+          "pnl_pct": -3.8,
+          "exit_reason": "D",
+          "bars_held": 10
+        },
+        {
+          "entry_date": "2024-06-11",
+          "exit_date": "2024-07-17",
+          "pnl_pct": 3.6,
+          "exit_reason": "D",
+          "bars_held": 24
+        },
+        {
+          "entry_date": "2024-10-14",
+          "exit_date": "2024-10-23",
+          "pnl_pct": -7.0,
+          "exit_reason": "D",
+          "bars_held": 7
+        },
+        {
+          "entry_date": "2025-05-14",
+          "exit_date": "2025-08-19",
+          "pnl_pct": 33.6,
+          "exit_reason": "D",
+          "bars_held": 66
+        },
+        {
+          "entry_date": "2025-09-22",
+          "exit_date": "2025-10-10",
+          "pnl_pct": -5.5,
+          "exit_reason": "D",
+          "bars_held": 14
+        },
+        {
+          "entry_date": "2025-10-29",
+          "exit_date": "2025-11-04",
+          "pnl_pct": -10.0,
+          "exit_reason": "D",
+          "bars_held": 4
+        }
+      ]
+    },
+    {
+      "rank": 8,
+      "strategy": "williams_midline_reclaim",
+      "fitness": 0.4966,
+      "params": {
+        "rebreak_wr": -65.0,
+        "vol_long": 60,
+        "trend_len": 125,
+        "willr_len": 14,
+        "vol_ratio_max": 1.0,
+        "entry_wr": -70.0,
+        "channel_len": 60,
+        "vol_short": 25,
+        "vol_exit_ratio": 1.6,
+        "exit_wr": -5.0,
+        "cooldown": 10
+      },
+      "metrics": {
+        "vs_bah": 0.0183,
+        "cagr": 9.59,
+        "max_dd": 20.1,
+        "mar": 0.478,
+        "trades": 50,
+        "trades_yr": 2.9,
+        "win_rate": 64.0,
+        "exit_reasons": {
+          "W": 32,
+          "M": 18
+        },
+        "regime_score": 0.5521,
+        "bull_capture": 0.1227,
+        "bear_avoidance": 0.9814,
+        "hhi": 0.0624,
+        "n_params": 10
+      },
+      "trades": [
+        {
+          "entry_date": "2009-05-18",
+          "exit_date": "2009-05-29",
+          "pnl_pct": 8.6,
+          "exit_reason": "W",
+          "bars_held": 8
+        },
+        {
+          "entry_date": "2009-06-24",
+          "exit_date": "2009-07-07",
+          "pnl_pct": -9.5,
+          "exit_reason": "M",
+          "bars_held": 8
+        },
+        {
+          "entry_date": "2009-08-12",
+          "exit_date": "2009-08-13",
+          "pnl_pct": 2.6,
+          "exit_reason": "W",
+          "bars_held": 1
+        },
+        {
+          "entry_date": "2009-09-03",
+          "exit_date": "2009-09-16",
+          "pnl_pct": 19.1,
+          "exit_reason": "W",
+          "bars_held": 8
+        },
+        {
+          "entry_date": "2009-10-06",
+          "exit_date": "2009-11-16",
+          "pnl_pct": 22.2,
+          "exit_reason": "W",
+          "bars_held": 29
+        },
+        {
+          "entry_date": "2010-11-19",
+          "exit_date": "2010-12-06",
+          "pnl_pct": 7.9,
+          "exit_reason": "W",
+          "bars_held": 10
+        },
+        {
+          "entry_date": "2011-05-18",
+          "exit_date": "2011-05-20",
+          "pnl_pct": -0.9,
+          "exit_reason": "M",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2011-11-02",
+          "exit_date": "2011-11-21",
+          "pnl_pct": -11.2,
+          "exit_reason": "M",
+          "bars_held": 13
+        },
+        {
+          "entry_date": "2012-03-07",
+          "exit_date": "2012-03-13",
+          "pnl_pct": 11.6,
+          "exit_reason": "W",
+          "bars_held": 4
+        },
+        {
+          "entry_date": "2012-08-31",
+          "exit_date": "2012-09-19",
+          "pnl_pct": 11.9,
+          "exit_reason": "W",
+          "bars_held": 12
+        },
+        {
+          "entry_date": "2012-10-16",
+          "exit_date": "2012-10-18",
+          "pnl_pct": -5.0,
+          "exit_reason": "M",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2013-02-22",
+          "exit_date": "2013-03-11",
+          "pnl_pct": 6.8,
+          "exit_reason": "W",
+          "bars_held": 11
+        },
+        {
+          "entry_date": "2013-04-02",
+          "exit_date": "2013-04-05",
+          "pnl_pct": -5.2,
+          "exit_reason": "M",
+          "bars_held": 3
+        },
+        {
+          "entry_date": "2013-06-03",
+          "exit_date": "2013-06-20",
+          "pnl_pct": -9.5,
+          "exit_reason": "M",
+          "bars_held": 13
+        },
+        {
+          "entry_date": "2013-08-23",
+          "exit_date": "2013-09-18",
+          "pnl_pct": 6.0,
+          "exit_reason": "W",
+          "bars_held": 17
+        },
+        {
+          "entry_date": "2013-10-04",
+          "exit_date": "2013-10-08",
+          "pnl_pct": -6.7,
+          "exit_reason": "M",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2013-12-16",
+          "exit_date": "2013-12-20",
+          "pnl_pct": 5.3,
+          "exit_reason": "W",
+          "bars_held": 4
+        },
+        {
+          "entry_date": "2014-03-17",
+          "exit_date": "2014-04-02",
+          "pnl_pct": 7.3,
+          "exit_reason": "W",
+          "bars_held": 12
+        },
+        {
+          "entry_date": "2014-09-10",
+          "exit_date": "2014-09-18",
+          "pnl_pct": 2.1,
+          "exit_reason": "W",
+          "bars_held": 6
+        },
+        {
+          "entry_date": "2014-12-18",
+          "exit_date": "2014-12-22",
+          "pnl_pct": 3.6,
+          "exit_reason": "W",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2015-03-16",
+          "exit_date": "2015-03-25",
+          "pnl_pct": -4.0,
+          "exit_reason": "M",
+          "bars_held": 7
+        },
+        {
+          "entry_date": "2015-04-20",
+          "exit_date": "2015-04-22",
+          "pnl_pct": 2.6,
+          "exit_reason": "W",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2015-06-10",
+          "exit_date": "2015-06-15",
+          "pnl_pct": -4.0,
+          "exit_reason": "M",
+          "bars_held": 3
+        },
+        {
+          "entry_date": "2015-11-16",
+          "exit_date": "2015-12-01",
+          "pnl_pct": 9.1,
+          "exit_reason": "W",
+          "bars_held": 10
+        },
+        {
+          "entry_date": "2016-05-16",
+          "exit_date": "2016-05-24",
+          "pnl_pct": 4.5,
+          "exit_reason": "W",
+          "bars_held": 6
+        },
+        {
+          "entry_date": "2016-06-16",
+          "exit_date": "2016-06-17",
+          "pnl_pct": -2.5,
+          "exit_reason": "M",
+          "bars_held": 1
+        },
+        {
+          "entry_date": "2016-09-12",
+          "exit_date": "2016-09-21",
+          "pnl_pct": 5.1,
+          "exit_reason": "W",
+          "bars_held": 7
+        },
+        {
+          "entry_date": "2016-11-07",
+          "exit_date": "2016-11-10",
+          "pnl_pct": -4.0,
+          "exit_reason": "M",
+          "bars_held": 3
+        },
+        {
+          "entry_date": "2017-04-17",
+          "exit_date": "2017-04-24",
+          "pnl_pct": 5.3,
+          "exit_reason": "W",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2017-08-14",
+          "exit_date": "2017-10-03",
+          "pnl_pct": 7.0,
+          "exit_reason": "W",
+          "bars_held": 35
+        },
+        {
+          "entry_date": "2018-03-26",
+          "exit_date": "2018-03-27",
+          "pnl_pct": -9.7,
+          "exit_reason": "M",
+          "bars_held": 1
+        },
+        {
+          "entry_date": "2018-07-02",
+          "exit_date": "2018-07-12",
+          "pnl_pct": 10.5,
+          "exit_reason": "W",
+          "bars_held": 7
+        },
+        {
+          "entry_date": "2018-09-11",
+          "exit_date": "2018-09-28",
+          "pnl_pct": 3.9,
+          "exit_reason": "W",
+          "bars_held": 13
+        },
+        {
+          "entry_date": "2019-03-08",
+          "exit_date": "2019-03-18",
+          "pnl_pct": 16.3,
+          "exit_reason": "W",
+          "bars_held": 6
+        },
+        {
+          "entry_date": "2019-05-10",
+          "exit_date": "2019-05-13",
+          "pnl_pct": -11.3,
+          "exit_reason": "M",
+          "bars_held": 1
+        },
+        {
+          "entry_date": "2019-09-25",
+          "exit_date": "2019-09-27",
+          "pnl_pct": -3.8,
+          "exit_reason": "M",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2020-06-12",
+          "exit_date": "2020-07-31",
+          "pnl_pct": 35.3,
+          "exit_reason": "W",
+          "bars_held": 34
+        },
+        {
+          "entry_date": "2021-01-07",
+          "exit_date": "2021-02-04",
+          "pnl_pct": 12.3,
+          "exit_reason": "W",
+          "bars_held": 19
+        },
+        {
+          "entry_date": "2021-05-07",
+          "exit_date": "2021-05-11",
+          "pnl_pct": -8.2,
+          "exit_reason": "M",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2021-07-20",
+          "exit_date": "2021-07-23",
+          "pnl_pct": 8.1,
+          "exit_reason": "W",
+          "bars_held": 3
+        },
+        {
+          "entry_date": "2021-09-15",
+          "exit_date": "2021-09-20",
+          "pnl_pct": -9.7,
+          "exit_reason": "M",
+          "bars_held": 3
+        },
+        {
+          "entry_date": "2021-11-29",
+          "exit_date": "2021-12-10",
+          "pnl_pct": 7.4,
+          "exit_reason": "W",
+          "bars_held": 9
+        },
+        {
+          "entry_date": "2023-03-03",
+          "exit_date": "2023-03-16",
+          "pnl_pct": 6.6,
+          "exit_reason": "W",
+          "bars_held": 9
+        },
+        {
+          "entry_date": "2023-04-26",
+          "exit_date": "2023-04-28",
+          "pnl_pct": 9.5,
+          "exit_reason": "W",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2023-12-07",
+          "exit_date": "2023-12-11",
+          "pnl_pct": 5.0,
+          "exit_reason": "W",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2024-01-08",
+          "exit_date": "2024-01-18",
+          "pnl_pct": 10.6,
+          "exit_reason": "W",
+          "bars_held": 7
+        },
+        {
+          "entry_date": "2024-04-03",
+          "exit_date": "2024-04-12",
+          "pnl_pct": -3.5,
+          "exit_reason": "M",
+          "bars_held": 7
+        },
+        {
+          "entry_date": "2024-11-05",
+          "exit_date": "2024-11-07",
+          "pnl_pct": 14.0,
+          "exit_reason": "W",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2024-12-20",
+          "exit_date": "2024-12-31",
+          "pnl_pct": -4.8,
+          "exit_reason": "M",
+          "bars_held": 6
+        },
+        {
+          "entry_date": "2025-08-04",
+          "exit_date": "2025-08-12",
+          "pnl_pct": 6.4,
+          "exit_reason": "W",
+          "bars_held": 6
+        }
+      ]
+    },
+    {
+      "rank": 9,
+      "strategy": "rsi_regime_trail",
+      "fitness": 0.4612,
+      "params": {
+        "panic_rsi": 25,
+        "rsi_len": 9,
+        "atr_mult": 2.0,
+        "trend_len": 200,
+        "atr_period": 30,
+        "trail_pct": 15,
+        "entry_rsi": 30,
+        "cooldown": 0
+      },
+      "metrics": {
+        "vs_bah": 0.0299,
+        "cagr": 12.77,
+        "max_dd": 40.7,
+        "mar": 0.314,
+        "trades": 35,
+        "trades_yr": 2.0,
+        "win_rate": 42.9,
+        "exit_reasons": {
+          "T": 16,
+          "R": 4,
+          "A": 15
+        },
+        "regime_score": 0.579,
+        "bull_capture": 0.314,
+        "bear_avoidance": 0.844,
+        "hhi": 0.0537,
+        "n_params": 7
+      },
+      "trades": [
+        {
+          "entry_date": "2009-02-24",
+          "exit_date": "2009-03-05",
+          "pnl_pct": -15.5,
+          "exit_reason": "T",
+          "bars_held": 7
+        },
+        {
+          "entry_date": "2009-03-10",
+          "exit_date": "2009-03-30",
+          "pnl_pct": 33.2,
+          "exit_reason": "T",
+          "bars_held": 14
+        },
+        {
+          "entry_date": "2010-01-27",
+          "exit_date": "2010-01-29",
+          "pnl_pct": -15.0,
+          "exit_reason": "R",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2010-02-02",
+          "exit_date": "2010-05-04",
+          "pnl_pct": 23.9,
+          "exit_reason": "A",
+          "bars_held": 63
+        },
+        {
+          "entry_date": "2010-05-10",
+          "exit_date": "2010-05-20",
+          "pnl_pct": -18.6,
+          "exit_reason": "T",
+          "bars_held": 8
+        },
+        {
+          "entry_date": "2010-11-18",
+          "exit_date": "2011-01-28",
+          "pnl_pct": 26.1,
+          "exit_reason": "A",
+          "bars_held": 48
+        },
+        {
+          "entry_date": "2011-02-24",
+          "exit_date": "2011-03-15",
+          "pnl_pct": -11.1,
+          "exit_reason": "T",
+          "bars_held": 13
+        },
+        {
+          "entry_date": "2011-03-21",
+          "exit_date": "2011-06-08",
+          "pnl_pct": -8.1,
+          "exit_reason": "T",
+          "bars_held": 55
+        },
+        {
+          "entry_date": "2012-10-15",
+          "exit_date": "2012-10-31",
+          "pnl_pct": -11.8,
+          "exit_reason": "T",
+          "bars_held": 10
+        },
+        {
+          "entry_date": "2013-06-25",
+          "exit_date": "2014-01-24",
+          "pnl_pct": 54.1,
+          "exit_reason": "A",
+          "bars_held": 147
+        },
+        {
+          "entry_date": "2014-01-30",
+          "exit_date": "2014-02-03",
+          "pnl_pct": -6.8,
+          "exit_reason": "A",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2014-02-04",
+          "exit_date": "2014-07-31",
+          "pnl_pct": 47.1,
+          "exit_reason": "A",
+          "bars_held": 123
+        },
+        {
+          "entry_date": "2014-12-17",
+          "exit_date": "2015-01-27",
+          "pnl_pct": -3.8,
+          "exit_reason": "A",
+          "bars_held": 26
+        },
+        {
+          "entry_date": "2015-03-12",
+          "exit_date": "2015-03-25",
+          "pnl_pct": -2.1,
+          "exit_reason": "A",
+          "bars_held": 9
+        },
+        {
+          "entry_date": "2015-07-01",
+          "exit_date": "2015-07-09",
+          "pnl_pct": -6.6,
+          "exit_reason": "R",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2016-09-12",
+          "exit_date": "2016-11-03",
+          "pnl_pct": -3.6,
+          "exit_reason": "R",
+          "bars_held": 38
+        },
+        {
+          "entry_date": "2016-11-07",
+          "exit_date": "2017-03-21",
+          "pnl_pct": 39.1,
+          "exit_reason": "A",
+          "bars_held": 91
+        },
+        {
+          "entry_date": "2017-04-17",
+          "exit_date": "2017-05-17",
+          "pnl_pct": 9.3,
+          "exit_reason": "A",
+          "bars_held": 22
+        },
+        {
+          "entry_date": "2018-02-06",
+          "exit_date": "2018-02-08",
+          "pnl_pct": -14.6,
+          "exit_reason": "A",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2018-02-09",
+          "exit_date": "2018-03-22",
+          "pnl_pct": 11.2,
+          "exit_reason": "T",
+          "bars_held": 28
+        },
+        {
+          "entry_date": "2018-03-26",
+          "exit_date": "2018-10-10",
+          "pnl_pct": 7.0,
+          "exit_reason": "R",
+          "bars_held": 138
+        },
+        {
+          "entry_date": "2019-05-14",
+          "exit_date": "2019-05-31",
+          "pnl_pct": -10.9,
+          "exit_reason": "T",
+          "bars_held": 12
+        },
+        {
+          "entry_date": "2019-08-06",
+          "exit_date": "2020-01-27",
+          "pnl_pct": 79.3,
+          "exit_reason": "A",
+          "bars_held": 119
+        },
+        {
+          "entry_date": "2020-03-02",
+          "exit_date": "2020-03-06",
+          "pnl_pct": -15.3,
+          "exit_reason": "T",
+          "bars_held": 4
+        },
+        {
+          "entry_date": "2020-10-29",
+          "exit_date": "2021-02-25",
+          "pnl_pct": 44.0,
+          "exit_reason": "T",
+          "bars_held": 80
+        },
+        {
+          "entry_date": "2021-05-13",
+          "exit_date": "2021-09-28",
+          "pnl_pct": 41.9,
+          "exit_reason": "A",
+          "bars_held": 95
+        },
+        {
+          "entry_date": "2021-10-01",
+          "exit_date": "2021-11-26",
+          "pnl_pct": 29.5,
+          "exit_reason": "A",
+          "bars_held": 39
+        },
+        {
+          "entry_date": "2023-08-14",
+          "exit_date": "2023-09-20",
+          "pnl_pct": -7.1,
+          "exit_reason": "T",
+          "bars_held": 26
+        },
+        {
+          "entry_date": "2023-09-25",
+          "exit_date": "2023-10-26",
+          "pnl_pct": -10.4,
+          "exit_reason": "T",
+          "bars_held": 23
+        },
+        {
+          "entry_date": "2024-01-08",
+          "exit_date": "2024-04-17",
+          "pnl_pct": 10.3,
+          "exit_reason": "T",
+          "bars_held": 69
+        },
+        {
+          "entry_date": "2024-04-23",
+          "exit_date": "2024-07-11",
+          "pnl_pct": 55.5,
+          "exit_reason": "A",
+          "bars_held": 54
+        },
+        {
+          "entry_date": "2024-07-22",
+          "exit_date": "2024-07-24",
+          "pnl_pct": -13.3,
+          "exit_reason": "A",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2024-07-26",
+          "exit_date": "2024-08-02",
+          "pnl_pct": -16.8,
+          "exit_reason": "T",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2025-11-24",
+          "exit_date": "2025-12-15",
+          "pnl_pct": -2.1,
+          "exit_reason": "T",
+          "bars_held": 14
+        },
+        {
+          "entry_date": "2025-12-18",
+          "exit_date": "2026-02-04",
+          "pnl_pct": -9.2,
+          "exit_reason": "T",
+          "bars_held": 32
+        }
+      ]
+    },
+    {
+      "rank": 10,
+      "strategy": "rsi_regime",
+      "fitness": 0.4514,
+      "params": {
+        "panic_rsi": 30,
+        "exit_rsi": 85,
+        "rsi_len": 9,
+        "trend_len": 200,
+        "entry_rsi": 30,
+        "cooldown": 5
+      },
+      "metrics": {
+        "vs_bah": 0.0054,
+        "cagr": 2.15,
+        "max_dd": 34.8,
+        "mar": 0.062,
+        "trades": 26,
+        "trades_yr": 1.5,
+        "win_rate": 30.8,
+        "exit_reasons": {
+          "R": 26
+        },
+        "regime_score": 0.5465,
+        "bull_capture": 0.2006,
+        "bear_avoidance": 0.8925,
+        "hhi": 0.059,
+        "n_params": 5
+      },
+      "trades": [
+        {
+          "entry_date": "2009-02-24",
+          "exit_date": "2009-03-09",
+          "pnl_pct": -23.2,
+          "exit_reason": "R",
+          "bars_held": 9
+        },
+        {
+          "entry_date": "2010-01-27",
+          "exit_date": "2010-01-28",
+          "pnl_pct": -9.3,
+          "exit_reason": "R",
+          "bars_held": 1
+        },
+        {
+          "entry_date": "2010-02-05",
+          "exit_date": "2010-04-14",
+          "pnl_pct": 45.9,
+          "exit_reason": "R",
+          "bars_held": 46
+        },
+        {
+          "entry_date": "2010-05-10",
+          "exit_date": "2010-05-20",
+          "pnl_pct": -18.6,
+          "exit_reason": "R",
+          "bars_held": 8
+        },
+        {
+          "entry_date": "2010-11-18",
+          "exit_date": "2011-01-12",
+          "pnl_pct": 28.2,
+          "exit_reason": "R",
+          "bars_held": 37
+        },
+        {
+          "entry_date": "2011-02-24",
+          "exit_date": "2011-03-15",
+          "pnl_pct": -11.1,
+          "exit_reason": "R",
+          "bars_held": 13
+        },
+        {
+          "entry_date": "2011-05-25",
+          "exit_date": "2011-06-08",
+          "pnl_pct": -8.9,
+          "exit_reason": "R",
+          "bars_held": 9
+        },
+        {
+          "entry_date": "2012-10-15",
+          "exit_date": "2012-10-19",
+          "pnl_pct": -8.1,
+          "exit_reason": "R",
+          "bars_held": 4
+        },
+        {
+          "entry_date": "2013-06-25",
+          "exit_date": "2014-01-28",
+          "pnl_pct": 47.0,
+          "exit_reason": "R",
+          "bars_held": 149
+        },
+        {
+          "entry_date": "2014-12-17",
+          "exit_date": "2015-01-06",
+          "pnl_pct": -2.2,
+          "exit_reason": "R",
+          "bars_held": 12
+        },
+        {
+          "entry_date": "2015-03-12",
+          "exit_date": "2015-06-29",
+          "pnl_pct": -2.1,
+          "exit_reason": "R",
+          "bars_held": 75
+        },
+        {
+          "entry_date": "2016-09-12",
+          "exit_date": "2016-11-02",
+          "pnl_pct": -1.2,
+          "exit_reason": "R",
+          "bars_held": 37
+        },
+        {
+          "entry_date": "2017-04-17",
+          "exit_date": "2017-05-10",
+          "pnl_pct": 15.2,
+          "exit_reason": "R",
+          "bars_held": 17
+        },
+        {
+          "entry_date": "2018-02-06",
+          "exit_date": "2018-02-08",
+          "pnl_pct": -14.6,
+          "exit_reason": "R",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2018-03-26",
+          "exit_date": "2018-06-25",
+          "pnl_pct": 8.8,
+          "exit_reason": "R",
+          "bars_held": 63
+        },
+        {
+          "entry_date": "2018-10-09",
+          "exit_date": "2018-10-10",
+          "pnl_pct": -14.0,
+          "exit_reason": "R",
+          "bars_held": 1
+        },
+        {
+          "entry_date": "2019-05-14",
+          "exit_date": "2019-05-29",
+          "pnl_pct": -8.0,
+          "exit_reason": "R",
+          "bars_held": 10
+        },
+        {
+          "entry_date": "2019-08-06",
+          "exit_date": "2020-02-25",
+          "pnl_pct": 59.9,
+          "exit_reason": "R",
+          "bars_held": 139
+        },
+        {
+          "entry_date": "2020-10-29",
+          "exit_date": "2020-10-30",
+          "pnl_pct": -6.7,
+          "exit_reason": "R",
+          "bars_held": 1
+        },
+        {
+          "entry_date": "2021-05-13",
+          "exit_date": "2021-07-07",
+          "pnl_pct": 45.7,
+          "exit_reason": "R",
+          "bars_held": 37
+        },
+        {
+          "entry_date": "2021-09-22",
+          "exit_date": "2021-09-29",
+          "pnl_pct": -8.3,
+          "exit_reason": "R",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2023-08-14",
+          "exit_date": "2023-08-16",
+          "pnl_pct": -5.9,
+          "exit_reason": "R",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2023-09-25",
+          "exit_date": "2023-09-26",
+          "pnl_pct": -5.6,
+          "exit_reason": "R",
+          "bars_held": 1
+        },
+        {
+          "entry_date": "2024-01-08",
+          "exit_date": "2024-04-17",
+          "pnl_pct": 10.3,
+          "exit_reason": "R",
+          "bars_held": 69
+        },
+        {
+          "entry_date": "2024-07-22",
+          "exit_date": "2024-07-24",
+          "pnl_pct": -13.3,
+          "exit_reason": "R",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2025-11-24",
+          "exit_date": "2025-12-17",
+          "pnl_pct": -8.2,
+          "exit_reason": "R",
+          "bars_held": 16
+        }
+      ]
+    },
+    {
+      "rank": 11,
+      "strategy": "rsi_vol_regime",
+      "fitness": 0.4443,
+      "params": {
+        "panic_rsi": 10,
+        "exit_rsi": 70,
+        "rsi_len": 7,
+        "vol_long": 60,
+        "trend_len": 100,
+        "vol_ratio_max": 0.9,
+        "vol_short": 20,
+        "vol_exit_ratio": 1.2,
+        "entry_rsi": 45,
+        "cooldown": 5
+      },
+      "metrics": {
+        "vs_bah": 0.0639,
+        "cagr": 17.85,
+        "max_dd": 30.6,
+        "mar": 0.583,
+        "trades": 48,
+        "trades_yr": 2.8,
+        "win_rate": 83.3,
+        "exit_reasons": {
+          "R": 40,
+          "V": 8
+        },
+        "regime_score": 0.5245,
+        "bull_capture": 0.1777,
+        "bear_avoidance": 0.8713,
+        "hhi": 0.0575,
+        "n_params": 9
+      },
+      "trades": [
+        {
+          "entry_date": "2009-01-16",
+          "exit_date": "2009-02-06",
+          "pnl_pct": 21.8,
+          "exit_reason": "R",
+          "bars_held": 14
+        },
+        {
+          "entry_date": "2009-03-10",
+          "exit_date": "2009-03-19",
+          "pnl_pct": 33.2,
+          "exit_reason": "R",
+          "bars_held": 7
+        },
+        {
+          "entry_date": "2009-05-18",
+          "exit_date": "2009-06-01",
+          "pnl_pct": 19.4,
+          "exit_reason": "R",
+          "bars_held": 9
+        },
+        {
+          "entry_date": "2009-06-17",
+          "exit_date": "2009-07-15",
+          "pnl_pct": 10.8,
+          "exit_reason": "R",
+          "bars_held": 19
+        },
+        {
+          "entry_date": "2009-08-12",
+          "exit_date": "2009-08-27",
+          "pnl_pct": 6.7,
+          "exit_reason": "R",
+          "bars_held": 11
+        },
+        {
+          "entry_date": "2009-10-06",
+          "exit_date": "2009-10-12",
+          "pnl_pct": 7.0,
+          "exit_reason": "R",
+          "bars_held": 4
+        },
+        {
+          "entry_date": "2010-01-13",
+          "exit_date": "2010-02-19",
+          "pnl_pct": -13.2,
+          "exit_reason": "V",
+          "bars_held": 25
+        },
+        {
+          "entry_date": "2011-04-20",
+          "exit_date": "2011-04-25",
+          "pnl_pct": 3.3,
+          "exit_reason": "R",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2011-11-02",
+          "exit_date": "2012-01-10",
+          "pnl_pct": 0.9,
+          "exit_reason": "R",
+          "bars_held": 46
+        },
+        {
+          "entry_date": "2012-03-07",
+          "exit_date": "2012-03-13",
+          "pnl_pct": 11.6,
+          "exit_reason": "R",
+          "bars_held": 4
+        },
+        {
+          "entry_date": "2012-08-31",
+          "exit_date": "2012-09-06",
+          "pnl_pct": 6.2,
+          "exit_reason": "R",
+          "bars_held": 3
+        },
+        {
+          "entry_date": "2013-02-22",
+          "exit_date": "2013-03-08",
+          "pnl_pct": 6.0,
+          "exit_reason": "R",
+          "bars_held": 10
+        },
+        {
+          "entry_date": "2013-03-22",
+          "exit_date": "2013-04-23",
+          "pnl_pct": -3.7,
+          "exit_reason": "V",
+          "bars_held": 21
+        },
+        {
+          "entry_date": "2013-06-07",
+          "exit_date": "2013-07-11",
+          "pnl_pct": 2.4,
+          "exit_reason": "R",
+          "bars_held": 23
+        },
+        {
+          "entry_date": "2013-07-24",
+          "exit_date": "2013-08-01",
+          "pnl_pct": 4.4,
+          "exit_reason": "R",
+          "bars_held": 6
+        },
+        {
+          "entry_date": "2013-08-22",
+          "exit_date": "2013-09-10",
+          "pnl_pct": 4.3,
+          "exit_reason": "R",
+          "bars_held": 12
+        },
+        {
+          "entry_date": "2013-12-16",
+          "exit_date": "2013-12-20",
+          "pnl_pct": 5.3,
+          "exit_reason": "R",
+          "bars_held": 4
+        },
+        {
+          "entry_date": "2014-03-17",
+          "exit_date": "2014-04-30",
+          "pnl_pct": 2.9,
+          "exit_reason": "V",
+          "bars_held": 31
+        },
+        {
+          "entry_date": "2014-09-16",
+          "exit_date": "2014-10-08",
+          "pnl_pct": -3.5,
+          "exit_reason": "V",
+          "bars_held": 16
+        },
+        {
+          "entry_date": "2015-03-18",
+          "exit_date": "2015-04-24",
+          "pnl_pct": 4.5,
+          "exit_reason": "R",
+          "bars_held": 26
+        },
+        {
+          "entry_date": "2015-06-17",
+          "exit_date": "2015-07-17",
+          "pnl_pct": 5.2,
+          "exit_reason": "R",
+          "bars_held": 21
+        },
+        {
+          "entry_date": "2015-11-18",
+          "exit_date": "2015-12-30",
+          "pnl_pct": -1.1,
+          "exit_reason": "V",
+          "bars_held": 28
+        },
+        {
+          "entry_date": "2016-04-12",
+          "exit_date": "2016-05-25",
+          "pnl_pct": -2.7,
+          "exit_reason": "R",
+          "bars_held": 31
+        },
+        {
+          "entry_date": "2016-06-21",
+          "exit_date": "2016-06-27",
+          "pnl_pct": -14.3,
+          "exit_reason": "V",
+          "bars_held": 4
+        },
+        {
+          "entry_date": "2016-09-12",
+          "exit_date": "2016-09-21",
+          "pnl_pct": 5.1,
+          "exit_reason": "V",
+          "bars_held": 7
+        },
+        {
+          "entry_date": "2017-01-03",
+          "exit_date": "2017-01-11",
+          "pnl_pct": 4.8,
+          "exit_reason": "R",
+          "bars_held": 6
+        },
+        {
+          "entry_date": "2017-04-20",
+          "exit_date": "2017-04-24",
+          "pnl_pct": 3.1,
+          "exit_reason": "R",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2017-08-14",
+          "exit_date": "2017-08-31",
+          "pnl_pct": 3.8,
+          "exit_reason": "R",
+          "bars_held": 13
+        },
+        {
+          "entry_date": "2018-07-02",
+          "exit_date": "2018-07-12",
+          "pnl_pct": 10.5,
+          "exit_reason": "R",
+          "bars_held": 7
+        },
+        {
+          "entry_date": "2018-09-11",
+          "exit_date": "2018-10-03",
+          "pnl_pct": 6.3,
+          "exit_reason": "R",
+          "bars_held": 16
+        },
+        {
+          "entry_date": "2019-03-11",
+          "exit_date": "2019-03-13",
+          "pnl_pct": 3.6,
+          "exit_reason": "R",
+          "bars_held": 2
+        },
+        {
+          "entry_date": "2019-09-23",
+          "exit_date": "2019-10-28",
+          "pnl_pct": 11.4,
+          "exit_reason": "R",
+          "bars_held": 25
+        },
+        {
+          "entry_date": "2019-12-05",
+          "exit_date": "2019-12-12",
+          "pnl_pct": 7.2,
+          "exit_reason": "R",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2020-06-12",
+          "exit_date": "2020-07-06",
+          "pnl_pct": 25.1,
+          "exit_reason": "R",
+          "bars_held": 15
+        },
+        {
+          "entry_date": "2020-07-27",
+          "exit_date": "2020-08-03",
+          "pnl_pct": 18.0,
+          "exit_reason": "R",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2021-01-07",
+          "exit_date": "2021-01-25",
+          "pnl_pct": 9.2,
+          "exit_reason": "R",
+          "bars_held": 11
+        },
+        {
+          "entry_date": "2021-05-07",
+          "exit_date": "2021-06-10",
+          "pnl_pct": 3.4,
+          "exit_reason": "R",
+          "bars_held": 23
+        },
+        {
+          "entry_date": "2021-07-20",
+          "exit_date": "2021-07-23",
+          "pnl_pct": 8.1,
+          "exit_reason": "R",
+          "bars_held": 3
+        },
+        {
+          "entry_date": "2021-08-19",
+          "exit_date": "2021-08-30",
+          "pnl_pct": 11.6,
+          "exit_reason": "R",
+          "bars_held": 7
+        },
+        {
+          "entry_date": "2023-03-03",
+          "exit_date": "2023-03-21",
+          "pnl_pct": 9.2,
+          "exit_reason": "R",
+          "bars_held": 12
+        },
+        {
+          "entry_date": "2023-04-13",
+          "exit_date": "2023-05-17",
+          "pnl_pct": 8.0,
+          "exit_reason": "R",
+          "bars_held": 24
+        },
+        {
+          "entry_date": "2024-04-09",
+          "exit_date": "2024-05-14",
+          "pnl_pct": -0.9,
+          "exit_reason": "R",
+          "bars_held": 25
+        },
+        {
+          "entry_date": "2024-06-04",
+          "exit_date": "2024-06-11",
+          "pnl_pct": 12.8,
+          "exit_reason": "R",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2024-10-02",
+          "exit_date": "2024-10-09",
+          "pnl_pct": 11.6,
+          "exit_reason": "R",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2024-10-24",
+          "exit_date": "2024-11-07",
+          "pnl_pct": 9.7,
+          "exit_reason": "R",
+          "bars_held": 10
+        },
+        {
+          "entry_date": "2024-11-29",
+          "exit_date": "2024-12-04",
+          "pnl_pct": 9.5,
+          "exit_reason": "R",
+          "bars_held": 3
+        },
+        {
+          "entry_date": "2025-08-04",
+          "exit_date": "2025-09-10",
+          "pnl_pct": 7.4,
+          "exit_reason": "R",
+          "bars_held": 26
+        },
+        {
+          "entry_date": "2026-01-15",
+          "exit_date": "2026-02-10",
+          "pnl_pct": -8.1,
+          "exit_reason": "V",
+          "bars_held": 17
+        }
+      ]
+    },
+    {
+      "rank": 12,
+      "strategy": "stoch_drawdown_recovery",
+      "fitness": 0.3789,
+      "params": {
+        "cooldown": 10,
+        "stoch_len": 18,
+        "atr_period": 15,
+        "atr_mult": 3.5,
+        "dd_lookback": 100,
+        "trend_len": 125,
+        "smooth_k": 3,
+        "exit_stoch": 90,
+        "entry_stoch": 30,
+        "dd_thresh": -45.0,
+        "smooth_d": 3
+      },
+      "metrics": {
+        "vs_bah": 0.3236,
+        "cagr": 29.46,
+        "max_dd": 48.9,
+        "mar": 0.602,
+        "trades": 49,
+        "trades_yr": 2.8,
+        "win_rate": 87.8,
+        "exit_reasons": {
+          "S": 49
+        },
+        "regime_score": 0.51,
+        "bull_capture": 0.2145,
+        "bear_avoidance": 0.8055,
+        "hhi": 0.0554,
+        "n_params": 10
+      },
+      "trades": [
+        {
+          "entry_date": "2009-07-10",
+          "exit_date": "2009-07-17",
+          "pnl_pct": 29.9,
+          "exit_reason": "S",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2009-10-06",
+          "exit_date": "2009-10-13",
+          "pnl_pct": 7.0,
+          "exit_reason": "S",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2009-11-05",
+          "exit_date": "2009-11-11",
+          "pnl_pct": 8.6,
+          "exit_reason": "S",
+          "bars_held": 4
+        },
+        {
+          "entry_date": "2009-12-01",
+          "exit_date": "2009-12-22",
+          "pnl_pct": 11.5,
+          "exit_reason": "S",
+          "bars_held": 15
+        },
+        {
+          "entry_date": "2010-01-27",
+          "exit_date": "2010-03-05",
+          "pnl_pct": 5.6,
+          "exit_reason": "S",
+          "bars_held": 26
+        },
+        {
+          "entry_date": "2010-07-06",
+          "exit_date": "2010-07-26",
+          "pnl_pct": 30.0,
+          "exit_reason": "S",
+          "bars_held": 14
+        },
+        {
+          "entry_date": "2010-11-19",
+          "exit_date": "2010-12-10",
+          "pnl_pct": 11.9,
+          "exit_reason": "S",
+          "bars_held": 14
+        },
+        {
+          "entry_date": "2012-04-13",
+          "exit_date": "2012-06-19",
+          "pnl_pct": -18.4,
+          "exit_reason": "S",
+          "bars_held": 46
+        },
+        {
+          "entry_date": "2012-10-15",
+          "exit_date": "2013-03-07",
+          "pnl_pct": -0.1,
+          "exit_reason": "S",
+          "bars_held": 96
+        },
+        {
+          "entry_date": "2013-04-08",
+          "exit_date": "2013-04-12",
+          "pnl_pct": 5.2,
+          "exit_reason": "S",
+          "bars_held": 4
+        },
+        {
+          "entry_date": "2013-06-07",
+          "exit_date": "2013-07-12",
+          "pnl_pct": 2.4,
+          "exit_reason": "S",
+          "bars_held": 24
+        },
+        {
+          "entry_date": "2013-08-23",
+          "exit_date": "2013-09-19",
+          "pnl_pct": 6.6,
+          "exit_reason": "S",
+          "bars_held": 18
+        },
+        {
+          "entry_date": "2013-10-10",
+          "exit_date": "2013-10-18",
+          "pnl_pct": 10.1,
+          "exit_reason": "S",
+          "bars_held": 6
+        },
+        {
+          "entry_date": "2014-01-30",
+          "exit_date": "2014-02-14",
+          "pnl_pct": 10.9,
+          "exit_reason": "S",
+          "bars_held": 11
+        },
+        {
+          "entry_date": "2014-04-15",
+          "exit_date": "2014-05-14",
+          "pnl_pct": 7.9,
+          "exit_reason": "S",
+          "bars_held": 20
+        },
+        {
+          "entry_date": "2014-08-11",
+          "exit_date": "2014-08-21",
+          "pnl_pct": 9.9,
+          "exit_reason": "S",
+          "bars_held": 8
+        },
+        {
+          "entry_date": "2014-12-17",
+          "exit_date": "2014-12-26",
+          "pnl_pct": 14.6,
+          "exit_reason": "S",
+          "bars_held": 6
+        },
+        {
+          "entry_date": "2015-01-20",
+          "exit_date": "2015-02-12",
+          "pnl_pct": 11.7,
+          "exit_reason": "S",
+          "bars_held": 17
+        },
+        {
+          "entry_date": "2015-03-16",
+          "exit_date": "2015-04-24",
+          "pnl_pct": 8.3,
+          "exit_reason": "S",
+          "bars_held": 28
+        },
+        {
+          "entry_date": "2015-08-10",
+          "exit_date": "2015-10-08",
+          "pnl_pct": -12.6,
+          "exit_reason": "S",
+          "bars_held": 42
+        },
+        {
+          "entry_date": "2016-05-16",
+          "exit_date": "2016-05-26",
+          "pnl_pct": 7.6,
+          "exit_reason": "S",
+          "bars_held": 8
+        },
+        {
+          "entry_date": "2016-11-07",
+          "exit_date": "2016-11-23",
+          "pnl_pct": 3.3,
+          "exit_reason": "S",
+          "bars_held": 12
+        },
+        {
+          "entry_date": "2017-04-18",
+          "exit_date": "2017-04-26",
+          "pnl_pct": 6.8,
+          "exit_reason": "S",
+          "bars_held": 6
+        },
+        {
+          "entry_date": "2017-07-07",
+          "exit_date": "2017-07-17",
+          "pnl_pct": 10.5,
+          "exit_reason": "S",
+          "bars_held": 6
+        },
+        {
+          "entry_date": "2018-02-12",
+          "exit_date": "2018-03-09",
+          "pnl_pct": 27.9,
+          "exit_reason": "S",
+          "bars_held": 18
+        },
+        {
+          "entry_date": "2018-04-10",
+          "exit_date": "2018-05-09",
+          "pnl_pct": 12.6,
+          "exit_reason": "S",
+          "bars_held": 21
+        },
+        {
+          "entry_date": "2018-07-02",
+          "exit_date": "2018-07-13",
+          "pnl_pct": 10.2,
+          "exit_reason": "S",
+          "bars_held": 8
+        },
+        {
+          "entry_date": "2018-12-20",
+          "exit_date": "2019-01-18",
+          "pnl_pct": 17.8,
+          "exit_reason": "S",
+          "bars_held": 19
+        },
+        {
+          "entry_date": "2019-05-16",
+          "exit_date": "2019-06-20",
+          "pnl_pct": 9.7,
+          "exit_reason": "S",
+          "bars_held": 24
+        },
+        {
+          "entry_date": "2019-08-07",
+          "exit_date": "2019-10-28",
+          "pnl_pct": 22.6,
+          "exit_reason": "S",
+          "bars_held": 57
+        },
+        {
+          "entry_date": "2020-03-17",
+          "exit_date": "2020-04-14",
+          "pnl_pct": 39.6,
+          "exit_reason": "S",
+          "bars_held": 19
+        },
+        {
+          "entry_date": "2020-09-14",
+          "exit_date": "2020-10-09",
+          "pnl_pct": 12.0,
+          "exit_reason": "S",
+          "bars_held": 19
+        },
+        {
+          "entry_date": "2021-03-09",
+          "exit_date": "2021-04-06",
+          "pnl_pct": 17.6,
+          "exit_reason": "S",
+          "bars_held": 19
+        },
+        {
+          "entry_date": "2021-05-06",
+          "exit_date": "2021-06-08",
+          "pnl_pct": 3.3,
+          "exit_reason": "S",
+          "bars_held": 22
+        },
+        {
+          "entry_date": "2021-09-22",
+          "exit_date": "2021-10-19",
+          "pnl_pct": 7.0,
+          "exit_reason": "S",
+          "bars_held": 19
+        },
+        {
+          "entry_date": "2021-12-06",
+          "exit_date": "2021-12-29",
+          "pnl_pct": 15.4,
+          "exit_reason": "S",
+          "bars_held": 16
+        },
+        {
+          "entry_date": "2022-03-10",
+          "exit_date": "2022-03-24",
+          "pnl_pct": 24.6,
+          "exit_reason": "S",
+          "bars_held": 10
+        },
+        {
+          "entry_date": "2022-04-18",
+          "exit_date": "2022-07-21",
+          "pnl_pct": -24.4,
+          "exit_reason": "S",
+          "bars_held": 65
+        },
+        {
+          "entry_date": "2022-09-26",
+          "exit_date": "2022-11-14",
+          "pnl_pct": 14.5,
+          "exit_reason": "S",
+          "bars_held": 35
+        },
+        {
+          "entry_date": "2022-12-21",
+          "exit_date": "2023-01-17",
+          "pnl_pct": 5.9,
+          "exit_reason": "S",
+          "bars_held": 16
+        },
+        {
+          "entry_date": "2023-03-14",
+          "exit_date": "2023-03-31",
+          "pnl_pct": 25.4,
+          "exit_reason": "S",
+          "bars_held": 13
+        },
+        {
+          "entry_date": "2023-04-27",
+          "exit_date": "2023-05-16",
+          "pnl_pct": 5.4,
+          "exit_reason": "S",
+          "bars_held": 13
+        },
+        {
+          "entry_date": "2023-08-14",
+          "exit_date": "2023-08-31",
+          "pnl_pct": 9.4,
+          "exit_reason": "S",
+          "bars_held": 13
+        },
+        {
+          "entry_date": "2024-01-08",
+          "exit_date": "2024-01-19",
+          "pnl_pct": 18.1,
+          "exit_reason": "S",
+          "bars_held": 8
+        },
+        {
+          "entry_date": "2024-04-09",
+          "exit_date": "2024-05-13",
+          "pnl_pct": -3.5,
+          "exit_reason": "S",
+          "bars_held": 24
+        },
+        {
+          "entry_date": "2024-07-23",
+          "exit_date": "2024-08-20",
+          "pnl_pct": -6.0,
+          "exit_reason": "S",
+          "bars_held": 20
+        },
+        {
+          "entry_date": "2024-11-05",
+          "exit_date": "2024-11-08",
+          "pnl_pct": 13.5,
+          "exit_reason": "S",
+          "bars_held": 3
+        },
+        {
+          "entry_date": "2025-04-09",
+          "exit_date": "2025-05-01",
+          "pnl_pct": 10.9,
+          "exit_reason": "S",
+          "bars_held": 15
+        },
+        {
+          "entry_date": "2025-11-24",
+          "exit_date": "2025-12-09",
+          "pnl_pct": 17.4,
+          "exit_reason": "S",
+          "bars_held": 10
+        }
+      ]
+    },
+    {
+      "rank": 13,
+      "strategy": "psar_trend",
+      "fitness": 0.0,
+      "params": {},
+      "metrics": null,
+      "trades": []
+    }
+  ],
+  "best_ever": {
+    "strategy": "ichimoku_trend",
+    "fitness": 0.5696,
+    "params": {
+      "tenkan_len": 13,
+      "kijun_len": 40,
+      "cloud_len": 50,
+      "cloud_buffer": 0.0,
+      "atr_period": 30,
+      "atr_mult": 2.0,
+      "cooldown": 5
+    }
+  }
+}
