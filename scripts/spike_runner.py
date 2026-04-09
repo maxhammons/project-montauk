@@ -77,6 +77,8 @@ def main():
                         help="Shorter progress report intervals")
     parser.add_argument("--strategies", type=str, default=None,
                         help="Comma-separated list of strategy names to run (default: all)")
+    parser.add_argument("--bayesian", action="store_true",
+                        help="Use Bayesian optimization (Optuna TPE) instead of GA")
     args = parser.parse_args()
 
     # Parse strategy filter
@@ -105,6 +107,7 @@ def main():
             quick=args.quick,
             run_dir=run_dir,
             strategies=strategy_filter,
+            bayesian=args.bayesian,
         )
 
         print(f"\n{'='*60}")

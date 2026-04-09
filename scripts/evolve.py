@@ -67,26 +67,31 @@ def load_hash_index() -> dict:
     """
     Load the compact hash index.
 
-    Format v2 (new): {config_hash: {"f": fitness, "rs": regime_score}}
+    Format v3 (current): {config_hash: {"bah": vs_bah, "rs": regime_score, "dd": max_dd, "nt": num_trades, "np": n_params, "hhi": hhi}}
+    Format v2 (old): {config_hash: {"f": fitness, "rs": regime_score}}
     Format v1 (old): {config_hash: fitness}
 
-    Old v1 entries are treated as stale — the fitness was computed with the
-    old formula (vs_bah based) and must be re-evaluated. We keep them for
-    dedup (so we know the config was tested) but mark rs=None so the
-    optimizer re-runs them to get the new fitness.
+    v1 and v2 entries are stale — they don't store raw metrics, so fitness
+    can't be recomputed. They're migrated with bah=None and will be
+    re-evaluated when encountered.
     """
     if os.path.exists(HASH_INDEX_FILE):
         try:
             with open(HASH_INDEX_FILE) as f:
                 raw = json.load(f)
-            # Detect format: if first value is a number, it's v1
             if raw:
                 sample = next(iter(raw.values()))
                 if isinstance(sample, (int, float)):
-                    # v1 → migrate in-place: mark all as stale (rs=None)
+                    # v1 → migrate: mark all as stale (bah=None)
                     n = len(raw)
-                    migrated = {h: {"f": v, "rs": None} for h, v in raw.items()}
-                    print(f"[history] Migrated {n:,} v1 entries to v2 format (rs=None, will re-evaluate)")
+                    migrated = {h: {"bah": None, "rs": None, "dd": None, "nt": 0, "np": 0, "hhi": None} for h in raw}
+                    print(f"[history] Migrated {n:,} v1 entries to v3 format (bah=None, will re-evaluate)")
+                    return migrated
+                # Check for v2 entries (have "f" key but no "bah" key)
+                if isinstance(sample, dict) and "f" in sample and "bah" not in sample:
+                    n = len(raw)
+                    migrated = {h: {"bah": None, "rs": v.get("rs"), "dd": None, "nt": 0, "np": 0, "hhi": None} for h, v in raw.items()}
+                    print(f"[history] Migrated {n:,} v2 entries to v3 format (bah=None, will re-evaluate)")
                     return migrated
             return raw
         except Exception as e:
@@ -105,9 +110,8 @@ def load_hash_index() -> dict:
                         continue
                     entry = json.loads(line)
                     h = entry.get("hash", "")
-                    fit = entry.get("fitness", 0)
-                    if h and (h not in index or fit > index.get(h, {}).get("f", 0)):
-                        index[h] = {"f": round(fit, 4), "rs": None}
+                    if h and h not in index:
+                        index[h] = {"bah": None, "rs": None, "dd": None, "nt": 0, "np": 0, "hhi": None}
             save_hash_index(index)
             print(f"[history] Migrated {len(index):,} unique configs to hash-index.json")
             return index
@@ -119,22 +123,19 @@ def load_hash_index() -> dict:
 
 
 def save_hash_index(index: dict):
-    """Save the hash index to disk. Prunes zero-fitness entries to control size.
+    """Save the hash index to disk. Prunes stale/empty entries to control size.
 
-    v2 format: {hash: {"f": fitness, "rs": regime_score_composite_or_None}}
+    v3 format: {hash: {"bah": vs_bah, "rs": regime_score, "dd": max_dd, "nt": num_trades, "np": n_params, "hhi": hhi}}
+    Entries with bah=None or bah=0 are pruned (they need re-evaluation anyway).
     """
     os.makedirs(HISTORY_DIR, exist_ok=True)
-    # Only keep configs that actually produced results (fitness > 0).
     pruned = {}
     for h, v in index.items():
-        if isinstance(v, dict):
-            if v.get("f", 0) > 0:
-                pruned[h] = v
-        elif isinstance(v, (int, float)) and v > 0:
-            pruned[h] = {"f": v, "rs": None}  # auto-upgrade v1→v2
+        if isinstance(v, dict) and v.get("bah"):
+            pruned[h] = v
     dropped = len(index) - len(pruned)
     if dropped > 0:
-        print(f"[history] Pruned {dropped:,} zero-fitness entries from hash index")
+        print(f"[history] Pruned {dropped:,} stale/empty entries from hash index")
     try:
         with open(HASH_INDEX_FILE, "w") as f:
             json.dump(pruned, f, cls=_Enc)
@@ -325,8 +326,60 @@ def set_converged(leaderboard_path: str, strategy_name: str, converged: bool) ->
 #
 # The multiplicative structure means a fragile but high-scoring strategy
 # gets heavily discounted automatically.
+#
+# Cache format v3: stores raw backtest metrics {bah, rs, dd, nt, np, hhi}
+# so fitness can be recomputed on the fly when the formula changes,
+# without re-running backtests.
 
 MAX_TRADES_PER_YEAR = 3.0
+
+
+def fitness_from_cache(entry: dict) -> float:
+    """Compute fitness from cached raw metrics (v3 cache entry).
+
+    Same formula as fitness() but operates on stored metrics dict.
+    Returns 0.0 if any required field is None.
+    Note: trades_per_year gate can't be applied from cache (no years info) —
+    cached entries already passed through full fitness() once.
+    """
+    vs_bah = entry.get("bah")
+    if vs_bah is None or vs_bah <= 0:
+        return 0.0
+    num_trades = entry.get("nt") or 0
+    if num_trades < 5:
+        return 0.0
+    n_params = entry.get("np") or 0
+    hhi = entry.get("hhi") or 0
+    if hhi > 0.35:
+        return 0.0
+    dd = entry.get("dd")
+    if dd is None:
+        return 0.0
+
+    # Soft ramp for low trade counts
+    trade_scale = min(1.0, num_trades / 10)
+
+    # HHI penalty
+    hhi_penalty = max(0.5, 1.0 - max(0, hhi - 0.15) * 3)
+
+    # Drawdown penalty
+    dd_penalty = max(0.3, 1.0 - dd / 120.0)
+
+    # Complexity penalty
+    if n_params > 0:
+        tpp = num_trades / n_params
+        if tpp < 2:
+            return 0.0
+        complexity_penalty = min(1.0, 0.5 + 0.5 * (tpp - 2) / 3) if tpp < 5 else 1.0
+    else:
+        complexity_penalty = 1.0
+
+    # Regime quality multiplier
+    rs = entry.get("rs") or 0
+    regime_mult = 0.4 + 0.6 * min(1.0, rs / 0.7)
+
+    return vs_bah * trade_scale * hhi_penalty * dd_penalty * complexity_penalty * regime_mult
+
 
 def fitness(result: BacktestResult) -> float:
     """
@@ -450,8 +503,93 @@ def evaluate(ind: Indicators, df, strategy_fn, params: dict, name: str) -> tuple
         return 0.0, None
 
 
+def evolve_bayesian(ind, df, strategy_name, strategy_fn, space, hours, dedup_cache, history_stats):
+    """
+    Bayesian optimization for a single strategy using Optuna TPE.
+    Returns (best_score, best_params, best_result, best_value, n_trials).
+    """
+    import optuna
+    optuna.logging.set_verbosity(optuna.logging.WARNING)
+
+    def objective(trial):
+        params = {}
+        for name, (lo, hi, step, typ) in space.items():
+            if typ == int:
+                params[name] = trial.suggest_int(name, int(lo), int(hi), step=int(step))
+            else:
+                # For float params, discretize to match GA's step resolution
+                n_steps = int(round((hi - lo) / step))
+                idx = trial.suggest_int(f"_idx_{name}", 0, n_steps)
+                params[name] = round(lo + idx * step, 4)
+
+        # Check dedup cache
+        h = config_hash(strategy_name, params)
+        cached = dedup_cache.get(h)
+        if cached and isinstance(cached, dict) and cached.get("bah") is not None:
+            score = fitness_from_cache(cached)
+            history_stats["cached_configs"] += 1
+            return score
+
+        score, result = evaluate(ind, df, strategy_fn, params, strategy_name)
+        history_stats["new_configs"] += 1
+
+        # Store to cache (v3 format)
+        n_params_val = sum(1 for k, v in params.items()
+                          if isinstance(v, (int, float)) and not isinstance(v, bool) and k != "cooldown")
+        dedup_cache[h] = {
+            "bah": round(result.vs_bah_multiple, 4) if result else None,
+            "rs": round(result.regime_score.composite, 4) if result and result.regime_score else None,
+            "dd": round(result.max_drawdown_pct, 1) if result else None,
+            "nt": result.num_trades if result else 0,
+            "np": n_params_val,
+            "hhi": round(result.regime_score.hhi, 4) if result and result.regime_score and result.regime_score.hhi else None,
+        }
+
+        return score
+
+    study = optuna.create_study(direction="maximize", sampler=optuna.samplers.TPESampler(seed=42))
+
+    # Seed with leaderboard winners if available
+    leaderboard_path = os.path.join(HISTORY_DIR, "leaderboard.json")
+    seeds = get_top_from_leaderboard(leaderboard_path, strategy_name, n=5)
+    for seed_params in seeds:
+        try:
+            trial_params = {}
+            for name, (lo, hi, step, typ) in space.items():
+                val = seed_params.get(name, (lo + hi) / 2)
+                if typ == int:
+                    trial_params[name] = int(round(max(lo, min(hi, val))))
+                else:
+                    n_steps = int(round((hi - lo) / step))
+                    idx = int(round((val - lo) / step))
+                    idx = max(0, min(n_steps, idx))
+                    trial_params[f"_idx_{name}"] = idx
+            study.enqueue_trial(trial_params)
+        except Exception:
+            pass
+
+    timeout = hours * 3600
+    study.optimize(objective, timeout=timeout, n_trials=100000, show_progress_bar=False)
+
+    # Extract best
+    best_trial = study.best_trial
+    best_params = {}
+    for name, (lo, hi, step, typ) in space.items():
+        if typ == int:
+            best_params[name] = best_trial.params.get(name, int((lo + hi) / 2))
+        else:
+            idx = best_trial.params.get(f"_idx_{name}", 0)
+            best_params[name] = round(lo + idx * step, 4)
+
+    # Re-evaluate best to get full result
+    best_score, best_result = evaluate(ind, df, strategy_fn, best_params, strategy_name)
+
+    return best_score, best_params, best_result, study.best_value, len(study.trials)
+
+
 def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
-           run_dir: str | None = None, strategies: list[str] | None = None) -> dict:
+           run_dir: str | None = None, strategies: list[str] | None = None,
+           bayesian: bool = False) -> dict:
     """
     Run the evolutionary optimizer. Returns the results dict.
 
@@ -612,145 +750,176 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
 
     print(f"\n── Evolving ──")
 
-    while time.time() < end_time and not _interrupted[0]:
-        generation += 1
-
+    if bayesian:
+        print("Mode: Bayesian (Optuna TPE)\n")
+        per_strategy_hours = hours / max(1, len(active_strategies))
         for strat_name, fn in active_strategies.items():
             space = STRATEGY_PARAMS_FILTERED.get(strat_name, {})
-            pop = populations[strat_name]
-
-            # Evaluate with dedup cache (v2: stores {f, rs})
-            scored = []
-            for params in pop:
-                h = config_hash(strat_name, params)
-                cached = dedup_cache.get(h)
-                if cached and isinstance(cached, dict) and cached.get("rs") is not None:
-                    # v2 cache hit with regime score — reuse
-                    scored.append((cached["f"], params, None))
-                    history_stats["cached_configs"] += 1
-                else:
-                    # New config or stale v1 entry (rs=None) — must evaluate
-                    score, result = evaluate(ind, df, fn, params, strat_name)
-                    total_evals += 1
-                    scored.append((score, params, result))
-                    rs_val = None
-                    if result and result.regime_score:
-                        rs_val = round(result.regime_score.composite, 4)
-                    dedup_cache[h] = {"f": round(score, 4), "rs": rs_val}
-                    history_stats["new_configs"] += 1
-            scored.sort(key=lambda x: x[0], reverse=True)
-
-            # Update strategy best
-            if scored[0][0] > strategy_bests[strat_name][0]:
-                strategy_bests[strat_name] = (scored[0][0], scored[0][1], scored[0][2])
-
-            # Update global best
-            if scored[0][0] > best_ever_score:
-                best_ever_score = scored[0][0]
+            if not space:
+                continue
+            print(f"  Optimizing {strat_name} ({per_strategy_hours:.1f}h)...")
+            score, params, result, best_val, n_trials = evolve_bayesian(
+                ind, df, strat_name, fn, space, per_strategy_hours, dedup_cache, history_stats)
+            total_evals += n_trials
+            strategy_bests[strat_name] = (score, params, result)
+            if score > best_ever_score:
+                best_ever_score = score
                 best_ever_name = strat_name
-                best_ever_params = scored[0][1].copy()
-                best_ever_result = scored[0][2]
+                best_ever_params = params.copy()
+                best_ever_result = result
+            if result:
+                print(f"    Best: fitness={score:.4f} bah={result.vs_bah_multiple:.3f}x "
+                      f"CAGR={result.cagr_pct:.1f}% DD={result.max_drawdown_pct:.1f}% "
+                      f"({n_trials} trials)")
+            generation = n_trials  # for report
+    else:
+        while time.time() < end_time and not _interrupted[0]:
+            generation += 1
 
-            # ── Diversity measurement (research: track normalized parameter variance) ──
-            # Compute population diversity as mean normalized variance across params
-            if space and len(scored) >= 4:
-                param_arrays = {}
-                for _, p, _ in scored:
-                    for k, v in p.items():
-                        if k in space:
-                            param_arrays.setdefault(k, []).append(float(v))
-                diversities = []
-                for k, vals in param_arrays.items():
-                    lo, hi = space[k][0], space[k][1]
-                    rng = hi - lo
-                    if rng > 0 and len(vals) >= 2:
-                        diversities.append(np.std(vals) / rng)
-                pop_diversity = float(np.mean(diversities)) if diversities else 0.0
-            else:
-                pop_diversity = 0.5  # assume moderate diversity when unmeasurable
+            for strat_name, fn in active_strategies.items():
+                space = STRATEGY_PARAMS_FILTERED.get(strat_name, {})
+                pop = populations[strat_name]
 
-            # Track initial diversity for DGEA comparison
-            if generation == 1:
-                if not hasattr(evolve, '_initial_diversity'):
-                    evolve._initial_diversity = {}
-                evolve._initial_diversity[strat_name] = max(pop_diversity, 0.01)
+                # Evaluate with dedup cache (v3: stores raw metrics, fitness computed on the fly)
+                scored = []
+                for params in pop:
+                    h = config_hash(strat_name, params)
+                    cached = dedup_cache.get(h)
+                    if cached and isinstance(cached, dict) and cached.get("bah") is not None:
+                        # v3 cache hit — recompute fitness from raw metrics
+                        score = fitness_from_cache(cached)
+                        scored.append((score, params, None))
+                        history_stats["cached_configs"] += 1
+                    else:
+                        # New config or stale entry (bah=None) — must evaluate
+                        score, result = evaluate(ind, df, fn, params, strat_name)
+                        total_evals += 1
+                        scored.append((score, params, result))
+                        n_params_val = sum(1 for k, v in params.items()
+                                           if isinstance(v, (int, float)) and not isinstance(v, bool) and k != "cooldown")
+                        cache_entry = {
+                            "bah": round(result.vs_bah_multiple, 4) if result else None,
+                            "rs": round(result.regime_score.composite, 4) if result and result.regime_score else None,
+                            "dd": round(result.max_drawdown_pct, 1) if result else None,
+                            "nt": result.num_trades if result else 0,
+                            "np": n_params_val,
+                            "hhi": round(result.regime_score.hhi, 4) if result and result.regime_score and result.regime_score.hhi else None,
+                        }
+                        dedup_cache[h] = cache_entry
+                        history_stats["new_configs"] += 1
+                scored.sort(key=lambda x: x[0], reverse=True)
 
-            initial_div = getattr(evolve, '_initial_diversity', {}).get(strat_name, 0.1)
-            relative_diversity = pop_diversity / initial_div if initial_div > 0 else 0
+                # Update strategy best
+                if scored[0][0] > strategy_bests[strat_name][0]:
+                    strategy_bests[strat_name] = (scored[0][0], scored[0][1], scored[0][2])
 
-            # ── Mutation survival rate (free convergence diagnostic) ──
-            # Fraction of offspring retaining >90% of parent fitness
-            if hasattr(evolve, '_prev_scored') and strat_name in evolve._prev_scored:
-                prev_best = evolve._prev_scored[strat_name]
-                survivors = sum(1 for s, _, _ in scored if s >= prev_best * 0.9)
-                mut_survival = survivors / len(scored) if scored else 0
-            else:
-                mut_survival = 0.5  # unknown first gen
-            if not hasattr(evolve, '_prev_scored'):
-                evolve._prev_scored = {}
-            evolve._prev_scored[strat_name] = scored[0][0] if scored else 0
+                # Update global best
+                if scored[0][0] > best_ever_score:
+                    best_ever_score = scored[0][0]
+                    best_ever_name = strat_name
+                    best_ever_params = scored[0][1].copy()
+                    best_ever_result = scored[0][2]
 
-            # ── Adaptive mutation rate (research: diversity-driven, not time-based) ──
-            # DGEA switching: low diversity → burst mode, high diversity → exploitation
-            D_LOW = 0.15   # below 15% of initial diversity → burst
-            D_HIGH = 0.60  # above 60% of initial → normal exploitation
+                # ── Diversity measurement (research: track normalized parameter variance) ──
+                # Compute population diversity as mean normalized variance across params
+                if space and len(scored) >= 4:
+                    param_arrays = {}
+                    for _, p, _ in scored:
+                        for k, v in p.items():
+                            if k in space:
+                                param_arrays.setdefault(k, []).append(float(v))
+                    diversities = []
+                    for k, vals in param_arrays.items():
+                        lo, hi = space[k][0], space[k][1]
+                        rng = hi - lo
+                        if rng > 0 and len(vals) >= 2:
+                            diversities.append(np.std(vals) / rng)
+                    pop_diversity = float(np.mean(diversities)) if diversities else 0.0
+                else:
+                    pop_diversity = 0.5  # assume moderate diversity when unmeasurable
 
-            if relative_diversity < D_LOW:
-                # Diversity collapsed — burst mode (research: 30%+ mutation, large steps)
-                mut_rate = 0.40
-                mut_magnitude = 4  # ±1-4 steps
-            elif relative_diversity < D_HIGH:
-                # Moderate diversity — balanced exploration
-                mut_rate = 0.20
-                mut_magnitude = 2  # ±1-2 steps
-            else:
-                # High diversity — fine exploitation
-                mut_rate = 0.10
-                mut_magnitude = 1  # ±1 step
+                # Track initial diversity for DGEA comparison
+                if generation == 1:
+                    if not hasattr(evolve, '_initial_diversity'):
+                        evolve._initial_diversity = {}
+                    evolve._initial_diversity[strat_name] = max(pop_diversity, 0.01)
 
-            # Selection + reproduction
-            n_elite = max(2, int(pop_size * 0.2))
-            elites = [s[1] for s in scored[:n_elite]]
-            new_pop = list(elites)
+                initial_div = getattr(evolve, '_initial_diversity', {}).get(strat_name, 0.1)
+                relative_diversity = pop_diversity / initial_div if initial_div > 0 else 0
 
-            # Crossover
-            for _ in range(pop_size // 3):
-                p1, p2 = random.sample(elites, min(2, len(elites)))
-                new_pop.append(crossover_params(p1, p2))
+                # ── Mutation survival rate (free convergence diagnostic) ──
+                # Fraction of offspring retaining >90% of parent fitness
+                if hasattr(evolve, '_prev_scored') and strat_name in evolve._prev_scored:
+                    prev_best = evolve._prev_scored[strat_name]
+                    survivors = sum(1 for s, _, _ in scored if s >= prev_best * 0.9)
+                    mut_survival = survivors / len(scored) if scored else 0
+                else:
+                    mut_survival = 0.5  # unknown first gen
+                if not hasattr(evolve, '_prev_scored'):
+                    evolve._prev_scored = {}
+                evolve._prev_scored[strat_name] = scored[0][0] if scored else 0
 
-            # Mutation (adaptive rate + magnitude)
-            while len(new_pop) < pop_size:
-                parent = random.choice(elites)
-                new_pop.append(mutate_params(parent, space, rate=mut_rate,
-                                             magnitude=mut_magnitude))
+                # ── Adaptive mutation rate (research: diversity-driven, not time-based) ──
+                # DGEA switching: low diversity → burst mode, high diversity → exploitation
+                D_LOW = 0.15   # below 15% of initial diversity → burst
+                D_HIGH = 0.60  # above 60% of initial → normal exploitation
 
-            # ── Diversity injection: 5% random individuals every generation ──
-            # Research: 5-10% per gen (was 0.17%/gen = 1 individual every 15 gens)
-            n_inject = max(1, int(pop_size * 0.05))  # 5% of pop = 2 individuals at pop=40
-            for j in range(n_inject):
-                idx = len(new_pop) - 1 - j
-                if idx >= n_elite:  # don't overwrite elites
-                    new_pop[idx] = random_params(space)
+                if relative_diversity < D_LOW:
+                    # Diversity collapsed — burst mode (research: 30%+ mutation, large steps)
+                    mut_rate = 0.40
+                    mut_magnitude = 4  # ±1-4 steps
+                elif relative_diversity < D_HIGH:
+                    # Moderate diversity — balanced exploration
+                    mut_rate = 0.20
+                    mut_magnitude = 2  # ±1-2 steps
+                else:
+                    # High diversity — fine exploitation
+                    mut_rate = 0.10
+                    mut_magnitude = 1  # ±1 step
 
-            populations[strat_name] = new_pop[:pop_size]
+                # Selection + reproduction
+                n_elite = max(2, int(pop_size * 0.2))
+                elites = [s[1] for s in scored[:n_elite]]
+                new_pop = list(elites)
 
-        # Track convergence
-        gen_best = max(strategy_bests[s][0] for s in strategy_bests)
-        convergence_history.append((generation, round(gen_best, 4)))
+                # Crossover
+                for _ in range(pop_size // 3):
+                    p1, p2 = random.sample(elites, min(2, len(elites)))
+                    new_pop.append(crossover_params(p1, p2))
 
-        # Progress report
-        now = time.time()
-        if now - last_report >= report_interval:
-            remaining = (end_time - now) / 3600
-            per_sec = total_evals / (now - start_time)
-            print(f"Gen {generation:>5}: BEST={best_ever_score:.4f} ({best_ever_name})  "
-                  f"evals={total_evals:,} ({per_sec:.0f}/s)  {remaining:.1f}h left")
-            for s, (sc, _, res) in sorted(strategy_bests.items(), key=lambda x: -x[1][0]):
-                if res:
-                    rs_str = f"RS={res.regime_score.composite:.3f}" if res.regime_score else "RS=?"
-                    print(f"    {s:<22} {sc:.4f}  {rs_str}  bah={res.vs_bah_multiple:.3f}x  "
-                          f"t/yr={res.trades_per_year:.1f}  DD={res.max_drawdown_pct:.1f}%")
-            last_report = now
+                # Mutation (adaptive rate + magnitude)
+                while len(new_pop) < pop_size:
+                    parent = random.choice(elites)
+                    new_pop.append(mutate_params(parent, space, rate=mut_rate,
+                                                 magnitude=mut_magnitude))
+
+                # ── Diversity injection: 5% random individuals every generation ──
+                # Research: 5-10% per gen (was 0.17%/gen = 1 individual every 15 gens)
+                n_inject = max(1, int(pop_size * 0.05))  # 5% of pop = 2 individuals at pop=40
+                for j in range(n_inject):
+                    idx = len(new_pop) - 1 - j
+                    if idx >= n_elite:  # don't overwrite elites
+                        new_pop[idx] = random_params(space)
+
+                populations[strat_name] = new_pop[:pop_size]
+
+            # Track convergence
+            gen_best = max(strategy_bests[s][0] for s in strategy_bests)
+            convergence_history.append((generation, round(gen_best, 4)))
+
+            # Progress report
+            now = time.time()
+            if now - last_report >= report_interval:
+                remaining = (end_time - now) / 3600
+                per_sec = total_evals / (now - start_time)
+                print(f"Gen {generation:>5}: BEST={best_ever_score:.4f} ({best_ever_name})  "
+                      f"evals={total_evals:,} ({per_sec:.0f}/s)  {remaining:.1f}h left")
+                for s, (sc, _, res) in sorted(strategy_bests.items(), key=lambda x: -x[1][0]):
+                    if res:
+                        rs_str = f"RS={res.regime_score.composite:.3f}" if res.regime_score else "RS=?"
+                        print(f"    {s:<22} {sc:.4f}  {rs_str}  bah={res.vs_bah_multiple:.3f}x  "
+                              f"t/yr={res.trades_per_year:.1f}  DD={res.max_drawdown_pct:.1f}%")
+                last_report = now
 
     # ── Final report ──
     elapsed = (time.time() - start_time) / 3600

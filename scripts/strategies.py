@@ -760,6 +760,116 @@ def williams_midline_reclaim(ind: Indicators, p: dict) -> tuple:
 # Registry — all strategies the optimizer can test (max 15)
 # ─────────────────────────────────────────────────────────────────────────────
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy: VIX Mean Reversion — Buy when VIX spikes (fear = opportunity),
+# sell when VIX compresses back to normal. Uses VIX percentile rank to
+# identify extremes. The thesis: TECL bottoms coincide with VIX spikes.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def vix_mean_revert(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+
+    vix = ind.vix_close()
+    vix_pctl = ind.vix_percentile(p.get("vix_lookback", 252))
+    trend_ema = ind.ema(p.get("trend_len", 100))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    entry_pctl = p.get("entry_pctl", 85)    # VIX in top 15% = fear spike
+    exit_pctl = p.get("exit_pctl", 40)      # VIX back to normal
+    vix_ema_len = p.get("vix_ema_len", 10)
+    vix_smooth = ind.vix_ema(vix_ema_len)
+
+    for i in range(1, n):
+        if np.isnan(vix_pctl[i]) or np.isnan(vix_smooth[i]):
+            continue
+
+        # Entry: VIX percentile was high (fear spike) and VIX is now turning down
+        # (smoothed VIX declining = fear receding)
+        vix_was_high = vix_pctl[i] >= entry_pctl or vix_pctl[i - 1] >= entry_pctl
+        vix_declining = vix_smooth[i] < vix_smooth[i - 1]
+        trend_ok = np.isnan(trend_ema[i]) or cl[i] > trend_ema[i] * (1 - p.get("trend_buffer", 5.0) / 100)
+
+        if vix_was_high and vix_declining and trend_ok:
+            entries[i] = True
+
+        # Exit: VIX compresses back to normal (complacency)
+        if vix_pctl[i] <= exit_pctl:
+            exits[i] = True
+            labels[i] = "V"  # VIX normalized
+            continue
+
+        # Exit: VIX spikes even higher (panic acceleration — get out)
+        if vix[i] > p.get("panic_vix", 45):
+            exits[i] = True
+            labels[i] = "P"  # Panic
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy: VIX Regime + Trend — Combine VIX regime detection with EMA trend.
+# Enter when VIX is below its long-term average (calm regime) AND trend is up.
+# Exit when VIX spikes above threshold (regime shift to fear) or trend breaks.
+# Opposite logic to vix_mean_revert — this rides the calm, exits on fear.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def vix_trend_regime(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+
+    vix = ind.vix_close()
+    vix_slow = ind.vix_sma(p.get("vix_slow_len", 60))
+    ema_short = ind.ema(p.get("short_ema", 20))
+    ema_long = ind.ema(p.get("long_ema", 50))
+    atr_vals = ind.atr(p.get("atr_period", 30))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    vix_entry_ratio = p.get("vix_entry_ratio", 0.9)  # VIX < 90% of its SMA = calm
+    vix_exit_ratio = p.get("vix_exit_ratio", 1.3)     # VIX > 130% of SMA = fear spike
+
+    for i in range(1, n):
+        if np.isnan(ema_short[i]) or np.isnan(ema_long[i]) or np.isnan(vix_slow[i]):
+            continue
+        if vix_slow[i] <= 0:
+            continue
+
+        vix_ratio = vix[i] / vix_slow[i]
+
+        # Entry: trend up + VIX is calm (below its average)
+        trend_up = ema_short[i] > ema_long[i]
+        vix_calm = vix_ratio < vix_entry_ratio
+
+        if trend_up and vix_calm:
+            entries[i] = True
+
+        # Exit 1: VIX spikes (regime shift)
+        if vix_ratio > vix_exit_ratio:
+            exits[i] = True
+            labels[i] = "V"  # VIX spike
+            continue
+
+        # Exit 2: Trend break (EMA cross)
+        if ema_short[i] < ema_long[i] and ema_short[i - 1] >= ema_long[i - 1]:
+            exits[i] = True
+            labels[i] = "E"  # EMA cross
+            continue
+
+        # Exit 3: ATR shock
+        if not np.isnan(atr_vals[i]) and i >= 1:
+            if cl[i] < cl[i - 1] - atr_vals[i] * p.get("atr_mult", 3.0):
+                exits[i] = True
+                labels[i] = "A"  # ATR shock
+
+    return entries, exits, labels
+
+
 STRATEGY_REGISTRY = {
     "montauk_821":              montauk_821,
     "rsi_regime":               rsi_regime,
@@ -774,6 +884,8 @@ STRATEGY_REGISTRY = {
     "adx_trend":                adx_trend,
     "keltner_squeeze":          keltner_squeeze,
     "psar_trend":               psar_trend,
+    "vix_mean_revert":          vix_mean_revert,
+    "vix_trend_regime":         vix_trend_regime,
 }
 
 # Parameter spaces for each strategy: {param: (min, max, step, type)}
@@ -850,6 +962,18 @@ STRATEGY_PARAMS = {
         "exit_stoch": (70, 90, 5, float), "trend_len": (100, 200, 25, int),
         "atr_period": (15, 40, 5, int), "atr_mult": (2.5, 5.0, 0.5, float),
         "cooldown": (5, 20, 5, int),
+    },
+    "vix_mean_revert": {
+        "vix_lookback": (60, 252, 20, int), "vix_ema_len": (5, 20, 5, int),
+        "entry_pctl": (75, 95, 5, float), "exit_pctl": (25, 50, 5, float),
+        "trend_len": (50, 200, 25, int), "trend_buffer": (0.0, 10.0, 2.0, float),
+        "panic_vix": (35, 60, 5, float), "cooldown": (0, 20, 5, int),
+    },
+    "vix_trend_regime": {
+        "short_ema": (10, 30, 5, int), "long_ema": (30, 80, 10, int),
+        "vix_slow_len": (30, 90, 10, int), "vix_entry_ratio": (0.7, 1.0, 0.05, float),
+        "vix_exit_ratio": (1.1, 1.6, 0.1, float), "atr_period": (10, 40, 10, int),
+        "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 20, 5, int),
     },
     "williams_midline_reclaim": {
         "willr_len": (14, 34, 4, int), "entry_wr": (-90.0, -60.0, 5.0, float),

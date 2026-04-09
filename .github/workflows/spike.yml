@@ -18,6 +18,11 @@ on:
         required: false
         default: ""
         type: string
+      bayesian:
+        description: "Use Bayesian optimization instead of GA"
+        required: false
+        default: "false"
+        type: string
 
 concurrency:
   group: spike
@@ -63,10 +68,16 @@ jobs:
           if [ -n "$STRATS" ]; then
             STRATS_FLAG="--strategies $STRATS"
           fi
+          BAYESIAN="${{ github.event.inputs.bayesian }}"
+          BAYESIAN_FLAG=""
+          if [ "$BAYESIAN" = "true" ]; then
+            BAYESIAN_FLAG="--bayesian"
+          fi
           python3 -u scripts/spike_runner.py \
             --hours "$HOURS" \
             --pop-size "$POP" \
-            $STRATS_FLAG
+            $STRATS_FLAG \
+            $BAYESIAN_FLAG
 
       - name: Commit and push results
         run: |

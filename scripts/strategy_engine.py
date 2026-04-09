@@ -141,6 +141,7 @@ class Indicators:
         self.low = df["low"].values.astype(np.float64)
         self.close = df["close"].values.astype(np.float64)
         self.volume = df["volume"].values.astype(np.float64) if "volume" in df.columns else np.ones(len(self.close))
+        self.vix = df["vix_close"].values.astype(np.float64) if "vix_close" in df.columns else None
         self.n = len(self.close)
         self._cache = {}
 
@@ -425,6 +426,29 @@ class Indicators:
             if not np.isnan(a[i]) and not np.isnan(b[i]) and not np.isnan(a[i-1]) and not np.isnan(b[i-1]):
                 out[i] = a[i-1] >= b[i-1] and a[i] < b[i]
         return out
+
+    # ── VIX indicators ──
+
+    def vix_close(self) -> np.ndarray:
+        """Raw VIX close. Returns zeros if VIX data not available."""
+        return self.vix if self.vix is not None else np.zeros(self.n)
+
+    def vix_ema(self, length: int) -> np.ndarray:
+        return self._cached(("vix_ema", length), lambda: _ema(self.vix_close(), length))
+
+    def vix_sma(self, length: int) -> np.ndarray:
+        return self._cached(("vix_sma", length), lambda: _sma(self.vix_close(), length))
+
+    def vix_percentile(self, length: int) -> np.ndarray:
+        """Rolling percentile rank of current VIX within last N bars (0-100)."""
+        def _calc():
+            vix = self.vix_close()
+            out = np.full(self.n, np.nan)
+            for i in range(length - 1, self.n):
+                window = vix[i - length + 1:i + 1]
+                out[i] = np.sum(window <= vix[i]) / length * 100
+            return out
+        return self._cached(("vix_pctl", length), _calc)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
