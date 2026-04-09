@@ -130,6 +130,7 @@ Keep the folder and file structure clean and easy to navigate. The owner needs t
 - **Clean up after yourself** — remove temp files, don't leave orphaned outputs or half-finished work lying around
 - **Keep output organized sequentially** — spike runs go in `spike/runs/NNN/`, not loose in the project root
 - **When in doubt, match the existing pattern** — look at how similar files are already named and placed
+- **Keep `reference/PIPELINE.md` current** — when you change the fitness function, optimizer logic, validation suite, data flow, GH Actions workflow, or any process/pipeline behavior, update the pipeline diagram to match. This is the visual source of truth for how the system works.
 
 ## Optimization Tools (`/spike`)
 
