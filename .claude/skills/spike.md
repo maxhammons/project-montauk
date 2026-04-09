@@ -1,40 +1,75 @@
-# /spike — Find the Best TECL Strategy
+# /spike — Iterative TECL Strategy Optimization (v2)
 
-Goal: find strategies that beat buy-and-hold on TECL by buying low and selling at peaks. 8.2.1 is the baseline. vs B&H is the primary fitness target.
+Goal: find strategies that beat buy-and-hold on TECL. Iterative creative loop — Claude sees per-cycle diagnostics, revises strategy code, optimizer tunes params, repeat.
 
 ## The Flow
 
-### Step 1 — Ask two questions
+### Step 1 — Ask one question
 
-1. **"How long should the optimizer run?"** (default 5 hours)
-2. **"Local or GitHub Actions?"**
-   - **Local**: No time limit, faster feedback, Ctrl+C saves cleanly
-   - **GH Actions**: 5-hour cap (free tier), auto-commits, close laptop and walk away
+**"How long should we work on this?"** (default 2 hours)
 
-### Step 2 — Study the leaderboard + generate strategies
+This is local-only. The iterative loop requires Claude in the loop between optimizer chunks.
 
-Before running the optimizer, do the creative work:
+### Step 2 — Refresh data + build context
+
+1. Run data refresh:
+```bash
+cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 -c "from data import refresh_all; refresh_all()"
+```
+
+2. Build and display the regime map:
+```bash
+cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 regime_map.py
+```
+
+3. Read the regime map output. Study every bull/bear cycle — dates, magnitude, duration.
+
+### Step 3 — Diagnose current strategies
 
 1. Read `spike/leaderboard.json` — the all-time top 20
 2. Read `scripts/strategies.py` — all existing strategy functions
-3. Read `reference/VALIDATION-PHILOSOPHY.md` — understand fitness targets
-4. **Check `converged` flags.** Skip converged strategies. Focus on active ones.
-5. For each non-converged top strategy:
-   - Read its code, best params, and metrics
-   - Think about WHY it works — what market conditions does it exploit?
-   - Write improved variants as NEW strategy functions
-6. **Generate 2-4 new strategy ideas** — fresh approaches, not just variants
-7. **Check parameter complexity.** Prefer 5-8 params. Fitness rejects trades-per-param < 2.0.
-8. **Prune dead weight** before adding — delete strategies that scored below 0.05 after 2+ runs, or converged below top 5. Max 15 strategies in registry.
-9. Add new functions to `STRATEGY_REGISTRY` and `STRATEGY_PARAMS`
+3. Run cycle diagnostics on top 5 leaderboard strategies:
+```bash
+cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 -c "
+from data import get_tecl_data
+from regime_map import build_regime_map
+from cycle_diagnostics import diagnose_strategy, format_diagnostics
+import json
 
-**Research-informed design principles:**
-- **Fewer parameters is better.** 5-8 params with 30+ trades >>> 12 params with 15 trades
-- **Beat buy-and-hold.** Fitness = `vs_bah × trade_scale × hhi_penalty × dd_penalty × complexity_penalty × regime_mult`
-- **Avoid single-cycle dependence.** HHI > 0.35 = instant rejection
-- **Max ≤3 trades/year.** Hard cap in fitness
+df = get_tecl_data()
+rm = build_regime_map(df)
+with open('../spike/leaderboard.json') as f:
+    lb = json.load(f)
 
-**Available indicators** (all cached — same as Pine Script `ta.*`):
+for entry in lb[:5]:
+    diag = diagnose_strategy(entry['strategy'], entry['params'], df, rm)
+    print(format_diagnostics(diag))
+    print('\n' + '='*65 + '\n')
+"
+```
+
+4. **Study the diagnostics.** For each strategy, identify:
+   - Which bull cycles have the lowest capture (biggest missed opportunities)
+   - Which exit conditions fire mostly during bulls (these are killing performance)
+   - Whether the bottleneck is bull_capture or bear_avoidance
+   - Gaps where the strategy was out of market during major moves
+
+### Step 4 — Creative phase (write/revise strategies)
+
+With the regime map and cycle diagnostics in hand:
+
+1. **Read `reference/VALIDATION-PHILOSOPHY.md`** — understand fitness targets
+2. **Check `converged` flags** in leaderboard. Skip converged strategies.
+3. **Design new strategies** targeting the specific weaknesses you identified:
+   - If bull capture is the bottleneck → design strategies that stay in longer (wider exit triggers, faster re-entry)
+   - If a specific exit reason fires too much during bulls → write a variant that softens or removes that exit
+   - If gaps show the strategy exits and doesn't re-enter for months → add re-entry logic
+4. **Generate 2-4 new strategy functions** in `scripts/strategies.py`
+5. **Check parameter complexity.** Prefer 5-8 params. Fitness rejects trades-per-param < 2.0.
+6. **Prune dead weight** — delete strategies below 0.05 fitness after 2+ runs, or converged below top 5. Max 15 strategies in registry.
+7. Add new functions to `STRATEGY_REGISTRY` and `STRATEGY_PARAMS`
+
+**Available indicators** (all cached):
 ```
 ind.ema(N)  ind.sma(N)  ind.tema(N)  ind.rsi(N)  ind.cci(N)  ind.willr(N)
 ind.mfi(N)  ind.stoch_k(N)  ind.stoch_d(N)  ind.roc(N)  ind.mom(N)
@@ -52,81 +87,93 @@ ind.crossover(a, b)  ind.crossunder(a, b)
 ind.close  ind.high  ind.low  ind.open  ind.volume  ind.dates  ind.n
 ```
 
-**Strategy cap: max 15.** Prune before adding.
+### Step 5 — Optimizer chunk (~20 minutes)
 
-### Step 3 — Launch the optimizer
-
-#### If Local:
-
-Run via Bash tool:
+Launch the first optimizer chunk:
 ```bash
-cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 spike_runner.py --hours <N>
+cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 spike_runner.py --chunk --minutes 20 --pop-size 40
 ```
 
-Tell the user:
-- **To stop**: `Ctrl+C` — saves everything cleanly
-- Terminal shows progress every 5 minutes
-- Results go to `spike/runs/NNN/`
+When it finishes, read the chunk results. Note the state file path for the next chunk.
 
-#### If GH Actions:
+### Step 6 — Analyze intermediate results
 
-1. Check for in-progress runs:
-   ```bash
-   gh run list --workflow=spike.yml --status=in_progress --status=queued --json databaseId,status --jq 'length'
-   ```
-   If > 0: STOP. Tell user a run is already in progress.
+After each chunk:
 
-2. Commit, push, trigger:
-   ```bash
-   git add scripts/ spike/
-   git commit -m "spike: new strategies for $(date +%Y-%m-%d) run"
-   git push
-   gh workflow run spike.yml -f hours=<N> -f pop_size=60
-   ```
+1. Read the chunk results (printed as `###CHUNK_RESULT###` JSON)
+2. Run cycle diagnostics on the chunk's top strategies:
+```bash
+cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 -c "
+from data import get_tecl_data
+from regime_map import build_regime_map
+from cycle_diagnostics import diagnose_strategy, format_diagnostics
 
-3. Confirm:
-   ```bash
-   sleep 3 && gh run list --workflow=spike.yml --limit=1 --json url,status --jq '.[0]'
-   ```
+df = get_tecl_data()
+rm = build_regime_map(df)
 
-Tell the user: "Spike is running. Close your laptop — results auto-commit when done. Run `/spike-results` to check later."
+# Use the best strategy/params from the chunk results
+diag = diagnose_strategy('<STRATEGY_NAME>', <PARAMS_DICT>, df, rm)
+print(format_diagnostics(diag))
+"
+```
 
-### Step 4 — After completion
+3. **Check boundary hits** in diagnostics — if a param is hitting "high" or "low", consider expanding the search space in `STRATEGY_PARAMS`
+4. **Identify what changed** — did bull capture improve? Did the bottleneck shift?
 
-1. Read `spike/runs/<latest>/report.md`
-2. Show top-10 table
-3. Run validation: `cd scripts && ~/Documents/.venv/bin/python3 -m validation.sprint1`
-4. Compare winner to montauk_821 baseline
-5. If user wants Pine Script → generate for #1 winner (see below)
-6. If user wants to push results → commit and push
+### Step 7 — Revise strategy CODE and repeat
 
-## Pine Script generation
+Based on the intermediate results:
 
-After every spike run, convert the winning strategy to Pine Script v6:
+1. **Revise strategy logic** — not just params, the actual entry/exit code
+2. **Expand param spaces** if boundary hits were detected
+3. **Add/remove strategies** as needed
 
-1. Read the winning Python function from `scripts/strategies.py`
-2. Read its best parameters from the run results
-3. Read `src/strategy/active/Project Montauk 8.2.1.txt` as structural template
-4. Use `reference/pinescriptv6-main/` for correct syntax — do NOT guess
-5. Write equivalent Pine Script with hardcoded winning params as `input.*` defaults
-6. Save to `src/strategy/testing/Project Montauk <version>-candidate.txt`
-7. Also save to `spike/runs/<N>/candidate.txt`
+Launch the next chunk (with state from previous chunk):
+```bash
+cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 spike_runner.py --chunk --minutes 20 --pop-size 40 --state-file <STATE_FILE_PATH>
+```
+
+**Repeat Steps 6-7 until the time budget is exhausted.**
+
+### Step 8 — Final validation
+
+After the last chunk:
+
+1. **Cross-asset validation** — test the winner on TQQQ and QQQ:
+```bash
+cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 -m validation.cross_asset
+```
+
+2. **Sprint 1 validation** — 6 anti-overfitting tests:
+```bash
+cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 -m validation.sprint1
+```
+
+3. **Compare winner to montauk_821 baseline**
+
+4. If user wants Pine Script → generate for #1 winner
+
+5. If user wants to push results → commit and push
+
+6. If user wants extended param tuning → suggest `/spike-focus`
 
 ## Key files
 
 | File | Role |
 |------|------|
 | `scripts/strategies.py` | Strategy library — add new strategies here |
-| `scripts/evolve.py` | Evolutionary optimizer (regime-score fitness, diversity-driven GA) |
-| `scripts/spike_runner.py` | Main entry point |
+| `scripts/evolve.py` | Optimizer: `evolve()` for full runs, `evolve_chunk()` for iterative |
+| `scripts/spike_runner.py` | Entry point: `--hours` for full, `--chunk` for iterative |
+| `scripts/regime_map.py` | Bull/bear cycle detection and formatting |
+| `scripts/cycle_diagnostics.py` | Per-cycle trade analysis |
+| `scripts/validation/cross_asset.py` | Cross-asset validation (TQQQ, QQQ) |
 | `scripts/validation/sprint1.py` | 6-test overfitting validation suite |
-| `reference/VALIDATION-PHILOSOPHY.md` | Why we test, what we've built |
-| `spike/leaderboard.json` | All-time top 20 (regime-score ranked) |
-| `spike/hash-index.json` | Dedup index: {hash: {f, rs}} |
+| `spike/leaderboard.json` | All-time top 20 |
 
 ## Constraints
 
 - **TECL only** — long only, no shorting
 - **≤3 trades/year** — regime strategy, not scalper
-- **vs B&H is primary** — must beat buy-and-hold. Regime score is a quality multiplier.
+- **vs B&H is primary** — must beat buy-and-hold
 - **Never modify `src/strategy/active/`** — candidates go in `testing/`
+- **Max 15 strategies** in registry

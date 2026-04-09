@@ -132,25 +132,30 @@ Keep the folder and file structure clean and easy to navigate. The owner needs t
 - **When in doubt, match the existing pattern** — look at how similar files are already named and placed
 - **Keep `reference/PIPELINE.md` current** — when you change the fitness function, optimizer logic, validation suite, data flow, GH Actions workflow, or any process/pipeline behavior, update the pipeline diagram to match. This is the visual source of truth for how the system works.
 
-## Optimization Tools (`/spike`)
+## Optimization Tools (`/spike` + `/spike-focus`)
 
-The `/spike` skill runs a fully autonomous strategy optimization loop. One question ("how many hours?"), then hands-free. Claude generates/improves strategies, Python optimizes them overnight, and a markdown report with top-10 table is auto-generated.
+Two complementary skills for strategy development:
 
-### How to use
+### `/spike` — Interactive creative loop (local)
 
-1. **Run `/spike`** in Claude Code — asks duration, generates strategies, triggers GitHub Actions
-2. **Close your laptop** — the optimizer runs in the cloud and auto-commits results
-3. **Come back later** — run `/spike results` or just ask "how did spike go?" to see results and generate Pine Script
-4. All output goes to `spike/runs/NNN/` — **the active strategy is never modified**
+Iterative optimization where Claude sees per-cycle diagnostics, revises strategy *code* between optimizer chunks, and collaborates with the GA to find strategies that beat buy-and-hold.
 
-### What `/spike` does
+1. **Run `/spike`** — asks how long (default 2h), runs locally
+2. **Claude sees the regime map** — every bull/bear cycle with dates, magnitude, duration
+3. **Claude sees cycle diagnostics** — where each strategy's trades fall in each cycle, what exits fire during bulls
+4. **Claude writes strategies** informed by actual cycle data
+5. **Optimizer runs 20-min chunks** — Claude reviews results and revises code between chunks
+6. **Cross-asset + sprint1 validation** on the winner at the end
+7. All output goes to `spike/runs/NNN/` — **the active strategy is never modified**
 
-1. **Asks** how long to run
-2. **Reads** the leaderboard (`spike/leaderboard.json`) to understand what's winning
-3. **Generates** new strategies + improves existing leaderboard winners (50/50 split)
-4. **Commits and pushes** the new strategies
-5. **Triggers** GitHub Actions workflow (`gh workflow run spike.yml`)
-6. **Shows** you the run URL — done, close your laptop
+### `/spike-focus` — Deep param optimization (GH Actions)
+
+Fire-and-forget extended optimization on 1-2 specific strategies. Use after `/spike` has identified promising strategy logic.
+
+1. **Run `/spike-focus`** — asks which strategy and how long (default 5h)
+2. **Commits, pushes, triggers GH Actions** with `--strategies` filter and pop_size=80
+3. **Close your laptop** — results auto-commit when done
+4. **Run `/spike-results`** later to see results
 
 ### History system
 

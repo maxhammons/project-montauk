@@ -1,7 +1,21 @@
 from __future__ import annotations
 
 """
-TECL data fetcher — CSV fallback + yfinance for fresh data.
+TECL data module — local-first with API refresh on /spike invocation.
+
+All data lives in reference/time-series data/ as CSVs. The optimizer reads
+from local files and never calls an API during a run. The refresh_all()
+function is called once at /spike start to pull any new bars and update
+every CSV in place.
+
+Files managed:
+  TECL.csv          TECL OHLCV (synthetic 1998-2008 + real 2009+) + vix_close
+  VIX Daily.csv     CBOE VIX OHLCV
+  XLK Daily.csv     TECL underlying
+  TQQQ Daily.csv    Synthetic 1999-2010 + real 2010+
+  QQQ Daily.csv     TQQQ underlying
+  Treasury Yield Spread 10Y-2Y.csv   FRED T10Y2Y
+  Fed Funds Rate.csv                 FRED DFF
 """
 
 import os
@@ -10,75 +24,32 @@ import numpy as np
 from datetime import datetime, timedelta
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CSV_PATH = os.path.join(PROJECT_ROOT, "reference", "TECL Price History (2-23-26).csv")
+TS_DIR = os.path.join(PROJECT_ROOT, "reference", "time-series data")
+TECL_CSV = os.path.join(TS_DIR, "TECL.csv")
+VIX_CSV = os.path.join(TS_DIR, "VIX Daily.csv")
+XLK_CSV = os.path.join(TS_DIR, "XLK Daily.csv")
+QQQ_CSV = os.path.join(TS_DIR, "QQQ Daily.csv")
+TQQQ_CSV = os.path.join(TS_DIR, "TQQQ Daily.csv")
+
+# Legacy path — migrated to TECL.csv on first load
+_LEGACY_CSV = os.path.join(TS_DIR, "TECL Price History (2-23-26).csv")
 
 
-def load_csv() -> pd.DataFrame:
-    """Load the bundled TECL CSV."""
-    df = pd.read_csv(CSV_PATH, parse_dates=["date"])
-    df = df.sort_values("date").reset_index(drop=True)
-    df.columns = [c.lower().strip() for c in df.columns]
-    return df
-
-
-def fetch_yahoo(start: str = "2008-12-01", end: str | None = None) -> pd.DataFrame:
-    """
-    Fetch TECL daily OHLCV directly from Yahoo Finance chart API.
-    No yfinance dependency — just requests + pandas.
-    """
-    try:
-        import requests
-
-        start_dt = datetime.strptime(start, "%Y-%m-%d")
-        end_dt = datetime.strptime(end, "%Y-%m-%d") if end else datetime.now() + timedelta(days=1)
-        period1 = int(start_dt.timestamp())
-        period2 = int(end_dt.timestamp())
-
-        url = (
-            f"https://query1.finance.yahoo.com/v8/finance/chart/TECL"
-            f"?period1={period1}&period2={period2}&interval=1d"
-            f"&includeAdjustedClose=true"
-        )
-        headers = {"User-Agent": "Mozilla/5.0"}
-        resp = requests.get(url, headers=headers, timeout=15)
-        resp.raise_for_status()
-        data = resp.json()
-
-        result = data["chart"]["result"][0]
-        timestamps = result["timestamp"]
-        quotes = result["indicators"]["quote"][0]
-
-        df = pd.DataFrame({
-            "date": pd.to_datetime(timestamps, unit="s").normalize(),
-            "open": quotes["open"],
-            "high": quotes["high"],
-            "low": quotes["low"],
-            "close": quotes["close"],
-            "volume": quotes["volume"],
-        })
-
-        # Drop rows with NaN prices
-        df = df.dropna(subset=["close"]).reset_index(drop=True)
-        # Ensure tz-naive
-        df["date"] = df["date"].dt.tz_localize(None)
-        df = df.sort_values("date").reset_index(drop=True)
-        return df
-
-    except Exception as e:
-        print(f"[data] Yahoo Finance fetch failed: {e}")
-        return pd.DataFrame()
-
+# ─────────────────────────────────────────────────────────────────────
+# Yahoo Finance fetcher (shared)
+# ─────────────────────────────────────────────────────────────────────
 
 def _fetch_ticker_yahoo(ticker: str, start: str = "2008-12-01", end: str | None = None) -> pd.DataFrame:
-    """
-    Fetch daily OHLCV for any ticker from Yahoo Finance chart API.
-    Shared helper used by fetch_yahoo, fetch_vix, build_synthetic_tecl.
-    """
+    """Fetch daily OHLCV for any ticker from Yahoo Finance chart API."""
     try:
         import requests
 
         start_dt = datetime.strptime(start, "%Y-%m-%d")
         end_dt = datetime.strptime(end, "%Y-%m-%d") if end else datetime.now() + timedelta(days=1)
+
+        # Don't fetch if start is in the future
+        if start_dt >= end_dt:
+            return pd.DataFrame()
         period1 = int(start_dt.timestamp())
         period2 = int(end_dt.timestamp())
 
@@ -115,11 +86,324 @@ def _fetch_ticker_yahoo(ticker: str, start: str = "2008-12-01", end: str | None 
         return pd.DataFrame()
 
 
+def _fetch_fred_csv(series_id: str, start: str = "1998-01-01") -> pd.DataFrame:
+    """Fetch a FRED time series via their public CSV endpoint."""
+    try:
+        import requests
+        from io import StringIO
+        url = f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={series_id}&cosd={start}"
+        resp = requests.get(url, timeout=15)
+        resp.raise_for_status()
+        df = pd.read_csv(StringIO(resp.text))
+        df.columns = ["date", "value"]
+        df["date"] = pd.to_datetime(df["date"])
+        df["value"] = pd.to_numeric(df["value"], errors="coerce")
+        df = df.dropna(subset=["value"]).reset_index(drop=True)
+        return df
+    except Exception as e:
+        print(f"[data] FRED fetch failed for {series_id}: {e}")
+        return pd.DataFrame(columns=["date", "value"])
+
+
+# ─────────────────────────────────────────────────────────────────────
+# CSV append helper
+# ─────────────────────────────────────────────────────────────────────
+
+def _append_new_bars(csv_path: str, ticker: str, start_override: str | None = None) -> int:
+    """
+    Append new bars to an existing CSV from Yahoo Finance.
+    Returns number of new bars appended. Does NOT overwrite existing data.
+    """
+    if not os.path.exists(csv_path):
+        return 0
+
+    df = pd.read_csv(csv_path, parse_dates=["date"])
+    df = df.sort_values("date").reset_index(drop=True)
+    last_date = df["date"].max()
+
+    fetch_start = start_override or (last_date + timedelta(days=1)).strftime("%Y-%m-%d")
+    fresh = _fetch_ticker_yahoo(ticker, start=fetch_start)
+
+    if fresh.empty:
+        return 0
+
+    fresh = fresh[fresh["date"] > last_date].reset_index(drop=True)
+    if fresh.empty:
+        return 0
+
+    # Only keep columns that exist in the current CSV
+    shared = [c for c in df.columns if c in fresh.columns]
+    combined = pd.concat([df[shared], fresh[shared]], ignore_index=True)
+    combined = combined.sort_values("date").reset_index(drop=True)
+    combined.to_csv(csv_path, index=False)
+    return len(fresh)
+
+
+# ─────────────────────────────────────────────────────────────────────
+# refresh_all() — called once at /spike start
+# ─────────────────────────────────────────────────────────────────────
+
+def refresh_all():
+    """
+    Pull latest bars for all local CSVs. Called once at /spike invocation.
+    Updates files in place — only appends, never overwrites historical data.
+    """
+    print("[refresh] Updating all local CSVs...")
+
+    # ── TECL ──
+    # Migrate legacy file if needed
+    if os.path.exists(_LEGACY_CSV) and not os.path.exists(TECL_CSV):
+        _migrate_legacy_tecl()
+    elif not os.path.exists(TECL_CSV):
+        print("[refresh] ERROR: No TECL CSV found. Run data_audit.py first.")
+        return
+
+    # Append fresh TECL bars
+    tecl_new = _append_tecl_bars()
+    print(f"[refresh] TECL: +{tecl_new} new bars")
+
+    # ── VIX ──
+    vix_new = _append_vix_bars()
+    print(f"[refresh] VIX: +{vix_new} new bars")
+
+    # ── Re-merge VIX into TECL ──
+    if vix_new > 0 or tecl_new > 0:
+        _merge_vix_into_tecl()
+
+    # ── XLK ──
+    n = _append_new_bars(XLK_CSV, "XLK")
+    print(f"[refresh] XLK: +{n} new bars")
+
+    # ── QQQ ──
+    n = _append_new_bars(QQQ_CSV, "QQQ")
+    print(f"[refresh] QQQ: +{n} new bars")
+
+    # ── TQQQ ──
+    n = _append_new_bars(TQQQ_CSV, "TQQQ")
+    print(f"[refresh] TQQQ: +{n} new bars")
+
+    # ── FRED data (yield spread, fed funds) ──
+    _refresh_fred("Treasury Yield Spread 10Y-2Y.csv", "T10Y2Y", "yield_spread_10y2y")
+    _refresh_fred("Fed Funds Rate.csv", "DFF", "fed_funds_rate")
+
+    # Summary
+    tecl = pd.read_csv(TECL_CSV, parse_dates=["date"])
+    print(f"[refresh] Done. TECL: {len(tecl)} bars through {tecl['date'].max().date()}")
+
+
+def _append_tecl_bars() -> int:
+    """Append new TECL bars from Yahoo and save to TECL.csv."""
+    df = pd.read_csv(TECL_CSV, parse_dates=["date"])
+    df = df.sort_values("date").reset_index(drop=True)
+    last_date = df["date"].max()
+
+    fresh = _fetch_ticker_yahoo("TECL", start=(last_date + timedelta(days=1)).strftime("%Y-%m-%d"))
+    if fresh.empty:
+        return 0
+
+    fresh = fresh[fresh["date"] > last_date].reset_index(drop=True)
+    if fresh.empty:
+        return 0
+
+    # New rows get OHLCV, vix_close will be filled by _merge_vix_into_tecl
+    for col in df.columns:
+        if col not in fresh.columns:
+            fresh[col] = np.nan
+
+    combined = pd.concat([df, fresh[df.columns]], ignore_index=True)
+    combined = combined.sort_values("date").reset_index(drop=True)
+    combined.to_csv(TECL_CSV, index=False)
+    return len(fresh)
+
+
+def _append_vix_bars() -> int:
+    """Append new VIX bars from Yahoo and save to VIX Daily.csv."""
+    if not os.path.exists(VIX_CSV):
+        # Full download
+        vix = _fetch_ticker_yahoo("^VIX", start="1990-01-01")
+        if vix.empty:
+            return 0
+        vix.columns = ["date", "vix_open", "vix_high", "vix_low", "vix_close", "vix_volume"]
+        vix.to_csv(VIX_CSV, index=False)
+        return len(vix)
+
+    df = pd.read_csv(VIX_CSV, parse_dates=["date"])
+    df = df.sort_values("date").reset_index(drop=True)
+    last_date = df["date"].max()
+
+    fresh = _fetch_ticker_yahoo("^VIX", start=(last_date + timedelta(days=1)).strftime("%Y-%m-%d"))
+    if fresh.empty:
+        return 0
+
+    fresh = fresh[fresh["date"] > last_date].reset_index(drop=True)
+    if fresh.empty:
+        return 0
+
+    fresh = fresh.rename(columns={
+        "open": "vix_open", "high": "vix_high", "low": "vix_low",
+        "close": "vix_close", "volume": "vix_volume"
+    })
+    combined = pd.concat([df, fresh[df.columns]], ignore_index=True)
+    combined = combined.sort_values("date").reset_index(drop=True)
+    combined.to_csv(VIX_CSV, index=False)
+    return len(fresh)
+
+
+def _merge_vix_into_tecl():
+    """Re-merge vix_close column in TECL.csv from VIX Daily.csv."""
+    tecl = pd.read_csv(TECL_CSV, parse_dates=["date"])
+    vix = pd.read_csv(VIX_CSV, parse_dates=["date"])
+
+    # Drop old vix_close, re-merge fresh
+    if "vix_close" in tecl.columns:
+        tecl = tecl.drop(columns=["vix_close"])
+
+    vix_slim = vix[["date", "vix_close"]].copy()
+    tecl = tecl.merge(vix_slim, on="date", how="left")
+    tecl = tecl.sort_values("date").reset_index(drop=True)
+    tecl.to_csv(TECL_CSV, index=False)
+
+
+def _refresh_fred(filename: str, series_id: str, col_name: str):
+    """Refresh a FRED CSV by appending new observations."""
+    path = os.path.join(TS_DIR, filename)
+    if not os.path.exists(path):
+        df = _fetch_fred_csv(series_id)
+        if not df.empty:
+            df.columns = ["date", col_name]
+            df.to_csv(path, index=False)
+            print(f"[refresh] {filename}: downloaded {len(df)} rows")
+        return
+
+    existing = pd.read_csv(path, parse_dates=["date"])
+    last_date = existing["date"].max()
+    fresh = _fetch_fred_csv(series_id, start=(last_date + timedelta(days=1)).strftime("%Y-%m-%d"))
+    if fresh.empty or len(fresh) == 0:
+        print(f"[refresh] {filename}: up to date")
+        return
+
+    fresh.columns = ["date", col_name]
+    fresh = fresh[fresh["date"] > last_date]
+    if fresh.empty:
+        print(f"[refresh] {filename}: up to date")
+        return
+
+    combined = pd.concat([existing, fresh], ignore_index=True)
+    combined = combined.sort_values("date").reset_index(drop=True)
+    combined.to_csv(path, index=False)
+    print(f"[refresh] {filename}: +{len(fresh)} new rows")
+
+
+def _migrate_legacy_tecl():
+    """One-time migration: old TECL Price History CSV → TECL.csv with vix_close."""
+    print("[data] Migrating legacy TECL CSV → TECL.csv...")
+    df = pd.read_csv(_LEGACY_CSV, parse_dates=["date"])
+    df = df.sort_values("date").reset_index(drop=True)
+    df.columns = [c.lower().strip() for c in df.columns]
+
+    # Keep only standard columns
+    keep = ["date", "open", "high", "low", "close", "volume"]
+    df = df[[c for c in keep if c in df.columns]]
+
+    # Merge VIX if available
+    if os.path.exists(VIX_CSV):
+        vix = pd.read_csv(VIX_CSV, parse_dates=["date"])
+        if "vix_close" in vix.columns:
+            df = df.merge(vix[["date", "vix_close"]], on="date", how="left")
+    else:
+        df["vix_close"] = np.nan
+
+    df.to_csv(TECL_CSV, index=False)
+    print(f"[data] Saved {TECL_CSV} ({len(df)} bars)")
+
+
+# ─────────────────────────────────────────────────────────────────────
+# get_tecl_data() — main entry point for the optimizer
+# ─────────────────────────────────────────────────────────────────────
+
+def get_tecl_data(use_yfinance: bool = False) -> pd.DataFrame:
+    """
+    Load TECL data from local CSV. No API calls — all data is local.
+    Run refresh_all() before the optimizer to update CSVs.
+
+    The CSV includes synthetic 3x data from XLK (1998-2008) stitched
+    to real TECL (2009-present), with vix_close merged in.
+    """
+    # Migrate legacy file if needed
+    if not os.path.exists(TECL_CSV):
+        if os.path.exists(_LEGACY_CSV):
+            _migrate_legacy_tecl()
+        else:
+            raise FileNotFoundError(f"No TECL data found. Expected: {TECL_CSV}")
+
+    df = pd.read_csv(TECL_CSV, parse_dates=["date"])
+    df = df.sort_values("date").reset_index(drop=True)
+    df.columns = [c.lower().strip() for c in df.columns]
+    print(f"[data] TECL: {len(df)} bars, {df['date'].min().date()} to {df['date'].max().date()}")
+
+    # Ensure vix_close exists
+    if "vix_close" not in df.columns:
+        df["vix_close"] = np.nan
+
+    vix_count = df["vix_close"].notna().sum()
+    print(f"[data] VIX: {vix_count}/{len(df)} dates matched")
+
+    for col in ["open", "high", "low", "close", "volume"]:
+        assert col in df.columns, f"Missing column: {col}"
+
+    return df
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Cross-asset data loaders (for cross-asset validation)
+# ─────────────────────────────────────────────────────────────────────
+
+def get_tqqq_data() -> pd.DataFrame:
+    """Load TQQQ data from local CSV (synthetic 1999-2010 + real 2010+)."""
+    if not os.path.exists(TQQQ_CSV):
+        raise FileNotFoundError(f"No TQQQ data. Expected: {TQQQ_CSV}")
+    df = pd.read_csv(TQQQ_CSV, parse_dates=["date"])
+    df = df.sort_values("date").reset_index(drop=True)
+    df.columns = [c.lower().strip() for c in df.columns]
+    for col in ["open", "high", "low", "close", "volume"]:
+        assert col in df.columns, f"Missing column: {col}"
+    print(f"[data] TQQQ: {len(df)} bars, {df['date'].min().date()} to {df['date'].max().date()}")
+    return df
+
+
+def get_qqq_data() -> pd.DataFrame:
+    """Load QQQ data from local CSV."""
+    if not os.path.exists(QQQ_CSV):
+        raise FileNotFoundError(f"No QQQ data. Expected: {QQQ_CSV}")
+    df = pd.read_csv(QQQ_CSV, parse_dates=["date"])
+    df = df.sort_values("date").reset_index(drop=True)
+    df.columns = [c.lower().strip() for c in df.columns]
+    for col in ["open", "high", "low", "close", "volume"]:
+        assert col in df.columns, f"Missing column: {col}"
+    print(f"[data] QQQ: {len(df)} bars, {df['date'].min().date()} to {df['date'].max().date()}")
+    return df
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Legacy compat — kept for imports in other scripts
+# ─────────────────────────────────────────────────────────────────────
+
+# Old CSV_PATH for backwards compat
+CSV_PATH = TECL_CSV
+
+
+def load_csv() -> pd.DataFrame:
+    """Legacy wrapper — use get_tecl_data() instead."""
+    return get_tecl_data(use_yfinance=False)
+
+
+def fetch_yahoo(start: str = "2008-12-01", end: str | None = None) -> pd.DataFrame:
+    """Fetch TECL from Yahoo Finance."""
+    return _fetch_ticker_yahoo("TECL", start=start, end=end)
+
+
 def fetch_vix(start: str = "1990-01-01", end: str | None = None) -> pd.DataFrame:
-    """
-    Fetch CBOE VIX daily close from Yahoo Finance.
-    Returns DataFrame with columns: date, vix_close.
-    """
+    """Fetch VIX from Yahoo Finance. Returns date + vix_close."""
     df = _fetch_ticker_yahoo("^VIX", start=start, end=end)
     if df.empty:
         return pd.DataFrame(columns=["date", "vix_close"])
@@ -128,139 +412,48 @@ def fetch_vix(start: str = "1990-01-01", end: str | None = None) -> pd.DataFrame
 
 def build_synthetic_tecl(start: str = "1998-01-01", end: str | None = None,
                          anchor_price: float = 10.0) -> pd.DataFrame:
-    """
-    Build synthetic 3x leveraged TECL data from XLK.
-
-    Uses XLK daily returns scaled by 3x minus daily expense ratio to simulate
-    what TECL would have looked like before it existed.
-
-    Parameters
-    ----------
-    start : start date for XLK fetch
-    end : end date for XLK fetch (exclusive — fetch up to this date)
-    anchor_price : the price the synthetic series should end at
-                   (set to real TECL's first close so they stitch together)
-
-    Returns DataFrame with columns: date, open, high, low, close, volume
-    """
+    """Build synthetic 3x leveraged TECL data from XLK."""
     xlk = _fetch_ticker_yahoo("XLK", start=start, end=end)
     if xlk.empty:
         print("[data] WARNING: Could not fetch XLK for synthetic TECL")
         return pd.DataFrame()
 
-    daily_expense = 0.0095 / 252  # TECL expense ratio ~0.95% / trading days
-
+    daily_expense = 0.0095 / 252
     xlk_close = xlk["close"].values.astype(np.float64)
     xlk_open = xlk["open"].values.astype(np.float64)
     xlk_high = xlk["high"].values.astype(np.float64)
     xlk_low = xlk["low"].values.astype(np.float64)
-
     n = len(xlk_close)
 
-    # Compute daily returns and synthetic 3x leveraged returns
     daily_ret = np.zeros(n)
     synth_ret = np.zeros(n)
     for i in range(1, n):
         daily_ret[i] = xlk_close[i] / xlk_close[i - 1] - 1
         synth_ret[i] = 3 * daily_ret[i] - daily_expense
 
-    # Build synthetic close series (forward from arbitrary base, then rescale)
-    # Start with base=1.0 and compound forward
     synth_close = np.ones(n)
     for i in range(1, n):
         synth_close[i] = synth_close[i - 1] * (1 + synth_ret[i])
 
-    # Rescale so the last synthetic close equals anchor_price
     scale = anchor_price / synth_close[-1] if synth_close[-1] != 0 else 1.0
     synth_close *= scale
 
-    # Synthesize OHLC by scaling XLK OHLC ratios
     xlk_close_safe = np.where(xlk_close > 0, xlk_close, 1.0)
-    synth_open = synth_close * (xlk_open / xlk_close_safe)
-    synth_high = synth_close * (xlk_high / xlk_close_safe)
-    synth_low = synth_close * (xlk_low / xlk_close_safe)
-
-    result = pd.DataFrame({
+    return pd.DataFrame({
         "date": xlk["date"].values,
-        "open": synth_open,
-        "high": synth_high,
-        "low": synth_low,
+        "open": synth_close * (xlk_open / xlk_close_safe),
+        "high": synth_close * (xlk_high / xlk_close_safe),
+        "low": synth_close * (xlk_low / xlk_close_safe),
         "close": synth_close,
         "volume": xlk["volume"].values,
     })
 
-    return result
-
-
-def get_tecl_data(use_yfinance: bool = True) -> pd.DataFrame:
-    """
-    Get TECL data. The bundled CSV includes synthetic 3x data from XLK
-    (1998-2008) stitched to real TECL (2009-present). yfinance only
-    appends NEW bars after the CSV's last date — it never overwrites
-    the historical/synthetic data.
-
-    Parameters
-    ----------
-    use_yfinance : fetch fresh bars from Yahoo Finance (appended, never overwrites)
-    """
-    # Always start with the CSV as our base (includes synthetic 1998-2008 + real 2009+)
-    csv_df = load_csv()
-    csv_last_date = csv_df["date"].max()
-    print(f"[data] CSV: {len(csv_df)} bars, {csv_df['date'].min().date()} to {csv_last_date.date()}")
-
-    if not use_yfinance:
-        print("[data] yfinance disabled, using CSV only")
-        df = csv_df
-    else:
-        # Only fetch bars AFTER the CSV ends — never overwrite existing data
-        fetch_start = (csv_last_date + timedelta(days=1)).strftime("%Y-%m-%d")
-        yf_df = fetch_yahoo(start=fetch_start)
-
-        if yf_df.empty:
-            print("[data] No new yfinance data (CSV may already be current)")
-            df = csv_df
-        else:
-            # Strictly append: only bars after CSV's last date
-            yf_df = yf_df[yf_df["date"] > csv_last_date].reset_index(drop=True)
-
-            if yf_df.empty:
-                print("[data] yfinance returned data but no new bars after CSV")
-                df = csv_df
-            else:
-                shared_cols = ["date", "open", "high", "low", "close", "volume"]
-                csv_clean = csv_df[shared_cols].copy()
-                yf_clean = yf_df[shared_cols].copy()
-
-                df = pd.concat([csv_clean, yf_clean], ignore_index=True)
-                df = df.sort_values("date").reset_index(drop=True)
-
-                print(f"[data] Appended: {len(yf_clean)} new bars from yfinance ({len(df)} total)")
-
-    # ── Fetch and merge VIX ──
-    vix_start = df["date"].min().strftime("%Y-%m-%d")
-    print(f"[data] Fetching VIX from {vix_start}...")
-    vix_df = fetch_vix(start=vix_start)
-
-    if vix_df.empty:
-        print("[data] WARNING: VIX fetch failed, filling vix_close with NaN")
-        df["vix_close"] = np.nan
-    else:
-        print(f"[data] VIX: {len(vix_df)} bars")
-        df = df.merge(vix_df, on="date", how="left")
-        vix_count = df["vix_close"].notna().sum()
-        print(f"[data] VIX matched {vix_count}/{len(df)} TECL dates")
-
-    print(f"[data] Date range: {df['date'].min().date()} to {df['date'].max().date()}")
-
-    for col in ["open", "high", "low", "close", "volume"]:
-        assert col in df.columns, f"Missing column: {col}"
-
-    return df
-
 
 if __name__ == "__main__":
+    # When run directly: refresh everything then show summary
+    refresh_all()
     df = get_tecl_data()
-    print(f"Loaded {len(df)} bars")
+    print(f"\nLoaded {len(df)} bars")
     print(f"Date range: {df['date'].min().date()} to {df['date'].max().date()}")
     print(f"Price range: ${df['close'].min():.2f} to ${df['close'].max():.2f}")
     print(df.tail())

@@ -1075,6 +1075,342 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
 
 
 
+# ─────────────────────────────────────────────────────────────────────
+# evolve_chunk() — pause/resume optimizer for /spike v2
+# ─────────────────────────────────────────────────────────────────────
+
+def detect_boundary_hits(best_params: dict, space: dict, threshold: float = 0.1) -> dict:
+    """
+    Check if any best param values are near the edge of their search space.
+    Returns {param_name: "high" | "low" | None}.
+    """
+    hits = {}
+    for name, (lo, hi, step, typ) in space.items():
+        val = best_params.get(name)
+        if val is None:
+            hits[name] = None
+            continue
+        rng = hi - lo
+        if rng == 0:
+            hits[name] = None
+            continue
+        if (val - lo) / rng < threshold:
+            hits[name] = "low"
+        elif (hi - val) / rng < threshold:
+            hits[name] = "high"
+        else:
+            hits[name] = None
+    return hits
+
+
+def evolve_chunk(
+    minutes: float = 20.0,
+    pop_size: int = 40,
+    run_dir: str | None = None,
+    strategies: list[str] | None = None,
+    state: dict | None = None,
+) -> dict:
+    """
+    Run the optimizer for a fixed number of minutes, then return results + state.
+
+    This is the building block for /spike v2's iterative loop. Call with
+    state=None to start fresh; pass the returned state dict to resume.
+
+    Returns dict with:
+      rankings: sorted strategy results
+      state: serializable dict to pass to the next chunk
+      diagnostics: per-strategy boundary hits, diversity, improvement
+      best_ever: {strategy, fitness, params}
+    """
+    from strategies import STRATEGY_REGISTRY, STRATEGY_PARAMS
+
+    # Filter strategies
+    if strategies:
+        REG = {k: v for k, v in STRATEGY_REGISTRY.items() if k in strategies}
+        PAR = {k: v for k, v in STRATEGY_PARAMS.items() if k in strategies}
+    else:
+        REG = STRATEGY_REGISTRY
+        PAR = STRATEGY_PARAMS
+
+    start_time = time.time()
+    end_time = start_time + minutes * 60
+
+    df = get_tecl_data(use_yfinance=False)
+    ind = Indicators(df)
+
+    dedup_cache = load_hash_index()
+    history_stats = {"cached_configs": 0, "new_configs": 0, "seeded_per_strategy": 0}
+
+    leaderboard_path = os.path.join(HISTORY_DIR, "leaderboard.json")
+
+    if state is None:
+        # ── Fresh start ──
+        print(f"[chunk] Fresh start — {minutes:.0f}m, {len(REG)} strategies, pop={pop_size}")
+
+        # Baselines
+        baselines = {}
+        for name, fn in REG.items():
+            space = PAR.get(name, {})
+            default_params = {k: (lo + hi) / 2 for k, (lo, hi, step, typ) in space.items()}
+            for k, (lo, hi, step, typ) in space.items():
+                if typ == int:
+                    default_params[k] = int(round(default_params[k]))
+            score, result = evaluate(ind, df, fn, default_params, name)
+            baselines[name] = {"score": score, "params": default_params}
+
+        # Initialize populations
+        populations = {}
+        max_seed = max(2, int(pop_size * 0.2))
+        for name in REG:
+            space = PAR.get(name, {})
+            pop = [baselines[name]["params"].copy()]
+            lb_winners = get_top_from_leaderboard(leaderboard_path, name, n=max_seed)
+            for lw in lb_winners:
+                if len(pop) < pop_size:
+                    pop.append(lw)
+            while len(pop) < pop_size:
+                pop.append(random_params(space))
+            populations[name] = pop
+
+        # Load best-ever from leaderboard
+        best_ever_score = 0.0
+        best_ever_name = ""
+        best_ever_params = {}
+        if os.path.exists(leaderboard_path):
+            try:
+                with open(leaderboard_path) as f:
+                    lb = json.load(f)
+                if lb and lb[0].get("fitness", 0) > best_ever_score:
+                    best_ever_score = lb[0]["fitness"]
+                    best_ever_name = lb[0].get("strategy", "")
+                    best_ever_params = lb[0].get("params", {})
+            except Exception:
+                pass
+
+        generation = 0
+        total_evals = 0
+        strategy_bests = {name: (0.0, {}) for name in REG}
+        convergence_history = []
+        initial_diversity = {}
+        prev_scored = {}
+    else:
+        # ── Resume from state ──
+        print(f"[chunk] Resuming from gen {state['generation']} — {minutes:.0f}m")
+        populations = state["populations"]
+        best_ever_score = state["best_ever_score"]
+        best_ever_name = state["best_ever_name"]
+        best_ever_params = state["best_ever_params"]
+        generation = state["generation"]
+        total_evals = state["total_evals"]
+        strategy_bests = {k: (v["score"], v["params"]) for k, v in state["strategy_bests"].items()}
+        convergence_history = state.get("convergence_history", [])
+        initial_diversity = state.get("initial_diversity", {})
+        prev_scored = state.get("prev_scored", {})
+
+        # Handle strategy registry drift (strategies added/removed between chunks)
+        for name in list(populations.keys()):
+            if name not in REG:
+                del populations[name]
+                if name in strategy_bests:
+                    del strategy_bests[name]
+        for name in REG:
+            if name not in populations:
+                space = PAR.get(name, {})
+                populations[name] = [random_params(space) for _ in range(pop_size)]
+                strategy_bests[name] = (0.0, {})
+
+    # ── GA loop ──
+    _interrupted = [False]
+    def _handle_signal(sig, frame):
+        _interrupted[0] = True
+    old_sigint = signal.signal(signal.SIGINT, _handle_signal)
+    old_sigterm = signal.signal(signal.SIGTERM, _handle_signal)
+
+    last_report = start_time
+    gen_start = generation
+
+    try:
+        while time.time() < end_time and not _interrupted[0]:
+            generation += 1
+
+            for strat_name, fn in REG.items():
+                space = PAR.get(strat_name, {})
+                pop = populations[strat_name]
+
+                # Evaluate
+                scored = []
+                for params in pop:
+                    h = config_hash(strat_name, params)
+                    cached = dedup_cache.get(h)
+                    if cached and isinstance(cached, dict) and cached.get("bah") is not None:
+                        score = fitness_from_cache(cached)
+                        scored.append((score, params, None))
+                        history_stats["cached_configs"] += 1
+                    else:
+                        score, result = evaluate(ind, df, fn, params, strat_name)
+                        total_evals += 1
+                        scored.append((score, params, result))
+                        n_params_val = sum(1 for k, v in params.items()
+                                           if isinstance(v, (int, float)) and not isinstance(v, bool) and k != "cooldown")
+                        dedup_cache[h] = {
+                            "bah": round(result.vs_bah_multiple, 4) if result else None,
+                            "rs": round(result.regime_score.composite, 4) if result and result.regime_score else None,
+                            "dd": round(result.max_drawdown_pct, 1) if result else None,
+                            "nt": result.num_trades if result else 0,
+                            "np": n_params_val,
+                            "hhi": round(result.regime_score.hhi, 4) if result and result.regime_score and result.regime_score.hhi else None,
+                        }
+                        history_stats["new_configs"] += 1
+                scored.sort(key=lambda x: x[0], reverse=True)
+
+                # Update bests
+                if scored[0][0] > strategy_bests.get(strat_name, (0.0,))[0]:
+                    strategy_bests[strat_name] = (scored[0][0], scored[0][1])
+                if scored[0][0] > best_ever_score:
+                    best_ever_score = scored[0][0]
+                    best_ever_name = strat_name
+                    best_ever_params = scored[0][1].copy()
+
+                # Diversity measurement
+                if space and len(scored) >= 4:
+                    param_arrays = {}
+                    for _, p, _ in scored:
+                        for k, v in p.items():
+                            if k in space:
+                                param_arrays.setdefault(k, []).append(float(v))
+                    diversities = []
+                    for k, vals in param_arrays.items():
+                        lo, hi = space[k][0], space[k][1]
+                        rng = hi - lo
+                        if rng > 0 and len(vals) >= 2:
+                            diversities.append(np.std(vals) / rng)
+                    pop_diversity = float(np.mean(diversities)) if diversities else 0.0
+                else:
+                    pop_diversity = 0.5
+
+                if generation == gen_start + 1:
+                    initial_diversity[strat_name] = max(pop_diversity, 0.01)
+
+                init_div = initial_diversity.get(strat_name, 0.1)
+                relative_diversity = pop_diversity / init_div if init_div > 0 else 0
+
+                # Mutation survival rate
+                if strat_name in prev_scored:
+                    prev_best = prev_scored[strat_name]
+                    survivors = sum(1 for s, _, _ in scored if s >= prev_best * 0.9)
+                    mut_survival = survivors / len(scored) if scored else 0
+                else:
+                    mut_survival = 0.5
+                prev_scored[strat_name] = scored[0][0] if scored else 0
+
+                # DGEA mutation
+                D_LOW, D_HIGH = 0.15, 0.60
+                if relative_diversity < D_LOW:
+                    mut_rate, mut_magnitude = 0.40, 4
+                elif relative_diversity < D_HIGH:
+                    mut_rate, mut_magnitude = 0.20, 2
+                else:
+                    mut_rate, mut_magnitude = 0.10, 1
+
+                # Reproduction
+                n_elite = max(2, int(pop_size * 0.2))
+                elites = [s[1] for s in scored[:n_elite]]
+                new_pop = list(elites)
+                for _ in range(pop_size // 3):
+                    p1, p2 = random.sample(elites, min(2, len(elites)))
+                    new_pop.append(crossover_params(p1, p2))
+                while len(new_pop) < pop_size:
+                    parent = random.choice(elites)
+                    new_pop.append(mutate_params(parent, space, rate=mut_rate, magnitude=mut_magnitude))
+
+                n_inject = max(1, int(pop_size * 0.05))
+                for j in range(n_inject):
+                    idx = len(new_pop) - 1 - j
+                    if idx >= n_elite:
+                        new_pop[idx] = random_params(space)
+
+                populations[strat_name] = new_pop[:pop_size]
+
+            gen_best = max(strategy_bests[s][0] for s in strategy_bests)
+            convergence_history.append((generation, round(gen_best, 4)))
+
+            # Progress
+            now = time.time()
+            if now - last_report >= 30:
+                remaining = (end_time - now) / 60
+                print(f"  Gen {generation}: BEST={best_ever_score:.4f} ({best_ever_name}) "
+                      f"evals={total_evals:,} {remaining:.0f}m left")
+                last_report = now
+
+    finally:
+        signal.signal(signal.SIGINT, old_sigint)
+        signal.signal(signal.SIGTERM, old_sigterm)
+
+    # Save dedup cache
+    save_hash_index(dedup_cache)
+
+    # Build diagnostics
+    diagnostics = {}
+    for strat_name in REG:
+        space = PAR.get(strat_name, {})
+        best_score, best_params = strategy_bests.get(strat_name, (0.0, {}))
+        diagnostics[strat_name] = {
+            "best_score": round(best_score, 4),
+            "best_params": best_params,
+            "boundary_hits": detect_boundary_hits(best_params, space),
+            "diversity": round(initial_diversity.get(strat_name, 0), 4),
+        }
+
+    # Re-evaluate bests that were cached (no full result)
+    rankings = []
+    for strat_name, (score, params) in sorted(strategy_bests.items(), key=lambda x: -x[1][0]):
+        _, result = evaluate(ind, df, REG[strat_name], params, strat_name)
+        rankings.append({
+            "strategy": strat_name,
+            "fitness": round(score, 4),
+            "params": params,
+            "metrics": {
+                "vs_bah": round(result.vs_bah_multiple, 4) if result else 0,
+                "cagr": round(result.cagr_pct, 1) if result else 0,
+                "max_dd": round(result.max_drawdown_pct, 1) if result else 0,
+                "trades": result.num_trades if result else 0,
+                "trades_yr": round(result.trades_per_year, 1) if result else 0,
+            },
+        })
+
+    elapsed = (time.time() - start_time) / 60
+    gens_this_chunk = generation - gen_start
+    print(f"[chunk] Done — {elapsed:.1f}m, {gens_this_chunk} generations, {total_evals:,} evals")
+
+    # Serializable state for next chunk
+    out_state = {
+        "populations": populations,
+        "best_ever_score": best_ever_score,
+        "best_ever_name": best_ever_name,
+        "best_ever_params": best_ever_params,
+        "generation": generation,
+        "total_evals": total_evals,
+        "strategy_bests": {k: {"score": v[0], "params": v[1]} for k, v in strategy_bests.items()},
+        "convergence_history": convergence_history,
+        "initial_diversity": initial_diversity,
+        "prev_scored": prev_scored,
+    }
+
+    return {
+        "rankings": rankings,
+        "state": out_state,
+        "diagnostics": diagnostics,
+        "best_ever": {
+            "strategy": best_ever_name,
+            "fitness": round(best_ever_score, 4),
+            "params": best_ever_params,
+        },
+        "elapsed_minutes": round(elapsed, 1),
+        "generations": gens_this_chunk,
+        "total_evals": total_evals,
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description="Montauk Multi-Strategy Optimizer")
     parser.add_argument("--hours", type=float, default=5.0)

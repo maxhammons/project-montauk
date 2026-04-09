@@ -24,8 +24,9 @@ Read `spike/runs/<N>/report.md` and show:
 
 ### Step 3 — Run validation
 
+**Sprint 1 (anti-overfitting):**
 ```bash
-cd scripts && python3 -m validation.sprint1
+cd scripts && ~/Documents/.venv/bin/python3 -m validation.sprint1
 ```
 
 Show the Sprint 1 summary table:
@@ -36,6 +37,21 @@ Show the Sprint 1 summary table:
 - Meta-robustness (stable across regime definitions?)
 
 Flag anything that fails.
+
+**Cross-asset validation:**
+```bash
+cd scripts && ~/Documents/.venv/bin/python3 -m validation.cross_asset
+```
+
+Show how the top strategy performs on TQQQ and QQQ with the same params.
+If vs_bah varies >3x across assets, flag as possible TECL overfit.
+
+**Cycle diagnostics** (if user wants deeper analysis):
+```bash
+cd scripts && ~/Documents/.venv/bin/python3 cycle_diagnostics.py
+```
+
+Show per-cycle trade breakdown for the winner: which bull cycles it captured, which bears it avoided, where the gaps are.
 
 ### Step 4 — Generate Pine Script (if requested)
 

@@ -79,6 +79,12 @@ def main():
                         help="Comma-separated list of strategy names to run (default: all)")
     parser.add_argument("--bayesian", action="store_true",
                         help="Use Bayesian optimization (Optuna TPE) instead of GA")
+    parser.add_argument("--chunk", action="store_true",
+                        help="Run a single timed chunk (for /spike v2 iterative loop)")
+    parser.add_argument("--minutes", type=float, default=20.0,
+                        help="Chunk duration in minutes (default: 20, requires --chunk)")
+    parser.add_argument("--state-file", type=str, default=None,
+                        help="Path to state JSON from previous chunk (requires --chunk)")
     args = parser.parse_args()
 
     # Parse strategy filter
@@ -86,6 +92,60 @@ def main():
     if args.strategies:
         strategy_filter = [s.strip() for s in args.strategies.split(",")]
 
+    if args.chunk:
+        _run_chunk(args, strategy_filter)
+    else:
+        _run_full(args, strategy_filter)
+
+
+def _run_chunk(args, strategy_filter):
+    """Run a single optimizer chunk (for /spike v2 iterative loop)."""
+    import json
+
+    # Load state from previous chunk if provided
+    state = None
+    if args.state_file and os.path.exists(args.state_file):
+        with open(args.state_file) as f:
+            state = json.load(f)
+
+    # Create run dir (reuse existing if resuming)
+    run_dir = create_run_dir()
+
+    from evolve import evolve_chunk
+    result = evolve_chunk(
+        minutes=args.minutes,
+        pop_size=args.pop_size,
+        strategies=strategy_filter,
+        state=state,
+        run_dir=run_dir,
+    )
+
+    # Save state for next chunk
+    state_path = os.path.join(run_dir, "chunk_state.json")
+
+    class _Enc(json.JSONEncoder):
+        def default(self, o):
+            if hasattr(o, 'item'):
+                return o.item()
+            return super().default(o)
+
+    with open(state_path, "w") as f:
+        json.dump(result["state"], f, cls=_Enc)
+
+    # Save chunk results
+    results_path = os.path.join(run_dir, "chunk_results.json")
+    with open(results_path, "w") as f:
+        json.dump({k: v for k, v in result.items() if k != "state"}, f, cls=_Enc, indent=2)
+
+    print(f"\nState saved: {state_path}")
+    print(f"Results saved: {results_path}")
+
+    # Print JSON for Claude to parse
+    print(f"\n###CHUNK_RESULT### {json.dumps({k: v for k, v in result.items() if k != 'state'}, cls=_Enc)}")
+
+
+def _run_full(args, strategy_filter):
+    """Run the full optimizer (original /spike behavior)."""
     # Create run directory
     run_dir = create_run_dir()
     print(f"Run directory: {run_dir}")
@@ -98,6 +158,11 @@ def main():
     try:
         print(f"Spike Runner started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"Duration: {args.hours}h | Pop: {args.pop_size} | Run dir: {run_dir}\n")
+
+        # Refresh all local CSVs with latest data before optimizing
+        from data import refresh_all
+        refresh_all()
+        print()
 
         # Run the optimizer
         from evolve import evolve

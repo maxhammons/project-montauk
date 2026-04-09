@@ -2,15 +2,20 @@
 
 ```
                           ┌─────────────────────────────────────┐
-                          │           /spike (Claude)            │
+                          │       /spike v2 (Claude, local)      │
                           │                                     │
-                          │  1. Read leaderboard.json            │
-                          │  2. Study top strategies             │
-                          │  3. Write new strategy functions     │
-                          │  4. Prune dead weight                │
-                          │  5. Commit + push                    │
-                          │  6. Trigger GH Actions or run local  │
-                          │     (--bayesian for Optuna TPE)      │
+                          │  1. refresh_all() — update CSVs      │
+                          │  2. Build regime map (bull/bear)      │
+                          │  3. Run cycle diagnostics on top 5   │
+                          │  4. Claude writes strategies          │
+                          │  5. evolve_chunk() — 20min optimizer │
+                          │  6. Analyze results + cycle diag      │
+                          │  7. Claude revises strategy CODE      │
+                          │  8. Repeat 5-7 until time budget      │
+                          │  9. Cross-asset + sprint1 validation  │
+                          │                                     │
+                          │  /spike-focus (GH Actions, overnight) │
+                          │  — Deep param tuning on 1-2 strategies│
                           └──────────────┬──────────────────────┘
                                          │
                           ┌──────────────▼──────────────────────┐
@@ -278,6 +283,34 @@
          Default:  2009-present (~4,200 bars, ~6 cycles)
          Extended: 1998-present (~7,000 bars, ~10 cycles)
 
+  Time-Series Data Store (reference/time-series data/):
+  All data is local. No API calls during optimization.
+  refresh_all() in data.py updates every CSV at /spike start.
+
+  ┌─────────────────────────────────────┬──────────────────────────────┐
+  │ File                                │ Contents                     │
+  ├─────────────────────────────────────┼──────────────────────────────┤
+  │ TECL.csv                            │ Canonical source: OHLCV +    │
+  │                                     │ vix_close (synth 1998-2008   │
+  │                                     │ + real 2009+). Auto-updated. │
+  │ VIX Daily.csv                       │ CBOE VIX OHLCV (1990-now)   │
+  │ XLK Daily.csv                       │ TECL underlying (1998-now)   │
+  │ QQQ Daily.csv                       │ Cross-asset ref (1999-now)   │
+  │ TQQQ Daily.csv                      │ Synth 1999-2010 + real 2010+ │
+  │ Treasury Yield Spread 10Y-2Y.csv    │ FRED T10Y2Y (recession sig)  │
+  │ Fed Funds Rate.csv                  │ FRED DFF (monetary policy)   │
+  └─────────────────────────────────────┴──────────────────────────────┘
+
+  Data refresh (spike_runner.py → data.refresh_all()):
+    • Called automatically at /spike start
+    • Appends new bars to every CSV from Yahoo Finance + FRED
+    • Re-merges VIX into TECL.csv after updates
+    • Never overwrites historical data — append only
+
+  Audit (scripts/data_audit.py):
+    • Verifies synthetic TECL = 3x XLK daily returns - expense
+    • One-time bulk download of all enrichment data
+
 
 ═══════════════════════════════════════════════════════════════════════
                        STRATEGY FAMILIES (15)
@@ -292,17 +325,24 @@
     ichimoku_trend       Ichimoku cloud + ATR exits
     dual_momentum        Absolute + relative momentum
     rsi_vol_regime       RSI + vol calming filter
-    stoch_drawdown_recovery  Buy after major drawdowns
     williams_midline_reclaim Williams %R midline
     adx_trend            ADX directional strength
     keltner_squeeze      Bollinger/Keltner squeeze
-    psar_trend           Parabolic SAR trend follow
 
-  VIX-enhanced strategies (new):
+  High bull-capture strategies (designed to stay IN market):
+    always_in_trend      Default long, exit only on confirmed bear (ADX+EMA)
+    donchian_turtle      Classic turtle: N-bar high entry, M-bar low exit
+    slope_persistence    Enter on N-bar positive EMA slope, exit on M-bar neg
+
+  VIX-enhanced strategies:
     vix_mean_revert      Buy on VIX fear spikes (declining), sell on calm
     vix_trend_regime     Ride calm VIX + trend, exit on VIX spike
 
   Pine Script: VIX accessed via request.security("CBOE:VIX", ...)
+
+  Pruned (never made leaderboard):
+    stoch_drawdown_recovery  (removed: 10 params, never appeared)
+    psar_trend               (removed: never appeared)
 
 
 ═══════════════════════════════════════════════════════════════════════
@@ -310,16 +350,20 @@
 ═══════════════════════════════════════════════════════════════════════
 
   scripts/
-  ├── spike_runner.py ──── Entry point (--hours, --bayesian, --strategies)
-  ├── evolve.py ────────── GA + Bayesian optimizer, fitness, dedup, leaderboard
-  ├── strategies.py ────── 15 strategy functions + STRATEGY_REGISTRY
+  ├── spike_runner.py ──── Entry point: --hours (full) or --chunk (iterative)
+  ├── evolve.py ────────── evolve() for full runs, evolve_chunk() for v2 loop
+  ├── strategies.py ────── 16 strategy functions + STRATEGY_REGISTRY
   ├── strategy_engine.py ─ Backtest engine + Indicators (incl. VIX)
-  ├── data.py ──────────── TECL + VIX + synthetic XLK→3x data
+  ├── data.py ──────────── TECL + VIX + TQQQ + QQQ data loaders + refresh_all()
+  ├── data_audit.py ────── Synthetic TECL audit + data enrichment downloads
+  ├── regime_map.py ────── Bull/bear cycle detection + formatting for Claude
+  ├── cycle_diagnostics.py Per-cycle trade analysis (gaps, exit reasons, capture)
   ├── report.py ────────── Markdown report generator
   ├── requirements.txt ─── pandas, numpy, requests, scipy, optuna
   └── validation/
       ├── sprint1.py ───── 6 anti-overfitting tests
       ├── walk_forward.py  Walk-forward out-of-sample validation
+      ├── cross_asset.py ── Run strategy on TQQQ/QQQ (anti-overfit)
       ├── candidate.py ─── Single-strategy deep validation
       └── deflate.py ───── Monte Carlo null distribution
 
