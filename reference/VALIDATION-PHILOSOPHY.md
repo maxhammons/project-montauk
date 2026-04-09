@@ -8,7 +8,7 @@
 
 Project Montauk is a **long-only trend-following system for TECL** (3x leveraged tech ETF). The objective is simple: capture multi-month bull legs and exit before bear phases destroy capital. The system targets 1-3 trades per year with high hold times.
 
-The **optimizer** (`/spike`) evolves strategy parameters across 16 families to find configs that time bull/bear regimes well. It runs overnight on GitHub Actions and maintains an all-time leaderboard of the top 20 configs.
+The **optimizer** (`/spike`) evolves strategy parameters across 16 families to find configs that time bull/bear regimes well. It runs overnight on GitHub Actions or locally and maintains an all-time leaderboard of the top 20 configs.
 
 ## The Problem We're Solving
 
@@ -28,16 +28,16 @@ The **optimizer** (`/spike`) evolves strategy parameters across 16 families to f
 The optimizer's fitness function now targets what we actually care about:
 
 ```
-fitness = regime_score × hhi_penalty × dd_penalty × complexity_penalty × bah_bonus
+fitness = vs_bah × trade_scale × hhi_penalty × dd_penalty × complexity_penalty × regime_mult
 ```
 
 | Component | What It Does | Source |
 |-----------|-------------|--------|
-| `regime_score` (primary) | Bull capture + bear avoidance composite (0-1) | Montauk Charter: "capture bull legs, exit before bears" |
+| `vs_bah` (primary) | Strategy equity / B&H equity — must beat buy-and-hold | Charter: "capture bull trends and sidestep bear phases" to outperform |
 | `hhi_penalty` | Rejects strategies where one lucky cycle carries everything | compass...c551.md: cycle concentration |
-| `dd_penalty` | Mild drawdown penalty (regime score already captures timing) | Standard risk control |
+| `dd_penalty` | Penalizes large drawdowns (80% DD → 0.3x penalty) | Standard risk control |
 | `complexity_penalty` | Penalizes strategies with too many params relative to trades | Lopez de Prado: 10:1 trades-per-param minimum |
-| `bah_bonus` | Small tiebreaker for beating buy-and-hold (capped at 1.5x) | Not primary — prevents regime-timing optimized configs that somehow lose to B&H |
+| `regime_mult` | Quality multiplier — rewards good regime timing (0.4-1.0x) | Prevents beating B&H through luck rather than timing skill |
 
 **Hard gates** (fitness = 0 immediately):
 - Trades/year > 3.0 (Charter: low churn)
@@ -106,5 +106,5 @@ See `CHECKLIST.md` for detailed task tracking.
 1. **The research is the spec.** Every test, threshold, and formula traces to a specific paper or report in `/reference/research/reports/`.
 2. **Multiplicative deflation, not additive.** A fragile but high-scoring strategy gets heavily discounted automatically.
 3. **No severity ranking.** A wrong slippage assumption and a wrong fitness function are both bugs. Fix everything.
-4. **Honesty over optimism.** If the null distribution says the expected max RS from noise is 0.76, and our best strategy scores 0.69, we don't rationalize — we acknowledge we haven't found signal yet.
-5. **Optimize what you measure.** The fitness function targets regime timing because that's what the Charter says the system should do. Not CAGR, not Sharpe, not beating buy-and-hold.
+4. **Honesty over optimism.** If a strategy beats B&H in backtest but fails validation (deflated score, cycle dependence, boundary memorization), we don't rationalize — we acknowledge it's likely overfit and keep searching.
+5. **Optimize what you measure.** The fitness function targets beating buy-and-hold — the whole point is to outperform passive holding by buying low and selling at peaks. Regime score serves as a quality guard to ensure the outperformance comes from genuine timing skill, not luck.

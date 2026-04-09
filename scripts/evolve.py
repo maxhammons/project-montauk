@@ -318,10 +318,10 @@ def set_converged(leaderboard_path: str, strategy_name: str, converged: bool) ->
 # of random configs. The optimizer was finding lucky B&H beaters, not
 # genuine regime timers.
 #
-# New fitness (per SYNTHESIS.md, Fragility Scoring report, compass...2650):
-#   Primary: regime_score.composite (0-1) — actual regime-timing quality
-#   Guards: trade count, frequency, cycle concentration (HHI)
-#   Bonus: vs_bah as small tiebreaker (not primary driver)
+# Current fitness:
+#   Primary: vs_bah (beat buy-and-hold — buy low, sell at peaks)
+#   Guards: trade count, frequency, cycle concentration (HHI), complexity
+#   Quality: regime_score as multiplier (rewards good timing, not primary driver)
 #
 # The multiplicative structure means a fragile but high-scoring strategy
 # gets heavily discounted automatically.
@@ -330,60 +330,60 @@ MAX_TRADES_PER_YEAR = 3.0
 
 def fitness(result: BacktestResult) -> float:
     """
-    Research-aligned fitness: regime score × robustness guards.
+    Beat buy-and-hold fitness: vs_bah is the primary optimization target.
 
-    Primary: regime_score.composite (0-1) — actual regime-timing skill
-    Guards: trade count, frequency, drawdown, cycle concentration
-    Bonus: vs_bah (small multiplier, not primary driver)
+    Primary: vs_bah_multiple — ratio of strategy equity to B&H equity (>1.0 = beating B&H)
+    Guards: trade count, frequency, cycle concentration, parameter complexity
+    Regime score used as a quality multiplier (not primary driver)
     """
     if result is None or result.num_trades < 5:
         return 0.0
 
-    # ── Primary: Regime Score ──
-    rs = result.regime_score
-    if rs is None:
-        return 0.0
-    regime = rs.composite  # 0-1
+    # ── Primary: vs Buy & Hold ──
+    vs_bah = result.vs_bah_multiple  # 1.0 = matched B&H, >1.0 = beat it
 
-    # ── Hard gates (research: reject immediately) ──
+    # ── Hard gates ──
     if result.trades_per_year > MAX_TRADES_PER_YEAR:
-        return 0.0  # hard cap (was soft — research says reject churners)
+        return 0.0
+    if vs_bah <= 0:
+        return 0.0
 
     # Soft ramp for low trade counts (min 5, full credit at 10+)
-    if result.num_trades < 10:
-        regime *= (result.num_trades / 10)
+    trade_scale = min(1.0, result.num_trades / 10)
 
     # ── Cycle concentration penalty (HHI) ──
-    # Research: HHI > 0.25 = concentrated, single cycle dominates
-    hhi = rs.hhi if rs.hhi is not None else 0
+    rs = result.regime_score
+    hhi = rs.hhi if rs and rs.hhi is not None else 0
     if hhi > 0.35:
         return 0.0  # single cycle carries everything — reject
     hhi_penalty = max(0.5, 1.0 - max(0, hhi - 0.15) * 3)  # ramp 0.15→0.35
 
-    # ── Drawdown penalty (lighter than before — regime score already captures timing) ──
-    dd_penalty = max(0.5, 1.0 - result.max_drawdown_pct / 200.0)
+    # ── Drawdown penalty — penalize strategies with huge drawdowns ──
+    # Max DD of 80%+ → 0.3x, 40% → 0.65x, 20% → 0.83x
+    dd_penalty = max(0.3, 1.0 - result.max_drawdown_pct / 120.0)
 
-    # ── Parameter complexity penalty (research: trades-per-param ratio should be >10:1) ──
-    # Count effective parameters (non-cooldown numeric params)
+    # ── Parameter complexity penalty ──
     n_params = sum(1 for k, v in result.params.items()
                    if isinstance(v, (int, float)) and not isinstance(v, bool)
                    and k != "cooldown")
     if n_params > 0:
         tpp_ratio = result.num_trades / n_params
         if tpp_ratio < 2:
-            return 0.0  # catastrophically underdetermined — reject
+            return 0.0
         elif tpp_ratio < 5:
-            complexity_penalty = 0.5 + 0.5 * (tpp_ratio - 2) / 3  # ramp 0.5→1.0 over 2→5
+            complexity_penalty = 0.5 + 0.5 * (tpp_ratio - 2) / 3
         else:
             complexity_penalty = 1.0
     else:
         complexity_penalty = 1.0
 
-    # ── vs_bah bonus (small tiebreaker, not primary driver) ──
-    # A strategy 6x better than B&H gets max 1.5x bonus
-    bah_bonus = 1.0 + min(0.5, max(0, result.vs_bah_multiple - 1.0) * 0.1)
+    # ── Regime quality multiplier (rewards good timing, but vs_bah drives ranking) ──
+    # Regime score 0.7 → 1.0x (full credit), 0.5 → 0.8x, 0.3 → 0.6x
+    regime_mult = 1.0
+    if rs:
+        regime_mult = 0.4 + 0.6 * min(1.0, rs.composite / 0.7)
 
-    return regime * hhi_penalty * dd_penalty * complexity_penalty * bah_bonus
+    return vs_bah * trade_scale * hhi_penalty * dd_penalty * complexity_penalty * regime_mult
 
 
 # ─────────────────────────────────────────────────────────────────────────────

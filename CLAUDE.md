@@ -159,28 +159,26 @@ The optimizer remembers everything across runs:
 - Each run seeds 20% of its population from historical winners
 - Exact duplicates are skipped via config hashing (saves 30-40% compute on repeat runs)
 
-### Primary optimization target: Regime Score
+### Primary optimization target: Beat Buy & Hold
 
-The optimizer uses **regime score** as its primary metric — not MAR. Regime score measures how well the strategy achieves its core goal: entering near the end of bear markets and exiting near the end of bull markets, across all cycles in the full 2009–present history.
+The optimizer uses **vs_bah** (strategy equity / B&H equity) as its primary metric. A value >1.0 means the strategy beat buy-and-hold. The goal is to buy low and sell at peaks — outperforming a passive TECL hold by timing entries and exits.
 
-It is computed as:
-- **Bull capture ratio**: For each detected bull period (trough → peak, ≥30% move), what fraction of the total gain did the strategy capture?
-- **Bear avoidance ratio**: For each detected bear period (peak → trough, ≥30% drawdown), what fraction of the loss did the strategy avoid?
-- **Composite**: `0.5 × bull_capture + 0.5 × bear_avoidance` (0.0–1.0, higher is better)
+Regime score is still computed and used as a quality multiplier (good regime timing gets a boost), but it no longer drives ranking. The fitness formula:
 
-Bear periods are detected algorithmically from the full TECL price history — no hardcoded dates. MAR and other metrics are still reported for reference.
+```
+fitness = vs_bah × trade_scale × hhi_penalty × dd_penalty × complexity_penalty × regime_mult
+```
 
 ### Key metrics
 
 | Metric | Role |
 |--------|------|
-| **Regime Score** | **Primary optimization target** — regime capture quality |
-| Bull Capture Ratio | Fraction of each bull leg participated in |
-| Bear Avoidance Ratio | Fraction of each bear leg avoided |
-| MAR Ratio (CAGR/MaxDD) | Secondary — overall risk-adjusted return |
+| **vs B&H** | **Primary optimization target** — must be >1.0 to beat buy-and-hold |
 | CAGR | Return |
-| Max Drawdown | Risk |
-| Trades/Year | Low (<5) — avoid churn |
+| Max Drawdown | Risk — penalized in fitness |
+| MAR Ratio (CAGR/MaxDD) | Risk-adjusted return |
+| Regime Score | Quality multiplier — rewards good cycle timing |
+| Trades/Year | Low (≤3) — avoid churn |
 | Avg Bars Held | High (50+) — trend system, not scalper |
 
 ## Reference Files

@@ -1,6 +1,6 @@
 # /spike — Find the Best TECL Strategy
 
-Goal: find strategies that genuinely time bull/bear regimes on TECL. 8.2.1 is the baseline. Regime Score is the primary fitness target.
+Goal: find strategies that beat buy-and-hold on TECL by buying low and selling at peaks. 8.2.1 is the baseline. vs B&H is the primary fitness target.
 
 ## The Flow
 
@@ -30,7 +30,7 @@ Before running the optimizer, do the creative work:
 
 **Research-informed design principles:**
 - **Fewer parameters is better.** 5-8 params with 30+ trades >>> 12 params with 15 trades
-- **Target regime timing.** Fitness = `regime_score × hhi_penalty × dd_penalty × complexity_penalty × bah_bonus`
+- **Beat buy-and-hold.** Fitness = `vs_bah × trade_scale × hhi_penalty × dd_penalty × complexity_penalty × regime_mult`
 - **Avoid single-cycle dependence.** HHI > 0.35 = instant rejection
 - **Max ≤3 trades/year.** Hard cap in fitness
 
@@ -128,5 +128,5 @@ After every spike run, convert the winning strategy to Pine Script v6:
 
 - **TECL only** — long only, no shorting
 - **≤3 trades/year** — regime strategy, not scalper
-- **Regime Score is primary** — vs_bah is displayed but doesn't drive ranking
+- **vs B&H is primary** — must beat buy-and-hold. Regime score is a quality multiplier.
 - **Never modify `src/strategy/active/`** — candidates go in `testing/`
