@@ -24,7 +24,7 @@ Project Montauk/
 ├── .claude/commands/
 │   └── spike.md -> ../skills/spike.md   # symlink (Claude Code reads from commands/)
 ├── spike/                     # All /spike optimization output
-│   ├── runs/YYYY-MM-DD/       # Per-session: report.md, results.json, log.txt, candidate.txt
+│   ├── runs/NNN/              # Per-session: report.md, results.json, log.txt, candidate.txt
 │   ├── leaderboard.json       # All-time top 20 strategies
 │   └── hash-index.json        # Compact dedup index: {hash: fitness}
 └── src/
@@ -128,7 +128,7 @@ Keep the folder and file structure clean and easy to navigate. The owner needs t
 - **Put files in the right place** — follow the directory structure above; don't dump things in the root or create ad-hoc folders
 - **Archive, don't delete** — old versions go to `archive/`, not the trash
 - **Clean up after yourself** — remove temp files, don't leave orphaned outputs or half-finished work lying around
-- **Keep output organized by date** — spike runs go in `spike/runs/YYYY-MM-DD/`, not loose in the project root
+- **Keep output organized sequentially** — spike runs go in `spike/runs/NNN/`, not loose in the project root
 - **When in doubt, match the existing pattern** — look at how similar files are already named and placed
 
 ## Optimization Tools (`/spike`)
@@ -140,7 +140,7 @@ The `/spike` skill runs a fully autonomous strategy optimization loop. One quest
 1. **Run `/spike`** in Claude Code — asks duration, generates strategies, triggers GitHub Actions
 2. **Close your laptop** — the optimizer runs in the cloud and auto-commits results
 3. **Come back later** — run `/spike results` or just ask "how did spike go?" to see results and generate Pine Script
-4. All output goes to `spike/runs/YYYY-MM-DD/` — **the active strategy is never modified**
+4. All output goes to `spike/runs/NNN/` — **the active strategy is never modified**
 
 ### What `/spike` does
 

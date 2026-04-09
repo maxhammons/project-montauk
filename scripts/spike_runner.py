@@ -3,17 +3,17 @@
 Spike Runner — single command, fully autonomous optimization.
 
 This is the main entry point for /spike. It:
-  1. Creates a dated run directory
+  1. Creates a sequentially numbered run directory
   2. Runs the evolutionary optimizer (with history seeding + dedup)
   3. Generates a markdown report with top-10 table
   4. Updates the all-time leaderboard (top 20)
-  5. Saves everything to spike/runs/YYYY-MM-DD/
+  5. Saves everything to spike/runs/NNN/
 
 Usage:
   python3 scripts/spike_runner.py --hours 4
   python3 scripts/spike_runner.py --hours 8 --pop-size 60
 
-All output goes to spike/runs/<date>/. The active strategy is never modified.
+All output goes to spike/runs/<N>/. The active strategy is never modified.
 """
 
 from __future__ import annotations
@@ -29,17 +29,17 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def create_run_dir() -> str:
-    """Create a unique dated run directory: spike/runs/YYYY-MM-DD[-N]."""
+    """Create the next sequentially numbered run directory: spike/runs/NNN."""
     base = os.path.join(PROJECT_ROOT, "spike", "runs")
-    date_str = datetime.now().strftime("%Y-%m-%d")
-    run_dir = os.path.join(base, date_str)
+    os.makedirs(base, exist_ok=True)
 
-    # If directory exists, add a suffix
-    if os.path.exists(run_dir):
-        n = 2
-        while os.path.exists(f"{run_dir}-{n}"):
-            n += 1
-        run_dir = f"{run_dir}-{n}"
+    # Find the highest existing run number
+    existing = [
+        d for d in os.listdir(base)
+        if os.path.isdir(os.path.join(base, d)) and d.isdigit()
+    ]
+    next_num = max((int(d) for d in existing), default=0) + 1
+    run_dir = os.path.join(base, f"{next_num:03d}")
 
     os.makedirs(run_dir, exist_ok=True)
     return run_dir

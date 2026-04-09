@@ -237,7 +237,7 @@ This step:
 1. Reads the leaderboard produced by the optimizer
 2. Runs all validation stages on each strategy
 3. Writes `spike/validation.json` with per-strategy tiers and sub-scores
-4. Writes a human-readable summary to `spike/runs/YYYY-MM-DD/validation.md`
+4. Writes a human-readable summary to `spike/runs/NNN/validation.md`
 5. Flags or rejects strategies that fail hard gates (but does NOT remove them from leaderboard — just annotates)
 6. The commit step already does `git add spike/` so validation output is auto-committed
 
@@ -251,7 +251,7 @@ This step:
 **Compute cost**: ~1 minute (Tier 1 only) to ~20 minutes (full pipeline) for 20 strategies.
 
 **Done when**: 
-- Every spike run auto-produces `spike/validation.json` and `spike/runs/YYYY-MM-DD/validation.md`
+- Every spike run auto-produces `spike/validation.json` and `spike/runs/NNN/validation.md`
 - Report.md includes a validation summary table with tiers
 - Strategies that fail hard gates are annotated with warning flags in leaderboard.json
 - `gh workflow run spike.yml` triggers the full optimize → validate → commit cycle

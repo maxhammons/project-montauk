@@ -863,12 +863,18 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     leaderboard = update_leaderboard(results, leaderboard_path)
 
     # Save results JSON
-    date_str = datetime.now().strftime("%Y-%m-%d")
     if run_dir:
         out_path = os.path.join(run_dir, "results.json")
     else:
         # Even without spike_runner, save into the runs/ structure
-        fallback_dir = os.path.join(PROJECT_ROOT, "spike", "runs", date_str)
+        runs_base = os.path.join(PROJECT_ROOT, "spike", "runs")
+        os.makedirs(runs_base, exist_ok=True)
+        existing = [
+            d for d in os.listdir(runs_base)
+            if os.path.isdir(os.path.join(runs_base, d)) and d.isdigit()
+        ]
+        next_num = max((int(d) for d in existing), default=0) + 1
+        fallback_dir = os.path.join(runs_base, f"{next_num:03d}")
         os.makedirs(fallback_dir, exist_ok=True)
         out_path = os.path.join(fallback_dir, "results.json")
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
@@ -883,7 +889,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
             "strategy": best_ever_name,
             "fitness": best_ever_score,
         } if best_ever_score > 0 else None
-        report_dir = run_dir or os.path.join(PROJECT_ROOT, "spike", "runs", date_str)
+        report_dir = run_dir or fallback_dir
         report_text = generate_report(
             results, report_dir,
             leaderboard=leaderboard,

@@ -114,7 +114,7 @@
 - [ ] Stage 2: walk-forward + regime consistency (~2 min)
 - [ ] Stage 3: Morris + bootstrap for survivors (~12 min)
 - [ ] Stage 4: composite scoring + tiering
-- [ ] Output: `spike/validation.json` + `spike/runs/YYYY-MM-DD/validation.md`
+- [ ] Output: `spike/validation.json` + `spike/runs/NNN/validation.md`
 - [ ] Tiers: High Confidence ≥ 0.70 | Provisional 0.45-0.70 | Flagged 0.25-0.45 | Rejected < 0.25
 
 ### 3.2 GitHub Actions Integration

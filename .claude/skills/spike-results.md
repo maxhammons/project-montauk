@@ -11,12 +11,12 @@ Show results from the latest spike run, run validation, and optionally generate 
 git pull 2>/dev/null
 
 # Find latest run
-ls spike/runs/ | sort | tail -1
+ls spike/runs/ | grep -E '^[0-9]+$' | sort -n | tail -1
 ```
 
 ### Step 2 — Show the report
 
-Read `spike/runs/<latest>/report.md` and show:
+Read `spike/runs/<N>/report.md` and show:
 - Top-10 table (Regime Score, CAGR, Max DD, MAR, vs B&H, Trades, Params, Fitness)
 - Top 3 detail blocks (with regime score breakdown: bull capture, bear avoidance, HHI)
 - Leaderboard changes (new entries, improvements, convergence)
@@ -42,12 +42,12 @@ Flag anything that fails.
 If user asks for Pine Script for any winner:
 
 1. Read the winning Python function from `scripts/strategies.py`
-2. Read its best params from `spike/runs/<latest>/results.json`
+2. Read its best params from `spike/runs/<N>/results.json`
 3. Read `src/strategy/active/Project Montauk 8.2.1.txt` as structural template
 4. Use `reference/pinescriptv6-main/` for syntax — do NOT guess
 5. Write Pine Script v6 with winning params as `input.*` defaults
 6. Save to `src/strategy/testing/Project Montauk <version>-candidate.txt`
-7. Also save to `spike/runs/<latest>/candidate.txt`
+7. Also save to `spike/runs/<N>/candidate.txt`
 
 ### Step 5 — Comparison to baseline
 

@@ -75,7 +75,9 @@ jobs:
           # Only commit spike/ output files — never scripts/ or other code
           git add spike/
           git diff --cached --quiet && echo "No changes to commit" && exit 0
-          git commit -m "spike: automated run $(date +%Y-%m-%d)"
+          # Find the latest run number from the directory names
+          LATEST_RUN=$(ls -d spike/runs/[0-9]* 2>/dev/null | sort -t/ -k3 -n | tail -1 | xargs basename)
+          git commit -m "spike: run ${LATEST_RUN:-???} ($(date +%Y-%m-%d))"
           # Fetch latest main and rebase our commit on top
           git fetch origin main
           if ! git rebase origin/main; then

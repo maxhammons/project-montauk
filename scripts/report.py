@@ -177,10 +177,13 @@ def generate_report(
     generations = results.get("generations", 0)
     n_strategies = len(set(r["strategy"] for r in rankings if r.get("metrics")))
 
+    # Derive run number from directory name
+    run_num = os.path.basename(run_dir.rstrip("/"))
+
     lines = []
 
     # Header
-    lines.append(f"# Spike Report — {date}")
+    lines.append(f"# Spike Report — Run {run_num} ({date})")
     lines.append("")
     lines.append(
         f"**Run:** {elapsed:.1f}h | "
@@ -269,7 +272,10 @@ if __name__ == "__main__":
         if not os.path.isdir(runs_dir):
             print("No runs directory found")
             sys.exit(1)
-        run_dirs = sorted([d for d in os.listdir(runs_dir) if os.path.isdir(os.path.join(runs_dir, d))])
+        run_dirs = sorted(
+            [d for d in os.listdir(runs_dir) if os.path.isdir(os.path.join(runs_dir, d))],
+            key=lambda d: int(d) if d.isdigit() else d,
+        )
         if not run_dirs:
             print("No run directories found")
             sys.exit(1)

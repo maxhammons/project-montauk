@@ -45,7 +45,7 @@ Each backtest takes ~0.03ms. Over 5 hours that's ~600,000 evaluations. An evolut
 | `scripts/report.py` | Auto-generates markdown reports |
 | `spike/leaderboard.json` | All-time top 20 strategies |
 | `spike/hash-index.json` | Compact dedup index: {hash: fitness} |
-| `spike/runs/YYYY-MM-DD/` | Per-session output (report.md, results.json, log.txt) |
+| `spike/runs/NNN/` | Per-session output (report.md, results.json, log.txt) |
 
 ## Anti-overfitting
 

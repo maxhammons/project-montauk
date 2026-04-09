@@ -250,7 +250,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Validate a spike candidate")
     parser.add_argument("--strategy", required=True, help="Strategy name from registry")
     parser.add_argument("--params", help="JSON params dict")
-    parser.add_argument("--from-spike", help="Load best params from spike/runs/YYYY-MM-DD/results.json")
+    parser.add_argument("--from-spike", help="Load best params from spike/runs/NNN/results.json")
     parser.add_argument("--no-stability", action="store_true", help="Skip stability check (faster)")
     args = parser.parse_args()
 

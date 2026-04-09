@@ -66,7 +66,7 @@ cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Docu
 Tell the user:
 - **To stop**: `Ctrl+C` — saves everything cleanly
 - Terminal shows progress every 5 minutes
-- Results go to `spike/runs/YYYY-MM-DD/`
+- Results go to `spike/runs/NNN/`
 
 #### If GH Actions:
 
@@ -110,7 +110,7 @@ After every spike run, convert the winning strategy to Pine Script v6:
 4. Use `reference/pinescriptv6-main/` for correct syntax — do NOT guess
 5. Write equivalent Pine Script with hardcoded winning params as `input.*` defaults
 6. Save to `src/strategy/testing/Project Montauk <version>-candidate.txt`
-7. Also save to `spike/runs/<date>/candidate.txt`
+7. Also save to `spike/runs/<N>/candidate.txt`
 
 ## Key files
 
