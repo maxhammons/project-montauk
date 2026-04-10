@@ -19,6 +19,7 @@ All output goes to spike/runs/<N>/. The active strategy is never modified.
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
 from datetime import datetime
@@ -26,6 +27,13 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def _load_json(path: str):
+    if not os.path.exists(path):
+        return None
+    with open(path) as f:
+        return json.load(f)
 
 
 def create_run_dir() -> str:
@@ -69,8 +77,8 @@ def main():
     parser = argparse.ArgumentParser(
         description="Spike Runner — fully autonomous TECL strategy optimization"
     )
-    parser.add_argument("--hours", type=float, required=True,
-                        help="How long to run the optimizer")
+    parser.add_argument("--hours", type=float, default=None,
+                        help="How long to run the optimizer (required unless --chunk)")
     parser.add_argument("--pop-size", type=int, default=40,
                         help="Population per strategy per generation (default: 40)")
     parser.add_argument("--quick", action="store_true",
@@ -146,6 +154,9 @@ def _run_chunk(args, strategy_filter):
 
 def _run_full(args, strategy_filter):
     """Run the full optimizer (original /spike behavior)."""
+    if args.hours is None:
+        print("ERROR: --hours is required for full runs (or use --chunk)")
+        sys.exit(1)
     # Create run directory
     run_dir = create_run_dir()
     print(f"Run directory: {run_dir}")
@@ -164,8 +175,13 @@ def _run_full(args, strategy_filter):
         refresh_all()
         print()
 
-        # Run the optimizer
-        from evolve import evolve
+        # Run the optimizer first, then validate before promoting anything.
+        from evolve import _Enc, evolve, update_leaderboard
+        from pine_generator import write_candidate_strategy, write_montauk_patch
+        from report import generate_report
+        from roth_overlay import build_champion_overlay
+        from validation.pipeline import run_validation_pipeline
+
         results = evolve(
             hours=args.hours,
             pop_size=args.pop_size,
@@ -173,15 +189,111 @@ def _run_full(args, strategy_filter):
             run_dir=run_dir,
             strategies=strategy_filter,
             bayesian=args.bayesian,
+            publish_leaderboard=False,
+            write_report=False,
         )
+
+        raw_results_path = os.path.join(run_dir, "raw_results.json")
+        with open(raw_results_path, "w") as f:
+            json.dump(results, f, indent=2, cls=_Enc)
+        print(f"[validate] Raw optimizer results saved: {raw_results_path}")
+
+        validation = run_validation_pipeline(
+            results,
+            hours=args.hours,
+            quick=args.quick,
+        )
+        results["raw_rankings"] = validation["raw_rankings"]
+        results["validated_rankings"] = validation["validated_rankings"]
+        results["rankings"] = validation["validated_rankings"]
+        results["champion"] = validation["champion"]
+        results["validation_summary"] = validation["validation_summary"]
+
+        artifacts = {}
+        champion = validation["champion"]
+        if champion:
+            try:
+                overlay = build_champion_overlay(
+                    champion["strategy"],
+                    champion["params"],
+                )
+                champion["overlay"] = overlay
+                if results["validated_rankings"]:
+                    results["validated_rankings"][0]["overlay"] = overlay
+                overlay_path = os.path.join(run_dir, "overlay_report.json")
+                with open(overlay_path, "w") as f:
+                    json.dump(overlay, f, indent=2, cls=_Enc)
+                artifacts["overlay_report"] = overlay_path
+                print(f"[validate] Roth overlay: {overlay_path}")
+            except Exception as exc:
+                print(f"[validate] Warning: overlay simulation failed: {exc}")
+
+            candidate_path = write_candidate_strategy(
+                run_dir,
+                champion["strategy"],
+                champion["params"],
+            )
+            artifacts["candidate_strategy"] = candidate_path
+            patched_path = write_montauk_patch(
+                run_dir,
+                champion["strategy"],
+                champion["params"],
+            )
+            if patched_path:
+                artifacts["patched_strategy"] = patched_path
+            print(f"[validate] Champion: {champion['strategy']} (fitness={champion['fitness']:.4f})")
+            print(f"[validate] Pine candidate: {candidate_path}")
+            if patched_path:
+                print(f"[validate] Montauk patch:  {patched_path}")
+        else:
+            print("[validate] No fully validated champion. No Pine artifact generated.")
+        results["artifacts"] = artifacts
+
+        leaderboard_path = os.path.join(PROJECT_ROOT, "spike", "leaderboard.json")
+        previous_best = results.get("best_ever")
+        if results["validated_rankings"]:
+            leaderboard = update_leaderboard(
+                {**results, "rankings": results["validated_rankings"]},
+                leaderboard_path,
+            )
+            print(
+                f"[validate] Leaderboard updated with {len(results['validated_rankings'])} "
+                "fully validated entries"
+            )
+        else:
+            leaderboard = _load_json(leaderboard_path) or []
+            print("[validate] Leaderboard unchanged because no entry passed full validation.")
+
+        results_path = os.path.join(run_dir, "results.json")
+        with open(results_path, "w") as f:
+            json.dump(results, f, indent=2, cls=_Enc)
+        print(f"[validate] Validated results saved: {results_path}")
+
+        report_text = generate_report(
+            results,
+            run_dir,
+            leaderboard=leaderboard,
+            previous_best=previous_best,
+            history_stats=results.get("history_stats"),
+        )
+        report_path = os.path.join(run_dir, "report.md")
+        with open(report_path, "w") as f:
+            f.write(report_text)
 
         print(f"\n{'='*60}")
         print(f"SPIKE COMPLETE")
         print(f"{'='*60}")
-        print(f"Report:      {os.path.join(run_dir, 'report.md')}")
-        print(f"Results:     {os.path.join(run_dir, 'results.json')}")
+        print(f"Report:      {report_path}")
+        print(f"Results:     {results_path}")
+        print(f"Raw results: {raw_results_path}")
         print(f"Log:         {log_path}")
-        print(f"Leaderboard: {os.path.join(PROJECT_ROOT, 'spike', 'leaderboard.json')}")
+        print(f"Leaderboard: {leaderboard_path}")
+        if artifacts.get("candidate_strategy"):
+            print(f"Candidate:   {artifacts['candidate_strategy']}")
+        if artifacts.get("patched_strategy"):
+            print(f"Patched:     {artifacts['patched_strategy']}")
+        if artifacts.get("overlay_report"):
+            print(f"Overlay:     {artifacts['overlay_report']}")
 
     finally:
         sys.stdout = tee.terminal

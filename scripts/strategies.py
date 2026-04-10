@@ -735,26 +735,125 @@ def slope_persistence(ind: Indicators, p: dict) -> tuple:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Strategy 19: Williams %R Midline Reclaim — Williams %R escapes deep oversold
-# while price reclaims Donchian midpoint. Higher-conviction regime transitions.
+# Strategy: Trough Bounce — Fast entry after bear troughs + sticky exit.
+# Cycle diagnostics show strategies miss V-shaped recoveries (Bull #3-#6).
+# This enters when RSI recovers from deep oversold AND price bounces above
+# recent low by N%, then stays in until multiple bearish confirmations.
+# Designed for max bull capture on post-crash recoveries. 7 params.
 # ─────────────────────────────────────────────────────────────────────────────
 
-def williams_midline_reclaim(ind: Indicators, p: dict) -> tuple:
+def trough_bounce(ind: Indicators, p: dict) -> tuple:
     n = ind.n
     cl = ind.close
-    wr = ind.willr(p.get("willr_len", 21))
-    don_mid = ind.donchian_mid(p.get("channel_len", 60))
-    trend_ema = ind.ema(p.get("trend_len", 150))
-    vol_short = ind.realized_vol(p.get("vol_short", 15))
-    vol_long = ind.realized_vol(p.get("vol_long", 60))
+    rsi = ind.rsi(p.get("rsi_len", 9))
+    lowest = ind.lowest(p.get("low_lookback", 40))
+    ema_fast = ind.ema(p.get("fast_ema", 10))
+    ema_slow = ind.ema(p.get("slow_ema", 50))
+    atr_vals = ind.atr(p.get("atr_period", 20))
 
     entries = np.zeros(n, dtype=bool)
     exits = np.zeros(n, dtype=bool)
     labels = np.array([""] * n)
 
-    entry_wr = p.get("entry_wr", -75.0)
-    exit_wr = p.get("exit_wr", -10.0)
-    rebreak_wr = p.get("rebreak_wr", -55.0)
+    bounce_pct = p.get("bounce_pct", 15.0)  # price must be N% above recent low
+    exit_confirm = p.get("exit_confirm", 3)  # need N consecutive bars of fast < slow
+
+    below_count = 0  # consecutive bars with fast EMA < slow EMA
+
+    for i in range(1, n):
+        if np.isnan(rsi[i]) or np.isnan(lowest[i]):
+            continue
+
+        # Entry: price has bounced N% off the recent low + RSI recovering
+        if lowest[i] > 0:
+            bounce = (cl[i] / lowest[i] - 1) * 100
+            if bounce >= bounce_pct and rsi[i] > 30 and rsi[i-1] <= 30:
+                entries[i] = True
+
+        # Also enter on fast > slow EMA cross (trend resumption after pullback)
+        if not np.isnan(ema_fast[i]) and not np.isnan(ema_slow[i]):
+            if not np.isnan(ema_fast[i-1]) and not np.isnan(ema_slow[i-1]):
+                if ema_fast[i-1] <= ema_slow[i-1] and ema_fast[i] > ema_slow[i]:
+                    entries[i] = True
+
+        # Sticky exit: require N consecutive bars of fast < slow before exiting
+        if not np.isnan(ema_fast[i]) and not np.isnan(ema_slow[i]):
+            if ema_fast[i] < ema_slow[i]:
+                below_count += 1
+            else:
+                below_count = 0
+
+            if below_count >= exit_confirm:
+                exits[i] = True
+                labels[i] = "C"  # Confirmed cross
+                below_count = 0
+                continue
+
+        # Emergency exit: ATR shock (only for true crashes)
+        if not np.isnan(atr_vals[i]) and i >= 1:
+            if cl[i] < cl[i-1] - atr_vals[i] * p.get("atr_mult", 4.0):
+                exits[i] = True
+                labels[i] = "A"
+                below_count = 0
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy: Momentum Stayer — Enter on positive momentum, STAY IN unless
+# multiple bearish signals confirm. Cycle diagnostics show the #1 problem is
+# exiting during bulls on single-signal triggers. This requires 2+ of 3
+# bearish conditions (trend break + RSI weak + vol spike) before exiting.
+# Designed for maximum time-in-market during bull cycles. 8 params.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def momentum_stayer(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    ema_fast = ind.ema(p.get("fast_ema", 15))
+    ema_slow = ind.ema(p.get("slow_ema", 50))
+    rsi = ind.rsi(p.get("rsi_len", 14))
+    vol_short = ind.realized_vol(p.get("vol_short", 15))
+    vol_long = ind.realized_vol(p.get("vol_long", 60))
+    roc = ind.roc(p.get("roc_period", 40))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    exit_rsi = p.get("exit_rsi", 30.0)
+    vol_exit_ratio = p.get("vol_exit_ratio", 1.5)
+
+    for i in range(1, n):
+        if np.isnan(ema_fast[i]) or np.isnan(ema_slow[i]):
+            continue
+
+        # Entry: fast EMA > slow EMA + positive momentum (very permissive)
+        if ema_fast[i] > ema_slow[i]:
+            if not np.isnan(roc[i]) and roc[i] > 0:
+                entries[i] = True
+
+        # Exit requires 2+ of 3 bearish conditions simultaneously:
+        bearish_signals = 0
+
+        # Condition 1: Trend break (fast < slow EMA)
+        if ema_fast[i] < ema_slow[i]:
+            bearish_signals += 1
+
+        # Condition 2: RSI weak
+        if not np.isnan(rsi[i]) and rsi[i] < exit_rsi:
+            bearish_signals += 1
+
+        # Condition 3: Vol spike (short vol >> long vol = crash starting)
+        if not np.isnan(vol_short[i]) and not np.isnan(vol_long[i]) and vol_long[i] > 0:
+            if vol_short[i] / vol_long[i] > vol_exit_ratio:
+                bearish_signals += 1
+
+        if bearish_signals >= 2:
+            exits[i] = True
+            labels[i] = "M"  # Multi-confirm exit
+
+    return entries, exits, labels
     vol_ratio_max = p.get("vol_ratio_max", 0.9)
     vol_exit_ratio = p.get("vol_exit_ratio", 1.5)
 
@@ -920,8 +1019,8 @@ STRATEGY_REGISTRY = {
     "ichimoku_trend":           ichimoku_trend,
     "dual_momentum":            dual_momentum,
     "rsi_vol_regime":           rsi_vol_regime,
-    "williams_midline_reclaim": williams_midline_reclaim,
-    "adx_trend":                adx_trend,
+    "trough_bounce":            trough_bounce,
+    "momentum_stayer":          momentum_stayer,
     "keltner_squeeze":          keltner_squeeze,
     "always_in_trend":          always_in_trend,
     "donchian_turtle":          donchian_turtle,
@@ -946,21 +1045,30 @@ STRATEGY_PARAMS = {
         "panic_rsi": (15, 30, 5, float), "cooldown": (0, 20, 5, int),
     },
     "breakout": {
-        "lookback": (20, 120, 10, int), "breakout_pct": (0.90, 1.0, 0.02, float),
-        "trail_pct": (10, 35, 5, float), "atr_period": (10, 40, 10, int),
-        "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 20, 5, int),
+        "lookback": (20, 180, 10, int), "breakout_pct": (0.85, 1.0, 0.02, float),
+        "trail_pct": (10, 50, 5, float), "atr_period": (10, 40, 10, int),
+        "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 25, 5, int),
     },
     "rsi_vol_regime": {
         "rsi_len": (7, 21, 2, int), "trend_len": (50, 200, 25, int),
-        "entry_rsi": (25, 45, 5, float), "exit_rsi": (65, 85, 5, float),
+        "entry_rsi": (25, 55, 5, float), "exit_rsi": (65, 90, 5, float),
         "panic_rsi": (10, 25, 5, float), "vol_short": (10, 30, 5, int),
-        "vol_long": (40, 100, 10, int), "vol_ratio_max": (0.7, 1.0, 0.05, float),
+        "vol_long": (40, 100, 10, int), "vol_ratio_max": (0.7, 1.2, 0.05, float),
         "vol_exit_ratio": (1.2, 2.0, 0.2, float), "cooldown": (0, 20, 5, int),
     },
-    "adx_trend": {
-        "adx_len": (10, 30, 4, int), "trend_len": (50, 200, 25, int),
-        "entry_adx": (15.0, 30.0, 5.0, float), "exit_adx": (10.0, 20.0, 5.0, float),
-        "cooldown": (0, 20, 5, int),
+    "trough_bounce": {
+        "rsi_len": (7, 14, 2, int), "low_lookback": (20, 100, 10, int),
+        "fast_ema": (5, 20, 2, int), "slow_ema": (30, 100, 10, int),
+        "bounce_pct": (10.0, 50.0, 5.0, float), "exit_confirm": (2, 10, 1, int),
+        "atr_period": (10, 40, 10, int), "atr_mult": (3.0, 6.0, 0.5, float),
+        "cooldown": (0, 25, 5, int),
+    },
+    "momentum_stayer": {
+        "fast_ema": (10, 40, 5, int), "slow_ema": (30, 120, 10, int),
+        "rsi_len": (7, 21, 2, int), "exit_rsi": (20.0, 40.0, 5.0, float),
+        "vol_short": (10, 30, 5, int), "vol_long": (40, 120, 10, int),
+        "vol_exit_ratio": (1.2, 2.5, 0.2, float), "roc_period": (20, 100, 10, int),
+        "cooldown": (0, 25, 5, int),
     },
     "keltner_squeeze": {
         "bb_len": (15, 30, 5, int), "bb_mult": (1.5, 2.5, 0.5, float),
@@ -1019,13 +1127,5 @@ STRATEGY_PARAMS = {
         "vix_slow_len": (30, 90, 10, int), "vix_entry_ratio": (0.7, 1.0, 0.05, float),
         "vix_exit_ratio": (1.1, 1.6, 0.1, float), "atr_period": (10, 40, 10, int),
         "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 20, 5, int),
-    },
-    "williams_midline_reclaim": {
-        "willr_len": (14, 34, 4, int), "entry_wr": (-90.0, -60.0, 5.0, float),
-        "exit_wr": (-20.0, -5.0, 5.0, float), "rebreak_wr": (-70.0, -40.0, 5.0, float),
-        "channel_len": (40, 100, 10, int), "trend_len": (100, 200, 25, int),
-        "vol_short": (10, 25, 5, int), "vol_long": (40, 90, 10, int),
-        "vol_ratio_max": (0.75, 1.0, 0.05, float), "vol_exit_ratio": (1.2, 1.8, 0.1, float),
-        "cooldown": (5, 20, 5, int),
     },
 }

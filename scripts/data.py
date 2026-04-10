@@ -14,6 +14,7 @@ Files managed:
   XLK Daily.csv     TECL underlying
   TQQQ Daily.csv    Synthetic 1999-2010 + real 2010+
   QQQ Daily.csv     TQQQ underlying
+  SGOV Daily.csv    iShares 0-3 Month Treasury Bond ETF
   Treasury Yield Spread 10Y-2Y.csv   FRED T10Y2Y
   Fed Funds Rate.csv                 FRED DFF
 """
@@ -30,6 +31,8 @@ VIX_CSV = os.path.join(TS_DIR, "VIX Daily.csv")
 XLK_CSV = os.path.join(TS_DIR, "XLK Daily.csv")
 QQQ_CSV = os.path.join(TS_DIR, "QQQ Daily.csv")
 TQQQ_CSV = os.path.join(TS_DIR, "TQQQ Daily.csv")
+SGOV_CSV = os.path.join(TS_DIR, "SGOV Daily.csv")
+TBILL_3M_CSV = os.path.join(TS_DIR, "3-Month Treasury Bill Rate.csv")
 
 # Legacy path — migrated to TECL.csv on first load
 _LEGACY_CSV = os.path.join(TS_DIR, "TECL Price History (2-23-26).csv")
@@ -47,8 +50,9 @@ def _fetch_ticker_yahoo(ticker: str, start: str = "2008-12-01", end: str | None 
         start_dt = datetime.strptime(start, "%Y-%m-%d")
         end_dt = datetime.strptime(end, "%Y-%m-%d") if end else datetime.now() + timedelta(days=1)
 
-        # Don't fetch if start is in the future
-        if start_dt >= end_dt:
+        # Daily bars need at least one full day of span; same-day/future
+        # fetches just create noisy 400s from Yahoo.
+        if start_dt.date() >= end_dt.date():
             return pd.DataFrame()
         period1 = int(start_dt.timestamp())
         period2 = int(end_dt.timestamp())
@@ -66,6 +70,13 @@ def _fetch_ticker_yahoo(ticker: str, start: str = "2008-12-01", end: str | None 
         result = data["chart"]["result"][0]
         timestamps = result["timestamp"]
         quotes = result["indicators"]["quote"][0]
+        adjclose = (
+            result.get("indicators", {})
+            .get("adjclose", [{}])[0]
+            .get("adjclose")
+        )
+        if not adjclose:
+            adjclose = quotes["close"]
 
         df = pd.DataFrame({
             "date": pd.to_datetime(timestamps, unit="s").normalize(),
@@ -73,6 +84,7 @@ def _fetch_ticker_yahoo(ticker: str, start: str = "2008-12-01", end: str | None 
             "high": quotes["high"],
             "low": quotes["low"],
             "close": quotes["close"],
+            "adj_close": adjclose,
             "volume": quotes["volume"],
         })
 
@@ -131,12 +143,34 @@ def _append_new_bars(csv_path: str, ticker: str, start_override: str | None = No
     if fresh.empty:
         return 0
 
+    for col in fresh.columns:
+        if col not in df.columns:
+            if col == "adj_close" and "close" in df.columns:
+                df[col] = df["close"]
+            else:
+                df[col] = np.nan
+
     # Only keep columns that exist in the current CSV
     shared = [c for c in df.columns if c in fresh.columns]
     combined = pd.concat([df[shared], fresh[shared]], ignore_index=True)
     combined = combined.sort_values("date").reset_index(drop=True)
     combined.to_csv(csv_path, index=False)
     return len(fresh)
+
+
+def _refresh_or_create_ticker_csv(csv_path: str, ticker: str, *, start: str) -> int:
+    """
+    Create a ticker CSV from scratch if missing, otherwise append new bars.
+    Returns number of rows added.
+    """
+    if not os.path.exists(csv_path):
+        df = _fetch_ticker_yahoo(ticker, start=start)
+        if df.empty:
+            return 0
+        df = df.sort_values("date").reset_index(drop=True)
+        df.to_csv(csv_path, index=False)
+        return len(df)
+    return _append_new_bars(csv_path, ticker)
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -182,7 +216,12 @@ def refresh_all():
     n = _append_new_bars(TQQQ_CSV, "TQQQ")
     print(f"[refresh] TQQQ: +{n} new bars")
 
+    # ── SGOV ──
+    n = _refresh_or_create_ticker_csv(SGOV_CSV, "SGOV", start="2020-01-01")
+    print(f"[refresh] SGOV: +{n} new bars")
+
     # ── FRED data (yield spread, fed funds) ──
+    _refresh_fred("3-Month Treasury Bill Rate.csv", "DTB3", "rate_3m_tbill")
     _refresh_fred("Treasury Yield Spread 10Y-2Y.csv", "T10Y2Y", "yield_spread_10y2y")
     _refresh_fred("Fed Funds Rate.csv", "DFF", "fed_funds_rate")
 
@@ -381,6 +420,37 @@ def get_qqq_data() -> pd.DataFrame:
     for col in ["open", "high", "low", "close", "volume"]:
         assert col in df.columns, f"Missing column: {col}"
     print(f"[data] QQQ: {len(df)} bars, {df['date'].min().date()} to {df['date'].max().date()}")
+    return df
+
+
+def get_sgov_data() -> pd.DataFrame:
+    """Load SGOV data from local CSV, downloading an initial local copy if needed."""
+    if not os.path.exists(SGOV_CSV):
+        n = _refresh_or_create_ticker_csv(SGOV_CSV, "SGOV", start="2020-01-01")
+        if n == 0 or not os.path.exists(SGOV_CSV):
+            raise FileNotFoundError(f"No SGOV data. Expected: {SGOV_CSV}")
+    df = pd.read_csv(SGOV_CSV, parse_dates=["date"])
+    df = df.sort_values("date").reset_index(drop=True)
+    df.columns = [c.lower().strip() for c in df.columns]
+    for col in ["open", "high", "low", "close", "volume"]:
+        assert col in df.columns, f"Missing column: {col}"
+    if "adj_close" not in df.columns:
+        df["adj_close"] = df["close"]
+    df["adj_close"] = df["adj_close"].fillna(df["close"])
+    print(f"[data] SGOV: {len(df)} bars, {df['date'].min().date()} to {df['date'].max().date()}")
+    return df
+
+
+def get_3m_tbill_rate_data() -> pd.DataFrame:
+    """Load the local 3-month Treasury bill rate proxy used for diagnostics/fallbacks."""
+    if not os.path.exists(TBILL_3M_CSV):
+        _refresh_fred("3-Month Treasury Bill Rate.csv", "DTB3", "rate_3m_tbill")
+        if not os.path.exists(TBILL_3M_CSV):
+            raise FileNotFoundError(f"No 3M T-bill rate data. Expected: {TBILL_3M_CSV}")
+    df = pd.read_csv(TBILL_3M_CSV, parse_dates=["date"])
+    df = df.sort_values("date").reset_index(drop=True)
+    df.columns = [c.lower().strip() for c in df.columns]
+    print(f"[data] 3M T-Bill: {len(df)} rows, {df['date'].min().date()} to {df['date'].max().date()}")
     return df
 
 

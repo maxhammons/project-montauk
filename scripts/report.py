@@ -28,6 +28,10 @@ def _fmt_fitness(val: float) -> str:
     return f"{val:.4f}"
 
 
+def _fmt_money(val: float) -> str:
+    return f"${val:,.2f}"
+
+
 def _top_n_table(rankings: list, n: int = 10) -> str:
     """Generate a markdown table of the top N results."""
     lines = []
@@ -56,6 +60,27 @@ def _top_n_table(rankings: list, n: int = 10) -> str:
     return "\n".join(lines)
 
 
+def _raw_discovery_table(rankings: list, n: int = 10) -> str:
+    lines = []
+    lines.append("| # | Strategy | Discovery | Fitness | Marker | vs B&H | Trades |")
+    lines.append("|---|----------|-----------|---------|--------|--------|--------|")
+
+    for entry in rankings[:n]:
+        m = entry.get("metrics")
+        if not m:
+            continue
+        lines.append(
+            f"| {entry['rank']} "
+            f"| {entry['strategy']} "
+            f"| {_fmt_fitness(entry.get('discovery_score', 0.0))} "
+            f"| {_fmt_fitness(entry.get('fitness', 0.0))} "
+            f"| {entry.get('marker_alignment_score', 0.0):.3f} "
+            f"| {_fmt_mult(m.get('vs_bah', 0.0))} "
+            f"| {m.get('trades', 0)} |"
+        )
+    return "\n".join(lines)
+
+
 def _detail_block(entry: dict) -> str:
     """Generate a detail section for a single ranked entry."""
     m = entry.get("metrics")
@@ -74,6 +99,10 @@ def _detail_block(entry: dict) -> str:
 
     lines = [
         f"### #{entry['rank']}: {entry['strategy']}",
+        "",
+        f"**Discovery:** {_fmt_fitness(entry.get('discovery_score', entry.get('fitness', 0)))} | "
+        f"**Marker alignment:** {entry.get('marker_alignment_score', 0.0):.3f} | "
+        f"**Fitness:** {_fmt_fitness(entry['fitness'])}",
         "",
         f"**Fitness:** {_fmt_fitness(entry['fitness'])} | "
         f"**Regime Score:** {rs:.3f} (bull={bull_cap:.3f}, bear={bear_avoid:.3f}) | "
@@ -94,6 +123,29 @@ def _detail_block(entry: dict) -> str:
         f"**Win rate:** {_fmt_pct(m['win_rate'])}",
         "",
     ]
+
+    validation = entry.get("validation") or {}
+    if validation:
+        lines.append(
+            f"**Validation:** {validation.get('verdict', '?')} | "
+            f"**Composite:** {validation.get('composite_confidence', 0):.3f} | "
+            f"**Pine Eligible:** {validation.get('pine_eligible', False)}"
+        )
+        if validation.get("warnings"):
+            lines.append("**Warnings:** " + "; ".join(validation["warnings"]))
+        if validation.get("hard_fail_reasons"):
+            lines.append("**Hard fails:** " + "; ".join(validation["hard_fail_reasons"]))
+        lines.append("")
+
+    marker_detail = entry.get("marker_alignment_detail") or {}
+    if marker_detail:
+        lines.append(
+            f"**Marker detail:** accuracy={marker_detail.get('state_accuracy', 0):.3f} | "
+            f"f1={marker_detail.get('f1', 0):.3f} | "
+            f"transition_timing={marker_detail.get('transition_timing_score', 0):.3f} | "
+            f"window={marker_detail.get('overlap_start', '?')} -> {marker_detail.get('overlap_end', '?')}"
+        )
+        lines.append("")
 
     # Exit reason breakdown
     reasons = m.get("exit_reasons", {})
@@ -171,11 +223,17 @@ def generate_report(
     Returns the report text.
     """
     date = results.get("date", datetime.now().strftime("%Y-%m-%d"))
-    rankings = results.get("rankings", [])
+    validated_rankings = results.get("validated_rankings", results.get("rankings", []))
+    raw_rankings = results.get("raw_rankings", [])
+    rankings = validated_rankings
+    display_rankings = rankings if rankings else raw_rankings
     elapsed = results.get("elapsed_hours", 0)
     total_evals = results.get("total_evaluations", 0)
     generations = results.get("generations", 0)
-    n_strategies = len(set(r["strategy"] for r in rankings if r.get("metrics")))
+    n_strategies = len(set(r["strategy"] for r in (raw_rankings or display_rankings) if r.get("metrics")))
+    validation_summary = results.get("validation_summary")
+    champion = results.get("champion")
+    artifacts = results.get("artifacts", {})
 
     # Derive run number from directory name
     run_num = os.path.basename(run_dir.rstrip("/"))
@@ -193,18 +251,97 @@ def generate_report(
     )
     lines.append("")
 
-    # Top 10 table
-    lines.append("## Top 10")
-    lines.append("")
-    lines.append(_top_n_table(rankings, 10))
-    lines.append("")
+    if validation_summary:
+        lines.append("## Validation Summary")
+        lines.append("")
+        lines.append(f"- Raw candidates: {validation_summary.get('raw_candidates', 0)}")
+        lines.append(f"- Pre-tier3 pass: {validation_summary.get('pre_tier3_pass', 0)}")
+        lines.append(f"- Fully validated pass: {validation_summary.get('validated_pass', 0)}")
+        lines.append(f"- Tier3 warns: {validation_summary.get('validated_warn', 0)}")
+        lines.append(f"- Failed validation: {validation_summary.get('validated_fail', 0)}")
+        lines.append(
+            f"- Tier3 budget: {validation_summary.get('tier3_minutes', 0)}m "
+            f"@ pop {validation_summary.get('tier3_pop_size', 0)} "
+            f"| N_eff: {validation_summary.get('null', {}).get('n_eff', 'n/a')}"
+        )
+        if champion:
+            lines.append(
+                f"- Champion: {champion.get('strategy', '?')} "
+                f"(fitness {_fmt_fitness(champion.get('fitness', 0))}, "
+                f"composite {champion.get('validation', {}).get('composite_confidence', 0):.3f})"
+            )
+        else:
+            lines.append("- Champion: none - no entry passed full validation")
+        if artifacts.get("candidate_strategy"):
+            lines.append(f"- Candidate Pine: {artifacts['candidate_strategy']}")
+        if artifacts.get("patched_strategy"):
+            lines.append(f"- Montauk patch: {artifacts['patched_strategy']}")
+        if artifacts.get("overlay_report"):
+            lines.append(f"- Overlay report: {artifacts['overlay_report']}")
+        lines.append("")
+
+    # Top 10 tables
+    if validation_summary:
+        lines.append("## Validated Top 10")
+        lines.append("")
+        if rankings:
+            lines.append(_top_n_table(rankings, 10))
+        else:
+            lines.append("*No entries passed full validation. See raw results below.*")
+        lines.append("")
+
+        if raw_rankings:
+            lines.append("## Discovery Top 10 (Pre-Validation)")
+            lines.append("")
+            lines.append(_raw_discovery_table(raw_rankings, 10))
+            lines.append("")
+    else:
+        lines.append("## Top 10")
+        lines.append("")
+        lines.append(_top_n_table(rankings, 10))
+        lines.append("")
 
     # Detail blocks for top 3
     lines.append("## Top 3 — Details")
     lines.append("")
-    for entry in rankings[:3]:
+    for entry in display_rankings[:3]:
         if entry.get("metrics"):
             lines.append(_detail_block(entry))
+
+    overlay = champion.get("overlay") if champion else None
+    if overlay:
+        baseline = overlay.get("baseline", {})
+        comparison = overlay.get("vs_tecl_dca", {})
+        assumptions = overlay.get("assumptions", {})
+        lines.append("## Roth Overlay")
+        lines.append("")
+        lines.append(
+            f"- Contribution schedule: {assumptions.get('contribution_schedule', '?')} "
+            f"at {_fmt_money(assumptions.get('monthly_contribution', 0.0))}/month "
+            f"({_fmt_money(assumptions.get('annual_contribution', 0.0))}/year)"
+        )
+        lines.append(f"- Risk-off sleeve: {assumptions.get('risk_off_sleeve', 'SGOV')}")
+        lines.append(
+            f"- Simulation window: {assumptions.get('simulation_start', '?')} -> "
+            f"{assumptions.get('simulation_end', '?')}"
+        )
+        lines.append(f"- Total contributions: {_fmt_money(overlay.get('total_contributions', 0.0))}")
+        lines.append(
+            f"- Final account value: {_fmt_money(overlay.get('final_total_value', 0.0))} "
+            f"(TECL {_fmt_money(overlay.get('final_tecl_value', 0.0))}, "
+            f"SGOV {_fmt_money(overlay.get('final_sgov_value', 0.0))})"
+        )
+        lines.append(
+            f"- Max drawdown: {_fmt_pct(overlay.get('max_drawdown_pct', 0.0))} | "
+            f"Sweeps: {overlay.get('sweep_count', 0)} | "
+            f"Avg cash lag: {overlay.get('avg_cash_deployment_lag_days', 0.0)} days"
+        )
+        lines.append(
+            f"- vs TECL DCA: {_fmt_money(comparison.get('difference_value', 0.0))} "
+            f"({comparison.get('difference_pct', 0.0):+.2f}%) "
+            f"against baseline {_fmt_money(baseline.get('final_total_value', 0.0))}"
+        )
+        lines.append("")
 
     # vs Previous Best
     if previous_best and previous_best.get("fitness", 0) > 0:
@@ -212,7 +349,7 @@ def generate_report(
         lines.append("")
         prev_name = previous_best.get("strategy", "?")
         prev_fitness = previous_best.get("fitness", 0)
-        curr_best = rankings[0] if rankings else {}
+        curr_best = display_rankings[0] if display_rankings else {}
         curr_fitness = curr_best.get("fitness", 0)
         curr_name = curr_best.get("strategy", "?")
 

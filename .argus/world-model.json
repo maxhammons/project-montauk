@@ -1,0 +1,31 @@
+{
+  "project": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk",
+  "runs": 1,
+  "lastRun": "2026-04-09",
+  "activeFindings": [
+    {
+      "id": "A-001",
+      "title": "Unversioned Cache Poisoning",
+      "status": "active",
+      "discovered": "2026-04-09",
+      "timesSeen": 1,
+      "severity": "blocker"
+    },
+    {
+      "id": "A-002",
+      "title": "The Deployment Air Gap",
+      "status": "active",
+      "discovered": "2026-04-09",
+      "timesSeen": 1,
+      "severity": "blocker"
+    }
+  ],
+  "stableZones": [],
+  "agentCalibration": {
+    "Pragmatist": {"fixRate": 0},
+    "Futurist": {"fixRate": 0},
+    "Craftsman": {"fixRate": 0},
+    "Accelerator": {"fixRate": 0},
+    "Exploiter": {"fixRate": 0}
+  }
+}

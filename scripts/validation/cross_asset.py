@@ -115,6 +115,73 @@ def format_cross_asset(validation: dict) -> str:
     return "\n".join(lines)
 
 
+def cross_asset_reoptimize(
+    strategy_name: str,
+    minutes: float = 5.0,
+    pop_size: int = 30,
+) -> dict:
+    """
+    Tier 3: Re-optimize a strategy's params on TQQQ to test if the
+    strategy *logic* generalizes, not just the TECL-tuned params.
+
+    Runs a short evolve_chunk on TQQQ data with only this strategy.
+    If the strategy concept finds alpha on TQQQ independently, it's
+    more likely to be real signal rather than TECL-specific noise.
+    """
+    from evolve import evolve_chunk
+    from data import get_tqqq_data
+
+    print(f"[tier3] Re-optimizing {strategy_name} on TQQQ ({minutes:.0f}m, pop={pop_size})...")
+    tqqq_df = get_tqqq_data()
+
+    result = evolve_chunk(
+        minutes=minutes,
+        pop_size=pop_size,
+        strategies=[strategy_name],
+        df=tqqq_df,
+    )
+
+    if not result["rankings"]:
+        return {"strategy": strategy_name, "verdict": "FAIL", "reason": "No valid configs found on TQQQ"}
+
+    best = result["rankings"][0]
+    vs_bah = best["metrics"]["vs_bah"]
+    cagr = best["metrics"]["cagr"]
+    trades = best["metrics"]["trades"]
+
+    verdict = "PASS" if vs_bah >= 1.0 else "FAIL"
+
+    return {
+        "strategy": strategy_name,
+        "asset": "TQQQ",
+        "best_fitness": best["fitness"],
+        "best_params": best["params"],
+        "vs_bah": vs_bah,
+        "cagr": cagr,
+        "trades": trades,
+        "verdict": verdict,
+        "reason": f"TQQQ vs_bah={vs_bah:.4f} ({'beats' if vs_bah >= 1 else 'loses to'} buy-and-hold)",
+    }
+
+
+def format_reoptimize(result: dict) -> str:
+    """Format Tier 3 re-optimization results."""
+    lines = [f"TIER 3 — Cross-Asset Re-Optimization: {result['strategy']} on {result.get('asset', 'TQQQ')}"]
+    lines.append("=" * 60)
+    if "error" in result:
+        lines.append(f"  ERROR: {result['error']}")
+        return "\n".join(lines)
+    lines.append(f"  vs B&H:  {result['vs_bah']:.4f}x")
+    lines.append(f"  CAGR:    {result['cagr']:.1f}%")
+    lines.append(f"  Trades:  {result['trades']}")
+    lines.append(f"  Verdict: {result['verdict']} — {result['reason']}")
+    if result["verdict"] == "PASS":
+        lines.append(f"  Strategy logic GENERALIZES to other 3x leveraged products")
+    elif result["verdict"] == "FAIL":
+        lines.append(f"  Strategy logic may be TECL-specific — use with caution")
+    return "\n".join(lines)
+
+
 if __name__ == "__main__":
     import json
 

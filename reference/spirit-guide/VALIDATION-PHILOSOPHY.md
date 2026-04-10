@@ -1,110 +1,155 @@
 # Project Montauk — Validation Philosophy
 
-> Why we test, what we've built, and where we're going.
+> Raw optimizer output is research. Validation decides what is real.
 
 ---
 
-## The Goal
+## 1. Why Validation Exists
 
-Project Montauk is a **long-only trend-following system for TECL** (3x leveraged tech ETF). The objective is simple: capture multi-month bull legs and exit before bear phases destroy capital. The system targets 1-3 trades per year with high hold times.
+Project Montauk is trying to discover robust long-only TECL strategies from a large search space. That means overfitting is the default failure mode.
 
-The **optimizer** (`/spike`) evolves strategy parameters across 16 families to find configs that time bull/bear regimes well. It runs overnight on GitHub Actions or locally and maintains an all-time leaderboard of the top 20 configs.
+The optimizer is good at finding historical winners. The validation system exists to answer a harder question:
 
-## The Problem We're Solving
+> Is this strategy probably real, or is it just the luckiest thing we found on one historical path?
 
-**Overfitting is the default outcome, not the exception.** With 918K+ configs tested on a single 17-year price path with only 5-8 bull/bear cycles, the optimizer will always find something that *looks* great in backtest. The research (13 papers/reports, synthesized in `SYNTHESIS.md`) is unambiguous:
+If the project cannot answer that question honestly, the rest of the factory does not matter.
 
-- After 7 trials on 5-year data, you can find Sharpe > 1.0 by pure chance
-- Backtest Sharpe has R² < 0.025 for predicting live performance (Quantopian, 888 algos)
-- Median 73% Sharpe degradation from backtest to live trading (Suhonen et al., 215 strategies)
-- With 8-12 tunable parameters and 15-50 trades, the trades-per-parameter ratio is far below the 10:1 research minimum
-
-**If we can't distinguish signal from noise, nothing else matters.** A strategy that returns 72% CAGR in backtest but has a Regime Score at the 55th percentile of random configs is not a trading system — it's a lottery ticket.
-
-## What We've Built
-
-### Research-Aligned Fitness Function (`evolve.py`)
-
-The optimizer's fitness function now targets what we actually care about:
-
-```
-fitness = vs_bah × trade_scale × hhi_penalty × dd_penalty × complexity_penalty × regime_mult
-```
-
-| Component | What It Does | Source |
-|-----------|-------------|--------|
-| `vs_bah` (primary) | Strategy equity / B&H equity — must beat buy-and-hold | Charter: "capture bull trends and sidestep bear phases" to outperform |
-| `hhi_penalty` | Rejects strategies where one lucky cycle carries everything | compass...c551.md: cycle concentration |
-| `dd_penalty` | Penalizes large drawdowns (80% DD → 0.3x penalty) | Standard risk control |
-| `complexity_penalty` | Penalizes strategies with too many params relative to trades | Lopez de Prado: 10:1 trades-per-param minimum |
-| `regime_mult` | Quality multiplier — rewards good regime timing (0.4-1.0x) | Prevents beating B&H through luck rather than timing skill |
-
-**Hard gates** (fitness = 0 immediately):
-- Trades/year > 3.0 (Charter: low churn)
-- Trades-per-parameter ratio < 2.0 (catastrophically underdetermined)
-- HHI > 0.35 (single cycle dominates)
-- < 5 total trades
-
-### Diversity-Driven Evolution (`evolve.py`)
-
-The GA now actively prevents premature convergence:
-
-| Mechanism | What It Does | Research Source |
-|-----------|-------------|----------------|
-| **Population diversity tracking** | Measures normalized parameter variance each generation | compass...e9e2.md: convergence diagnostics |
-| **DGEA switching** | Low diversity → burst mutation (40%, ±4 steps). High diversity → exploitation (10%, ±1 step) | Ursem's Diversity-Guided EA |
-| **5% random injection/gen** | 2 random individuals per generation (was 1 every 15 gens) | compass...e9e2.md: "inject 5-10% truly random" |
-| **Mutation survival tracking** | Measures fraction of offspring retaining >90% parent fitness | compass...e9e2.md: free convergence proxy |
-
-### Sprint 1 Validation Suite (`validation/sprint1.py`)
-
-6 tests that run in ~11 seconds on the full leaderboard:
-
-| Test | What It Catches | Research Source |
-|------|----------------|----------------|
-| **Deflated Regime Score** | Is this RS better than noise at N_eff=300? Monte Carlo calibrated null: Beta(17.2, 14.8), expected max 0.761 | compass...2650.md, deflated-sharpe-evolutionary.md |
-| **Exit-Boundary Proximity** | Are exits clustered suspiciously near known bear starts? Enrichment ratio vs chance expectation | compass...c551.md: boundary memorization |
-| **Delete-One-Cycle Jackknife** | Does removing any single cycle collapse the score? Scaled threshold: >2x average impact | compass...c551.md: cycle dependence |
-| **HHI Concentration** | Separate bull/bear HHI + bull vs bear dominance ratio | compass...c551.md: cycle concentration |
-| **Meta-Robustness** | Is the score stable across 28 different regime definitions? (7 thresholds × 4 durations) | compass...c551.md: regime detector sensitivity |
-| **Component Dominance** | Does one side (bull capture vs bear avoidance) carry the composite? | Derived from HHI research |
-
-### Slippage Modeling (`strategy_engine.py`)
-
-5 bps per side (10 bps round-trip) applied to all backtests. Verified: -0.38% CAGR impact on a 55-trade strategy. Prevents inflated results from zero-friction assumptions.
-
-### Hash-Index v2 (`evolve.py`)
-
-Stores `{hash: {f: fitness, rs: regime_score}}` so formula changes don't require re-running all 918K+ backtests. Old v1 entries auto-migrate with rs=null and re-evaluate on encounter.
+Discovery may use soft priors to express project taste. Validation exists to keep those priors from becoming promotion bias.
 
 ---
 
-## What's Still Missing (Roadmap)
+## 2. The Core Rule
 
-See `CHECKLIST.md` for detailed task tracking.
+A raw optimizer winner is **not** a winner.
 
-### Sprint 2: Robustness Tests
-- **Morris Sensitivity Analysis** — which parameters actually matter? Fix the rest to reduce effective DOF
-- **Composite Fragility Score (S_frag)** — broad plateau vs narrow spike measurement
-- **Cross-Asset Validation** — do these strategies work on TQQQ, UPRO, QQQ? Single most powerful anti-overfitting test
-- **Concentric Shell Analysis** — basin width from existing optimizer data
+A strategy only becomes real when it receives a final **PASS** verdict from the validation pipeline.
 
-### Sprint 3: Pipeline + CI
-- Wire validation into `spike.yml` so every GH Actions run auto-screens
-- Full 4-stage fail-fast pipeline with composite tiering
-- Bootstrap confidence intervals on Regime Score
+That rule has operational consequences:
 
-### Sprint 4: Extended Testing
-- Synthetic data extension (NDX back to 1985 — captures dot-com, 2008 GFC)
-- PBO/CSCV on monthly returns
-- Eigenvalue-based N_eff calibration (replace the 300 heuristic)
+- **PASS**: eligible for leaderboard promotion, champion selection, and Pine generation
+- **WARN**: useful research output, but not promotable
+- **FAIL**: archive only, keep searching
+
+The leaderboard is therefore a memory of validated PASS results, not a scrapbook of impressive raw backtests.
 
 ---
 
-## Principles
+## 3. What Validation Must Prove
 
-1. **The research is the spec.** Every test, threshold, and formula traces to a specific paper or report in `/reference/research/reports/`.
-2. **Multiplicative deflation, not additive.** A fragile but high-scoring strategy gets heavily discounted automatically.
-3. **No severity ranking.** A wrong slippage assumption and a wrong fitness function are both bugs. Fix everything.
-4. **Honesty over optimism.** If a strategy beats B&H in backtest but fails validation (deflated score, cycle dependence, boundary memorization), we don't rationalize — we acknowledge it's likely overfit and keep searching.
-5. **Optimize what you measure.** The fitness function targets beating buy-and-hold — the whole point is to outperform passive holding by buying low and selling at peaks. Regime score serves as a quality guard to ensure the outperformance comes from genuine timing skill, not luck.
+Validation is trying to prove four things:
+
+1. The strategy is not obviously underdetermined or degenerate.
+2. The strategy still works when time period and regime context change.
+3. The strategy logic is not TECL-noise cosplay.
+4. The strategy is stable enough to deserve a Pine deployment artifact.
+
+If any of those fail, the project should not promote the strategy.
+
+---
+
+## 4. Canonical Validation Stack
+
+The intended validation stack for Project Montauk is:
+
+### Stage 0 — Run and search integrity
+
+Before the project reasons about a candidate, it must make sure the run itself is valid and the search is not garbage-in:
+
+- canonical datasets are present
+- backtest realism settings are active
+- candidate families stay inside charter guardrails
+- obvious junk is rejected cheaply during search
+
+This stage exists to protect the rest of the pipeline from invalid context.
+
+### Stage 1 — Candidate eligibility
+
+Cheap structural rejection before deeper analysis:
+
+- trade sufficiency
+- trade frequency discipline
+- complexity vs evidence
+- obvious degeneracy checks
+
+These checks stop weak candidates from wasting validation time, but they do **not** prove robustness.
+
+### Stage 2 — Statistical overfit checks
+
+The first serious screen:
+
+- deflation / selection-bias correction
+- exit-boundary proximity
+- delete-one-cycle jackknife
+- concentration and dominance checks
+- regime-definition meta-robustness
+- temporal clustering checks
+
+This is the first place the project asks whether a high score is distinguishable from search noise.
+
+### Stage 3 — Parameter and time robustness
+
+The strategy must survive changed market windows:
+
+- parameter fragility analysis
+- walk-forward validation
+- named stress windows
+
+The point is not perfection. The point is avoiding “worked once, on that exact slice, for reasons we do not trust.”
+
+### Stage 4 — Uncertainty and concept generalization
+
+The strategy logic must be stronger than one lucky path or one set of TECL-tuned parameters:
+
+- uncertainty and interaction checks
+- same-parameter cross-asset checks
+- re-optimization of the winning strategy family on TQQQ
+
+Cross-asset work is for validation only. Production scope remains TECL.
+
+### Stage 5 — Deployment eligibility
+
+A strategy is only deployment-eligible when:
+
+- it still satisfies the charter guardrails: TECL-only, long-only, single-position, Pine-expressible
+- final verdict is **PASS**
+- it is allowed onto the validated leaderboard
+- it can be emitted as a Pine Script candidate for TradingView
+
+If the project cannot generate Pine for the winner, the factory is incomplete.
+
+The spirit-guide defines the stack and its purpose. The exact thresholds, formulas, budgets, and implementation details belong in the validation scripts.
+
+After a strategy clears validation, the project may run deployment-context analysis such as the Roth cashflow overlay. That happens after the PASS decision. It does not create PASS by itself.
+
+---
+
+## 5. Principles
+
+1. **Validation is mandatory.** It is not a post-hoc extra.
+2. **PASS only gets promoted.** A high raw score does not outrank a failed validation.
+3. **Research is the spec.** Validation rules should move toward the strongest defensible statistical standard the repo can support.
+4. **Honesty beats excitement.** A strategy that looks great but fails validation is not “almost ready.” It is rejected.
+5. **The output must be deployable.** The end product is not a JSON blob. It is a Pine candidate for the best PASS winner.
+6. **Deployment overlays are downstream.** They may inform how a validated winner is used, but they do not replace validation.
+
+---
+
+## 6. Current Direction
+
+The project already has the beginnings of the right validation culture:
+
+- integrity checks
+- candidate gating
+- a statistical validation suite
+- fragility and time-robustness checks
+- cross-asset validation work
+- full-run promotion gating in the local `spike_runner` flow
+
+What still matters is finishing the job:
+
+- tighter parity confidence between Python and Pine
+- continued hardening of the statistical governor
+- continued refinement of validation confidence signals
+- formal Python-vs-Pine parity tests
+
+Those are improvements to the same principle, not a change in philosophy.

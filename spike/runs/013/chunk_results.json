@@ -1,0 +1,727 @@
+{
+  "rankings": [
+    {
+      "strategy": "rsi_vol_regime",
+      "fitness": 148.6968,
+      "params": {
+        "rsi_len": 11,
+        "vol_long": 60,
+        "cooldown": 10,
+        "exit_rsi": 80,
+        "vol_exit_ratio": 1.6,
+        "panic_rsi": 15,
+        "vol_short": 25,
+        "trend_len": 125,
+        "vol_ratio_max": 1.0,
+        "entry_rsi": 45
+      },
+      "metrics": {
+        "vs_bah": 763.1975,
+        "cagr": 29.5,
+        "max_dd": 63.6,
+        "trades": 21,
+        "trades_yr": 0.8
+      }
+    },
+    {
+      "strategy": "rsi_regime",
+      "fitness": 92.3232,
+      "params": {
+        "rsi_len": 11,
+        "cooldown": 10,
+        "exit_rsi": 75.0,
+        "panic_rsi": 15,
+        "trend_len": 50,
+        "entry_rsi": 40
+      },
+      "metrics": {
+        "vs_bah": 283.2149,
+        "cagr": 24.9,
+        "max_dd": 63.6,
+        "trades": 36,
+        "trades_yr": 1.3
+      }
+    },
+    {
+      "strategy": "breakout",
+      "fitness": 87.1176,
+      "params": {
+        "lookback": 120,
+        "breakout_pct": 0.9,
+        "trail_pct": 35,
+        "atr_period": 20,
+        "atr_mult": 2.5,
+        "cooldown": 20
+      },
+      "metrics": {
+        "vs_bah": 201.4528,
+        "cagr": 23.4,
+        "max_dd": 53.5,
+        "trades": 28,
+        "trades_yr": 1.0
+      }
+    },
+    {
+      "strategy": "dual_momentum",
+      "fitness": 68.8978,
+      "params": {
+        "abs_exit": -8.0,
+        "short_exit": -15.0,
+        "cooldown": 10,
+        "atr_period": 20,
+        "short_thresh": 0.0,
+        "abs_period": 60,
+        "atr_mult": 2.5,
+        "abs_thresh": 0.0,
+        "trend_len": 125,
+        "short_period": 10
+      },
+      "metrics": {
+        "vs_bah": 140.8869,
+        "cagr": 21.8,
+        "max_dd": 50.8,
+        "trades": 60,
+        "trades_yr": 2.2
+      }
+    },
+    {
+      "strategy": "rsi_regime_trail",
+      "fitness": 37.4786,
+      "params": {
+        "rsi_len": 7,
+        "cooldown": 10,
+        "atr_period": 20,
+        "panic_rsi": 10,
+        "trail_pct": 35,
+        "atr_mult": 2.5,
+        "trend_len": 100,
+        "entry_rsi": 45
+      },
+      "metrics": {
+        "vs_bah": 134.1953,
+        "cagr": 21.5,
+        "max_dd": 70.4,
+        "trades": 31,
+        "trades_yr": 1.1
+      }
+    },
+    {
+      "strategy": "ichimoku_trend",
+      "fitness": 35.0911,
+      "params": {
+        "kijun_len": 20,
+        "cloud_len": 50,
+        "cloud_buffer": 2.5,
+        "cooldown": 10,
+        "atr_period": 40,
+        "tenkan_len": 15,
+        "atr_mult": 3.0
+      },
+      "metrics": {
+        "vs_bah": 74.6003,
+        "cagr": 19.0,
+        "max_dd": 44.7,
+        "trades": 89,
+        "trades_yr": 3.3
+      }
+    },
+    {
+      "strategy": "trough_bounce",
+      "fitness": 27.1902,
+      "params": {
+        "bounce_pct": 30.0,
+        "rsi_len": 8,
+        "cooldown": 15,
+        "atr_period": 30,
+        "low_lookback": 60,
+        "exit_confirm": 6,
+        "atr_mult": 4.0,
+        "fast_ema": 7,
+        "slow_ema": 40
+      },
+      "metrics": {
+        "vs_bah": 71.3112,
+        "cagr": 18.8,
+        "max_dd": 64.5,
+        "trades": 72,
+        "trades_yr": 2.6
+      }
+    },
+    {
+      "strategy": "montauk_821",
+      "fitness": 24.4745,
+      "params": {
+        "quick_ema": 23,
+        "short_ema": 23,
+        "sell_buffer": 0.0,
+        "quick_lookback": 7,
+        "cooldown": 10,
+        "atr_period": 60,
+        "slope_lookback": 15,
+        "trend_ema": 110,
+        "med_ema": 60,
+        "atr_mult": 3.5,
+        "quick_thresh": -3.0
+      },
+      "metrics": {
+        "vs_bah": 57.4095,
+        "cagr": 17.8,
+        "max_dd": 56.0,
+        "trades": 63,
+        "trades_yr": 2.3
+      }
+    },
+    {
+      "strategy": "slope_persistence",
+      "fitness": 22.0743,
+      "params": {
+        "exit_bars": 10,
+        "cooldown": 20,
+        "ema_len": 70,
+        "atr_period": 40,
+        "slope_window": 5,
+        "atr_mult": 2.5,
+        "entry_bars": 6
+      },
+      "metrics": {
+        "vs_bah": 55.071,
+        "cagr": 17.6,
+        "max_dd": 63.2,
+        "trades": 58,
+        "trades_yr": 2.1
+      }
+    },
+    {
+      "strategy": "vix_trend_regime",
+      "fitness": 19.2318,
+      "params": {
+        "short_ema": 25,
+        "atr_mult": 5.0,
+        "cooldown": 20,
+        "atr_period": 40,
+        "vix_entry_ratio": 0.85,
+        "vix_slow_len": 40,
+        "long_ema": 50,
+        "vix_exit_ratio": 1.2
+      },
+      "metrics": {
+        "vs_bah": 45.206,
+        "cagr": 16.8,
+        "max_dd": 58.1,
+        "trades": 53,
+        "trades_yr": 1.9
+      }
+    },
+    {
+      "strategy": "momentum_stayer",
+      "fitness": 18.8857,
+      "params": {
+        "rsi_len": 7,
+        "vol_long": 80,
+        "roc_period": 60,
+        "cooldown": 15,
+        "exit_rsi": 30.0,
+        "vol_exit_ratio": 1.4,
+        "fast_ema": 25,
+        "vol_short": 20,
+        "slow_ema": 70
+      },
+      "metrics": {
+        "vs_bah": 81.5696,
+        "cagr": 19.3,
+        "max_dd": 72.6,
+        "trades": 30,
+        "trades_yr": 1.1
+      }
+    },
+    {
+      "strategy": "donchian_turtle",
+      "fitness": 12.0539,
+      "params": {
+        "cooldown": 20,
+        "entry_len": 30,
+        "trend_len": 75,
+        "exit_len": 30
+      },
+      "metrics": {
+        "vs_bah": 54.0712,
+        "cagr": 17.6,
+        "max_dd": 72.4,
+        "trades": 22,
+        "trades_yr": 0.8
+      }
+    },
+    {
+      "strategy": "vol_regime",
+      "fitness": 11.5216,
+      "params": {
+        "vol_short": 15,
+        "vol_long": 40,
+        "trend_len": 175,
+        "vol_entry_ratio": 0.8,
+        "vol_exit_ratio": 1.4,
+        "trend_buffer": 5.0,
+        "cooldown": 10
+      },
+      "metrics": {
+        "vs_bah": 34.6082,
+        "cagr": 15.6,
+        "max_dd": 66.3,
+        "trades": 36,
+        "trades_yr": 1.3
+      }
+    },
+    {
+      "strategy": "always_in_trend",
+      "fitness": 5.9444,
+      "params": {
+        "cooldown": 0,
+        "adx_len": 20,
+        "exit_adx": 15.0,
+        "fast_ema": 30,
+        "slow_ema": 80
+      },
+      "metrics": {
+        "vs_bah": 17.2197,
+        "cagr": 12.7,
+        "max_dd": 63.2,
+        "trades": 333,
+        "trades_yr": 12.2
+      }
+    },
+    {
+      "strategy": "vix_mean_revert",
+      "fitness": 5.6846,
+      "params": {
+        "vix_lookback": 80,
+        "entry_pctl": 75,
+        "cooldown": 20,
+        "vix_ema_len": 20,
+        "trend_buffer": 10.0,
+        "panic_vix": 40,
+        "trend_len": 50,
+        "exit_pctl": 25
+      },
+      "metrics": {
+        "vs_bah": 20.8918,
+        "cagr": 13.5,
+        "max_dd": 60.9,
+        "trades": 71,
+        "trades_yr": 2.6
+      }
+    },
+    {
+      "strategy": "keltner_squeeze",
+      "fitness": 1.9215,
+      "params": {
+        "kelt_len": 30,
+        "trend_len": 75,
+        "mom_len": 20,
+        "bb_mult": 1.5,
+        "kelt_mult": 1.5,
+        "cooldown": 0,
+        "bb_len": 15
+      },
+      "metrics": {
+        "vs_bah": 4.7714,
+        "cagr": 7.6,
+        "max_dd": 32.8,
+        "trades": 42,
+        "trades_yr": 1.5
+      }
+    }
+  ],
+  "diagnostics": {
+    "montauk_821": {
+      "best_score": 24.4745,
+      "best_params": {
+        "quick_ema": 23,
+        "short_ema": 23,
+        "sell_buffer": 0.0,
+        "quick_lookback": 7,
+        "cooldown": 10,
+        "atr_period": 60,
+        "slope_lookback": 15,
+        "trend_ema": 110,
+        "med_ema": 60,
+        "atr_mult": 3.5,
+        "quick_thresh": -3.0
+      },
+      "boundary_hits": {
+        "short_ema": null,
+        "med_ema": "high",
+        "trend_ema": null,
+        "slope_lookback": null,
+        "atr_period": "high",
+        "atr_mult": null,
+        "quick_ema": "high",
+        "quick_lookback": null,
+        "quick_thresh": "high",
+        "sell_buffer": "low",
+        "cooldown": "high"
+      },
+      "diversity": 0.3009
+    },
+    "rsi_regime": {
+      "best_score": 92.3232,
+      "best_params": {
+        "rsi_len": 11,
+        "cooldown": 10,
+        "exit_rsi": 75.0,
+        "panic_rsi": 15,
+        "trend_len": 50,
+        "entry_rsi": 40
+      },
+      "boundary_hits": {
+        "rsi_len": null,
+        "trend_len": "low",
+        "entry_rsi": null,
+        "exit_rsi": null,
+        "panic_rsi": "low",
+        "cooldown": null
+      },
+      "diversity": 0.3362
+    },
+    "breakout": {
+      "best_score": 87.1176,
+      "best_params": {
+        "lookback": 120,
+        "breakout_pct": 0.9,
+        "trail_pct": 35,
+        "atr_period": 20,
+        "atr_mult": 2.5,
+        "cooldown": 20
+      },
+      "boundary_hits": {
+        "lookback": "high",
+        "breakout_pct": "low",
+        "trail_pct": "high",
+        "atr_period": null,
+        "atr_mult": null,
+        "cooldown": "high"
+      },
+      "diversity": 0.3295
+    },
+    "rsi_regime_trail": {
+      "best_score": 37.4786,
+      "best_params": {
+        "rsi_len": 7,
+        "cooldown": 10,
+        "atr_period": 20,
+        "panic_rsi": 10,
+        "trail_pct": 35,
+        "atr_mult": 2.5,
+        "trend_len": 100,
+        "entry_rsi": 45
+      },
+      "boundary_hits": {
+        "rsi_len": "low",
+        "trend_len": null,
+        "entry_rsi": "high",
+        "trail_pct": "high",
+        "panic_rsi": "low",
+        "atr_period": null,
+        "atr_mult": null,
+        "cooldown": null
+      },
+      "diversity": 0.3433
+    },
+    "vol_regime": {
+      "best_score": 11.5216,
+      "best_params": {
+        "vol_short": 15,
+        "vol_long": 40,
+        "trend_len": 175,
+        "vol_entry_ratio": 0.8,
+        "vol_exit_ratio": 1.4,
+        "trend_buffer": 5.0,
+        "cooldown": 10
+      },
+      "boundary_hits": {
+        "vol_short": null,
+        "vol_long": "low",
+        "trend_len": null,
+        "vol_entry_ratio": null,
+        "vol_exit_ratio": null,
+        "trend_buffer": "high",
+        "cooldown": null
+      },
+      "diversity": 0.3337
+    },
+    "ichimoku_trend": {
+      "best_score": 35.0911,
+      "best_params": {
+        "kijun_len": 20,
+        "cloud_len": 50,
+        "cloud_buffer": 2.5,
+        "cooldown": 10,
+        "atr_period": 40,
+        "tenkan_len": 15,
+        "atr_mult": 3.0
+      },
+      "boundary_hits": {
+        "tenkan_len": "high",
+        "kijun_len": null,
+        "cloud_len": null,
+        "cloud_buffer": null,
+        "atr_period": "high",
+        "atr_mult": null,
+        "cooldown": null
+      },
+      "diversity": 0.3354
+    },
+    "dual_momentum": {
+      "best_score": 68.8978,
+      "best_params": {
+        "abs_exit": -8.0,
+        "short_exit": -15.0,
+        "cooldown": 10,
+        "atr_period": 20,
+        "short_thresh": 0.0,
+        "abs_period": 60,
+        "atr_mult": 2.5,
+        "abs_thresh": 0.0,
+        "trend_len": 125,
+        "short_period": 10
+      },
+      "boundary_hits": {
+        "abs_period": null,
+        "short_period": "low",
+        "trend_len": null,
+        "abs_thresh": "low",
+        "short_thresh": "low",
+        "abs_exit": null,
+        "short_exit": "low",
+        "atr_period": null,
+        "atr_mult": null,
+        "cooldown": null
+      },
+      "diversity": 0.3502
+    },
+    "rsi_vol_regime": {
+      "best_score": 148.6968,
+      "best_params": {
+        "rsi_len": 11,
+        "vol_long": 60,
+        "cooldown": 10,
+        "exit_rsi": 80,
+        "vol_exit_ratio": 1.6,
+        "panic_rsi": 15,
+        "vol_short": 25,
+        "trend_len": 125,
+        "vol_ratio_max": 1.0,
+        "entry_rsi": 45
+      },
+      "boundary_hits": {
+        "rsi_len": null,
+        "trend_len": null,
+        "entry_rsi": "high",
+        "exit_rsi": null,
+        "panic_rsi": null,
+        "vol_short": null,
+        "vol_long": null,
+        "vol_ratio_max": "high",
+        "vol_exit_ratio": null,
+        "cooldown": null
+      },
+      "diversity": 0.3317
+    },
+    "trough_bounce": {
+      "best_score": 27.1902,
+      "best_params": {
+        "bounce_pct": 30.0,
+        "rsi_len": 8,
+        "cooldown": 15,
+        "atr_period": 30,
+        "low_lookback": 60,
+        "exit_confirm": 6,
+        "atr_mult": 4.0,
+        "fast_ema": 7,
+        "slow_ema": 40
+      },
+      "boundary_hits": {
+        "rsi_len": null,
+        "low_lookback": "high",
+        "fast_ema": null,
+        "slow_ema": null,
+        "bounce_pct": "high",
+        "exit_confirm": "high",
+        "atr_period": null,
+        "atr_mult": null,
+        "cooldown": "high"
+      },
+      "diversity": 0.3478
+    },
+    "momentum_stayer": {
+      "best_score": 18.8857,
+      "best_params": {
+        "rsi_len": 7,
+        "vol_long": 80,
+        "roc_period": 60,
+        "cooldown": 15,
+        "exit_rsi": 30.0,
+        "vol_exit_ratio": 1.4,
+        "fast_ema": 25,
+        "vol_short": 20,
+        "slow_ema": 70
+      },
+      "boundary_hits": {
+        "fast_ema": "high",
+        "slow_ema": null,
+        "rsi_len": "low",
+        "exit_rsi": null,
+        "vol_short": null,
+        "vol_long": "high",
+        "vol_exit_ratio": null,
+        "roc_period": "high",
+        "cooldown": "high"
+      },
+      "diversity": 0.3444
+    },
+    "keltner_squeeze": {
+      "best_score": 1.9215,
+      "best_params": {
+        "kelt_len": 30,
+        "trend_len": 75,
+        "mom_len": 20,
+        "bb_mult": 1.5,
+        "kelt_mult": 1.5,
+        "cooldown": 0,
+        "bb_len": 15
+      },
+      "boundary_hits": {
+        "bb_len": "low",
+        "bb_mult": "low",
+        "kelt_len": "high",
+        "kelt_mult": null,
+        "trend_len": null,
+        "mom_len": "high",
+        "cooldown": "low"
+      },
+      "diversity": 0.3613
+    },
+    "always_in_trend": {
+      "best_score": 5.9444,
+      "best_params": {
+        "cooldown": 0,
+        "adx_len": 20,
+        "exit_adx": 15.0,
+        "fast_ema": 30,
+        "slow_ema": 80
+      },
+      "boundary_hits": {
+        "fast_ema": "high",
+        "slow_ema": "high",
+        "adx_len": null,
+        "exit_adx": "low",
+        "cooldown": "low"
+      },
+      "diversity": 0.3472
+    },
+    "donchian_turtle": {
+      "best_score": 12.0539,
+      "best_params": {
+        "cooldown": 20,
+        "entry_len": 30,
+        "trend_len": 75,
+        "exit_len": 30
+      },
+      "boundary_hits": {
+        "entry_len": "low",
+        "exit_len": null,
+        "trend_len": null,
+        "cooldown": "high"
+      },
+      "diversity": 0.3081
+    },
+    "slope_persistence": {
+      "best_score": 22.0743,
+      "best_params": {
+        "exit_bars": 10,
+        "cooldown": 20,
+        "ema_len": 70,
+        "atr_period": 40,
+        "slope_window": 5,
+        "atr_mult": 2.5,
+        "entry_bars": 6
+      },
+      "boundary_hits": {
+        "ema_len": null,
+        "slope_window": null,
+        "entry_bars": "high",
+        "exit_bars": "high",
+        "atr_period": "high",
+        "atr_mult": null,
+        "cooldown": "high"
+      },
+      "diversity": 0.3386
+    },
+    "vix_mean_revert": {
+      "best_score": 5.6846,
+      "best_params": {
+        "vix_lookback": 80,
+        "entry_pctl": 75,
+        "cooldown": 20,
+        "vix_ema_len": 20,
+        "trend_buffer": 10.0,
+        "panic_vix": 40,
+        "trend_len": 50,
+        "exit_pctl": 25
+      },
+      "boundary_hits": {
+        "vix_lookback": null,
+        "vix_ema_len": "high",
+        "entry_pctl": "low",
+        "exit_pctl": "low",
+        "trend_len": "low",
+        "trend_buffer": "high",
+        "panic_vix": null,
+        "cooldown": "high"
+      },
+      "diversity": 0.3359
+    },
+    "vix_trend_regime": {
+      "best_score": 19.2318,
+      "best_params": {
+        "short_ema": 25,
+        "atr_mult": 5.0,
+        "cooldown": 20,
+        "atr_period": 40,
+        "vix_entry_ratio": 0.85,
+        "vix_slow_len": 40,
+        "long_ema": 50,
+        "vix_exit_ratio": 1.2
+      },
+      "boundary_hits": {
+        "short_ema": null,
+        "long_ema": null,
+        "vix_slow_len": null,
+        "vix_entry_ratio": null,
+        "vix_exit_ratio": null,
+        "atr_period": "high",
+        "atr_mult": "high",
+        "cooldown": "high"
+      },
+      "diversity": 0.3288
+    }
+  },
+  "best_ever": {
+    "strategy": "rsi_vol_regime",
+    "fitness": 148.6968,
+    "params": {
+      "rsi_len": 11,
+      "vol_long": 60,
+      "cooldown": 10,
+      "exit_rsi": 80,
+      "vol_exit_ratio": 1.6,
+      "panic_rsi": 15,
+      "vol_short": 25,
+      "trend_len": 125,
+      "vol_ratio_max": 1.0,
+      "entry_rsi": 45
+    }
+  },
+  "elapsed_minutes": 20.0,
+  "generations": 995,
+  "total_evals": 57143
+}

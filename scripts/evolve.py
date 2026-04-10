@@ -30,11 +30,12 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from data import get_tecl_data
 from strategy_engine import Indicators, backtest, BacktestResult
 from backtest_engine import score_regime_capture
+from discovery_markers import NEUTRAL_MARKER_SCORE, score_marker_alignment
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HISTORY_DIR = os.path.join(PROJECT_ROOT, "spike")
 HISTORY_FILE = os.path.join(HISTORY_DIR, "tested-configs.jsonl")  # legacy, no longer written
-HASH_INDEX_FILE = os.path.join(HISTORY_DIR, "hash-index.json")   # compact: {hash: fitness}
+HASH_INDEX_FILE = os.path.join(HISTORY_DIR, "hash-index.json")   # compact raw-metrics cache
 
 
 class _Enc(json.JSONEncoder):
@@ -44,6 +45,23 @@ class _Enc(json.JSONEncoder):
         if isinstance(o, (np.bool_,)): return bool(o)
         if isinstance(o, np.ndarray): return o.tolist()
         return super().default(o)
+
+
+def _compute_engine_hash() -> str:
+    """Hash core optimizer files so engine fixes invalidate stale cache keys."""
+    scripts_dir = os.path.dirname(os.path.abspath(__file__))
+    digest = hashlib.sha256()
+    for filename in ("strategy_engine.py", "evolve.py", "strategies.py"):
+        path = os.path.join(scripts_dir, filename)
+        with open(path, "rb") as f:
+            digest.update(filename.encode("utf-8"))
+            digest.update(b"\0")
+            digest.update(f.read())
+            digest.update(b"\0")
+    return digest.hexdigest()[:12]
+
+
+_ENGINE_HASH = _compute_engine_hash()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -59,7 +77,7 @@ def config_hash(strategy_name: str, params: dict) -> str:
             clean[k] = round(v, 4)
         else:
             clean[k] = v
-    key = f"{strategy_name}:{json.dumps(clean, sort_keys=True)}"
+    key = f"{_ENGINE_HASH}:{strategy_name}:{json.dumps(clean, sort_keys=True)}"
     return hashlib.sha256(key.encode()).hexdigest()[:16]
 
 
@@ -253,6 +271,8 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
             "converged": strategy_state[name]["converged"],
             "runs_without_improvement": strategy_state[name]["runs_without_improvement"],
         }
+        if entry.get("validation") is not None:
+            lb_entry["validation"] = entry["validation"]
         desc = STRATEGY_DESCRIPTIONS.get(name)
         if desc:
             lb_entry["description"] = desc
@@ -365,12 +385,12 @@ def fitness_from_cache(entry: dict) -> float:
     # Drawdown penalty
     dd_penalty = max(0.3, 1.0 - dd / 120.0)
 
-    # Complexity penalty
+    # Complexity penalty (research: 10:1 minimum, we use 5:1 hard gate)
     if n_params > 0:
         tpp = num_trades / n_params
-        if tpp < 2:
+        if tpp < 5:
             return 0.0
-        complexity_penalty = min(1.0, 0.5 + 0.5 * (tpp - 2) / 3) if tpp < 5 else 1.0
+        complexity_penalty = min(1.0, 0.5 + 0.5 * (tpp - 5) / 5) if tpp < 10 else 1.0
     else:
         complexity_penalty = 1.0
 
@@ -379,6 +399,15 @@ def fitness_from_cache(entry: dict) -> float:
     regime_mult = 0.4 + 0.6 * min(1.0, rs / 0.7)
 
     return vs_bah * trade_scale * hhi_penalty * dd_penalty * complexity_penalty * regime_mult
+
+
+def discovery_score_value(fitness_score: float, marker_alignment_score: float | None) -> float:
+    marker = NEUTRAL_MARKER_SCORE if marker_alignment_score is None else float(marker_alignment_score)
+    return float(fitness_score) * (0.95 + 0.10 * marker)
+
+
+def discovery_score_from_cache(entry: dict) -> float:
+    return discovery_score_value(fitness_from_cache(entry), entry.get("ma", NEUTRAL_MARKER_SCORE))
 
 
 def fitness(result: BacktestResult) -> float:
@@ -415,16 +444,16 @@ def fitness(result: BacktestResult) -> float:
     # Max DD of 80%+ → 0.3x, 40% → 0.65x, 20% → 0.83x
     dd_penalty = max(0.3, 1.0 - result.max_drawdown_pct / 120.0)
 
-    # ── Parameter complexity penalty ──
+    # ── Parameter complexity penalty (research: 10:1 minimum, we use 5:1 hard gate) ──
     n_params = sum(1 for k, v in result.params.items()
                    if isinstance(v, (int, float)) and not isinstance(v, bool)
                    and k != "cooldown")
     if n_params > 0:
         tpp_ratio = result.num_trades / n_params
-        if tpp_ratio < 2:
-            return 0.0
-        elif tpp_ratio < 5:
-            complexity_penalty = 0.5 + 0.5 * (tpp_ratio - 2) / 3
+        if tpp_ratio < 5:
+            return 0.0  # underdetermined — reject
+        elif tpp_ratio < 10:
+            complexity_penalty = 0.5 + 0.5 * (tpp_ratio - 5) / 5  # ramp 5→10
         else:
             complexity_penalty = 1.0
     else:
@@ -437,6 +466,96 @@ def fitness(result: BacktestResult) -> float:
         regime_mult = 0.4 + 0.6 * min(1.0, rs.composite / 0.7)
 
     return vs_bah * trade_scale * hhi_penalty * dd_penalty * complexity_penalty * regime_mult
+
+
+def _count_tunable_params(params: dict) -> int:
+    return sum(
+        1
+        for k, v in params.items()
+        if isinstance(v, (int, float)) and not isinstance(v, bool) and k != "cooldown"
+    )
+
+
+def _cache_entry_from_result(
+    params: dict,
+    result: BacktestResult | None,
+    marker_alignment_score: float | None = None,
+) -> dict:
+    """Store raw metrics so ranking formulas can evolve without rerunning backtests."""
+    regime_score = result.regime_score if result else None
+    hhi = None
+    if regime_score and regime_score.hhi is not None:
+        hhi = round(regime_score.hhi, 4)
+    return {
+        "bah": round(result.vs_bah_multiple, 4) if result else None,
+        "rs": round(regime_score.composite, 4) if regime_score else None,
+        "dd": round(result.max_drawdown_pct, 1) if result else None,
+        "nt": result.num_trades if result else 0,
+        "np": _count_tunable_params(params),
+        "hhi": hhi,
+        "ma": round(float(marker_alignment_score), 4)
+        if marker_alignment_score is not None else None,
+    }
+
+
+def _dataset_years(df) -> float:
+    if df is None or len(df) < 2:
+        return 0.0
+    start = np.datetime64(df["date"].iloc[0])
+    end = np.datetime64(df["date"].iloc[-1])
+    days = float((end - start) / np.timedelta64(1, "D"))
+    return days / 365.25 if days > 0 else 0.0
+
+
+def _passes_pareto_hard_gates(num_trades: int, trades_per_year: float, n_params: int, hhi: float) -> bool:
+    if num_trades < 5:
+        return False
+    if trades_per_year > MAX_TRADES_PER_YEAR:
+        return False
+    if hhi > 0.35:
+        return False
+    if n_params > 0 and (num_trades / n_params) < 5:
+        return False
+    return True
+
+
+def _objectives_from_cache(entry: dict, dataset_years: float) -> tuple[float, float, float] | None:
+    vs_bah = entry.get("bah")
+    dd = entry.get("dd")
+    num_trades = entry.get("nt") or 0
+    n_params = entry.get("np") or 0
+    hhi = entry.get("hhi")
+    if hhi is None:
+        hhi = 0.0
+    if vs_bah is None or dd is None:
+        return None
+    trades_per_year = (num_trades / dataset_years) if dataset_years > 0 else 0.0
+    if not _passes_pareto_hard_gates(num_trades, trades_per_year, n_params, float(hhi)):
+        return None
+    return float(vs_bah), float(dd), float(hhi)
+
+
+def _objectives_from_result(result: BacktestResult | None) -> tuple[float, float, float] | None:
+    if result is None:
+        return None
+    hhi = 0.0
+    if result.regime_score and result.regime_score.hhi is not None:
+        hhi = float(result.regime_score.hhi)
+    n_params = _count_tunable_params(result.params)
+    if not _passes_pareto_hard_gates(result.num_trades, result.trades_per_year, n_params, hhi):
+        return None
+    return float(result.vs_bah_multiple), float(result.max_drawdown_pct), hhi
+
+
+def _require_optuna():
+    try:
+        import optuna
+        from optuna.samplers import NSGAIISampler
+    except ImportError as exc:
+        raise SystemExit(
+            "Optuna is required for Bayesian mode. Install `optuna` in the active Python environment."
+        ) from exc
+    return optuna, NSGAIISampler
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -479,11 +598,7 @@ def crossover_params(p1: dict, p2: dict) -> dict:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def evaluate(ind: Indicators, df, strategy_fn, params: dict, name: str) -> tuple:
-    """Run one strategy config, return (fitness_score, BacktestResult).
-
-    Computes regime score and attaches it to the result so the fitness
-    function can use it as the primary signal.
-    """
+    """Run one strategy config and return discovery + fitness context."""
     try:
         entries, exits, labels = strategy_fn(ind, params)
         cooldown = params.get("cooldown", 0)
@@ -498,18 +613,37 @@ def evaluate(ind: Indicators, df, strategy_fn, params: dict, name: str) -> tuple
             result.regime_score = score_regime_capture(result.trades, cl, dates)
         else:
             result.regime_score = None
-        return fitness(result), result
+        fitness_score = fitness(result)
+        marker_alignment = score_marker_alignment(df, result.trades)
+        marker_score = float(marker_alignment["score"])
+        discovery_score = discovery_score_value(fitness_score, marker_score)
+        return fitness_score, discovery_score, marker_score, marker_alignment, result
     except Exception:
-        return 0.0, None
+        return 0.0, 0.0, NEUTRAL_MARKER_SCORE, {
+            "score": NEUTRAL_MARKER_SCORE,
+            "error": "evaluation_failed",
+        }, None
 
 
 def evolve_bayesian(ind, df, strategy_name, strategy_fn, space, hours, dedup_cache, history_stats):
     """
-    Bayesian optimization for a single strategy using Optuna TPE.
-    Returns (best_score, best_params, best_result, best_value, n_trials).
+    Multi-objective Bayesian optimization for a single strategy using Optuna NSGA-II.
+    Returns discovery-aware best candidate while keeping Pareto objectives unchanged.
     """
-    import optuna
+    optuna, NSGAIISampler = _require_optuna()
+
     optuna.logging.set_verbosity(optuna.logging.WARNING)
+    dataset_years = _dataset_years(df)
+
+    def params_from_trial(trial) -> dict:
+        params = {}
+        for name, (lo, hi, step, typ) in space.items():
+            if typ == int:
+                params[name] = trial.params.get(name, int((lo + hi) / 2))
+            else:
+                idx = trial.params.get(f"_idx_{name}", 0)
+                params[name] = round(lo + idx * step, 4)
+        return params
 
     def objective(trial):
         params = {}
@@ -526,28 +660,29 @@ def evolve_bayesian(ind, df, strategy_name, strategy_fn, space, hours, dedup_cac
         h = config_hash(strategy_name, params)
         cached = dedup_cache.get(h)
         if cached and isinstance(cached, dict) and cached.get("bah") is not None:
-            score = fitness_from_cache(cached)
             history_stats["cached_configs"] += 1
-            return score
+            objectives = _objectives_from_cache(cached, dataset_years)
+            if objectives is None:
+                raise optuna.TrialPruned()
+            return objectives
 
-        score, result = evaluate(ind, df, strategy_fn, params, strategy_name)
+        fitness_score, _discovery_score, marker_score, _marker_detail, result = evaluate(
+            ind, df, strategy_fn, params, strategy_name
+        )
         history_stats["new_configs"] += 1
 
         # Store to cache (v3 format)
-        n_params_val = sum(1 for k, v in params.items()
-                          if isinstance(v, (int, float)) and not isinstance(v, bool) and k != "cooldown")
-        dedup_cache[h] = {
-            "bah": round(result.vs_bah_multiple, 4) if result else None,
-            "rs": round(result.regime_score.composite, 4) if result and result.regime_score else None,
-            "dd": round(result.max_drawdown_pct, 1) if result else None,
-            "nt": result.num_trades if result else 0,
-            "np": n_params_val,
-            "hhi": round(result.regime_score.hhi, 4) if result and result.regime_score and result.regime_score.hhi else None,
-        }
+        dedup_cache[h] = _cache_entry_from_result(params, result, marker_score)
 
-        return score
+        objectives = _objectives_from_result(result)
+        if objectives is None:
+            raise optuna.TrialPruned()
+        return objectives
 
-    study = optuna.create_study(direction="maximize", sampler=optuna.samplers.TPESampler(seed=42))
+    study = optuna.create_study(
+        directions=["maximize", "minimize", "minimize"],
+        sampler=NSGAIISampler(seed=42),
+    )
 
     # Seed with leaderboard winners if available
     leaderboard_path = os.path.join(HISTORY_DIR, "leaderboard.json")
@@ -558,7 +693,10 @@ def evolve_bayesian(ind, df, strategy_name, strategy_fn, space, hours, dedup_cac
             for name, (lo, hi, step, typ) in space.items():
                 val = seed_params.get(name, (lo + hi) / 2)
                 if typ == int:
-                    trial_params[name] = int(round(max(lo, min(hi, val))))
+                    n_steps = int(round((hi - lo) / step))
+                    idx = int(round((val - lo) / step))
+                    idx = max(0, min(n_steps, idx))
+                    trial_params[name] = int(lo + idx * step)
                 else:
                     n_steps = int(round((hi - lo) / step))
                     idx = int(round((val - lo) / step))
@@ -571,25 +709,74 @@ def evolve_bayesian(ind, df, strategy_name, strategy_fn, space, hours, dedup_cac
     timeout = hours * 3600
     study.optimize(objective, timeout=timeout, n_trials=100000, show_progress_bar=False)
 
-    # Extract best
-    best_trial = study.best_trial
-    best_params = {}
-    for name, (lo, hi, step, typ) in space.items():
-        if typ == int:
-            best_params[name] = best_trial.params.get(name, int((lo + hi) / 2))
-        else:
-            idx = best_trial.params.get(f"_idx_{name}", 0)
-            best_params[name] = round(lo + idx * step, 4)
+    pareto = [trial for trial in study.best_trials if trial.values is not None]
+    if not pareto:
+        print("    Pareto front: 0 feasible trials after pruning")
+        return (
+            0.0,
+            0.0,
+            {},
+            None,
+            None,
+            len(study.trials),
+            NEUTRAL_MARKER_SCORE,
+            {"score": NEUTRAL_MARKER_SCORE, "error": "no_feasible_trials"},
+        )
+
+    candidates = [trial for trial in pareto if trial.values[1] < 70 and trial.values[2] < 0.35]
+    used_fallback = False
+    if not candidates:
+        candidates = pareto
+        used_fallback = True
+
+    best_trial = None
+    best_trial_discovery = -1.0
+    best_trial_marker_score = NEUTRAL_MARKER_SCORE
+    for trial in candidates:
+        params = params_from_trial(trial)
+        cached = dedup_cache.get(config_hash(strategy_name, params), {})
+        discovery = discovery_score_from_cache(cached)
+        if discovery > best_trial_discovery:
+            best_trial = trial
+            best_trial_discovery = discovery
+            best_trial_marker_score = cached.get("ma", NEUTRAL_MARKER_SCORE)
+
+    if best_trial is None:
+        best_trial = max(candidates, key=lambda trial: trial.values[0])
+    screen_label = "fallback to full front" if used_fallback else "DD/HHI-screened"
+    print(
+        f"    Pareto front: {len(pareto)} feasible trials, "
+        f"{len(candidates)} in selection pool ({screen_label})"
+    )
+    print(
+        f"    Selected objectives: bah={best_trial.values[0]:.3f}x "
+        f"DD={best_trial.values[1]:.1f}% HHI={best_trial.values[2]:.3f} "
+        f"marker={best_trial_marker_score:.3f} discovery={best_trial_discovery:.4f}"
+    )
+
+    best_params = params_from_trial(best_trial)
 
     # Re-evaluate best to get full result
-    best_score, best_result = evaluate(ind, df, strategy_fn, best_params, strategy_name)
+    best_fitness, best_discovery, best_marker_score, best_marker_detail, best_result = evaluate(
+        ind, df, strategy_fn, best_params, strategy_name
+    )
 
-    return best_score, best_params, best_result, study.best_value, len(study.trials)
+    return (
+        best_discovery,
+        best_fitness,
+        best_params,
+        best_result,
+        tuple(best_trial.values),
+        len(study.trials),
+        best_marker_score,
+        best_marker_detail,
+    )
 
 
 def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
            run_dir: str | None = None, strategies: list[str] | None = None,
-           bayesian: bool = False) -> dict:
+           bayesian: bool = False, publish_leaderboard: bool = True,
+           write_report: bool = True) -> dict:
     """
     Run the evolutionary optimizer. Returns the results dict.
 
@@ -614,6 +801,9 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     else:
         STRATEGY_REGISTRY_FILTERED = STRATEGY_REGISTRY
         STRATEGY_PARAMS_FILTERED = STRATEGY_PARAMS
+
+    if bayesian:
+        _require_optuna()
 
     start_time = time.time()
     end_time = start_time + hours * 3600
@@ -644,10 +834,20 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
         for k, (lo, hi, step, typ) in space.items():
             if typ == int:
                 default_params[k] = int(round(default_params[k]))
-        score, result = evaluate(ind, df, fn, default_params, name)
-        baselines[name] = {"score": score, "result": result, "params": default_params}
+        fitness_score, discovery_score, marker_score, marker_detail, result = evaluate(
+            ind, df, fn, default_params, name
+        )
+        baselines[name] = {
+            "fitness": fitness_score,
+            "discovery_score": discovery_score,
+            "marker_alignment_score": marker_score,
+            "marker_alignment_detail": marker_detail,
+            "result": result,
+            "params": default_params,
+        }
         if result:
-            print(f"  {name:<22} score={score:.4f}  bah={result.vs_bah_multiple:.3f}x  "
+            print(f"  {name:<22} discovery={discovery_score:.4f}  fitness={fitness_score:.4f}  "
+                  f"marker={marker_score:.3f}  bah={result.vs_bah_multiple:.3f}x  "
                   f"trades/yr={result.trades_per_year:.1f}  CAGR={result.cagr_pct:.1f}%  "
                   f"DD={result.max_drawdown_pct:.1f}%")
         else:
@@ -715,21 +915,23 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
         populations[name] = pop
 
     # ── Evolution ──
-    best_ever_score = 0.0
-    best_ever_name = ""
-    best_ever_params = {}
-    best_ever_result = None
+    historical_best_fitness = 0.0
+    historical_best_name = ""
+    historical_best_params = {}
+    best_run_discovery = 0.0
+    best_run_name = ""
+    best_run_params = {}
 
     # Load previous best from leaderboard (sorted by fitness, [0] = best)
     if os.path.exists(leaderboard_path):
         try:
             with open(leaderboard_path) as f:
                 lb = json.load(f)
-            if lb and lb[0].get("fitness", 0) > best_ever_score:
-                best_ever_score = lb[0]["fitness"]
-                best_ever_name = lb[0].get("strategy", "")
-                best_ever_params = lb[0].get("params", {})
-                print(f"\nLoaded best-ever: {best_ever_name} fitness={best_ever_score:.4f}")
+            if lb and lb[0].get("fitness", 0) > historical_best_fitness:
+                historical_best_fitness = lb[0]["fitness"]
+                historical_best_name = lb[0].get("strategy", "")
+                historical_best_params = lb[0].get("params", {})
+                print(f"\nLoaded best-ever: {historical_best_name} fitness={historical_best_fitness:.4f}")
         except Exception:
             pass
 
@@ -737,7 +939,10 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     total_evals = 0
     last_report = start_time
     report_interval = 30 if quick else 60
-    strategy_bests = {name: (0.0, {}, None) for name in active_strategies}
+    strategy_bests = {
+        name: (0.0, 0.0, {}, None, NEUTRAL_MARKER_SCORE, None)
+        for name in active_strategies
+    }
     convergence_history = []
 
     # Allow Ctrl+C or kill to save results gracefully
@@ -751,26 +956,34 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     print(f"\n── Evolving ──")
 
     if bayesian:
-        print("Mode: Bayesian (Optuna TPE)\n")
+        print("Mode: Bayesian (Optuna NSGA-II Pareto)\n")
         per_strategy_hours = hours / max(1, len(active_strategies))
         for strat_name, fn in active_strategies.items():
             space = STRATEGY_PARAMS_FILTERED.get(strat_name, {})
             if not space:
                 continue
             print(f"  Optimizing {strat_name} ({per_strategy_hours:.1f}h)...")
-            score, params, result, best_val, n_trials = evolve_bayesian(
+            discovery_score, fitness_score, params, result, best_val, n_trials, marker_score, marker_detail = evolve_bayesian(
                 ind, df, strat_name, fn, space, per_strategy_hours, dedup_cache, history_stats)
             total_evals += n_trials
-            strategy_bests[strat_name] = (score, params, result)
-            if score > best_ever_score:
-                best_ever_score = score
-                best_ever_name = strat_name
-                best_ever_params = params.copy()
-                best_ever_result = result
+            strategy_bests[strat_name] = (
+                discovery_score, fitness_score, params, result, marker_score, marker_detail
+            )
+            if discovery_score > best_run_discovery:
+                best_run_discovery = discovery_score
+                best_run_name = strat_name
+                best_run_params = params.copy()
             if result:
-                print(f"    Best: fitness={score:.4f} bah={result.vs_bah_multiple:.3f}x "
+                pareto_str = ""
+                if isinstance(best_val, tuple) and len(best_val) == 3:
+                    pareto_str = (
+                        f" Pareto={best_val[0]:.3f}x/"
+                        f"{best_val[1]:.1f}%/{best_val[2]:.3f}"
+                    )
+                print(f"    Best: discovery={discovery_score:.4f} fitness={fitness_score:.4f} "
+                      f"marker={marker_score:.3f} bah={result.vs_bah_multiple:.3f}x "
                       f"CAGR={result.cagr_pct:.1f}% DD={result.max_drawdown_pct:.1f}% "
-                      f"({n_trials} trials)")
+                      f"{pareto_str} ({n_trials} trials)")
             generation = n_trials  # for report
     else:
         while time.time() < end_time and not _interrupted[0]:
@@ -787,44 +1000,37 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
                     cached = dedup_cache.get(h)
                     if cached and isinstance(cached, dict) and cached.get("bah") is not None:
                         # v3 cache hit — recompute fitness from raw metrics
-                        score = fitness_from_cache(cached)
-                        scored.append((score, params, None))
+                        fitness_score = fitness_from_cache(cached)
+                        marker_score = cached.get("ma", NEUTRAL_MARKER_SCORE)
+                        discovery_score = discovery_score_from_cache(cached)
+                        scored.append((discovery_score, fitness_score, params, None, marker_score, None))
                         history_stats["cached_configs"] += 1
                     else:
                         # New config or stale entry (bah=None) — must evaluate
-                        score, result = evaluate(ind, df, fn, params, strat_name)
+                        fitness_score, discovery_score, marker_score, marker_detail, result = evaluate(
+                            ind, df, fn, params, strat_name
+                        )
                         total_evals += 1
-                        scored.append((score, params, result))
-                        n_params_val = sum(1 for k, v in params.items()
-                                           if isinstance(v, (int, float)) and not isinstance(v, bool) and k != "cooldown")
-                        cache_entry = {
-                            "bah": round(result.vs_bah_multiple, 4) if result else None,
-                            "rs": round(result.regime_score.composite, 4) if result and result.regime_score else None,
-                            "dd": round(result.max_drawdown_pct, 1) if result else None,
-                            "nt": result.num_trades if result else 0,
-                            "np": n_params_val,
-                            "hhi": round(result.regime_score.hhi, 4) if result and result.regime_score and result.regime_score.hhi else None,
-                        }
-                        dedup_cache[h] = cache_entry
+                        scored.append((discovery_score, fitness_score, params, result, marker_score, marker_detail))
+                        dedup_cache[h] = _cache_entry_from_result(params, result, marker_score)
                         history_stats["new_configs"] += 1
                 scored.sort(key=lambda x: x[0], reverse=True)
 
                 # Update strategy best
                 if scored[0][0] > strategy_bests[strat_name][0]:
-                    strategy_bests[strat_name] = (scored[0][0], scored[0][1], scored[0][2])
+                    strategy_bests[strat_name] = scored[0]
 
-                # Update global best
-                if scored[0][0] > best_ever_score:
-                    best_ever_score = scored[0][0]
-                    best_ever_name = strat_name
-                    best_ever_params = scored[0][1].copy()
-                    best_ever_result = scored[0][2]
+                # Update global best run candidate
+                if scored[0][0] > best_run_discovery:
+                    best_run_discovery = scored[0][0]
+                    best_run_name = strat_name
+                    best_run_params = scored[0][2].copy()
 
                 # ── Diversity measurement (research: track normalized parameter variance) ──
                 # Compute population diversity as mean normalized variance across params
                 if space and len(scored) >= 4:
                     param_arrays = {}
-                    for _, p, _ in scored:
+                    for _, _, p, *_rest in scored:
                         for k, v in p.items():
                             if k in space:
                                 param_arrays.setdefault(k, []).append(float(v))
@@ -851,7 +1057,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
                 # Fraction of offspring retaining >90% of parent fitness
                 if hasattr(evolve, '_prev_scored') and strat_name in evolve._prev_scored:
                     prev_best = evolve._prev_scored[strat_name]
-                    survivors = sum(1 for s, _, _ in scored if s >= prev_best * 0.9)
+                    survivors = sum(1 for s, *_rest in scored if s >= prev_best * 0.9)
                     mut_survival = survivors / len(scored) if scored else 0
                 else:
                     mut_survival = 0.5  # unknown first gen
@@ -879,7 +1085,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
 
                 # Selection + reproduction
                 n_elite = max(2, int(pop_size * 0.2))
-                elites = [s[1] for s in scored[:n_elite]]
+                elites = [s[2] for s in scored[:n_elite]]
                 new_pop = list(elites)
 
                 # Crossover
@@ -912,12 +1118,13 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
             if now - last_report >= report_interval:
                 remaining = (end_time - now) / 3600
                 per_sec = total_evals / (now - start_time)
-                print(f"Gen {generation:>5}: BEST={best_ever_score:.4f} ({best_ever_name})  "
+                print(f"Gen {generation:>5}: BEST_DISC={best_run_discovery:.4f} ({best_run_name})  "
                       f"evals={total_evals:,} ({per_sec:.0f}/s)  {remaining:.1f}h left")
-                for s, (sc, _, res) in sorted(strategy_bests.items(), key=lambda x: -x[1][0]):
+                for s, (disc, fit, _params, res, marker_score, _marker_detail) in sorted(strategy_bests.items(), key=lambda x: -x[1][0]):
                     if res:
                         rs_str = f"RS={res.regime_score.composite:.3f}" if res.regime_score else "RS=?"
-                        print(f"    {s:<22} {sc:.4f}  {rs_str}  bah={res.vs_bah_multiple:.3f}x  "
+                        print(f"    {s:<22} disc={disc:.4f} fit={fit:.4f} marker={marker_score:.3f}  "
+                              f"{rs_str}  bah={res.vs_bah_multiple:.3f}x  "
                               f"t/yr={res.trades_per_year:.1f}  DD={res.max_drawdown_pct:.1f}%")
                 last_report = now
 
@@ -941,13 +1148,14 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
               f"DD={bl_result.max_drawdown_pct:.1f}%  trades/yr={bl_result.trades_per_year:.1f}")
 
     print(f"\n── Strategy Rankings (vs 8.2.1) ──")
-    for rank, (name, (score, params, result)) in enumerate(rankings, 1):
+    for rank, (name, (discovery_score, fitness_score, params, result, marker_score, _marker_detail)) in enumerate(rankings, 1):
         if result:
             beat_str = ""
             if bl_result and bl_result.vs_bah_multiple > 0:
                 improvement = (result.vs_bah_multiple / bl_result.vs_bah_multiple - 1) * 100
                 beat_str = f"  {'BEATS' if result.vs_bah_multiple > bl_result.vs_bah_multiple else 'loses to'} 8.2.1 by {improvement:+.0f}%"
-            print(f"  #{rank} {name:<22} fitness={score:.4f}  bah={result.vs_bah_multiple:.3f}x  "
+            print(f"  #{rank} {name:<22} discovery={discovery_score:.4f}  fitness={fitness_score:.4f}  "
+                  f"marker={marker_score:.3f}  bah={result.vs_bah_multiple:.3f}x  "
                   f"t/yr={result.trades_per_year:.1f}  CAGR={result.cagr_pct:.1f}%  "
                   f"DD={result.max_drawdown_pct:.1f}%  MAR={result.mar_ratio:.2f}{beat_str}")
             print(f"     params: {json.dumps({k: v for k, v in params.items() if k != 'cooldown'}, cls=_Enc)}")
@@ -961,10 +1169,14 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     # ── Re-evaluate strategy bests that were cached (no result object) ──
     # Needed for full metrics in the final report
     for strat_name in list(strategy_bests.keys()):
-        score, params, result = strategy_bests[strat_name]
-        if result is None and score > 0 and strat_name in active_strategies:
-            _, result = evaluate(ind, df, active_strategies[strat_name], params, strat_name)
-            strategy_bests[strat_name] = (score, params, result)
+        discovery_score, fitness_score, params, result, marker_score, marker_detail = strategy_bests[strat_name]
+        if (result is None or marker_detail is None) and discovery_score > 0 and strat_name in active_strategies:
+            fitness_score, discovery_score, marker_score, marker_detail, result = evaluate(
+                ind, df, active_strategies[strat_name], params, strat_name
+            )
+            strategy_bests[strat_name] = (
+                discovery_score, fitness_score, params, result, marker_score, marker_detail
+            )
 
     # Re-sort after re-evaluation
     rankings = sorted(strategy_bests.items(), key=lambda x: -x[1][0])
@@ -974,9 +1186,6 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     print(f"\n[history] Saved hash index: {len(dedup_cache):,} unique configs")
 
     history_stats["total_history"] = len(dedup_cache)
-
-    # ── Update leaderboard ──
-    leaderboard_path = os.path.join(HISTORY_DIR, "leaderboard.json")
 
     # Save results
     results = {
@@ -990,7 +1199,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
             {
                 "rank": i + 1,
                 "strategy": name,
-                "fitness": round(score, 4),
+                "fitness": round(fitness_score, 4),
                 "params": params,
                 "metrics": {
                     "vs_bah": round(result.vs_bah_multiple, 4),
@@ -1005,10 +1214,13 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
                     "regime_score": round(result.regime_score.composite, 4) if result.regime_score else 0,
                     "bull_capture": round(result.regime_score.bull_capture_ratio, 4) if result.regime_score else 0,
                     "bear_avoidance": round(result.regime_score.bear_avoidance_ratio, 4) if result.regime_score else 0,
-                    "hhi": round(result.regime_score.hhi, 4) if result.regime_score and result.regime_score.hhi else 0,
-                    "n_params": sum(1 for k, v in params.items()
-                                    if isinstance(v, (int, float)) and not isinstance(v, bool) and k != "cooldown"),
+                    "hhi": round(result.regime_score.hhi, 4)
+                    if result.regime_score and result.regime_score.hhi is not None else 0,
+                    "n_params": _count_tunable_params(params),
                 } if result else None,
+                "discovery_score": round(discovery_score, 4),
+                "marker_alignment_score": round(marker_score, 4),
+                "marker_alignment_detail": marker_detail,
                 "trades": [
                     {
                         "entry_date": t.entry_date,
@@ -1020,16 +1232,19 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
                     for t in (result.trades if result else [])
                 ],
             }
-            for i, (name, (score, params, result)) in enumerate(rankings)
+            for i, (name, (discovery_score, fitness_score, params, result, marker_score, marker_detail)) in enumerate(rankings)
         ],
         "best_ever": {
-            "strategy": best_ever_name,
-            "fitness": round(best_ever_score, 4),
-            "params": best_ever_params,
+            "strategy": historical_best_name,
+            "fitness": round(historical_best_fitness, 4),
+            "params": historical_best_params,
         },
     }
 
-    leaderboard = update_leaderboard(results, leaderboard_path)
+    leaderboard_path = os.path.join(HISTORY_DIR, "leaderboard.json")
+    leaderboard = None
+    if publish_leaderboard:
+        leaderboard = update_leaderboard(results, leaderboard_path)
 
     # Save results JSON
     if run_dir:
@@ -1052,22 +1267,23 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     print(f"\nResults: {out_path}")
 
     # Generate markdown report
-    try:
-        from report import generate_report
-        prev_best_snapshot = {
-            "strategy": best_ever_name,
-            "fitness": best_ever_score,
-        } if best_ever_score > 0 else None
-        report_dir = run_dir or fallback_dir
-        report_text = generate_report(
-            results, report_dir,
-            leaderboard=leaderboard,
-            previous_best=prev_best_snapshot,
-            history_stats=history_stats,
-        )
-        print(f"Report: {os.path.join(report_dir, 'report.md')}")
-    except Exception as e:
-        print(f"[report] Warning: report generation failed: {e}")
+    if write_report:
+        try:
+            from report import generate_report
+            prev_best_snapshot = {
+                "strategy": historical_best_name,
+                "fitness": historical_best_fitness,
+            } if historical_best_fitness > 0 else None
+            report_dir = run_dir or fallback_dir
+            report_text = generate_report(
+                results, report_dir,
+                leaderboard=leaderboard,
+                previous_best=prev_best_snapshot,
+                history_stats=history_stats,
+            )
+            print(f"Report: {os.path.join(report_dir, 'report.md')}")
+        except Exception as e:
+            print(f"[report] Warning: report generation failed: {e}")
 
     print(f"\n###JSON### {json.dumps(results, cls=_Enc)}")
 
@@ -1109,12 +1325,18 @@ def evolve_chunk(
     run_dir: str | None = None,
     strategies: list[str] | None = None,
     state: dict | None = None,
+    df: object = None,
 ) -> dict:
     """
     Run the optimizer for a fixed number of minutes, then return results + state.
 
     This is the building block for /spike v2's iterative loop. Call with
     state=None to start fresh; pass the returned state dict to resume.
+
+    Parameters
+    ----------
+    df : optional DataFrame to use instead of TECL. Pass TQQQ/QQQ data
+         for cross-asset re-optimization (Tier 3 validation).
 
     Returns dict with:
       rankings: sorted strategy results
@@ -1135,7 +1357,8 @@ def evolve_chunk(
     start_time = time.time()
     end_time = start_time + minutes * 60
 
-    df = get_tecl_data(use_yfinance=False)
+    if df is None:
+        df = get_tecl_data(use_yfinance=False)
     ind = Indicators(df)
 
     dedup_cache = load_hash_index()
@@ -1155,8 +1378,15 @@ def evolve_chunk(
             for k, (lo, hi, step, typ) in space.items():
                 if typ == int:
                     default_params[k] = int(round(default_params[k]))
-            score, result = evaluate(ind, df, fn, default_params, name)
-            baselines[name] = {"score": score, "params": default_params}
+            fitness_score, discovery_score, marker_score, _marker_detail, _result = evaluate(
+                ind, df, fn, default_params, name
+            )
+            baselines[name] = {
+                "fitness": fitness_score,
+                "discovery_score": discovery_score,
+                "marker_alignment_score": marker_score,
+                "params": default_params,
+            }
 
         # Initialize populations
         populations = {}
@@ -1189,7 +1419,10 @@ def evolve_chunk(
 
         generation = 0
         total_evals = 0
-        strategy_bests = {name: (0.0, {}) for name in REG}
+        strategy_bests = {
+            name: (0.0, 0.0, {}, NEUTRAL_MARKER_SCORE)
+            for name in REG
+        }
         convergence_history = []
         initial_diversity = {}
         prev_scored = {}
@@ -1202,7 +1435,15 @@ def evolve_chunk(
         best_ever_params = state["best_ever_params"]
         generation = state["generation"]
         total_evals = state["total_evals"]
-        strategy_bests = {k: (v["score"], v["params"]) for k, v in state["strategy_bests"].items()}
+        strategy_bests = {
+            k: (
+                v.get("discovery_score", v.get("score", 0.0)),
+                v.get("fitness_score", v.get("score", 0.0)),
+                v.get("params", {}),
+                v.get("marker_alignment_score", NEUTRAL_MARKER_SCORE),
+            )
+            for k, v in state["strategy_bests"].items()
+        }
         convergence_history = state.get("convergence_history", [])
         initial_diversity = state.get("initial_diversity", {})
         prev_scored = state.get("prev_scored", {})
@@ -1217,7 +1458,7 @@ def evolve_chunk(
             if name not in populations:
                 space = PAR.get(name, {})
                 populations[name] = [random_params(space) for _ in range(pop_size)]
-                strategy_bests[name] = (0.0, {})
+                strategy_bests[name] = (0.0, 0.0, {}, NEUTRAL_MARKER_SCORE)
 
     # ── GA loop ──
     _interrupted = [False]
@@ -1243,38 +1484,38 @@ def evolve_chunk(
                     h = config_hash(strat_name, params)
                     cached = dedup_cache.get(h)
                     if cached and isinstance(cached, dict) and cached.get("bah") is not None:
-                        score = fitness_from_cache(cached)
-                        scored.append((score, params, None))
+                        fitness_score = fitness_from_cache(cached)
+                        marker_score = cached.get("ma", NEUTRAL_MARKER_SCORE)
+                        discovery_score = discovery_score_from_cache(cached)
+                        scored.append((discovery_score, fitness_score, params, None, marker_score, None))
                         history_stats["cached_configs"] += 1
                     else:
-                        score, result = evaluate(ind, df, fn, params, strat_name)
+                        fitness_score, discovery_score, marker_score, marker_detail, result = evaluate(
+                            ind, df, fn, params, strat_name
+                        )
                         total_evals += 1
-                        scored.append((score, params, result))
-                        n_params_val = sum(1 for k, v in params.items()
-                                           if isinstance(v, (int, float)) and not isinstance(v, bool) and k != "cooldown")
-                        dedup_cache[h] = {
-                            "bah": round(result.vs_bah_multiple, 4) if result else None,
-                            "rs": round(result.regime_score.composite, 4) if result and result.regime_score else None,
-                            "dd": round(result.max_drawdown_pct, 1) if result else None,
-                            "nt": result.num_trades if result else 0,
-                            "np": n_params_val,
-                            "hhi": round(result.regime_score.hhi, 4) if result and result.regime_score and result.regime_score.hhi else None,
-                        }
+                        scored.append((discovery_score, fitness_score, params, result, marker_score, marker_detail))
+                        dedup_cache[h] = _cache_entry_from_result(params, result, marker_score)
                         history_stats["new_configs"] += 1
                 scored.sort(key=lambda x: x[0], reverse=True)
 
                 # Update bests
                 if scored[0][0] > strategy_bests.get(strat_name, (0.0,))[0]:
-                    strategy_bests[strat_name] = (scored[0][0], scored[0][1])
+                    strategy_bests[strat_name] = (
+                        scored[0][0],
+                        scored[0][1],
+                        scored[0][2],
+                        scored[0][4],
+                    )
                 if scored[0][0] > best_ever_score:
                     best_ever_score = scored[0][0]
                     best_ever_name = strat_name
-                    best_ever_params = scored[0][1].copy()
+                    best_ever_params = scored[0][2].copy()
 
                 # Diversity measurement
                 if space and len(scored) >= 4:
                     param_arrays = {}
-                    for _, p, _ in scored:
+                    for _, _, p, *_rest in scored:
                         for k, v in p.items():
                             if k in space:
                                 param_arrays.setdefault(k, []).append(float(v))
@@ -1297,7 +1538,7 @@ def evolve_chunk(
                 # Mutation survival rate
                 if strat_name in prev_scored:
                     prev_best = prev_scored[strat_name]
-                    survivors = sum(1 for s, _, _ in scored if s >= prev_best * 0.9)
+                    survivors = sum(1 for s, *_rest in scored if s >= prev_best * 0.9)
                     mut_survival = survivors / len(scored) if scored else 0
                 else:
                     mut_survival = 0.5
@@ -1314,7 +1555,7 @@ def evolve_chunk(
 
                 # Reproduction
                 n_elite = max(2, int(pop_size * 0.2))
-                elites = [s[1] for s in scored[:n_elite]]
+                elites = [s[2] for s in scored[:n_elite]]
                 new_pop = list(elites)
                 for _ in range(pop_size // 3):
                     p1, p2 = random.sample(elites, min(2, len(elites)))
@@ -1353,9 +1594,13 @@ def evolve_chunk(
     diagnostics = {}
     for strat_name in REG:
         space = PAR.get(strat_name, {})
-        best_score, best_params = strategy_bests.get(strat_name, (0.0, {}))
+        best_discovery, best_fitness, best_params, best_marker = strategy_bests.get(
+            strat_name, (0.0, 0.0, {}, NEUTRAL_MARKER_SCORE)
+        )
         diagnostics[strat_name] = {
-            "best_score": round(best_score, 4),
+            "best_discovery_score": round(best_discovery, 4),
+            "best_fitness_score": round(best_fitness, 4),
+            "best_marker_alignment_score": round(best_marker, 4),
             "best_params": best_params,
             "boundary_hits": detect_boundary_hits(best_params, space),
             "diversity": round(initial_diversity.get(strat_name, 0), 4),
@@ -1363,11 +1608,18 @@ def evolve_chunk(
 
     # Re-evaluate bests that were cached (no full result)
     rankings = []
-    for strat_name, (score, params) in sorted(strategy_bests.items(), key=lambda x: -x[1][0]):
-        _, result = evaluate(ind, df, REG[strat_name], params, strat_name)
+    for strat_name, (discovery_score, fitness_score, params, marker_score, ) in sorted(
+        strategy_bests.items(), key=lambda x: -x[1][0]
+    ):
+        fitness_score, discovery_score, marker_score, marker_detail, result = evaluate(
+            ind, df, REG[strat_name], params, strat_name
+        )
         rankings.append({
             "strategy": strat_name,
-            "fitness": round(score, 4),
+            "fitness": round(fitness_score, 4),
+            "discovery_score": round(discovery_score, 4),
+            "marker_alignment_score": round(marker_score, 4),
+            "marker_alignment_detail": marker_detail,
             "params": params,
             "metrics": {
                 "vs_bah": round(result.vs_bah_multiple, 4) if result else 0,
@@ -1390,7 +1642,15 @@ def evolve_chunk(
         "best_ever_params": best_ever_params,
         "generation": generation,
         "total_evals": total_evals,
-        "strategy_bests": {k: {"score": v[0], "params": v[1]} for k, v in strategy_bests.items()},
+        "strategy_bests": {
+            k: {
+                "discovery_score": v[0],
+                "fitness_score": v[1],
+                "params": v[2],
+                "marker_alignment_score": v[3],
+            }
+            for k, v in strategy_bests.items()
+        },
         "convergence_history": convergence_history,
         "initial_diversity": initial_diversity,
         "prev_scored": prev_scored,
@@ -1416,6 +1676,8 @@ def main():
     parser.add_argument("--hours", type=float, default=5.0)
     parser.add_argument("--pop-size", type=int, default=40)
     parser.add_argument("--quick", action="store_true")
+    parser.add_argument("--bayesian", action="store_true",
+                        help="Use Optuna NSGA-II multi-objective search")
     parser.add_argument("--list", action="store_true", help="List strategies and exit")
     parser.add_argument("--converge", type=str, help="Flag strategy as converged")
     parser.add_argument("--unconverge", type=str, help="Unflag strategy (resume optimization)")
@@ -1444,7 +1706,7 @@ def main():
             print(f"  {name:<22} {len(space)} params")
         return
 
-    evolve(hours=args.hours, pop_size=args.pop_size, quick=args.quick)
+    evolve(hours=args.hours, pop_size=args.pop_size, quick=args.quick, bayesian=args.bayesian)
 
 
 if __name__ == "__main__":

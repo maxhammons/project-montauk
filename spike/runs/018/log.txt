@@ -1,0 +1,82 @@
+Spike Runner started: 2026-04-10 10:42:34
+Duration: 0.005h | Pop: 40 | Run dir: /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/018
+
+[refresh] Updating all local CSVs...
+[data] Yahoo Finance fetch failed for TECL: 400 Client Error: Bad Request for url: https://query1.finance.yahoo.com/v8/finance/chart/TECL?period1=1775890800&period2=1775929354&interval=1d&includeAdjustedClose=true
+[refresh] TECL: +0 new bars
+[data] Yahoo Finance fetch failed for ^VIX: 400 Client Error: Bad Request for url: https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?period1=1775890800&period2=1775929354&interval=1d&includeAdjustedClose=true
+[refresh] VIX: +0 new bars
+[data] Yahoo Finance fetch failed for XLK: 400 Client Error: Bad Request for url: https://query1.finance.yahoo.com/v8/finance/chart/XLK?period1=1775890800&period2=1775929355&interval=1d&includeAdjustedClose=true
+[refresh] XLK: +0 new bars
+[data] Yahoo Finance fetch failed for QQQ: 400 Client Error: Bad Request for url: https://query1.finance.yahoo.com/v8/finance/chart/QQQ?period1=1775890800&period2=1775929355&interval=1d&includeAdjustedClose=true
+[refresh] QQQ: +0 new bars
+[data] Yahoo Finance fetch failed for TQQQ: 400 Client Error: Bad Request for url: https://query1.finance.yahoo.com/v8/finance/chart/TQQQ?period1=1775890800&period2=1775929355&interval=1d&includeAdjustedClose=true
+[refresh] TQQQ: +0 new bars
+[refresh] Treasury Yield Spread 10Y-2Y.csv: up to date
+[refresh] Fed Funds Rate.csv: up to date
+[refresh] Done. TECL: 6867 bars through 2026-04-10
+
+=== Montauk Multi-Strategy Optimizer ===
+Duration: 0.005h | Pop: 40/strategy | Registered: 1
+Constraint: ≤3.0 trades/year
+Started: 2026-04-10 10:42
+
+[data] TECL: 6867 bars, 1998-12-22 to 2026-04-10
+[data] VIX: 6866/6867 dates matched
+Data: 6867 bars, 1998-12-22 to 2026-04-10
+
+[history] Dedup cache: 65,483 configs with known fitness
+
+── Baselines ──
+  montauk_821            score=1.2607  bah=7.355x  trades/yr=2.7  CAGR=9.4%  DD=83.8%
+Active strategies: 1/1
+
+Loaded best-ever: rsi_regime fitness=66.4727
+
+── Evolving ──
+
+============================================================
+DONE — 0.0h, 708 evals, 40 generations
+============================================================
+
+── 8.2.1 Baseline (the strategy to beat) ──
+  vs B&H=7.355x  CAGR=9.4%  DD=83.8%  trades/yr=2.7
+
+── Strategy Rankings (vs 8.2.1) ──
+  #1 montauk_821            fitness=30.5426  bah=90.890x  t/yr=3.0  CAGR=19.9%  DD=44.5%  MAR=0.45  BEATS 8.2.1 by +1136%
+     params: {"atr_mult": 3.0, "sell_buffer": 0.2, "quick_thresh": -13.0, "short_ema": 19, "slope_lookback": 17, "quick_ema": 17, "atr_period": 35, "quick_lookback": 6, "med_ema": 15, "trend_ema": 120}
+     trades: 82 (3.0/yr)
+       1999-02-17 → 1999-03-18  +21.5%  E
+       1999-04-20 → 1999-04-26  +33.0%  E
+       1999-05-06 → 1999-05-12  +19.3%  E
+       1999-05-25 → 1999-06-18  +25.6%  E
+       1999-07-30 → 1999-08-25  +18.1%  E
+       ... +77 more
+
+[history] Saved hash index: 66,191 unique configs
+
+Results: /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/018/results.json
+
+###JSON### {"date": "2026-04-10", "elapsed_hours": 0.01, "total_evaluations": 708, "generations": 40, "constraint": "<=3.0 trades/yr", "history_stats": {"cached_configs": 892, "new_configs": 708, "seeded_per_strategy": 2, "total_history": 66191}, "rankings": [{"rank": 1, "strategy": "montauk_821", "fitness": 30.5426, "params": {"atr_mult": 3.0, "sell_buffer": 0.2, "quick_thresh": -13.0, "short_ema": 19, "slope_lookback": 17, "quick_ema": 17, "cooldown": 7, "atr_period": 35, "quick_lookback": 6, "med_ema": 15, "trend_ema": 120}, "metrics": {"vs_bah": 90.8897, "cagr": 19.94, "max_dd": 44.5, "mar": 0.448, "trades": 82, "trades_yr": 3.0, "win_rate": 79.3, "exit_reasons": {"E": 75, "Q": 4, "A": 2, "End of Data": 1}, "regime_score": 0.4152, "bull_capture": 0.2253, "bear_avoidance": 0.6051, "hhi": 0.1961, "n_params": 10}, "trades": [{"entry_date": "1999-02-17", "exit_date": "1999-03-18", "pnl_pct": 21.5, "exit_reason": "E", "bars_held": 21}, {"entry_date": "1999-04-20", "exit_date": "1999-04-26", "pnl_pct": 33.0, "exit_reason": "E", "bars_held": 4}, {"entry_date": "1999-05-06", "exit_date": "1999-05-12", "pnl_pct": 19.3, "exit_reason": "E", "bars_held": 4}, {"entry_date": "1999-05-25", "exit_date": "1999-06-18", "pnl_pct": 25.6, "exit_reason": "E", "bars_held": 17}, {"entry_date": "1999-07-30", "exit_date": "1999-08-25", "pnl_pct": 18.1, "exit_reason": "E", "bars_held": 18}, {"entry_date": "1999-09-28", "exit_date": "1999-11-04", "pnl_pct": 8.6, "exit_reason": "E", "bars_held": 27}, {"entry_date": "2000-01-27", "exit_date": "2000-02-07", "pnl_pct": 23.9, "exit_reason": "E", "bars_held": 7}, {"entry_date": "2000-04-11", "exit_date": "2000-04-17", "pnl_pct": -25.6, "exit_reason": "Q", "bars_held": 4}, {"entry_date": "2003-08-01", "exit_date": "2003-08-20", "pnl_pct": 8.1, "exit_reason": "E", "bars_held": 13}, {"entry_date": "2003-10-02", "exit_date": "2003-10-06", "pnl_pct": 10.8, "exit_reason": "E", "bars_held": 2}, {"entry_date": "2003-11-20", "exit_date": "2003-12-01", "pnl_pct": 15.8, "exit_reason": "E", "bars_held": 6}, {"entry_date": "2004-02-09", "exit_date": "2004-04-07", "pnl_pct": -6.9, "exit_reason": "E", "bars_held": 41}, {"entry_date": "2004-04-20", "exit_date": "2004-06-08", "pnl_pct": 8.3, "exit_reason": "E", "bars_held": 34}, {"entry_date": "2004-12-31", "exit_date": "2005-04-15", "pnl_pct": -34.4, "exit_reason": "A", "bars_held": 72}, {"entry_date": "2005-07-01", "exit_date": "2005-07-11", "pnl_pct": 10.4, "exit_reason": "E", "bars_held": 5}, {"entry_date": "2005-08-19", "exit_date": "2005-09-13", "pnl_pct": 5.0, "exit_reason": "E", "bars_held": 16}, {"entry_date": "2005-09-23", "exit_date": "2005-11-04", "pnl_pct": 4.0, "exit_reason": "E", "bars_held": 30}, {"entry_date": "2005-12-22", "exit_date": "2006-01-10", "pnl_pct": 9.7, "exit_reason": "E", "bars_held": 11}, {"entry_date": "2006-01-24", "exit_date": "2006-02-17", "pnl_pct": 9.1, "exit_reason": "E", "bars_held": 18}, {"entry_date": "2006-04-25", "exit_date": "2006-08-15", "pnl_pct": -23.6, "exit_reason": "E", "bars_held": 78}, {"entry_date": "2006-12-22", "exit_date": "2007-01-10", "pnl_pct": 8.8, "exit_reason": "E", "bars_held": 10}, {"entry_date": "2007-01-23", "exit_date": "2007-02-08", "pnl_pct": 7.5, "exit_reason": "E", "bars_held": 12}, {"entry_date": "2007-02-28", "exit_date": "2007-04-04", "pnl_pct": 8.2, "exit_reason": "E", "bars_held": 25}, {"entry_date": "2007-08-01", "exit_date": "2007-09-05", "pnl_pct": 2.7, "exit_reason": "E", "bars_held": 24}, {"entry_date": "2007-11-09", "exit_date": "2007-12-26", "pnl_pct": 14.7, "exit_reason": "E", "bars_held": 31}, {"entry_date": "2008-06-11", "exit_date": "2008-08-12", "pnl_pct": -7.0, "exit_reason": "E", "bars_held": 43}, {"entry_date": "2009-07-08", "exit_date": "2009-07-15", "pnl_pct": 24.4, "exit_reason": "E", "bars_held": 5}, {"entry_date": "2009-11-04", "exit_date": "2009-11-09", "pnl_pct": 13.8, "exit_reason": "E", "bars_held": 3}, {"entry_date": "2009-11-25", "exit_date": "2009-12-23", "pnl_pct": 12.7, "exit_reason": "E", "bars_held": 19}, {"entry_date": "2010-01-22", "exit_date": "2010-03-05", "pnl_pct": 9.4, "exit_reason": "E", "bars_held": 29}, {"entry_date": "2010-05-06", "exit_date": "2010-07-26", "pnl_pct": -4.7, "exit_reason": "E", "bars_held": 55}, {"entry_date": "2011-03-02", "exit_date": "2011-04-27", "pnl_pct": 0.7, "exit_reason": "E", "bars_held": 39}, {"entry_date": "2011-05-20", "exit_date": "2011-07-06", "pnl_pct": -0.1, "exit_reason": "E", "bars_held": 31}, {"entry_date": "2011-08-04", "exit_date": "2011-08-11", "pnl_pct": -8.7, "exit_reason": "Q", "bars_held": 5}, {"entry_date": "2011-11-21", "exit_date": "2012-01-06", "pnl_pct": 12.4, "exit_reason": "E", "bars_held": 31}, {"entry_date": "2012-04-19", "exit_date": "2012-07-31", "pnl_pct": -13.7, "exit_reason": "E", "bars_held": 71}, {"entry_date": "2012-10-09", "exit_date": "2012-12-19", "pnl_pct": -10.2, "exit_reason": "E", "bars_held": 48}, {"entry_date": "2013-02-26", "exit_date": "2013-03-06", "pnl_pct": 7.0, "exit_reason": "E", "bars_held": 6}, {"entry_date": "2013-04-18", "exit_date": "2013-05-01", "pnl_pct": 13.5, "exit_reason": "E", "bars_held": 9}, {"entry_date": "2013-06-20", "exit_date": "2013-07-12", "pnl_pct": 12.4, "exit_reason": "E", "bars_held": 15}, {"entry_date": "2013-08-27", "exit_date": "2013-09-13", "pnl_pct": 8.4, "exit_reason": "E", "bars_held": 12}, {"entry_date": "2013-10-09", "exit_date": "2013-10-16", "pnl_pct": 10.0, "exit_reason": "E", "bars_held": 5}, {"entry_date": "2014-01-29", "exit_date": "2014-02-14", "pnl_pct": 15.3, "exit_reason": "E", "bars_held": 12}, {"entry_date": "2014-04-10", "exit_date": "2014-05-12", "pnl_pct": 9.7, "exit_reason": "E", "bars_held": 21}, {"entry_date": "2014-08-07", "exit_date": "2014-08-19", "pnl_pct": 11.6, "exit_reason": "E", "bars_held": 8}, {"entry_date": "2014-10-01", "exit_date": "2014-10-31", "pnl_pct": 8.2, "exit_reason": "E", "bars_held": 22}, {"entry_date": "2014-12-16", "exit_date": "2014-12-23", "pnl_pct": 20.0, "exit_reason": "E", "bars_held": 5}, {"entry_date": "2015-01-06", "exit_date": "2015-02-12", "pnl_pct": 15.9, "exit_reason": "E", "bars_held": 26}, {"entry_date": "2015-03-13", "exit_date": "2015-04-23", "pnl_pct": 9.7, "exit_reason": "E", "bars_held": 28}, {"entry_date": "2015-06-09", "exit_date": "2015-07-21", "pnl_pct": 7.5, "exit_reason": "E", "bars_held": 29}, {"entry_date": "2015-08-04", "exit_date": "2015-10-09", "pnl_pct": -7.3, "exit_reason": "E", "bars_held": 47}, {"entry_date": "2015-12-14", "exit_date": "2016-02-29", "pnl_pct": -16.2, "exit_reason": "E", "bars_held": 51}, {"entry_date": "2016-04-28", "exit_date": "2016-05-27", "pnl_pct": 11.2, "exit_reason": "E", "bars_held": 21}, {"entry_date": "2016-06-24", "exit_date": "2016-07-11", "pnl_pct": 14.9, "exit_reason": "E", "bars_held": 10}, {"entry_date": "2016-11-01", "exit_date": "2016-11-25", "pnl_pct": 5.3, "exit_reason": "E", "bars_held": 17}, {"entry_date": "2017-04-18", "exit_date": "2017-04-25", "pnl_pct": 7.1, "exit_reason": "E", "bars_held": 5}, {"entry_date": "2017-06-27", "exit_date": "2017-07-17", "pnl_pct": 9.4, "exit_reason": "E", "bars_held": 13}, {"entry_date": "2018-02-07", "exit_date": "2018-02-26", "pnl_pct": 21.1, "exit_reason": "E", "bars_held": 12}, {"entry_date": "2018-03-23", "exit_date": "2018-05-08", "pnl_pct": 16.0, "exit_reason": "E", "bars_held": 31}, {"entry_date": "2018-06-27", "exit_date": "2018-07-12", "pnl_pct": 17.4, "exit_reason": "E", "bars_held": 10}, {"entry_date": "2018-10-09", "exit_date": "2018-10-10", "pnl_pct": -14.0, "exit_reason": "A", "bars_held": 1}, {"entry_date": "2019-05-13", "exit_date": "2019-06-17", "pnl_pct": 10.2, "exit_reason": "E", "bars_held": 24}, {"entry_date": "2019-08-06", "exit_date": "2019-09-09", "pnl_pct": 13.0, "exit_reason": "E", "bars_held": 23}, {"entry_date": "2019-10-02", "exit_date": "2019-10-15", "pnl_pct": 16.0, "exit_reason": "E", "bars_held": 9}, {"entry_date": "2020-02-26", "exit_date": "2020-03-03", "pnl_pct": -11.2, "exit_reason": "Q", "bars_held": 4}, {"entry_date": "2020-09-15", "exit_date": "2020-10-09", "pnl_pct": 8.6, "exit_reason": "E", "bars_held": 18}, {"entry_date": "2020-10-28", "exit_date": "2020-11-11", "pnl_pct": 26.7, "exit_reason": "E", "bars_held": 10}, {"entry_date": "2021-02-26", "exit_date": "2021-04-05", "pnl_pct": 15.4, "exit_reason": "E", "bars_held": 25}, {"entry_date": "2021-05-10", "exit_date": "2021-06-08", "pnl_pct": 8.9, "exit_reason": "E", "bars_held": 20}, {"entry_date": "2021-09-21", "exit_date": "2021-10-20", "pnl_pct": 10.7, "exit_reason": "E", "bars_held": 21}, {"entry_date": "2022-01-07", "exit_date": "2022-03-28", "pnl_pct": -15.7, "exit_reason": "E", "bars_held": 54}, {"entry_date": "2023-03-01", "exit_date": "2023-03-08", "pnl_pct": 10.2, "exit_reason": "E", "bars_held": 5}, {"entry_date": "2023-08-08", "exit_date": "2023-09-05", "pnl_pct": 9.7, "exit_reason": "E", "bars_held": 19}, {"entry_date": "2023-09-15", "exit_date": "2023-11-07", "pnl_pct": 7.9, "exit_reason": "E", "bars_held": 37}, {"entry_date": "2024-04-04", "exit_date": "2024-05-14", "pnl_pct": 3.3, "exit_reason": "E", "bars_held": 28}, {"entry_date": "2024-07-24", "exit_date": "2024-08-08", "pnl_pct": -17.7, "exit_reason": "Q", "bars_held": 11}, {"entry_date": "2024-09-03", "exit_date": "2024-09-23", "pnl_pct": 16.5, "exit_reason": "E", "bars_held": 14}, {"entry_date": "2024-11-04", "exit_date": "2024-11-07", "pnl_pct": 18.8, "exit_reason": "E", "bars_held": 3}, {"entry_date": "2024-12-31", "exit_date": "2025-02-18", "pnl_pct": 8.7, "exit_reason": "E", "bars_held": 31}, {"entry_date": "2025-09-03", "exit_date": "2025-09-10", "pnl_pct": 10.0, "exit_reason": "E", "bars_held": 5}, {"entry_date": "2025-11-17", "exit_date": "2025-12-09", "pnl_pct": 12.0, "exit_reason": "E", "bars_held": 15}, {"entry_date": "2025-12-19", "exit_date": "2026-04-10", "pnl_pct": -11.3, "exit_reason": "End of Data", "bars_held": 76}]}], "best_ever": {"strategy": "rsi_regime", "fitness": 66.4727, "params": {"rsi_len": 11, "trend_len": 50, "entry_rsi": 40, "exit_rsi": 75, "panic_rsi": 15, "cooldown": 10}}}
+[validate] Raw optimizer results saved: /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/018/raw_results.json
+[data] TECL: 6867 bars, 1998-12-22 to 2026-04-10
+[data] VIX: 6866/6867 dates matched
+[data] TQQQ: 6814 bars, 1999-03-10 to 2026-04-10
+[data] QQQ: 6814 bars, 1999-03-10 to 2026-04-10
+[data] TECL: 6867 bars, 1998-12-22 to 2026-04-10
+[data] VIX: 6866/6867 dates matched
+[validate] TECL context 6867 bars | 3 bears | 4 bulls | N_eff=300 | expected max RS=0.761
+[validate] Gate 6 re-opt budget: 0.5m @ pop 12
+[validate] montauk_821 (fitness=30.5426)
+[validate] No fully validated champion. No Pine artifact generated.
+[validate] Leaderboard unchanged because no entry passed full validation.
+[validate] Validated results saved: /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/018/results.json
+
+============================================================
+SPIKE COMPLETE
+============================================================
+Report:      /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/018/report.md
+Results:     /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/018/results.json
+Raw results: /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/018/raw_results.json
+Log:         /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/018/log.txt
+Leaderboard: /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/leaderboard.json

@@ -28,11 +28,10 @@ from backtest_engine import score_regime_capture
 # Walk-forward splits
 # ─────────────────────────────────────────────────────────────────────────────
 
-WF_BOUNDARIES = [
-    ("2018-01-01", "2020-01-01"),
-    ("2020-01-01", "2022-01-01"),
-    ("2022-01-01", "2024-01-01"),
-    ("2024-01-01", "2027-01-01"),
+WF_WINDOWS = [
+    ("WF 2015-2017", "2015-01-01", "2018-01-01"),
+    ("WF 2018-2020", "2018-01-01", "2021-01-01"),
+    ("WF 2021-2023", "2021-01-01", "2024-01-01"),
 ]
 
 NAMED_WINDOWS = {
@@ -43,14 +42,41 @@ NAMED_WINDOWS = {
 }
 
 
-def split_walk_forward(df: pd.DataFrame):
+def _latest_stable_test_end(df: pd.DataFrame) -> pd.Timestamp:
+    latest = pd.Timestamp(df["date"].max())
+    if latest.month == 12 and latest.day == 31:
+        return latest + pd.Timedelta(days=1)
+    complete_year_end = pd.Timestamp(year=latest.year - 1, month=12, day=31)
+    if complete_year_end <= pd.Timestamp("2024-12-31"):
+        return latest + pd.Timedelta(days=1)
+    return complete_year_end + pd.Timedelta(days=1)
+
+
+def build_walk_forward_splits(df: pd.DataFrame):
     splits = []
-    for train_end, test_end in WF_BOUNDARIES:
-        train = df[df["date"] < train_end].reset_index(drop=True)
-        test = df[df["date"] < test_end].reset_index(drop=True)
-        if len(train) > 500 and len(test) > len(train) + 100:
-            splits.append((f"WF {train_end[:4]}-{test_end[:4]}", train, test))
+    for label, test_start, test_end in WF_WINDOWS:
+        train = df[df["date"] < pd.Timestamp(test_start)].reset_index(drop=True)
+        test = df[
+            (df["date"] >= pd.Timestamp(test_start))
+            & (df["date"] < pd.Timestamp(test_end))
+        ].reset_index(drop=True)
+        if len(train) > 500 and len(test) > 100:
+            splits.append((label, train, test))
+
+    dynamic_end = _latest_stable_test_end(df)
+    dynamic_test = df[
+        (df["date"] >= pd.Timestamp("2024-01-01"))
+        & (df["date"] < dynamic_end)
+    ].reset_index(drop=True)
+    dynamic_train = df[df["date"] < pd.Timestamp("2024-01-01")].reset_index(drop=True)
+    if len(dynamic_train) > 500 and len(dynamic_test) > 100:
+        dynamic_label = f"WF 2024-{(dynamic_end - pd.Timedelta(days=1)).year}"
+        splits.append((dynamic_label, dynamic_train, dynamic_test))
     return splits
+
+
+def split_walk_forward(df: pd.DataFrame):
+    return build_walk_forward_splits(df)
 
 
 def split_named_windows(df: pd.DataFrame, warmup_bars: int = 700):
@@ -107,6 +133,248 @@ def run_eval(df: pd.DataFrame, strategy_fn, params: dict, name: str) -> dict:
         "trades": result.num_trades,
         "vs_bah": round(result.vs_bah_multiple, 3),
         "win_rate": round(result.win_rate_pct, 1),
+    }
+
+
+def _perturb_value(value, perturbation: float):
+    if isinstance(value, int):
+        delta = max(1, int(round(abs(value) * abs(perturbation))))
+        return value - delta if perturbation < 0 else value + delta
+    return value * (1 + perturbation)
+
+
+def check_parameter_fragility(
+    df: pd.DataFrame,
+    strategy_fn,
+    params: dict,
+    name: str,
+    perturbations: tuple[float, ...] = (-0.20, -0.10, 0.10, 0.20),
+) -> dict:
+    baseline = run_eval(df, strategy_fn, params, name)
+    base_score = max(float(baseline["regime_score"]), 1e-6)
+    numeric = {
+        k: v for k, v in params.items()
+        if isinstance(v, (int, float)) and not isinstance(v, bool) and v != 0
+    }
+
+    details = []
+    max_swing_10 = 0.0
+    max_swing_20 = 0.0
+    evaluations = 1
+
+    for key, value in numeric.items():
+        param_swings = {}
+        for perturbation in perturbations:
+            test_params = params.copy()
+            test_params[key] = _perturb_value(value, perturbation)
+            if isinstance(test_params[key], (int, float)) and test_params[key] <= 0:
+                test_params[key] = 1 if isinstance(value, int) else 0.0001
+            metrics = run_eval(df, strategy_fn, test_params, name)
+            evaluations += 1
+            score = float(metrics["regime_score"])
+            swing = abs(score - baseline["regime_score"]) / base_score
+            param_swings[str(perturbation)] = {
+                "score": round(score, 4),
+                "swing": round(swing, 4),
+            }
+            if abs(perturbation) == 0.10:
+                max_swing_10 = max(max_swing_10, swing)
+            if abs(perturbation) == 0.20:
+                max_swing_20 = max(max_swing_20, swing)
+        details.append({"name": key, "perturbations": param_swings})
+
+    hard_fail_params = []
+    warn_params = []
+    for detail in details:
+        swings = detail["perturbations"]
+        swing_10 = max(
+            swings.get("-0.1", {}).get("swing", 0.0),
+            swings.get("0.1", {}).get("swing", 0.0),
+        )
+        swing_20 = max(
+            swings.get("-0.2", {}).get("swing", 0.0),
+            swings.get("0.2", {}).get("swing", 0.0),
+        )
+        if swing_10 > 0.30:
+            hard_fail_params.append(f"{detail['name']} ({swing_10:.0%} @ ±10%)")
+        elif swing_10 > 0.20 or swing_20 > 0.40:
+            warn_params.append(f"{detail['name']} ({max(swing_10, swing_20):.0%})")
+
+    score = float(np.clip(1.0 - max(max_swing_10, max_swing_20) / 0.40, 0.0, 1.0))
+    verdict = "FAIL" if hard_fail_params else "WARN" if warn_params else "PASS"
+    return {
+        "verdict": verdict,
+        "evaluations": evaluations,
+        "baseline_score": round(float(baseline["regime_score"]), 4),
+        "max_swing_10": round(max_swing_10, 4),
+        "max_swing_20": round(max_swing_20, 4),
+        "score": round(score, 4),
+        "hard_fail_params": hard_fail_params,
+        "warn_params": warn_params,
+        "details": details,
+    }
+
+
+def analyze_walk_forward(
+    df: pd.DataFrame,
+    strategy_fn,
+    params: dict,
+    name: str,
+) -> dict:
+    windows = []
+    hard_fail_reasons = []
+    warnings = []
+
+    for label, train, test in build_walk_forward_splits(df):
+        train_r = run_eval(train, strategy_fn, params, name)
+        test_r = run_eval(test, strategy_fn, params, name)
+        train_regime = float(train_r.get("regime_score", 0.0))
+        test_regime = float(test_r.get("regime_score", 0.0))
+        regime_ratio = test_regime / train_regime if train_regime > 0 else 0.0
+        train_vs_bah = float(train_r.get("vs_bah", 0.0))
+        test_vs_bah = float(test_r.get("vs_bah", 0.0))
+        vs_bah_ratio = test_vs_bah / train_vs_bah if train_vs_bah > 0 else 0.0
+        windows.append(
+            {
+                "label": label,
+                "train": train_r,
+                "test": test_r,
+                "oos_is_ratio": round(regime_ratio, 4),
+                "oos_is_metric": "regime_score",
+                "vs_bah_ratio": round(vs_bah_ratio, 4),
+            }
+        )
+        if test_r.get("trades", 0) == 0:
+            hard_fail_reasons.append(f"{label}: zero OOS trades")
+        elif regime_ratio < 0.75:
+            hard_fail_reasons.append(f"{label}: OOS/IS regime ratio {regime_ratio:.2f} < 0.75")
+
+    ratios = [w["oos_is_ratio"] for w in windows] or [0.0]
+    avg_ratio = float(np.mean(ratios))
+    spread = float(max(ratios) - min(ratios)) if len(ratios) > 1 else 0.0
+
+    if avg_ratio < 0.50:
+        hard_fail_reasons.append(f"average OOS/IS regime ratio {avg_ratio:.2f} < 0.50")
+    elif avg_ratio < 0.65:
+        warnings.append(f"average OOS/IS regime ratio {avg_ratio:.2f} < 0.65")
+    if spread > 0.50:
+        warnings.append(f"walk-forward dispersion {spread:.2f} > 0.50")
+
+    verdict = "FAIL" if hard_fail_reasons else "WARN" if warnings else "PASS"
+    return {
+        "verdict": verdict,
+        "windows": windows,
+        "avg_oos_is_ratio": round(avg_ratio, 4),
+        "min_oos_is_ratio": round(min(ratios), 4),
+        "max_oos_is_ratio": round(max(ratios), 4),
+        "spread": round(spread, 4),
+        "score": round(float(np.clip(avg_ratio, 0.0, 1.0)), 4),
+        "warnings": warnings,
+        "hard_fail_reasons": hard_fail_reasons,
+    }
+
+
+def analyze_named_windows(
+    df: pd.DataFrame,
+    strategy_fn,
+    params: dict,
+    name: str,
+) -> dict:
+    results = []
+    hard_fail_reasons = []
+    warnings = []
+    for window_name, window_df in split_named_windows(df):
+        metrics = run_eval(window_df, strategy_fn, params, name)
+        results.append({"window": window_name, **metrics})
+        if metrics.get("error"):
+            hard_fail_reasons.append(f"{window_name}: {metrics['error']}")
+        elif metrics.get("trades", 0) == 0 or metrics.get("vs_bah", 0) <= 0:
+            hard_fail_reasons.append(
+                f"{window_name}: trades={metrics.get('trades', 0)} vs_bah={metrics.get('vs_bah', 0):.3f}"
+            )
+        elif metrics.get("vs_bah", 0) < 0.8:
+            warnings.append(f"{window_name}: vs_bah={metrics['vs_bah']:.3f}")
+
+    verdict = "FAIL" if hard_fail_reasons else "WARN" if warnings else "PASS"
+    return {
+        "verdict": verdict,
+        "results": results,
+        "warnings": warnings,
+        "hard_fail_reasons": hard_fail_reasons,
+    }
+
+
+def analyze_four_year_degeneracy(df: pd.DataFrame, trades: list) -> dict:
+    if df.empty:
+        return {"verdict": "FAIL", "reason": "Empty dataframe", "windows": []}
+
+    normalized = []
+    for trade in trades:
+        if hasattr(trade, "entry_date"):
+            normalized.append((pd.Timestamp(trade.entry_date), pd.Timestamp(trade.exit_date)))
+        elif isinstance(trade, dict):
+            normalized.append((pd.Timestamp(trade["entry_date"]), pd.Timestamp(trade["exit_date"])))
+
+    min_year = int(df["date"].min().year)
+    max_year = int(df["date"].max().year)
+    windows = []
+    hard_fails = []
+    warnings = []
+    sparse_windows = []
+    saturated_windows = []
+    for start_year in range(min_year, max_year + 1, 4):
+        start = pd.Timestamp(year=start_year, month=1, day=1)
+        end = pd.Timestamp(year=min(start_year + 4, max_year + 1), month=1, day=1)
+        mask = (df["date"] >= start) & (df["date"] < end)
+        if mask.sum() < 250:
+            continue
+        actual_start = pd.Timestamp(df.loc[mask, "date"].min())
+        actual_end = pd.Timestamp(df.loc[mask, "date"].max()) + pd.Timedelta(days=1)
+        window_days = max((actual_end - actual_start).days, 1)
+        exposure_days = 0
+        for entry_date, exit_date in normalized:
+            overlap_start = max(actual_start, entry_date)
+            overlap_end = min(actual_end, exit_date + pd.Timedelta(days=1))
+            if overlap_end > overlap_start:
+                exposure_days += (overlap_end - overlap_start).days
+        exposure = exposure_days / window_days
+        windows.append(
+            {
+                "window": f"{actual_start.year}-{(actual_end - pd.Timedelta(days=1)).year}",
+                "exposure": round(exposure, 4),
+            }
+        )
+        window_label = f"{actual_start.year}-{(actual_end - pd.Timedelta(days=1)).year}"
+        if exposure <= 0.01:
+            sparse_windows.append(f"{window_label}: exposure={exposure:.1%}")
+        elif exposure >= 0.99:
+            saturated_windows.append(f"{window_label}: exposure={exposure:.1%}")
+
+    n_windows = len(windows)
+    if n_windows == 0:
+        hard_fails.append("no eligible four-year windows")
+    elif len(sparse_windows) == n_windows:
+        hard_fails.append("always out across every four-year window")
+    elif len(saturated_windows) == n_windows:
+        hard_fails.append("always in across every four-year window")
+    else:
+        if sparse_windows:
+            warnings.append(
+                f"sparse exposure windows ({len(sparse_windows)}/{n_windows}): "
+                + "; ".join(sparse_windows[:3])
+            )
+        if saturated_windows:
+            warnings.append(
+                f"saturated exposure windows ({len(saturated_windows)}/{n_windows}): "
+                + "; ".join(saturated_windows[:3])
+            )
+
+    verdict = "FAIL" if hard_fails else "WARN" if warnings else "PASS"
+    return {
+        "verdict": verdict,
+        "windows": windows,
+        "warnings": warnings,
+        "hard_fail_reasons": hard_fails,
     }
 
 

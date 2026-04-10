@@ -65,7 +65,7 @@ With the regime map and cycle diagnostics in hand:
    - If a specific exit reason fires too much during bulls → write a variant that softens or removes that exit
    - If gaps show the strategy exits and doesn't re-enter for months → add re-entry logic
 4. **Generate 2-4 new strategy functions** in `scripts/strategies.py`
-5. **Check parameter complexity.** Prefer 5-8 params. Fitness rejects trades-per-param < 2.0.
+5. **Check parameter complexity.** Prefer 5-8 params. Fitness rejects trades-per-param < 5.0.
 6. **Prune dead weight** — delete strategies below 0.05 fitness after 2+ runs, or converged below top 5. Max 15 strategies in registry.
 7. Add new functions to `STRATEGY_REGISTRY` and `STRATEGY_PARAMS`
 
@@ -96,12 +96,46 @@ cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Docu
 
 When it finishes, read the chunk results. Note the state file path for the next chunk.
 
+### Step 5b — Validate top 3 immediately (REQUIRED after every chunk)
+
+Run 3 tiers of validation on the chunk's top strategies:
+
+**Tier 1 (already enforced by fitness function):**
+- trades-per-param >= 5.0 (hard gate — configs below this get fitness=0)
+- trades/year <= 3.0, HHI <= 0.35
+
+**Tier 2 — Walk-forward (same asset, different time):**
+```bash
+cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 -c "
+from data import get_tecl_data
+from validation.walk_forward import walk_forward_test
+df = get_tecl_data()
+# For each top strategy from chunk results:
+result = walk_forward_test('<NAME>', <PARAMS>, df, split_date='2020-01-01')
+print(f'{result[\"verdict\"]}: train={result[\"train\"][\"vs_bah\"]:.3f}x test={result[\"test\"][\"vs_bah\"]:.3f}x degradation={result.get(\"degradation\",0):.2f}')
+"
+```
+**Discard if:** verdict=FAIL (test vs_bah < 0.8 or <2 trades in test period)
+
+**Tier 3 — Cross-asset re-optimization (final validation only, not every chunk):**
+Run at end of session on the winner. Re-optimizes the strategy *logic* on TQQQ with fresh params:
+```bash
+cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 -c "
+from validation.cross_asset import cross_asset_reoptimize, format_reoptimize
+result = cross_asset_reoptimize('<WINNER_STRATEGY>', minutes=5)
+print(format_reoptimize(result))
+"
+```
+**Interpretation:** If the same strategy function finds alpha on TQQQ with different params, the strategy *concept* generalizes. If it fails, the logic may be TECL-specific.
+
+Only strategies that pass Tier 2 walk-forward move forward to analysis.
+
 ### Step 6 — Analyze intermediate results
 
-After each chunk:
+After each chunk (using only VALIDATED strategies):
 
 1. Read the chunk results (printed as `###CHUNK_RESULT###` JSON)
-2. Run cycle diagnostics on the chunk's top strategies:
+2. Run cycle diagnostics on the chunk's validated top strategies:
 ```bash
 cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 -c "
 from data import get_tecl_data

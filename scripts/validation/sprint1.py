@@ -271,6 +271,40 @@ def test_meta_robustness(trades, close, dates, baseline_composite: float) -> dic
     }
 
 
+def test_trade_clustering(trades, block_years: int = 4) -> dict:
+    """
+    Flag candidates whose trades are concentrated in a single 4-year block.
+    """
+    if not trades:
+        return {"flag": True, "max_share": 1.0, "blocks": []}
+
+    years = []
+    for trade in trades:
+        if getattr(trade, "entry_date", None):
+            years.append(pd.Timestamp(trade.entry_date).year)
+    if not years:
+        return {"flag": True, "max_share": 1.0, "blocks": []}
+
+    start_year = min(years)
+    block_counts = {}
+    for year in years:
+        block_start = start_year + ((year - start_year) // block_years) * block_years
+        label = f"{block_start}-{block_start + block_years - 1}"
+        block_counts[label] = block_counts.get(label, 0) + 1
+
+    total = sum(block_counts.values())
+    blocks = [
+        {"window": label, "trades": count, "share": round(count / total, 4)}
+        for label, count in sorted(block_counts.items())
+    ]
+    max_share = max((block["share"] for block in blocks), default=0.0)
+    return {
+        "flag": max_share > 0.60,
+        "max_share": round(max_share, 4),
+        "blocks": blocks,
+    }
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Run strategy and get trades
 # ─────────────────────────────────────────────────────────────────────────────

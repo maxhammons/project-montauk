@@ -1,76 +1,124 @@
 # Project Montauk Charter
 
-**Canonical summary**: A long-only, single-position EMA-trend system for TECL that captures multi-month bull legs and exits swiftly on regime change using a small, prioritized exit stack and optional filters to avoid chop and hold through benign consolidations.
+**Canonical summary**: Project Montauk is a TECL strategy factory: discover many long-only TECL strategies, validate them hard against overfitting, and generate Pine for the best PASS winner.
 
 ---
 
-## Rationale and Design
+## 1. Mission
 
-### Instrument scope
-Target: Direxion Technology Bull 3× (TECL). Objective: capture large technology bull trends and sidestep major bear phases. Single symbol, single position, no pyramiding. One `"Long"` order id.
+Project Montauk exists to find robust long-only TECL strategies that:
 
-### Known trade-offs
-- The quick EMA exit uses price units; scaling can shift as TECL's nominal level changes. Consider normalizing (slope / price or ATR) only if it preserves current behavior across price levels.
-- Sideways suppression of exits can defer a necessary sell if a sideways window precedes a breakdown. Keep ATR exit enabled as a backstop.
-- TECL is 3× daily-reset — expect volatility drag in prolonged chop. The system's job is to maximize time in strong trends and minimize chop exposure.
+- capture major bull legs
+- exit bear phases early enough to preserve capital
+- survive hard validation
+- end as deployable Pine Script candidates for TradingView
 
-### Validation windows
-Backtests should cover: 2008 fallout, 2020 melt-up, 2021–2022 tech bear, and subsequent rebounds. The system should stay out or exit early during the bear and re-engage quickly after. These are the primary stress tests.
+This project is **not** limited to one hand-authored strategy. `montauk_821` is the current baseline and reference implementation, but the project goal is broader: discover the best charter-compatible TECL strategy family, not just tune one EMA system forever.
 
 ---
 
-## 1. Scope
+## 2. Scope Guardrails
+
+Every promotable strategy must stay inside these boundaries:
 
 - **Symbol**: TECL only
-- **Direction**: Long-only
-- **Position**: Single open position, all-in/all-out
-- **No**: pyramiding, partials, shorts
-- **Time horizon**: Multi-month to multi-year trends — no day trading features
+- **Direction**: long-only
+- **Position model**: single open position, all-in/all-out, no pyramiding
+- **Time horizon**: multi-week to multi-month trend capture, not intraday trading
+- **Execution surface**: Pine Script v6 on TradingView
+- **Signal integrity**: bar-close confirmation only, no lookahead, no repainting
+
+The project may search across many strategy families, but every family must still be:
+
+- TECL-native
+- long-only
+- Pine-expressible
+- compatible with a single `"Long"` order id and `strategy.close`
 
 ---
 
-## 2. Non-Goals
+## 3. Success Definition
 
-No multi-asset, no shorting, no options, no martingale, no margin, no grid, no optimization sweeps that add many inputs, no hyper-sensitive intraday rules.
+A strategy is only considered real when it completes this full chain:
+
+1. It is discovered by the optimizer across a broad TECL strategy search space.
+2. It passes the validation pipeline with a final **PASS** verdict.
+3. It is allowed onto the validated leaderboard.
+4. It is emitted as a Pine Script candidate ready for TradingView review.
+
+Anything short of that is research output, not a winner.
+
+The system-level success condition is therefore:
+
+> discover -> validate -> generate Pine -> manually review in TradingView
 
 ---
 
-## 3. Coding Rules
+## 4. Non-Goals
+
+The project is not trying to become:
+
+- a multi-asset production strategy platform
+- a short-selling system
+- an options system
+- an intraday or high-frequency system
+- an auto-live-deployment bot
+- a place where raw backtest winners bypass validation
+
+Cross-asset data is allowed for validation only. It is not the production trading scope.
+
+---
+
+## 5. Evaluation Standards
+
+Raw backtest numbers are not enough. The project optimizes for **robust outperformance**, not impressive charts.
+
+Primary strategy-level metrics:
+
+| Metric | Why it matters |
+|--------|----------------|
+| vs Buy and Hold | Core benchmark: the strategy must justify its existence |
+| CAGR | Primary return measure |
+| Max Drawdown | Primary risk measure |
+| MAR | Return quality under drawdown |
+| Trades/year | Must stay low; the project is not a churn machine |
+| Avg days in trade | Should reflect actual trend capture |
+| Exit reason breakdown | Reveals whether one brittle rule carries the whole system |
+
+Validation quality matters as much as performance. A high-return strategy that fails validation is out of scope for promotion.
+
+---
+
+## 6. Coding Rules
 
 - **Pine Script v6 only**
 - `process_orders_on_close=true`, `calc_on_every_tick=false`
-- One strategy block. One entry id `"Long"`. Close via `strategy.close`.
-- Preserve existing parameter names unless the Change Plan explicitly renames them.
-- No lookahead. No repainting indicators. Signals confirmed on bar close.
-- When uncertain about Pine v6 syntax or built-ins, consult `reference/PineScript Version 6 Reference.txt`.
+- One strategy block. One entry id `"Long"`. Exits via `strategy.close`
+- Preserve stable parameter names unless there is a strong migration reason
+- Python is the research engine; Pine is the execution artifact
+- When uncertain about Pine syntax, consult `reference/PineScript Version 6 Reference.txt`
 
 ---
 
-## 4. Evaluation Metrics
+## 7. Decision Rule
 
-Backtesting is done by the user in TradingView. When proposing changes, Claude should reason about expected impact on these metrics rather than reporting actual results:
+If asked to add work that breaks the charter, call it out clearly:
 
-| Metric | Notes |
-|--------|-------|
-| Versus Buy and Hold | Returns of both buy an hold and the strategy from time of trade 1 in the strategy |
-| CAGR | Primary return measure |
-| Max Drawdown | Primary risk measure |
-| MAR (CAGR / MaxDD) | Risk-adjusted return |
-| Exposure % | Time in market |
-| Trades/year | Low is better; shoot for 3 at most. Avoid churn |
-| Avg days in trade | High is better; signals trend capture |
-| Worst 10-day loss | Left-tail / crash risk |
-| Exit reason breakdown | Count by exit type (structural / ATR / quick EMA) |
+> "Out of scope per Montauk charter. The project is a long-only TECL strategy factory. Trend-aligned alternative: [brief suggestion]."
 
-Win rate is secondary and should not be optimized directly. Backtest comparisons should change only one thing at a time.
+If asked whether a raw optimizer winner should be treated as real, the answer is:
+
+> "Not until it passes validation and has a deployable Pine artifact."
 
 ---
 
+## 8. Appendix Pointer
 
-## 5. Scope Guardrails
+The core charter stays focused on the TECL signal factory itself.
 
-If asked to add mean-reversion, countertrend, multi-asset, or other out-of-scope features, flag it clearly:
+Approved supporting layers that do not change the core mission, including:
 
-> "Out of scope per Montauk charter. [One-sentence reason.] Trend-aligned alternative: [brief suggestion]."
+- discovery-stage marker priors
+- Roth deployment overlays
 
-Then offer one on-charter alternative if one exists.
+are described in `Montauk Charter Appendix - Discovery and Roth Overlay.md`.

@@ -1,0 +1,4 @@
+# Pragmatist Position
+
+**Position:** The dual-engine overhead is unsustainable and unnecessary.
+**Evidence:** We are maintaining a full Python backtester with memoized indicators (`strategy_engine.py`) just to optimize parameters for a Pine Script v6 strategy. As we add more complex VIX logic and walk-forward validation, the chance of a translation error between Python and Pine Script approaches 100%. We are building an optimization pipeline for an execution environment we do not control. The North Star is a "fully automated... pipeline", but the current setup inherently requires manual transcription and dual-maintenance.
