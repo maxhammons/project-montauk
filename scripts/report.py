@@ -131,7 +131,12 @@ def _detail_block(entry: dict) -> str:
             f"**Composite:** {validation.get('composite_confidence', 0):.3f} | "
             f"**Pine Eligible:** {validation.get('pine_eligible', False)}"
         )
-        if validation.get("warnings"):
+        if validation.get("critical_warnings"):
+            lines.append("**Critical warnings:** " + "; ".join(validation["critical_warnings"]))
+        if validation.get("soft_warnings"):
+            lines.append("**Soft warnings:** " + "; ".join(validation["soft_warnings"]))
+        elif validation.get("warnings") and not validation.get("critical_warnings"):
+            # Backward compat: old results without soft/critical split
             lines.append("**Warnings:** " + "; ".join(validation["warnings"]))
         if validation.get("hard_fail_reasons"):
             lines.append("**Hard fails:** " + "; ".join(validation["hard_fail_reasons"]))

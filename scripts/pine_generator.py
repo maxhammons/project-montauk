@@ -899,6 +899,140 @@ def _build_vix_trend_regime(params: dict) -> str:
     )
 
 
+def _build_steady_trend(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Steady Trend",
+        "Steady",
+        "steady_trend",
+        f"""
+        emaLen       = input.int({_pine_number(params.get("ema_len", 50))}, "EMA Length", minval=1, group="1 - Inputs")
+        slopeWindow  = input.int({_pine_number(params.get("slope_window", 5))}, "Slope Window", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        exitBars     = input.int({_pine_number(params.get("exit_bars", 5))}, "Exit Confirm Bars", minval=1, group="1 - Inputs")
+
+        emaVal = ta.ema(close, emaLen)
+        slope  = emaVal - emaVal[slopeWindow]
+
+        var int posCount = 0
+        var int negCount = 0
+        if not na(slope)
+            if slope > 0
+                posCount += 1
+                negCount := 0
+            else
+                negCount += 1
+                posCount := 0
+
+        entrySignal = posCount >= entryBars and close > emaVal
+        exitCond    = strategy.position_size > 0 and negCount >= exitBars
+
+        if exitCond
+            strategy.close("Long")
+            label.new(bar_index, high, "Slope Rev", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        if strategy.position_size == 0 and entrySignal and not exitCond
+            strategy.entry("Long", strategy.long)
+
+        plot(emaVal, "EMA", color=color.new(color.blue, 40))
+        """,
+    )
+
+
+def _build_rsi_recovery(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - RSI Recovery",
+        "RSIRec",
+        "rsi_recovery",
+        f"""
+        rsiLen    = input.int({_pine_number(params.get("rsi_len", 14))}, "RSI Length", minval=1, group="1 - Inputs")
+        trendLen  = input.int({_pine_number(params.get("trend_len", 100))}, "Trend EMA", minval=1, group="1 - Inputs")
+        entryRsi  = input.float({_pine_number(params.get("entry_rsi", 35), force_float=True)}, "Entry RSI", group="1 - Inputs")
+        panicRsi  = input.float({_pine_number(params.get("panic_rsi", 20), force_float=True)}, "Panic RSI", group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 10))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        rsiVal   = ta.rsi(close, rsiLen)
+        trendEma = ta.ema(close, trendLen)
+
+        var bool wasOversold = false
+        if rsiVal < entryRsi
+            wasOversold := true
+
+        entrySignal = wasOversold and rsiVal > entryRsi and close > trendEma
+        if entrySignal
+            wasOversold := false
+
+        isPanic    = strategy.position_size > 0 and rsiVal < panicRsi
+        isTrendBrk = strategy.position_size > 0 and close < trendEma and rsiVal < 45
+        exitCond   = isPanic or isTrendBrk
+
+        var string exitReason = na
+        if strategy.position_size > 0
+            if isPanic
+                exitReason := "Panic"
+            else if isTrendBrk
+                exitReason := "Trend Break"
+
+        var int lastSellBar = na
+        if exitCond
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, exitReason, yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter and not exitCond
+            strategy.entry("Long", strategy.long)
+
+        plot(trendEma, "Trend EMA", color=color.new(color.blue, 40))
+        hline(entryRsi, "Entry RSI", color=color.gray, linestyle=hline.style_dotted)
+        hline(panicRsi, "Panic RSI", color=color.red, linestyle=hline.style_dotted)
+        """,
+    )
+
+
+def _build_ema_regime(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - EMA Regime",
+        "EMAReg",
+        "ema_regime",
+        f"""
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 20))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 60))}, "Slow EMA", minval=1, group="1 - Inputs")
+        entryConfirm = input.int({_pine_number(params.get("entry_confirm", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        exitConfirm  = input.int({_pine_number(params.get("exit_confirm", 5))}, "Exit Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+
+        var int bullCount = 0
+        var int bearCount = 0
+        if not na(fastEma) and not na(slowEma)
+            if fastEma > slowEma
+                bullCount += 1
+                bearCount := 0
+            else
+                bearCount += 1
+                bullCount := 0
+
+        entrySignal = bullCount == entryConfirm
+        exitCond    = strategy.position_size > 0 and bearCount >= exitConfirm
+
+        var int lastSellBar = na
+        if exitCond
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Cross Conf", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter and not exitCond
+            strategy.entry("Long", strategy.long)
+
+        plot(fastEma, "Fast EMA", color=color.new(color.green, 40))
+        plot(slowEma, "Slow EMA", color=color.new(color.red, 40))
+        """,
+    )
+
+
 _BUILDERS = {
     "montauk_821": _build_montauk_821,
     "rsi_regime": _build_rsi_regime,
@@ -916,6 +1050,9 @@ _BUILDERS = {
     "slope_persistence": _build_slope_persistence,
     "vix_mean_revert": _build_vix_mean_revert,
     "vix_trend_regime": _build_vix_trend_regime,
+    "steady_trend": _build_steady_trend,
+    "rsi_recovery": _build_rsi_recovery,
+    "ema_regime": _build_ema_regime,
 }
 
 

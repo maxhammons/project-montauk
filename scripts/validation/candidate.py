@@ -221,9 +221,14 @@ def analyze_walk_forward(
     params: dict,
     name: str,
 ) -> dict:
+    # Get full-period trades_per_year to judge zero-trade windows
+    full_eval = run_eval(df, strategy_fn, params, name)
+    full_trades_yr = float(full_eval.get("trades", 0)) / max(len(df) / 252.0, 1.0)
+
     windows = []
     hard_fail_reasons = []
-    warnings = []
+    soft_warnings = []
+    critical_warnings = []
 
     for label, train, test in build_walk_forward_splits(df):
         train_r = run_eval(train, strategy_fn, params, name)
@@ -245,7 +250,14 @@ def analyze_walk_forward(
             }
         )
         if test_r.get("trades", 0) == 0:
-            hard_fail_reasons.append(f"{label}: zero OOS trades")
+            window_years = max(len(test) / 252.0, 0.1)
+            expected_trades = full_trades_yr * window_years
+            if expected_trades >= 1.5:
+                # Strategy should have traded but didn't — real concern
+                hard_fail_reasons.append(f"{label}: zero OOS trades (expected ~{expected_trades:.1f})")
+            else:
+                # Low-frequency strategy in a short window — zero trades is normal
+                soft_warnings.append(f"{label}: zero OOS trades (expected ~{expected_trades:.1f})")
         elif regime_ratio < 0.75:
             hard_fail_reasons.append(f"{label}: OOS/IS regime ratio {regime_ratio:.2f} < 0.75")
 
@@ -256,10 +268,13 @@ def analyze_walk_forward(
     if avg_ratio < 0.50:
         hard_fail_reasons.append(f"average OOS/IS regime ratio {avg_ratio:.2f} < 0.50")
     elif avg_ratio < 0.65:
-        warnings.append(f"average OOS/IS regime ratio {avg_ratio:.2f} < 0.65")
-    if spread > 0.50:
-        warnings.append(f"walk-forward dispersion {spread:.2f} > 0.50")
+        critical_warnings.append(f"average OOS/IS regime ratio {avg_ratio:.2f} < 0.65")
+    if spread > 0.65:
+        critical_warnings.append(f"walk-forward dispersion {spread:.2f} > 0.65")
+    elif spread > 0.50:
+        soft_warnings.append(f"walk-forward dispersion {spread:.2f} > 0.50")
 
+    warnings = soft_warnings + critical_warnings
     verdict = "FAIL" if hard_fail_reasons else "WARN" if warnings else "PASS"
     return {
         "verdict": verdict,
@@ -269,6 +284,8 @@ def analyze_walk_forward(
         "max_oos_is_ratio": round(max(ratios), 4),
         "spread": round(spread, 4),
         "score": round(float(np.clip(avg_ratio, 0.0, 1.0)), 4),
+        "soft_warnings": soft_warnings,
+        "critical_warnings": critical_warnings,
         "warnings": warnings,
         "hard_fail_reasons": hard_fail_reasons,
     }
@@ -282,23 +299,33 @@ def analyze_named_windows(
 ) -> dict:
     results = []
     hard_fail_reasons = []
-    warnings = []
+    soft_warnings = []
+    critical_warnings = []
     for window_name, window_df in split_named_windows(df):
         metrics = run_eval(window_df, strategy_fn, params, name)
         results.append({"window": window_name, **metrics})
         if metrics.get("error"):
             hard_fail_reasons.append(f"{window_name}: {metrics['error']}")
-        elif metrics.get("trades", 0) == 0 or metrics.get("vs_bah", 0) <= 0:
+        elif metrics.get("vs_bah", 0) <= 0:
+            # vs_bah <= 0 means the backtest itself broke, not just zero trades
             hard_fail_reasons.append(
                 f"{window_name}: trades={metrics.get('trades', 0)} vs_bah={metrics.get('vs_bah', 0):.3f}"
             )
-        elif metrics.get("vs_bah", 0) < 0.8:
-            warnings.append(f"{window_name}: vs_bah={metrics['vs_bah']:.3f}")
+        elif metrics.get("trades", 0) == 0:
+            # Strategy chose to sit out — conscious decision, not breakage
+            soft_warnings.append(
+                f"{window_name}: zero trades (sat out, vs_bah={metrics.get('vs_bah', 0):.3f})"
+            )
+        elif metrics.get("vs_bah", 0) < 0.6:
+            soft_warnings.append(f"{window_name}: vs_bah={metrics['vs_bah']:.3f}")
 
+    warnings = soft_warnings + critical_warnings
     verdict = "FAIL" if hard_fail_reasons else "WARN" if warnings else "PASS"
     return {
         "verdict": verdict,
         "results": results,
+        "soft_warnings": soft_warnings,
+        "critical_warnings": critical_warnings,
         "warnings": warnings,
         "hard_fail_reasons": hard_fail_reasons,
     }

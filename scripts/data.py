@@ -39,6 +39,33 @@ _LEGACY_CSV = os.path.join(TS_DIR, "TECL Price History (2-23-26).csv")
 
 
 # ─────────────────────────────────────────────────────────────────────
+# Date normalization
+# ─────────────────────────────────────────────────────────────────────
+
+def _normalize_date_column(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Ensure the date column is timezone-naive datetime64 at midnight,
+    sorted monotonically. Drops duplicate dates (keeps last).
+    Raises ValueError on non-monotonic dates after dedup.
+    """
+    if "date" not in df.columns or df.empty:
+        return df
+    df["date"] = pd.to_datetime(df["date"])
+    if hasattr(df["date"].dt, "tz") and df["date"].dt.tz is not None:
+        df["date"] = df["date"].dt.tz_localize(None)
+    df["date"] = df["date"].dt.normalize()
+    df = df.sort_values("date").reset_index(drop=True)
+    if not df["date"].is_monotonic_increasing:
+        df = df.drop_duplicates(subset=["date"], keep="last").reset_index(drop=True)
+        if not df["date"].is_monotonic_increasing:
+            raise ValueError(
+                "date column is not monotonic increasing after dedup; "
+                f"first violation near index {df['date'].diff().lt(pd.Timedelta(0)).idxmax()}"
+            )
+    return df
+
+
+# ─────────────────────────────────────────────────────────────────────
 # Yahoo Finance fetcher (shared)
 # ─────────────────────────────────────────────────────────────────────
 
@@ -89,8 +116,7 @@ def _fetch_ticker_yahoo(ticker: str, start: str = "2008-12-01", end: str | None 
         })
 
         df = df.dropna(subset=["close"]).reset_index(drop=True)
-        df["date"] = df["date"].dt.tz_localize(None)
-        df = df.sort_values("date").reset_index(drop=True)
+        df = _normalize_date_column(df)
         return df
 
     except Exception as e:
@@ -111,6 +137,7 @@ def _fetch_fred_csv(series_id: str, start: str = "1998-01-01") -> pd.DataFrame:
         df["date"] = pd.to_datetime(df["date"])
         df["value"] = pd.to_numeric(df["value"], errors="coerce")
         df = df.dropna(subset=["value"]).reset_index(drop=True)
+        df = _normalize_date_column(df)
         return df
     except Exception as e:
         print(f"[data] FRED fetch failed for {series_id}: {e}")
@@ -153,7 +180,7 @@ def _append_new_bars(csv_path: str, ticker: str, start_override: str | None = No
     # Only keep columns that exist in the current CSV
     shared = [c for c in df.columns if c in fresh.columns]
     combined = pd.concat([df[shared], fresh[shared]], ignore_index=True)
-    combined = combined.sort_values("date").reset_index(drop=True)
+    combined = _normalize_date_column(combined)
     combined.to_csv(csv_path, index=False)
     return len(fresh)
 
@@ -167,7 +194,7 @@ def _refresh_or_create_ticker_csv(csv_path: str, ticker: str, *, start: str) -> 
         df = _fetch_ticker_yahoo(ticker, start=start)
         if df.empty:
             return 0
-        df = df.sort_values("date").reset_index(drop=True)
+        df = _normalize_date_column(df)
         df.to_csv(csv_path, index=False)
         return len(df)
     return _append_new_bars(csv_path, ticker)
@@ -250,7 +277,7 @@ def _append_tecl_bars() -> int:
             fresh[col] = np.nan
 
     combined = pd.concat([df, fresh[df.columns]], ignore_index=True)
-    combined = combined.sort_values("date").reset_index(drop=True)
+    combined = _normalize_date_column(combined)
     combined.to_csv(TECL_CSV, index=False)
     return len(fresh)
 
@@ -283,7 +310,7 @@ def _append_vix_bars() -> int:
         "close": "vix_close", "volume": "vix_volume"
     })
     combined = pd.concat([df, fresh[df.columns]], ignore_index=True)
-    combined = combined.sort_values("date").reset_index(drop=True)
+    combined = _normalize_date_column(combined)
     combined.to_csv(VIX_CSV, index=False)
     return len(fresh)
 
@@ -299,7 +326,7 @@ def _merge_vix_into_tecl():
 
     vix_slim = vix[["date", "vix_close"]].copy()
     tecl = tecl.merge(vix_slim, on="date", how="left")
-    tecl = tecl.sort_values("date").reset_index(drop=True)
+    tecl = _normalize_date_column(tecl)
     tecl.to_csv(TECL_CSV, index=False)
 
 
@@ -310,6 +337,7 @@ def _refresh_fred(filename: str, series_id: str, col_name: str):
         df = _fetch_fred_csv(series_id)
         if not df.empty:
             df.columns = ["date", col_name]
+            df = _normalize_date_column(df)
             df.to_csv(path, index=False)
             print(f"[refresh] {filename}: downloaded {len(df)} rows")
         return
@@ -328,7 +356,7 @@ def _refresh_fred(filename: str, series_id: str, col_name: str):
         return
 
     combined = pd.concat([existing, fresh], ignore_index=True)
-    combined = combined.sort_values("date").reset_index(drop=True)
+    combined = _normalize_date_column(combined)
     combined.to_csv(path, index=False)
     print(f"[refresh] {filename}: +{len(fresh)} new rows")
 
@@ -337,8 +365,8 @@ def _migrate_legacy_tecl():
     """One-time migration: old TECL Price History CSV → TECL.csv with vix_close."""
     print("[data] Migrating legacy TECL CSV → TECL.csv...")
     df = pd.read_csv(_LEGACY_CSV, parse_dates=["date"])
-    df = df.sort_values("date").reset_index(drop=True)
     df.columns = [c.lower().strip() for c in df.columns]
+    df = _normalize_date_column(df)
 
     # Keep only standard columns
     keep = ["date", "open", "high", "low", "close", "volume"]
@@ -376,8 +404,8 @@ def get_tecl_data(use_yfinance: bool = False) -> pd.DataFrame:
             raise FileNotFoundError(f"No TECL data found. Expected: {TECL_CSV}")
 
     df = pd.read_csv(TECL_CSV, parse_dates=["date"])
-    df = df.sort_values("date").reset_index(drop=True)
     df.columns = [c.lower().strip() for c in df.columns]
+    df = _normalize_date_column(df)
     print(f"[data] TECL: {len(df)} bars, {df['date'].min().date()} to {df['date'].max().date()}")
 
     # Ensure vix_close exists
@@ -402,8 +430,8 @@ def get_tqqq_data() -> pd.DataFrame:
     if not os.path.exists(TQQQ_CSV):
         raise FileNotFoundError(f"No TQQQ data. Expected: {TQQQ_CSV}")
     df = pd.read_csv(TQQQ_CSV, parse_dates=["date"])
-    df = df.sort_values("date").reset_index(drop=True)
     df.columns = [c.lower().strip() for c in df.columns]
+    df = _normalize_date_column(df)
     for col in ["open", "high", "low", "close", "volume"]:
         assert col in df.columns, f"Missing column: {col}"
     print(f"[data] TQQQ: {len(df)} bars, {df['date'].min().date()} to {df['date'].max().date()}")
@@ -415,8 +443,8 @@ def get_qqq_data() -> pd.DataFrame:
     if not os.path.exists(QQQ_CSV):
         raise FileNotFoundError(f"No QQQ data. Expected: {QQQ_CSV}")
     df = pd.read_csv(QQQ_CSV, parse_dates=["date"])
-    df = df.sort_values("date").reset_index(drop=True)
     df.columns = [c.lower().strip() for c in df.columns]
+    df = _normalize_date_column(df)
     for col in ["open", "high", "low", "close", "volume"]:
         assert col in df.columns, f"Missing column: {col}"
     print(f"[data] QQQ: {len(df)} bars, {df['date'].min().date()} to {df['date'].max().date()}")
@@ -430,8 +458,8 @@ def get_sgov_data() -> pd.DataFrame:
         if n == 0 or not os.path.exists(SGOV_CSV):
             raise FileNotFoundError(f"No SGOV data. Expected: {SGOV_CSV}")
     df = pd.read_csv(SGOV_CSV, parse_dates=["date"])
-    df = df.sort_values("date").reset_index(drop=True)
     df.columns = [c.lower().strip() for c in df.columns]
+    df = _normalize_date_column(df)
     for col in ["open", "high", "low", "close", "volume"]:
         assert col in df.columns, f"Missing column: {col}"
     if "adj_close" not in df.columns:
@@ -448,8 +476,8 @@ def get_3m_tbill_rate_data() -> pd.DataFrame:
         if not os.path.exists(TBILL_3M_CSV):
             raise FileNotFoundError(f"No 3M T-bill rate data. Expected: {TBILL_3M_CSV}")
     df = pd.read_csv(TBILL_3M_CSV, parse_dates=["date"])
-    df = df.sort_values("date").reset_index(drop=True)
     df.columns = [c.lower().strip() for c in df.columns]
+    df = _normalize_date_column(df)
     print(f"[data] 3M T-Bill: {len(df)} rows, {df['date'].min().date()} to {df['date'].max().date()}")
     return df
 
@@ -509,7 +537,7 @@ def build_synthetic_tecl(start: str = "1998-01-01", end: str | None = None,
     synth_close *= scale
 
     xlk_close_safe = np.where(xlk_close > 0, xlk_close, 1.0)
-    return pd.DataFrame({
+    df = pd.DataFrame({
         "date": xlk["date"].values,
         "open": synth_close * (xlk_open / xlk_close_safe),
         "high": synth_close * (xlk_high / xlk_close_safe),
@@ -517,6 +545,7 @@ def build_synthetic_tecl(start: str = "1998-01-01", end: str | None = None,
         "close": synth_close,
         "volume": xlk["volume"].values,
     })
+    return _normalize_date_column(df)
 
 
 if __name__ == "__main__":

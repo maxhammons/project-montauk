@@ -1010,6 +1010,152 @@ def vix_trend_regime(ind: Indicators, p: dict) -> tuple:
     return entries, exits, labels
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy: Steady Trend — Ultra-simple trend persistence.
+# Default long when EMA slope is positive. Only exit when slope has been
+# negative for N consecutive bars. Designed to stay in bulls and avoid
+# bear-boundary memorization with structural, non-timing exits.
+# 4 params — under regime_transitions ceiling.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def steady_trend(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+
+    ema = ind.ema(p.get("ema_len", 50))
+    slope_window = p.get("slope_window", 5)
+    entry_bars = p.get("entry_bars", 3)
+    exit_bars = p.get("exit_bars", 5)
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    slope_pos_count = 0
+    slope_neg_count = 0
+
+    for i in range(slope_window + 1, n):
+        if np.isnan(ema[i]) or np.isnan(ema[i - slope_window]):
+            continue
+
+        slope = (ema[i] - ema[i - slope_window]) / max(ema[i - slope_window], 1e-6)
+
+        if slope > 0:
+            slope_pos_count += 1
+            slope_neg_count = 0
+        else:
+            slope_neg_count += 1
+            slope_pos_count = 0
+
+        # Entry: EMA slope positive for entry_bars consecutive bars + price above EMA
+        if slope_pos_count >= entry_bars and cl[i] > ema[i]:
+            entries[i] = True
+
+        # Exit: EMA slope negative for exit_bars consecutive bars
+        if slope_neg_count >= exit_bars:
+            exits[i] = True
+            labels[i] = "S"  # slope reversal
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy: RSI Recovery — Simplified RSI regime without the bull-killing
+# overbought exit. Enter on RSI recovery from oversold while above trend.
+# Exit only on deep RSI plunge (panic) or trend breakdown.
+# 5 params — comfortably under ceiling.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def rsi_recovery(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+
+    rsi = ind.rsi(p.get("rsi_len", 14))
+    trend_ema = ind.ema(p.get("trend_len", 100))
+    entry_rsi = p.get("entry_rsi", 35)
+    panic_rsi = p.get("panic_rsi", 20)
+    cooldown = p.get("cooldown", 10)
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    was_oversold = False
+
+    for i in range(1, n):
+        if np.isnan(rsi[i]) or np.isnan(trend_ema[i]):
+            continue
+
+        # Track when RSI dips below entry threshold
+        if rsi[i] < entry_rsi:
+            was_oversold = True
+
+        # Entry: RSI recovers above entry threshold after being oversold
+        # + price above trend EMA (confirms trend is intact)
+        if was_oversold and rsi[i] > entry_rsi and cl[i] > trend_ema[i]:
+            entries[i] = True
+            was_oversold = False
+
+        # Exit 1: Panic RSI — deep plunge signals real trouble
+        if rsi[i] < panic_rsi:
+            exits[i] = True
+            labels[i] = "P"  # panic
+            continue
+
+        # Exit 2: Trend breakdown — price below trend EMA and RSI weakening
+        if cl[i] < trend_ema[i] and rsi[i] < 45:
+            exits[i] = True
+            labels[i] = "T"  # trend break
+
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy: EMA Regime — Two-EMA crossover with persistence filter.
+# Only enter after fast > slow for N bars (avoids whipsaws).
+# Only exit after fast < slow for M bars (stays in bulls longer).
+# 5 params — lean and testable.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def ema_regime(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+
+    fast = ind.ema(p.get("fast_ema", 20))
+    slow = ind.ema(p.get("slow_ema", 60))
+    entry_confirm = p.get("entry_confirm", 3)
+    exit_confirm = p.get("exit_confirm", 5)
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    bull_count = 0
+    bear_count = 0
+
+    for i in range(1, n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]):
+            continue
+
+        if fast[i] > slow[i]:
+            bull_count += 1
+            bear_count = 0
+        else:
+            bear_count += 1
+            bull_count = 0
+
+        # Entry: fast above slow for entry_confirm consecutive bars
+        if bull_count == entry_confirm:
+            entries[i] = True
+
+        # Exit: fast below slow for exit_confirm consecutive bars
+        if bear_count >= exit_confirm:
+            exits[i] = True
+            labels[i] = "X"  # cross confirmed
+
+    return entries, exits, labels
+
+
 STRATEGY_REGISTRY = {
     "montauk_821":              montauk_821,
     "rsi_regime":               rsi_regime,
@@ -1019,14 +1165,13 @@ STRATEGY_REGISTRY = {
     "ichimoku_trend":           ichimoku_trend,
     "dual_momentum":            dual_momentum,
     "rsi_vol_regime":           rsi_vol_regime,
-    "trough_bounce":            trough_bounce,
     "momentum_stayer":          momentum_stayer,
-    "keltner_squeeze":          keltner_squeeze,
-    "always_in_trend":          always_in_trend,
     "donchian_turtle":          donchian_turtle,
     "slope_persistence":        slope_persistence,
-    "vix_mean_revert":          vix_mean_revert,
     "vix_trend_regime":         vix_trend_regime,
+    "steady_trend":             steady_trend,
+    "rsi_recovery":             rsi_recovery,
+    "ema_regime":               ema_regime,
 }
 
 # Parameter spaces for each strategy: {param: (min, max, step, type)}
@@ -1056,30 +1201,12 @@ STRATEGY_PARAMS = {
         "vol_long": (40, 100, 10, int), "vol_ratio_max": (0.7, 1.2, 0.05, float),
         "vol_exit_ratio": (1.2, 2.0, 0.2, float), "cooldown": (0, 20, 5, int),
     },
-    "trough_bounce": {
-        "rsi_len": (7, 14, 2, int), "low_lookback": (20, 100, 10, int),
-        "fast_ema": (5, 20, 2, int), "slow_ema": (30, 100, 10, int),
-        "bounce_pct": (10.0, 50.0, 5.0, float), "exit_confirm": (2, 10, 1, int),
-        "atr_period": (10, 40, 10, int), "atr_mult": (3.0, 6.0, 0.5, float),
-        "cooldown": (0, 25, 5, int),
-    },
     "momentum_stayer": {
         "fast_ema": (10, 40, 5, int), "slow_ema": (30, 120, 10, int),
         "rsi_len": (7, 21, 2, int), "exit_rsi": (20.0, 40.0, 5.0, float),
         "vol_short": (10, 30, 5, int), "vol_long": (40, 120, 10, int),
         "vol_exit_ratio": (1.2, 2.5, 0.2, float), "roc_period": (20, 100, 10, int),
         "cooldown": (0, 25, 5, int),
-    },
-    "keltner_squeeze": {
-        "bb_len": (15, 30, 5, int), "bb_mult": (1.5, 2.5, 0.5, float),
-        "kelt_len": (15, 30, 5, int), "kelt_mult": (1.0, 2.0, 0.5, float),
-        "trend_len": (50, 200, 25, int), "mom_len": (8, 20, 4, int),
-        "cooldown": (0, 20, 5, int),
-    },
-    "always_in_trend": {
-        "fast_ema": (10, 30, 5, int), "slow_ema": (30, 80, 10, int),
-        "adx_len": (10, 25, 5, int), "exit_adx": (15.0, 30.0, 5.0, float),
-        "cooldown": (0, 20, 5, int),
     },
     "donchian_turtle": {
         "entry_len": (30, 80, 10, int), "exit_len": (10, 40, 5, int),
@@ -1116,16 +1243,23 @@ STRATEGY_PARAMS = {
         "short_exit": (-15.0, -3.0, 2.0, float), "atr_period": (10, 40, 10, int),
         "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 20, 5, int),
     },
-    "vix_mean_revert": {
-        "vix_lookback": (60, 252, 20, int), "vix_ema_len": (5, 20, 5, int),
-        "entry_pctl": (75, 95, 5, float), "exit_pctl": (25, 50, 5, float),
-        "trend_len": (50, 200, 25, int), "trend_buffer": (0.0, 10.0, 2.0, float),
-        "panic_vix": (35, 60, 5, float), "cooldown": (0, 20, 5, int),
-    },
     "vix_trend_regime": {
         "short_ema": (10, 30, 5, int), "long_ema": (30, 80, 10, int),
         "vix_slow_len": (30, 90, 10, int), "vix_entry_ratio": (0.7, 1.0, 0.05, float),
         "vix_exit_ratio": (1.1, 1.6, 0.1, float), "atr_period": (10, 40, 10, int),
         "atr_mult": (2.0, 5.0, 0.5, float), "cooldown": (0, 20, 5, int),
+    },
+    "steady_trend": {
+        "ema_len": (30, 120, 10, int), "slope_window": (3, 10, 1, int),
+        "entry_bars": (2, 6, 1, int), "exit_bars": (3, 10, 1, int),
+    },
+    "rsi_recovery": {
+        "rsi_len": (7, 21, 2, int), "trend_len": (50, 200, 25, int),
+        "entry_rsi": (25, 45, 5, float), "panic_rsi": (10, 25, 5, float),
+        "cooldown": (0, 20, 5, int),
+    },
+    "ema_regime": {
+        "fast_ema": (10, 40, 5, int), "slow_ema": (30, 120, 10, int),
+        "entry_confirm": (2, 6, 1, int), "exit_confirm": (2, 8, 1, int),
     },
 }

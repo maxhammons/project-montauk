@@ -33,7 +33,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "file=\"$TOOL_INPUT_FILE_PATH$TOOL_INPUT_file_path\"; case \"$file\" in */scripts/evolve.py|*/scripts/spike_runner.py|*/scripts/strategy_engine.py|*/scripts/report.py|*/scripts/data.py|*/scripts/validation/*.py|*/.github/workflows/spike.yml|*/.claude/skills/spike.md|*/.claude/skills/spike-results.md) echo '[PIPELINE REMINDER] You edited a pipeline file. Check if reference/PIPELINE.md needs updating.' ;; esac; exit 0"
+            "command": "file=\"$TOOL_INPUT_FILE_PATH$TOOL_INPUT_file_path\"; case \"$file\" in */scripts/validation/*.py) echo '[PIPELINE REMINDER] You edited a validation file. Check if reference/spirit-guide/VALIDATION-THRESHOLDS.md and reference/PIPELINE.md need updating.' ;; */scripts/evolve.py|*/scripts/spike_runner.py|*/scripts/strategy_engine.py|*/scripts/report.py|*/scripts/data.py|*/.github/workflows/spike.yml|*/.claude/skills/spike.md|*/.claude/skills/spike-results.md) echo '[PIPELINE REMINDER] You edited a pipeline file. Check if reference/PIPELINE.md needs updating.' ;; esac; exit 0"
           }
         ]
       }

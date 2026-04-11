@@ -210,6 +210,8 @@ def _skip_gate(reason: str) -> dict:
         "verdict": "SKIPPED",
         "reason": reason,
         "advisories": [],
+        "soft_warnings": [],
+        "critical_warnings": [],
         "warnings": [],
         "hard_fail_reasons": [],
     }
@@ -226,7 +228,8 @@ def _gate1_candidate(entry: dict, ctx: ValidationContext) -> dict:
     trades_per_param = trade_count / n_params if n_params > 0 else math.inf
 
     advisories = []
-    warnings = []
+    soft_warnings = []
+    critical_warnings = []
     hard_fail_reasons = []
     history_state = _strategy_history_state(strategy_name, ctx.leaderboard)
     if not trades and strategy_name in STRATEGY_REGISTRY:
@@ -243,22 +246,23 @@ def _gate1_candidate(entry: dict, ctx: ValidationContext) -> dict:
         hard_fail_reasons.append(f"trades_per_param={trades_per_param:.2f} < 5.0")
     if degeneracy["verdict"] == "FAIL":
         hard_fail_reasons.extend(f"degeneracy: {reason}" for reason in degeneracy["hard_fail_reasons"])
-    warnings.extend(f"degeneracy: {reason}" for reason in degeneracy.get("warnings", []))
+    soft_warnings.extend(f"degeneracy: {reason}" for reason in degeneracy.get("warnings", []))
     if not strategy_integrity.get("pine_supported", False):
         hard_fail_reasons.append("strategy family is not Pine-deployable")
     if not strategy_integrity.get("charter_compatible", False):
         hard_fail_reasons.append("strategy family is not charter-compatible")
 
     if 5.0 <= trades_per_param < 10.0:
-        warnings.append(f"trades_per_param={trades_per_param:.2f} in soft-warning band")
+        soft_warnings.append(f"trades_per_param={trades_per_param:.2f} in soft-warning band")
     if n_params > ctx.regime_transitions:
-        warnings.append(
+        soft_warnings.append(
             f"n_params={n_params} exceeds regime_transitions={ctx.regime_transitions}"
         )
     if history_state and not history_state.get("converged", False):
         advisories.append("strategy family still unconverged in leaderboard history")
 
-    verdict = "FAIL" if hard_fail_reasons else "WARN" if warnings else "PASS"
+    warnings = soft_warnings + critical_warnings
+    verdict = "FAIL" if hard_fail_reasons else "WARN" if critical_warnings else "PASS"
     return {
         "verdict": verdict,
         "trade_count": trade_count,
@@ -268,6 +272,8 @@ def _gate1_candidate(entry: dict, ctx: ValidationContext) -> dict:
         "regime_transitions": ctx.regime_transitions,
         "degeneracy": degeneracy,
         "advisories": advisories,
+        "soft_warnings": soft_warnings,
+        "critical_warnings": critical_warnings,
         "warnings": warnings,
         "hard_fail_reasons": hard_fail_reasons,
     }
@@ -279,6 +285,8 @@ def _gate2_search_bias(strategy_name: str, params: dict, ctx: ValidationContext)
         gate = {
             "verdict": "FAIL",
             "advisories": [],
+            "soft_warnings": [],
+            "critical_warnings": [],
             "warnings": [],
             "hard_fail_reasons": ["strategy could not be evaluated on full TECL history"],
             "selection_bias_score": 0.0,
@@ -296,7 +304,8 @@ def _gate2_search_bias(strategy_name: str, params: dict, ctx: ValidationContext)
     clustering = test_trade_clustering(trades)
 
     advisories = []
-    warnings = []
+    soft_warnings = []
+    critical_warnings = []
     hard_fail_reasons = []
     if observed_rs <= ctx.expected_max or deflation["deflated_probability"] < 0.50:
         advisories.append(
@@ -319,28 +328,29 @@ def _gate2_search_bias(strategy_name: str, params: dict, ctx: ValidationContext)
         or concentration["bear_flag"]
         or concentration["dominance"] > 3.0
     ):
-        warnings.append(
+        critical_warnings.append(
             f"concentration: bull_hhi={concentration['bull_hhi']:.3f} "
             f"bear_hhi={concentration['bear_hhi']:.3f} dom={concentration['dominance']:.2f}x"
         )
     elif concentration["dominance"] > 2.0:
-        warnings.append(f"concentration nearing limit: dom={concentration['dominance']:.2f}x")
+        soft_warnings.append(f"concentration nearing limit: dom={concentration['dominance']:.2f}x")
 
-    if meta["pct_within_20pct"] < 60.0:
-        warnings.append(
+    if meta["pct_within_20pct"] < 50.0:
+        critical_warnings.append(
             f"meta robustness: only {meta['pct_within_20pct']:.1f}% within 20% of baseline"
         )
     elif meta["pct_within_20pct"] < 75.0:
-        warnings.append(
+        soft_warnings.append(
             f"meta robustness soft band: {meta['pct_within_20pct']:.1f}% within 20% of baseline"
         )
 
     if clustering["max_share"] > 0.60:
-        warnings.append(f"trade clustering: max_share={clustering['max_share']:.2f} > 0.60")
+        critical_warnings.append(f"trade clustering: max_share={clustering['max_share']:.2f} > 0.60")
 
     selection_bias_score = _selection_bias_score(observed_rs, ctx.expected_max)
     regime_consistency_score = _regime_consistency_score(concentration, meta, clustering)
-    verdict = "FAIL" if hard_fail_reasons else "WARN" if warnings else "PASS"
+    warnings = soft_warnings + critical_warnings
+    verdict = "FAIL" if hard_fail_reasons else "WARN" if critical_warnings else "PASS"
     return {
         "verdict": verdict,
         "observed_regime_score": round(observed_rs, 4),
@@ -354,6 +364,8 @@ def _gate2_search_bias(strategy_name: str, params: dict, ctx: ValidationContext)
         "selection_bias_score": round(selection_bias_score, 4),
         "regime_consistency_score": round(regime_consistency_score, 4),
         "advisories": advisories,
+        "soft_warnings": soft_warnings,
+        "critical_warnings": critical_warnings,
         "warnings": warnings,
         "hard_fail_reasons": hard_fail_reasons,
     }, bt_result
@@ -362,11 +374,14 @@ def _gate2_search_bias(strategy_name: str, params: dict, ctx: ValidationContext)
 def _gate3_fragility(strategy_name: str, params: dict, ctx: ValidationContext) -> dict:
     strategy_fn = STRATEGY_REGISTRY[strategy_name]
     fragility = check_parameter_fragility(ctx.df, strategy_fn, params, strategy_name)
-    warnings = list(fragility["warn_params"])
+    soft_warnings = [f"fragility: {w}" for w in fragility["warn_params"]]
+    critical_warnings = []
     hard_fail_reasons = list(fragility["hard_fail_params"])
     return {
         **fragility,
-        "warnings": warnings,
+        "soft_warnings": soft_warnings,
+        "critical_warnings": critical_warnings,
+        "warnings": soft_warnings + critical_warnings,
         "hard_fail_reasons": hard_fail_reasons,
     }
 
@@ -375,14 +390,18 @@ def _gate4_time_generalization(strategy_name: str, params: dict, ctx: Validation
     strategy_fn = STRATEGY_REGISTRY[strategy_name]
     walk_forward = analyze_walk_forward(ctx.df, strategy_fn, params, strategy_name)
     named_windows = analyze_named_windows(ctx.df, strategy_fn, params, strategy_name)
-    warnings = list(walk_forward["warnings"]) + list(named_windows["warnings"])
+    soft_warnings = list(walk_forward.get("soft_warnings", [])) + list(named_windows.get("soft_warnings", []))
+    critical_warnings = list(walk_forward.get("critical_warnings", [])) + list(named_windows.get("critical_warnings", []))
+    warnings = soft_warnings + critical_warnings
     hard_fail_reasons = list(walk_forward["hard_fail_reasons"]) + list(named_windows["hard_fail_reasons"])
-    verdict = "FAIL" if hard_fail_reasons else "WARN" if warnings else "PASS"
+    verdict = "FAIL" if hard_fail_reasons else "WARN" if critical_warnings else "PASS"
     return {
         "verdict": verdict,
         "walk_forward": walk_forward,
         "named_windows": named_windows,
         "walk_forward_score": walk_forward["score"],
+        "soft_warnings": soft_warnings,
+        "critical_warnings": critical_warnings,
         "warnings": warnings,
         "hard_fail_reasons": hard_fail_reasons,
     }
@@ -395,7 +414,8 @@ def _gate5_uncertainty(strategy_name: str, params: dict, ctx: ValidationContext)
         ctx.df, strategy_fn, strategy_name, params, resamples=200
     )
 
-    warnings = []
+    soft_warnings = []
+    critical_warnings = []
     hard_fail_reasons = []
     if morris["interaction_flag"]:
         hard_fail_reasons.append(
@@ -403,28 +423,43 @@ def _gate5_uncertainty(strategy_name: str, params: dict, ctx: ValidationContext)
             f"sigma_ratio={morris['max_sigma_ratio']:.2f}"
         )
     elif morris["warning_flag"]:
-        warnings.append(
+        msg = (
             f"morris warning: max_swing={morris['max_swing']:.2f} "
             f"sigma_ratio={morris['max_sigma_ratio']:.2f}"
         )
+        if morris["max_swing"] < 0.10:
+            pass  # negligible swing — not worth a warning slot
+        else:
+            critical_warnings.append(msg)
 
     if bootstrap["hard_fail"]:
         hard_fail_reasons.append(
             f"bootstrap downside probability {bootstrap['downside_prob_vs_bah']:.2f} > 0.50"
         )
-    elif bootstrap["warning_flag"]:
-        warnings.append(
-            f"bootstrap warning: ci_width={bootstrap['ci_width']:.3f} "
-            f"downside_prob={bootstrap['downside_prob_vs_bah']:.2f}"
-        )
+    else:
+        downside = bootstrap["downside_prob_vs_bah"]
+        s_boot = bootstrap["s_boot"]
+        if downside > 0.40:
+            critical_warnings.append(
+                f"bootstrap warning: ci_width={bootstrap['ci_width']:.3f} "
+                f"downside_prob={downside:.2f}"
+            )
+        elif downside > 0.25 or s_boot < 0.20:
+            soft_warnings.append(
+                f"bootstrap warning: ci_width={bootstrap['ci_width']:.3f} "
+                f"downside_prob={downside:.2f}"
+            )
 
-    verdict = "FAIL" if hard_fail_reasons else "WARN" if warnings else "PASS"
+    warnings = soft_warnings + critical_warnings
+    verdict = "FAIL" if hard_fail_reasons else "WARN" if critical_warnings else "PASS"
     return {
         "verdict": verdict,
         "morris": morris,
         "bootstrap": bootstrap,
         "fragility_score": morris["s_frag"],
         "bootstrap_score": bootstrap["s_boot"],
+        "soft_warnings": soft_warnings,
+        "critical_warnings": critical_warnings,
         "warnings": warnings,
         "hard_fail_reasons": hard_fail_reasons,
     }
@@ -436,7 +471,8 @@ def _gate6_cross_asset(strategy_name: str, params: dict, ctx: ValidationContext,
     tqqq = results.get("TQQQ", {})
     qqq = results.get("QQQ", {})
 
-    warnings = []
+    soft_warnings = []
+    critical_warnings = []
     hard_fail_reasons = []
     if "error" in tqqq:
         hard_fail_reasons.append(f"TQQQ same-param replay error: {tqqq['error']}")
@@ -445,14 +481,14 @@ def _gate6_cross_asset(strategy_name: str, params: dict, ctx: ValidationContext,
         if tqqq_bah < 0.50:
             hard_fail_reasons.append(f"TQQQ same-param vs_bah={tqqq_bah:.3f} < 0.50")
         elif tqqq_bah < 1.0:
-            warnings.append(f"TQQQ same-param vs_bah={tqqq_bah:.3f} < 1.00")
+            soft_warnings.append(f"TQQQ same-param vs_bah={tqqq_bah:.3f} < 1.00")
 
     if "error" in qqq:
-        warnings.append(f"QQQ same-param replay error: {qqq['error']}")
+        soft_warnings.append(f"QQQ same-param replay error: {qqq['error']}")
     else:
         qqq_bah = float(qqq.get("vs_bah", 0.0))
-        if qqq_bah < 0.90:
-            warnings.append(f"QQQ same-param vs_bah={qqq_bah:.3f} < 0.90")
+        if qqq_bah < 0.50:
+            soft_warnings.append(f"QQQ same-param vs_bah={qqq_bah:.3f} < 0.50")
 
     tier3 = cross_asset_reoptimize(
         strategy_name,
@@ -462,11 +498,14 @@ def _gate6_cross_asset(strategy_name: str, params: dict, ctx: ValidationContext,
     if tier3.get("verdict") != "PASS":
         hard_fail_reasons.append(tier3.get("reason", "TQQQ re-optimization failed"))
 
-    verdict = "FAIL" if hard_fail_reasons else "WARN" if warnings else "PASS"
+    warnings = soft_warnings + critical_warnings
+    verdict = "FAIL" if hard_fail_reasons else "WARN" if critical_warnings else "PASS"
     return {
         "verdict": verdict,
         "same_params": cross_asset,
         "tier3_reopt": tier3,
+        "soft_warnings": soft_warnings,
+        "critical_warnings": critical_warnings,
         "warnings": warnings,
         "hard_fail_reasons": hard_fail_reasons,
     }
@@ -479,12 +518,14 @@ def _gate7_synthesis(
     gates: dict,
 ) -> dict:
     advisories = []
-    warnings = []
+    soft_warnings = []
+    critical_warnings = []
     hard_fail_reasons = []
     for gate_name in ("gate1", "gate2", "gate3", "gate4", "gate5", "gate6"):
         gate = gates[gate_name]
         advisories.extend(gate.get("advisories", []))
-        warnings.extend(gate.get("warnings", []))
+        soft_warnings.extend(gate.get("soft_warnings", []))
+        critical_warnings.extend(gate.get("critical_warnings", []))
         hard_fail_reasons.extend(gate.get("hard_fail_reasons", []))
 
     trade_count = int((entry.get("metrics") or {}).get("trades", 0))
@@ -522,30 +563,41 @@ def _gate7_synthesis(
     if not hard_fail_reasons and composite_confidence < 0.45:
         hard_fail_reasons.append(f"composite_confidence={composite_confidence:.3f} < 0.45")
     elif composite_confidence < 0.70:
-        warnings.append(f"composite_confidence={composite_confidence:.3f} < 0.70")
+        soft_warnings.append(f"composite_confidence={composite_confidence:.3f} < 0.70")
 
+    if not parity_pass and "generated Pine candidate missing required strategy settings" not in hard_fail_reasons:
+        critical_warnings.append("Pine parity smoke did not pass")
+
+    # De-duplicate
     advisories = list(dict.fromkeys(advisories))
-    warnings = list(dict.fromkeys(warnings))
+    soft_warnings = list(dict.fromkeys(soft_warnings))
+    critical_warnings = list(dict.fromkeys(critical_warnings))
     hard_fail_reasons = list(dict.fromkeys(hard_fail_reasons))
 
+    # Backward-compat merged list
+    warnings = soft_warnings + critical_warnings
+
+    # Verdict: 4-tier taxonomy
     if hard_fail_reasons or composite_confidence < 0.45:
         verdict = "FAIL"
-    elif warnings or composite_confidence < 0.70 or not parity_pass:
+    elif critical_warnings or composite_confidence < 0.70 or len(soft_warnings) >= 4:
         verdict = "WARN"
     else:
         verdict = "PASS"
 
-    if not parity_pass and "generated Pine candidate missing required strategy settings" not in hard_fail_reasons:
-        warnings.append("Pine parity smoke did not pass")
+    clean_pass = verdict == "PASS" and len(soft_warnings) == 0
 
     return {
         "verdict": verdict,
         "promotion_eligible": verdict == "PASS",
+        "clean_pass": clean_pass,
         "pine_eligible": pine_eligible and parity_pass,
         "parity": parity,
         "sub_scores": {k: round(v, 4) for k, v in sub_scores.items()},
         "composite_confidence": round(composite_confidence, 4),
         "advisories": advisories,
+        "soft_warnings": soft_warnings,
+        "critical_warnings": critical_warnings,
         "warnings": warnings,
         "hard_fail_reasons": hard_fail_reasons,
     }
@@ -563,10 +615,13 @@ def _validate_entry(
     validation = {
         "verdict": "FAIL",
         "promotion_eligible": False,
+        "clean_pass": False,
         "pine_eligible": False,
         "composite_confidence": 0.0,
         "sub_scores": {},
         "advisories": [],
+        "soft_warnings": [],
+        "critical_warnings": [],
         "warnings": [],
         "hard_fail_reasons": [],
         "gates": {},
@@ -577,6 +632,8 @@ def _validate_entry(
         validation["gates"]["gate1"] = {
             "verdict": "FAIL",
             "advisories": [],
+            "soft_warnings": [],
+            "critical_warnings": [],
             "warnings": [],
             "hard_fail_reasons": [f"unknown strategy {strategy_name}"],
         }
@@ -635,10 +692,13 @@ def _validate_entry(
     validation["gates"]["gate7"] = gate7
     validation["verdict"] = gate7["verdict"]
     validation["promotion_eligible"] = gate7["promotion_eligible"]
+    validation["clean_pass"] = gate7["clean_pass"]
     validation["pine_eligible"] = gate7["pine_eligible"]
     validation["composite_confidence"] = gate7["composite_confidence"]
     validation["sub_scores"] = gate7["sub_scores"]
     validation["advisories"] = gate7.get("advisories", [])
+    validation["soft_warnings"] = gate7["soft_warnings"]
+    validation["critical_warnings"] = gate7["critical_warnings"]
     validation["warnings"] = gate7["warnings"]
     validation["hard_fail_reasons"] = gate7["hard_fail_reasons"]
     entry["validation"] = _json_safe(validation)

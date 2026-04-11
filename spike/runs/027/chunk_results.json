@@ -1,0 +1,3536 @@
+{
+  "rankings": [
+    {
+      "strategy": "rsi_regime",
+      "fitness": 64.6486,
+      "discovery_score": 63.6407,
+      "marker_alignment_score": 0.3441,
+      "marker_alignment_detail": {
+        "score": 0.3441,
+        "state_accuracy": 0.5783,
+        "precision": 0.8319,
+        "recall": 0.5179,
+        "f1": 0.6384,
+        "transition_timing_score": 0.1595,
+        "transition_count_score": 0.0,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 34,
+        "candidate_sell_count": 35,
+        "buy_transition_matches": [
+          {
+            "target_bar": 213,
+            "nearest_bar": 263,
+            "distance_bars": 50,
+            "score": 0.0
+          },
+          {
+            "target_bar": 576,
+            "nearest_bar": 263,
+            "distance_bars": 313,
+            "score": 0.0
+          },
+          {
+            "target_bar": 951,
+            "nearest_bar": 1000,
+            "distance_bars": 49,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1416,
+            "nearest_bar": 1507,
+            "distance_bars": 91,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1908,
+            "nearest_bar": 2014,
+            "distance_bars": 106,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2561,
+            "nearest_bar": 2712,
+            "distance_bars": 151,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3270,
+            "nearest_bar": 3350,
+            "distance_bars": 80,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5036,
+            "nearest_bar": 4912,
+            "distance_bars": 124,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5347,
+            "nearest_bar": 5463,
+            "distance_bars": 116,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5733,
+            "nearest_bar": 5724,
+            "distance_bars": 9,
+            "score": 0.7
+          },
+          {
+            "target_bar": 6053,
+            "nearest_bar": 6124,
+            "distance_bars": 71,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6373,
+            "nearest_bar": 6361,
+            "distance_bars": 12,
+            "score": 0.6
+          },
+          {
+            "target_bar": 6444,
+            "nearest_bar": 6434,
+            "distance_bars": 10,
+            "score": 0.6667
+          },
+          {
+            "target_bar": 6624,
+            "nearest_bar": 6707,
+            "distance_bars": 83,
+            "score": 0.0
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 315,
+            "nearest_bar": 318,
+            "distance_bars": 3,
+            "score": 0.9
+          },
+          {
+            "target_bar": 608,
+            "nearest_bar": 318,
+            "distance_bars": 290,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1275,
+            "nearest_bar": 1266,
+            "distance_bars": 9,
+            "score": 0.7
+          },
+          {
+            "target_bar": 1831,
+            "nearest_bar": 1738,
+            "distance_bars": 93,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2225,
+            "nearest_bar": 2097,
+            "distance_bars": 128,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3052,
+            "nearest_bar": 3029,
+            "distance_bars": 23,
+            "score": 0.2333
+          },
+          {
+            "target_bar": 4977,
+            "nearest_bar": 4954,
+            "distance_bars": 23,
+            "score": 0.2333
+          },
+          {
+            "target_bar": 5324,
+            "nearest_bar": 5258,
+            "distance_bars": 66,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5706,
+            "nearest_bar": 5666,
+            "distance_bars": 40,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5793,
+            "nearest_bar": 5754,
+            "distance_bars": 39,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6338,
+            "nearest_bar": 6309,
+            "distance_bars": 29,
+            "score": 0.0333
+          },
+          {
+            "target_bar": 6429,
+            "nearest_bar": 6409,
+            "distance_bars": 20,
+            "score": 0.3333
+          },
+          {
+            "target_bar": 6579,
+            "nearest_bar": 6638,
+            "distance_bars": 59,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6755,
+            "nearest_bar": 6727,
+            "distance_bars": 28,
+            "score": 0.0667
+          }
+        ]
+      },
+      "params": {
+        "rsi_len": 11,
+        "trend_len": 50,
+        "entry_rsi": 40,
+        "exit_rsi": 75,
+        "panic_rsi": 15,
+        "cooldown": 10
+      },
+      "metrics": {
+        "vs_bah": 275.4428,
+        "cagr": 24.9,
+        "max_dd": 63.6,
+        "trades": 36,
+        "trades_yr": 1.3
+      }
+    },
+    {
+      "strategy": "momentum_stayer",
+      "fitness": 59.7404,
+      "discovery_score": 59.5295,
+      "marker_alignment_score": 0.4647,
+      "marker_alignment_detail": {
+        "score": 0.4647,
+        "state_accuracy": 0.755,
+        "precision": 0.9164,
+        "recall": 0.7252,
+        "f1": 0.8097,
+        "transition_timing_score": 0.294,
+        "transition_count_score": 0.0,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 50,
+        "candidate_sell_count": 50,
+        "buy_transition_matches": [
+          {
+            "target_bar": 213,
+            "nearest_bar": 286,
+            "distance_bars": 73,
+            "score": 0.0
+          },
+          {
+            "target_bar": 576,
+            "nearest_bar": 333,
+            "distance_bars": 243,
+            "score": 0.0
+          },
+          {
+            "target_bar": 951,
+            "nearest_bar": 1100,
+            "distance_bars": 149,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1416,
+            "nearest_bar": 1474,
+            "distance_bars": 58,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1908,
+            "nearest_bar": 1943,
+            "distance_bars": 35,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2561,
+            "nearest_bar": 2622,
+            "distance_bars": 61,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3270,
+            "nearest_bar": 3288,
+            "distance_bars": 18,
+            "score": 0.4
+          },
+          {
+            "target_bar": 5036,
+            "nearest_bar": 5086,
+            "distance_bars": 50,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5347,
+            "nearest_bar": 5404,
+            "distance_bars": 57,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5733,
+            "nearest_bar": 5744,
+            "distance_bars": 11,
+            "score": 0.6333
+          },
+          {
+            "target_bar": 6053,
+            "nearest_bar": 6074,
+            "distance_bars": 21,
+            "score": 0.3
+          },
+          {
+            "target_bar": 6373,
+            "nearest_bar": 6448,
+            "distance_bars": 75,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6444,
+            "nearest_bar": 6448,
+            "distance_bars": 4,
+            "score": 0.8667
+          },
+          {
+            "target_bar": 6624,
+            "nearest_bar": 6660,
+            "distance_bars": 36,
+            "score": 0.0
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 315,
+            "nearest_bar": 323,
+            "distance_bars": 8,
+            "score": 0.7333
+          },
+          {
+            "target_bar": 608,
+            "nearest_bar": 335,
+            "distance_bars": 273,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1275,
+            "nearest_bar": 1327,
+            "distance_bars": 52,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1831,
+            "nearest_bar": 1860,
+            "distance_bars": 29,
+            "score": 0.0333
+          },
+          {
+            "target_bar": 2225,
+            "nearest_bar": 2234,
+            "distance_bars": 9,
+            "score": 0.7
+          },
+          {
+            "target_bar": 3052,
+            "nearest_bar": 3073,
+            "distance_bars": 21,
+            "score": 0.3
+          },
+          {
+            "target_bar": 4977,
+            "nearest_bar": 4983,
+            "distance_bars": 6,
+            "score": 0.8
+          },
+          {
+            "target_bar": 5324,
+            "nearest_bar": 5326,
+            "distance_bars": 2,
+            "score": 0.9333
+          },
+          {
+            "target_bar": 5706,
+            "nearest_bar": 5734,
+            "distance_bars": 28,
+            "score": 0.0667
+          },
+          {
+            "target_bar": 5793,
+            "nearest_bar": 5798,
+            "distance_bars": 5,
+            "score": 0.8333
+          },
+          {
+            "target_bar": 6338,
+            "nearest_bar": 6249,
+            "distance_bars": 89,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6429,
+            "nearest_bar": 6437,
+            "distance_bars": 8,
+            "score": 0.7333
+          },
+          {
+            "target_bar": 6579,
+            "nearest_bar": 6582,
+            "distance_bars": 3,
+            "score": 0.9
+          },
+          {
+            "target_bar": 6755,
+            "nearest_bar": 6582,
+            "distance_bars": 173,
+            "score": 0.0
+          }
+        ]
+      },
+      "params": {
+        "rsi_len": 7,
+        "vol_long": 110,
+        "exit_rsi": 40.0,
+        "vol_exit_ratio": 1.2,
+        "slow_ema": 90,
+        "vol_short": 20,
+        "cooldown": 10,
+        "roc_period": 70,
+        "fast_ema": 40
+      },
+      "metrics": {
+        "vs_bah": 203.2779,
+        "cagr": 23.5,
+        "max_dd": 43.3,
+        "trades": 52,
+        "trades_yr": 1.9
+      }
+    },
+    {
+      "strategy": "breakout",
+      "fitness": 54.2697,
+      "discovery_score": 54.1389,
+      "marker_alignment_score": 0.4759,
+      "marker_alignment_detail": {
+        "score": 0.4759,
+        "state_accuracy": 0.8057,
+        "precision": 0.9155,
+        "recall": 0.8039,
+        "f1": 0.8561,
+        "transition_timing_score": 0.2417,
+        "transition_count_score": 0.0,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 32,
+        "candidate_sell_count": 32,
+        "buy_transition_matches": [
+          {
+            "target_bar": 213,
+            "nearest_bar": 264,
+            "distance_bars": 51,
+            "score": 0.0
+          },
+          {
+            "target_bar": 576,
+            "nearest_bar": 281,
+            "distance_bars": 295,
+            "score": 0.0
+          },
+          {
+            "target_bar": 951,
+            "nearest_bar": 1110,
+            "distance_bars": 159,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1416,
+            "nearest_bar": 1454,
+            "distance_bars": 38,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1908,
+            "nearest_bar": 1941,
+            "distance_bars": 33,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2561,
+            "nearest_bar": 2602,
+            "distance_bars": 41,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3270,
+            "nearest_bar": 3241,
+            "distance_bars": 29,
+            "score": 0.0333
+          },
+          {
+            "target_bar": 5036,
+            "nearest_bar": 5098,
+            "distance_bars": 62,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5347,
+            "nearest_bar": 5437,
+            "distance_bars": 90,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5733,
+            "nearest_bar": 5735,
+            "distance_bars": 2,
+            "score": 0.9333
+          },
+          {
+            "target_bar": 6053,
+            "nearest_bar": 6078,
+            "distance_bars": 25,
+            "score": 0.1667
+          },
+          {
+            "target_bar": 6373,
+            "nearest_bar": 6493,
+            "distance_bars": 120,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6444,
+            "nearest_bar": 6493,
+            "distance_bars": 49,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6624,
+            "nearest_bar": 6665,
+            "distance_bars": 41,
+            "score": 0.0
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 315,
+            "nearest_bar": 323,
+            "distance_bars": 8,
+            "score": 0.7333
+          },
+          {
+            "target_bar": 608,
+            "nearest_bar": 323,
+            "distance_bars": 285,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1275,
+            "nearest_bar": 1286,
+            "distance_bars": 11,
+            "score": 0.6333
+          },
+          {
+            "target_bar": 1831,
+            "nearest_bar": 1857,
+            "distance_bars": 26,
+            "score": 0.1333
+          },
+          {
+            "target_bar": 2225,
+            "nearest_bar": 2233,
+            "distance_bars": 8,
+            "score": 0.7333
+          },
+          {
+            "target_bar": 3052,
+            "nearest_bar": 3169,
+            "distance_bars": 117,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4977,
+            "nearest_bar": 4983,
+            "distance_bars": 6,
+            "score": 0.8
+          },
+          {
+            "target_bar": 5324,
+            "nearest_bar": 5326,
+            "distance_bars": 2,
+            "score": 0.9333
+          },
+          {
+            "target_bar": 5706,
+            "nearest_bar": 5729,
+            "distance_bars": 23,
+            "score": 0.2333
+          },
+          {
+            "target_bar": 5793,
+            "nearest_bar": 5830,
+            "distance_bars": 37,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6338,
+            "nearest_bar": 6432,
+            "distance_bars": 94,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6429,
+            "nearest_bar": 6432,
+            "distance_bars": 3,
+            "score": 0.9
+          },
+          {
+            "target_bar": 6579,
+            "nearest_bar": 6593,
+            "distance_bars": 14,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 6755,
+            "nearest_bar": 6593,
+            "distance_bars": 162,
+            "score": 0.0
+          }
+        ]
+      },
+      "params": {
+        "lookback": 120,
+        "breakout_pct": 0.85,
+        "trail_pct": 30,
+        "atr_period": 20,
+        "atr_mult": 2.0,
+        "cooldown": 0
+      },
+      "metrics": {
+        "vs_bah": 125.8023,
+        "cagr": 21.4,
+        "max_dd": 54.7,
+        "trades": 69,
+        "trades_yr": 2.5
+      }
+    },
+    {
+      "strategy": "montauk_821",
+      "fitness": 53.1531,
+      "discovery_score": 51.9279,
+      "marker_alignment_score": 0.2695,
+      "marker_alignment_detail": {
+        "score": 0.2695,
+        "state_accuracy": 0.4418,
+        "precision": 0.7872,
+        "recall": 0.306,
+        "f1": 0.4407,
+        "transition_timing_score": 0.1952,
+        "transition_count_score": 0.0,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 70,
+        "candidate_sell_count": 71,
+        "buy_transition_matches": [
+          {
+            "target_bar": 213,
+            "nearest_bar": 276,
+            "distance_bars": 63,
+            "score": 0.0
+          },
+          {
+            "target_bar": 576,
+            "nearest_bar": 327,
+            "distance_bars": 249,
+            "score": 0.0
+          },
+          {
+            "target_bar": 951,
+            "nearest_bar": 1156,
+            "distance_bars": 205,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1416,
+            "nearest_bar": 1511,
+            "distance_bars": 95,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1908,
+            "nearest_bar": 1844,
+            "distance_bars": 64,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2561,
+            "nearest_bar": 2650,
+            "distance_bars": 89,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3270,
+            "nearest_bar": 3250,
+            "distance_bars": 20,
+            "score": 0.3333
+          },
+          {
+            "target_bar": 5036,
+            "nearest_bar": 4980,
+            "distance_bars": 56,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5347,
+            "nearest_bar": 5327,
+            "distance_bars": 20,
+            "score": 0.3333
+          },
+          {
+            "target_bar": 5733,
+            "nearest_bar": 5722,
+            "distance_bars": 11,
+            "score": 0.6333
+          },
+          {
+            "target_bar": 6053,
+            "nearest_bar": 6092,
+            "distance_bars": 39,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6373,
+            "nearest_bar": 6360,
+            "distance_bars": 13,
+            "score": 0.5667
+          },
+          {
+            "target_bar": 6444,
+            "nearest_bar": 6435,
+            "distance_bars": 9,
+            "score": 0.7
+          },
+          {
+            "target_bar": 6624,
+            "nearest_bar": 6547,
+            "distance_bars": 77,
+            "score": 0.0
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 315,
+            "nearest_bar": 334,
+            "distance_bars": 19,
+            "score": 0.3667
+          },
+          {
+            "target_bar": 608,
+            "nearest_bar": 334,
+            "distance_bars": 274,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1275,
+            "nearest_bar": 1245,
+            "distance_bars": 30,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1831,
+            "nearest_bar": 1808,
+            "distance_bars": 23,
+            "score": 0.2333
+          },
+          {
+            "target_bar": 2225,
+            "nearest_bar": 2189,
+            "distance_bars": 36,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3052,
+            "nearest_bar": 3106,
+            "distance_bars": 54,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4977,
+            "nearest_bar": 4983,
+            "distance_bars": 6,
+            "score": 0.8
+          },
+          {
+            "target_bar": 5324,
+            "nearest_bar": 5338,
+            "distance_bars": 14,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 5706,
+            "nearest_bar": 5746,
+            "distance_bars": 40,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5793,
+            "nearest_bar": 5746,
+            "distance_bars": 47,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6338,
+            "nearest_bar": 6390,
+            "distance_bars": 52,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6429,
+            "nearest_bar": 6390,
+            "distance_bars": 39,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6579,
+            "nearest_bar": 6580,
+            "distance_bars": 1,
+            "score": 0.9667
+          },
+          {
+            "target_bar": 6755,
+            "nearest_bar": 6721,
+            "distance_bars": 34,
+            "score": 0.0
+          }
+        ]
+      },
+      "params": {
+        "med_ema": 15,
+        "short_ema": 17,
+        "quick_thresh": -13.0,
+        "atr_mult": 3.5,
+        "sell_buffer": 0.2,
+        "atr_period": 50,
+        "quick_ema": 21,
+        "quick_lookback": 7,
+        "trend_ema": 110,
+        "cooldown": 5,
+        "slope_lookback": 7
+      },
+      "metrics": {
+        "vs_bah": 167.022,
+        "cagr": 22.6,
+        "max_dd": 44.5,
+        "trades": 77,
+        "trades_yr": 2.8
+      }
+    },
+    {
+      "strategy": "dual_momentum",
+      "fitness": 45.0464,
+      "discovery_score": 44.9757,
+      "marker_alignment_score": 0.4843,
+      "marker_alignment_detail": {
+        "score": 0.4843,
+        "state_accuracy": 0.7391,
+        "precision": 0.926,
+        "recall": 0.6923,
+        "f1": 0.7923,
+        "transition_timing_score": 0.406,
+        "transition_count_score": 0.0,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 61,
+        "candidate_sell_count": 60,
+        "buy_transition_matches": [
+          {
+            "target_bar": 213,
+            "nearest_bar": 218,
+            "distance_bars": 5,
+            "score": 0.8333
+          },
+          {
+            "target_bar": 576,
+            "nearest_bar": 394,
+            "distance_bars": 182,
+            "score": 0.0
+          },
+          {
+            "target_bar": 951,
+            "nearest_bar": 1110,
+            "distance_bars": 159,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1416,
+            "nearest_bar": 1453,
+            "distance_bars": 37,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1908,
+            "nearest_bar": 1931,
+            "distance_bars": 23,
+            "score": 0.2333
+          },
+          {
+            "target_bar": 2561,
+            "nearest_bar": 2623,
+            "distance_bars": 62,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3270,
+            "nearest_bar": 3263,
+            "distance_bars": 7,
+            "score": 0.7667
+          },
+          {
+            "target_bar": 5036,
+            "nearest_bar": 5070,
+            "distance_bars": 34,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5347,
+            "nearest_bar": 5395,
+            "distance_bars": 48,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5733,
+            "nearest_bar": 5742,
+            "distance_bars": 9,
+            "score": 0.7
+          },
+          {
+            "target_bar": 6053,
+            "nearest_bar": 6094,
+            "distance_bars": 41,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6373,
+            "nearest_bar": 6388,
+            "distance_bars": 15,
+            "score": 0.5
+          },
+          {
+            "target_bar": 6444,
+            "nearest_bar": 6452,
+            "distance_bars": 8,
+            "score": 0.7333
+          },
+          {
+            "target_bar": 6624,
+            "nearest_bar": 6647,
+            "distance_bars": 23,
+            "score": 0.2333
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 315,
+            "nearest_bar": 329,
+            "distance_bars": 14,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 608,
+            "nearest_bar": 400,
+            "distance_bars": 208,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1275,
+            "nearest_bar": 1310,
+            "distance_bars": 35,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1831,
+            "nearest_bar": 1848,
+            "distance_bars": 17,
+            "score": 0.4333
+          },
+          {
+            "target_bar": 2225,
+            "nearest_bar": 2220,
+            "distance_bars": 5,
+            "score": 0.8333
+          },
+          {
+            "target_bar": 3052,
+            "nearest_bar": 3061,
+            "distance_bars": 9,
+            "score": 0.7
+          },
+          {
+            "target_bar": 4977,
+            "nearest_bar": 4983,
+            "distance_bars": 6,
+            "score": 0.8
+          },
+          {
+            "target_bar": 5324,
+            "nearest_bar": 5326,
+            "distance_bars": 2,
+            "score": 0.9333
+          },
+          {
+            "target_bar": 5706,
+            "nearest_bar": 5729,
+            "distance_bars": 23,
+            "score": 0.2333
+          },
+          {
+            "target_bar": 5793,
+            "nearest_bar": 5806,
+            "distance_bars": 13,
+            "score": 0.5667
+          },
+          {
+            "target_bar": 6338,
+            "nearest_bar": 6371,
+            "distance_bars": 33,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6429,
+            "nearest_bar": 6432,
+            "distance_bars": 3,
+            "score": 0.9
+          },
+          {
+            "target_bar": 6579,
+            "nearest_bar": 6583,
+            "distance_bars": 4,
+            "score": 0.8667
+          },
+          {
+            "target_bar": 6755,
+            "nearest_bar": 6742,
+            "distance_bars": 13,
+            "score": 0.5667
+          }
+        ]
+      },
+      "params": {
+        "abs_period": 60,
+        "short_thresh": 0.0,
+        "abs_exit": -8.0,
+        "atr_mult": 2.5,
+        "short_exit": -15.0,
+        "atr_period": 20,
+        "trend_len": 125,
+        "cooldown": 5,
+        "short_period": 15,
+        "abs_thresh": 0.0
+      },
+      "metrics": {
+        "vs_bah": 136.729,
+        "cagr": 21.7,
+        "max_dd": 55.0,
+        "trades": 67,
+        "trades_yr": 2.5
+      }
+    },
+    {
+      "strategy": "ema_regime",
+      "fitness": 38.9213,
+      "discovery_score": 39.2179,
+      "marker_alignment_score": 0.5762,
+      "marker_alignment_detail": {
+        "score": 0.5762,
+        "state_accuracy": 0.7668,
+        "precision": 0.8948,
+        "recall": 0.7654,
+        "f1": 0.8251,
+        "transition_timing_score": 0.0702,
+        "transition_count_score": 0.6429,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 19,
+        "candidate_sell_count": 19,
+        "buy_transition_matches": [
+          {
+            "target_bar": 213,
+            "nearest_bar": 1099,
+            "distance_bars": 886,
+            "score": 0.0
+          },
+          {
+            "target_bar": 576,
+            "nearest_bar": 1099,
+            "distance_bars": 523,
+            "score": 0.0
+          },
+          {
+            "target_bar": 951,
+            "nearest_bar": 1099,
+            "distance_bars": 148,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1416,
+            "nearest_bar": 1474,
+            "distance_bars": 58,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1908,
+            "nearest_bar": 1943,
+            "distance_bars": 35,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2561,
+            "nearest_bar": 2609,
+            "distance_bars": 48,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3270,
+            "nearest_bar": 3287,
+            "distance_bars": 17,
+            "score": 0.4333
+          },
+          {
+            "target_bar": 5036,
+            "nearest_bar": 5084,
+            "distance_bars": 48,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5347,
+            "nearest_bar": 5401,
+            "distance_bars": 54,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5733,
+            "nearest_bar": 5401,
+            "distance_bars": 332,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6053,
+            "nearest_bar": 6072,
+            "distance_bars": 19,
+            "score": 0.3667
+          },
+          {
+            "target_bar": 6373,
+            "nearest_bar": 6263,
+            "distance_bars": 110,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6444,
+            "nearest_bar": 6490,
+            "distance_bars": 46,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6624,
+            "nearest_bar": 6659,
+            "distance_bars": 35,
+            "score": 0.0
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 315,
+            "nearest_bar": 353,
+            "distance_bars": 38,
+            "score": 0.0
+          },
+          {
+            "target_bar": 608,
+            "nearest_bar": 353,
+            "distance_bars": 255,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1275,
+            "nearest_bar": 1326,
+            "distance_bars": 51,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1831,
+            "nearest_bar": 1719,
+            "distance_bars": 112,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2225,
+            "nearest_bar": 2257,
+            "distance_bars": 32,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3052,
+            "nearest_bar": 3139,
+            "distance_bars": 87,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4977,
+            "nearest_bar": 4999,
+            "distance_bars": 22,
+            "score": 0.2667
+          },
+          {
+            "target_bar": 5324,
+            "nearest_bar": 5348,
+            "distance_bars": 24,
+            "score": 0.2
+          },
+          {
+            "target_bar": 5706,
+            "nearest_bar": 5821,
+            "distance_bars": 115,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5793,
+            "nearest_bar": 5821,
+            "distance_bars": 28,
+            "score": 0.0667
+          },
+          {
+            "target_bar": 6338,
+            "nearest_bar": 6243,
+            "distance_bars": 95,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6429,
+            "nearest_bar": 6456,
+            "distance_bars": 27,
+            "score": 0.1
+          },
+          {
+            "target_bar": 6579,
+            "nearest_bar": 6593,
+            "distance_bars": 14,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 6755,
+            "nearest_bar": 6593,
+            "distance_bars": 162,
+            "score": 0.0
+          }
+        ]
+      },
+      "params": {
+        "exit_confirm": 8,
+        "entry_confirm": 2,
+        "cooldown": 20,
+        "slow_ema": 80,
+        "fast_ema": 40
+      },
+      "metrics": {
+        "vs_bah": 281.6495,
+        "cagr": 25.0,
+        "max_dd": 75.1,
+        "trades": 20,
+        "trades_yr": 0.7
+      }
+    },
+    {
+      "strategy": "vix_trend_regime",
+      "fitness": 27.6828,
+      "discovery_score": 27.5139,
+      "marker_alignment_score": 0.439,
+      "marker_alignment_detail": {
+        "score": 0.439,
+        "state_accuracy": 0.6713,
+        "precision": 0.9358,
+        "recall": 0.5825,
+        "f1": 0.718,
+        "transition_timing_score": 0.3667,
+        "transition_count_score": 0.0,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 66,
+        "candidate_sell_count": 66,
+        "buy_transition_matches": [
+          {
+            "target_bar": 213,
+            "nearest_bar": 227,
+            "distance_bars": 14,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 576,
+            "nearest_bar": 282,
+            "distance_bars": 294,
+            "score": 0.0
+          },
+          {
+            "target_bar": 951,
+            "nearest_bar": 992,
+            "distance_bars": 41,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1416,
+            "nearest_bar": 1476,
+            "distance_bars": 60,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1908,
+            "nearest_bar": 1939,
+            "distance_bars": 31,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2561,
+            "nearest_bar": 2603,
+            "distance_bars": 42,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3270,
+            "nearest_bar": 3285,
+            "distance_bars": 15,
+            "score": 0.5
+          },
+          {
+            "target_bar": 5036,
+            "nearest_bar": 5077,
+            "distance_bars": 41,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5347,
+            "nearest_bar": 5397,
+            "distance_bars": 50,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5733,
+            "nearest_bar": 5740,
+            "distance_bars": 7,
+            "score": 0.7667
+          },
+          {
+            "target_bar": 6053,
+            "nearest_bar": 6069,
+            "distance_bars": 16,
+            "score": 0.4667
+          },
+          {
+            "target_bar": 6373,
+            "nearest_bar": 6385,
+            "distance_bars": 12,
+            "score": 0.6
+          },
+          {
+            "target_bar": 6444,
+            "nearest_bar": 6385,
+            "distance_bars": 59,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6624,
+            "nearest_bar": 6654,
+            "distance_bars": 30,
+            "score": 0.0
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 315,
+            "nearest_bar": 325,
+            "distance_bars": 10,
+            "score": 0.6667
+          },
+          {
+            "target_bar": 608,
+            "nearest_bar": 325,
+            "distance_bars": 283,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1275,
+            "nearest_bar": 1311,
+            "distance_bars": 36,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1831,
+            "nearest_bar": 1848,
+            "distance_bars": 17,
+            "score": 0.4333
+          },
+          {
+            "target_bar": 2225,
+            "nearest_bar": 2220,
+            "distance_bars": 5,
+            "score": 0.8333
+          },
+          {
+            "target_bar": 3052,
+            "nearest_bar": 3061,
+            "distance_bars": 9,
+            "score": 0.7
+          },
+          {
+            "target_bar": 4977,
+            "nearest_bar": 4981,
+            "distance_bars": 4,
+            "score": 0.8667
+          },
+          {
+            "target_bar": 5324,
+            "nearest_bar": 5307,
+            "distance_bars": 17,
+            "score": 0.4333
+          },
+          {
+            "target_bar": 5706,
+            "nearest_bar": 5701,
+            "distance_bars": 5,
+            "score": 0.8333
+          },
+          {
+            "target_bar": 5793,
+            "nearest_bar": 5808,
+            "distance_bars": 15,
+            "score": 0.5
+          },
+          {
+            "target_bar": 6338,
+            "nearest_bar": 6367,
+            "distance_bars": 29,
+            "score": 0.0333
+          },
+          {
+            "target_bar": 6429,
+            "nearest_bar": 6433,
+            "distance_bars": 4,
+            "score": 0.8667
+          },
+          {
+            "target_bar": 6579,
+            "nearest_bar": 6569,
+            "distance_bars": 10,
+            "score": 0.6667
+          },
+          {
+            "target_bar": 6755,
+            "nearest_bar": 6742,
+            "distance_bars": 13,
+            "score": 0.5667
+          }
+        ]
+      },
+      "params": {
+        "atr_mult": 2.5,
+        "long_ema": 80,
+        "vix_exit_ratio": 1.2,
+        "vix_slow_len": 40,
+        "vix_entry_ratio": 0.95,
+        "cooldown": 15,
+        "short_ema": 30,
+        "atr_period": 10
+      },
+      "metrics": {
+        "vs_bah": 57.1456,
+        "cagr": 17.9,
+        "max_dd": 47.6,
+        "trades": 69,
+        "trades_yr": 2.5
+      }
+    },
+    {
+      "strategy": "rsi_recovery",
+      "fitness": 25.5026,
+      "discovery_score": 25.3114,
+      "marker_alignment_score": 0.425,
+      "marker_alignment_detail": {
+        "score": 0.425,
+        "state_accuracy": 0.7078,
+        "precision": 0.8972,
+        "recall": 0.6701,
+        "f1": 0.7672,
+        "transition_timing_score": 0.225,
+        "transition_count_score": 0.0,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 32,
+        "candidate_sell_count": 32,
+        "buy_transition_matches": [
+          {
+            "target_bar": 213,
+            "nearest_bar": 365,
+            "distance_bars": 152,
+            "score": 0.0
+          },
+          {
+            "target_bar": 576,
+            "nearest_bar": 365,
+            "distance_bars": 211,
+            "score": 0.0
+          },
+          {
+            "target_bar": 951,
+            "nearest_bar": 1178,
+            "distance_bars": 227,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1416,
+            "nearest_bar": 1453,
+            "distance_bars": 37,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1908,
+            "nearest_bar": 1932,
+            "distance_bars": 24,
+            "score": 0.2
+          },
+          {
+            "target_bar": 2561,
+            "nearest_bar": 2657,
+            "distance_bars": 96,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3270,
+            "nearest_bar": 3224,
+            "distance_bars": 46,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5036,
+            "nearest_bar": 5073,
+            "distance_bars": 37,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5347,
+            "nearest_bar": 5386,
+            "distance_bars": 39,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5733,
+            "nearest_bar": 5853,
+            "distance_bars": 120,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6053,
+            "nearest_bar": 6070,
+            "distance_bars": 17,
+            "score": 0.4333
+          },
+          {
+            "target_bar": 6373,
+            "nearest_bar": 6438,
+            "distance_bars": 65,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6444,
+            "nearest_bar": 6438,
+            "distance_bars": 6,
+            "score": 0.8
+          },
+          {
+            "target_bar": 6624,
+            "nearest_bar": 6638,
+            "distance_bars": 14,
+            "score": 0.5333
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 315,
+            "nearest_bar": 331,
+            "distance_bars": 16,
+            "score": 0.4667
+          },
+          {
+            "target_bar": 608,
+            "nearest_bar": 403,
+            "distance_bars": 205,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1275,
+            "nearest_bar": 1310,
+            "distance_bars": 35,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1831,
+            "nearest_bar": 1857,
+            "distance_bars": 26,
+            "score": 0.1333
+          },
+          {
+            "target_bar": 2225,
+            "nearest_bar": 2236,
+            "distance_bars": 11,
+            "score": 0.6333
+          },
+          {
+            "target_bar": 3052,
+            "nearest_bar": 3077,
+            "distance_bars": 25,
+            "score": 0.1667
+          },
+          {
+            "target_bar": 4977,
+            "nearest_bar": 4983,
+            "distance_bars": 6,
+            "score": 0.8
+          },
+          {
+            "target_bar": 5324,
+            "nearest_bar": 5329,
+            "distance_bars": 5,
+            "score": 0.8333
+          },
+          {
+            "target_bar": 5706,
+            "nearest_bar": 5808,
+            "distance_bars": 102,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5793,
+            "nearest_bar": 5808,
+            "distance_bars": 15,
+            "score": 0.5
+          },
+          {
+            "target_bar": 6338,
+            "nearest_bar": 6372,
+            "distance_bars": 34,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6429,
+            "nearest_bar": 6441,
+            "distance_bars": 12,
+            "score": 0.6
+          },
+          {
+            "target_bar": 6579,
+            "nearest_bar": 6555,
+            "distance_bars": 24,
+            "score": 0.2
+          },
+          {
+            "target_bar": 6755,
+            "nearest_bar": 6555,
+            "distance_bars": 200,
+            "score": 0.0
+          }
+        ]
+      },
+      "params": {
+        "rsi_len": 21,
+        "panic_rsi": 25,
+        "cooldown": 10,
+        "trend_len": 200,
+        "entry_rsi": 40
+      },
+      "metrics": {
+        "vs_bah": 79.2452,
+        "cagr": 19.3,
+        "max_dd": 61.0,
+        "trades": 33,
+        "trades_yr": 1.2
+      }
+    },
+    {
+      "strategy": "rsi_vol_regime",
+      "fitness": 24.9351,
+      "discovery_score": 24.4324,
+      "marker_alignment_score": 0.2984,
+      "marker_alignment_detail": {
+        "score": 0.2984,
+        "state_accuracy": 0.5051,
+        "precision": 0.8065,
+        "recall": 0.4096,
+        "f1": 0.5433,
+        "transition_timing_score": 0.1452,
+        "transition_count_score": 0.0,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 48,
+        "candidate_sell_count": 49,
+        "buy_transition_matches": [
+          {
+            "target_bar": 213,
+            "nearest_bar": 263,
+            "distance_bars": 50,
+            "score": 0.0
+          },
+          {
+            "target_bar": 576,
+            "nearest_bar": 324,
+            "distance_bars": 252,
+            "score": 0.0
+          },
+          {
+            "target_bar": 951,
+            "nearest_bar": 1149,
+            "distance_bars": 198,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1416,
+            "nearest_bar": 1507,
+            "distance_bars": 91,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1908,
+            "nearest_bar": 2014,
+            "distance_bars": 106,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2561,
+            "nearest_bar": 2712,
+            "distance_bars": 151,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3270,
+            "nearest_bar": 3350,
+            "distance_bars": 80,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5036,
+            "nearest_bar": 5130,
+            "distance_bars": 94,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5347,
+            "nearest_bar": 5463,
+            "distance_bars": 116,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5733,
+            "nearest_bar": 5724,
+            "distance_bars": 9,
+            "score": 0.7
+          },
+          {
+            "target_bar": 6053,
+            "nearest_bar": 6124,
+            "distance_bars": 71,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6373,
+            "nearest_bar": 6361,
+            "distance_bars": 12,
+            "score": 0.6
+          },
+          {
+            "target_bar": 6444,
+            "nearest_bar": 6434,
+            "distance_bars": 10,
+            "score": 0.6667
+          },
+          {
+            "target_bar": 6624,
+            "nearest_bar": 6707,
+            "distance_bars": 83,
+            "score": 0.0
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 315,
+            "nearest_bar": 316,
+            "distance_bars": 1,
+            "score": 0.9667
+          },
+          {
+            "target_bar": 608,
+            "nearest_bar": 429,
+            "distance_bars": 179,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1275,
+            "nearest_bar": 1265,
+            "distance_bars": 10,
+            "score": 0.6667
+          },
+          {
+            "target_bar": 1831,
+            "nearest_bar": 1774,
+            "distance_bars": 57,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2225,
+            "nearest_bar": 2203,
+            "distance_bars": 22,
+            "score": 0.2667
+          },
+          {
+            "target_bar": 3052,
+            "nearest_bar": 3019,
+            "distance_bars": 33,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4977,
+            "nearest_bar": 4952,
+            "distance_bars": 25,
+            "score": 0.1667
+          },
+          {
+            "target_bar": 5324,
+            "nearest_bar": 5254,
+            "distance_bars": 70,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5706,
+            "nearest_bar": 5752,
+            "distance_bars": 46,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5793,
+            "nearest_bar": 5752,
+            "distance_bars": 41,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6338,
+            "nearest_bar": 6309,
+            "distance_bars": 29,
+            "score": 0.0333
+          },
+          {
+            "target_bar": 6429,
+            "nearest_bar": 6390,
+            "distance_bars": 39,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6579,
+            "nearest_bar": 6637,
+            "distance_bars": 58,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6755,
+            "nearest_bar": 6723,
+            "distance_bars": 32,
+            "score": 0.0
+          }
+        ]
+      },
+      "params": {
+        "rsi_len": 11,
+        "vol_long": 60,
+        "exit_rsi": 70,
+        "vol_ratio_max": 1.2,
+        "vol_exit_ratio": 1.4,
+        "vol_short": 30,
+        "panic_rsi": 15,
+        "trend_len": 150,
+        "cooldown": 0,
+        "entry_rsi": 40
+      },
+      "metrics": {
+        "vs_bah": 136.968,
+        "cagr": 21.8,
+        "max_dd": 63.6,
+        "trades": 52,
+        "trades_yr": 1.9
+      }
+    },
+    {
+      "strategy": "slope_persistence",
+      "fitness": 21.9774,
+      "discovery_score": 21.9038,
+      "marker_alignment_score": 0.4665,
+      "marker_alignment_detail": {
+        "score": 0.4665,
+        "state_accuracy": 0.724,
+        "precision": 0.8963,
+        "recall": 0.6965,
+        "f1": 0.7839,
+        "transition_timing_score": 0.3583,
+        "transition_count_score": 0.0,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 57,
+        "candidate_sell_count": 57,
+        "buy_transition_matches": [
+          {
+            "target_bar": 213,
+            "nearest_bar": 221,
+            "distance_bars": 8,
+            "score": 0.7333
+          },
+          {
+            "target_bar": 576,
+            "nearest_bar": 430,
+            "distance_bars": 146,
+            "score": 0.0
+          },
+          {
+            "target_bar": 951,
+            "nearest_bar": 987,
+            "distance_bars": 36,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1416,
+            "nearest_bar": 1385,
+            "distance_bars": 31,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1908,
+            "nearest_bar": 1930,
+            "distance_bars": 22,
+            "score": 0.2667
+          },
+          {
+            "target_bar": 2561,
+            "nearest_bar": 2592,
+            "distance_bars": 31,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3270,
+            "nearest_bar": 3284,
+            "distance_bars": 14,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 5036,
+            "nearest_bar": 5068,
+            "distance_bars": 32,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5347,
+            "nearest_bar": 5327,
+            "distance_bars": 20,
+            "score": 0.3333
+          },
+          {
+            "target_bar": 5733,
+            "nearest_bar": 5945,
+            "distance_bars": 212,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6053,
+            "nearest_bar": 6065,
+            "distance_bars": 12,
+            "score": 0.6
+          },
+          {
+            "target_bar": 6373,
+            "nearest_bar": 6400,
+            "distance_bars": 27,
+            "score": 0.1
+          },
+          {
+            "target_bar": 6444,
+            "nearest_bar": 6460,
+            "distance_bars": 16,
+            "score": 0.4667
+          },
+          {
+            "target_bar": 6624,
+            "nearest_bar": 6642,
+            "distance_bars": 18,
+            "score": 0.4
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 315,
+            "nearest_bar": 323,
+            "distance_bars": 8,
+            "score": 0.7333
+          },
+          {
+            "target_bar": 608,
+            "nearest_bar": 761,
+            "distance_bars": 153,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1275,
+            "nearest_bar": 1318,
+            "distance_bars": 43,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1831,
+            "nearest_bar": 1848,
+            "distance_bars": 17,
+            "score": 0.4333
+          },
+          {
+            "target_bar": 2225,
+            "nearest_bar": 2220,
+            "distance_bars": 5,
+            "score": 0.8333
+          },
+          {
+            "target_bar": 3052,
+            "nearest_bar": 3061,
+            "distance_bars": 9,
+            "score": 0.7
+          },
+          {
+            "target_bar": 4977,
+            "nearest_bar": 4983,
+            "distance_bars": 6,
+            "score": 0.8
+          },
+          {
+            "target_bar": 5324,
+            "nearest_bar": 5329,
+            "distance_bars": 5,
+            "score": 0.8333
+          },
+          {
+            "target_bar": 5706,
+            "nearest_bar": 5814,
+            "distance_bars": 108,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5793,
+            "nearest_bar": 5814,
+            "distance_bars": 21,
+            "score": 0.3
+          },
+          {
+            "target_bar": 6338,
+            "nearest_bar": 6380,
+            "distance_bars": 42,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6429,
+            "nearest_bar": 6432,
+            "distance_bars": 3,
+            "score": 0.9
+          },
+          {
+            "target_bar": 6579,
+            "nearest_bar": 6594,
+            "distance_bars": 15,
+            "score": 0.5
+          },
+          {
+            "target_bar": 6755,
+            "nearest_bar": 6742,
+            "distance_bars": 13,
+            "score": 0.5667
+          }
+        ]
+      },
+      "params": {
+        "exit_bars": 9,
+        "ema_len": 80,
+        "atr_mult": 2.5,
+        "slope_window": 8,
+        "atr_period": 40,
+        "entry_bars": 4,
+        "cooldown": 20
+      },
+      "metrics": {
+        "vs_bah": 52.7229,
+        "cagr": 17.6,
+        "max_dd": 59.8,
+        "trades": 60,
+        "trades_yr": 2.2
+      }
+    },
+    {
+      "strategy": "steady_trend",
+      "fitness": 17.376,
+      "discovery_score": 17.3071,
+      "marker_alignment_score": 0.4603,
+      "marker_alignment_detail": {
+        "score": 0.4603,
+        "state_accuracy": 0.7833,
+        "precision": 0.894,
+        "recall": 0.7924,
+        "f1": 0.8401,
+        "transition_timing_score": 0.2179,
+        "transition_count_score": 0.0,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 37,
+        "candidate_sell_count": 37,
+        "buy_transition_matches": [
+          {
+            "target_bar": 213,
+            "nearest_bar": 222,
+            "distance_bars": 9,
+            "score": 0.7
+          },
+          {
+            "target_bar": 576,
+            "nearest_bar": 429,
+            "distance_bars": 147,
+            "score": 0.0
+          },
+          {
+            "target_bar": 951,
+            "nearest_bar": 1095,
+            "distance_bars": 144,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1416,
+            "nearest_bar": 1469,
+            "distance_bars": 53,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1908,
+            "nearest_bar": 1932,
+            "distance_bars": 24,
+            "score": 0.2
+          },
+          {
+            "target_bar": 2561,
+            "nearest_bar": 2607,
+            "distance_bars": 46,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3270,
+            "nearest_bar": 3286,
+            "distance_bars": 16,
+            "score": 0.4667
+          },
+          {
+            "target_bar": 5036,
+            "nearest_bar": 5074,
+            "distance_bars": 38,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5347,
+            "nearest_bar": 5392,
+            "distance_bars": 45,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5733,
+            "nearest_bar": 5948,
+            "distance_bars": 215,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6053,
+            "nearest_bar": 6068,
+            "distance_bars": 15,
+            "score": 0.5
+          },
+          {
+            "target_bar": 6373,
+            "nearest_bar": 6390,
+            "distance_bars": 17,
+            "score": 0.4333
+          },
+          {
+            "target_bar": 6444,
+            "nearest_bar": 6460,
+            "distance_bars": 16,
+            "score": 0.4667
+          },
+          {
+            "target_bar": 6624,
+            "nearest_bar": 6644,
+            "distance_bars": 20,
+            "score": 0.3333
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 315,
+            "nearest_bar": 340,
+            "distance_bars": 25,
+            "score": 0.1667
+          },
+          {
+            "target_bar": 608,
+            "nearest_bar": 441,
+            "distance_bars": 167,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1275,
+            "nearest_bar": 1318,
+            "distance_bars": 43,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1831,
+            "nearest_bar": 1860,
+            "distance_bars": 29,
+            "score": 0.0333
+          },
+          {
+            "target_bar": 2225,
+            "nearest_bar": 2246,
+            "distance_bars": 21,
+            "score": 0.3
+          },
+          {
+            "target_bar": 3052,
+            "nearest_bar": 3085,
+            "distance_bars": 33,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4977,
+            "nearest_bar": 4992,
+            "distance_bars": 15,
+            "score": 0.5
+          },
+          {
+            "target_bar": 5324,
+            "nearest_bar": 5338,
+            "distance_bars": 14,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 5706,
+            "nearest_bar": 5815,
+            "distance_bars": 109,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5793,
+            "nearest_bar": 5815,
+            "distance_bars": 22,
+            "score": 0.2667
+          },
+          {
+            "target_bar": 6338,
+            "nearest_bar": 6380,
+            "distance_bars": 42,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6429,
+            "nearest_bar": 6449,
+            "distance_bars": 20,
+            "score": 0.3333
+          },
+          {
+            "target_bar": 6579,
+            "nearest_bar": 6575,
+            "distance_bars": 4,
+            "score": 0.8667
+          },
+          {
+            "target_bar": 6755,
+            "nearest_bar": 6575,
+            "distance_bars": 180,
+            "score": 0.0
+          }
+        ]
+      },
+      "params": {
+        "ema_len": 100,
+        "slope_window": 6,
+        "entry_bars": 6,
+        "exit_bars": 9
+      },
+      "metrics": {
+        "vs_bah": 57.7789,
+        "cagr": 18.0,
+        "max_dd": 59.8,
+        "trades": 38,
+        "trades_yr": 1.4
+      }
+    },
+    {
+      "strategy": "ichimoku_trend",
+      "fitness": 0.0,
+      "discovery_score": 0.0,
+      "marker_alignment_score": 0.3983,
+      "marker_alignment_detail": {
+        "score": 0.3983,
+        "state_accuracy": 0.6042,
+        "precision": 0.9224,
+        "recall": 0.4904,
+        "f1": 0.6404,
+        "transition_timing_score": 0.3488,
+        "transition_count_score": 0.0,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 81,
+        "candidate_sell_count": 80,
+        "buy_transition_matches": [
+          {
+            "target_bar": 213,
+            "nearest_bar": 222,
+            "distance_bars": 9,
+            "score": 0.7
+          },
+          {
+            "target_bar": 576,
+            "nearest_bar": 731,
+            "distance_bars": 155,
+            "score": 0.0
+          },
+          {
+            "target_bar": 951,
+            "nearest_bar": 991,
+            "distance_bars": 40,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1416,
+            "nearest_bar": 1371,
+            "distance_bars": 45,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1908,
+            "nearest_bar": 1943,
+            "distance_bars": 35,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2561,
+            "nearest_bar": 2596,
+            "distance_bars": 35,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3270,
+            "nearest_bar": 3286,
+            "distance_bars": 16,
+            "score": 0.4667
+          },
+          {
+            "target_bar": 5036,
+            "nearest_bar": 5098,
+            "distance_bars": 62,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5347,
+            "nearest_bar": 5389,
+            "distance_bars": 42,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5733,
+            "nearest_bar": 5747,
+            "distance_bars": 14,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 6053,
+            "nearest_bar": 6064,
+            "distance_bars": 11,
+            "score": 0.6333
+          },
+          {
+            "target_bar": 6373,
+            "nearest_bar": 6387,
+            "distance_bars": 14,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 6444,
+            "nearest_bar": 6459,
+            "distance_bars": 15,
+            "score": 0.5
+          },
+          {
+            "target_bar": 6624,
+            "nearest_bar": 6636,
+            "distance_bars": 12,
+            "score": 0.6
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 315,
+            "nearest_bar": 329,
+            "distance_bars": 14,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 608,
+            "nearest_bar": 733,
+            "distance_bars": 125,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1275,
+            "nearest_bar": 1290,
+            "distance_bars": 15,
+            "score": 0.5
+          },
+          {
+            "target_bar": 1831,
+            "nearest_bar": 1813,
+            "distance_bars": 18,
+            "score": 0.4
+          },
+          {
+            "target_bar": 2225,
+            "nearest_bar": 2191,
+            "distance_bars": 34,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3052,
+            "nearest_bar": 3073,
+            "distance_bars": 21,
+            "score": 0.3
+          },
+          {
+            "target_bar": 4977,
+            "nearest_bar": 4970,
+            "distance_bars": 7,
+            "score": 0.7667
+          },
+          {
+            "target_bar": 5324,
+            "nearest_bar": 5327,
+            "distance_bars": 3,
+            "score": 0.9
+          },
+          {
+            "target_bar": 5706,
+            "nearest_bar": 5723,
+            "distance_bars": 17,
+            "score": 0.4333
+          },
+          {
+            "target_bar": 5793,
+            "nearest_bar": 5799,
+            "distance_bars": 6,
+            "score": 0.8
+          },
+          {
+            "target_bar": 6338,
+            "nearest_bar": 6358,
+            "distance_bars": 20,
+            "score": 0.3333
+          },
+          {
+            "target_bar": 6429,
+            "nearest_bar": 6434,
+            "distance_bars": 5,
+            "score": 0.8333
+          },
+          {
+            "target_bar": 6579,
+            "nearest_bar": 6540,
+            "distance_bars": 39,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6755,
+            "nearest_bar": 6716,
+            "distance_bars": 39,
+            "score": 0.0
+          }
+        ]
+      },
+      "params": {
+        "cloud_buffer": 0.0,
+        "kijun_len": 20,
+        "tenkan_len": 15,
+        "cloud_len": 70,
+        "atr_mult": 4.0,
+        "atr_period": 30,
+        "cooldown": 15
+      },
+      "metrics": {
+        "vs_bah": 39.3701,
+        "cagr": 16.3,
+        "max_dd": 52.6,
+        "trades": 87,
+        "trades_yr": 3.2
+      }
+    },
+    {
+      "strategy": "vol_regime",
+      "fitness": 15.3673,
+      "discovery_score": 15.2362,
+      "marker_alignment_score": 0.4147,
+      "marker_alignment_detail": {
+        "score": 0.4147,
+        "state_accuracy": 0.6451,
+        "precision": 0.9401,
+        "recall": 0.5406,
+        "f1": 0.6865,
+        "transition_timing_score": 0.3274,
+        "transition_count_score": 0.0,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 54,
+        "candidate_sell_count": 54,
+        "buy_transition_matches": [
+          {
+            "target_bar": 213,
+            "nearest_bar": 225,
+            "distance_bars": 12,
+            "score": 0.6
+          },
+          {
+            "target_bar": 576,
+            "nearest_bar": 726,
+            "distance_bars": 150,
+            "score": 0.0
+          },
+          {
+            "target_bar": 951,
+            "nearest_bar": 1115,
+            "distance_bars": 164,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1416,
+            "nearest_bar": 1479,
+            "distance_bars": 63,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1908,
+            "nearest_bar": 1933,
+            "distance_bars": 25,
+            "score": 0.1667
+          },
+          {
+            "target_bar": 2561,
+            "nearest_bar": 2605,
+            "distance_bars": 44,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3270,
+            "nearest_bar": 3281,
+            "distance_bars": 11,
+            "score": 0.6333
+          },
+          {
+            "target_bar": 5036,
+            "nearest_bar": 5066,
+            "distance_bars": 30,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5347,
+            "nearest_bar": 5411,
+            "distance_bars": 64,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5733,
+            "nearest_bar": 5750,
+            "distance_bars": 17,
+            "score": 0.4333
+          },
+          {
+            "target_bar": 6053,
+            "nearest_bar": 6059,
+            "distance_bars": 6,
+            "score": 0.8
+          },
+          {
+            "target_bar": 6373,
+            "nearest_bar": 6425,
+            "distance_bars": 52,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6444,
+            "nearest_bar": 6425,
+            "distance_bars": 19,
+            "score": 0.3667
+          },
+          {
+            "target_bar": 6624,
+            "nearest_bar": 6646,
+            "distance_bars": 22,
+            "score": 0.2667
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 315,
+            "nearest_bar": 265,
+            "distance_bars": 50,
+            "score": 0.0
+          },
+          {
+            "target_bar": 608,
+            "nearest_bar": 733,
+            "distance_bars": 125,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1275,
+            "nearest_bar": 1308,
+            "distance_bars": 33,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1831,
+            "nearest_bar": 1849,
+            "distance_bars": 18,
+            "score": 0.4
+          },
+          {
+            "target_bar": 2225,
+            "nearest_bar": 2234,
+            "distance_bars": 9,
+            "score": 0.7
+          },
+          {
+            "target_bar": 3052,
+            "nearest_bar": 3064,
+            "distance_bars": 12,
+            "score": 0.6
+          },
+          {
+            "target_bar": 4977,
+            "nearest_bar": 4983,
+            "distance_bars": 6,
+            "score": 0.8
+          },
+          {
+            "target_bar": 5324,
+            "nearest_bar": 5307,
+            "distance_bars": 17,
+            "score": 0.4333
+          },
+          {
+            "target_bar": 5706,
+            "nearest_bar": 5729,
+            "distance_bars": 23,
+            "score": 0.2333
+          },
+          {
+            "target_bar": 5793,
+            "nearest_bar": 5778,
+            "distance_bars": 15,
+            "score": 0.5
+          },
+          {
+            "target_bar": 6338,
+            "nearest_bar": 6368,
+            "distance_bars": 30,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6429,
+            "nearest_bar": 6435,
+            "distance_bars": 6,
+            "score": 0.8
+          },
+          {
+            "target_bar": 6579,
+            "nearest_bar": 6583,
+            "distance_bars": 4,
+            "score": 0.8667
+          },
+          {
+            "target_bar": 6755,
+            "nearest_bar": 6742,
+            "distance_bars": 13,
+            "score": 0.5667
+          }
+        ]
+      },
+      "params": {
+        "vol_short": 10,
+        "vol_long": 60,
+        "trend_len": 75,
+        "vol_entry_ratio": 0.6,
+        "vol_exit_ratio": 1.4,
+        "trend_buffer": 3.0,
+        "cooldown": 10
+      },
+      "metrics": {
+        "vs_bah": 37.9742,
+        "cagr": 16.2,
+        "max_dd": 45.5,
+        "trades": 56,
+        "trades_yr": 2.1
+      }
+    },
+    {
+      "strategy": "rsi_regime_trail",
+      "fitness": 11.6184,
+      "discovery_score": 11.5139,
+      "marker_alignment_score": 0.41,
+      "marker_alignment_detail": {
+        "score": 0.41,
+        "state_accuracy": 0.6638,
+        "precision": 0.908,
+        "recall": 0.5921,
+        "f1": 0.7168,
+        "transition_timing_score": 0.2595,
+        "transition_count_score": 0.0,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 42,
+        "candidate_sell_count": 43,
+        "buy_transition_matches": [
+          {
+            "target_bar": 213,
+            "nearest_bar": 263,
+            "distance_bars": 50,
+            "score": 0.0
+          },
+          {
+            "target_bar": 576,
+            "nearest_bar": 325,
+            "distance_bars": 251,
+            "score": 0.0
+          },
+          {
+            "target_bar": 951,
+            "nearest_bar": 1149,
+            "distance_bars": 198,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1416,
+            "nearest_bar": 1507,
+            "distance_bars": 91,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1908,
+            "nearest_bar": 2015,
+            "distance_bars": 107,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2561,
+            "nearest_bar": 2613,
+            "distance_bars": 52,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3270,
+            "nearest_bar": 3256,
+            "distance_bars": 14,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 5036,
+            "nearest_bar": 5131,
+            "distance_bars": 95,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5347,
+            "nearest_bar": 5463,
+            "distance_bars": 116,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5733,
+            "nearest_bar": 5801,
+            "distance_bars": 68,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6053,
+            "nearest_bar": 6081,
+            "distance_bars": 28,
+            "score": 0.0667
+          },
+          {
+            "target_bar": 6373,
+            "nearest_bar": 6434,
+            "distance_bars": 61,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6444,
+            "nearest_bar": 6434,
+            "distance_bars": 10,
+            "score": 0.6667
+          },
+          {
+            "target_bar": 6624,
+            "nearest_bar": 6693,
+            "distance_bars": 69,
+            "score": 0.0
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 315,
+            "nearest_bar": 323,
+            "distance_bars": 8,
+            "score": 0.7333
+          },
+          {
+            "target_bar": 608,
+            "nearest_bar": 330,
+            "distance_bars": 278,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1275,
+            "nearest_bar": 1286,
+            "distance_bars": 11,
+            "score": 0.6333
+          },
+          {
+            "target_bar": 1831,
+            "nearest_bar": 1848,
+            "distance_bars": 17,
+            "score": 0.4333
+          },
+          {
+            "target_bar": 2225,
+            "nearest_bar": 2170,
+            "distance_bars": 55,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3052,
+            "nearest_bar": 3045,
+            "distance_bars": 7,
+            "score": 0.7667
+          },
+          {
+            "target_bar": 4977,
+            "nearest_bar": 4983,
+            "distance_bars": 6,
+            "score": 0.8
+          },
+          {
+            "target_bar": 5324,
+            "nearest_bar": 5307,
+            "distance_bars": 17,
+            "score": 0.4333
+          },
+          {
+            "target_bar": 5706,
+            "nearest_bar": 5729,
+            "distance_bars": 23,
+            "score": 0.2333
+          },
+          {
+            "target_bar": 5793,
+            "nearest_bar": 5831,
+            "distance_bars": 38,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6338,
+            "nearest_bar": 6297,
+            "distance_bars": 41,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6429,
+            "nearest_bar": 6432,
+            "distance_bars": 3,
+            "score": 0.9
+          },
+          {
+            "target_bar": 6579,
+            "nearest_bar": 6564,
+            "distance_bars": 15,
+            "score": 0.5
+          },
+          {
+            "target_bar": 6755,
+            "nearest_bar": 6742,
+            "distance_bars": 13,
+            "score": 0.5667
+          }
+        ]
+      },
+      "params": {
+        "rsi_len": 9,
+        "trail_pct": 35,
+        "atr_mult": 2.0,
+        "atr_period": 20,
+        "panic_rsi": 10,
+        "trend_len": 75,
+        "cooldown": 0,
+        "entry_rsi": 40
+      },
+      "metrics": {
+        "vs_bah": 44.6385,
+        "cagr": 16.8,
+        "max_dd": 54.4,
+        "trades": 49,
+        "trades_yr": 1.8
+      }
+    },
+    {
+      "strategy": "donchian_turtle",
+      "fitness": 8.597,
+      "discovery_score": 8.5996,
+      "marker_alignment_score": 0.5031,
+      "marker_alignment_detail": {
+        "score": 0.5031,
+        "state_accuracy": 0.6943,
+        "precision": 0.9082,
+        "recall": 0.6393,
+        "f1": 0.7504,
+        "transition_timing_score": 0.1036,
+        "transition_count_score": 0.4643,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 21,
+        "candidate_sell_count": 22,
+        "buy_transition_matches": [
+          {
+            "target_bar": 213,
+            "nearest_bar": 1094,
+            "distance_bars": 881,
+            "score": 0.0
+          },
+          {
+            "target_bar": 576,
+            "nearest_bar": 1094,
+            "distance_bars": 518,
+            "score": 0.0
+          },
+          {
+            "target_bar": 951,
+            "nearest_bar": 1094,
+            "distance_bars": 143,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1416,
+            "nearest_bar": 1454,
+            "distance_bars": 38,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1908,
+            "nearest_bar": 1932,
+            "distance_bars": 24,
+            "score": 0.2
+          },
+          {
+            "target_bar": 2561,
+            "nearest_bar": 2579,
+            "distance_bars": 18,
+            "score": 0.4
+          },
+          {
+            "target_bar": 3270,
+            "nearest_bar": 3288,
+            "distance_bars": 18,
+            "score": 0.4
+          },
+          {
+            "target_bar": 5036,
+            "nearest_bar": 5060,
+            "distance_bars": 24,
+            "score": 0.2
+          },
+          {
+            "target_bar": 5347,
+            "nearest_bar": 5378,
+            "distance_bars": 31,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5733,
+            "nearest_bar": 5378,
+            "distance_bars": 355,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6053,
+            "nearest_bar": 5378,
+            "distance_bars": 675,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6373,
+            "nearest_bar": 5378,
+            "distance_bars": 995,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6444,
+            "nearest_bar": 5378,
+            "distance_bars": 1066,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6624,
+            "nearest_bar": 5378,
+            "distance_bars": 1246,
+            "score": 0.0
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 315,
+            "nearest_bar": 448,
+            "distance_bars": 133,
+            "score": 0.0
+          },
+          {
+            "target_bar": 608,
+            "nearest_bar": 448,
+            "distance_bars": 160,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1275,
+            "nearest_bar": 1308,
+            "distance_bars": 33,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1831,
+            "nearest_bar": 1849,
+            "distance_bars": 18,
+            "score": 0.4
+          },
+          {
+            "target_bar": 2225,
+            "nearest_bar": 2166,
+            "distance_bars": 59,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3052,
+            "nearest_bar": 3073,
+            "distance_bars": 21,
+            "score": 0.3
+          },
+          {
+            "target_bar": 4977,
+            "nearest_bar": 4910,
+            "distance_bars": 67,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5324,
+            "nearest_bar": 5329,
+            "distance_bars": 5,
+            "score": 0.8333
+          },
+          {
+            "target_bar": 5706,
+            "nearest_bar": 5731,
+            "distance_bars": 25,
+            "score": 0.1667
+          },
+          {
+            "target_bar": 5793,
+            "nearest_bar": 5731,
+            "distance_bars": 62,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6338,
+            "nearest_bar": 5731,
+            "distance_bars": 607,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6429,
+            "nearest_bar": 5731,
+            "distance_bars": 698,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6579,
+            "nearest_bar": 5731,
+            "distance_bars": 848,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6755,
+            "nearest_bar": 5731,
+            "distance_bars": 1024,
+            "score": 0.0
+          }
+        ]
+      },
+      "params": {
+        "entry_len": 30,
+        "trend_len": 75,
+        "cooldown": 20,
+        "exit_len": 30
+      },
+      "metrics": {
+        "vs_bah": 52.5874,
+        "cagr": 17.6,
+        "max_dd": 72.4,
+        "trades": 22,
+        "trades_yr": 0.8
+      }
+    }
+  ],
+  "diagnostics": {
+    "montauk_821": {
+      "best_discovery_score": 51.9279,
+      "best_fitness_score": 53.1531,
+      "best_marker_alignment_score": 0.2695,
+      "best_params": {
+        "med_ema": 15,
+        "short_ema": 17,
+        "quick_thresh": -13.0,
+        "atr_mult": 3.5,
+        "sell_buffer": 0.2,
+        "atr_period": 50,
+        "quick_ema": 21,
+        "quick_lookback": 7,
+        "trend_ema": 110,
+        "cooldown": 5,
+        "slope_lookback": 7
+      },
+      "boundary_hits": {
+        "short_ema": null,
+        "med_ema": "low",
+        "trend_ema": null,
+        "slope_lookback": null,
+        "atr_period": null,
+        "atr_mult": null,
+        "quick_ema": null,
+        "quick_lookback": null,
+        "quick_thresh": null,
+        "sell_buffer": null,
+        "cooldown": null
+      },
+      "diversity": 0.1167
+    },
+    "rsi_regime": {
+      "best_discovery_score": 63.6407,
+      "best_fitness_score": 64.6486,
+      "best_marker_alignment_score": 0.3441,
+      "best_params": {
+        "rsi_len": 11,
+        "trend_len": 50,
+        "entry_rsi": 40,
+        "exit_rsi": 75,
+        "panic_rsi": 15,
+        "cooldown": 10
+      },
+      "boundary_hits": {
+        "rsi_len": null,
+        "trend_len": "low",
+        "entry_rsi": null,
+        "exit_rsi": null,
+        "panic_rsi": "low",
+        "cooldown": null
+      },
+      "diversity": 0.1317
+    },
+    "breakout": {
+      "best_discovery_score": 54.1389,
+      "best_fitness_score": 54.2697,
+      "best_marker_alignment_score": 0.4759,
+      "best_params": {
+        "lookback": 120,
+        "breakout_pct": 0.85,
+        "trail_pct": 30,
+        "atr_period": 20,
+        "atr_mult": 2.0,
+        "cooldown": 0
+      },
+      "boundary_hits": {
+        "lookback": null,
+        "breakout_pct": "low",
+        "trail_pct": null,
+        "atr_period": null,
+        "atr_mult": "low",
+        "cooldown": "low"
+      },
+      "diversity": 0.1194
+    },
+    "rsi_regime_trail": {
+      "best_discovery_score": 11.5139,
+      "best_fitness_score": 11.6184,
+      "best_marker_alignment_score": 0.41,
+      "best_params": {
+        "rsi_len": 9,
+        "trail_pct": 35,
+        "atr_mult": 2.0,
+        "atr_period": 20,
+        "panic_rsi": 10,
+        "trend_len": 75,
+        "cooldown": 0,
+        "entry_rsi": 40
+      },
+      "boundary_hits": {
+        "rsi_len": null,
+        "trend_len": null,
+        "entry_rsi": null,
+        "trail_pct": "high",
+        "panic_rsi": "low",
+        "atr_period": null,
+        "atr_mult": "low",
+        "cooldown": "low"
+      },
+      "diversity": 0.1357
+    },
+    "vol_regime": {
+      "best_discovery_score": 15.2362,
+      "best_fitness_score": 15.3673,
+      "best_marker_alignment_score": 0.4147,
+      "best_params": {
+        "vol_short": 10,
+        "vol_long": 60,
+        "trend_len": 75,
+        "vol_entry_ratio": 0.6,
+        "vol_exit_ratio": 1.4,
+        "trend_buffer": 3.0,
+        "cooldown": 10
+      },
+      "boundary_hits": {
+        "vol_short": "low",
+        "vol_long": null,
+        "trend_len": null,
+        "vol_entry_ratio": "low",
+        "vol_exit_ratio": null,
+        "trend_buffer": null,
+        "cooldown": null
+      },
+      "diversity": 0.1309
+    },
+    "ichimoku_trend": {
+      "best_discovery_score": 16.5957,
+      "best_fitness_score": 16.7662,
+      "best_marker_alignment_score": 0.3983,
+      "best_params": {
+        "cloud_buffer": 0.0,
+        "kijun_len": 20,
+        "tenkan_len": 15,
+        "cloud_len": 70,
+        "atr_mult": 4.0,
+        "atr_period": 30,
+        "cooldown": 15
+      },
+      "boundary_hits": {
+        "tenkan_len": "high",
+        "kijun_len": null,
+        "cloud_len": null,
+        "cloud_buffer": "low",
+        "atr_period": null,
+        "atr_mult": null,
+        "cooldown": null
+      },
+      "diversity": 0.1254
+    },
+    "dual_momentum": {
+      "best_discovery_score": 44.9757,
+      "best_fitness_score": 45.0464,
+      "best_marker_alignment_score": 0.4843,
+      "best_params": {
+        "abs_period": 60,
+        "short_thresh": 0.0,
+        "abs_exit": -8.0,
+        "atr_mult": 2.5,
+        "short_exit": -15.0,
+        "atr_period": 20,
+        "trend_len": 125,
+        "cooldown": 5,
+        "short_period": 15,
+        "abs_thresh": 0.0
+      },
+      "boundary_hits": {
+        "abs_period": null,
+        "short_period": null,
+        "trend_len": null,
+        "abs_thresh": "low",
+        "short_thresh": "low",
+        "abs_exit": null,
+        "short_exit": "low",
+        "atr_period": null,
+        "atr_mult": null,
+        "cooldown": null
+      },
+      "diversity": 0.1281
+    },
+    "rsi_vol_regime": {
+      "best_discovery_score": 24.4324,
+      "best_fitness_score": 24.9351,
+      "best_marker_alignment_score": 0.2984,
+      "best_params": {
+        "rsi_len": 11,
+        "vol_long": 60,
+        "exit_rsi": 70,
+        "vol_ratio_max": 1.2,
+        "vol_exit_ratio": 1.4,
+        "vol_short": 30,
+        "panic_rsi": 15,
+        "trend_len": 150,
+        "cooldown": 0,
+        "entry_rsi": 40
+      },
+      "boundary_hits": {
+        "rsi_len": null,
+        "trend_len": null,
+        "entry_rsi": null,
+        "exit_rsi": null,
+        "panic_rsi": null,
+        "vol_short": "high",
+        "vol_long": null,
+        "vol_ratio_max": "high",
+        "vol_exit_ratio": null,
+        "cooldown": "low"
+      },
+      "diversity": 0.1364
+    },
+    "momentum_stayer": {
+      "best_discovery_score": 59.5295,
+      "best_fitness_score": 59.7404,
+      "best_marker_alignment_score": 0.4647,
+      "best_params": {
+        "rsi_len": 7,
+        "vol_long": 110,
+        "exit_rsi": 40.0,
+        "vol_exit_ratio": 1.2,
+        "slow_ema": 90,
+        "vol_short": 20,
+        "cooldown": 10,
+        "roc_period": 70,
+        "fast_ema": 40
+      },
+      "boundary_hits": {
+        "fast_ema": "high",
+        "slow_ema": null,
+        "rsi_len": "low",
+        "exit_rsi": "high",
+        "vol_short": null,
+        "vol_long": null,
+        "vol_exit_ratio": "low",
+        "roc_period": null,
+        "cooldown": null
+      },
+      "diversity": 0.1212
+    },
+    "donchian_turtle": {
+      "best_discovery_score": 8.5996,
+      "best_fitness_score": 8.597,
+      "best_marker_alignment_score": 0.5031,
+      "best_params": {
+        "entry_len": 30,
+        "trend_len": 75,
+        "cooldown": 20,
+        "exit_len": 30
+      },
+      "boundary_hits": {
+        "entry_len": "low",
+        "exit_len": null,
+        "trend_len": null,
+        "cooldown": "high"
+      },
+      "diversity": 0.1291
+    },
+    "slope_persistence": {
+      "best_discovery_score": 21.9038,
+      "best_fitness_score": 21.9774,
+      "best_marker_alignment_score": 0.4665,
+      "best_params": {
+        "exit_bars": 9,
+        "ema_len": 80,
+        "atr_mult": 2.5,
+        "slope_window": 8,
+        "atr_period": 40,
+        "entry_bars": 4,
+        "cooldown": 20
+      },
+      "boundary_hits": {
+        "ema_len": "high",
+        "slope_window": null,
+        "entry_bars": null,
+        "exit_bars": null,
+        "atr_period": "high",
+        "atr_mult": null,
+        "cooldown": "high"
+      },
+      "diversity": 0.1306
+    },
+    "vix_trend_regime": {
+      "best_discovery_score": 27.5139,
+      "best_fitness_score": 27.6828,
+      "best_marker_alignment_score": 0.439,
+      "best_params": {
+        "atr_mult": 2.5,
+        "long_ema": 80,
+        "vix_exit_ratio": 1.2,
+        "vix_slow_len": 40,
+        "vix_entry_ratio": 0.95,
+        "cooldown": 15,
+        "short_ema": 30,
+        "atr_period": 10
+      },
+      "boundary_hits": {
+        "short_ema": "high",
+        "long_ema": "high",
+        "vix_slow_len": null,
+        "vix_entry_ratio": null,
+        "vix_exit_ratio": null,
+        "atr_period": "low",
+        "atr_mult": null,
+        "cooldown": null
+      },
+      "diversity": 0.1173
+    },
+    "steady_trend": {
+      "best_discovery_score": 17.3071,
+      "best_fitness_score": 17.376,
+      "best_marker_alignment_score": 0.4603,
+      "best_params": {
+        "ema_len": 100,
+        "slope_window": 6,
+        "entry_bars": 6,
+        "exit_bars": 9
+      },
+      "boundary_hits": {
+        "ema_len": null,
+        "slope_window": null,
+        "entry_bars": "high",
+        "exit_bars": null
+      },
+      "diversity": 0.1208
+    },
+    "rsi_recovery": {
+      "best_discovery_score": 25.3114,
+      "best_fitness_score": 25.5026,
+      "best_marker_alignment_score": 0.425,
+      "best_params": {
+        "rsi_len": 21,
+        "panic_rsi": 25,
+        "cooldown": 10,
+        "trend_len": 200,
+        "entry_rsi": 40
+      },
+      "boundary_hits": {
+        "rsi_len": "high",
+        "trend_len": "high",
+        "entry_rsi": null,
+        "panic_rsi": "high",
+        "cooldown": null
+      },
+      "diversity": 0.1856
+    },
+    "ema_regime": {
+      "best_discovery_score": 39.2179,
+      "best_fitness_score": 38.9213,
+      "best_marker_alignment_score": 0.5762,
+      "best_params": {
+        "exit_confirm": 8,
+        "entry_confirm": 2,
+        "cooldown": 20,
+        "slow_ema": 80,
+        "fast_ema": 40
+      },
+      "boundary_hits": {
+        "fast_ema": "high",
+        "slow_ema": null,
+        "entry_confirm": "low",
+        "exit_confirm": "high"
+      },
+      "diversity": 0.1216
+    }
+  },
+  "best_ever": {
+    "strategy": "rsi_regime",
+    "fitness": 66.4727,
+    "params": {
+      "rsi_len": 11,
+      "trend_len": 50,
+      "entry_rsi": 40,
+      "exit_rsi": 75,
+      "panic_rsi": 15,
+      "cooldown": 10
+    }
+  },
+  "elapsed_minutes": 20.0,
+  "generations": 1376,
+  "total_evals": 87843
+}
