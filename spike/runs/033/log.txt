@@ -1,0 +1,1101 @@
+Spike Runner started: 2026-04-13 15:02:18
+Duration: 1.0h | Pop: 40 | Run dir: /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/033
+
+[refresh] Updating all local CSVs...
+[refresh] TECL: +0 new bars
+[refresh] VIX: +0 new bars
+[refresh] XLK: +0 new bars
+[refresh] QQQ: +0 new bars
+[refresh] TQQQ: +0 new bars
+[refresh] SGOV: +0 new bars
+[data] FRED fetch failed for DTB3: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Read timed out. (read timeout=15)
+[refresh] 3-Month Treasury Bill Rate.csv: up to date
+[refresh] Treasury Yield Spread 10Y-2Y.csv: up to date
+[refresh] Fed Funds Rate.csv: up to date
+[refresh] Done. TECL: 6868 bars through 2026-04-13
+
+=== Montauk Multi-Strategy Optimizer ===
+Duration: 1.0h | Pop: 40/strategy | Registered: 20
+Constraint: ≤5.0 trades/year
+Started: 2026-04-13 15:02
+
+[data] TECL: 6868 bars, 1998-12-22 to 2026-04-13
+[data] VIX: 6867/6868 dates matched
+Data: 6868 bars, 1998-12-22 to 2026-04-13
+
+[history] Dedup cache: 269,738 configs with known fitness
+
+── Baselines ──
+  golden_cross_slope     discovery=0.9692  fitness=0.9692  marker=0.587  share=4.041x  trades/yr=0.7  CAGR=7.2%  DD=85.1%
+  golden_cross_100_300   discovery=0.0689  fitness=0.0689  marker=0.542  share=0.358x  trades/yr=0.4  CAGR=-1.9%  DD=95.4%
+  tema_200_slope         discovery=0.0000  fitness=0.0000  marker=0.070  share=0.608x  trades/yr=0.0  CAGR=0.0%  DD=0.0%
+  donchian_200_100       discovery=0.3555  fitness=0.3555  marker=0.622  share=1.514x  trades/yr=0.5  CAGR=3.4%  DD=88.1%
+  ema_200_regime         discovery=0.7402  fitness=0.7402  marker=0.403  share=3.142x  trades/yr=3.2  CAGR=6.2%  DD=87.2%
+  montauk_821            discovery=1.2066  fitness=1.2066  marker=0.482  share=7.040x  trades/yr=2.7  CAGR=9.4%  DD=83.8%
+  rsi_regime             discovery=0.0000  fitness=0.0000  marker=0.483  share=15.079x  trades/yr=0.4  CAGR=12.5%  DD=65.8%
+  breakout               discovery=0.8256  fitness=0.8256  marker=0.496  share=4.858x  trades/yr=1.0  CAGR=7.9%  DD=67.9%
+  rsi_regime_trail       discovery=0.0000  fitness=0.0000  marker=0.430  share=1.226x  trades/yr=0.4  CAGR=2.6%  DD=62.4%
+  vol_regime             discovery=0.4223  fitness=0.4223  marker=0.391  share=1.541x  trades/yr=1.5  CAGR=3.5%  DD=62.8%
+  ichimoku_trend         discovery=0.5085  fitness=0.5085  marker=0.378  share=1.467x  trades/yr=2.9  CAGR=3.3%  DD=67.6%
+  dual_momentum          discovery=0.3463  fitness=0.3463  marker=0.433  share=1.345x  trades/yr=2.7  CAGR=3.0%  DD=71.9%
+  rsi_vol_regime         discovery=0.0000  fitness=0.0000  marker=0.446  share=12.078x  trades/yr=0.4  CAGR=11.6%  DD=89.6%
+  momentum_stayer        discovery=0.0000  fitness=0.0000  marker=0.572  share=1.999x  trades/yr=0.8  CAGR=4.5%  DD=93.6%
+  donchian_turtle        discovery=1.6934  fitness=1.6934  marker=0.474  share=10.729x  trades/yr=0.8  CAGR=11.1%  DD=72.4%
+  slope_persistence      discovery=1.2592  fitness=1.2592  marker=0.467  share=5.475x  trades/yr=2.9  CAGR=8.4%  DD=87.6%
+  vix_trend_regime       discovery=1.6760  fitness=1.6760  marker=0.414  share=9.476x  trades/yr=1.9  CAGR=10.6%  DD=75.7%
+  steady_trend           discovery=1.6211  fitness=1.6211  marker=0.476  share=7.578x  trades/yr=2.2  CAGR=9.7%  DD=90.1%
+  rsi_recovery           discovery=0.5450  fitness=0.5450  marker=0.314  share=1.747x  trades/yr=1.7  CAGR=3.9%  DD=68.2%
+  ema_regime             discovery=2.3897  fitness=2.3897  marker=0.449  share=10.914x  trades/yr=1.3  CAGR=11.2%  DD=79.9%
+Active strategies: 20/20
+
+Loaded best-ever: golden_cross_slope fitness=0.9692
+
+── Evolving ──
+Gen     3: BEST_DISC=22.5958 (breakout)  evals=1,074 (34/s)  1.0h left
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime             disc=21.8894 fit=21.8894 marker=0.303  RS=0.469  share=77.869x  t/yr=1.7  DD=66.9%
+    ema_regime             disc=14.4804 fit=14.4804 marker=0.467  RS=0.566  share=72.025x  t/yr=1.0  DD=70.9%
+    ichimoku_trend         disc=13.2648 fit=13.2648 marker=0.424  RS=0.478  share=31.379x  t/yr=3.0  DD=52.6%
+    rsi_recovery           disc=12.0141 fit=12.0141 marker=0.448  RS=0.666  share=38.153x  t/yr=1.9  DD=73.4%
+    vol_regime             disc=10.0984 fit=10.0984 marker=0.416  RS=0.527  share=28.949x  t/yr=1.8  DD=45.9%
+    vix_trend_regime       disc=9.9438 fit=9.9438 marker=0.458  RS=0.558  share=29.658x  t/yr=3.5  DD=69.6%
+    rsi_vol_regime         disc=9.2409 fit=9.2409 marker=0.351  RS=0.462  share=52.605x  t/yr=2.2  DD=71.8%
+    slope_persistence      disc=8.1105 fit=8.1105 marker=0.475  RS=0.555  share=31.001x  t/yr=2.6  DD=78.5%
+    montauk_821            disc=4.6811 fit=4.6811 marker=0.495  RS=0.567  share=34.623x  t/yr=2.0  DD=80.6%
+    dual_momentum          disc=3.5238 fit=3.5238 marker=0.456  RS=0.555  share=15.357x  t/yr=2.3  DD=69.6%
+    momentum_stayer        disc=3.4142 fit=3.4142 marker=0.469  RS=0.562  share=23.206x  t/yr=1.6  DD=76.2%
+    rsi_regime_trail       disc=3.3460 fit=3.3460 marker=0.381  RS=0.498  share=12.625x  t/yr=1.8  DD=56.7%
+Gen     9: BEST_DISC=32.4203 (ichimoku_trend)  evals=2,125 (35/s)  1.0h left
+    rsi_recovery           disc=24.0856 fit=24.0856 marker=0.422  RS=0.651  share=76.317x  t/yr=1.2  DD=60.3%
+    vix_trend_regime       disc=23.1901 fit=23.1901 marker=0.444  RS=0.576  share=50.444x  t/yr=2.4  DD=46.3%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_vol_regime         disc=20.8722 fit=20.8722 marker=0.361  RS=0.463  share=123.915x  t/yr=2.1  DD=72.4%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    slope_persistence      disc=18.2607 fit=18.2607 marker=0.476  RS=0.583  share=48.757x  t/yr=2.9  DD=65.4%
+    montauk_821            disc=15.4733 fit=15.4733 marker=0.480  RS=0.579  share=84.382x  t/yr=1.9  DD=63.3%
+    vol_regime             disc=10.5826 fit=10.5826 marker=0.409  RS=0.536  share=27.449x  t/yr=2.0  DD=47.4%
+    dual_momentum          disc=6.5438 fit=6.5438 marker=0.458  RS=0.552  share=22.204x  t/yr=2.5  DD=57.8%
+    momentum_stayer        disc=5.0150 fit=5.0150 marker=0.469  RS=0.561  share=34.753x  t/yr=1.5  DD=72.7%
+Gen    18: BEST_DISC=32.6651 (ichimoku_trend)  evals=3,229 (35/s)  1.0h left
+    montauk_821            disc=31.2323 fit=31.2323 marker=0.513  RS=0.568  share=77.553x  t/yr=3.9  DD=56.8%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_vol_regime         disc=21.5976 fit=21.5976 marker=0.394  RS=0.457  share=148.884x  t/yr=1.6  DD=64.3%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=7.9851 fit=7.9851 marker=0.426  RS=0.568  share=27.520x  t/yr=2.2  DD=52.5%
+    momentum_stayer        disc=5.0150 fit=5.0150 marker=0.469  RS=0.561  share=34.753x  t/yr=1.5  DD=72.7%
+Gen    29: BEST_DISC=32.6651 (ichimoku_trend)  evals=4,327 (35/s)  1.0h left
+    montauk_821            disc=31.2323 fit=31.2323 marker=0.513  RS=0.568  share=77.553x  t/yr=3.9  DD=56.8%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_vol_regime         disc=21.5976 fit=21.5976 marker=0.394  RS=0.457  share=148.884x  t/yr=1.6  DD=64.3%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=9.7858 fit=9.7858 marker=0.426  RS=0.566  share=33.803x  t/yr=2.3  DD=54.6%
+    momentum_stayer        disc=5.0150 fit=5.0150 marker=0.469  RS=0.561  share=34.753x  t/yr=1.5  DD=72.7%
+Gen    41: BEST_DISC=36.9759 (montauk_821)  evals=5,431 (35/s)  1.0h left
+    montauk_821            disc=36.9759 fit=36.9759 marker=0.513  RS=0.576  share=89.956x  t/yr=4.0  DD=56.8%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_vol_regime         disc=21.5976 fit=21.5976 marker=0.394  RS=0.457  share=148.884x  t/yr=1.6  DD=64.3%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+    momentum_stayer        disc=6.9639 fit=6.9639 marker=0.466  RS=0.560  share=45.394x  t/yr=1.5  DD=69.7%
+Gen    54: BEST_DISC=43.7697 (montauk_821)  evals=6,498 (34/s)  0.9h left
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_vol_regime         disc=21.5976 fit=21.5976 marker=0.394  RS=0.457  share=148.884x  t/yr=1.6  DD=64.3%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+    momentum_stayer        disc=7.0674 fit=7.0674 marker=0.471  RS=0.562  share=49.276x  t/yr=1.5  DD=73.1%
+Gen    68: BEST_DISC=43.7697 (montauk_821)  evals=7,554 (34/s)  0.9h left
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_vol_regime         disc=21.5976 fit=21.5976 marker=0.394  RS=0.457  share=148.884x  t/yr=1.6  DD=64.3%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+    momentum_stayer        disc=7.0674 fit=7.0674 marker=0.471  RS=0.562  share=49.276x  t/yr=1.5  DD=73.1%
+Gen    84: BEST_DISC=43.7697 (montauk_821)  evals=8,630 (34/s)  0.9h left
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_vol_regime         disc=21.5976 fit=21.5976 marker=0.394  RS=0.457  share=148.884x  t/yr=1.6  DD=64.3%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+    momentum_stayer        disc=7.0674 fit=7.0674 marker=0.471  RS=0.562  share=49.276x  t/yr=1.5  DD=73.1%
+Gen   101: BEST_DISC=43.7697 (montauk_821)  evals=9,696 (34/s)  0.9h left
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_vol_regime         disc=21.5976 fit=21.5976 marker=0.394  RS=0.457  share=148.884x  t/yr=1.6  DD=64.3%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+    momentum_stayer        disc=7.0674 fit=7.0674 marker=0.471  RS=0.562  share=49.276x  t/yr=1.5  DD=73.1%
+Gen   117: BEST_DISC=43.7697 (montauk_821)  evals=10,774 (34/s)  0.9h left
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    momentum_stayer        disc=37.1204 fit=37.1204 marker=0.471  RS=0.537  share=131.368x  t/yr=2.0  DD=49.9%
+    rsi_vol_regime         disc=33.5675 fit=33.5675 marker=0.369  RS=0.504  share=219.569x  t/yr=1.6  DD=69.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   132: BEST_DISC=43.7697 (montauk_821)  evals=11,806 (34/s)  0.9h left
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    momentum_stayer        disc=40.2655 fit=40.2655 marker=0.470  RS=0.554  share=218.105x  t/yr=1.5  DD=57.8%
+    rsi_vol_regime         disc=33.5675 fit=33.5675 marker=0.369  RS=0.504  share=219.569x  t/yr=1.6  DD=69.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   148: BEST_DISC=44.1385 (rsi_vol_regime)  evals=12,837 (34/s)  0.9h left
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    momentum_stayer        disc=40.2655 fit=40.2655 marker=0.470  RS=0.554  share=218.105x  t/yr=1.5  DD=57.8%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   165: BEST_DISC=44.1385 (rsi_vol_regime)  evals=13,890 (34/s)  0.9h left
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    momentum_stayer        disc=40.2655 fit=40.2655 marker=0.470  RS=0.554  share=218.105x  t/yr=1.5  DD=57.8%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   183: BEST_DISC=44.1385 (rsi_vol_regime)  evals=14,938 (34/s)  0.9h left
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    momentum_stayer        disc=40.2655 fit=40.2655 marker=0.470  RS=0.554  share=218.105x  t/yr=1.5  DD=57.8%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   202: BEST_DISC=44.1385 (rsi_vol_regime)  evals=15,992 (34/s)  0.9h left
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    momentum_stayer        disc=40.2655 fit=40.2655 marker=0.470  RS=0.554  share=218.105x  t/yr=1.5  DD=57.8%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   222: BEST_DISC=44.1385 (rsi_vol_regime)  evals=17,051 (34/s)  0.9h left
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    momentum_stayer        disc=40.2655 fit=40.2655 marker=0.470  RS=0.554  share=218.105x  t/yr=1.5  DD=57.8%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   243: BEST_DISC=44.1385 (rsi_vol_regime)  evals=18,119 (34/s)  0.9h left
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    momentum_stayer        disc=40.2655 fit=40.2655 marker=0.470  RS=0.554  share=218.105x  t/yr=1.5  DD=57.8%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   262: BEST_DISC=44.1385 (rsi_vol_regime)  evals=19,165 (34/s)  0.8h left
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    momentum_stayer        disc=43.4094 fit=43.4094 marker=0.477  RS=0.554  share=210.930x  t/yr=1.6  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   282: BEST_DISC=44.1385 (rsi_vol_regime)  evals=20,205 (34/s)  0.8h left
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    momentum_stayer        disc=43.4094 fit=43.4094 marker=0.477  RS=0.554  share=210.930x  t/yr=1.6  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   303: BEST_DISC=44.1385 (rsi_vol_regime)  evals=21,272 (34/s)  0.8h left
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    momentum_stayer        disc=43.4094 fit=43.4094 marker=0.477  RS=0.554  share=210.930x  t/yr=1.6  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   325: BEST_DISC=44.1385 (rsi_vol_regime)  evals=22,343 (34/s)  0.8h left
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    momentum_stayer        disc=43.4094 fit=43.4094 marker=0.477  RS=0.554  share=210.930x  t/yr=1.6  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   347: BEST_DISC=55.7153 (momentum_stayer)  evals=23,399 (34/s)  0.8h left
+    momentum_stayer        disc=55.7153 fit=55.7153 marker=0.467  RS=0.542  share=203.237x  t/yr=1.8  DD=45.7%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   368: BEST_DISC=57.1794 (momentum_stayer)  evals=24,483 (34/s)  0.8h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   389: BEST_DISC=57.1794 (momentum_stayer)  evals=25,543 (34/s)  0.8h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   411: BEST_DISC=57.1794 (momentum_stayer)  evals=26,639 (34/s)  0.8h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   433: BEST_DISC=57.1794 (momentum_stayer)  evals=27,686 (34/s)  0.8h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   456: BEST_DISC=57.1794 (momentum_stayer)  evals=28,743 (34/s)  0.8h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   480: BEST_DISC=57.1794 (momentum_stayer)  evals=29,818 (34/s)  0.8h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   505: BEST_DISC=57.1794 (momentum_stayer)  evals=30,898 (34/s)  0.8h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   530: BEST_DISC=57.1794 (momentum_stayer)  evals=31,946 (34/s)  0.7h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   555: BEST_DISC=57.1794 (momentum_stayer)  evals=33,009 (34/s)  0.7h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   581: BEST_DISC=57.1794 (momentum_stayer)  evals=34,060 (34/s)  0.7h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   606: BEST_DISC=57.1794 (momentum_stayer)  evals=35,116 (34/s)  0.7h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   631: BEST_DISC=57.1794 (momentum_stayer)  evals=36,179 (34/s)  0.7h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   656: BEST_DISC=57.1794 (momentum_stayer)  evals=37,234 (34/s)  0.7h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   682: BEST_DISC=57.1794 (momentum_stayer)  evals=38,300 (34/s)  0.7h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    ema_regime             disc=17.2818 fit=17.2818 marker=0.472  RS=0.567  share=85.283x  t/yr=1.0  DD=70.6%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   709: BEST_DISC=57.1794 (momentum_stayer)  evals=39,366 (34/s)  0.7h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   735: BEST_DISC=57.1794 (momentum_stayer)  evals=40,410 (34/s)  0.7h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   762: BEST_DISC=57.1794 (momentum_stayer)  evals=41,460 (34/s)  0.7h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   789: BEST_DISC=57.1794 (momentum_stayer)  evals=42,517 (34/s)  0.7h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   816: BEST_DISC=57.1794 (momentum_stayer)  evals=43,562 (34/s)  0.6h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+    dual_momentum          disc=12.3191 fit=12.3191 marker=0.442  RS=0.551  share=41.819x  t/yr=2.3  DD=54.6%
+Gen   841: BEST_DISC=57.1794 (momentum_stayer)  evals=44,630 (34/s)  0.6h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    dual_momentum          disc=17.9814 fit=17.9814 marker=0.473  RS=0.613  share=38.541x  t/yr=3.7  DD=54.0%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen   863: BEST_DISC=57.1794 (momentum_stayer)  evals=45,650 (34/s)  0.6h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen   886: BEST_DISC=57.1794 (momentum_stayer)  evals=46,692 (34/s)  0.6h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen   909: BEST_DISC=57.1794 (momentum_stayer)  evals=47,741 (34/s)  0.6h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen   934: BEST_DISC=57.1794 (momentum_stayer)  evals=48,778 (34/s)  0.6h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen   960: BEST_DISC=57.1794 (momentum_stayer)  evals=49,832 (34/s)  0.6h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen   986: BEST_DISC=57.1794 (momentum_stayer)  evals=50,886 (34/s)  0.6h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1013: BEST_DISC=57.1794 (momentum_stayer)  evals=51,945 (34/s)  0.6h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    breakout               disc=22.5958 fit=22.5958 marker=0.478  RS=0.617  share=47.663x  t/yr=2.2  DD=52.7%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1038: BEST_DISC=57.1794 (momentum_stayer)  evals=53,017 (34/s)  0.6h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1063: BEST_DISC=57.1794 (momentum_stayer)  evals=54,059 (34/s)  0.6h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1089: BEST_DISC=57.1794 (momentum_stayer)  evals=55,104 (34/s)  0.6h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1115: BEST_DISC=57.1794 (momentum_stayer)  evals=56,118 (34/s)  0.5h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1142: BEST_DISC=57.1794 (momentum_stayer)  evals=57,160 (34/s)  0.5h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1170: BEST_DISC=57.1794 (momentum_stayer)  evals=58,223 (34/s)  0.5h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1198: BEST_DISC=57.1794 (momentum_stayer)  evals=59,278 (34/s)  0.5h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1226: BEST_DISC=57.1794 (momentum_stayer)  evals=60,328 (34/s)  0.5h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1254: BEST_DISC=57.1794 (momentum_stayer)  evals=61,364 (34/s)  0.5h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1282: BEST_DISC=57.1794 (momentum_stayer)  evals=62,410 (34/s)  0.5h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    rsi_regime             disc=35.0700 fit=35.0700 marker=0.315  RS=0.576  share=128.093x  t/yr=1.5  DD=66.9%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1308: BEST_DISC=57.1794 (momentum_stayer)  evals=63,475 (34/s)  0.5h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    rsi_regime             disc=35.0700 fit=35.0700 marker=0.315  RS=0.576  share=128.093x  t/yr=1.5  DD=66.9%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    slope_persistence      disc=24.2684 fit=24.2684 marker=0.480  RS=0.584  share=68.861x  t/yr=3.0  DD=68.7%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1334: BEST_DISC=57.1794 (momentum_stayer)  evals=64,546 (34/s)  0.5h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    rsi_regime             disc=35.0700 fit=35.0700 marker=0.315  RS=0.576  share=128.093x  t/yr=1.5  DD=66.9%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1360: BEST_DISC=57.1794 (momentum_stayer)  evals=65,621 (34/s)  0.5h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    rsi_regime             disc=35.0700 fit=35.0700 marker=0.315  RS=0.576  share=128.093x  t/yr=1.5  DD=66.9%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1388: BEST_DISC=57.1794 (momentum_stayer)  evals=66,704 (34/s)  0.5h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    rsi_regime             disc=35.0700 fit=35.0700 marker=0.315  RS=0.576  share=128.093x  t/yr=1.5  DD=66.9%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1416: BEST_DISC=57.1794 (momentum_stayer)  evals=67,749 (34/s)  0.5h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    rsi_regime             disc=35.0700 fit=35.0700 marker=0.315  RS=0.576  share=128.093x  t/yr=1.5  DD=66.9%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1445: BEST_DISC=57.1794 (momentum_stayer)  evals=68,812 (34/s)  0.4h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1473: BEST_DISC=57.1794 (momentum_stayer)  evals=69,858 (34/s)  0.4h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1501: BEST_DISC=57.1794 (momentum_stayer)  evals=70,878 (34/s)  0.4h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1529: BEST_DISC=57.1794 (momentum_stayer)  evals=71,907 (34/s)  0.4h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1558: BEST_DISC=57.1794 (momentum_stayer)  evals=72,953 (34/s)  0.4h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1587: BEST_DISC=57.1794 (momentum_stayer)  evals=73,978 (34/s)  0.4h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1616: BEST_DISC=57.1794 (momentum_stayer)  evals=75,006 (34/s)  0.4h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1645: BEST_DISC=57.1794 (momentum_stayer)  evals=76,022 (34/s)  0.4h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1675: BEST_DISC=57.1794 (momentum_stayer)  evals=77,054 (34/s)  0.4h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1705: BEST_DISC=57.1794 (momentum_stayer)  evals=78,098 (34/s)  0.4h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1735: BEST_DISC=57.1794 (momentum_stayer)  evals=79,127 (34/s)  0.4h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1765: BEST_DISC=57.1794 (momentum_stayer)  evals=80,147 (34/s)  0.4h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1796: BEST_DISC=57.1794 (momentum_stayer)  evals=81,206 (34/s)  0.3h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1827: BEST_DISC=57.1794 (momentum_stayer)  evals=82,236 (34/s)  0.3h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1858: BEST_DISC=57.1794 (momentum_stayer)  evals=83,271 (34/s)  0.3h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1889: BEST_DISC=57.1794 (momentum_stayer)  evals=84,320 (34/s)  0.3h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1920: BEST_DISC=57.1794 (momentum_stayer)  evals=85,342 (34/s)  0.3h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1952: BEST_DISC=57.1794 (momentum_stayer)  evals=86,390 (34/s)  0.3h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  1983: BEST_DISC=57.1794 (momentum_stayer)  evals=87,412 (34/s)  0.3h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  2014: BEST_DISC=57.1794 (momentum_stayer)  evals=88,433 (34/s)  0.3h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  2046: BEST_DISC=57.1794 (momentum_stayer)  evals=89,468 (34/s)  0.3h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  2077: BEST_DISC=57.1794 (momentum_stayer)  evals=90,497 (34/s)  0.3h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  2110: BEST_DISC=57.1794 (momentum_stayer)  evals=91,544 (34/s)  0.3h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  2142: BEST_DISC=57.1794 (momentum_stayer)  evals=92,580 (34/s)  0.2h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  2174: BEST_DISC=57.1794 (momentum_stayer)  evals=93,605 (34/s)  0.2h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  2208: BEST_DISC=57.1794 (momentum_stayer)  evals=94,644 (34/s)  0.2h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
+Gen  2242: BEST_DISC=57.1794 (momentum_stayer)  evals=95,694 (34/s)  0.2h left
+    momentum_stayer        disc=57.1794 fit=57.1794 marker=0.465  RS=0.540  share=194.564x  t/yr=1.9  DD=43.3%
+    rsi_vol_regime         disc=44.1385 fit=44.1385 marker=0.353  RS=0.499  share=219.026x  t/yr=1.9  DD=60.0%
+    montauk_821            disc=43.7697 fit=43.7697 marker=0.512  RS=0.583  share=106.105x  t/yr=3.8  DD=57.0%
+    rsi_regime             disc=42.7694 fit=42.7694 marker=0.343  RS=0.452  share=162.753x  t/yr=1.8  DD=71.4%
+    breakout               disc=39.3803 fit=39.3803 marker=0.511  RS=0.561  share=190.772x  t/yr=1.0  DD=59.7%
+    vix_trend_regime       disc=26.4961 fit=26.4961 marker=0.439  RS=0.580  share=54.696x  t/yr=2.5  DD=47.6%
+    slope_persistence      disc=25.5013 fit=25.5013 marker=0.487  RS=0.585  share=82.914x  t/yr=3.0  DD=75.3%
+    rsi_recovery           disc=25.1364 fit=25.1364 marker=0.425  RS=0.651  share=75.810x  t/yr=1.2  DD=61.0%
+    dual_momentum          disc=24.1763 fit=24.1763 marker=0.468  RS=0.616  share=51.333x  t/yr=3.4  DD=53.9%
+    rsi_regime_trail       disc=18.4733 fit=18.4733 marker=0.431  RS=0.525  share=56.913x  t/yr=2.1  DD=57.2%
+    vol_regime             disc=14.7085 fit=14.7085 marker=0.415  RS=0.538  share=36.346x  t/yr=2.1  DD=45.5%
