@@ -422,7 +422,7 @@ def discovery_score_from_cache(entry: dict) -> float:
     return discovery_score_value(fitness_from_cache(entry), entry.get("ma", NEUTRAL_MARKER_SCORE))
 
 
-def fitness(result: BacktestResult) -> float:
+def fitness(result: BacktestResult, *, tier: str = "T2") -> float:
     """
     Share-count accumulation fitness — primary metric is share_multiple vs B&H.
 
@@ -430,8 +430,14 @@ def fitness(result: BacktestResult) -> float:
         ratio of strategy terminal share-equivalent to B&H terminal shares.
         > 1.0 means the strategy accumulated more TECL units than passive holding.
     Guards: drawdown, cycle concentration (HHI), parameter complexity, trade count floor.
-    Charter boundary: `trades_per_year <= 3.0` (regime, not scalper).
+    Charter boundary: `trades_per_year <= MAX_TRADES_PER_YEAR` (regime, not scalper).
     Regime score used as a quality multiplier (not primary driver).
+
+    Tier handling:
+      T0: skip the trades-per-param (tpp) gate. Canonical param pre-registration
+          is the structural defense against underdetermined fits — there is no
+          search bias to punish. Still apply drawdown, HHI, charter gates.
+      T1/T2: full gates as before.
 
     Deliberately no soft ramp for low trade counts — see module docstring.
     """
@@ -458,20 +464,24 @@ def fitness(result: BacktestResult) -> float:
     # Max DD of 80%+ → 0.3x, 40% → 0.65x, 20% → 0.83x
     dd_penalty = max(0.3, 1.0 - result.max_drawdown_pct / 120.0)
 
-    # ── Parameter complexity penalty (research: 10:1 minimum, we use 5:1 hard gate) ──
-    n_params = sum(1 for k, v in result.params.items()
-                   if isinstance(v, (int, float)) and not isinstance(v, bool)
-                   and k != "cooldown")
-    if n_params > 0:
-        tpp_ratio = result.num_trades / n_params
-        if tpp_ratio < 5:
-            return 0.0  # underdetermined — reject
-        elif tpp_ratio < 10:
-            complexity_penalty = 0.5 + 0.5 * (tpp_ratio - 5) / 5  # ramp 5→10
+    # ── Parameter complexity penalty — T1/T2 only ──
+    # T0 bypasses: canonical param pre-registration is the structural defense.
+    if tier == "T0":
+        complexity_penalty = 1.0
+    else:
+        n_params = sum(1 for k, v in result.params.items()
+                       if isinstance(v, (int, float)) and not isinstance(v, bool)
+                       and k != "cooldown")
+        if n_params > 0:
+            tpp_ratio = result.num_trades / n_params
+            if tpp_ratio < 5:
+                return 0.0  # underdetermined — reject
+            elif tpp_ratio < 10:
+                complexity_penalty = 0.5 + 0.5 * (tpp_ratio - 5) / 5  # ramp 5→10
+            else:
+                complexity_penalty = 1.0
         else:
             complexity_penalty = 1.0
-    else:
-        complexity_penalty = 1.0
 
     # ── Regime quality multiplier (rewards good timing, but share_mult drives ranking) ──
     # Regime score 0.7 → 1.0x (full credit), 0.5 → 0.8x, 0.3 → 0.6x

@@ -1171,6 +1171,56 @@ def ema_regime(ind: Indicators, p: dict) -> tuple:
 # Pre-registered as T0 at 2026-04-13. Params committed before first backtest.
 # ─────────────────────────────────────────────────────────────────────────────
 
+def golden_cross_slope(ind: Indicators, p: dict) -> tuple:
+    """T0 HYPOTHESIS — Classic 50/200 Golden Cross with a slope filter on the slow EMA.
+
+    Hypothesis: the 50/200 golden cross is the canonical long-term trend signal;
+    adding a rising-slope requirement on the 200-EMA filters out the chop
+    regime where fast and slow weave around each other without real direction.
+    Exit on the reciprocal death cross — no fancy exit, trust the signal.
+
+    Pre-registered as T0 at 2026-04-13. 4 tunable canonical params.
+    Params (all canonical):
+      fast_ema      = 50   (MA_PERIODS)
+      slow_ema      = 200  (MA_PERIODS)
+      slope_window  = 5    (SLOPE_CONFIRM_BARS) — slope lookback on slow EMA
+      entry_bars    = 3    (SLOPE_CONFIRM_BARS) — confirmation bars for entry
+      cooldown      = 5    (COOLDOWN_BARS, structural — not counted toward tier)
+    """
+    n = ind.n
+    cl = ind.close
+    fast = ind.ema(p.get("fast_ema", 50))
+    slow = ind.ema(p.get("slow_ema", 200))
+    slope_window = int(p.get("slope_window", 5))
+    entry_bars = int(p.get("entry_bars", 3))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    bull_count = 0
+    for i in range(slope_window + 1, n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(slow[i - slope_window]):
+            continue
+        slow_rising = slow[i] > slow[i - slope_window]
+        golden = fast[i] > slow[i]
+        # Track consecutive bars with golden+rising-slope state
+        if golden and slow_rising:
+            bull_count += 1
+        else:
+            bull_count = 0
+        # Entry: golden cross confirmed for entry_bars consecutive bars + slow rising
+        if bull_count == entry_bars:
+            entries[i] = True
+        # Exit: fast crosses below slow (death cross) — no slope requirement for exit,
+        # we want to be fast on the way out
+        if fast[i - 1] >= slow[i - 1] and fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"  # death cross
+
+    return entries, exits, labels
+
+
 def ema_200_regime(ind: Indicators, p: dict) -> tuple:
     n = ind.n
     cl = ind.close
@@ -1195,6 +1245,7 @@ def ema_200_regime(ind: Indicators, p: dict) -> tuple:
 
 
 STRATEGY_REGISTRY = {
+    "golden_cross_slope":       golden_cross_slope,
     "ema_200_regime":           ema_200_regime,
     "montauk_821":              montauk_821,
     "rsi_regime":               rsi_regime,
@@ -1221,6 +1272,7 @@ STRATEGY_REGISTRY = {
 # Any strategy whose params get touched by the GA is effectively T2 regardless of its
 # declared tier — the declared tier is an upper bound on leniency, not a bypass.
 STRATEGY_TIERS = {
+    "golden_cross_slope":       "T0",  # hypothesis: 50/200 golden cross + slow-slope filter, canonical
     "ema_200_regime":           "T0",  # hypothesis: 200-EMA regime filter, canonical params only
     "montauk_821":              "T2",  # heavily tuned
     "rsi_regime":               "T2",
@@ -1247,6 +1299,13 @@ STRATEGY_PARAMS = {
     "ema_200_regime": {
         "ema_len":  (200, 200, 1, int),
         "cooldown": (2, 2, 1, int),
+    },
+    "golden_cross_slope": {
+        "fast_ema":     (50, 50, 1, int),
+        "slow_ema":     (200, 200, 1, int),
+        "slope_window": (5, 5, 1, int),
+        "entry_bars":   (3, 3, 1, int),
+        "cooldown":     (5, 5, 1, int),
     },
     "montauk_821": {
         "short_ema": (5, 25, 2, int), "med_ema": (15, 60, 5, int),

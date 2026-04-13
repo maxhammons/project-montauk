@@ -1033,6 +1033,48 @@ def _build_ema_regime(params: dict) -> str:
     )
 
 
+def _build_golden_cross_slope(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Golden Cross + Slope (T0)",
+        "GCSlope",
+        "golden_cross_slope",
+        f"""
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 50))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 200))}, "Slow EMA", minval=1, group="1 - Inputs")
+        slopeWindow  = input.int({_pine_number(params.get("slope_window", 5))}, "Slow EMA Slope Window", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+        slowRising = not na(slowEma) and not na(slowEma[slopeWindow]) and slowEma > slowEma[slopeWindow]
+        golden = not na(fastEma) and not na(slowEma) and fastEma > slowEma
+
+        var int bullCount = 0
+        if golden and slowRising
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        crossDown = not na(fastEma) and not na(slowEma) and not na(fastEma[1]) and not na(slowEma[1]) and fastEma[1] >= slowEma[1] and fastEma < slowEma
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and crossDown
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Death Cross", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(fastEma, "Fast EMA (50)", color=color.new(color.green, 30), linewidth=2)
+        plot(slowEma, "Slow EMA (200)", color=color.new(color.blue, 30), linewidth=2)
+        """,
+    )
+
+
 def _build_ema_200_regime(params: dict) -> str:
     return _wrap(
         "Project Montauk Candidate - EMA-200 Regime (T0)",
@@ -1062,6 +1104,7 @@ def _build_ema_200_regime(params: dict) -> str:
 
 
 _BUILDERS = {
+    "golden_cross_slope": _build_golden_cross_slope,
     "ema_200_regime": _build_ema_200_regime,
     "montauk_821": _build_montauk_821,
     "rsi_regime": _build_rsi_regime,

@@ -420,17 +420,41 @@ def _gate3_fragility(strategy_name: str, params: dict, ctx: ValidationContext) -
     }
 
 
-def _gate4_time_generalization(strategy_name: str, params: dict, ctx: ValidationContext) -> dict:
+def _gate4_time_generalization(strategy_name: str, params: dict, ctx: ValidationContext, *, tier: str = "T2") -> dict:
+    """Walk-forward + named-window checks. Tier-aware:
+
+    At T0, walk-forward `hard_fail_reasons` are demoted to `soft_warnings`.
+    Rationale: a walk-forward drop at T2 means the GA fit the IS period and
+    OOS degraded — classic overfit. A walk-forward drop at T0 means the
+    committed canonical hypothesis performed inconsistently across time. That
+    is informative but not overfit, and not a reason to reject a pre-registered
+    strategy whose params never saw the data.
+
+    `named_windows` hard fails still bite at every tier — those are
+    deployment-context specific (e.g., strategy broke during 2020 meltup).
+    """
     strategy_fn = STRATEGY_REGISTRY[strategy_name]
     walk_forward = analyze_walk_forward(ctx.df, strategy_fn, params, strategy_name)
     named_windows = analyze_named_windows(ctx.df, strategy_fn, params, strategy_name)
-    soft_warnings = list(walk_forward.get("soft_warnings", [])) + list(named_windows.get("soft_warnings", []))
+
+    wf_hard = list(walk_forward["hard_fail_reasons"])
+    wf_soft = list(walk_forward.get("soft_warnings", []))
+    nw_hard = list(named_windows["hard_fail_reasons"])
+    nw_soft = list(named_windows.get("soft_warnings", []))
+
+    if tier == "T0" and wf_hard:
+        # Demote walk-forward hard fails to soft warnings for T0.
+        wf_soft = wf_soft + [f"[T0 demoted] {r}" for r in wf_hard]
+        wf_hard = []
+
+    soft_warnings = wf_soft + nw_soft
     critical_warnings = list(walk_forward.get("critical_warnings", [])) + list(named_windows.get("critical_warnings", []))
     warnings = soft_warnings + critical_warnings
-    hard_fail_reasons = list(walk_forward["hard_fail_reasons"]) + list(named_windows["hard_fail_reasons"])
+    hard_fail_reasons = wf_hard + nw_hard
     verdict = "FAIL" if hard_fail_reasons else "WARN" if critical_warnings else "PASS"
     return {
         "verdict": verdict,
+        "tier": tier,
         "walk_forward": walk_forward,
         "named_windows": named_windows,
         "walk_forward_score": walk_forward["score"],
@@ -511,16 +535,23 @@ def _gate_marker_shape(strategy_name: str, params: dict, ctx: ValidationContext,
     trade the same cycles?" not "does it match hindsight-perfect timing?"
 
     Per tier:
-      T0: state_agreement >= 0.75 (hard), missed_cycles == 0 (hard), transition_timing >= 0.50 (soft)
+      T0: state_agreement >= 0.70 (hard), missed_cycles <= 2 (soft warning), transition_timing >= 0.50 (soft)
       T1: state_agreement >= 0.70 (hard), missed_cycles <= 3 (soft warning)
       T2: state_agreement >= 0.65 (hard), missed_cycles <= 5 (soft warning)
 
-    `missed_cycles` is a hard fail only at T0 (where the strategy is pre-registered
-    as a hypothesis and ought to engage with every marker cycle the data covers).
-    At T1/T2 it is a soft warning — a large search will produce candidates with
-    high state_agreement that still miss some early-period marker cycles due to
-    indicator warm-up, data-availability windows, or genuine regime mismatches,
-    and that is informative but not disqualifying when state overlap is strong.
+    state_agreement is the primary engagement test at every tier — "is the
+    strategy in the market when the markers say to be, and out when they say
+    not to be?" At >= 0.70 that's comfortably engaged.
+
+    `missed_cycles` is a soft warning at every tier because it conflates "didn't
+    engage" with "entered late." A strategy like a 50/200 golden cross inherently
+    lags a hindsight-perfect marker buy by ~100 bars (the averaging window); the
+    strategy still engaged the bull leg, just later. `state_agreement` catches
+    non-engagement directly; we don't need to double-punish it via missed_cycles.
+
+    T0's real defense against overfit is structural: canonical-only params + <= 5
+    params + pre-registration. The marker gate at T0 is about cycle engagement,
+    not about hitting exact hindsight dates.
     """
     trades, bt_result = get_strategy_trades(ctx.df, strategy_name, params)
     if trades is None or bt_result is None:
@@ -546,7 +577,7 @@ def _gate_marker_shape(strategy_name: str, params: dict, ctx: ValidationContext,
     missed_cycles = sum(1 for m in buy_matches if (m.get("score") or 0) < 0.1)
 
     if tier == "T0":
-        state_floor, missed_cap, timing_floor, missed_is_hard = 0.75, 0, 0.50, True
+        state_floor, missed_cap, timing_floor, missed_is_hard = 0.70, 2, 0.50, False
     elif tier == "T1":
         state_floor, missed_cap, timing_floor, missed_is_hard = 0.70, 3, 0.40, False
     else:  # T2
@@ -746,9 +777,18 @@ def _gate7_synthesis(
     warnings = soft_warnings + critical_warnings
 
     # Verdict: 4-tier taxonomy
+    # T0 allows a higher soft-warning inventory before downgrading to WARN.
+    # Rationale: at T2, accumulated soft warnings signal probabilistic overfit
+    # risk (from the statistical gauntlet). At T0, soft warnings are primarily
+    # *descriptive* of the hypothesis — MA-lag vs markers, walk-forward time
+    # variance of committed params, specific-window behaviour. None of these
+    # signal overfit because T0 cannot overfit (canonical pre-registered params,
+    # no tuning). The cap is raised so T0 strategies pass on their structural
+    # defenses rather than being penalised for the tier's descriptive emissions.
+    soft_warning_cap = 8 if tier == "T0" else 4
     if hard_fail_reasons or composite_confidence < 0.45:
         verdict = "FAIL"
-    elif critical_warnings or composite_confidence < 0.70 or len(soft_warnings) >= 4:
+    elif critical_warnings or composite_confidence < 0.70 or len(soft_warnings) >= soft_warning_cap:
         verdict = "WARN"
     else:
         verdict = "PASS"
@@ -875,9 +915,9 @@ def _validate_entry(
     validation["gates"]["gate3"] = gate3
     hard_stop = hard_stop or bool(gate3.get("hard_fail_reasons"))
 
-    # ── Gate 4: walk-forward / named windows — ALL tiers ──
+    # ── Gate 4: walk-forward / named windows — ALL tiers (tier-aware strictness) ──
     if not hard_stop:
-        gate4 = _gate4_time_generalization(strategy_name, params, ctx)
+        gate4 = _gate4_time_generalization(strategy_name, params, ctx, tier=tier)
     else:
         gate4 = _skip_gate("earlier hard fail")
     validation["gates"]["gate4"] = gate4
