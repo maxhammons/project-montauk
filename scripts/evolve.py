@@ -272,6 +272,16 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
             "converged": strategy_state[name]["converged"],
             "runs_without_improvement": strategy_state[name]["runs_without_improvement"],
         }
+        # Preserve marker alignment fields — these are first-class charter
+        # signals, not optional decoration. Reports/dashboards rely on
+        # `marker_alignment_score` being present at the top level.
+        if entry.get("marker_alignment_score") is not None:
+            lb_entry["marker_alignment_score"] = entry["marker_alignment_score"]
+        if entry.get("marker_alignment_detail") is not None:
+            lb_entry["marker_alignment_detail"] = entry["marker_alignment_detail"]
+        # Preserve declared tier (validation tier may differ if auto-promoted)
+        if entry.get("tier") is not None:
+            lb_entry["tier"] = entry["tier"]
         if entry.get("validation") is not None:
             lb_entry["validation"] = entry["validation"]
         desc = STRATEGY_DESCRIPTIONS.get(name)
