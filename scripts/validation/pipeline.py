@@ -534,38 +534,27 @@ def _gate5_uncertainty(strategy_name: str, params: dict, ctx: ValidationContext)
 
 
 def _gate_marker_shape(strategy_name: str, params: dict, ctx: ValidationContext, *, tier: str = "T2") -> dict:
-    """First-class validation gate: does the strategy trade the marker-defined cycle shape?
+    """Diagnostic marker-shape gate. NO hard fails — soft/critical warnings only.
 
-    The hand-marked TECL cycles in reference/research/chart/TECL-markers.csv are the
-    charter's working definition of success. A strategy that beats B&H share count but
-    trades a completely different shape is doing something other than what the project
-    is trying to do — that's also a fail.
+    The hand-marked TECL cycles in reference/research/chart/TECL-markers.csv are
+    the charter's *north star* for what good cycle timing looks like. They inform
+    hypothesis design (see T0-DESIGN-GUIDE.md) and are reported as a quality
+    signal in every run, but they are NOT the bouncer at the door.
 
-    Thresholds are intentionally loose: we're asking "is the strategy clearly trying to
-    trade the same cycles?" not "does it match hindsight-perfect timing?"
+    Charter goal restated (2026-04-13 second revision): maximize TECL share count
+    vs B&H, with trades ≤ 5/year. Strategies that hit those goals while surviving
+    walk-forward, cross-asset, and concentration gates are valid winners — even
+    if they don't trade the same exact cycle shape Max marked.
 
-    Per tier:
-      T0: state_agreement >= 0.65 (hard), missed_cycles <= 2 (soft warning), transition_timing >= 0.50 (soft)
-      T1: state_agreement >= 0.65 (hard), missed_cycles <= 3 (soft warning)
-      T2: state_agreement >= 0.65 (hard), missed_cycles <= 5 (soft warning)
+    Thresholds (soft / critical only — no hard fails at any tier):
+      state_agreement < 0.30 → critical warning (essentially uncorrelated with markers)
+      state_agreement < 0.50 → soft warning (barely above random alignment)
+      missed_cycles > tier_cap → soft warning (informational only)
+      transition_timing < tier_floor → soft warning (informational only)
 
-    state_agreement is the primary engagement test at every tier — "is the
-    strategy in the market when the markers say to be, and out when they say
-    not to be?" The floor is a constant 0.65 across tiers because the question
-    being asked is the same regardless of selection mechanism. Tier
-    differentiation comes from *structural* defenses (canonical-only params,
-    pre-registration, ≤5 params at T0), not from gating engagement more
-    strictly for one tier than another.
-
-    `missed_cycles` is a soft warning at every tier because it conflates "didn't
-    engage" with "entered late." A strategy like a 50/200 golden cross inherently
-    lags a hindsight-perfect marker buy by ~100 bars (the averaging window); the
-    strategy still engaged the bull leg, just later. `state_agreement` catches
-    non-engagement directly; we don't need to double-punish it via missed_cycles.
-
-    T0's real defense against overfit is structural: canonical-only params + <= 5
-    params + pre-registration. The marker gate at T0 is about cycle engagement,
-    not about hitting exact hindsight dates.
+    The marker_score still feeds composite_confidence and rankings — strategies
+    that match the marker shape better get scored higher all else equal. But
+    "doesn't match Max's exact drawing" is no longer disqualifying.
     """
     trades, bt_result = get_strategy_trades(ctx.df, strategy_name, params)
     if trades is None or bt_result is None:
@@ -590,36 +579,51 @@ def _gate_marker_shape(strategy_name: str, params: dict, ctx: ValidationContext,
     buy_matches = align.get("buy_transition_matches", []) or []
     missed_cycles = sum(1 for m in buy_matches if (m.get("score") or 0) < 0.1)
 
+    # Tier still parameterises informational thresholds, but no tier hard-fails on marker.
     if tier == "T0":
-        state_floor, missed_cap, timing_floor, missed_is_hard = 0.65, 2, 0.50, False
+        missed_cap, timing_floor = 2, 0.50
     elif tier == "T1":
-        state_floor, missed_cap, timing_floor, missed_is_hard = 0.65, 3, 0.40, False
+        missed_cap, timing_floor = 3, 0.40
     else:  # T2
-        state_floor, missed_cap, timing_floor, missed_is_hard = 0.65, 5, 0.30, False
+        missed_cap, timing_floor = 5, 0.30
+
+    # Universal marker thresholds (apply at every tier — diagnostic only):
+    #   < 0.30 = critical warning (essentially uncorrelated)
+    #   < 0.50 = soft warning (barely above random)
+    UNCORRELATED_FLOOR = 0.30
+    BARELY_ABOVE_RANDOM_FLOOR = 0.50
 
     hard_fail_reasons = []
     soft_warnings = []
+    critical_warnings = []
     advisories = []
     if target_buys == 0:
-        advisories.append("marker overlap produced zero target buys — skipping shape gate")
+        advisories.append("marker overlap produced zero target buys — skipping shape diagnostics")
     else:
-        if state_agreement < state_floor:
-            hard_fail_reasons.append(
-                f"[{tier}] marker state_agreement={state_agreement:.3f} < {state_floor:.2f}"
+        if state_agreement < UNCORRELATED_FLOOR:
+            critical_warnings.append(
+                f"marker state_agreement={state_agreement:.3f} < {UNCORRELATED_FLOOR:.2f} "
+                f"(essentially uncorrelated with markers)"
+            )
+        elif state_agreement < BARELY_ABOVE_RANDOM_FLOOR:
+            soft_warnings.append(
+                f"marker state_agreement={state_agreement:.3f} < {BARELY_ABOVE_RANDOM_FLOOR:.2f} "
+                f"(barely above random alignment)"
             )
         if missed_cycles > missed_cap:
-            msg = f"[{tier}] missed_marker_cycles={missed_cycles} > {missed_cap}"
-            if missed_is_hard:
-                hard_fail_reasons.append(msg)
-            else:
-                soft_warnings.append(msg)
+            soft_warnings.append(
+                f"[{tier}] missed_marker_cycles={missed_cycles} > {missed_cap} (informational)"
+            )
         if transition_timing < timing_floor:
             soft_warnings.append(
-                f"[{tier}] transition_timing={transition_timing:.3f} < {timing_floor:.2f}"
+                f"[{tier}] transition_timing={transition_timing:.3f} < {timing_floor:.2f} (informational)"
             )
 
-    warnings = soft_warnings + []
-    verdict = "FAIL" if hard_fail_reasons else "PASS"
+    warnings = soft_warnings + critical_warnings
+    # Verdict: marker is diagnostic — never hard-fails on its own.
+    # Critical warning still flags but doesn't FAIL the gate (gate7 may still
+    # downgrade to WARN based on accumulated critical warnings across gates).
+    verdict = "WARN" if critical_warnings else "PASS"
     return {
         "verdict": verdict,
         "tier": tier,
@@ -634,7 +638,7 @@ def _gate_marker_shape(strategy_name: str, params: dict, ctx: ValidationContext,
         "overlap_end": align.get("overlap_end"),
         "advisories": advisories,
         "soft_warnings": soft_warnings,
-        "critical_warnings": [],
+        "critical_warnings": critical_warnings,
         "warnings": warnings,
         "hard_fail_reasons": hard_fail_reasons,
     }

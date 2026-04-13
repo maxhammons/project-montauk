@@ -13,20 +13,32 @@ B&H share count, and generalises off TECL?"**
 
 ## 1. The bar a T0 must clear
 
-Every new T0 must clear all of these to PASS:
+Every new T0 must clear all of these hard gates to PASS:
 
 | Gate | Threshold | What it asks |
 |------|-----------|--------------|
 | **Charter** | `share_multiple > 1.0` | "Did you accumulate more TECL units than B&H?" |
 | **Charter** | `trades_per_year ≤ 5.0` | "Are you a regime strategy, not a scalper?" |
 | **Eligibility** | `trade_count ≥ 5` | "Did the strategy actually engage at all?" |
-| **Marker** | `state_agreement ≥ 0.65` | "Are you in/out of the market the same fraction of bars as the markers?" |
 | **Walk-forward** | OOS/IS ratio decent | "Does it work across time windows, not just one period?" (soft at T0) |
 | **Cross-asset** | Beats B&H on TQQQ/UPRO | "Does the logic generalise off TECL?" |
 | **Synthesis** | composite_confidence > 0.45 (FAIL floor) | Geometric mean of all sub-scores |
 
 Hitting "all hard gates" is necessary but not sufficient — too many soft warnings
 (>= 8 at T0) downgrades to WARN, which is not promotable.
+
+### Marker alignment is a diagnostic, not a gate
+
+The marker chart is a north star for *designing* hypotheses (see Section 4), but
+it does NOT hard-fail validation. Soft / critical warnings only:
+
+- `state_agreement < 0.30` → critical warning (essentially uncorrelated with markers)
+- `state_agreement < 0.50` → soft warning (barely above random alignment)
+- otherwise informational
+
+A strategy that maximizes share count via a different cycle shape than Max's
+markers can still PASS, as long as it clears the hard gates above. The marker
+shape is "one excellent way to do this," not "the only way."
 
 ---
 
@@ -133,12 +145,14 @@ is "no" or "I don't know," redesign first.
 - [ ] All param values from the strict canonical set (`canonical_params.py`)?
 - [ ] ≤ 5 tunable params (excluding cooldown)?
 
-### Engagement (target: marker state_agreement ≥ 0.65)
+### Engagement (marker is a design heuristic, not a gate — but still useful)
 - [ ] Will this engage every major bull cycle in TECL's history?
   Major bulls: 1999, 2003-2007, 2009-2015, 2016-2018, 2020-2021, 2023+
 - [ ] Will this exit before/during major bears?
   Major bears: 2000-2002, 2008-2009, 2018, 2020 crash, 2022
 - [ ] Estimated trade count (sanity): ~5–30 over 27 years (T0 is patient)
+- [ ] Target: state_agreement > 0.50 (anything below is barely better than random
+  alignment — soft warning territory)
 
 ### Lag discipline (TECL-specific)
 - [ ] Slowest indicator window ≤ 200 bars? (Long EMAs are fatal on 3× leveraged ETFs.)
@@ -167,8 +181,8 @@ is "no" or "I don't know," redesign first.
 ### Smoke test (do this in 60 seconds before validation)
 - [ ] Backtest on TECL once, log: share_multiple, num_trades, marker state_agreement
 - [ ] If share < 1.5x, reconsider before running full validation (close to charter floor)
-- [ ] If state_agreement < 0.70, reconsider before running full validation
-      (close to gate floor — won't survive small variations)
+- [ ] If state_agreement < 0.50, the strategy is barely better than random
+      alignment with markers (soft warning territory but not disqualifying)
 - [ ] If 0 trades or > 50 trades over 27yr, redesign
 
 ---

@@ -11,27 +11,32 @@ Neither layer changes the core identity of Project Montauk. The project remains 
 
 ## 1. Marker-Aligned Discovery
 
-The hand-marked TECL cycle file [`reference/research/chart/TECL-markers.csv`](../research/chart/TECL-markers.csv) is the **north star** for discovery, ranking, and validation.
+The hand-marked TECL cycle file [`reference/research/chart/TECL-markers.csv`](../research/chart/TECL-markers.csv) is a **north star for hypothesis design and a diagnostic for ranking** — not a hard validation gate.
 
-It is no longer a soft prior. The earlier framing (a ±5% nudge on raw fitness) understated the role the marker chart should play. The marker chart is the project's working definition of what "good cycle timing" looks like.
+History note: an earlier revision (first 2026-04-13 charter rewrite) made marker alignment a first-class hard gate at every tier. That overcorrected — it caused strategies that maximize share count via different but valid cycle shapes to fail solely on "doesn't match Max's drawing." Per the second 2026-04-13 revision, the marker is back to being directional guidance plus a diagnostic, not the bouncer at the door.
 
 ### How the marker chart is used
 
 1. **Target series construction.** The marker buy / sell points are converted into a bar-level `risk_on` / `risk_off` target series across the full TECL history.
-2. **Shape alignment metric.** Every candidate's bar-level state series is compared to the marker target. Three numbers are recorded:
+2. **Shape diagnostic metrics.** Every candidate's bar-level state series is compared to the marker target. The following are recorded for ranking and reports:
    - `state_agreement` — fraction of bars where candidate state equals marker state
-   - `median_transition_lag` — median absolute distance between candidate and marker transitions, measured in bars
-   - `missed_cycles` — count of marker cycles the candidate did not engage with at all
-3. **Validation gate.** Marker shape alignment is a first-class **validation gate at every tier** (T0, T1, T2). Threshold values live in the validation scripts.
-4. **Discovery ranking.** Raw discovery ranking uses share-count multiplier as the primary signal and marker shape alignment as a strong tie-breaker. The earlier `0.95 + 0.10 * marker_alignment` formula is retired.
+   - `transition_timing` — how close candidate transitions are to marker transitions
+   - `missed_cycles` — count of marker cycles the candidate did not engage with
+   - `marker_score` — composite of the above
+3. **Soft / critical warnings (not hard fails).**
+   - `state_agreement < 0.30` → critical warning (essentially uncorrelated with markers)
+   - `state_agreement < 0.50` → soft warning (barely above random)
+   - other thresholds → informational
+4. **Hypothesis design prior.** When authoring a new T0 strategy, Claude reads `T0-DESIGN-GUIDE.md` which uses marker engagement as a design heuristic. This is upstream of validation — it shapes what gets *proposed*, not what gets *promoted*.
+5. **Composite confidence.** Marker score still contributes to the geometric composite that drives ranking and the WARN/PASS threshold.
 
 ### What the marker chart is not
 
-- it is not a source of truth about exact trade dates (hindsight-perfect cycle calls are not realistic)
-- it is not a substitute for the validation pipeline
-- it is not a reason to promote a strategy that fails its tier gates
+- it is not a source of truth about exact trade dates
+- it is not a substitute for the charter share-multiplier and trades-per-year gates
+- it is not a reason to reject a strategy that maximizes share count within charter constraints
 
-A strategy that nails the marker shape but fails on cross-asset is not real. A strategy that fails marker alignment but beats `vs_bah` is doing something other than what the project is trying to do — it is also not promotable.
+A strategy that beats B&H share count, holds trades ≤5/yr, survives cross-asset and walk-forward, and has reasonable marker alignment (state_agreement ≥ 0.30) is a valid winner — even if it trades a different cycle shape than the markers describe.
 
 ---
 

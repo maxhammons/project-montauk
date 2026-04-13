@@ -43,15 +43,26 @@ The project may search across many strategy families, but every family must stil
 
 ## 3. North Star: The Marker Chart
 
-The hand-marked TECL cycle file [`reference/research/chart/TECL-markers.csv`](../research/chart/TECL-markers.csv) defines what success looks like.
+The hand-marked TECL cycle file [`reference/research/chart/TECL-markers.csv`](../research/chart/TECL-markers.csv) is the platonic ideal of cycle timing — Max's hindsight-perfect buy/sell calls across the full TECL history.
 
-It is a series of buy / sell points across the full TECL history that captures the major bull / bear cycles. It is the platonic ideal of what a regime strategy should approximate.
+**The marker chart is a north star for hypothesis design and a diagnostic for ranking — not a hard validation gate.**
 
-**The marker chart is the north star, not a soft prior.**
+What the marker chart IS:
+- The reference shape Claude consults when designing new T0 hypotheses (see `T0-DESIGN-GUIDE.md`)
+- A diagnostic metric (`state_agreement`, `marker_score`) reported on every candidate
+- A meaningful contributor to composite quality scoring and ranking
 
-A strategy that approximates the marker shape — same cycles caught, similar transition timing — is doing the job. A strategy that beats `vs_bah` in dollars but trades a completely different shape than the markers is doing something other than what the project is trying to do.
+What the marker chart is NOT:
+- A hard gate that blocks promotion
+- A requirement to match Max's drawn dates
+- The single criterion of success
 
-The project does not require the strategy to match the markers exactly. Hindsight-perfect cycle calls are not realistic. The project does require the strategy to be **clearly trying to trade the same cycles**.
+A strategy is a winner if it **maximizes share count vs B&H within charter constraints** (≤5 trades/year, survives walk-forward / cross-asset / concentration gates). The marker chart describes one excellent way to do that, but not the only way. A strategy that accumulates more shares than B&H by trading a different cycle shape is still winning the charter game.
+
+Marker-shape diagnostics:
+- `state_agreement < 0.30` — critical warning (essentially uncorrelated with markers)
+- `state_agreement < 0.50` — soft warning (barely above random alignment)
+- otherwise — informational only
 
 ---
 
