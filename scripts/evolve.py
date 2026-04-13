@@ -595,11 +595,21 @@ def _require_optuna():
 # ─────────────────────────────────────────────────────────────────────────────
 
 def random_params(space: dict) -> dict:
-    """Generate random parameters within a strategy's search space."""
+    """Generate random parameters within a strategy's search space.
+
+    Degenerate ranges (hi == lo, used by T0 pre-registered strategies) always
+    return the committed value — without this clamp, the fallback
+    `max(1, n_steps)` would let randint produce `lo + 1*step`, drifting the
+    param off-canonical.
+    """
     params = {}
     for name, (lo, hi, step, typ) in space.items():
-        n_steps = int(round((hi - lo) / step))
-        val = lo + random.randint(0, max(1, n_steps)) * step
+        if hi <= lo:
+            val = lo
+        else:
+            n_steps = int(round((hi - lo) / step))
+            val = lo + random.randint(0, max(1, n_steps)) * step
+            val = min(val, hi)
         params[name] = int(round(val)) if typ == int else round(val, 4)
     return params
 
