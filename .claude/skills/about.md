@@ -2,7 +2,10 @@
 
 ## What it does
 
-The spike skill runs an autonomous evolutionary strategy optimizer for Project Montauk. It tests hundreds of thousands of parameter combinations across multiple trading strategies for TECL, using a genetic algorithm to converge on configurations that maximize fitness (beat buy-and-hold with low trade frequency).
+The Spike skill launches and runs the **Montauk Engine** — Project Montauk's autonomous evolutionary strategy optimizer + tier-routed validator + Pine generator. It tests hundreds of thousands of parameter combinations across multiple TECL strategies using a genetic algorithm, with the goal of accumulating more shares of TECL than buy-and-hold while matching the hand-marked cycle shape in `reference/research/chart/TECL-markers.csv`.
+
+> Spike = the entrypoint / command surface (`/spike`, `/spike-focus`, `/spike-results`).
+> Montauk Engine = the underlying machinery (search + tier-routed validation + Pine emission).
 
 ## Architecture
 
@@ -49,8 +52,14 @@ Each backtest takes ~0.03ms. Over 5 hours that's ~600,000 evaluations. An evolut
 
 ## Anti-overfitting
 
-- Fitness penalizes high drawdown and excessive trade frequency
-- Strategies must produce 3+ trades to score above zero
+The Montauk Engine's defense against overfitting is **tier-routed validation** — validation difficulty scales with how the candidate was selected (T0 hypothesis vs T1 tuned vs T2 discovered). See `reference/spirit-guide/VALIDATION-PHILOSOPHY.md` for the framework.
+
+Existing in-engine defenses:
+
+- Fitness penalizes high drawdown
 - Hash-based dedup prevents re-testing identical configs
 - Auto-pruning removes strategies that can't beat baseline after 2 runs
 - Convergence tracking flags strategies that plateau after 3 runs
+- Cross-asset validation runs at every tier as the cheapest, highest-power honesty check
+
+> **Note (2026-04-13):** The "excessive trade frequency" penalty in the current fitness function is being removed — low trade frequency is a feature for a regime strategy, not a flaw. Tier routing has not yet been implemented in code.

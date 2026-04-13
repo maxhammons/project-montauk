@@ -241,7 +241,14 @@ def _run_full(args, strategy_filter):
             )
             if patched_path:
                 artifacts["patched_strategy"] = patched_path
-            print(f"[validate] Champion: {champion['strategy']} (fitness={champion['fitness']:.4f})")
+            champ_tier = ((champion.get("validation") or {}).get("tier")
+                          or champion.get("tier") or "T2")
+            champ_share = (champion.get("metrics") or {}).get("vs_bah", 0.0)
+            print(
+                f"[validate] Champion: {champion['strategy']} "
+                f"tier={champ_tier} share={champ_share:.3f}x "
+                f"(fitness={champion['fitness']:.4f})"
+            )
             print(f"[validate] Pine candidate: {candidate_path}")
             if patched_path:
                 print(f"[validate] Montauk patch:  {patched_path}")

@@ -33,10 +33,15 @@ def _fmt_money(val: float) -> str:
 
 
 def _top_n_table(rankings: list, n: int = 10) -> str:
-    """Generate a markdown table of the top N results."""
+    """Generate a markdown table of the top N results.
+
+    Primary metric: `Share Mult.` — share-count multiplier vs B&H. Per charter
+    (2026-04-13), this is the ranking metric. Tier column shows the effective
+    validation tier (T0 / T1 / T2) the candidate was evaluated under.
+    """
     lines = []
-    lines.append("| # | Strategy | RS | CAGR | Max DD | MAR | vs B&H | Trades | Params | Fitness |")
-    lines.append("|---|----------|----|------|--------|-----|--------|--------|--------|---------|")
+    lines.append("| # | Strategy | Tier | Share Mult. | Marker | RS | CAGR | Max DD | MAR | Trades | Params | Fitness |")
+    lines.append("|---|----------|------|-------------|--------|----|------|--------|-----|--------|--------|---------|")
 
     for entry in rankings[:n]:
         m = entry.get("metrics")
@@ -45,14 +50,19 @@ def _top_n_table(rankings: list, n: int = 10) -> str:
         rs = m.get("regime_score", 0)
         n_params = m.get("n_params", "?")
         n_trades = m.get("trades", 0)
+        tier = ((entry.get("validation") or {}).get("tier")
+                or entry.get("tier") or "T2")
+        marker = entry.get("marker_alignment_score", 0.0)
         lines.append(
             f"| {entry['rank']} "
             f"| {entry['strategy']} "
+            f"| {tier} "
+            f"| {_fmt_mult(m['vs_bah'])} "
+            f"| {marker:.3f} "
             f"| {rs:.3f} "
             f"| {_fmt_pct(m['cagr'])} "
             f"| {_fmt_pct(m['max_dd'])} "
             f"| {m['mar']:.3f} "
-            f"| {_fmt_mult(m['vs_bah'])} "
             f"| {n_trades} "
             f"| {n_params} "
             f"| {_fmt_fitness(entry['fitness'])} |"
@@ -62,20 +72,22 @@ def _top_n_table(rankings: list, n: int = 10) -> str:
 
 def _raw_discovery_table(rankings: list, n: int = 10) -> str:
     lines = []
-    lines.append("| # | Strategy | Discovery | Fitness | Marker | vs B&H | Trades |")
-    lines.append("|---|----------|-----------|---------|--------|--------|--------|")
+    lines.append("| # | Strategy | Tier | Share Mult. | Marker | Fitness | Trades |")
+    lines.append("|---|----------|------|-------------|--------|---------|--------|")
 
     for entry in rankings[:n]:
         m = entry.get("metrics")
         if not m:
             continue
+        tier = ((entry.get("validation") or {}).get("tier")
+                or entry.get("tier") or "T2")
         lines.append(
             f"| {entry['rank']} "
             f"| {entry['strategy']} "
-            f"| {_fmt_fitness(entry.get('discovery_score', 0.0))} "
-            f"| {_fmt_fitness(entry.get('fitness', 0.0))} "
-            f"| {entry.get('marker_alignment_score', 0.0):.3f} "
+            f"| {tier} "
             f"| {_fmt_mult(m.get('vs_bah', 0.0))} "
+            f"| {entry.get('marker_alignment_score', 0.0):.3f} "
+            f"| {_fmt_fitness(entry.get('fitness', 0.0))} "
             f"| {m.get('trades', 0)} |"
         )
     return "\n".join(lines)
@@ -97,22 +109,21 @@ def _detail_block(entry: dict) -> str:
     bear_avoid = m.get("bear_avoidance", 0)
     n_params = m.get("n_params", "?")
 
+    tier = ((entry.get("validation") or {}).get("tier") or entry.get("tier") or "T2")
     lines = [
-        f"### #{entry['rank']}: {entry['strategy']}",
+        f"### #{entry['rank']}: {entry['strategy']}  [`{tier}`]",
         "",
-        f"**Discovery:** {_fmt_fitness(entry.get('discovery_score', entry.get('fitness', 0)))} | "
+        f"**Share Mult. vs B&H:** {_fmt_mult(m['vs_bah'])} | "
         f"**Marker alignment:** {entry.get('marker_alignment_score', 0.0):.3f} | "
         f"**Fitness:** {_fmt_fitness(entry['fitness'])}",
         "",
-        f"**Fitness:** {_fmt_fitness(entry['fitness'])} | "
         f"**Regime Score:** {rs:.3f} (bull={bull_cap:.3f}, bear={bear_avoid:.3f}) | "
-        f"**HHI:** {hhi:.3f}",
+        f"**HHI:** {hhi:.3f} | "
+        f"**Params:** {n_params}",
         "",
         f"**CAGR:** {_fmt_pct(m['cagr'])} | "
         f"**Max DD:** {_fmt_pct(m['max_dd'])} | "
-        f"**MAR:** {m['mar']:.3f} | "
-        f"**vs B&H:** {_fmt_mult(m['vs_bah'])} | "
-        f"**Params:** {n_params}",
+        f"**MAR:** {m['mar']:.3f}",
         "",
         f"**Parameters:**",
         f"```json",
@@ -178,8 +189,8 @@ def _leaderboard_table(leaderboard: list) -> str:
         return "*No historical data yet.*"
 
     lines = []
-    lines.append("| # | Strategy | RS | CAGR | Max DD | MAR | vs B&H | Fitness | Status | Date |")
-    lines.append("|---|----------|----|------|--------|-----|--------|---------|--------|------|")
+    lines.append("| # | Strategy | Tier | Share Mult. | RS | CAGR | Max DD | MAR | Fitness | Status | Date |")
+    lines.append("|---|----------|------|-------------|----|------|--------|-----|---------|--------|------|")
 
     for i, entry in enumerate(leaderboard[:20], 1):
         m = entry.get("metrics", {})
@@ -192,14 +203,16 @@ def _leaderboard_table(leaderboard: list) -> str:
         else:
             status = "active"
         rs = m.get("regime_score", 0)
+        tier = ((entry.get("validation") or {}).get("tier") or entry.get("tier") or "T2")
         lines.append(
             f"| {i} "
             f"| {entry.get('strategy', '?')} "
+            f"| {tier} "
+            f"| {_fmt_mult(m.get('vs_bah', 0))} "
             f"| {rs:.3f} "
             f"| {_fmt_pct(m.get('cagr', 0))} "
             f"| {_fmt_pct(m.get('max_dd', 0))} "
             f"| {m.get('mar', 0):.3f} "
-            f"| {_fmt_mult(m.get('vs_bah', 0))} "
             f"| {_fmt_fitness(entry.get('fitness', 0))} "
             f"| {status} "
             f"| {entry.get('date', '?')} |"

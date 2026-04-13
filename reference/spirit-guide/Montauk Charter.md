@@ -1,19 +1,23 @@
 # Project Montauk Charter
 
-**Canonical summary**: Project Montauk is a TECL strategy factory: discover many long-only TECL strategies, validate them hard against overfitting, and generate Pine for the best PASS winner.
+**Canonical summary**: Project Montauk is a TECL share-accumulation factory: discover long-only TECL strategies that match the hand-marked cycle shape, validate them at a level that matches how they were selected, and generate Pine for the best PASS winner.
 
 ---
 
 ## 1. Mission
 
-Project Montauk exists to find robust long-only TECL strategies that:
+The single goal of Project Montauk is to **end up holding more shares of TECL than buy-and-hold would**, by avoiding major drawdowns and re-entering after corrections.
 
-- capture major bull legs
-- exit bear phases early enough to preserve capital
-- survive hard validation
-- end as deployable Pine Script candidates for TradingView
+TECL is treated as an instrument anchored to a long-term-rising underlying (the US tech complex). The job is not to predict markets. The job is to:
 
-This project is **not** limited to one hand-authored strategy. `montauk_821` is the current baseline and reference implementation, but the project goal is broader: discover the best charter-compatible TECL strategy family, not just tune one EMA system forever.
+- stay invested through bull legs
+- step aside before serious drawdowns
+- buy back more shares than were sold when the cycle resets
+- never force a trade
+
+Holding through a year of new highs without trading is a successful year. The strategy is not penalized for inactivity.
+
+`montauk_821` is the current baseline reference, not the mission. The mission is to discover the best charter-compatible TECL strategy family.
 
 ---
 
@@ -23,8 +27,8 @@ Every promotable strategy must stay inside these boundaries:
 
 - **Symbol**: TECL only
 - **Direction**: long-only
-- **Position model**: single open position, all-in/all-out, no pyramiding
-- **Time horizon**: multi-week to multi-month trend capture, not intraday trading
+- **Position model**: single open position, all-in / all-out, no pyramiding
+- **Time horizon**: multi-week to multi-month trend capture, not intraday
 - **Execution surface**: Pine Script v6 on TradingView
 - **Signal integrity**: bar-close confirmation only, no lookahead, no repainting
 
@@ -37,24 +41,38 @@ The project may search across many strategy families, but every family must stil
 
 ---
 
-## 3. Success Definition
+## 3. North Star: The Marker Chart
+
+The hand-marked TECL cycle file [`reference/research/chart/TECL-markers.csv`](../research/chart/TECL-markers.csv) defines what success looks like.
+
+It is a series of buy / sell points across the full TECL history that captures the major bull / bear cycles. It is the platonic ideal of what a regime strategy should approximate.
+
+**The marker chart is the north star, not a soft prior.**
+
+A strategy that approximates the marker shape — same cycles caught, similar transition timing — is doing the job. A strategy that beats `vs_bah` in dollars but trades a completely different shape than the markers is doing something other than what the project is trying to do.
+
+The project does not require the strategy to match the markers exactly. Hindsight-perfect cycle calls are not realistic. The project does require the strategy to be **clearly trying to trade the same cycles**.
+
+---
+
+## 4. Success Definition
 
 A strategy is only considered real when it completes this full chain:
 
-1. It is discovered by the optimizer across a broad TECL strategy search space.
-2. It passes the validation pipeline with a final **PASS** verdict.
-3. It is allowed onto the validated leaderboard.
+1. It is registered in the appropriate validation tier (T0 / T1 / T2 — see `VALIDATION-PHILOSOPHY.md`).
+2. It passes the validation pipeline for its tier with a final **PASS** verdict.
+3. It is allowed onto the validated leaderboard, tagged with its tier.
 4. It is emitted as a Pine Script candidate ready for TradingView review.
 
 Anything short of that is research output, not a winner.
 
-The system-level success condition is therefore:
+The system-level success condition is:
 
-> discover -> validate -> generate Pine -> manually review in TradingView
+> hypothesize / discover -> validate at the right tier -> generate Pine -> manually review in TradingView
 
 ---
 
-## 4. Non-Goals
+## 5. Non-Goals
 
 The project is not trying to become:
 
@@ -64,61 +82,88 @@ The project is not trying to become:
 - an intraday or high-frequency system
 - an auto-live-deployment bot
 - a place where raw backtest winners bypass validation
+- a system that punishes strategies for trading infrequently
 
 Cross-asset data is allowed for validation only. It is not the production trading scope.
 
 ---
 
-## 5. Evaluation Standards
+## 6. Evaluation Standards
 
-Raw backtest numbers are not enough. The project optimizes for **robust outperformance**, not impressive charts.
+The project optimizes for **share accumulation**, not impressive equity curves.
 
-Primary strategy-level metrics:
+### Primary metric
 
-| Metric | Why it matters |
-|--------|----------------|
-| vs Buy and Hold | Core benchmark: the strategy must justify its existence |
-| CAGR | Primary return measure |
-| Max Drawdown | Primary risk measure |
-| MAR | Return quality under drawdown |
-| Trades/year | Must stay low; the project is not a churn machine |
+| Metric | Definition |
+|--------|-----------|
+| **Share-count multiplier vs B&H** | At end of backtest, mark the strategy's equity to TECL share-equivalent and divide by buy-and-hold's share count. Must be > 1.0. |
+
+### Secondary metric (shape)
+
+| Metric | Definition |
+|--------|-----------|
+| **Marker shape alignment** | State agreement % between the strategy's risk-on/risk-off bar-level series and the marker-derived target series, plus median transition lag and missed-cycle count. |
+
+### Tertiary metrics (sanity / quality)
+
+| Metric | Role |
+|--------|------|
+| vs Buy and Hold (dollars) | Sanity check on the share-count metric |
+| CAGR | Return path quality |
+| Max Drawdown | Risk |
+| MAR | Return-to-drawdown quality |
 | Avg days in trade | Should reflect actual trend capture |
 | Exit reason breakdown | Reveals whether one brittle rule carries the whole system |
 
-Validation quality matters as much as performance. A high-return strategy that fails validation is out of scope for promotion.
+### Removed / downweighted
+
+- **Trade-frequency punishment for low-trade strategies** — a strategy that holds 18 months because TECL is ripping is winning, not under-trading. The pipeline must not penalize this.
+
+Validation quality matters as much as performance. A high-share-count strategy that fails validation is out of scope for promotion.
 
 ---
 
-## 6. Coding Rules
+## 7. Coding Rules
 
 - **Pine Script v6 only**
 - `process_orders_on_close=true`, `calc_on_every_tick=false`
 - One strategy block. One entry id `"Long"`. Exits via `strategy.close`
 - Preserve stable parameter names unless there is a strong migration reason
 - Python is the research engine; Pine is the execution artifact
-- When uncertain about Pine syntax, consult `reference/PineScript Version 6 Reference.txt`
+- When uncertain about Pine syntax, consult `reference/pinescriptv6-main/`
 
 ---
 
-## 7. Decision Rule
+## 8. Decision Rule
 
 If asked to add work that breaks the charter, call it out clearly:
 
-> "Out of scope per Montauk charter. The project is a long-only TECL strategy factory. Trend-aligned alternative: [brief suggestion]."
+> "Out of scope per Montauk charter. The project is a long-only TECL share-accumulation factory. Trend-aligned alternative: [brief suggestion]."
 
 If asked whether a raw optimizer winner should be treated as real, the answer is:
 
-> "Not until it passes validation and has a deployable Pine artifact."
+> "Not until it passes the validation tier appropriate to how it was selected, and has a deployable Pine artifact."
 
 ---
 
-## 8. Appendix Pointer
+## 9. Naming
+
+The skill is **Spike**. Spike launches and runs the **Montauk Engine** — the optimizer + validator + Pine generator pipeline.
+
+- "Spike" = the entrypoint / command surface
+- "Montauk Engine" = the underlying machinery
+
+This is a semantic split, not a code rename. Files, scripts, and commands keep their current names.
+
+---
+
+## 10. Appendix Pointer
 
 The core charter stays focused on the TECL signal factory itself.
 
 Approved supporting layers that do not change the core mission, including:
 
-- discovery-stage marker priors
+- the marker-aligned discovery north star (formalization of how the marker drives discovery)
 - Roth deployment overlays
 
 are described in `Montauk Charter Appendix - Discovery and Roth Overlay.md`.

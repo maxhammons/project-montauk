@@ -1,6 +1,10 @@
 # /spike — Iterative TECL Strategy Optimization (v2)
 
-Goal: find strategies that beat buy-and-hold on TECL. Iterative creative loop — Claude sees per-cycle diagnostics, revises strategy code, optimizer tunes params, repeat.
+**Spike is the skill. Spike launches and runs the Montauk Engine** — the optimizer + tier-routed validator + Pine generator pipeline. Throughout this doc, "the engine" / "the optimizer" / "the GA" all refer to the Montauk Engine.
+
+Goal: find strategies that **accumulate more shares of TECL than buy-and-hold** AND match the hand-marked cycle shape in `reference/research/chart/TECL-markers.csv`. Iterative creative loop — Claude sees per-cycle diagnostics, revises strategy code, the engine tunes params, repeat.
+
+> **Metric note (2026-04-13):** The spirit-guide defines share-count multiplier vs B&H as the primary metric and marker shape alignment as a first-class validation gate. The scripts still use dollar `vs_bah` and have not yet been migrated. Until the migration lands, Spike runs against the legacy fitness function — read results with that caveat.
 
 ## The Flow
 
@@ -102,7 +106,7 @@ Run 3 tiers of validation on the chunk's top strategies:
 
 **Tier 1 (already enforced by fitness function):**
 - trades-per-param >= 5.0 (hard gate — configs below this get fitness=0)
-- trades/year <= 3.0, HHI <= 0.35
+- trades/year <= 5.0, HHI <= 0.35
 
 **Tier 2 — Walk-forward (same asset, different time):**
 ```bash
@@ -207,7 +211,9 @@ cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Docu
 ## Constraints
 
 - **TECL only** — long only, no shorting
-- **≤3 trades/year** — regime strategy, not scalper
-- **vs B&H is primary** — must beat buy-and-hold
+- **Regime strategy, not scalper** — multi-week to multi-month trend capture. Low trade frequency is a feature, not a bug. The engine must not punish a strategy for holding through a year of new highs.
+- **Share-count multiplier vs B&H is primary** — must accumulate more shares than passively holding
+- **Marker shape alignment** is a first-class concern — strategies should be clearly trying to trade the same cycles as `reference/research/chart/TECL-markers.csv`
+- **Tier routing** — every strategy is registered as T0 / T1 / T2 (see `reference/spirit-guide/VALIDATION-PHILOSOPHY.md`). T0 must use the strict canonical parameter set. Optimizer-touched strategies are T2 by default.
 - **Never modify `src/strategy/active/`** — candidates go in `testing/`
 - **Max 15 strategies** in registry

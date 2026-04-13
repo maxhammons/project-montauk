@@ -3,6 +3,8 @@
 > Canonical reference for every threshold in the validation pipeline.
 > This file MUST stay in sync with `scripts/validation/pipeline.py` and `scripts/validation/candidate.py`.
 
+> **Scope note (2026-04-13):** The thresholds documented here describe the **T2 (Discovered)** validation pipeline — the full statistical stack appropriate to candidates pulled from large search budgets. The T0 (Hypothesis) and T1 (Tuned) tiers introduced by `VALIDATION-PHILOSOPHY.md` use lighter pipelines that have not yet been implemented in code. When tier routing lands, this document will be split into per-tier threshold tables. Until then, the values below describe what runs against **all** candidates in the current scripts — which is itself one of the things being fixed.
+
 ---
 
 ## Verdict Logic (Gate 7 Synthesis)
@@ -24,7 +26,7 @@ Source: `pipeline.py :: _gate1_candidate()`
 | Check | Hard Fail | Soft Warning | Pass |
 |-------|-----------|--------------|------|
 | Trade count | < 15 | — | >= 15 |
-| Trades/year | > 3.0 | — | <= 3.0 |
+| Trades/year | > 5.0 | — | <= 5.0 |
 | Trades per param | < 5.0 | 5.0 - 10.0 | >= 10.0 |
 | n_params vs regime_transitions | — | n_params > transitions | n_params <= transitions |
 | Degeneracy (4yr windows) | always-in or always-out across ALL windows | sparse/saturated in some windows | normal exposure |

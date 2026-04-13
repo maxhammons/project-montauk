@@ -2,33 +2,36 @@
 
 This appendix defines two approved supporting layers around the core charter:
 
-- a discovery-stage marker prior
-- a post-validation Roth cashflow overlay
+- the marker-aligned discovery north star (formalization of Section 3 of the charter)
+- the post-validation Roth cashflow overlay
 
 Neither layer changes the core identity of Project Montauk. The project remains a TECL signal factory whose real winners are validated PASS strategies with Pine artifacts.
 
 ---
 
-## 1. Discovery-Stage Marker Prior
+## 1. Marker-Aligned Discovery
 
-The hand-marked TECL cycle file is an approved **soft prior** for discovery.
+The hand-marked TECL cycle file [`reference/research/chart/TECL-markers.csv`](../research/chart/TECL-markers.csv) is the **north star** for discovery, ranking, and validation.
 
-Its purpose is to lightly steer search toward the kind of low-frequency bull/bear regime capture the project is trying to find:
+It is no longer a soft prior. The earlier framing (a ±5% nudge on raw fitness) understated the role the marker chart should play. The marker chart is the project's working definition of what "good cycle timing" looks like.
 
-- major bull-leg participation
-- major bear-phase avoidance
-- infrequent, high-conviction transitions
+### How the marker chart is used
 
-The marker prior is allowed to influence raw discovery ranking and search preference.
+1. **Target series construction.** The marker buy / sell points are converted into a bar-level `risk_on` / `risk_off` target series across the full TECL history.
+2. **Shape alignment metric.** Every candidate's bar-level state series is compared to the marker target. Three numbers are recorded:
+   - `state_agreement` — fraction of bars where candidate state equals marker state
+   - `median_transition_lag` — median absolute distance between candidate and marker transitions, measured in bars
+   - `missed_cycles` — count of marker cycles the candidate did not engage with at all
+3. **Validation gate.** Marker shape alignment is a first-class **validation gate at every tier** (T0, T1, T2). Threshold values live in the validation scripts.
+4. **Discovery ranking.** Raw discovery ranking uses share-count multiplier as the primary signal and marker shape alignment as a strong tie-breaker. The earlier `0.95 + 0.10 * marker_alignment` formula is retired.
 
-It is **not**:
+### What the marker chart is not
 
-- a validation gate
-- a promotion rule
-- a source of truth about exact trade dates
-- a reason to promote a weak strategy
+- it is not a source of truth about exact trade dates (hindsight-perfect cycle calls are not realistic)
+- it is not a substitute for the validation pipeline
+- it is not a reason to promote a strategy that fails its tier gates
 
-The optimizer may prefer marker-aligned strategies, but only validation decides what is real.
+A strategy that nails the marker shape but fails on cross-asset is not real. A strategy that fails marker alignment but beats `vs_bah` is doing something other than what the project is trying to do — it is also not promotable.
 
 ---
 
@@ -58,7 +61,7 @@ This overlay is approved because it fits the real operating context of a Roth ac
 
 The Roth overlay is not:
 
-- a change to the charter’s signal scope
+- a change to the charter's signal scope
 - partial-position strategy logic
 - variable legal contribution logic
 - a replacement for validation
@@ -76,7 +79,7 @@ That means:
 
 - Pine should expose the normalized risk state
 - Pine should not encode Roth contribution scheduling
-- account-level cashflow allocation stays in Python/account simulation, not in Pine
+- account-level cashflow allocation stays in Python / account simulation, not in Pine
 
 This preserves a clean separation between:
 

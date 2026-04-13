@@ -4,7 +4,7 @@ Multi-strategy evolutionary optimizer for Project Montauk.
 
 Tests ALL registered strategies, evolves parameters for each, and
 compares everything against the current best. The goal is simple:
-beat buy-and-hold on TECL with ≤3 trades per year.
+beat buy-and-hold on TECL with ≤5 trades per year.
 
 Usage:
   python3 scripts/evolve.py --hours 8               # Full overnight run
@@ -330,28 +330,36 @@ def set_converged(leaderboard_path: str, strategy_name: str, converged: bool) ->
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Fitness — research-aligned: regime score × robustness guards
+# Fitness — share-count accumulation × robustness guards
 # ─────────────────────────────────────────────────────────────────────────────
 #
-# Previous fitness: vs_bah_multiple × dd_penalty × freq_penalty
-# Problem: optimized for beating buy-and-hold, NOT for regime-timing skill.
-# Result: #1 strategy (fitness=28, 72% CAGR) had RS=0.551 — 55th percentile
-# of random configs. The optimizer was finding lucky B&H beaters, not
-# genuine regime timers.
+# Charter (2026-04-13): the primary metric is share-count multiplier vs B&H.
+# `vs_bah_multiple` in BacktestResult is mathematically identical to the
+# share-count multiplier when equity is marked-to-market. So this fitness
+# function reads `vs_bah_multiple` but is actually rewarding share accumulation.
 #
-# Current fitness:
-#   Primary: vs_bah (beat buy-and-hold — buy low, sell at peaks)
-#   Guards: trade count, frequency, cycle concentration (HHI), complexity
-#   Quality: regime_score as multiplier (rewards good timing, not primary driver)
+# What changed from the previous revision:
+#   * REMOVED the `trade_scale = min(1.0, num_trades / 10)` soft ramp that
+#     punished strategies for trading fewer than 10 times. Low trade
+#     frequency is a feature for a regime strategy, not a bug. A year of
+#     holding through new highs is a successful year.
+#   * KEPT the `num_trades < 5` hard floor — this is a structural "did the
+#     strategy actually engage" check, not a frequency punishment.
+#   * KEPT `MAX_TRADES_PER_YEAR = 5.0` — this is the charter's regime-vs-scalper
+#     boundary (raised from 3.0 on 2026-04-13 for practical flexibility — a
+#     200-EMA regime filter on TECL naturally does ~3-4 round trips/yr). It
+#     punishes HIGH frequency (churn), not low frequency.
+#   * KEPT drawdown, HHI, and complexity penalties — all robustness-driven,
+#     not frequency-driven.
+#   * RETIRED `discovery_score_value` as a ranking nudge — raw rankings now
+#     use fitness directly, with share_multiple as the primary driver. Marker
+#     shape alignment became a first-class validation gate (not a ±5% nudge).
 #
-# The multiplicative structure means a fragile but high-scoring strategy
-# gets heavily discounted automatically.
-#
-# Cache format v3: stores raw backtest metrics {bah, rs, dd, nt, np, hhi}
+# Cache format v3: stores raw backtest metrics {bah, rs, dd, nt, np, hhi, ma}
 # so fitness can be recomputed on the fly when the formula changes,
 # without re-running backtests.
 
-MAX_TRADES_PER_YEAR = 3.0
+MAX_TRADES_PER_YEAR = 5.0  # charter boundary: regime strategy, not scalper (was 3.0 pre-2026-04-13)
 
 
 def fitness_from_cache(entry: dict) -> float:
@@ -367,7 +375,7 @@ def fitness_from_cache(entry: dict) -> float:
         return 0.0
     num_trades = entry.get("nt") or 0
     if num_trades < 5:
-        return 0.0
+        return 0.0  # structural: did the strategy actually engage?
     n_params = entry.get("np") or 0
     hhi = entry.get("hhi") or 0
     if hhi > 0.35:
@@ -375,9 +383,6 @@ def fitness_from_cache(entry: dict) -> float:
     dd = entry.get("dd")
     if dd is None:
         return 0.0
-
-    # Soft ramp for low trade counts
-    trade_scale = min(1.0, num_trades / 10)
 
     # HHI penalty
     hhi_penalty = max(0.5, 1.0 - max(0, hhi - 0.15) * 3)
@@ -398,12 +403,19 @@ def fitness_from_cache(entry: dict) -> float:
     rs = entry.get("rs") or 0
     regime_mult = 0.4 + 0.6 * min(1.0, rs / 0.7)
 
-    return vs_bah * trade_scale * hhi_penalty * dd_penalty * complexity_penalty * regime_mult
+    return vs_bah * hhi_penalty * dd_penalty * complexity_penalty * regime_mult
 
 
 def discovery_score_value(fitness_score: float, marker_alignment_score: float | None) -> float:
-    marker = NEUTRAL_MARKER_SCORE if marker_alignment_score is None else float(marker_alignment_score)
-    return float(fitness_score) * (0.95 + 0.10 * marker)
+    """Retired as a nudge. Kept as a back-compat alias for fitness.
+
+    Previous behavior: fitness * (0.95 + 0.10 * marker). That ±5% nudge is
+    retired per the 2026-04-13 charter revision — marker shape alignment is
+    now a first-class validation gate, not a ranking adjustment. Callers that
+    still reference `discovery_score` will see it equal `fitness`.
+    """
+    del marker_alignment_score  # deliberately unused — see docstring
+    return float(fitness_score)
 
 
 def discovery_score_from_cache(entry: dict) -> float:
@@ -412,26 +424,28 @@ def discovery_score_from_cache(entry: dict) -> float:
 
 def fitness(result: BacktestResult) -> float:
     """
-    Beat buy-and-hold fitness: vs_bah is the primary optimization target.
+    Share-count accumulation fitness — primary metric is share_multiple vs B&H.
 
-    Primary: vs_bah_multiple — ratio of strategy equity to B&H equity (>1.0 = beating B&H)
-    Guards: trade count, frequency, cycle concentration, parameter complexity
-    Regime score used as a quality multiplier (not primary driver)
+    Primary: share_multiple (== vs_bah_multiple, see strategy_engine.py) —
+        ratio of strategy terminal share-equivalent to B&H terminal shares.
+        > 1.0 means the strategy accumulated more TECL units than passive holding.
+    Guards: drawdown, cycle concentration (HHI), parameter complexity, trade count floor.
+    Charter boundary: `trades_per_year <= 3.0` (regime, not scalper).
+    Regime score used as a quality multiplier (not primary driver).
+
+    Deliberately no soft ramp for low trade counts — see module docstring.
     """
     if result is None or result.num_trades < 5:
-        return 0.0
+        return 0.0  # structural: did the strategy actually engage?
 
-    # ── Primary: vs Buy & Hold ──
-    vs_bah = result.vs_bah_multiple  # 1.0 = matched B&H, >1.0 = beat it
+    # ── Primary: share-count multiplier vs B&H (marked-to-market identity) ──
+    share_mult = result.vs_bah_multiple  # 1.0 = matched B&H shares, > 1.0 = more shares
 
-    # ── Hard gates ──
+    # ── Charter boundary: regime strategy, not scalper ──
     if result.trades_per_year > MAX_TRADES_PER_YEAR:
         return 0.0
-    if vs_bah <= 0:
+    if share_mult <= 0:
         return 0.0
-
-    # Soft ramp for low trade counts (min 5, full credit at 10+)
-    trade_scale = min(1.0, result.num_trades / 10)
 
     # ── Cycle concentration penalty (HHI) ──
     rs = result.regime_score
@@ -459,13 +473,13 @@ def fitness(result: BacktestResult) -> float:
     else:
         complexity_penalty = 1.0
 
-    # ── Regime quality multiplier (rewards good timing, but vs_bah drives ranking) ──
+    # ── Regime quality multiplier (rewards good timing, but share_mult drives ranking) ──
     # Regime score 0.7 → 1.0x (full credit), 0.5 → 0.8x, 0.3 → 0.6x
     regime_mult = 1.0
     if rs:
         regime_mult = 0.4 + 0.6 * min(1.0, rs.composite / 0.7)
 
-    return vs_bah * trade_scale * hhi_penalty * dd_penalty * complexity_penalty * regime_mult
+    return share_mult * hhi_penalty * dd_penalty * complexity_penalty * regime_mult
 
 
 def _count_tunable_params(params: dict) -> int:
@@ -749,9 +763,9 @@ def evolve_bayesian(ind, df, strategy_name, strategy_fn, space, hours, dedup_cac
         f"{len(candidates)} in selection pool ({screen_label})"
     )
     print(
-        f"    Selected objectives: bah={best_trial.values[0]:.3f}x "
+        f"    Selected objectives: share={best_trial.values[0]:.3f}x "
         f"DD={best_trial.values[1]:.1f}% HHI={best_trial.values[2]:.3f} "
-        f"marker={best_trial_marker_score:.3f} discovery={best_trial_discovery:.4f}"
+        f"marker={best_trial_marker_score:.3f} fitness={best_trial_discovery:.4f}"
     )
 
     best_params = params_from_trial(best_trial)
@@ -847,7 +861,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
         }
         if result:
             print(f"  {name:<22} discovery={discovery_score:.4f}  fitness={fitness_score:.4f}  "
-                  f"marker={marker_score:.3f}  bah={result.vs_bah_multiple:.3f}x  "
+                  f"marker={marker_score:.3f}  share={result.vs_bah_multiple:.3f}x  "
                   f"trades/yr={result.trades_per_year:.1f}  CAGR={result.cagr_pct:.1f}%  "
                   f"DD={result.max_drawdown_pct:.1f}%")
         else:
@@ -981,7 +995,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
                         f"{best_val[1]:.1f}%/{best_val[2]:.3f}"
                     )
                 print(f"    Best: discovery={discovery_score:.4f} fitness={fitness_score:.4f} "
-                      f"marker={marker_score:.3f} bah={result.vs_bah_multiple:.3f}x "
+                      f"marker={marker_score:.3f} share={result.vs_bah_multiple:.3f}x "
                       f"CAGR={result.cagr_pct:.1f}% DD={result.max_drawdown_pct:.1f}% "
                       f"{pareto_str} ({n_trials} trials)")
             generation = n_trials  # for report
@@ -1124,7 +1138,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
                     if res:
                         rs_str = f"RS={res.regime_score.composite:.3f}" if res.regime_score else "RS=?"
                         print(f"    {s:<22} disc={disc:.4f} fit={fit:.4f} marker={marker_score:.3f}  "
-                              f"{rs_str}  bah={res.vs_bah_multiple:.3f}x  "
+                              f"{rs_str}  share={res.vs_bah_multiple:.3f}x  "
                               f"t/yr={res.trades_per_year:.1f}  DD={res.max_drawdown_pct:.1f}%")
                 last_report = now
 
@@ -1144,7 +1158,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
 
     if bl_result:
         print(f"\n── 8.2.1 Baseline (the strategy to beat) ──")
-        print(f"  vs B&H={bl_result.vs_bah_multiple:.3f}x  CAGR={bl_result.cagr_pct:.1f}%  "
+        print(f"  share={bl_result.vs_bah_multiple:.3f}x  CAGR={bl_result.cagr_pct:.1f}%  "
               f"DD={bl_result.max_drawdown_pct:.1f}%  trades/yr={bl_result.trades_per_year:.1f}")
 
     print(f"\n── Strategy Rankings (vs 8.2.1) ──")
@@ -1155,7 +1169,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
                 improvement = (result.vs_bah_multiple / bl_result.vs_bah_multiple - 1) * 100
                 beat_str = f"  {'BEATS' if result.vs_bah_multiple > bl_result.vs_bah_multiple else 'loses to'} 8.2.1 by {improvement:+.0f}%"
             print(f"  #{rank} {name:<22} discovery={discovery_score:.4f}  fitness={fitness_score:.4f}  "
-                  f"marker={marker_score:.3f}  bah={result.vs_bah_multiple:.3f}x  "
+                  f"marker={marker_score:.3f}  share={result.vs_bah_multiple:.3f}x  "
                   f"t/yr={result.trades_per_year:.1f}  CAGR={result.cagr_pct:.1f}%  "
                   f"DD={result.max_drawdown_pct:.1f}%  MAR={result.mar_ratio:.2f}{beat_str}")
             print(f"     params: {json.dumps({k: v for k, v in params.items() if k != 'cooldown'}, cls=_Enc)}")

@@ -33,9 +33,11 @@ _SCRIPTS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, _SCRIPTS_DIR)
 
 from backtest_engine import detect_bear_regimes, detect_bull_regimes, score_regime_capture
+from canonical_params import effective_tier as compute_effective_tier
 from data import get_tecl_data
+from discovery_markers import score_marker_alignment
 from pine_generator import generate_pine_script
-from strategies import STRATEGY_REGISTRY
+from strategies import STRATEGY_REGISTRY, STRATEGY_TIERS
 from validation.candidate import (
     analyze_four_year_degeneracy,
     analyze_named_windows,
@@ -180,17 +182,31 @@ def _trade_sufficiency_score(trades: int) -> float:
 
 
 def _geometric_composite(sub_scores: dict) -> float:
+    """Weighted geometric mean over present sub-scores.
+
+    A sub-score of None (e.g. a gate skipped due to tier routing) is dropped
+    and the remaining weights renormalize. This means T0 and T1 composites are
+    computed over their tier-applicable gates only — they don't pay a penalty
+    for gates that weren't supposed to run against them.
+    """
     weights = {
-        "fragility": 0.25,
-        "walk_forward": 0.20,
-        "selection_bias": 0.20,
-        "regime_consistency": 0.10,
-        "trade_sufficiency": 0.10,
-        "bootstrap": 0.15,
+        "marker_shape":       0.20,   # charter-level first-class gate, every tier
+        "walk_forward":       0.20,
+        "fragility":          0.20,   # T1/T2 only
+        "selection_bias":     0.15,   # T2 only
+        "cross_asset":        0.10,   # every tier — the cheap honesty check
+        "bootstrap":          0.05,   # T2 only
+        "regime_consistency": 0.05,   # T2 only
+        "trade_sufficiency":  0.05,
     }
+    present = {k: w for k, w in weights.items() if sub_scores.get(k) is not None}
+    if not present:
+        return 0.0
+    total = sum(present.values())
     score = 1.0
-    for name, weight in weights.items():
-        score *= _clamp(float(sub_scores.get(name, 0.0))) ** weight
+    for name, weight in present.items():
+        norm_w = weight / total
+        score *= _clamp(float(sub_scores[name])) ** norm_w
     return float(score)
 
 
@@ -217,7 +233,13 @@ def _skip_gate(reason: str) -> dict:
     }
 
 
-def _gate1_candidate(entry: dict, ctx: ValidationContext) -> dict:
+def _gate1_candidate(entry: dict, ctx: ValidationContext, *, tier: str = "T2") -> dict:
+    """Candidate eligibility. Thresholds soften for lower tiers.
+
+    T0 (Hypothesis): trade_count >= 5, no tpp gate (params are canonical, not tuned)
+    T1 (Tuned): trade_count >= 10, tpp >= 3.0
+    T2 (Discovered): trade_count >= 15, tpp >= 5.0 — the defense against underdetermined GA winners
+    """
     metrics = entry.get("metrics") or {}
     strategy_name = entry.get("strategy", "")
     params = entry.get("params") or {}
@@ -226,6 +248,17 @@ def _gate1_candidate(entry: dict, ctx: ValidationContext) -> dict:
     trades_per_year = float(metrics.get("trades_yr", 0.0))
     n_params = int(metrics.get("n_params", 0))
     trades_per_param = trade_count / n_params if n_params > 0 else math.inf
+
+    # Per-tier trade-count floor and tpp gate.
+    if tier == "T0":
+        trade_floor = 5
+        tpp_floor = None  # no tpp gate for T0 — canonical params are pre-registered
+    elif tier == "T1":
+        trade_floor = 10
+        tpp_floor = 3.0
+    else:  # T2
+        trade_floor = 15
+        tpp_floor = 5.0
 
     advisories = []
     soft_warnings = []
@@ -238,12 +271,12 @@ def _gate1_candidate(entry: dict, ctx: ValidationContext) -> dict:
     degeneracy = analyze_four_year_degeneracy(ctx.df, trades)
     strategy_integrity = ctx.run_integrity["strategies"].get(strategy_name, {})
 
-    if trade_count < 15:
-        hard_fail_reasons.append(f"trade_count={trade_count} < 15")
-    if trades_per_year > 3.0:
-        hard_fail_reasons.append(f"trades_per_year={trades_per_year:.2f} > 3.0")
-    if trades_per_param < 5.0:
-        hard_fail_reasons.append(f"trades_per_param={trades_per_param:.2f} < 5.0")
+    if trade_count < trade_floor:
+        hard_fail_reasons.append(f"[{tier}] trade_count={trade_count} < {trade_floor}")
+    if trades_per_year > 5.0:
+        hard_fail_reasons.append(f"trades_per_year={trades_per_year:.2f} > 5.0 (charter)")
+    if tpp_floor is not None and trades_per_param < tpp_floor:
+        hard_fail_reasons.append(f"[{tier}] trades_per_param={trades_per_param:.2f} < {tpp_floor}")
     if degeneracy["verdict"] == "FAIL":
         hard_fail_reasons.extend(f"degeneracy: {reason}" for reason in degeneracy["hard_fail_reasons"])
     soft_warnings.extend(f"degeneracy: {reason}" for reason in degeneracy.get("warnings", []))
@@ -252,7 +285,7 @@ def _gate1_candidate(entry: dict, ctx: ValidationContext) -> dict:
     if not strategy_integrity.get("charter_compatible", False):
         hard_fail_reasons.append("strategy family is not charter-compatible")
 
-    if 5.0 <= trades_per_param < 10.0:
+    if tpp_floor is not None and tpp_floor <= trades_per_param < (tpp_floor + 5.0):
         soft_warnings.append(f"trades_per_param={trades_per_param:.2f} in soft-warning band")
     if n_params > ctx.regime_transitions:
         soft_warnings.append(
@@ -265,6 +298,7 @@ def _gate1_candidate(entry: dict, ctx: ValidationContext) -> dict:
     verdict = "FAIL" if hard_fail_reasons else "WARN" if critical_warnings else "PASS"
     return {
         "verdict": verdict,
+        "tier": tier,
         "trade_count": trade_count,
         "trades_per_year": round(trades_per_year, 4),
         "n_params": n_params,
@@ -465,6 +499,93 @@ def _gate5_uncertainty(strategy_name: str, params: dict, ctx: ValidationContext)
     }
 
 
+def _gate_marker_shape(strategy_name: str, params: dict, ctx: ValidationContext, *, tier: str = "T2") -> dict:
+    """First-class validation gate: does the strategy trade the marker-defined cycle shape?
+
+    The hand-marked TECL cycles in reference/research/chart/TECL-markers.csv are the
+    charter's working definition of success. A strategy that beats B&H share count but
+    trades a completely different shape is doing something other than what the project
+    is trying to do — that's also a fail.
+
+    Thresholds are intentionally loose: we're asking "is the strategy clearly trying to
+    trade the same cycles?" not "does it match hindsight-perfect timing?"
+
+    Per tier:
+      T0: state_agreement >= 0.75, missed_cycles == 0, transition_timing >= 0.50
+      T1: state_agreement >= 0.70, missed_cycles <= 1
+      T2: state_agreement >= 0.65, missed_cycles <= 2
+    """
+    trades, bt_result = get_strategy_trades(ctx.df, strategy_name, params)
+    if trades is None or bt_result is None:
+        return {
+            "verdict": "FAIL",
+            "tier": tier,
+            "advisories": [],
+            "soft_warnings": [],
+            "critical_warnings": [],
+            "warnings": [],
+            "hard_fail_reasons": ["strategy could not be evaluated for marker shape"],
+            "marker_score": 0.0,
+        }
+
+    align = score_marker_alignment(ctx.df, trades)
+    state_agreement = float(align.get("state_accuracy", 0.0))
+    transition_timing = float(align.get("transition_timing_score", 0.0))
+    target_buys = int(align.get("target_buy_count", 0))
+    candidate_buys = int(align.get("candidate_buy_count", 0))
+    # Approximate "missed cycles" as the number of marker buys that have no candidate buy
+    # within tolerance. The detail list carries per-target match info.
+    buy_matches = align.get("buy_transition_matches", []) or []
+    missed_cycles = sum(1 for m in buy_matches if (m.get("score") or 0) < 0.1)
+
+    if tier == "T0":
+        state_floor, missed_cap, timing_floor = 0.75, 0, 0.50
+    elif tier == "T1":
+        state_floor, missed_cap, timing_floor = 0.70, 1, 0.40
+    else:
+        state_floor, missed_cap, timing_floor = 0.65, 2, 0.30
+
+    hard_fail_reasons = []
+    soft_warnings = []
+    advisories = []
+    if target_buys == 0:
+        advisories.append("marker overlap produced zero target buys — skipping shape gate")
+    else:
+        if state_agreement < state_floor:
+            hard_fail_reasons.append(
+                f"[{tier}] marker state_agreement={state_agreement:.3f} < {state_floor:.2f}"
+            )
+        if missed_cycles > missed_cap:
+            hard_fail_reasons.append(
+                f"[{tier}] missed_marker_cycles={missed_cycles} > {missed_cap}"
+            )
+        if transition_timing < timing_floor:
+            soft_warnings.append(
+                f"[{tier}] transition_timing={transition_timing:.3f} < {timing_floor:.2f}"
+            )
+
+    warnings = soft_warnings + []
+    verdict = "FAIL" if hard_fail_reasons else "PASS"
+    return {
+        "verdict": verdict,
+        "tier": tier,
+        "marker_score": round(float(align.get("score", 0.0)), 4),
+        "state_agreement": round(state_agreement, 4),
+        "transition_timing": round(transition_timing, 4),
+        "target_buy_count": target_buys,
+        "candidate_buy_count": candidate_buys,
+        "missed_cycles": missed_cycles,
+        "tolerance_bars": int(align.get("tolerance_bars", 0)),
+        "overlap_start": align.get("overlap_start"),
+        "overlap_end": align.get("overlap_end"),
+        "advisories": advisories,
+        "soft_warnings": soft_warnings,
+        "critical_warnings": [],
+        "warnings": warnings,
+        "hard_fail_reasons": hard_fail_reasons,
+    }
+
+
 def _gate6_cross_asset(strategy_name: str, params: dict, ctx: ValidationContext, *, reopt_minutes: float, reopt_pop_size: int) -> dict:
     cross_asset = cross_asset_validate(strategy_name, params)
     results = cross_asset.get("results", {})
@@ -516,26 +637,64 @@ def _gate7_synthesis(
     params: dict,
     entry: dict,
     gates: dict,
+    *,
+    tier: str = "T2",
 ) -> dict:
     advisories = []
     soft_warnings = []
     critical_warnings = []
     hard_fail_reasons = []
-    for gate_name in ("gate1", "gate2", "gate3", "gate4", "gate5", "gate6"):
-        gate = gates[gate_name]
+    for gate_name in ("gate1", "gate_marker", "gate2", "gate3", "gate4", "gate5", "gate6"):
+        gate = gates.get(gate_name, {})
         advisories.extend(gate.get("advisories", []))
         soft_warnings.extend(gate.get("soft_warnings", []))
         critical_warnings.extend(gate.get("critical_warnings", []))
         hard_fail_reasons.extend(gate.get("hard_fail_reasons", []))
 
     trade_count = int((entry.get("metrics") or {}).get("trades", 0))
-    sub_scores = {
-        "selection_bias": float(gates["gate2"].get("selection_bias_score", 0.0)),
-        "regime_consistency": float(gates["gate2"].get("regime_consistency_score", 0.0)),
-        "fragility": float(gates["gate5"].get("fragility_score", gates["gate3"].get("score", 0.0))),
-        "walk_forward": float(gates["gate4"].get("walk_forward_score", 0.0)),
-        "trade_sufficiency": _trade_sufficiency_score(trade_count),
-        "bootstrap": float(gates["gate5"].get("bootstrap_score", 0.0)),
+
+    # Helper: return None for gates that were skipped due to tier routing,
+    # so the composite renormalizes over applicable gates only.
+    def _score_if_ran(gate_name: str, field: str, fallback: float | None = None) -> float | None:
+        gate = gates.get(gate_name, {})
+        if gate.get("verdict") == "SKIPPED":
+            return fallback
+        value = gate.get(field)
+        return float(value) if value is not None else fallback
+
+    # Cross-asset score: same-param TQQQ vs_bah, capped at 1.0 (beating B&H).
+    # Uses the already-computed cross-asset result instead of running again.
+    def _cross_asset_score() -> float | None:
+        g6 = gates.get("gate6", {})
+        if g6.get("verdict") == "SKIPPED":
+            return None
+        same = (g6.get("same_params") or {}).get("results", {}).get("TQQQ", {})
+        if "error" in same:
+            return 0.0
+        tqqq_bah = float(same.get("vs_bah", 0.0))
+        return _clamp(tqqq_bah / 1.0)  # 1.0x TQQQ B&H → full credit, 0.5x → 0.5
+
+    # Marker shape sub-score (every tier): prefer state_agreement ramped
+    # from the tier's own floor, fallback to marker_score composite.
+    def _marker_sub_score() -> float | None:
+        gm = gates.get("gate_marker", {})
+        if gm.get("verdict") == "SKIPPED":
+            return None
+        state_agreement = gm.get("state_agreement")
+        if state_agreement is None:
+            return float(gm.get("marker_score", 0.0))
+        return _clamp(float(state_agreement))
+
+    sub_scores: dict = {
+        "marker_shape":       _marker_sub_score(),
+        "walk_forward":       _score_if_ran("gate4", "walk_forward_score", 0.0),
+        "fragility":          _score_if_ran("gate5", "fragility_score",
+                                            _score_if_ran("gate3", "score")),
+        "selection_bias":     _score_if_ran("gate2", "selection_bias_score"),
+        "cross_asset":        _cross_asset_score(),
+        "bootstrap":          _score_if_ran("gate5", "bootstrap_score"),
+        "regime_consistency": _score_if_ran("gate2", "regime_consistency_score"),
+        "trade_sufficiency":  _trade_sufficiency_score(trade_count),
     }
     composite_confidence = _geometric_composite(sub_scores)
 
@@ -589,11 +748,12 @@ def _gate7_synthesis(
 
     return {
         "verdict": verdict,
+        "tier": tier,
         "promotion_eligible": verdict == "PASS",
         "clean_pass": clean_pass,
         "pine_eligible": pine_eligible and parity_pass,
         "parity": parity,
-        "sub_scores": {k: round(v, 4) for k, v in sub_scores.items()},
+        "sub_scores": {k: (round(v, 4) if v is not None else None) for k, v in sub_scores.items()},
         "composite_confidence": round(composite_confidence, 4),
         "advisories": advisories,
         "soft_warnings": soft_warnings,
@@ -601,6 +761,22 @@ def _gate7_synthesis(
         "warnings": warnings,
         "hard_fail_reasons": hard_fail_reasons,
     }
+
+
+def _resolve_tier(strategy_name: str, params: dict, entry: dict) -> tuple[str, list[str]]:
+    """Determine the effective validation tier for a candidate.
+
+    Priority:
+      1. Explicit `tier` on the entry (e.g. set by spike_runner when the GA touched it)
+      2. Declared STRATEGY_TIERS entry
+      3. Default to T2 (safest — full statistical stack)
+
+    Then apply canonical_params.effective_tier() which may auto-promote to a
+    stricter tier if params violate canonical/size constraints for the declared tier.
+    """
+    declared = (entry.get("tier") or STRATEGY_TIERS.get(strategy_name) or "T2").upper()
+    effective, reasons = compute_effective_tier(declared, params)
+    return effective, reasons
 
 
 def _validate_entry(
@@ -618,6 +794,8 @@ def _validate_entry(
         "clean_pass": False,
         "pine_eligible": False,
         "composite_confidence": 0.0,
+        "tier": "T2",
+        "tier_reasons": [],
         "sub_scores": {},
         "advisories": [],
         "soft_warnings": [],
@@ -637,6 +815,7 @@ def _validate_entry(
             "warnings": [],
             "hard_fail_reasons": [f"unknown strategy {strategy_name}"],
         }
+        validation["gates"]["gate_marker"] = _skip_gate("unknown strategy")
         validation["gates"]["gate2"] = _skip_gate("unknown strategy")
         validation["gates"]["gate3"] = _skip_gate("unknown strategy")
         validation["gates"]["gate4"] = _skip_gate("unknown strategy")
@@ -646,26 +825,48 @@ def _validate_entry(
         entry["validation"] = validation
         return entry
 
-    print(f"[validate] {strategy_name} (fitness={entry.get('fitness', 0):.4f})")
+    tier, tier_reasons = _resolve_tier(strategy_name, params, entry)
+    validation["tier"] = tier
+    validation["tier_reasons"] = tier_reasons
+    if tier_reasons:
+        validation["advisories"].extend(tier_reasons)
 
-    gate1 = _gate1_candidate(entry, ctx)
+    print(f"[validate] {strategy_name} tier={tier} (fitness={entry.get('fitness', 0):.4f})")
+
+    # ── Gate 1: candidate eligibility (tier-aware thresholds) ──
+    gate1 = _gate1_candidate(entry, ctx, tier=tier)
     validation["gates"]["gate1"] = gate1
-
     hard_stop = bool(gate1["hard_fail_reasons"])
+
+    # ── Marker shape gate: runs for ALL tiers, charter first-class gate ──
     if not hard_stop:
-        gate2, _bt_result = _gate2_search_bias(strategy_name, params, ctx)
+        gate_marker = _gate_marker_shape(strategy_name, params, ctx, tier=tier)
     else:
-        gate2 = _skip_gate("candidate eligibility hard fail")
+        gate_marker = _skip_gate("candidate eligibility hard fail")
+    validation["gates"]["gate_marker"] = gate_marker
+    hard_stop = hard_stop or bool(gate_marker.get("hard_fail_reasons"))
+
+    # ── Gate 2: search-bias / regime memorization — T2 only ──
+    if tier == "T2" and not hard_stop:
+        gate2, _bt_result = _gate2_search_bias(strategy_name, params, ctx)
+    elif tier != "T2":
+        gate2 = _skip_gate(f"skipped for {tier} — search-bias stack is T2-only")
+    else:
+        gate2 = _skip_gate("earlier hard fail")
     validation["gates"]["gate2"] = gate2
     hard_stop = hard_stop or bool(gate2.get("hard_fail_reasons"))
 
-    if not hard_stop:
+    # ── Gate 3: parameter fragility — T1 + T2 ──
+    if tier in {"T1", "T2"} and not hard_stop:
         gate3 = _gate3_fragility(strategy_name, params, ctx)
+    elif tier == "T0":
+        gate3 = _skip_gate("skipped for T0 — canonical params are pre-registered")
     else:
         gate3 = _skip_gate("earlier hard fail")
     validation["gates"]["gate3"] = gate3
     hard_stop = hard_stop or bool(gate3.get("hard_fail_reasons"))
 
+    # ── Gate 4: walk-forward / named windows — ALL tiers ──
     if not hard_stop:
         gate4 = _gate4_time_generalization(strategy_name, params, ctx)
     else:
@@ -673,8 +874,13 @@ def _validate_entry(
     validation["gates"]["gate4"] = gate4
     hard_stop = hard_stop or bool(gate4.get("hard_fail_reasons"))
 
+    # ── Gate 5: uncertainty (Morris/bootstrap) — T2 only ──
+    # ── Gate 6: cross-asset — ALL tiers (highest-power honesty check) ──
     if not hard_stop:
-        gate5 = _gate5_uncertainty(strategy_name, params, ctx)
+        if tier == "T2":
+            gate5 = _gate5_uncertainty(strategy_name, params, ctx)
+        else:
+            gate5 = _skip_gate(f"skipped for {tier} — uncertainty stack is T2-only")
         gate6 = _gate6_cross_asset(
             strategy_name,
             params,
@@ -688,7 +894,7 @@ def _validate_entry(
     validation["gates"]["gate5"] = gate5
     validation["gates"]["gate6"] = gate6
 
-    gate7 = _gate7_synthesis(strategy_name, params, entry, validation["gates"])
+    gate7 = _gate7_synthesis(strategy_name, params, entry, validation["gates"], tier=tier)
     validation["gates"]["gate7"] = gate7
     validation["verdict"] = gate7["verdict"]
     validation["promotion_eligible"] = gate7["promotion_eligible"]

@@ -1156,7 +1156,46 @@ def ema_regime(ind: Indicators, p: dict) -> tuple:
     return entries, exits, labels
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Strategy: ema_200_regime (T0 HYPOTHESIS)
+#
+# Hypothesis: TECL is a leveraged wrapper around a long-term-rising asset.
+# The 200-day EMA is the canonical long-term trend filter. Hold when price
+# is above it; sit out when below.
+#
+# This is the simplest possible hypothesis strategy:
+#   - 1 canonical param (ema_len = 200)
+#   - 1 structural cooldown (2 bars, canonical)
+#   - No tuning, no interactions, no knobs
+#
+# Pre-registered as T0 at 2026-04-13. Params committed before first backtest.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def ema_200_regime(ind: Indicators, p: dict) -> tuple:
+    n = ind.n
+    cl = ind.close
+    ema = ind.ema(p.get("ema_len", 200))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    for i in range(1, n):
+        if np.isnan(ema[i]) or np.isnan(ema[i - 1]):
+            continue
+        # Entry: close crosses above 200-EMA
+        if cl[i - 1] <= ema[i - 1] and cl[i] > ema[i]:
+            entries[i] = True
+        # Exit: close crosses below 200-EMA
+        elif cl[i - 1] >= ema[i - 1] and cl[i] < ema[i]:
+            exits[i] = True
+            labels[i] = "T"  # trend break
+
+    return entries, exits, labels
+
+
 STRATEGY_REGISTRY = {
+    "ema_200_regime":           ema_200_regime,
     "montauk_821":              montauk_821,
     "rsi_regime":               rsi_regime,
     "breakout":                 breakout,
@@ -1174,8 +1213,41 @@ STRATEGY_REGISTRY = {
     "ema_regime":               ema_regime,
 }
 
+# Declared validation tier for each strategy family.
+# "T0" = hand-authored hypothesis with ≤5 canonical params — pre-registered before any backtest
+# "T1" = hand-authored logic with tuned or non-canonical params — registered with grid size up front
+# "T2" = optimizer-discovered, or anything pulled from large search — full statistical stack
+# See reference/spirit-guide/VALIDATION-PHILOSOPHY.md for routing rules.
+# Any strategy whose params get touched by the GA is effectively T2 regardless of its
+# declared tier — the declared tier is an upper bound on leniency, not a bypass.
+STRATEGY_TIERS = {
+    "ema_200_regime":           "T0",  # hypothesis: 200-EMA regime filter, canonical params only
+    "montauk_821":              "T2",  # heavily tuned
+    "rsi_regime":               "T2",
+    "breakout":                 "T2",
+    "rsi_regime_trail":         "T2",
+    "vol_regime":               "T2",
+    "ichimoku_trend":           "T2",
+    "dual_momentum":            "T2",
+    "rsi_vol_regime":           "T2",
+    "momentum_stayer":          "T2",
+    "donchian_turtle":          "T2",
+    "slope_persistence":        "T2",
+    "vix_trend_regime":         "T2",
+    "steady_trend":             "T2",
+    "rsi_recovery":             "T2",
+    "ema_regime":               "T2",
+}
+
 # Parameter spaces for each strategy: {param: (min, max, step, type)}
 STRATEGY_PARAMS = {
+    # T0: committed canonical values, zero search space.
+    # The degenerate (200, 200, 1, int) range makes the GA a no-op on this
+    # strategy — it can only ever evaluate the pre-registered configuration.
+    "ema_200_regime": {
+        "ema_len":  (200, 200, 1, int),
+        "cooldown": (2, 2, 1, int),
+    },
     "montauk_821": {
         "short_ema": (5, 25, 2, int), "med_ema": (15, 60, 5, int),
         "trend_ema": (30, 120, 10, int), "slope_lookback": (3, 20, 2, int),

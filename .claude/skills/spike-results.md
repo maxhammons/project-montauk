@@ -1,6 +1,6 @@
-# /spike-results — View Optimizer Results
+# /spike-results — View Montauk Engine Results
 
-Show results from the latest spike run, run validation, and optionally generate Pine Script.
+Show results from the latest Spike run (Montauk Engine output), run validation, and optionally generate Pine Script.
 
 ## The Flow
 
@@ -68,10 +68,13 @@ If user asks for Pine Script for any winner:
 ### Step 5 — Comparison to baseline
 
 Always compare the top result to montauk_821 (the 8.2.1 baseline):
-- Regime Score delta
+- Share-count multiplier vs B&H delta (primary)
+- Marker shape alignment delta (secondary)
 - CAGR delta
 - Max DD delta
-- vs B&H delta
-- Trade count and frequency comparison
+- vs B&H (dollars) delta
+- Trade count comparison (NOT a quality signal — informational only)
 
-If the winner beats 8.2.1 on Regime Score AND passes validation, recommend it as a candidate for production.
+If the winner beats 8.2.1 on share-count multiplier AND passes validation at its tier (T0 / T1 / T2) AND clears the marker shape alignment gate, recommend it as a candidate for production.
+
+> **Note (2026-04-13):** The current scripts still report Regime Score and dollar `vs_bah` as primary. Read those numbers as proxies until the share-count and marker-alignment metrics are migrated into the engine.

@@ -510,12 +510,27 @@ class BacktestResult:
     trades_per_year: float = 0.0
     avg_bars_held: float = 0.0
     win_rate_pct: float = 0.0
+    # share_multiple = terminal strategy equity / terminal B&H equity.
+    # Math identity: this equals (strategy_shares_equiv / bah_shares) when
+    # strategy equity is marked-to-market to TECL shares. So it IS the
+    # share-count multiplier vs B&H, which is the charter's primary metric.
+    # `vs_bah_multiple` is kept as a legacy alias.
     vs_bah_multiple: float = 0.0
     bah_start_date: str = ""
     exit_reasons: dict = field(default_factory=dict)
     strategy_name: str = ""
     regime_score: object = None  # RegimeScore from backtest_engine, attached by evolve.py
     params: dict = field(default_factory=dict)  # strategy params, attached by evolve.py
+
+    @property
+    def share_multiple(self) -> float:
+        """Primary metric per charter: share-count multiplier vs B&H.
+
+        Mathematically equal to `vs_bah_multiple` — see field comment.
+        Prefer this name going forward; `vs_bah_multiple` remains for
+        back-compat with cached data and older call sites.
+        """
+        return self.vs_bah_multiple
 
 
 def backtest(df: pd.DataFrame,

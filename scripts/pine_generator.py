@@ -1033,7 +1033,36 @@ def _build_ema_regime(params: dict) -> str:
     )
 
 
+def _build_ema_200_regime(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - EMA-200 Regime (T0)",
+        "EMA200",
+        "ema_200_regime",
+        f"""
+        emaLen       = input.int({_pine_number(params.get("ema_len", 200))}, "EMA Length", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 2))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        ema = ta.ema(close, emaLen)
+        crossUp   = ta.crossover(close, ema)
+        crossDown = ta.crossunder(close, ema)
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and crossDown
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Trend Break", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if crossUp and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(ema, "EMA 200", color=color.new(color.blue, 30), linewidth=2)
+        """,
+    )
+
+
 _BUILDERS = {
+    "ema_200_regime": _build_ema_200_regime,
     "montauk_821": _build_montauk_821,
     "rsi_regime": _build_rsi_regime,
     "breakout": _build_breakout,

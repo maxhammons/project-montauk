@@ -1,155 +1,189 @@
 # Project Montauk — Validation Philosophy
 
-> Raw optimizer output is research. Validation decides what is real.
+> Validation difficulty must match selection bias. Same backtest result, different selection process, different statistical meaning.
 
 ---
 
 ## 1. Why Validation Exists
 
-Project Montauk is trying to discover robust long-only TECL strategies from a large search space. That means overfitting is the default failure mode.
+Project Montauk is trying to discover robust long-only TECL strategies. Overfitting is the default failure mode whenever a search is involved.
 
-The optimizer is good at finding historical winners. The validation system exists to answer a harder question:
+Validation exists to answer:
 
-> Is this strategy probably real, or is it just the luckiest thing we found on one historical path?
+> Is this strategy probably real, or is it just the luckiest thing we found given how it was selected?
 
 If the project cannot answer that question honestly, the rest of the factory does not matter.
 
-Discovery may use soft priors to express project taste. Validation exists to keep those priors from becoming promotion bias.
+---
+
+## 2. The Core Insight
+
+**Overfitting risk is a property of how the strategy was selected, not the strategy itself.**
+
+A 2-parameter strategy hand-authored from a hypothesis lives in a different statistical universe than the same 2-parameter strategy pulled from the top of a 50,000-config GA population. The first was selected from a search space of size ~1 (a human's hypothesis). The second was selected from a search space of size 50,000.
+
+Applying the same validation gates to both is incoherent. The honest move is to scale validation difficulty with selection bias.
+
+This is why Project Montauk uses three validation tiers.
 
 ---
 
-## 2. The Core Rule
+## 3. The Three Tiers
+
+Each candidate is registered under a tier that reflects how it was selected. The tier determines which validation pipeline runs.
+
+### Tier 0 — Hypothesis
+
+Hand-authored from an external prior (the marker chart, charter principles, the math of leverage decay, a published rule).
+
+Requirements:
+
+- ≤ 5 free parameters
+- All parameter values from the **strict canonical set** (see Section 5)
+- Strategy registered with name, description, and committed parameter values **before** any backtest is run
+- Conceptually motivated, not laundered from observed GA outputs
+
+T0 candidates clear a **light pipeline**. The selection bias is small, so the gates can be small.
+
+### Tier 1 — Tuned
+
+Hand-authored logic, but parameter values come from a small declared grid search or use non-canonical values.
+
+Requirements:
+
+- ≤ 8 free parameters
+- Either: (a) param values are non-canonical but committed up front, or (b) values come from a declared grid sweep with size committed up front
+- The grid size is recorded and factored into the validation gates
+
+T1 candidates clear a **medium pipeline** that adds parameter-plateau and small-basin checks.
+
+### Tier 2 — Discovered
+
+Pulled from optimizer top-N, GA population, or any large search.
+
+Requirements:
+
+- Any param count
+- Any param values
+- Selected from any search budget
+
+T2 candidates clear the **full statistical stack**: deflation, regime boundary perturbation, fragility, jackknife, HHI, mutation survival, the works.
+
+---
+
+## 4. Tier Routing Rules
+
+These rules prevent T0 from becoming a backdoor for hidden search bias.
+
+1. **Pre-registration is mandatory for T0.** The strategy file, parameter values, and a one-line hypothesis are committed to the registry before the first backtest. No exceptions.
+2. **Optimizer-tuning auto-promotes the tier.** If the GA touches a strategy, it becomes T2. If a small declared grid search touches it, it becomes T1.
+3. **Provenance honesty.** A T0 strategy that came from staring at GA outputs ("the GA winner used EMA-37 so let me try EMA-50 by hand") is laundered selection bias and should be registered as T2. T0 means *conceptually motivated from outside the search*.
+4. **Cross-asset is mandatory at every tier.** It is the highest-power honesty check available and costs almost nothing.
+5. **Same data, different gates.** All tiers see the full TECL history. The split is about what additional scrutiny is warranted, not what data is shown.
+
+---
+
+## 5. Strict Canonical Parameter Set (T0)
+
+T0 strategies may only use parameter values drawn from this fixed list:
+
+| Parameter family | Allowed values |
+|------------------|---------------|
+| EMA / SMA / TEMA period | 7, 9, 14, 20, 21, 30, 50, 100, 150, 200, 300 |
+| RSI period | 7, 14, 21 |
+| ATR period | 7, 14, 20, 40 |
+| ATR multiplier | 0.5, 1.0, 1.5, 2.0, 2.5, 3.0 |
+| Lookback / Donchian / Highest-Lowest period | 5, 10, 20, 50, 100, 200 |
+| Slope / confirmation bars | 1, 2, 3, 5 |
+| Cooldown bars | 0, 1, 2, 3, 5, 10 |
+| Percent thresholds (drawdown, drop, etc.) | 5%, 8%, 10%, 15%, 20%, 25% |
+| MACD fast / slow / signal | (12, 26, 9), (8, 17, 9) |
+
+Anything outside this list lifts the strategy to T1.
+
+The reason for the strict list: it forces hypotheses to be argued from first principles, not param-fiddled into existence. "200-day moving average" is a thing in the world. "EMA-187" is a search result.
+
+---
+
+## 6. The Core Rule
 
 A raw optimizer winner is **not** a winner.
 
-A strategy only becomes real when it receives a final **PASS** verdict from the validation pipeline.
+A strategy only becomes real when it receives a final **PASS** verdict from the validation pipeline **at its tier**.
 
-That rule has operational consequences:
+Operational consequences:
 
-- **PASS**: eligible for leaderboard promotion, champion selection, and Pine generation
+- **PASS**: eligible for leaderboard promotion, champion selection, and Pine generation. Tagged as `T0-PASS`, `T1-PASS`, or `T2-PASS`.
 - **WARN**: useful research output, but not promotable
 - **FAIL**: archive only, keep searching
 
-The leaderboard is therefore a memory of validated PASS results, not a scrapbook of impressive raw backtests.
+The leaderboard is a memory of validated PASS results across all tiers. The tier tag is honest disclosure of what level of evidence backs the strategy.
 
 ---
 
-## 3. What Validation Must Prove
+## 7. What Each Tier's Pipeline Tests
 
-Validation is trying to prove four things:
+### T0 Pipeline (Hypothesis)
 
-1. The strategy is not obviously underdetermined or degenerate.
-2. The strategy still works when time period and regime context change.
-3. The strategy logic is not TECL-noise cosplay.
-4. The strategy is stable enough to deserve a Pine deployment artifact.
+Failure modes being defended against:
 
-If any of those fail, the project should not promote the strategy.
+- coding bug (lookahead, repaint, off-by-one)
+- TECL-only cosplay (works on TECL, fails on TQQQ / UPRO)
+- regime-period dependence (worked one half of the data, failed the other)
+- doesn't actually trade the marker shape
 
----
+Pipeline:
 
-## 4. Canonical Validation Stack
+1. Code integrity checks (no lookahead, bar-close exits, single position)
+2. Cross-asset on TQQQ + UPRO + QQQ — must beat B&H share count on at least 2 of 3
+3. Walk-forward split at the midpoint — both halves beat B&H share count
+4. Marker shape alignment — state agreement ≥ 80%, median lag < 20 bars, zero missed marker cycles
 
-The intended validation stack for Project Montauk is:
+### T1 Pipeline (Tuned)
 
-### Stage 0 — Run and search integrity
+T0 pipeline plus:
 
-Before the project reasons about a candidate, it must make sure the run itself is valid and the search is not garbage-in:
+5. Parameter plateau — strategy survives ±30% wiggle on each tuned parameter without losing share-count edge
+6. Concentric shell on the tuned region — small basin (high fitness only on a knife-edge config) is a fail
 
-- canonical datasets are present
-- backtest realism settings are active
-- candidate families stay inside charter guardrails
-- obvious junk is rejected cheaply during search
+### T2 Pipeline (Discovered)
 
-This stage exists to protect the rest of the pipeline from invalid context.
+T1 pipeline plus the full statistical stack from the research synthesis:
 
-### Stage 1 — Candidate eligibility
+7. Deflated regime score (selection-bias correction)
+8. Regime boundary perturbation
+9. Delete-one-cycle jackknife
+10. HHI on per-cycle contributions
+11. Morris fragility / interaction effects
+12. Mutation survival rate
+13. Stationary bootstrap CIs
+14. Cross-asset re-optimization
 
-Cheap structural rejection before deeper analysis:
-
-- trade sufficiency
-- trade frequency discipline
-- complexity vs evidence
-- obvious degeneracy checks
-
-These checks stop weak candidates from wasting validation time, but they do **not** prove robustness.
-
-### Stage 2 — Statistical overfit checks
-
-The first serious screen:
-
-- deflation / selection-bias correction
-- exit-boundary proximity
-- delete-one-cycle jackknife
-- concentration and dominance checks
-- regime-definition meta-robustness
-- temporal clustering checks
-
-This is the first place the project asks whether a high score is distinguishable from search noise.
-
-### Stage 3 — Parameter and time robustness
-
-The strategy must survive changed market windows:
-
-- parameter fragility analysis
-- walk-forward validation
-- named stress windows
-
-The point is not perfection. The point is avoiding “worked once, on that exact slice, for reasons we do not trust.”
-
-### Stage 4 — Uncertainty and concept generalization
-
-The strategy logic must be stronger than one lucky path or one set of TECL-tuned parameters:
-
-- uncertainty and interaction checks
-- same-parameter cross-asset checks
-- re-optimization of the winning strategy family on TQQQ
-
-Cross-asset work is for validation only. Production scope remains TECL.
-
-### Stage 5 — Deployment eligibility
-
-A strategy is only deployment-eligible when:
-
-- it still satisfies the charter guardrails: TECL-only, long-only, single-position, Pine-expressible
-- final verdict is **PASS**
-- it is allowed onto the validated leaderboard
-- it can be emitted as a Pine Script candidate for TradingView
-
-If the project cannot generate Pine for the winner, the factory is incomplete.
-
-The spirit-guide defines the stack and its purpose. The exact thresholds, formulas, budgets, and implementation details belong in the validation scripts.
-
-After a strategy clears validation, the project may run deployment-context analysis such as the Roth cashflow overlay. That happens after the PASS decision. It does not create PASS by itself.
+The full stack is the price of using the search machine. It is not punishment — it is what a 50,000-config selection process actually requires to be honest.
 
 ---
 
-## 5. Principles
+## 8. Principles
 
-1. **Validation is mandatory.** It is not a post-hoc extra.
-2. **PASS only gets promoted.** A high raw score does not outrank a failed validation.
-3. **Research is the spec.** Validation rules should move toward the strongest defensible statistical standard the repo can support.
-4. **Honesty beats excitement.** A strategy that looks great but fails validation is not “almost ready.” It is rejected.
-5. **The output must be deployable.** The end product is not a JSON blob. It is a Pine candidate for the best PASS winner.
-6. **Deployment overlays are downstream.** They may inform how a validated winner is used, but they do not replace validation.
+1. **Validation is mandatory at every tier.** Light is not the same as absent.
+2. **PASS at the appropriate tier gets promoted.** Raw scores never outrank a failed validation.
+3. **Pre-registration prevents laundering.** A T0 strategy is identified by its registration timestamp, not by its final params.
+4. **Honesty beats excitement.** A strategy that looks great but fails its tier's gates is not "almost ready." It is rejected.
+5. **The output must be deployable.** The end product is a Pine candidate.
+6. **Deployment overlays are downstream.** The Roth overlay sits after PASS, not before.
+7. **Low-frequency strategies are not punished.** A year of holding through new highs is a successful year.
 
 ---
 
-## 6. Current Direction
+## 9. Current Direction
 
-The project already has the beginnings of the right validation culture:
+The project has the right validation culture (integrity checks, cross-asset work, statistical governor, fragility). What changes with this philosophy revision:
 
-- integrity checks
-- candidate gating
-- a statistical validation suite
-- fragility and time-robustness checks
-- cross-asset validation work
-- full-run promotion gating in the local `spike_runner` flow
+- introduce explicit T0 / T1 / T2 routing
+- formalize the strict canonical parameter set for T0
+- formalize marker-shape alignment as a first-class gate (not a soft prior)
+- formalize share-count multiplier as the primary metric (not vs_bah dollars)
+- remove trade-frequency punishment for low-trade strategies
+- keep the existing T2 stack intact — it is not wrong, it is just being scoped to its actual job
 
-What still matters is finishing the job:
-
-- tighter parity confidence between Python and Pine
-- continued hardening of the statistical governor
-- continued refinement of validation confidence signals
-- formal Python-vs-Pine parity tests
-
-Those are improvements to the same principle, not a change in philosophy.
+Threshold values, formulas, and implementation details belong in the validation scripts. This document defines the framework.

@@ -1,35 +1,28 @@
 # Project Montauk Discovery + Roth Overlay Plan
 
+> **Status (2026-04-13):** The marker-prior section of this plan is **superseded** by the 2026-04-13 charter revision. Marker alignment is now a first-class validation gate at every tier, not a ±5% soft-prior nudge on raw fitness. See `spirit-guide/VALIDATION-PHILOSOPHY.md` and `spirit-guide/Montauk Charter Appendix - Discovery and Roth Overlay.md` for the current framing. The Roth overlay sections below remain the active plan.
+
 ## Summary
 
-Keep the core Montauk mission unchanged: discover robust long-only TECL signals, validate them hard, and generate Pine for the best PASS winner. Add two new layers around that core:
+Keep the core Montauk mission unchanged: discover robust long-only TECL signals, validate them at the tier appropriate to how they were selected, and generate Pine for the best PASS winner. Two supporting layers sit around that core:
 
-- a **discovery-stage marker prior** that lightly steers search toward the low-frequency bull/bear regime behavior shown in [TECL-markers.csv](/Users/Max.Hammons/Documents/local-sandbox/Project%20Montauk/reference/research/chart/TECL-markers.csv#L1)
+- a **marker-aligned discovery north star** — the hand-marked TECL cycles in [TECL-markers.csv](/Users/Max.Hammons/Documents/local-sandbox/Project%20Montauk/reference/research/chart/TECL-markers.csv#L1) define the working shape of success, and shape alignment is a validation gate
 - a **post-validation Roth account overlay** that routes ongoing Roth cash into `SGOV` when risk-off and into `TECL` when risk-on
 
-This should be reflected in the spirit-guide as a **charter appendix**, not a rewrite of the main charter. The core strategy remains a binary TECL in/out engine. The Roth cashflow layer is an approved deployment overlay on top of any charter-compatible winner.
+The core strategy remains a binary TECL in/out engine. The Roth cashflow layer is an approved deployment overlay on top of any charter-compatible PASS winner.
 
 ## Key Changes
 
-### 1. Discovery remains signal-first, but gains a marker prior
+### 1. Marker as north star (supersedes earlier soft-prior plan)
 
-- Keep the current discovery engine structure in `evolve.py`: multi-family search over registered TECL strategy families, GA/NSGA-II search, dedup cache, and current robustness-aware raw fitness.
-- Add a new `marker_alignment_score` computed from the hand-marked TECL cycles:
-  - parse buy/sell markers into a target `risk_on` state series
-  - compare each candidate strategy’s bar-level in/out state against that target state
-  - include both state overlap and transition timing tolerance so the score rewards the intended regime shape, not exact date memorization
-- Make marker alignment a **soft prior**, not a gate and not a validation target:
-  - keep current `fitness` unchanged as the raw performance metric
-  - add a separate `discovery_score` used for raw search ranking and parent selection
-  - define `discovery_score = fitness * (0.95 + 0.10 * marker_alignment_score)`
-  - this keeps marker influence bounded to a ±5% ranking adjustment
-- Persist both values in raw outputs:
-  - `fitness`
-  - `marker_alignment_score`
-  - `discovery_score`
-  - `marker_alignment_detail`
-- Use `discovery_score` for raw ranking and candidate selection into validation.
-- Do not use marker alignment in validation gates, PASS/WARN/FAIL logic, or leaderboard promotion.
+- Parse the marker buy/sell points into a bar-level `risk_on` / `risk_off` target series across the full TECL history.
+- For every candidate, compute and persist:
+  - `state_agreement` — fraction of bars where candidate state matches marker state
+  - `median_transition_lag` — median absolute distance between candidate and marker transitions, in bars
+  - `missed_cycles` — count of marker cycles the candidate did not engage with at all
+- Use these as a **first-class validation gate at every tier (T0 / T1 / T2)**. Threshold values live in the validation scripts.
+- Use share-count multiplier vs B&H as the **primary** raw discovery ranking signal. Use marker shape alignment as a strong tie-breaker in raw ranking.
+- The earlier `discovery_score = fitness * (0.95 + 0.10 * marker_alignment_score)` formula is retired.
 
 ### 2. Add a binary Roth cashflow overlay after validation
 

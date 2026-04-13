@@ -1,6 +1,8 @@
 # /spike-focus — Deep Param Optimization (GH Actions)
 
-Fire-and-forget extended optimization on 1-2 specific strategies. Use after `/spike` has identified promising strategy logic — this finds the optimal params overnight.
+Fire-and-forget extended optimization on 1-2 specific strategies, run on the **Montauk Engine** in GitHub Actions. Use after `/spike` has identified promising strategy logic — this finds the optimal params overnight.
+
+> Output candidates are T2 by default (large search budget, optimizer-tuned).
 
 ## The Flow
 

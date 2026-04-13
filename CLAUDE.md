@@ -132,13 +132,15 @@ Keep the folder and file structure clean and easy to navigate. The owner needs t
 - **When in doubt, match the existing pattern** — look at how similar files are already named and placed
 - **Keep `reference/PIPELINE.md` current** — when you change the fitness function, optimizer logic, validation suite, data flow, GH Actions workflow, or any process/pipeline behavior, update the pipeline diagram to match. This is the visual source of truth for how the system works.
 
-## Optimization Tools (`/spike` + `/spike-focus`)
+## Optimization Tools — Spike + the Montauk Engine
+
+**Spike** is the skill (the entrypoint / command surface). Spike launches and runs the **Montauk Engine** — the optimizer + tier-routed validator + Pine generator pipeline. This is a semantic split, not a code rename: files and commands keep their existing names.
 
 Two complementary skills for strategy development:
 
 ### `/spike` — Interactive creative loop (local)
 
-Iterative optimization where Claude sees per-cycle diagnostics, revises strategy *code* between optimizer chunks, and collaborates with the GA to find strategies that beat buy-and-hold.
+Iterative optimization where Claude sees per-cycle diagnostics, revises strategy *code* between optimizer chunks, and collaborates with the Montauk Engine to find strategies that match the marker shape and accumulate more shares than buy-and-hold.
 
 1. **Run `/spike`** — asks how long (default 2h), runs locally
 2. **Claude sees the regime map** — every bull/bear cycle with dates, magnitude, duration
@@ -165,27 +167,27 @@ The optimizer remembers everything across runs:
 - Each run seeds 20% of its population from historical winners
 - Exact duplicates are skipped via config hashing (saves 30-40% compute on repeat runs)
 
-### Primary optimization target: Beat Buy & Hold
+### Primary optimization target: Accumulate more shares than B&H
 
-The optimizer uses **vs_bah** (strategy equity / B&H equity) as its primary metric. A value >1.0 means the strategy beat buy-and-hold. The goal is to buy low and sell at peaks — outperforming a passive TECL hold by timing entries and exits.
+The Montauk Engine optimizes for **share-count multiplier vs B&H** — at the end of the backtest, mark the strategy's equity to TECL share-equivalent and divide by buy-and-hold's terminal share count. A value > 1.0 means the strategy accumulated more units of TECL than passively holding would have.
 
-Regime score is still computed and used as a quality multiplier (good regime timing gets a boost), but it no longer drives ranking. The fitness formula:
+The goal is share accumulation, not impressive equity curves. Sell high, buy back lower, end up with more shares. A year of holding through new highs without trading is a successful year — the engine does **not** punish low trade frequency.
 
-```
-fitness = vs_bah × trade_scale × hhi_penalty × dd_penalty × complexity_penalty × regime_mult
-```
+Marker shape alignment (state agreement % vs `TECL-markers.csv`, plus median transition lag and missed-cycle count) is a first-class **validation gate** at every tier and a strong tie-breaker in raw discovery ranking.
 
 ### Key metrics
 
 | Metric | Role |
 |--------|------|
-| **vs B&H** | **Primary optimization target** — must be >1.0 to beat buy-and-hold |
-| CAGR | Return |
-| Max Drawdown | Risk — penalized in fitness |
+| **Share-count multiplier vs B&H** | **Primary optimization target** — must be > 1.0 |
+| **Marker shape alignment** | First-class validation gate at every tier |
+| vs B&H (dollars) | Sanity check on the share-count metric |
+| CAGR | Return path quality |
+| Max Drawdown | Risk |
 | MAR Ratio (CAGR/MaxDD) | Risk-adjusted return |
-| Regime Score | Quality multiplier — rewards good cycle timing |
-| Trades/Year | Low (≤3) — avoid churn |
 | Avg Bars Held | High (50+) — trend system, not scalper |
+
+> **Note (2026-04-13):** The fitness formula in scripts still uses dollar `vs_bah` and a `trade_scale` factor. The spirit-guide now defines share-count as the primary metric and removes the trade-frequency punishment. The scripts have not yet been updated to match — see `reference/spirit-guide/PROJECT-STATUS.md` for the full implementation gap.
 
 ## Reference Files
 
