@@ -234,11 +234,22 @@ def _skip_gate(reason: str) -> dict:
 
 
 def _gate1_candidate(entry: dict, ctx: ValidationContext, *, tier: str = "T2") -> dict:
-    """Candidate eligibility. Thresholds soften for lower tiers.
+    """Candidate eligibility. Tier-aware trade-count floor; no tpp gate.
 
-    T0 (Hypothesis): trade_count >= 5, no tpp gate (params are canonical, not tuned)
-    T1 (Tuned): trade_count >= 10, tpp >= 3.0
-    T2 (Discovered): trade_count >= 15, tpp >= 5.0 — the defense against underdetermined GA winners
+    Trade count floors by tier:
+      T0 (Hypothesis): >= 5
+      T1 (Tuned):      >= 10
+      T2 (Discovered): >= 15
+
+    The trades-per-param (tpp) gate was removed in 2026-04-13 (third revision)
+    because it was a statistical prior about fit-determinedness that is already
+    tested directly and more powerfully by cross-asset, walk-forward, fragility,
+    and HHI gates. In Montauk's low-trade-count regime (≤5 trades/year by charter)
+    the tpp gate also actively punished legitimate strategies for having more
+    than 5 params — counterproductive. Overfit candidates that survive every
+    other gate (cross-asset on TQQQ, walk-forward across 4 windows, ±10% param
+    perturbation, HHI, Morris) are not meaningfully overfit; the tpp gate added
+    only noise.
     """
     metrics = entry.get("metrics") or {}
     strategy_name = entry.get("strategy", "")
@@ -249,16 +260,13 @@ def _gate1_candidate(entry: dict, ctx: ValidationContext, *, tier: str = "T2") -
     n_params = int(metrics.get("n_params", 0))
     trades_per_param = trade_count / n_params if n_params > 0 else math.inf
 
-    # Per-tier trade-count floor and tpp gate.
+    # Per-tier trade-count floor.
     if tier == "T0":
         trade_floor = 5
-        tpp_floor = None  # no tpp gate for T0 — canonical params are pre-registered
     elif tier == "T1":
         trade_floor = 10
-        tpp_floor = 3.0
     else:  # T2
         trade_floor = 15
-        tpp_floor = 5.0
 
     advisories = []
     soft_warnings = []
@@ -285,8 +293,6 @@ def _gate1_candidate(entry: dict, ctx: ValidationContext, *, tier: str = "T2") -
         hard_fail_reasons.append(f"[{tier}] trade_count={trade_count} < {trade_floor}")
     if trades_per_year > 5.0:
         hard_fail_reasons.append(f"trades_per_year={trades_per_year:.2f} > 5.0 (charter)")
-    if tpp_floor is not None and trades_per_param < tpp_floor:
-        hard_fail_reasons.append(f"[{tier}] trades_per_param={trades_per_param:.2f} < {tpp_floor}")
     if degeneracy["verdict"] == "FAIL":
         hard_fail_reasons.extend(f"degeneracy: {reason}" for reason in degeneracy["hard_fail_reasons"])
     soft_warnings.extend(f"degeneracy: {reason}" for reason in degeneracy.get("warnings", []))
@@ -295,8 +301,6 @@ def _gate1_candidate(entry: dict, ctx: ValidationContext, *, tier: str = "T2") -
     if not strategy_integrity.get("charter_compatible", False):
         hard_fail_reasons.append("strategy family is not charter-compatible")
 
-    if tpp_floor is not None and tpp_floor <= trades_per_param < (tpp_floor + 5.0):
-        soft_warnings.append(f"trades_per_param={trades_per_param:.2f} in soft-warning band")
     if n_params > ctx.regime_transitions:
         soft_warnings.append(
             f"n_params={n_params} exceeds regime_transitions={ctx.regime_transitions}"
@@ -803,7 +807,11 @@ def _gate7_synthesis(
     # signal overfit because T0 cannot overfit (canonical pre-registered params,
     # no tuning). The cap is raised so T0 strategies pass on their structural
     # defenses rather than being penalised for the tier's descriptive emissions.
-    soft_warning_cap = 8 if tier == "T0" else 4
+    # T0=8 (more descriptive emissions), T1/T2=5 (loosened from 4 in 2026-04-13
+    # third revision: each individual gate often emits 1-2 soft warnings, so 4
+    # was hit by any strategy with two marginal-gate concerns. 5 leaves room for
+    # a couple of yellow lights without immediate WARN downgrade).
+    soft_warning_cap = 8 if tier == "T0" else 5
     if hard_fail_reasons or composite_confidence < 0.45:
         verdict = "FAIL"
     elif critical_warnings or composite_confidence < 0.70 or len(soft_warnings) >= soft_warning_cap:

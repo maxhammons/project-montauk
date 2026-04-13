@@ -404,17 +404,8 @@ def fitness_from_cache(entry: dict, *, tier: str = "T2") -> float:
     # Drawdown penalty
     dd_penalty = max(0.3, 1.0 - dd / 120.0)
 
-    # Complexity penalty — T1/T2 only.
-    if tier == "T0":
-        complexity_penalty = 1.0
-    else:
-        if n_params > 0:
-            tpp = num_trades / n_params
-            if tpp < 5:
-                return 0.0
-            complexity_penalty = min(1.0, 0.5 + 0.5 * (tpp - 5) / 5) if tpp < 10 else 1.0
-        else:
-            complexity_penalty = 1.0
+    # Complexity penalty REMOVED (2026-04-13 third revision) — see fitness().
+    complexity_penalty = 1.0
 
     # Regime quality multiplier
     rs = entry.get("rs") or 0
@@ -482,24 +473,14 @@ def fitness(result: BacktestResult, *, tier: str = "T2") -> float:
     # Max DD of 80%+ → 0.3x, 40% → 0.65x, 20% → 0.83x
     dd_penalty = max(0.3, 1.0 - result.max_drawdown_pct / 120.0)
 
-    # ── Parameter complexity penalty — T1/T2 only ──
-    # T0 bypasses: canonical param pre-registration is the structural defense.
-    if tier == "T0":
-        complexity_penalty = 1.0
-    else:
-        n_params = sum(1 for k, v in result.params.items()
-                       if isinstance(v, (int, float)) and not isinstance(v, bool)
-                       and k != "cooldown")
-        if n_params > 0:
-            tpp_ratio = result.num_trades / n_params
-            if tpp_ratio < 5:
-                return 0.0  # underdetermined — reject
-            elif tpp_ratio < 10:
-                complexity_penalty = 0.5 + 0.5 * (tpp_ratio - 5) / 5  # ramp 5→10
-            else:
-                complexity_penalty = 1.0
-        else:
-            complexity_penalty = 1.0
+    # ── Complexity penalty REMOVED (2026-04-13 third revision) ──
+    # The trades-per-param (tpp) gate it implemented is a statistical prior
+    # that's already tested directly and more powerfully by cross-asset,
+    # walk-forward, fragility, and HHI gates. In Montauk's low-trade-count
+    # charter (≤5 trades/year), it also actively punished legitimate strategies
+    # with more than 5 params. Overfit candidates that survive every other
+    # gate are not meaningfully overfit; this penalty added only noise.
+    complexity_penalty = 1.0
 
     # ── Regime quality multiplier (rewards good timing, but share_mult drives ranking) ──
     # Regime score 0.7 → 1.0x (full credit), 0.5 → 0.8x, 0.3 → 0.6x

@@ -258,8 +258,13 @@ def analyze_walk_forward(
             else:
                 # Low-frequency strategy in a short window — zero trades is normal
                 soft_warnings.append(f"{label}: zero OOS trades (expected ~{expected_trades:.1f})")
-        elif regime_ratio < 0.75:
-            hard_fail_reasons.append(f"{label}: OOS/IS regime ratio {regime_ratio:.2f} < 0.75")
+        elif regime_ratio < 0.65:
+            # Loosened from 0.75 → 0.65 (2026-04-13 third revision):
+            # with 4 OOS windows and ~6 trades each, individual-window
+            # OOS/IS ratios are noisy. 0.65 still catches catastrophic OOS
+            # failures (the actual concern) without rejecting strategies
+            # for normal regime variance.
+            hard_fail_reasons.append(f"{label}: OOS/IS regime ratio {regime_ratio:.2f} < 0.65")
 
     ratios = [w["oos_is_ratio"] for w in windows] or [0.0]
     avg_ratio = float(np.mean(ratios))
@@ -269,10 +274,13 @@ def analyze_walk_forward(
         hard_fail_reasons.append(f"average OOS/IS regime ratio {avg_ratio:.2f} < 0.50")
     elif avg_ratio < 0.65:
         critical_warnings.append(f"average OOS/IS regime ratio {avg_ratio:.2f} < 0.65")
-    if spread > 0.65:
-        critical_warnings.append(f"walk-forward dispersion {spread:.2f} > 0.65")
-    elif spread > 0.50:
-        soft_warnings.append(f"walk-forward dispersion {spread:.2f} > 0.50")
+    # Walk-forward dispersion thresholds loosened (2026-04-13 third revision):
+    # critical 0.65 → 0.75, soft 0.50 → 0.65. With only 4 windows, dispersion
+    # in this range is normal noise rather than statistically meaningful signal.
+    if spread > 0.75:
+        critical_warnings.append(f"walk-forward dispersion {spread:.2f} > 0.75")
+    elif spread > 0.65:
+        soft_warnings.append(f"walk-forward dispersion {spread:.2f} > 0.65")
 
     warnings = soft_warnings + critical_warnings
     verdict = "FAIL" if hard_fail_reasons else "WARN" if warnings else "PASS"

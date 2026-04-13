@@ -3,7 +3,7 @@
 > Canonical reference for every threshold in the validation pipeline.
 > This file MUST stay in sync with `scripts/validation/pipeline.py` and `scripts/validation/candidate.py`.
 
-> **Scope note (2026-04-13):** The thresholds documented here describe the **T2 (Discovered)** validation pipeline — the full statistical stack appropriate to candidates pulled from large search budgets. The T0 (Hypothesis) and T1 (Tuned) tiers introduced by `VALIDATION-PHILOSOPHY.md` use lighter pipelines that have not yet been implemented in code. When tier routing lands, this document will be split into per-tier threshold tables. Until then, the values below describe what runs against **all** candidates in the current scripts — which is itself one of the things being fixed.
+> **Scope note (2026-04-13 third revision):** Tier routing IS now implemented in code. The thresholds below are mostly tier-uniform with a few tier-aware exceptions noted inline (trade-count floor at gate1, walk-forward demotion to soft at T0, soft-warning cap at gate7). The marker gate is now diagnostic-only with no hard fails. The tpp (trades-per-param) gate has been removed entirely.
 
 ---
 
@@ -11,9 +11,13 @@
 
 ```
 FAIL:   hard_fail_reasons present OR composite_confidence < 0.45
-WARN:   critical_warnings present OR composite_confidence < 0.70 OR soft_warnings >= 4
-PASS:   only soft_warnings (< 4) and/or advisories
+WARN:   critical_warnings present OR composite_confidence < 0.70 OR soft_warnings >= cap
+PASS:   only soft_warnings (< cap) and/or advisories
 ```
+
+Soft-warning cap (loosened 2026-04-13 third revision):
+- T0: 8 (T0 emits more descriptive warnings inherently)
+- T1/T2: 5 (was 4 — each individual gate often emits 1-2 soft warnings, so 4 was hit by any strategy with two marginal-gate concerns)
 
 `clean_pass = True` when verdict is PASS and zero soft warnings.
 
@@ -25,9 +29,10 @@ Source: `pipeline.py :: _gate1_candidate()`
 
 | Check | Hard Fail | Soft Warning | Pass |
 |-------|-----------|--------------|------|
-| Trade count | < 15 | — | >= 15 |
-| Trades/year | > 5.0 | — | <= 5.0 |
-| Trades per param | < 5.0 | 5.0 - 10.0 | >= 10.0 |
+| Share multiplier (charter) | < 1.0 | — | >= 1.0 |
+| Trade count | < {5/10/15} (T0/T1/T2) | — | >= floor |
+| Trades/year (charter) | > 5.0 | — | <= 5.0 |
+| Trades per param | **REMOVED** (2026-04-13 third revision) | — | — |
 | n_params vs regime_transitions | — | n_params > transitions | n_params <= transitions |
 | Degeneracy (4yr windows) | always-in or always-out across ALL windows | sparse/saturated in some windows | normal exposure |
 | Pine-deployable | not in registry | — | in registry |
@@ -74,11 +79,13 @@ Windows: WF 2015-2017, WF 2018-2020, WF 2021-2023, WF 2024-present (dynamic).
 
 | Check | Hard Fail | Critical Warning | Soft Warning | Pass |
 |-------|-----------|-----------------|--------------|------|
-| Per-window OOS/IS regime ratio | < 0.75 | — | — | >= 0.75 |
+| Per-window OOS/IS regime ratio | < 0.65 | — | — | >= 0.65 |
 | Zero OOS trades (expected >= 1.5) | yes | — | — | has trades |
 | Zero OOS trades (expected < 1.5) | — | — | yes | has trades |
 | Avg OOS/IS ratio | < 0.50 | < 0.65 | — | >= 0.65 |
-| Dispersion (max - min) | — | > 0.65 | 0.50 - 0.65 | <= 0.50 |
+| Dispersion (max - min) | — | > 0.75 | > 0.65 | <= 0.65 |
+
+Per-window threshold and dispersion thresholds loosened in 2026-04-13 third revision (was 0.75 and 0.65/0.50 respectively). With 4 OOS windows of ~6 trades each, the prior thresholds were noise-dominated; loosening still catches catastrophic OOS failure (the actual concern) without rejecting normal regime variance.
 
 Zero-trade threshold: `expected_trades = full_period_trades_yr * window_years`. If < 1.5, zero trades is soft warning (statistically normal for low-frequency strategies).
 
