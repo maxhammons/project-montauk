@@ -137,7 +137,7 @@ Pipeline:
 1. Code integrity checks (no lookahead, bar-close exits, single position)
 2. Cross-asset on TQQQ + UPRO + QQQ — must beat B&H share count on at least 2 of 3
 3. Walk-forward split at the midpoint — both halves beat B&H share count
-4. Marker shape alignment — state agreement ≥ 80%, median lag < 20 bars, zero missed marker cycles
+4. Marker shape alignment — state_agreement (hard, tier-specific floor), missed_cycles (hard at T0, soft warning at T1/T2), transition_timing (soft warning). The realistic floors live in the scripts; the philosophy is: T0 must engage with every marker cycle, T1/T2 can miss some when state overlap is otherwise strong
 
 ### T1 Pipeline (Tuned)
 

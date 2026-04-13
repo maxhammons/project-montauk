@@ -1,0 +1,1367 @@
+{
+  "date": "2026-04-13",
+  "elapsed_hours": 0.05,
+  "total_evaluations": 5652,
+  "generations": 100453,
+  "constraint": "<=5.0 trades/yr",
+  "history_stats": {
+    "cached_configs": 4012468,
+    "new_configs": 5652,
+    "seeded_per_strategy": 0,
+    "total_history": 233450
+  },
+  "rankings": [],
+  "best_ever": {
+    "strategy": "",
+    "fitness": 0.0,
+    "params": {}
+  },
+  "raw_rankings": [
+    {
+      "rank": 1,
+      "strategy": "ema_regime",
+      "fitness": 21.2727,
+      "params": {
+        "exit_confirm": 8,
+        "entry_confirm": 2,
+        "slow_ema": 80,
+        "fast_ema": 40
+      },
+      "metrics": {
+        "vs_bah": 130.214,
+        "cagr": 21.71,
+        "max_dd": 75.1,
+        "mar": 0.289,
+        "trades": 24,
+        "trades_yr": 0.9,
+        "win_rate": 50.0,
+        "exit_reasons": {
+          "X": 24
+        },
+        "regime_score": 0.5664,
+        "bull_capture": 0.6026,
+        "bear_avoidance": 0.5302,
+        "hhi": 0.2094,
+        "n_params": 4
+      },
+      "discovery_score": 21.2727,
+      "marker_alignment_score": 0.5178,
+      "marker_alignment_detail": {
+        "score": 0.5178,
+        "state_accuracy": 0.7839,
+        "precision": 0.8874,
+        "recall": 0.8009,
+        "f1": 0.8419,
+        "transition_timing_score": 0.0881,
+        "transition_count_score": 0.3571,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 23,
+        "candidate_sell_count": 23,
+        "buy_transition_matches": [
+          {
+            "target_bar": 213,
+            "nearest_bar": 1099,
+            "distance_bars": 886,
+            "score": 0.0
+          },
+          {
+            "target_bar": 576,
+            "nearest_bar": 1099,
+            "distance_bars": 523,
+            "score": 0.0
+          },
+          {
+            "target_bar": 951,
+            "nearest_bar": 1099,
+            "distance_bars": 148,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1416,
+            "nearest_bar": 1474,
+            "distance_bars": 58,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1908,
+            "nearest_bar": 1943,
+            "distance_bars": 35,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2561,
+            "nearest_bar": 2609,
+            "distance_bars": 48,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3270,
+            "nearest_bar": 3287,
+            "distance_bars": 17,
+            "score": 0.4333
+          },
+          {
+            "target_bar": 5036,
+            "nearest_bar": 5084,
+            "distance_bars": 48,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5347,
+            "nearest_bar": 5401,
+            "distance_bars": 54,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5733,
+            "nearest_bar": 5401,
+            "distance_bars": 332,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6053,
+            "nearest_bar": 6072,
+            "distance_bars": 19,
+            "score": 0.3667
+          },
+          {
+            "target_bar": 6373,
+            "nearest_bar": 6459,
+            "distance_bars": 86,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6444,
+            "nearest_bar": 6459,
+            "distance_bars": 15,
+            "score": 0.5
+          },
+          {
+            "target_bar": 6624,
+            "nearest_bar": 6659,
+            "distance_bars": 35,
+            "score": 0.0
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 315,
+            "nearest_bar": 353,
+            "distance_bars": 38,
+            "score": 0.0
+          },
+          {
+            "target_bar": 608,
+            "nearest_bar": 353,
+            "distance_bars": 255,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1275,
+            "nearest_bar": 1326,
+            "distance_bars": 51,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1831,
+            "nearest_bar": 1867,
+            "distance_bars": 36,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2225,
+            "nearest_bar": 2257,
+            "distance_bars": 32,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3052,
+            "nearest_bar": 3139,
+            "distance_bars": 87,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4977,
+            "nearest_bar": 4999,
+            "distance_bars": 22,
+            "score": 0.2667
+          },
+          {
+            "target_bar": 5324,
+            "nearest_bar": 5348,
+            "distance_bars": 24,
+            "score": 0.2
+          },
+          {
+            "target_bar": 5706,
+            "nearest_bar": 5821,
+            "distance_bars": 115,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5793,
+            "nearest_bar": 5821,
+            "distance_bars": 28,
+            "score": 0.0667
+          },
+          {
+            "target_bar": 6338,
+            "nearest_bar": 6243,
+            "distance_bars": 95,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6429,
+            "nearest_bar": 6456,
+            "distance_bars": 27,
+            "score": 0.1
+          },
+          {
+            "target_bar": 6579,
+            "nearest_bar": 6593,
+            "distance_bars": 14,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 6755,
+            "nearest_bar": 6593,
+            "distance_bars": 162,
+            "score": 0.0
+          }
+        ]
+      },
+      "trades": [
+        {
+          "entry_date": "1999-04-20",
+          "exit_date": "2000-05-16",
+          "pnl_pct": 133.1,
+          "exit_reason": "X",
+          "bars_held": 272
+        },
+        {
+          "entry_date": "2003-05-09",
+          "exit_date": "2004-04-01",
+          "pnl_pct": 72.1,
+          "exit_reason": "X",
+          "bars_held": 226
+        },
+        {
+          "entry_date": "2004-11-03",
+          "exit_date": "2005-02-08",
+          "pnl_pct": -1.2,
+          "exit_reason": "X",
+          "bars_held": 66
+        },
+        {
+          "entry_date": "2005-06-10",
+          "exit_date": "2005-10-21",
+          "pnl_pct": -1.8,
+          "exit_reason": "X",
+          "bars_held": 93
+        },
+        {
+          "entry_date": "2005-11-14",
+          "exit_date": "2006-05-25",
+          "pnl_pct": -10.1,
+          "exit_reason": "X",
+          "bars_held": 132
+        },
+        {
+          "entry_date": "2006-09-14",
+          "exit_date": "2007-12-12",
+          "pnl_pct": 75.8,
+          "exit_reason": "X",
+          "bars_held": 313
+        },
+        {
+          "entry_date": "2007-12-14",
+          "exit_date": "2008-01-11",
+          "pnl_pct": -26.4,
+          "exit_reason": "X",
+          "bars_held": 18
+        },
+        {
+          "entry_date": "2008-05-21",
+          "exit_date": "2008-07-03",
+          "pnl_pct": -24.7,
+          "exit_reason": "X",
+          "bars_held": 30
+        },
+        {
+          "entry_date": "2009-05-08",
+          "exit_date": "2010-02-19",
+          "pnl_pct": 90.9,
+          "exit_reason": "X",
+          "bars_held": 197
+        },
+        {
+          "entry_date": "2010-03-11",
+          "exit_date": "2010-06-03",
+          "pnl_pct": -13.5,
+          "exit_reason": "X",
+          "bars_held": 58
+        },
+        {
+          "entry_date": "2010-10-07",
+          "exit_date": "2011-06-14",
+          "pnl_pct": 19.9,
+          "exit_reason": "X",
+          "bars_held": 172
+        },
+        {
+          "entry_date": "2011-11-08",
+          "exit_date": "2011-12-05",
+          "pnl_pct": -8.3,
+          "exit_reason": "X",
+          "bars_held": 18
+        },
+        {
+          "entry_date": "2012-01-17",
+          "exit_date": "2012-06-07",
+          "pnl_pct": 14.7,
+          "exit_reason": "X",
+          "bars_held": 99
+        },
+        {
+          "entry_date": "2012-08-16",
+          "exit_date": "2012-11-13",
+          "pnl_pct": -23.7,
+          "exit_reason": "X",
+          "bars_held": 60
+        },
+        {
+          "entry_date": "2013-02-12",
+          "exit_date": "2015-08-17",
+          "pnl_pct": 179.4,
+          "exit_reason": "X",
+          "bars_held": 632
+        },
+        {
+          "entry_date": "2015-10-30",
+          "exit_date": "2016-01-22",
+          "pnl_pct": -22.4,
+          "exit_reason": "X",
+          "bars_held": 56
+        },
+        {
+          "entry_date": "2016-03-23",
+          "exit_date": "2018-11-01",
+          "pnl_pct": 249.1,
+          "exit_reason": "X",
+          "bars_held": 659
+        },
+        {
+          "entry_date": "2019-03-11",
+          "exit_date": "2020-03-25",
+          "pnl_pct": -14.6,
+          "exit_reason": "X",
+          "bars_held": 263
+        },
+        {
+          "entry_date": "2020-06-11",
+          "exit_date": "2022-02-08",
+          "pnl_pct": 241.4,
+          "exit_reason": "X",
+          "bars_held": 419
+        },
+        {
+          "entry_date": "2023-02-09",
+          "exit_date": "2023-10-13",
+          "pnl_pct": 48.5,
+          "exit_reason": "X",
+          "bars_held": 170
+        },
+        {
+          "entry_date": "2023-11-13",
+          "exit_date": "2024-08-20",
+          "pnl_pct": 63.8,
+          "exit_reason": "X",
+          "bars_held": 192
+        },
+        {
+          "entry_date": "2024-08-26",
+          "exit_date": "2024-09-10",
+          "pnl_pct": -15.6,
+          "exit_reason": "X",
+          "bars_held": 10
+        },
+        {
+          "entry_date": "2024-10-09",
+          "exit_date": "2025-03-10",
+          "pnl_pct": -33.2,
+          "exit_reason": "X",
+          "bars_held": 102
+        },
+        {
+          "entry_date": "2025-06-13",
+          "exit_date": "2026-02-17",
+          "pnl_pct": 30.3,
+          "exit_reason": "X",
+          "bars_held": 170
+        }
+      ],
+      "validation": {
+        "verdict": "FAIL",
+        "promotion_eligible": false,
+        "clean_pass": false,
+        "pine_eligible": true,
+        "composite_confidence": 0.0,
+        "tier": "T2",
+        "tier_reasons": [],
+        "sub_scores": {
+          "marker_shape": 0.7839,
+          "walk_forward": 0.0,
+          "fragility": null,
+          "selection_bias": null,
+          "cross_asset": null,
+          "bootstrap": null,
+          "regime_consistency": null,
+          "trade_sufficiency": 0.4667
+        },
+        "advisories": [],
+        "soft_warnings": [
+          "trades_per_param=6.00 in soft-warning band",
+          "[T2] transition_timing=0.088 < 0.30",
+          "composite_confidence=0.000 < 0.70"
+        ],
+        "critical_warnings": [],
+        "warnings": [
+          "trades_per_param=6.00 in soft-warning band",
+          "[T2] transition_timing=0.088 < 0.30",
+          "composite_confidence=0.000 < 0.70"
+        ],
+        "hard_fail_reasons": [
+          "[T2] missed_marker_cycles=11 > 2"
+        ],
+        "gates": {
+          "gate1": {
+            "verdict": "PASS",
+            "tier": "T2",
+            "trade_count": 24,
+            "trades_per_year": 0.9,
+            "n_params": 4,
+            "trades_per_param": 6.0,
+            "regime_transitions": 7,
+            "degeneracy": {
+              "verdict": "PASS",
+              "windows": [
+                {
+                  "window": "1998-2001",
+                  "exposure": 0.3553
+                },
+                {
+                  "window": "2002-2005",
+                  "exposure": 0.4167
+                },
+                {
+                  "window": "2006-2009",
+                  "exposure": 0.623
+                },
+                {
+                  "window": "2010-2013",
+                  "exposure": 0.6632
+                },
+                {
+                  "window": "2014-2017",
+                  "exposure": 0.9088
+                },
+                {
+                  "window": "2018-2021",
+                  "exposure": 0.8589
+                },
+                {
+                  "window": "2022-2025",
+                  "exposure": 0.6422
+                }
+              ],
+              "warnings": [],
+              "hard_fail_reasons": []
+            },
+            "advisories": [],
+            "soft_warnings": [
+              "trades_per_param=6.00 in soft-warning band"
+            ],
+            "critical_warnings": [],
+            "warnings": [
+              "trades_per_param=6.00 in soft-warning band"
+            ],
+            "hard_fail_reasons": []
+          },
+          "gate_marker": {
+            "verdict": "FAIL",
+            "tier": "T2",
+            "marker_score": 0.5178,
+            "state_agreement": 0.7839,
+            "transition_timing": 0.0881,
+            "target_buy_count": 14,
+            "candidate_buy_count": 23,
+            "missed_cycles": 11,
+            "tolerance_bars": 30,
+            "overlap_start": "1999-10-27",
+            "overlap_end": "2025-10-30",
+            "advisories": [],
+            "soft_warnings": [
+              "[T2] transition_timing=0.088 < 0.30"
+            ],
+            "critical_warnings": [],
+            "warnings": [
+              "[T2] transition_timing=0.088 < 0.30"
+            ],
+            "hard_fail_reasons": [
+              "[T2] missed_marker_cycles=11 > 2"
+            ]
+          },
+          "gate2": {
+            "verdict": "SKIPPED",
+            "reason": "earlier hard fail",
+            "advisories": [],
+            "soft_warnings": [],
+            "critical_warnings": [],
+            "warnings": [],
+            "hard_fail_reasons": []
+          },
+          "gate3": {
+            "verdict": "SKIPPED",
+            "reason": "earlier hard fail",
+            "advisories": [],
+            "soft_warnings": [],
+            "critical_warnings": [],
+            "warnings": [],
+            "hard_fail_reasons": []
+          },
+          "gate4": {
+            "verdict": "SKIPPED",
+            "reason": "earlier hard fail",
+            "advisories": [],
+            "soft_warnings": [],
+            "critical_warnings": [],
+            "warnings": [],
+            "hard_fail_reasons": []
+          },
+          "gate5": {
+            "verdict": "SKIPPED",
+            "reason": "earlier hard fail",
+            "advisories": [],
+            "soft_warnings": [],
+            "critical_warnings": [],
+            "warnings": [],
+            "hard_fail_reasons": []
+          },
+          "gate6": {
+            "verdict": "SKIPPED",
+            "reason": "earlier hard fail",
+            "advisories": [],
+            "soft_warnings": [],
+            "critical_warnings": [],
+            "warnings": [],
+            "hard_fail_reasons": []
+          },
+          "gate7": {
+            "verdict": "FAIL",
+            "tier": "T2",
+            "promotion_eligible": false,
+            "clean_pass": false,
+            "pine_eligible": true,
+            "parity": {
+              "mode": "structural_smoke",
+              "reference_windows": [],
+              "required_tokens": [
+                "strategy(",
+                "process_orders_on_close=true",
+                "calc_on_every_tick=false",
+                "strategy.entry(\"Long\", strategy.long)",
+                "strategy.close(\"Long\")"
+              ],
+              "generated": true,
+              "line_count": 61,
+              "settings_ok": true
+            },
+            "sub_scores": {
+              "marker_shape": 0.7839,
+              "walk_forward": 0.0,
+              "fragility": null,
+              "selection_bias": null,
+              "cross_asset": null,
+              "bootstrap": null,
+              "regime_consistency": null,
+              "trade_sufficiency": 0.4667
+            },
+            "composite_confidence": 0.0,
+            "advisories": [],
+            "soft_warnings": [
+              "trades_per_param=6.00 in soft-warning band",
+              "[T2] transition_timing=0.088 < 0.30",
+              "composite_confidence=0.000 < 0.70"
+            ],
+            "critical_warnings": [],
+            "warnings": [
+              "trades_per_param=6.00 in soft-warning band",
+              "[T2] transition_timing=0.088 < 0.30",
+              "composite_confidence=0.000 < 0.70"
+            ],
+            "hard_fail_reasons": [
+              "[T2] missed_marker_cycles=11 > 2"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "rank": 2,
+      "strategy": "steady_trend",
+      "fitness": 16.6311,
+      "params": {
+        "slope_window": 6,
+        "exit_bars": 9,
+        "entry_bars": 6,
+        "ema_len": 100
+      },
+      "metrics": {
+        "vs_bah": 55.3019,
+        "cagr": 17.96,
+        "max_dd": 59.8,
+        "mar": 0.3,
+        "trades": 38,
+        "trades_yr": 1.4,
+        "win_rate": 52.6,
+        "exit_reasons": {
+          "S": 38
+        },
+        "regime_score": 0.507,
+        "bull_capture": 0.4792,
+        "bear_avoidance": 0.5349,
+        "hhi": 0.2313,
+        "n_params": 4
+      },
+      "discovery_score": 16.6311,
+      "marker_alignment_score": 0.4603,
+      "marker_alignment_detail": {
+        "score": 0.4603,
+        "state_accuracy": 0.7833,
+        "precision": 0.894,
+        "recall": 0.7924,
+        "f1": 0.8401,
+        "transition_timing_score": 0.2179,
+        "transition_count_score": 0.0,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 37,
+        "candidate_sell_count": 37,
+        "buy_transition_matches": [
+          {
+            "target_bar": 213,
+            "nearest_bar": 222,
+            "distance_bars": 9,
+            "score": 0.7
+          },
+          {
+            "target_bar": 576,
+            "nearest_bar": 429,
+            "distance_bars": 147,
+            "score": 0.0
+          },
+          {
+            "target_bar": 951,
+            "nearest_bar": 1095,
+            "distance_bars": 144,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1416,
+            "nearest_bar": 1469,
+            "distance_bars": 53,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1908,
+            "nearest_bar": 1932,
+            "distance_bars": 24,
+            "score": 0.2
+          },
+          {
+            "target_bar": 2561,
+            "nearest_bar": 2607,
+            "distance_bars": 46,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3270,
+            "nearest_bar": 3286,
+            "distance_bars": 16,
+            "score": 0.4667
+          },
+          {
+            "target_bar": 5036,
+            "nearest_bar": 5074,
+            "distance_bars": 38,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5347,
+            "nearest_bar": 5392,
+            "distance_bars": 45,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5733,
+            "nearest_bar": 5948,
+            "distance_bars": 215,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6053,
+            "nearest_bar": 6068,
+            "distance_bars": 15,
+            "score": 0.5
+          },
+          {
+            "target_bar": 6373,
+            "nearest_bar": 6390,
+            "distance_bars": 17,
+            "score": 0.4333
+          },
+          {
+            "target_bar": 6444,
+            "nearest_bar": 6460,
+            "distance_bars": 16,
+            "score": 0.4667
+          },
+          {
+            "target_bar": 6624,
+            "nearest_bar": 6644,
+            "distance_bars": 20,
+            "score": 0.3333
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 315,
+            "nearest_bar": 340,
+            "distance_bars": 25,
+            "score": 0.1667
+          },
+          {
+            "target_bar": 608,
+            "nearest_bar": 441,
+            "distance_bars": 167,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1275,
+            "nearest_bar": 1318,
+            "distance_bars": 43,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1831,
+            "nearest_bar": 1860,
+            "distance_bars": 29,
+            "score": 0.0333
+          },
+          {
+            "target_bar": 2225,
+            "nearest_bar": 2246,
+            "distance_bars": 21,
+            "score": 0.3
+          },
+          {
+            "target_bar": 3052,
+            "nearest_bar": 3085,
+            "distance_bars": 33,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4977,
+            "nearest_bar": 4992,
+            "distance_bars": 15,
+            "score": 0.5
+          },
+          {
+            "target_bar": 5324,
+            "nearest_bar": 5338,
+            "distance_bars": 14,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 5706,
+            "nearest_bar": 5815,
+            "distance_bars": 109,
+            "score": 0.0
+          },
+          {
+            "target_bar": 5793,
+            "nearest_bar": 5815,
+            "distance_bars": 22,
+            "score": 0.2667
+          },
+          {
+            "target_bar": 6338,
+            "nearest_bar": 6380,
+            "distance_bars": 42,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6429,
+            "nearest_bar": 6449,
+            "distance_bars": 20,
+            "score": 0.3333
+          },
+          {
+            "target_bar": 6579,
+            "nearest_bar": 6575,
+            "distance_bars": 4,
+            "score": 0.8667
+          },
+          {
+            "target_bar": 6755,
+            "nearest_bar": 6575,
+            "distance_bars": 180,
+            "score": 0.0
+          }
+        ]
+      },
+      "trades": [
+        {
+          "entry_date": "1999-06-16",
+          "exit_date": "1999-10-28",
+          "pnl_pct": 13.7,
+          "exit_reason": "S",
+          "bars_held": 94
+        },
+        {
+          "entry_date": "1999-11-09",
+          "exit_date": "2000-04-27",
+          "pnl_pct": 63.5,
+          "exit_reason": "S",
+          "bars_held": 117
+        },
+        {
+          "entry_date": "2000-09-05",
+          "exit_date": "2000-09-20",
+          "pnl_pct": -19.4,
+          "exit_reason": "S",
+          "bars_held": 11
+        },
+        {
+          "entry_date": "2003-05-05",
+          "exit_date": "2004-03-22",
+          "pnl_pct": 57.0,
+          "exit_reason": "S",
+          "bars_held": 222
+        },
+        {
+          "entry_date": "2004-04-13",
+          "exit_date": "2004-04-28",
+          "pnl_pct": -7.0,
+          "exit_reason": "S",
+          "bars_held": 11
+        },
+        {
+          "entry_date": "2004-10-27",
+          "exit_date": "2005-01-21",
+          "pnl_pct": -4.1,
+          "exit_reason": "S",
+          "bars_held": 59
+        },
+        {
+          "entry_date": "2005-05-27",
+          "exit_date": "2005-10-18",
+          "pnl_pct": -6.9,
+          "exit_reason": "S",
+          "bars_held": 99
+        },
+        {
+          "entry_date": "2005-11-11",
+          "exit_date": "2006-05-16",
+          "pnl_pct": -7.8,
+          "exit_reason": "S",
+          "bars_held": 126
+        },
+        {
+          "entry_date": "2006-08-29",
+          "exit_date": "2007-03-15",
+          "pnl_pct": 24.7,
+          "exit_reason": "S",
+          "bars_held": 135
+        },
+        {
+          "entry_date": "2007-03-29",
+          "exit_date": "2007-08-27",
+          "pnl_pct": 28.2,
+          "exit_reason": "S",
+          "bars_held": 104
+        },
+        {
+          "entry_date": "2007-09-06",
+          "exit_date": "2007-11-27",
+          "pnl_pct": -11.3,
+          "exit_reason": "S",
+          "bars_held": 57
+        },
+        {
+          "entry_date": "2008-05-08",
+          "exit_date": "2008-06-24",
+          "pnl_pct": -14.1,
+          "exit_reason": "S",
+          "bars_held": 32
+        },
+        {
+          "entry_date": "2009-05-06",
+          "exit_date": "2010-02-09",
+          "pnl_pct": 53.8,
+          "exit_reason": "S",
+          "bars_held": 192
+        },
+        {
+          "entry_date": "2010-03-10",
+          "exit_date": "2010-05-19",
+          "pnl_pct": -12.6,
+          "exit_reason": "S",
+          "bars_held": 49
+        },
+        {
+          "entry_date": "2010-09-27",
+          "exit_date": "2011-03-28",
+          "pnl_pct": 36.3,
+          "exit_reason": "S",
+          "bars_held": 126
+        },
+        {
+          "entry_date": "2011-04-06",
+          "exit_date": "2011-04-20",
+          "pnl_pct": 0.7,
+          "exit_reason": "S",
+          "bars_held": 10
+        },
+        {
+          "entry_date": "2011-05-03",
+          "exit_date": "2011-06-03",
+          "pnl_pct": -12.9,
+          "exit_reason": "S",
+          "bars_held": 22
+        },
+        {
+          "entry_date": "2011-07-15",
+          "exit_date": "2011-08-15",
+          "pnl_pct": -18.7,
+          "exit_reason": "S",
+          "bars_held": 21
+        },
+        {
+          "entry_date": "2011-10-21",
+          "exit_date": "2011-12-05",
+          "pnl_pct": 3.0,
+          "exit_reason": "S",
+          "bars_held": 30
+        },
+        {
+          "entry_date": "2012-01-13",
+          "exit_date": "2012-05-23",
+          "pnl_pct": 19.9,
+          "exit_reason": "S",
+          "bars_held": 90
+        },
+        {
+          "entry_date": "2012-08-10",
+          "exit_date": "2012-11-02",
+          "pnl_pct": -11.7,
+          "exit_reason": "S",
+          "bars_held": 57
+        },
+        {
+          "entry_date": "2013-01-17",
+          "exit_date": "2014-10-23",
+          "pnl_pct": 126.3,
+          "exit_reason": "S",
+          "bars_held": 445
+        },
+        {
+          "entry_date": "2014-11-04",
+          "exit_date": "2015-07-13",
+          "pnl_pct": 8.7,
+          "exit_reason": "S",
+          "bars_held": 171
+        },
+        {
+          "entry_date": "2015-07-29",
+          "exit_date": "2015-08-18",
+          "pnl_pct": -1.7,
+          "exit_reason": "S",
+          "bars_held": 14
+        },
+        {
+          "entry_date": "2015-10-23",
+          "exit_date": "2016-01-19",
+          "pnl_pct": -28.5,
+          "exit_reason": "S",
+          "bars_held": 58
+        },
+        {
+          "entry_date": "2016-03-11",
+          "exit_date": "2016-05-12",
+          "pnl_pct": -2.9,
+          "exit_reason": "S",
+          "bars_held": 43
+        },
+        {
+          "entry_date": "2016-06-02",
+          "exit_date": "2018-04-10",
+          "pnl_pct": 208.1,
+          "exit_reason": "S",
+          "bars_held": 466
+        },
+        {
+          "entry_date": "2018-05-14",
+          "exit_date": "2018-10-23",
+          "pnl_pct": -2.6,
+          "exit_reason": "S",
+          "bars_held": 113
+        },
+        {
+          "entry_date": "2019-02-25",
+          "exit_date": "2019-06-07",
+          "pnl_pct": 18.7,
+          "exit_reason": "S",
+          "bars_held": 72
+        },
+        {
+          "entry_date": "2019-06-17",
+          "exit_date": "2020-03-11",
+          "pnl_pct": 12.0,
+          "exit_reason": "S",
+          "bars_held": 185
+        },
+        {
+          "entry_date": "2020-05-29",
+          "exit_date": "2022-01-31",
+          "pnl_pct": 250.8,
+          "exit_reason": "S",
+          "bars_held": 422
+        },
+        {
+          "entry_date": "2022-08-12",
+          "exit_date": "2022-09-07",
+          "pnl_pct": -30.8,
+          "exit_reason": "S",
+          "bars_held": 17
+        },
+        {
+          "entry_date": "2023-02-03",
+          "exit_date": "2023-10-03",
+          "pnl_pct": 32.4,
+          "exit_reason": "S",
+          "bars_held": 166
+        },
+        {
+          "entry_date": "2023-11-14",
+          "exit_date": "2024-05-01",
+          "pnl_pct": 11.0,
+          "exit_reason": "S",
+          "bars_held": 115
+        },
+        {
+          "entry_date": "2024-05-16",
+          "exit_date": "2024-08-09",
+          "pnl_pct": -16.1,
+          "exit_reason": "S",
+          "bars_held": 58
+        },
+        {
+          "entry_date": "2024-08-27",
+          "exit_date": "2024-09-13",
+          "pnl_pct": -5.0,
+          "exit_reason": "S",
+          "bars_held": 12
+        },
+        {
+          "entry_date": "2024-09-30",
+          "exit_date": "2025-02-11",
+          "pnl_pct": 4.8,
+          "exit_reason": "S",
+          "bars_held": 91
+        },
+        {
+          "entry_date": "2025-05-22",
+          "exit_date": "2026-02-17",
+          "pnl_pct": 46.0,
+          "exit_reason": "S",
+          "bars_held": 185
+        }
+      ],
+      "validation": {
+        "verdict": "FAIL",
+        "promotion_eligible": false,
+        "clean_pass": false,
+        "pine_eligible": true,
+        "composite_confidence": 0.0,
+        "tier": "T2",
+        "tier_reasons": [],
+        "sub_scores": {
+          "marker_shape": 0.7833,
+          "walk_forward": 0.0,
+          "fragility": null,
+          "selection_bias": null,
+          "cross_asset": null,
+          "bootstrap": null,
+          "regime_consistency": null,
+          "trade_sufficiency": 0.9333
+        },
+        "advisories": [],
+        "soft_warnings": [
+          "trades_per_param=9.50 in soft-warning band",
+          "[T2] transition_timing=0.218 < 0.30",
+          "composite_confidence=0.000 < 0.70"
+        ],
+        "critical_warnings": [],
+        "warnings": [
+          "trades_per_param=9.50 in soft-warning band",
+          "[T2] transition_timing=0.218 < 0.30",
+          "composite_confidence=0.000 < 0.70"
+        ],
+        "hard_fail_reasons": [
+          "[T2] missed_marker_cycles=7 > 2"
+        ],
+        "gates": {
+          "gate1": {
+            "verdict": "PASS",
+            "tier": "T2",
+            "trade_count": 38,
+            "trades_per_year": 1.4,
+            "n_params": 4,
+            "trades_per_param": 9.5,
+            "regime_transitions": 7,
+            "degeneracy": {
+              "verdict": "PASS",
+              "windows": [
+                {
+                  "window": "1998-2001",
+                  "exposure": 0.2911
+                },
+                {
+                  "window": "2002-2005",
+                  "exposure": 0.4256
+                },
+                {
+                  "window": "2006-2009",
+                  "exposure": 0.5867
+                },
+                {
+                  "window": "2010-2013",
+                  "exposure": 0.6735
+                },
+                {
+                  "window": "2014-2017",
+                  "exposure": 0.8889
+                },
+                {
+                  "window": "2018-2021",
+                  "exposure": 0.8329
+                },
+                {
+                  "window": "2022-2025",
+                  "exposure": 0.6388
+                }
+              ],
+              "warnings": [],
+              "hard_fail_reasons": []
+            },
+            "advisories": [],
+            "soft_warnings": [
+              "trades_per_param=9.50 in soft-warning band"
+            ],
+            "critical_warnings": [],
+            "warnings": [
+              "trades_per_param=9.50 in soft-warning band"
+            ],
+            "hard_fail_reasons": []
+          },
+          "gate_marker": {
+            "verdict": "FAIL",
+            "tier": "T2",
+            "marker_score": 0.4603,
+            "state_agreement": 0.7833,
+            "transition_timing": 0.2179,
+            "target_buy_count": 14,
+            "candidate_buy_count": 37,
+            "missed_cycles": 7,
+            "tolerance_bars": 30,
+            "overlap_start": "1999-10-27",
+            "overlap_end": "2025-10-30",
+            "advisories": [],
+            "soft_warnings": [
+              "[T2] transition_timing=0.218 < 0.30"
+            ],
+            "critical_warnings": [],
+            "warnings": [
+              "[T2] transition_timing=0.218 < 0.30"
+            ],
+            "hard_fail_reasons": [
+              "[T2] missed_marker_cycles=7 > 2"
+            ]
+          },
+          "gate2": {
+            "verdict": "SKIPPED",
+            "reason": "earlier hard fail",
+            "advisories": [],
+            "soft_warnings": [],
+            "critical_warnings": [],
+            "warnings": [],
+            "hard_fail_reasons": []
+          },
+          "gate3": {
+            "verdict": "SKIPPED",
+            "reason": "earlier hard fail",
+            "advisories": [],
+            "soft_warnings": [],
+            "critical_warnings": [],
+            "warnings": [],
+            "hard_fail_reasons": []
+          },
+          "gate4": {
+            "verdict": "SKIPPED",
+            "reason": "earlier hard fail",
+            "advisories": [],
+            "soft_warnings": [],
+            "critical_warnings": [],
+            "warnings": [],
+            "hard_fail_reasons": []
+          },
+          "gate5": {
+            "verdict": "SKIPPED",
+            "reason": "earlier hard fail",
+            "advisories": [],
+            "soft_warnings": [],
+            "critical_warnings": [],
+            "warnings": [],
+            "hard_fail_reasons": []
+          },
+          "gate6": {
+            "verdict": "SKIPPED",
+            "reason": "earlier hard fail",
+            "advisories": [],
+            "soft_warnings": [],
+            "critical_warnings": [],
+            "warnings": [],
+            "hard_fail_reasons": []
+          },
+          "gate7": {
+            "verdict": "FAIL",
+            "tier": "T2",
+            "promotion_eligible": false,
+            "clean_pass": false,
+            "pine_eligible": true,
+            "parity": {
+              "mode": "structural_smoke",
+              "reference_windows": [],
+              "required_tokens": [
+                "strategy(",
+                "process_orders_on_close=true",
+                "calc_on_every_tick=false",
+                "strategy.entry(\"Long\", strategy.long)",
+                "strategy.close(\"Long\")"
+              ],
+              "generated": true,
+              "line_count": 56,
+              "settings_ok": true
+            },
+            "sub_scores": {
+              "marker_shape": 0.7833,
+              "walk_forward": 0.0,
+              "fragility": null,
+              "selection_bias": null,
+              "cross_asset": null,
+              "bootstrap": null,
+              "regime_consistency": null,
+              "trade_sufficiency": 0.9333
+            },
+            "composite_confidence": 0.0,
+            "advisories": [],
+            "soft_warnings": [
+              "trades_per_param=9.50 in soft-warning band",
+              "[T2] transition_timing=0.218 < 0.30",
+              "composite_confidence=0.000 < 0.70"
+            ],
+            "critical_warnings": [],
+            "warnings": [
+              "trades_per_param=9.50 in soft-warning band",
+              "[T2] transition_timing=0.218 < 0.30",
+              "composite_confidence=0.000 < 0.70"
+            ],
+            "hard_fail_reasons": [
+              "[T2] missed_marker_cycles=7 > 2"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "validated_rankings": [],
+  "champion": null,
+  "validation_summary": {
+    "raw_candidates": 2,
+    "evaluated": 2,
+    "pre_tier3_pass": 2,
+    "validated_pass": 0,
+    "validated_warn": 0,
+    "validated_fail": 2,
+    "tier3_minutes": 0.5,
+    "tier3_pop_size": 12,
+    "elapsed_seconds": 0.1,
+    "run_integrity": {
+      "verdict": "PASS",
+      "datasets": {
+        "TECL": {
+          "bars": 6868,
+          "start": "1998-12-22",
+          "end": "2026-04-13"
+        },
+        "TQQQ": {
+          "bars": 6815,
+          "start": "1999-03-10",
+          "end": "2026-04-13"
+        },
+        "QQQ": {
+          "bars": 6815,
+          "start": "1999-03-10",
+          "end": "2026-04-13"
+        }
+      },
+      "engine": {
+        "slippage_pct_default": 0.05,
+        "slippage_active": true,
+        "bar_close_execution": true,
+        "lookahead_safe": true,
+        "repaint_safe": true
+      },
+      "strategies": {
+        "ema_regime": {
+          "in_registry": true,
+          "pine_supported": true,
+          "charter_compatible": true,
+          "pine_smoke_pass": true
+        },
+        "steady_trend": {
+          "in_registry": true,
+          "pine_supported": true,
+          "charter_compatible": true,
+          "pine_smoke_pass": true
+        }
+      },
+      "errors": []
+    },
+    "null": {
+      "beta_alpha": 17.23,
+      "beta_beta": 14.79,
+      "expected_max_regime_score": 0.7607,
+      "n_eff": 300
+    }
+  },
+  "artifacts": {}
+}

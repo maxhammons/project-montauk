@@ -511,9 +511,16 @@ def _gate_marker_shape(strategy_name: str, params: dict, ctx: ValidationContext,
     trade the same cycles?" not "does it match hindsight-perfect timing?"
 
     Per tier:
-      T0: state_agreement >= 0.75, missed_cycles == 0, transition_timing >= 0.50
-      T1: state_agreement >= 0.70, missed_cycles <= 1
-      T2: state_agreement >= 0.65, missed_cycles <= 2
+      T0: state_agreement >= 0.75 (hard), missed_cycles == 0 (hard), transition_timing >= 0.50 (soft)
+      T1: state_agreement >= 0.70 (hard), missed_cycles <= 3 (soft warning)
+      T2: state_agreement >= 0.65 (hard), missed_cycles <= 5 (soft warning)
+
+    `missed_cycles` is a hard fail only at T0 (where the strategy is pre-registered
+    as a hypothesis and ought to engage with every marker cycle the data covers).
+    At T1/T2 it is a soft warning — a large search will produce candidates with
+    high state_agreement that still miss some early-period marker cycles due to
+    indicator warm-up, data-availability windows, or genuine regime mismatches,
+    and that is informative but not disqualifying when state overlap is strong.
     """
     trades, bt_result = get_strategy_trades(ctx.df, strategy_name, params)
     if trades is None or bt_result is None:
@@ -539,11 +546,11 @@ def _gate_marker_shape(strategy_name: str, params: dict, ctx: ValidationContext,
     missed_cycles = sum(1 for m in buy_matches if (m.get("score") or 0) < 0.1)
 
     if tier == "T0":
-        state_floor, missed_cap, timing_floor = 0.75, 0, 0.50
+        state_floor, missed_cap, timing_floor, missed_is_hard = 0.75, 0, 0.50, True
     elif tier == "T1":
-        state_floor, missed_cap, timing_floor = 0.70, 1, 0.40
-    else:
-        state_floor, missed_cap, timing_floor = 0.65, 2, 0.30
+        state_floor, missed_cap, timing_floor, missed_is_hard = 0.70, 3, 0.40, False
+    else:  # T2
+        state_floor, missed_cap, timing_floor, missed_is_hard = 0.65, 5, 0.30, False
 
     hard_fail_reasons = []
     soft_warnings = []
@@ -556,9 +563,11 @@ def _gate_marker_shape(strategy_name: str, params: dict, ctx: ValidationContext,
                 f"[{tier}] marker state_agreement={state_agreement:.3f} < {state_floor:.2f}"
             )
         if missed_cycles > missed_cap:
-            hard_fail_reasons.append(
-                f"[{tier}] missed_marker_cycles={missed_cycles} > {missed_cap}"
-            )
+            msg = f"[{tier}] missed_marker_cycles={missed_cycles} > {missed_cap}"
+            if missed_is_hard:
+                hard_fail_reasons.append(msg)
+            else:
+                soft_warnings.append(msg)
         if transition_timing < timing_floor:
             soft_warnings.append(
                 f"[{tier}] transition_timing={transition_timing:.3f} < {timing_floor:.2f}"

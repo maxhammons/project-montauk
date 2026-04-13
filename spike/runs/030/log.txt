@@ -1,0 +1,100 @@
+Spike Runner started: 2026-04-13 11:22:47
+Duration: 0.05h | Pop: 20 | Run dir: /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/030
+
+[refresh] Updating all local CSVs...
+[refresh] TECL: +1 new bars
+[refresh] VIX: +1 new bars
+[refresh] XLK: +1 new bars
+[refresh] QQQ: +1 new bars
+[refresh] TQQQ: +1 new bars
+[refresh] SGOV: +1 new bars
+[refresh] 3-Month Treasury Bill Rate.csv: up to date
+[refresh] Treasury Yield Spread 10Y-2Y.csv: up to date
+[refresh] Fed Funds Rate.csv: up to date
+[refresh] Done. TECL: 6868 bars through 2026-04-13
+
+=== Montauk Multi-Strategy Optimizer ===
+Duration: 0.05h | Pop: 20/strategy | Registered: 2
+Constraint: ≤5.0 trades/year
+Started: 2026-04-13 11:22
+
+[data] TECL: 6868 bars, 1998-12-22 to 2026-04-13
+[data] VIX: 6867/6868 dates matched
+Data: 6868 bars, 1998-12-22 to 2026-04-13
+
+[history] Dedup cache: 227,798 configs with known fitness
+
+── Baselines ──
+  steady_trend           discovery=1.6211  fitness=1.6211  marker=0.476  share=7.578x  trades/yr=2.2  CAGR=9.7%  DD=90.1%
+  ema_regime             discovery=2.3897  fitness=2.3897  marker=0.449  share=10.914x  trades/yr=1.3  CAGR=11.2%  DD=79.9%
+Active strategies: 2/2
+
+── Evolving ──
+Gen   543: BEST_DISC=21.2727 (ema_regime)  evals=1,316 (44/s)  0.0h left
+    ema_regime             disc=21.2727 fit=21.2727 marker=0.518  RS=0.566  share=130.214x  t/yr=0.9  DD=75.1%
+    steady_trend           disc=16.6311 fit=16.6311 marker=0.460  RS=0.507  share=55.302x  t/yr=1.4  DD=59.8%
+Gen  1515: BEST_DISC=21.2727 (ema_regime)  evals=2,627 (44/s)  0.0h left
+    ema_regime             disc=21.2727 fit=21.2727 marker=0.518  RS=0.566  share=130.214x  t/yr=0.9  DD=75.1%
+    steady_trend           disc=16.6311 fit=16.6311 marker=0.460  RS=0.507  share=55.302x  t/yr=1.4  DD=59.8%
+Gen  3068: BEST_DISC=21.2727 (ema_regime)  evals=3,906 (43/s)  0.0h left
+    ema_regime             disc=21.2727 fit=21.2727 marker=0.518  RS=0.566  share=130.214x  t/yr=0.9  DD=75.1%
+    steady_trend           disc=16.6311 fit=16.6311 marker=0.460  RS=0.507  share=55.302x  t/yr=1.4  DD=59.8%
+Gen  6272: BEST_DISC=21.2727 (ema_regime)  evals=5,081 (42/s)  0.0h left
+    ema_regime             disc=21.2727 fit=21.2727 marker=0.518  RS=0.566  share=130.214x  t/yr=0.9  DD=75.1%
+    steady_trend           disc=16.6311 fit=16.6311 marker=0.460  RS=0.507  share=55.302x  t/yr=1.4  DD=59.8%
+Gen 36999: BEST_DISC=21.2727 (ema_regime)  evals=5,652 (38/s)  0.0h left
+    ema_regime             disc=21.2727 fit=21.2727 marker=0.518  RS=0.566  share=130.214x  t/yr=0.9  DD=75.1%
+    steady_trend           disc=16.6311 fit=16.6311 marker=0.460  RS=0.507  share=55.302x  t/yr=1.4  DD=59.8%
+
+============================================================
+DONE — 0.1h, 5,652 evals, 100453 generations
+============================================================
+
+── Strategy Rankings (vs 8.2.1) ──
+  #1 ema_regime             discovery=21.2727  fitness=21.2727  marker=0.518  share=130.214x  t/yr=0.9  CAGR=21.7%  DD=75.1%  MAR=0.29
+     params: {"exit_confirm": 8, "entry_confirm": 2, "slow_ema": 80, "fast_ema": 40}
+     trades: 24 (0.9/yr)
+       1999-04-20 → 2000-05-16  +133.1%  X
+       2003-05-09 → 2004-04-01  +72.1%  X
+       2004-11-03 → 2005-02-08  -1.2%  X
+       2005-06-10 → 2005-10-21  -1.8%  X
+       2005-11-14 → 2006-05-25  -10.1%  X
+       ... +19 more
+  #2 steady_trend           discovery=16.6311  fitness=16.6311  marker=0.460  share=55.302x  t/yr=1.4  CAGR=18.0%  DD=59.8%  MAR=0.30
+     params: {"slope_window": 6, "exit_bars": 9, "entry_bars": 6, "ema_len": 100}
+     trades: 38 (1.4/yr)
+       1999-06-16 → 1999-10-28  +13.7%  S
+       1999-11-09 → 2000-04-27  +63.5%  S
+       2000-09-05 → 2000-09-20  -19.4%  S
+       2003-05-05 → 2004-03-22  +57.0%  S
+       2004-04-13 → 2004-04-28  -7.0%  S
+       ... +33 more
+
+[history] Saved hash index: 233,450 unique configs
+
+Results: /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/030/results.json
+
+###JSON### {"date": "2026-04-13", "elapsed_hours": 0.05, "total_evaluations": 5652, "generations": 100453, "constraint": "<=5.0 trades/yr", "history_stats": {"cached_configs": 4012468, "new_configs": 5652, "seeded_per_strategy": 0, "total_history": 233450}, "rankings": [{"rank": 1, "strategy": "ema_regime", "fitness": 21.2727, "params": {"exit_confirm": 8, "entry_confirm": 2, "slow_ema": 80, "fast_ema": 40}, "metrics": {"vs_bah": 130.214, "cagr": 21.71, "max_dd": 75.1, "mar": 0.289, "trades": 24, "trades_yr": 0.9, "win_rate": 50.0, "exit_reasons": {"X": 24}, "regime_score": 0.5664, "bull_capture": 0.6026, "bear_avoidance": 0.5302, "hhi": 0.2094, "n_params": 4}, "discovery_score": 21.2727, "marker_alignment_score": 0.5178, "marker_alignment_detail": {"score": 0.5178, "state_accuracy": 0.7839, "precision": 0.8874, "recall": 0.8009, "f1": 0.8419, "transition_timing_score": 0.0881, "transition_count_score": 0.3571, "tolerance_bars": 30, "overlap_start": "1999-10-27", "overlap_end": "2025-10-30", "target_buy_count": 14, "target_sell_count": 14, "candidate_buy_count": 23, "candidate_sell_count": 23, "buy_transition_matches": [{"target_bar": 213, "nearest_bar": 1099, "distance_bars": 886, "score": 0.0}, {"target_bar": 576, "nearest_bar": 1099, "distance_bars": 523, "score": 0.0}, {"target_bar": 951, "nearest_bar": 1099, "distance_bars": 148, "score": 0.0}, {"target_bar": 1416, "nearest_bar": 1474, "distance_bars": 58, "score": 0.0}, {"target_bar": 1908, "nearest_bar": 1943, "distance_bars": 35, "score": 0.0}, {"target_bar": 2561, "nearest_bar": 2609, "distance_bars": 48, "score": 0.0}, {"target_bar": 3270, "nearest_bar": 3287, "distance_bars": 17, "score": 0.4333}, {"target_bar": 5036, "nearest_bar": 5084, "distance_bars": 48, "score": 0.0}, {"target_bar": 5347, "nearest_bar": 5401, "distance_bars": 54, "score": 0.0}, {"target_bar": 5733, "nearest_bar": 5401, "distance_bars": 332, "score": 0.0}, {"target_bar": 6053, "nearest_bar": 6072, "distance_bars": 19, "score": 0.3667}, {"target_bar": 6373, "nearest_bar": 6459, "distance_bars": 86, "score": 0.0}, {"target_bar": 6444, "nearest_bar": 6459, "distance_bars": 15, "score": 0.5}, {"target_bar": 6624, "nearest_bar": 6659, "distance_bars": 35, "score": 0.0}], "sell_transition_matches": [{"target_bar": 315, "nearest_bar": 353, "distance_bars": 38, "score": 0.0}, {"target_bar": 608, "nearest_bar": 353, "distance_bars": 255, "score": 0.0}, {"target_bar": 1275, "nearest_bar": 1326, "distance_bars": 51, "score": 0.0}, {"target_bar": 1831, "nearest_bar": 1867, "distance_bars": 36, "score": 0.0}, {"target_bar": 2225, "nearest_bar": 2257, "distance_bars": 32, "score": 0.0}, {"target_bar": 3052, "nearest_bar": 3139, "distance_bars": 87, "score": 0.0}, {"target_bar": 4977, "nearest_bar": 4999, "distance_bars": 22, "score": 0.2667}, {"target_bar": 5324, "nearest_bar": 5348, "distance_bars": 24, "score": 0.2}, {"target_bar": 5706, "nearest_bar": 5821, "distance_bars": 115, "score": 0.0}, {"target_bar": 5793, "nearest_bar": 5821, "distance_bars": 28, "score": 0.0667}, {"target_bar": 6338, "nearest_bar": 6243, "distance_bars": 95, "score": 0.0}, {"target_bar": 6429, "nearest_bar": 6456, "distance_bars": 27, "score": 0.1}, {"target_bar": 6579, "nearest_bar": 6593, "distance_bars": 14, "score": 0.5333}, {"target_bar": 6755, "nearest_bar": 6593, "distance_bars": 162, "score": 0.0}]}, "trades": [{"entry_date": "1999-04-20", "exit_date": "2000-05-16", "pnl_pct": 133.1, "exit_reason": "X", "bars_held": 272}, {"entry_date": "2003-05-09", "exit_date": "2004-04-01", "pnl_pct": 72.1, "exit_reason": "X", "bars_held": 226}, {"entry_date": "2004-11-03", "exit_date": "2005-02-08", "pnl_pct": -1.2, "exit_reason": "X", "bars_held": 66}, {"entry_date": "2005-06-10", "exit_date": "2005-10-21", "pnl_pct": -1.8, "exit_reason": "X", "bars_held": 93}, {"entry_date": "2005-11-14", "exit_date": "2006-05-25", "pnl_pct": -10.1, "exit_reason": "X", "bars_held": 132}, {"entry_date": "2006-09-14", "exit_date": "2007-12-12", "pnl_pct": 75.8, "exit_reason": "X", "bars_held": 313}, {"entry_date": "2007-12-14", "exit_date": "2008-01-11", "pnl_pct": -26.4, "exit_reason": "X", "bars_held": 18}, {"entry_date": "2008-05-21", "exit_date": "2008-07-03", "pnl_pct": -24.7, "exit_reason": "X", "bars_held": 30}, {"entry_date": "2009-05-08", "exit_date": "2010-02-19", "pnl_pct": 90.9, "exit_reason": "X", "bars_held": 197}, {"entry_date": "2010-03-11", "exit_date": "2010-06-03", "pnl_pct": -13.5, "exit_reason": "X", "bars_held": 58}, {"entry_date": "2010-10-07", "exit_date": "2011-06-14", "pnl_pct": 19.9, "exit_reason": "X", "bars_held": 172}, {"entry_date": "2011-11-08", "exit_date": "2011-12-05", "pnl_pct": -8.3, "exit_reason": "X", "bars_held": 18}, {"entry_date": "2012-01-17", "exit_date": "2012-06-07", "pnl_pct": 14.7, "exit_reason": "X", "bars_held": 99}, {"entry_date": "2012-08-16", "exit_date": "2012-11-13", "pnl_pct": -23.7, "exit_reason": "X", "bars_held": 60}, {"entry_date": "2013-02-12", "exit_date": "2015-08-17", "pnl_pct": 179.4, "exit_reason": "X", "bars_held": 632}, {"entry_date": "2015-10-30", "exit_date": "2016-01-22", "pnl_pct": -22.4, "exit_reason": "X", "bars_held": 56}, {"entry_date": "2016-03-23", "exit_date": "2018-11-01", "pnl_pct": 249.1, "exit_reason": "X", "bars_held": 659}, {"entry_date": "2019-03-11", "exit_date": "2020-03-25", "pnl_pct": -14.6, "exit_reason": "X", "bars_held": 263}, {"entry_date": "2020-06-11", "exit_date": "2022-02-08", "pnl_pct": 241.4, "exit_reason": "X", "bars_held": 419}, {"entry_date": "2023-02-09", "exit_date": "2023-10-13", "pnl_pct": 48.5, "exit_reason": "X", "bars_held": 170}, {"entry_date": "2023-11-13", "exit_date": "2024-08-20", "pnl_pct": 63.8, "exit_reason": "X", "bars_held": 192}, {"entry_date": "2024-08-26", "exit_date": "2024-09-10", "pnl_pct": -15.6, "exit_reason": "X", "bars_held": 10}, {"entry_date": "2024-10-09", "exit_date": "2025-03-10", "pnl_pct": -33.2, "exit_reason": "X", "bars_held": 102}, {"entry_date": "2025-06-13", "exit_date": "2026-02-17", "pnl_pct": 30.3, "exit_reason": "X", "bars_held": 170}]}, {"rank": 2, "strategy": "steady_trend", "fitness": 16.6311, "params": {"slope_window": 6, "exit_bars": 9, "entry_bars": 6, "ema_len": 100}, "metrics": {"vs_bah": 55.3019, "cagr": 17.96, "max_dd": 59.8, "mar": 0.3, "trades": 38, "trades_yr": 1.4, "win_rate": 52.6, "exit_reasons": {"S": 38}, "regime_score": 0.507, "bull_capture": 0.4792, "bear_avoidance": 0.5349, "hhi": 0.2313, "n_params": 4}, "discovery_score": 16.6311, "marker_alignment_score": 0.4603, "marker_alignment_detail": {"score": 0.4603, "state_accuracy": 0.7833, "precision": 0.894, "recall": 0.7924, "f1": 0.8401, "transition_timing_score": 0.2179, "transition_count_score": 0.0, "tolerance_bars": 30, "overlap_start": "1999-10-27", "overlap_end": "2025-10-30", "target_buy_count": 14, "target_sell_count": 14, "candidate_buy_count": 37, "candidate_sell_count": 37, "buy_transition_matches": [{"target_bar": 213, "nearest_bar": 222, "distance_bars": 9, "score": 0.7}, {"target_bar": 576, "nearest_bar": 429, "distance_bars": 147, "score": 0.0}, {"target_bar": 951, "nearest_bar": 1095, "distance_bars": 144, "score": 0.0}, {"target_bar": 1416, "nearest_bar": 1469, "distance_bars": 53, "score": 0.0}, {"target_bar": 1908, "nearest_bar": 1932, "distance_bars": 24, "score": 0.2}, {"target_bar": 2561, "nearest_bar": 2607, "distance_bars": 46, "score": 0.0}, {"target_bar": 3270, "nearest_bar": 3286, "distance_bars": 16, "score": 0.4667}, {"target_bar": 5036, "nearest_bar": 5074, "distance_bars": 38, "score": 0.0}, {"target_bar": 5347, "nearest_bar": 5392, "distance_bars": 45, "score": 0.0}, {"target_bar": 5733, "nearest_bar": 5948, "distance_bars": 215, "score": 0.0}, {"target_bar": 6053, "nearest_bar": 6068, "distance_bars": 15, "score": 0.5}, {"target_bar": 6373, "nearest_bar": 6390, "distance_bars": 17, "score": 0.4333}, {"target_bar": 6444, "nearest_bar": 6460, "distance_bars": 16, "score": 0.4667}, {"target_bar": 6624, "nearest_bar": 6644, "distance_bars": 20, "score": 0.3333}], "sell_transition_matches": [{"target_bar": 315, "nearest_bar": 340, "distance_bars": 25, "score": 0.1667}, {"target_bar": 608, "nearest_bar": 441, "distance_bars": 167, "score": 0.0}, {"target_bar": 1275, "nearest_bar": 1318, "distance_bars": 43, "score": 0.0}, {"target_bar": 1831, "nearest_bar": 1860, "distance_bars": 29, "score": 0.0333}, {"target_bar": 2225, "nearest_bar": 2246, "distance_bars": 21, "score": 0.3}, {"target_bar": 3052, "nearest_bar": 3085, "distance_bars": 33, "score": 0.0}, {"target_bar": 4977, "nearest_bar": 4992, "distance_bars": 15, "score": 0.5}, {"target_bar": 5324, "nearest_bar": 5338, "distance_bars": 14, "score": 0.5333}, {"target_bar": 5706, "nearest_bar": 5815, "distance_bars": 109, "score": 0.0}, {"target_bar": 5793, "nearest_bar": 5815, "distance_bars": 22, "score": 0.2667}, {"target_bar": 6338, "nearest_bar": 6380, "distance_bars": 42, "score": 0.0}, {"target_bar": 6429, "nearest_bar": 6449, "distance_bars": 20, "score": 0.3333}, {"target_bar": 6579, "nearest_bar": 6575, "distance_bars": 4, "score": 0.8667}, {"target_bar": 6755, "nearest_bar": 6575, "distance_bars": 180, "score": 0.0}]}, "trades": [{"entry_date": "1999-06-16", "exit_date": "1999-10-28", "pnl_pct": 13.7, "exit_reason": "S", "bars_held": 94}, {"entry_date": "1999-11-09", "exit_date": "2000-04-27", "pnl_pct": 63.5, "exit_reason": "S", "bars_held": 117}, {"entry_date": "2000-09-05", "exit_date": "2000-09-20", "pnl_pct": -19.4, "exit_reason": "S", "bars_held": 11}, {"entry_date": "2003-05-05", "exit_date": "2004-03-22", "pnl_pct": 57.0, "exit_reason": "S", "bars_held": 222}, {"entry_date": "2004-04-13", "exit_date": "2004-04-28", "pnl_pct": -7.0, "exit_reason": "S", "bars_held": 11}, {"entry_date": "2004-10-27", "exit_date": "2005-01-21", "pnl_pct": -4.1, "exit_reason": "S", "bars_held": 59}, {"entry_date": "2005-05-27", "exit_date": "2005-10-18", "pnl_pct": -6.9, "exit_reason": "S", "bars_held": 99}, {"entry_date": "2005-11-11", "exit_date": "2006-05-16", "pnl_pct": -7.8, "exit_reason": "S", "bars_held": 126}, {"entry_date": "2006-08-29", "exit_date": "2007-03-15", "pnl_pct": 24.7, "exit_reason": "S", "bars_held": 135}, {"entry_date": "2007-03-29", "exit_date": "2007-08-27", "pnl_pct": 28.2, "exit_reason": "S", "bars_held": 104}, {"entry_date": "2007-09-06", "exit_date": "2007-11-27", "pnl_pct": -11.3, "exit_reason": "S", "bars_held": 57}, {"entry_date": "2008-05-08", "exit_date": "2008-06-24", "pnl_pct": -14.1, "exit_reason": "S", "bars_held": 32}, {"entry_date": "2009-05-06", "exit_date": "2010-02-09", "pnl_pct": 53.8, "exit_reason": "S", "bars_held": 192}, {"entry_date": "2010-03-10", "exit_date": "2010-05-19", "pnl_pct": -12.6, "exit_reason": "S", "bars_held": 49}, {"entry_date": "2010-09-27", "exit_date": "2011-03-28", "pnl_pct": 36.3, "exit_reason": "S", "bars_held": 126}, {"entry_date": "2011-04-06", "exit_date": "2011-04-20", "pnl_pct": 0.7, "exit_reason": "S", "bars_held": 10}, {"entry_date": "2011-05-03", "exit_date": "2011-06-03", "pnl_pct": -12.9, "exit_reason": "S", "bars_held": 22}, {"entry_date": "2011-07-15", "exit_date": "2011-08-15", "pnl_pct": -18.7, "exit_reason": "S", "bars_held": 21}, {"entry_date": "2011-10-21", "exit_date": "2011-12-05", "pnl_pct": 3.0, "exit_reason": "S", "bars_held": 30}, {"entry_date": "2012-01-13", "exit_date": "2012-05-23", "pnl_pct": 19.9, "exit_reason": "S", "bars_held": 90}, {"entry_date": "2012-08-10", "exit_date": "2012-11-02", "pnl_pct": -11.7, "exit_reason": "S", "bars_held": 57}, {"entry_date": "2013-01-17", "exit_date": "2014-10-23", "pnl_pct": 126.3, "exit_reason": "S", "bars_held": 445}, {"entry_date": "2014-11-04", "exit_date": "2015-07-13", "pnl_pct": 8.7, "exit_reason": "S", "bars_held": 171}, {"entry_date": "2015-07-29", "exit_date": "2015-08-18", "pnl_pct": -1.7, "exit_reason": "S", "bars_held": 14}, {"entry_date": "2015-10-23", "exit_date": "2016-01-19", "pnl_pct": -28.5, "exit_reason": "S", "bars_held": 58}, {"entry_date": "2016-03-11", "exit_date": "2016-05-12", "pnl_pct": -2.9, "exit_reason": "S", "bars_held": 43}, {"entry_date": "2016-06-02", "exit_date": "2018-04-10", "pnl_pct": 208.1, "exit_reason": "S", "bars_held": 466}, {"entry_date": "2018-05-14", "exit_date": "2018-10-23", "pnl_pct": -2.6, "exit_reason": "S", "bars_held": 113}, {"entry_date": "2019-02-25", "exit_date": "2019-06-07", "pnl_pct": 18.7, "exit_reason": "S", "bars_held": 72}, {"entry_date": "2019-06-17", "exit_date": "2020-03-11", "pnl_pct": 12.0, "exit_reason": "S", "bars_held": 185}, {"entry_date": "2020-05-29", "exit_date": "2022-01-31", "pnl_pct": 250.8, "exit_reason": "S", "bars_held": 422}, {"entry_date": "2022-08-12", "exit_date": "2022-09-07", "pnl_pct": -30.8, "exit_reason": "S", "bars_held": 17}, {"entry_date": "2023-02-03", "exit_date": "2023-10-03", "pnl_pct": 32.4, "exit_reason": "S", "bars_held": 166}, {"entry_date": "2023-11-14", "exit_date": "2024-05-01", "pnl_pct": 11.0, "exit_reason": "S", "bars_held": 115}, {"entry_date": "2024-05-16", "exit_date": "2024-08-09", "pnl_pct": -16.1, "exit_reason": "S", "bars_held": 58}, {"entry_date": "2024-08-27", "exit_date": "2024-09-13", "pnl_pct": -5.0, "exit_reason": "S", "bars_held": 12}, {"entry_date": "2024-09-30", "exit_date": "2025-02-11", "pnl_pct": 4.8, "exit_reason": "S", "bars_held": 91}, {"entry_date": "2025-05-22", "exit_date": "2026-02-17", "pnl_pct": 46.0, "exit_reason": "S", "bars_held": 185}]}], "best_ever": {"strategy": "", "fitness": 0.0, "params": {}}}
+[validate] Raw optimizer results saved: /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/030/raw_results.json
+[data] TECL: 6868 bars, 1998-12-22 to 2026-04-13
+[data] VIX: 6867/6868 dates matched
+[data] TQQQ: 6815 bars, 1999-03-10 to 2026-04-13
+[data] QQQ: 6815 bars, 1999-03-10 to 2026-04-13
+[data] TECL: 6868 bars, 1998-12-22 to 2026-04-13
+[data] VIX: 6867/6868 dates matched
+[validate] TECL context 6868 bars | 3 bears | 4 bulls | N_eff=300 | expected max RS=0.761
+[validate] Gate 6 re-opt budget: 0.5m @ pop 12
+[validate] ema_regime tier=T2 (fitness=21.2727)
+[validate] steady_trend tier=T2 (fitness=16.6311)
+[validate] No fully validated champion. No Pine artifact generated.
+[validate] Leaderboard unchanged because no entry passed full validation.
+[validate] Validated results saved: /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/030/results.json
+
+============================================================
+SPIKE COMPLETE
+============================================================
+Report:      /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/030/report.md
+Results:     /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/030/results.json
+Raw results: /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/030/raw_results.json
+Log:         /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/030/log.txt
+Leaderboard: /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/leaderboard.json
