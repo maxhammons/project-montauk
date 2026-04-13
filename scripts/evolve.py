@@ -31,6 +31,7 @@ from data import get_tecl_data
 from strategy_engine import Indicators, backtest, BacktestResult
 from backtest_engine import score_regime_capture
 from discovery_markers import NEUTRAL_MARKER_SCORE, score_marker_alignment
+from strategies import STRATEGY_TIERS
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HISTORY_DIR = os.path.join(PROJECT_ROOT, "spike")
@@ -362,13 +363,16 @@ def set_converged(leaderboard_path: str, strategy_name: str, converged: bool) ->
 MAX_TRADES_PER_YEAR = 5.0  # charter boundary: regime strategy, not scalper (was 3.0 pre-2026-04-13)
 
 
-def fitness_from_cache(entry: dict) -> float:
+def fitness_from_cache(entry: dict, *, tier: str = "T2") -> float:
     """Compute fitness from cached raw metrics (v3 cache entry).
 
     Same formula as fitness() but operates on stored metrics dict.
     Returns 0.0 if any required field is None.
     Note: trades_per_year gate can't be applied from cache (no years info) —
     cached entries already passed through full fitness() once.
+
+    Tier-aware: T0 skips the trades-per-param gate (canonical pre-registration
+    is the structural defense; see fitness() docstring).
     """
     vs_bah = entry.get("bah")
     if vs_bah is None or vs_bah <= 0:
@@ -390,14 +394,17 @@ def fitness_from_cache(entry: dict) -> float:
     # Drawdown penalty
     dd_penalty = max(0.3, 1.0 - dd / 120.0)
 
-    # Complexity penalty (research: 10:1 minimum, we use 5:1 hard gate)
-    if n_params > 0:
-        tpp = num_trades / n_params
-        if tpp < 5:
-            return 0.0
-        complexity_penalty = min(1.0, 0.5 + 0.5 * (tpp - 5) / 5) if tpp < 10 else 1.0
-    else:
+    # Complexity penalty — T1/T2 only.
+    if tier == "T0":
         complexity_penalty = 1.0
+    else:
+        if n_params > 0:
+            tpp = num_trades / n_params
+            if tpp < 5:
+                return 0.0
+            complexity_penalty = min(1.0, 0.5 + 0.5 * (tpp - 5) / 5) if tpp < 10 else 1.0
+        else:
+            complexity_penalty = 1.0
 
     # Regime quality multiplier
     rs = entry.get("rs") or 0
@@ -418,8 +425,9 @@ def discovery_score_value(fitness_score: float, marker_alignment_score: float | 
     return float(fitness_score)
 
 
-def discovery_score_from_cache(entry: dict) -> float:
-    return discovery_score_value(fitness_from_cache(entry), entry.get("ma", NEUTRAL_MARKER_SCORE))
+def discovery_score_from_cache(entry: dict, *, tier: str = "T2") -> float:
+    return discovery_score_value(fitness_from_cache(entry, tier=tier),
+                                 entry.get("ma", NEUTRAL_MARKER_SCORE))
 
 
 def fitness(result: BacktestResult, *, tier: str = "T2") -> float:
@@ -622,7 +630,12 @@ def crossover_params(p1: dict, p2: dict) -> dict:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def evaluate(ind: Indicators, df, strategy_fn, params: dict, name: str) -> tuple:
-    """Run one strategy config and return discovery + fitness context."""
+    """Run one strategy config and return discovery + fitness context.
+
+    Fitness is evaluated at the strategy's declared tier so T0 hypothesis
+    strategies (canonical pre-registered) bypass the T2-only tpp gate
+    rather than being silently zeroed during the GA loop.
+    """
     try:
         entries, exits, labels = strategy_fn(ind, params)
         cooldown = params.get("cooldown", 0)
@@ -637,7 +650,8 @@ def evaluate(ind: Indicators, df, strategy_fn, params: dict, name: str) -> tuple
             result.regime_score = score_regime_capture(result.trades, cl, dates)
         else:
             result.regime_score = None
-        fitness_score = fitness(result)
+        tier = STRATEGY_TIERS.get(name, "T2")
+        fitness_score = fitness(result, tier=tier)
         marker_alignment = score_marker_alignment(df, result.trades)
         marker_score = float(marker_alignment["score"])
         discovery_score = discovery_score_value(fitness_score, marker_score)
@@ -756,10 +770,11 @@ def evolve_bayesian(ind, df, strategy_name, strategy_fn, space, hours, dedup_cac
     best_trial = None
     best_trial_discovery = -1.0
     best_trial_marker_score = NEUTRAL_MARKER_SCORE
+    strategy_tier = STRATEGY_TIERS.get(strategy_name, "T2")
     for trial in candidates:
         params = params_from_trial(trial)
         cached = dedup_cache.get(config_hash(strategy_name, params), {})
-        discovery = discovery_score_from_cache(cached)
+        discovery = discovery_score_from_cache(cached, tier=strategy_tier)
         if discovery > best_trial_discovery:
             best_trial = trial
             best_trial_discovery = discovery
@@ -1016,6 +1031,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
             for strat_name, fn in active_strategies.items():
                 space = STRATEGY_PARAMS_FILTERED.get(strat_name, {})
                 pop = populations[strat_name]
+                strat_tier = STRATEGY_TIERS.get(strat_name, "T2")
 
                 # Evaluate with dedup cache (v3: stores raw metrics, fitness computed on the fly)
                 scored = []
@@ -1024,9 +1040,9 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
                     cached = dedup_cache.get(h)
                     if cached and isinstance(cached, dict) and cached.get("bah") is not None:
                         # v3 cache hit — recompute fitness from raw metrics
-                        fitness_score = fitness_from_cache(cached)
+                        fitness_score = fitness_from_cache(cached, tier=strat_tier)
                         marker_score = cached.get("ma", NEUTRAL_MARKER_SCORE)
-                        discovery_score = discovery_score_from_cache(cached)
+                        discovery_score = discovery_score_from_cache(cached, tier=strat_tier)
                         scored.append((discovery_score, fitness_score, params, None, marker_score, None))
                         history_stats["cached_configs"] += 1
                     else:
@@ -1501,6 +1517,7 @@ def evolve_chunk(
             for strat_name, fn in REG.items():
                 space = PAR.get(strat_name, {})
                 pop = populations[strat_name]
+                strat_tier = STRATEGY_TIERS.get(strat_name, "T2")
 
                 # Evaluate
                 scored = []
@@ -1508,9 +1525,9 @@ def evolve_chunk(
                     h = config_hash(strat_name, params)
                     cached = dedup_cache.get(h)
                     if cached and isinstance(cached, dict) and cached.get("bah") is not None:
-                        fitness_score = fitness_from_cache(cached)
+                        fitness_score = fitness_from_cache(cached, tier=strat_tier)
                         marker_score = cached.get("ma", NEUTRAL_MARKER_SCORE)
-                        discovery_score = discovery_score_from_cache(cached)
+                        discovery_score = discovery_score_from_cache(cached, tier=strat_tier)
                         scored.append((discovery_score, fitness_score, params, None, marker_score, None))
                         history_stats["cached_configs"] += 1
                     else:
