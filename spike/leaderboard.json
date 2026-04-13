@@ -27,8 +27,8 @@
       "n_params": 4
     },
     "date": "2026-04-13",
-    "converged": false,
-    "runs_without_improvement": 2,
+    "converged": true,
+    "runs_without_improvement": 3,
     "validation": {
       "verdict": "PASS",
       "promotion_eligible": true,
