@@ -1033,6 +1033,126 @@ def _build_ema_regime(params: dict) -> str:
     )
 
 
+def _build_golden_cross_100_300(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Golden Cross 100/300 (T0)",
+        "GC100300",
+        "golden_cross_100_300",
+        f"""
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 100))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 300))}, "Slow EMA", minval=1, group="1 - Inputs")
+        slopeWindow  = input.int({_pine_number(params.get("slope_window", 5))}, "Slow EMA Slope Window", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+        slowRising = not na(slowEma) and not na(slowEma[slopeWindow]) and slowEma > slowEma[slopeWindow]
+        golden = not na(fastEma) and not na(slowEma) and fastEma > slowEma
+
+        var int bullCount = 0
+        if golden and slowRising
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        crossDown = not na(fastEma) and not na(slowEma) and not na(fastEma[1]) and not na(slowEma[1]) and fastEma[1] >= slowEma[1] and fastEma < slowEma
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and crossDown
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Death Cross", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(fastEma, "Fast EMA (100)", color=color.new(color.green, 30), linewidth=2)
+        plot(slowEma, "Slow EMA (300)", color=color.new(color.blue, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_tema_200_slope(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - TEMA-200 Slope (T0)",
+        "TEMASlope",
+        "tema_200_slope",
+        f"""
+        temaLen      = input.int({_pine_number(params.get("tema_len", 200))}, "TEMA Length", minval=1, group="1 - Inputs")
+        slopeWindow  = input.int({_pine_number(params.get("slope_window", 5))}, "TEMA Slope Window", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        e1 = ta.ema(close, temaLen)
+        e2 = ta.ema(e1, temaLen)
+        e3 = ta.ema(e2, temaLen)
+        tema = 3 * e1 - 3 * e2 + e3
+
+        rising = not na(tema) and not na(tema[slopeWindow]) and tema > tema[slopeWindow]
+        above = not na(tema) and close > tema
+
+        var int bullCount = 0
+        if above and rising
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        crossDown = not na(tema) and not na(tema[1]) and close[1] >= tema[1] and close < tema
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and crossDown
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Trend Break", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(tema, "TEMA 200", color=color.new(color.purple, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_donchian_200_100(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Donchian 200/100 + Trend Filter (T0)",
+        "Don200100",
+        "donchian_200_100",
+        f"""
+        entryLen     = input.int({_pine_number(params.get("entry_len", 200))}, "Donchian Entry Lookback", minval=1, group="1 - Inputs")
+        exitLen      = input.int({_pine_number(params.get("exit_len", 100))}, "Donchian Exit Lookback", minval=1, group="1 - Inputs")
+        trendLen     = input.int({_pine_number(params.get("trend_len", 200))}, "Trend EMA Length", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        upper    = ta.highest(high, entryLen)[1]
+        lower    = ta.lowest(low, exitLen)[1]
+        trendEma = ta.ema(close, trendLen)
+
+        breakoutEntry = not na(upper) and not na(trendEma) and close > upper and close > trendEma
+        breakdownExit = not na(lower) and close < lower
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and breakdownExit
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Breakdown", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if breakoutEntry and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(upper, "200-day High", color=color.new(color.green, 40))
+        plot(lower, "100-day Low", color=color.new(color.red, 40))
+        plot(trendEma, "Trend EMA", color=color.new(color.blue, 30), linewidth=2)
+        """,
+    )
+
+
 def _build_golden_cross_slope(params: dict) -> str:
     return _wrap(
         "Project Montauk Candidate - Golden Cross + Slope (T0)",
@@ -1105,6 +1225,9 @@ def _build_ema_200_regime(params: dict) -> str:
 
 _BUILDERS = {
     "golden_cross_slope": _build_golden_cross_slope,
+    "golden_cross_100_300": _build_golden_cross_100_300,
+    "tema_200_slope": _build_tema_200_slope,
+    "donchian_200_100": _build_donchian_200_100,
     "ema_200_regime": _build_ema_200_regime,
     "montauk_821": _build_montauk_821,
     "rsi_regime": _build_rsi_regime,

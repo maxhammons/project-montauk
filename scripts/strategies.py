@@ -1171,6 +1171,137 @@ def ema_regime(ind: Indicators, p: dict) -> tuple:
 # Pre-registered as T0 at 2026-04-13. Params committed before first backtest.
 # ─────────────────────────────────────────────────────────────────────────────
 
+def golden_cross_100_300(ind: Indicators, p: dict) -> tuple:
+    """T0 HYPOTHESIS — Long-horizon golden cross (100/300) with slope filter.
+
+    Same structure as golden_cross_slope but at longer time horizons. The
+    100/300 cross is rarer than 50/200 (~5x less frequent) so trades should
+    be longer-held and less subject to chop. Slope filter on the 300-EMA
+    keeps us out of sideways markets where fast/slow weave without direction.
+
+    Pre-registered as T0 at 2026-04-13. 4 tunable canonical params.
+    Params (all canonical):
+      fast_ema      = 100  (MA_PERIODS)
+      slow_ema      = 300  (MA_PERIODS)
+      slope_window  = 5    (SLOPE_CONFIRM_BARS) — slope lookback on slow EMA
+      entry_bars    = 3    (SLOPE_CONFIRM_BARS) — confirmation bars for entry
+      cooldown      = 5    (COOLDOWN_BARS, structural)
+    """
+    n = ind.n
+    cl = ind.close
+    fast = ind.ema(p.get("fast_ema", 100))
+    slow = ind.ema(p.get("slow_ema", 300))
+    slope_window = int(p.get("slope_window", 5))
+    entry_bars = int(p.get("entry_bars", 3))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    bull_count = 0
+    for i in range(slope_window + 1, n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(slow[i - slope_window]):
+            continue
+        slow_rising = slow[i] > slow[i - slope_window]
+        golden = fast[i] > slow[i]
+        if golden and slow_rising:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if fast[i - 1] >= slow[i - 1] and fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+
+    return entries, exits, labels
+
+
+def tema_200_slope(ind: Indicators, p: dict) -> tuple:
+    """T0 HYPOTHESIS — Price vs TEMA-200 with positive slope filter.
+
+    TEMA (Triple EMA) reduces lag vs simple EMA while preserving smoothness.
+    Hypothesis: hold while price > TEMA-200 AND TEMA-200 is rising; exit on
+    cross below. The slope filter keeps us out of false breakouts where
+    price pokes above a flat or declining TEMA.
+
+    Pre-registered as T0 at 2026-04-13. 3 tunable canonical params.
+    Params (all canonical):
+      tema_len      = 200  (MA_PERIODS)
+      slope_window  = 5    (SLOPE_CONFIRM_BARS) — slope lookback on TEMA
+      entry_bars    = 3    (SLOPE_CONFIRM_BARS) — confirmation bars for entry
+      cooldown      = 5    (COOLDOWN_BARS, structural)
+    """
+    n = ind.n
+    cl = ind.close
+    tema = ind.tema(p.get("tema_len", 200))
+    slope_window = int(p.get("slope_window", 5))
+    entry_bars = int(p.get("entry_bars", 3))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    bull_count = 0
+    for i in range(slope_window + 1, n):
+        if np.isnan(tema[i]) or np.isnan(tema[i - slope_window]):
+            continue
+        rising = tema[i] > tema[i - slope_window]
+        above = cl[i] > tema[i]
+        if above and rising:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        # Exit: close crosses below TEMA
+        if cl[i - 1] >= tema[i - 1] and cl[i] < tema[i]:
+            exits[i] = True
+            labels[i] = "T"
+
+    return entries, exits, labels
+
+
+def donchian_200_100(ind: Indicators, p: dict) -> tuple:
+    """T0 HYPOTHESIS — Channel breakout with long-term trend filter.
+
+    Hypothesis: a 200-day high IS the breakout signal — price making new
+    multi-quarter highs while above the 200-EMA confirms a real trend. Exit
+    on a 100-day low (give the trend room to breathe but not unlimited).
+
+    Pre-registered as T0 at 2026-04-13. 3 tunable canonical params.
+    Params (all canonical):
+      entry_len  = 200  (LOOKBACK_PERIODS) — Donchian lookback for breakout
+      exit_len   = 100  (LOOKBACK_PERIODS) — Donchian lookback for exit
+      trend_len  = 200  (MA_PERIODS) — long-term trend filter
+      cooldown   = 5    (COOLDOWN_BARS, structural)
+    """
+    n = ind.n
+    cl = ind.close
+    entry_len = int(p.get("entry_len", 200))
+    exit_len = int(p.get("exit_len", 100))
+    trend_ema = ind.ema(p.get("trend_len", 200))
+    upper = ind.donchian_upper(entry_len)
+    lower = ind.donchian_lower(exit_len)
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    for i in range(max(entry_len, exit_len), n):
+        if np.isnan(upper[i - 1]) or np.isnan(lower[i - 1]) or np.isnan(trend_ema[i]):
+            continue
+        # Entry: price closes above prior 200-day high AND above 200-EMA trend filter
+        if cl[i] > upper[i - 1] and cl[i] > trend_ema[i]:
+            entries[i] = True
+        # Exit: price closes below prior 100-day low
+        if cl[i] < lower[i - 1]:
+            exits[i] = True
+            labels[i] = "B"  # breakdown
+
+    return entries, exits, labels
+
+
 def golden_cross_slope(ind: Indicators, p: dict) -> tuple:
     """T0 HYPOTHESIS — Classic 50/200 Golden Cross with a slope filter on the slow EMA.
 
@@ -1246,6 +1377,9 @@ def ema_200_regime(ind: Indicators, p: dict) -> tuple:
 
 STRATEGY_REGISTRY = {
     "golden_cross_slope":       golden_cross_slope,
+    "golden_cross_100_300":     golden_cross_100_300,
+    "tema_200_slope":           tema_200_slope,
+    "donchian_200_100":         donchian_200_100,
     "ema_200_regime":           ema_200_regime,
     "montauk_821":              montauk_821,
     "rsi_regime":               rsi_regime,
@@ -1273,6 +1407,9 @@ STRATEGY_REGISTRY = {
 # declared tier — the declared tier is an upper bound on leniency, not a bypass.
 STRATEGY_TIERS = {
     "golden_cross_slope":       "T0",  # hypothesis: 50/200 golden cross + slow-slope filter, canonical
+    "golden_cross_100_300":     "T0",  # hypothesis: long-horizon golden cross 100/300, canonical
+    "tema_200_slope":           "T0",  # hypothesis: TEMA-200 regime + slope filter, canonical
+    "donchian_200_100":         "T0",  # hypothesis: 200-day breakout + EMA-200 trend filter, canonical
     "ema_200_regime":           "T0",  # hypothesis: 200-EMA regime filter, canonical params only
     "montauk_821":              "T2",  # heavily tuned
     "rsi_regime":               "T2",
@@ -1305,6 +1442,25 @@ STRATEGY_PARAMS = {
         "slow_ema":     (200, 200, 1, int),
         "slope_window": (5, 5, 1, int),
         "entry_bars":   (3, 3, 1, int),
+        "cooldown":     (5, 5, 1, int),
+    },
+    "golden_cross_100_300": {
+        "fast_ema":     (100, 100, 1, int),
+        "slow_ema":     (300, 300, 1, int),
+        "slope_window": (5, 5, 1, int),
+        "entry_bars":   (3, 3, 1, int),
+        "cooldown":     (5, 5, 1, int),
+    },
+    "tema_200_slope": {
+        "tema_len":     (200, 200, 1, int),
+        "slope_window": (5, 5, 1, int),
+        "entry_bars":   (3, 3, 1, int),
+        "cooldown":     (5, 5, 1, int),
+    },
+    "donchian_200_100": {
+        "entry_len":    (200, 200, 1, int),
+        "exit_len":     (100, 100, 1, int),
+        "trend_len":    (200, 200, 1, int),
         "cooldown":     (5, 5, 1, int),
     },
     "montauk_821": {

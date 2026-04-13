@@ -271,6 +271,16 @@ def _gate1_candidate(entry: dict, ctx: ValidationContext, *, tier: str = "T2") -
     degeneracy = analyze_four_year_degeneracy(ctx.df, trades)
     strategy_integrity = ctx.run_integrity["strategies"].get(strategy_name, {})
 
+    # Charter-level hard gate: must accumulate more shares than B&H.
+    # vs_bah_multiple is mathematically the share-count multiplier when equity
+    # is marked-to-market — see strategy_engine.BacktestResult.share_multiple.
+    # This is the project's primary success criterion; failing it disqualifies
+    # the candidate at every tier regardless of marker engagement or other gates.
+    share_mult = float(metrics.get("vs_bah", 0.0))
+    if share_mult < 1.0:
+        hard_fail_reasons.append(
+            f"share_multiple={share_mult:.3f}x < 1.0 (charter: must beat B&H shares)"
+        )
     if trade_count < trade_floor:
         hard_fail_reasons.append(f"[{tier}] trade_count={trade_count} < {trade_floor}")
     if trades_per_year > 5.0:
@@ -535,13 +545,17 @@ def _gate_marker_shape(strategy_name: str, params: dict, ctx: ValidationContext,
     trade the same cycles?" not "does it match hindsight-perfect timing?"
 
     Per tier:
-      T0: state_agreement >= 0.70 (hard), missed_cycles <= 2 (soft warning), transition_timing >= 0.50 (soft)
-      T1: state_agreement >= 0.70 (hard), missed_cycles <= 3 (soft warning)
+      T0: state_agreement >= 0.65 (hard), missed_cycles <= 2 (soft warning), transition_timing >= 0.50 (soft)
+      T1: state_agreement >= 0.65 (hard), missed_cycles <= 3 (soft warning)
       T2: state_agreement >= 0.65 (hard), missed_cycles <= 5 (soft warning)
 
     state_agreement is the primary engagement test at every tier — "is the
     strategy in the market when the markers say to be, and out when they say
-    not to be?" At >= 0.70 that's comfortably engaged.
+    not to be?" The floor is a constant 0.65 across tiers because the question
+    being asked is the same regardless of selection mechanism. Tier
+    differentiation comes from *structural* defenses (canonical-only params,
+    pre-registration, ≤5 params at T0), not from gating engagement more
+    strictly for one tier than another.
 
     `missed_cycles` is a soft warning at every tier because it conflates "didn't
     engage" with "entered late." A strategy like a 50/200 golden cross inherently
@@ -577,9 +591,9 @@ def _gate_marker_shape(strategy_name: str, params: dict, ctx: ValidationContext,
     missed_cycles = sum(1 for m in buy_matches if (m.get("score") or 0) < 0.1)
 
     if tier == "T0":
-        state_floor, missed_cap, timing_floor, missed_is_hard = 0.70, 2, 0.50, False
+        state_floor, missed_cap, timing_floor, missed_is_hard = 0.65, 2, 0.50, False
     elif tier == "T1":
-        state_floor, missed_cap, timing_floor, missed_is_hard = 0.70, 3, 0.40, False
+        state_floor, missed_cap, timing_floor, missed_is_hard = 0.65, 3, 0.40, False
     else:  # T2
         state_floor, missed_cap, timing_floor, missed_is_hard = 0.65, 5, 0.30, False
 
