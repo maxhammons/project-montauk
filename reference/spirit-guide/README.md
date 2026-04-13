@@ -23,6 +23,9 @@ The spirit-guide defines mission, guardrails, and stable operating rules. Exact 
 5. **`PROJECT-STATUS.md`**
    What is already true in the codebase today, what is partially true, and what still needs to be built.
 
+6. **`T0-DESIGN-GUIDE.md`**
+   Read **before authoring any new T0 hypothesis strategy**. Distills what has worked, what has failed (and why), with a pre-flight checklist. Avoids generating predictably-failing strategies.
+
 ## Non-Negotiable Rules
 
 - A raw optimizer winner is **not** a winner.

@@ -191,6 +191,7 @@ Marker shape alignment (state agreement % vs `TECL-markers.csv`, plus median tra
 
 ## Reference Files
 
+- **`reference/spirit-guide/T0-DESIGN-GUIDE.md`**: **Read before authoring ANY new T0 hypothesis strategy.** Distills what has cleared the pipeline (and what has predictably failed), with a pre-flight design checklist. Prevents wasted cycles on strategies that fail for reasons we already understand.
 - **`reference/VALIDATION-PHILOSOPHY.md`**: Why we test, what we've built, and where we're going. Read this to understand the overfitting problem and how every component (fitness function, GA diversity, validation tests, slippage) connects to the research.
 - **`reference/Montauk Charter.md`**: The governing spec for all code work on this project. Read this before proposing any changes — it defines scope, coding rules, feature acceptance criteria, evaluation metrics, and response format.
 - **`reference/pinescriptv6-main/`**: Structured Pine Script v6 reference. Use the modular files for quick lookups, fall back to the all-in-one for anything not found there:
