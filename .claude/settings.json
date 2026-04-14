@@ -27,13 +27,35 @@
     ]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/spirit-session-start.sh 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"$CLAUDE_USER_PROMPT\" | bash .claude/hooks/spirit-prompt-submit.sh 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
         "hooks": [
           {
             "type": "command",
-            "command": "file=\"$TOOL_INPUT_FILE_PATH$TOOL_INPUT_file_path\"; case \"$file\" in */scripts/validation/*.py) echo '[PIPELINE REMINDER] You edited a validation file. Check if docs/validation-thresholds.md and docs/pipeline.md need updating.' ;; */scripts/evolve.py|*/scripts/spike_runner.py|*/scripts/strategy_engine.py|*/scripts/report.py|*/scripts/data.py|*/.github/workflows/spike.yml|*/.claude/skills/spike.md|*/.claude/skills/spike-results.md) echo '[PIPELINE REMINDER] You edited a pipeline file. Check if docs/pipeline.md needs updating.' ;; esac; exit 0"
+            "command": "bash .claude/hooks/doc-sync.sh 2>/dev/null || true"
           }
         ]
       }

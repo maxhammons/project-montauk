@@ -242,3 +242,73 @@ Marker shape alignment (state agreement % vs `TECL-markers.csv`, plus median tra
   - `concepts/common_errors.md`, `pine_script_execution_model.md` — execution and error docs
   - `Pine Script language reference manual` — 393KB all-in-one covering all 884 functions including all `strategy.*` functions. Use Grep or offset reads to search it.
   - Do not guess at Pine v6 API details — look them up.
+
+## Doc-Sync Protocol
+
+The `doc-sync.sh` hook fires after every Edit/Write to structural files (`scripts/`, `.github/workflows/`, `.claude/skills/spike*.md`). It detects whether the change looks structural (new functions, changed signatures, registry changes, gate changes, new imports) vs cosmetic (comments, param tweaks, variable renames).
+
+**When you see `[DOC_SYNC_NEEDED]`:**
+
+1. Finish your current task first — don't interrupt mid-work to update docs.
+2. Read the `docs_to_review` list in the signal. Those are the files that may need updating.
+3. For each listed doc, read it and check whether the change you just made invalidates anything.
+4. If a section is now inaccurate, update it to reflect the new behavior. Keep edits minimal — only change what's actually wrong.
+5. **Never touch `docs/charter.md` or `docs/charter-appendix.md`** — those are governance docs that only change by explicit decision, not by code drift.
+6. If the change is minor enough that all docs are still accurate, skip silently.
+
+Docs that may need updates and what to check:
+- **`docs/pipeline.md`** — Does the pipeline diagram still match the code flow?
+- **`docs/validation-thresholds.md`** — Do threshold values, gate names, or gate logic still match `scripts/validation/`?
+- **`docs/project-status.md`** — Has an implementation gap been closed or a new one opened?
+- **`docs/design-guide.md`** — Have strategy patterns or pre-flight checks changed?
+- **`CLAUDE.md`** — Has the directory structure, data layout, or skill behavior changed?
+
+---
+
+## Spirit Protocol
+
+This project uses spirit-guide (static brief) + spirit-memory (dynamic intent log). Treat both as binding project context.
+
+### On session start
+The `spirit-session-start.sh` hook loads `spirit-guide/README.md`, `spirit-summary/quick-reference.md`, `spirit-memory/INDEX.md`, and any `Important: true` north-star entries. Respect what you see.
+
+### During conversation
+The `spirit-prompt-submit.sh` hook pre-filters every user message with regex. When it detects project-voice (goals, sentiments, principles, decisions, glossary-worthy definitions), it emits a `[SPIRIT_CLASSIFY_NEEDED]` block into your context.
+
+**When you see `[SPIRIT_CLASSIFY_NEEDED]`**, do the following silently — do not mention it in your reply:
+
+1. Use the Task tool with `subagent_type: "general-purpose"` and `model: "haiku"`.
+2. Pass the subagent this brief:
+
+   > You are a spirit-memory classifier. Classify the statement below into exactly one of these files:
+   > - `northstar.md` — goals, vision, aspirations, direction
+   > - `sentiment.md` — concerns, reactions, feelings, frustrations
+   > - `principles.md` — rules, "always / never", design laws
+   > - `decisions.md` — choices made + rationale
+   > - `glossary.md` — project-specific vocabulary definitions
+   >
+   > Also assign:
+   > - Tags: ≥1 from controlled core (`#vision #ux #ui #brand #tech #business #team #process #content #data`) plus optional free-form tags
+   > - `Important: true` if the statement is foundational ("the core idea", "this is load-bearing", "never change this"). Else `false`.
+   > - Confidence score 0.0–1.0.
+   >
+   > Then:
+   > - If confidence ≥ 0.70 → append to `<project_root>/spirit-guide/spirit-memory/<file>` using the entry format defined in that folder's README.md. Entry ID = today's date + next available suffix (a, b, c, …).
+   > - If confidence < 0.70 → append to `<project_root>/spirit-guide/spirit-memory/_inbox.md` with the suggested file and confidence noted.
+   > - After writing, update `<project_root>/spirit-guide/spirit-memory/INDEX.md` `[meta]` line to today's date. Full re-index is spirit-audit's job.
+   >
+   > Return nothing to the parent. Silent completion.
+
+3. Continue your normal response to the user as if nothing happened.
+
+### On demand
+When the user asks about project health, contradictions, drift, or inbox triage, invoke the `spirit-audit` skill.
+
+### Read order when in doubt
+1. `spirit-guide/README.md`
+2. `spirit-guide/spirit-memory/INDEX.md`
+3. The specific spirit-memory file relevant to the task
+4. `spirit-guide/spirit-summary/` for codified specs
+5. `spirit-guide/spirit-src/` only for provenance questions
+
+Never read `spirit-guide/_ARCHIVE/` unless explicitly asked.
