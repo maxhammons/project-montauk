@@ -16,9 +16,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import copy
 import itertools
-import json
 import os
 import sys
 import time
@@ -31,8 +29,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from backtest_engine import score_regime_capture
 from data import get_tecl_data
 from discovery_markers import score_marker_alignment
-from evolve import fitness as compute_fitness, _count_tunable_params, update_leaderboard, _Enc
-from pine_generator import supports_pine_strategy
+from evolve import fitness as compute_fitness, _count_tunable_params, update_leaderboard
 from strategies import STRATEGY_REGISTRY, STRATEGY_TIERS
 from strategy_engine import Indicators, backtest
 from validation.pipeline import run_validation_pipeline
@@ -47,67 +44,127 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # ─────────────────────────────────────────────────────────────────────────────
 
 GRIDS = {
-    "golden_cross_slope": {                         # 4 × 3 × 2 × 2 = 48 combos
-        "fast_ema":     [20, 30, 50, 100],
-        "slow_ema":     [100, 150, 200],
+    "golden_cross_slope": {  # 4 × 3 × 2 × 2 = 48 combos
+        "fast_ema": [20, 30, 50, 100],
+        "slow_ema": [100, 150, 200],
         "slope_window": [3, 5],
-        "entry_bars":   [2, 3],
-        "cooldown":     [5],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
     },
-    "ema_slope_above": {                            # 4 × 2 × 2 = 16 combos
-        "ema_len":      [50, 100, 150, 200],
+    "ema_slope_above": {  # 4 × 2 × 2 = 16 combos
+        "ema_len": [50, 100, 150, 200],
         "slope_window": [3, 5],
-        "entry_bars":   [2, 3],
-        "cooldown":     [5],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
     },
-    "rsi_recovery_ema": {                           # 3 × 4 = 12 combos
-        "rsi_len":      [7, 14, 21],
-        "trend_len":    [50, 100, 150, 200],
-        "cooldown":     [5],
+    "rsi_recovery_ema": {  # 3 × 4 = 12 combos
+        "rsi_len": [7, 14, 21],
+        "trend_len": [50, 100, 150, 200],
+        "cooldown": [5],
     },
-    "rsi_50_above_trend": {                         # 2 × 3 × 2 = 12 combos
-        "rsi_len":      [7, 14],
-        "trend_len":    [100, 150, 200],
-        "entry_bars":   [2, 3],
-        "cooldown":     [5],
+    "rsi_50_above_trend": {  # 2 × 3 × 2 = 12 combos
+        "rsi_len": [7, 14],
+        "trend_len": [100, 150, 200],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
     },
-    "triple_ema_stack": {                           # 3 × 2 × 2 × 2 = 24 combos
-        "short_ema":    [20, 30, 50],
-        "med_ema":      [100, 150],
-        "long_ema":     [200, 300],
-        "entry_bars":   [2, 3],
-        "cooldown":     [5],
+    "triple_ema_stack": {  # 3 × 2 × 2 × 2 = 24 combos
+        "short_ema": [20, 30, 50],
+        "med_ema": [100, 150],
+        "long_ema": [200, 300],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
     },
-    "dual_ema_stack": {                             # 4 × 3 × 2 = 24 combos
-        "short_ema":    [20, 30, 50, 100],
-        "long_ema":     [100, 150, 200],
-        "entry_bars":   [2, 3],
-        "cooldown":     [5],
+    "dual_ema_stack": {  # 4 × 3 × 2 = 24 combos
+        "short_ema": [20, 30, 50, 100],
+        "long_ema": [100, 150, 200],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
     },
-    "donchian_filter": {                            # 4 × 3 × 3 = 36 combos
-        "entry_len":    [50, 100, 150, 200],
-        "exit_len":     [20, 50, 100],
-        "trend_len":    [50, 100, 200],
-        "cooldown":     [5],
+    "donchian_filter": {  # 4 × 3 × 3 = 36 combos
+        "entry_len": [50, 100, 150, 200],
+        "exit_len": [20, 50, 100],
+        "trend_len": [50, 100, 200],
+        "cooldown": [5],
     },
-    "macd_above_zero_trend": {                      # 3 = 3 combos
-        "trend_len":    [100, 150, 200],
-        "cooldown":     [5],
+    "macd_above_zero_trend": {  # 3 = 3 combos
+        "trend_len": [100, 150, 200],
+        "cooldown": [5],
     },
-    "ema_pure_slope": {                             # 4 × 2 × 2 = 16 combos
-        "ema_len":      [50, 100, 150, 200],
+    "ema_pure_slope": {  # 4 × 2 × 2 = 16 combos
+        "ema_len": [50, 100, 150, 200],
         "slope_window": [3, 5],
-        "entry_bars":   [2, 3],
-        "cooldown":     [5],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
     },
-    "ema_200_confirm": {                            # 3 × 3 = 9 combos
-        "ema_len":      [100, 150, 200],
-        "entry_bars":   [2, 3, 5],
-        "cooldown":     [5],
+    "ema_200_confirm": {  # 3 × 3 = 9 combos
+        "ema_len": [100, 150, 200],
+        "entry_bars": [2, 3, 5],
+        "cooldown": [5],
     },
-    "ema_200_regime": {                             # 3 × 2 = 6 combos
-        "ema_len":      [100, 150, 200],
-        "cooldown":     [2, 5],
+    "ema_200_regime": {  # 3 × 2 = 6 combos
+        "ema_len": [100, 150, 200],
+        "cooldown": [2, 5],
+    },
+    # ── Spike batch 2026-04-14: new signal families ──
+    "roc_above_trend": {  # 3 × 3 × 2 = 18 combos
+        "roc_len": [10, 20, 50],
+        "trend_len": [100, 150, 200],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "stoch_recovery_trend": {  # 3 × 3 = 9 combos
+        "stoch_len": [7, 14, 21],
+        "trend_len": [100, 150, 200],
+        "cooldown": [5],
+    },
+    "adx_di_trend": {  # 3 × 3 × 2 = 18 combos
+        "adx_len": [7, 14, 21],
+        "trend_len": [100, 150, 200],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "keltner_breakout": {  # 2 × 3 × 2 = 12 combos
+        "kc_ema_len": [20, 50],
+        "kc_atr_mult": [1.5, 2.0, 2.5],
+        "trend_len": [100, 200],
+        "cooldown": [5],
+    },
+    "vol_calm_regime": {  # 3 × 3 = 9 combos
+        "vol_short": [10, 20, 50],
+        "vol_long": [100, 150, 200],
+        "cooldown": [5],
+    },
+    "macd_hist_trend": {  # 3 × 3 = 9 combos
+        "trend_len": [100, 150, 200],
+        "entry_bars": [2, 3, 5],
+        "cooldown": [5],
+    },
+    "roc_ema_slope": {  # 3 × 2 × 2 × 2 = 24 combos
+        "roc_len": [10, 20, 50],
+        "ema_len": [100, 200],
+        "slope_window": [3, 5],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "stoch_cross_trend": {  # 3 × 3 × 2 = 18 combos
+        "stoch_len": [7, 14, 21],
+        "trend_len": [100, 150, 200],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "double_ema_slope": {  # 3 × 3 × 2 × 2 = 36 combos
+        "fast_ema": [20, 30, 50],
+        "slow_ema": [100, 150, 200],
+        "slope_window": [3, 5],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "rsi_roc_combo": {  # 2 × 3 × 2 = 12 combos
+        "rsi_len": [7, 14],
+        "roc_len": [10, 20, 50],
+        "trend_len": [100, 200],
+        "cooldown": [5],
     },
 }
 
@@ -190,9 +247,14 @@ def run_grid_search(
         for params in combos:
             try:
                 entries, exits, labels = fn(ind, params)
-                result = backtest(df, entries, exits, labels,
-                                  cooldown_bars=params.get("cooldown", 0),
-                                  strategy_name=concept)
+                result = backtest(
+                    df,
+                    entries,
+                    exits,
+                    labels,
+                    cooldown_bars=params.get("cooldown", 0),
+                    strategy_name=concept,
+                )
                 result.params = params
             except Exception:
                 continue
@@ -230,19 +292,31 @@ def run_grid_search(
                     "cagr": result.cagr_pct,
                     "max_dd": result.max_drawdown_pct,
                     "mar": result.mar_ratio,
-                    "regime_score": result.regime_score.composite if result.regime_score else 0,
+                    "regime_score": result.regime_score.composite
+                    if result.regime_score
+                    else 0,
                     "hhi": (result.regime_score.hhi or 0) if result.regime_score else 0,
-                    "bull_capture": result.regime_score.bull_capture_ratio if result.regime_score else 0,
-                    "bear_avoidance": result.regime_score.bear_avoidance_ratio if result.regime_score else 0,
+                    "bull_capture": result.regime_score.bull_capture_ratio
+                    if result.regime_score
+                    else 0,
+                    "bear_avoidance": result.regime_score.bear_avoidance_ratio
+                    if result.regime_score
+                    else 0,
                     "win_rate": result.win_rate_pct,
                     "exit_reasons": result.exit_reasons,
                 },
                 "trades": [
-                    {"entry_bar": t.entry_bar, "exit_bar": t.exit_bar,
-                     "entry_date": t.entry_date, "exit_date": t.exit_date,
-                     "entry_price": t.entry_price, "exit_price": t.exit_price,
-                     "pnl_pct": t.pnl_pct, "bars_held": t.bars_held,
-                     "exit_reason": t.exit_reason}
+                    {
+                        "entry_bar": t.entry_bar,
+                        "exit_bar": t.exit_bar,
+                        "entry_date": t.entry_date,
+                        "exit_date": t.exit_date,
+                        "entry_price": t.entry_price,
+                        "exit_price": t.exit_price,
+                        "pnl_pct": t.pnl_pct,
+                        "bars_held": t.bars_held,
+                        "exit_reason": t.exit_reason,
+                    }
                     for t in result.trades
                 ],
             }
@@ -251,7 +325,9 @@ def run_grid_search(
             if result.vs_bah_multiple > best_share:
                 best_share = result.vs_bah_multiple
 
-        print(f"  {concept:<28} {concept_pass:>3} pass charter  best_share={best_share:.2f}x")
+        print(
+            f"  {concept:<28} {concept_pass:>3} pass charter  best_share={best_share:.2f}x"
+        )
 
     elapsed_search = time.time() - start
     # Rank by share_multiple (primary metric)
@@ -259,52 +335,84 @@ def run_grid_search(
     for i, e in enumerate(all_results, 1):
         e["rank"] = i
 
-    print(f"\n[grid] Search done: {total_combos} combos → {len(all_results)} pass charter "
-          f"({charter_rejects} rejected) in {elapsed_search:.1f}s")
+    print(
+        f"\n[grid] Search done: {total_combos} combos → {len(all_results)} pass charter "
+        f"({charter_rejects} rejected) in {elapsed_search:.1f}s"
+    )
 
     if not all_results:
         print("[grid] No candidates passed charter pre-filter. Nothing to validate.")
         return {"total_combos": total_combos, "charter_pass": 0}
 
     # Show top 10 raw
-    print(f"\n[grid] Top 10 raw (by share_multiple):")
+    print("\n[grid] Top 10 raw (by share_multiple):")
     for e in all_results[:10]:
         m = e["metrics"]
-        print(f"  {e['strategy']:<28} share={m['vs_bah']:.2f}x  trades={m['trades']}  "
-              f"tpy={m['trades_yr']:.2f}  marker={e['marker_alignment_score']:.3f}  "
-              f"params={e['params']}")
+        print(
+            f"  {e['strategy']:<28} share={m['vs_bah']:.2f}x  trades={m['trades']}  "
+            f"tpy={m['trades_yr']:.2f}  marker={e['marker_alignment_score']:.3f}  "
+            f"params={e['params']}"
+        )
 
     if not validate:
-        return {"total_combos": total_combos, "charter_pass": len(all_results),
-                "raw_rankings": all_results[:top_n]}
+        return {
+            "total_combos": total_combos,
+            "charter_pass": len(all_results),
+            "raw_rankings": all_results[:top_n],
+        }
 
     # ── Phase 2: Validate top-N through the pipeline ──
-    print(f"\n[grid] Validating top {min(top_n, len(all_results))} candidates...")
-    val_input = {"raw_rankings": all_results[:top_n]}
-    validation = run_validation_pipeline(val_input, hours=0.05, quick=True)
+    # Ensure per-concept representation: best combo from each concept first,
+    # then fill remaining slots with global best (by share_multiple).
+    seen_concepts = set()
+    per_concept_best = []
+    remaining = []
+    for e in all_results:
+        if e["strategy"] not in seen_concepts:
+            per_concept_best.append(e)
+            seen_concepts.add(e["strategy"])
+        else:
+            remaining.append(e)
+    val_candidates = per_concept_best + remaining
+    val_candidates = val_candidates[:top_n]
+    n_concepts_repr = len(per_concept_best)
+    print(
+        f"\n[grid] Validating top {len(val_candidates)} candidates "
+        f"({n_concepts_repr} concepts guaranteed a slot)..."
+    )
+    val_input = {"raw_rankings": val_candidates}
+    validation = run_validation_pipeline(
+        val_input, hours=0.05, quick=True, top_n=len(val_candidates)
+    )
 
     summary = validation["validation_summary"]
-    print(f"\n[grid] Validation: PASS={summary['validated_pass']}  "
-          f"WARN={summary['validated_warn']}  FAIL={summary['validated_fail']}")
+    print(
+        f"\n[grid] Validation: PASS={summary['validated_pass']}  "
+        f"WARN={summary['validated_warn']}  FAIL={summary['validated_fail']}"
+    )
 
     # ── Phase 3: Update leaderboard ──
     validated = validation["validated_rankings"]
     lb_path = os.path.join(PROJECT_ROOT, "spike", "leaderboard.json")
     if validated:
-        # Reset leaderboard for clean state
-        with open(lb_path, "w") as f:
-            json.dump([], f)
+        # Merge with existing leaderboard (update_leaderboard handles dedup + top-20)
         lb = update_leaderboard(
-            {"rankings": validated, "date": datetime.now().strftime("%Y-%m-%d"),
-             "total_evaluations": total_combos, "elapsed_hours": elapsed_search / 3600},
+            {
+                "rankings": validated,
+                "date": datetime.now().strftime("%Y-%m-%d"),
+                "total_evaluations": total_combos,
+                "elapsed_hours": elapsed_search / 3600,
+            },
             lb_path,
         )
         print(f"\n[grid] Leaderboard updated: {len(lb)} entries")
         for i, e in enumerate(lb[:20], 1):
             m = e.get("metrics", {})
             t = (e.get("validation") or {}).get("tier") or e.get("tier") or "?"
-            print(f"  #{i} {e['strategy']:<28} [{t}]  share={m.get('vs_bah',0):.2f}x  "
-                  f"fitness={e.get('fitness',0):.4f}  params={e.get('params',{})}")
+            print(
+                f"  #{i} {e['strategy']:<28} [{t}]  share={m.get('vs_bah', 0):.2f}x  "
+                f"fitness={e.get('fitness', 0):.4f}  params={e.get('params', {})}"
+            )
     else:
         print("[grid] No strategies passed validation. Leaderboard unchanged.")
 
@@ -318,15 +426,24 @@ def run_grid_search(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Grid Search — exhaustive canonical param testing")
-    parser.add_argument("--concepts", type=str, default=None,
-                        help="Comma-separated concept names (default: all)")
-    parser.add_argument("--dry-run", action="store_true",
-                        help="Just show combo counts, don't backtest")
-    parser.add_argument("--top-n", type=int, default=20,
-                        help="Validate top N candidates (default: 20)")
-    parser.add_argument("--no-validate", action="store_true",
-                        help="Skip validation (just pre-test)")
+    parser = argparse.ArgumentParser(
+        description="Grid Search — exhaustive canonical param testing"
+    )
+    parser.add_argument(
+        "--concepts",
+        type=str,
+        default=None,
+        help="Comma-separated concept names (default: all)",
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Just show combo counts, don't backtest"
+    )
+    parser.add_argument(
+        "--top-n", type=int, default=20, help="Validate top N candidates (default: 20)"
+    )
+    parser.add_argument(
+        "--no-validate", action="store_true", help="Skip validation (just pre-test)"
+    )
     args = parser.parse_args()
 
     concepts = args.concepts.split(",") if args.concepts else None

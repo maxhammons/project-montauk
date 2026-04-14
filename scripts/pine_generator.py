@@ -1615,6 +1615,376 @@ def _build_ema_200_regime(params: dict) -> str:
     )
 
 
+# ── Pine builders: Spike batch 2026-04-14 ──
+
+
+def _build_roc_above_trend(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - ROC Above Trend (T1)",
+        "ROCTrend",
+        "roc_above_trend",
+        f"""
+        rocLen       = input.int({_pine_number(params.get("roc_len", 20))}, "ROC Length", minval=1, group="1 - Inputs")
+        trendLen     = input.int({_pine_number(params.get("trend_len", 200))}, "Trend EMA", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        rocVal = ta.roc(close, rocLen)
+        trendEma = ta.ema(close, trendLen)
+
+        var int bullCount = 0
+        if not na(rocVal) and not na(trendEma) and rocVal > 0 and close > trendEma
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        exitSignal = not na(rocVal) and rocVal < 0
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "ROC Exit", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(trendEma, "Trend EMA", color=color.new(color.blue, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_stoch_recovery_trend(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Stoch Recovery Trend (T1)",
+        "StochRec",
+        "stoch_recovery_trend",
+        f"""
+        stochLen     = input.int({_pine_number(params.get("stoch_len", 14))}, "Stochastic Length", minval=1, group="1 - Inputs")
+        trendLen     = input.int({_pine_number(params.get("trend_len", 200))}, "Trend EMA", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        k = ta.stoch(close, high, low, stochLen)
+        kSmooth = ta.sma(k, 3)
+        trendEma = ta.ema(close, trendLen)
+
+        entrySignal = not na(kSmooth) and not na(kSmooth[1]) and not na(trendEma) and kSmooth[1] < 20 and kSmooth >= 20 and close > trendEma
+        exitSignal = not na(kSmooth) and not na(kSmooth[1]) and kSmooth < 50 and kSmooth[1] >= 50
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Stoch Exit", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(trendEma, "Trend EMA", color=color.new(color.blue, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_adx_di_trend(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - ADX DI Trend (T1)",
+        "ADXTrend",
+        "adx_di_trend",
+        f"""
+        adxLen       = input.int({_pine_number(params.get("adx_len", 14))}, "ADX Length", minval=1, group="1 - Inputs")
+        trendLen     = input.int({_pine_number(params.get("trend_len", 200))}, "Trend EMA", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        [diPlus, diMinus, adxVal] = ta.dmi(adxLen, adxLen)
+        trendEma = ta.ema(close, trendLen)
+
+        var int bullCount = 0
+        if not na(adxVal) and not na(diPlus) and not na(diMinus) and not na(trendEma) and adxVal > 20 and diPlus > diMinus and close > trendEma
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        exitSignal = not na(diPlus) and not na(diMinus) and diMinus > diPlus
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "DI- Flip", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(trendEma, "Trend EMA", color=color.new(color.blue, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_keltner_breakout(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Keltner Breakout (T1)",
+        "KCBreak",
+        "keltner_breakout",
+        f"""
+        kcEmaLen     = input.int({_pine_number(params.get("kc_ema_len", 20))}, "KC EMA Length", minval=1, group="1 - Inputs")
+        kcMult       = input.float({_pine_number(params.get("kc_atr_mult", 2.0), force_float=True)}, "KC ATR Multiplier", minval=0.1, group="1 - Inputs")
+        trendLen     = input.int({_pine_number(params.get("trend_len", 200))}, "Trend EMA", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        kcEma = ta.ema(close, kcEmaLen)
+        kcAtr = ta.atr(kcEmaLen)
+        kcUpper = kcEma + kcMult * kcAtr
+        kcLower = kcEma - kcMult * kcAtr
+        trendEma = ta.ema(close, trendLen)
+
+        entrySignal = not na(kcUpper) and not na(trendEma) and close > kcUpper and close > trendEma
+        exitSignal = not na(kcLower) and close < kcLower
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "KC Lower", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(kcUpper, "KC Upper", color=color.new(color.green, 50))
+        plot(kcLower, "KC Lower", color=color.new(color.red, 50))
+        plot(trendEma, "Trend EMA", color=color.new(color.blue, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_vol_calm_regime(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Vol Calm Regime (T1)",
+        "VolCalm",
+        "vol_calm_regime",
+        f"""
+        volShort     = input.int({_pine_number(params.get("vol_short", 20))}, "Short Vol Window", minval=1, group="1 - Inputs")
+        volLong      = input.int({_pine_number(params.get("vol_long", 100))}, "Long Vol Window", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        returns = close / close[1] - 1
+        rvShort = ta.stdev(returns, volShort)
+        rvLong = ta.stdev(returns, volLong)
+
+        calm = not na(rvShort) and not na(rvLong) and rvLong > 0 and rvShort < rvLong
+        entrySignal = calm and not calm[1]
+        exitSignal = not calm and calm[1]
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Vol Storm", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+        """,
+    )
+
+
+def _build_macd_hist_trend(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - MACD Hist Trend (T1)",
+        "MACDHist",
+        "macd_hist_trend",
+        f"""
+        trendLen     = input.int({_pine_number(params.get("trend_len", 200))}, "Trend EMA", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        [macdLine, signalLine, histLine] = ta.macd(close, 12, 26, 9)
+        trendEma = ta.ema(close, trendLen)
+
+        var int posCount = 0
+        if not na(histLine) and not na(trendEma) and histLine > 0 and close > trendEma
+            posCount += 1
+        else
+            posCount := 0
+
+        entrySignal = posCount == entryBars
+        exitSignal = not na(histLine) and histLine < 0
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Hist Neg", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(trendEma, "Trend EMA", color=color.new(color.blue, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_roc_ema_slope(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - ROC + EMA Slope (T1)",
+        "ROCSlope",
+        "roc_ema_slope",
+        f"""
+        rocLen       = input.int({_pine_number(params.get("roc_len", 20))}, "ROC Length", minval=1, group="1 - Inputs")
+        emaLen       = input.int({_pine_number(params.get("ema_len", 100))}, "EMA Length", minval=1, group="1 - Inputs")
+        slopeWindow  = input.int({_pine_number(params.get("slope_window", 5))}, "Slope Window", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        rocVal = ta.roc(close, rocLen)
+        emaVal = ta.ema(close, emaLen)
+        emaRising = not na(emaVal) and not na(emaVal[slopeWindow]) and emaVal > emaVal[slopeWindow]
+
+        var int bullCount = 0
+        if not na(rocVal) and rocVal > 0 and emaRising
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        exitSignal = not emaRising
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Slope Flip", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(emaVal, "EMA", color=color.new(color.blue, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_stoch_cross_trend(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Stoch Cross Trend (T1)",
+        "StochCross",
+        "stoch_cross_trend",
+        f"""
+        stochLen     = input.int({_pine_number(params.get("stoch_len", 14))}, "Stochastic Length", minval=1, group="1 - Inputs")
+        trendLen     = input.int({_pine_number(params.get("trend_len", 200))}, "Trend EMA", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        k = ta.sma(ta.stoch(close, high, low, stochLen), 3)
+        d = ta.sma(k, 3)
+        trendEma = ta.ema(close, trendLen)
+
+        var int bullCount = 0
+        if not na(k) and not na(d) and not na(trendEma) and k > d and close > trendEma
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        exitSignal = not na(k) and not na(d) and not na(k[1]) and not na(d[1]) and k[1] >= d[1] and k < d
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "K<D Cross", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(trendEma, "Trend EMA", color=color.new(color.blue, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_double_ema_slope(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Double EMA Slope (T1)",
+        "DblSlope",
+        "double_ema_slope",
+        f"""
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 50))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 200))}, "Slow EMA", minval=1, group="1 - Inputs")
+        slopeWindow  = input.int({_pine_number(params.get("slope_window", 5))}, "Slope Window", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+        fastRising = not na(fastEma) and not na(fastEma[slopeWindow]) and fastEma > fastEma[slopeWindow]
+        slowRising = not na(slowEma) and not na(slowEma[slopeWindow]) and slowEma > slowEma[slopeWindow]
+
+        var int bullCount = 0
+        if fastRising and slowRising
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        exitSignal = not slowRising
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Slow Slope Flip", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(fastEma, "Fast EMA", color=color.new(color.green, 30), linewidth=2)
+        plot(slowEma, "Slow EMA", color=color.new(color.blue, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_rsi_roc_combo(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - RSI ROC Combo (T1)",
+        "RSI_ROC",
+        "rsi_roc_combo",
+        f"""
+        rsiLen       = input.int({_pine_number(params.get("rsi_len", 14))}, "RSI Length", minval=1, group="1 - Inputs")
+        rocLen       = input.int({_pine_number(params.get("roc_len", 20))}, "ROC Length", minval=1, group="1 - Inputs")
+        trendLen     = input.int({_pine_number(params.get("trend_len", 200))}, "Trend EMA", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        rsiVal = ta.rsi(close, rsiLen)
+        rocVal = ta.roc(close, rocLen)
+        trendEma = ta.ema(close, trendLen)
+
+        entrySignal = not na(rsiVal) and not na(rocVal) and not na(trendEma) and rsiVal > 50 and rocVal > 0 and close > trendEma
+        exitSignal = not na(rsiVal) and rsiVal < 50
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "RSI < 50", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(trendEma, "Trend EMA", color=color.new(color.blue, 30), linewidth=2)
+        """,
+    )
+
+
 _BUILDERS = {
     # T1 grid-searchable concepts — each uses a template function that
     # accepts arbitrary params, so the same builder works for any grid combo.
@@ -1650,6 +2020,17 @@ _BUILDERS = {
     "steady_trend": _build_steady_trend,
     "rsi_recovery": _build_rsi_recovery,
     "ema_regime": _build_ema_regime,
+    # ── Spike batch 2026-04-14 ──
+    "roc_above_trend": _build_roc_above_trend,
+    "stoch_recovery_trend": _build_stoch_recovery_trend,
+    "adx_di_trend": _build_adx_di_trend,
+    "keltner_breakout": _build_keltner_breakout,
+    "vol_calm_regime": _build_vol_calm_regime,
+    "macd_hist_trend": _build_macd_hist_trend,
+    "roc_ema_slope": _build_roc_ema_slope,
+    "stoch_cross_trend": _build_stoch_cross_trend,
+    "double_ema_slope": _build_double_ema_slope,
+    "rsi_roc_combo": _build_rsi_roc_combo,
 }
 
 

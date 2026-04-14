@@ -1743,6 +1743,289 @@ def ema_200_regime(ind: Indicators, p: dict) -> tuple:
     return entries, exits, labels
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# T1 Grid-Searchable: New signal families (Spike batch 2026-04-14)
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def roc_above_trend(ind, p):
+    """T1: Rate of Change > 0 + close > trend EMA for confirm bars.
+    Hypothesis: positive ROC means price is gaining momentum; combined with
+    trend filter, this captures momentum regimes and avoids counter-trend."""
+    n = ind.n
+    cl = ind.close
+    roc = ind.roc(int(p.get("roc_len", 20)))
+    trend = ind.ema(int(p.get("trend_len", 200)))
+    entry_bars = int(p.get("entry_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(1, n):
+        if np.isnan(roc[i]) or np.isnan(trend[i]):
+            continue
+        if roc[i] > 0 and cl[i] > trend[i]:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if roc[i] < 0:
+            exits[i] = True
+            labels[i] = "R"
+    return entries, exits, labels
+
+
+def stoch_recovery_trend(ind, p):
+    """T1: Stochastic %K crosses up through 20 (oversold recovery) + trend EMA.
+    Hypothesis: leveraged ETFs mean-revert hard from oversold; entering on
+    stochastic recovery above trend catches post-crash rebounds. Exit on
+    %K dropping below 50 (momentum fading to neutral)."""
+    n = ind.n
+    cl = ind.close
+    k = ind.stoch_k(int(p.get("stoch_len", 14)))
+    trend = ind.ema(int(p.get("trend_len", 200)))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(1, n):
+        if np.isnan(k[i]) or np.isnan(k[i - 1]) or np.isnan(trend[i]):
+            continue
+        if k[i - 1] < 20 and k[i] >= 20 and cl[i] > trend[i]:
+            entries[i] = True
+        if k[i] < 50 and k[i - 1] >= 50:
+            exits[i] = True
+            labels[i] = "K"
+    return entries, exits, labels
+
+
+def adx_di_trend(ind, p):
+    """T1: ADX > 20 + DI+ > DI- for confirm bars + trend EMA filter.
+    Hypothesis: ADX measures trend strength; DI+/DI- gives direction.
+    Strong uptrend = ADX high + DI+ dominant + above trend EMA."""
+    n = ind.n
+    cl = ind.close
+    adx_len = int(p.get("adx_len", 14))
+    adx = ind.adx(adx_len)
+    dip = ind.di_plus(adx_len)
+    dim = ind.di_minus(adx_len)
+    trend = ind.ema(int(p.get("trend_len", 200)))
+    entry_bars = int(p.get("entry_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(1, n):
+        if np.isnan(adx[i]) or np.isnan(dip[i]) or np.isnan(dim[i]) or np.isnan(trend[i]):
+            continue
+        if adx[i] > 20 and dip[i] > dim[i] and cl[i] > trend[i]:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if dim[i] > dip[i]:
+            exits[i] = True
+            labels[i] = "A"
+    return entries, exits, labels
+
+
+def keltner_breakout(ind, p):
+    """T1: Close breaks above upper Keltner channel + trend EMA filter.
+    Hypothesis: Keltner channels are volatility-adjusted — close above upper
+    band means price exceeds normal range, signaling trend acceleration.
+    Exit on close below lower band (reactive)."""
+    n = ind.n
+    cl = ind.close
+    kc_ema = int(p.get("kc_ema_len", 20))
+    kc_mult = float(p.get("kc_atr_mult", 2.0))
+    upper = ind.keltner_upper(kc_ema, kc_ema, kc_mult)
+    lower = ind.keltner_lower(kc_ema, kc_ema, kc_mult)
+    trend = ind.ema(int(p.get("trend_len", 200)))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(1, n):
+        if np.isnan(upper[i]) or np.isnan(lower[i]) or np.isnan(trend[i]):
+            continue
+        if cl[i] > upper[i] and cl[i] > trend[i]:
+            entries[i] = True
+        if cl[i] < lower[i]:
+            exits[i] = True
+            labels[i] = "K"
+    return entries, exits, labels
+
+
+def vol_calm_regime(ind, p):
+    """T1: Hold when short realized vol < long realized vol.
+    Hypothesis: when short-term volatility declines below long-term average,
+    the storm is passing. Pure volatility regime — structurally different
+    from price-based signals. Enter on calm transition, exit on storm."""
+    n = ind.n
+    vol_short = ind.realized_vol(int(p.get("vol_short", 20)))
+    vol_long = ind.realized_vol(int(p.get("vol_long", 100)))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(1, n):
+        if np.isnan(vol_short[i]) or np.isnan(vol_long[i]) or vol_long[i] <= 0:
+            continue
+        if np.isnan(vol_short[i - 1]) or np.isnan(vol_long[i - 1]) or vol_long[i - 1] <= 0:
+            continue
+        if vol_short[i] < vol_long[i] and vol_short[i - 1] >= vol_long[i - 1]:
+            entries[i] = True
+        if vol_short[i] >= vol_long[i] and vol_short[i - 1] < vol_long[i - 1]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def macd_hist_trend(ind, p):
+    """T1: MACD histogram positive for N bars + close > trend EMA.
+    Hypothesis: histogram captures momentum acceleration. Requiring it
+    positive for N bars filters noise. More selective than zero-cross
+    because histogram leads the MACD line."""
+    n = ind.n
+    cl = ind.close
+    hist = ind.macd_hist(12, 26, 9)
+    trend = ind.ema(int(p.get("trend_len", 200)))
+    entry_bars = int(p.get("entry_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    pos_count = 0
+    for i in range(1, n):
+        if np.isnan(hist[i]) or np.isnan(trend[i]):
+            continue
+        if hist[i] > 0 and cl[i] > trend[i]:
+            pos_count += 1
+        else:
+            pos_count = 0
+        if pos_count == entry_bars:
+            entries[i] = True
+        if hist[i] < 0:
+            exits[i] = True
+            labels[i] = "H"
+    return entries, exits, labels
+
+
+def roc_ema_slope(ind, p):
+    """T1: Dual momentum — ROC > 0 AND EMA slope positive for confirm bars.
+    Hypothesis: two independent momentum signals (price ROC + EMA slope)
+    must agree before entry. Reduces false signals because both short-term
+    price momentum and underlying trend must be positive simultaneously."""
+    n = ind.n
+    roc = ind.roc(int(p.get("roc_len", 20)))
+    ema = ind.ema(int(p.get("ema_len", 100)))
+    slope_window = int(p.get("slope_window", 5))
+    entry_bars = int(p.get("entry_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(slope_window + 1, n):
+        if np.isnan(roc[i]) or np.isnan(ema[i]) or np.isnan(ema[i - slope_window]):
+            continue
+        ema_rising = ema[i] > ema[i - slope_window]
+        if roc[i] > 0 and ema_rising:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if not ema_rising:
+            exits[i] = True
+            labels[i] = "S"
+    return entries, exits, labels
+
+
+def stoch_cross_trend(ind, p):
+    """T1: Stochastic %K > %D for confirm bars + close > trend EMA.
+    Hypothesis: %K/%D crossover is a classic momentum signal; combining
+    with trend filter ensures entry only in confirmed uptrends. Exit on
+    bearish cross (%K drops below %D)."""
+    n = ind.n
+    cl = ind.close
+    stoch_len = int(p.get("stoch_len", 14))
+    k = ind.stoch_k(stoch_len)
+    d = ind.stoch_d(stoch_len)
+    trend = ind.ema(int(p.get("trend_len", 200)))
+    entry_bars = int(p.get("entry_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(1, n):
+        if np.isnan(k[i]) or np.isnan(d[i]) or np.isnan(trend[i]):
+            continue
+        if k[i] > d[i] and cl[i] > trend[i]:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if not np.isnan(k[i - 1]) and not np.isnan(d[i - 1]):
+            if k[i - 1] >= d[i - 1] and k[i] < d[i]:
+                exits[i] = True
+                labels[i] = "K"
+    return entries, exits, labels
+
+
+def double_ema_slope(ind, p):
+    """T1: Both fast and slow EMA slopes positive for N bars.
+    Hypothesis: requiring both short-term and long-term EMAs to be rising
+    means both momentum horizons agree. Stricter than single-slope but
+    higher quality entries. Exit when slow slope turns negative."""
+    n = ind.n
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    slope_window = int(p.get("slope_window", 5))
+    entry_bars = int(p.get("entry_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(slope_window + 1, n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(fast[i - slope_window]) or np.isnan(slow[i - slope_window]):
+            continue
+        fast_rising = fast[i] > fast[i - slope_window]
+        slow_rising = slow[i] > slow[i - slope_window]
+        if fast_rising and slow_rising:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if not slow_rising:
+            exits[i] = True
+            labels[i] = "S"
+    return entries, exits, labels
+
+
+def rsi_roc_combo(ind, p):
+    """T1: RSI > 50 AND ROC > 0 AND close > trend EMA.
+    Hypothesis: two independent oscillators (RSI + ROC) must both confirm
+    bullish conditions along with trend filter. Triple confirmation reduces
+    false entries. Exit when RSI drops below 50."""
+    n = ind.n
+    cl = ind.close
+    rsi = ind.rsi(int(p.get("rsi_len", 14)))
+    roc = ind.roc(int(p.get("roc_len", 20)))
+    trend = ind.ema(int(p.get("trend_len", 200)))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(1, n):
+        if np.isnan(rsi[i]) or np.isnan(roc[i]) or np.isnan(trend[i]):
+            continue
+        if rsi[i] > 50 and roc[i] > 0 and cl[i] > trend[i]:
+            entries[i] = True
+        if rsi[i] < 50:
+            exits[i] = True
+            labels[i] = "R"
+    return entries, exits, labels
+
+
 STRATEGY_REGISTRY = {
     # Grid-searchable T1 concepts (logic functions that accept any canonical param combo).
     # Grid search evaluates these exhaustively over canonical param grids.
@@ -1774,6 +2057,17 @@ STRATEGY_REGISTRY = {
     "steady_trend":             steady_trend,
     "rsi_recovery":             rsi_recovery,
     "ema_regime":               ema_regime,
+    # ── T1 grid-searchable: Spike batch 2026-04-14 ──
+    "roc_above_trend":          roc_above_trend,
+    "stoch_recovery_trend":     stoch_recovery_trend,
+    "adx_di_trend":             adx_di_trend,
+    "keltner_breakout":         keltner_breakout,
+    "vol_calm_regime":          vol_calm_regime,
+    "macd_hist_trend":          macd_hist_trend,
+    "roc_ema_slope":            roc_ema_slope,
+    "stoch_cross_trend":        stoch_cross_trend,
+    "double_ema_slope":         double_ema_slope,
+    "rsi_roc_combo":            rsi_roc_combo,
 }
 
 # Declared validation tier for each strategy family.
@@ -1811,6 +2105,17 @@ STRATEGY_TIERS = {
     "steady_trend":             "T2",
     "rsi_recovery":             "T2",
     "ema_regime":               "T2",
+    # ── T1 grid-searchable: Spike batch 2026-04-14 ──
+    "roc_above_trend":          "T1",
+    "stoch_recovery_trend":     "T1",
+    "adx_di_trend":             "T1",
+    "keltner_breakout":         "T1",
+    "vol_calm_regime":          "T1",
+    "macd_hist_trend":          "T1",
+    "roc_ema_slope":            "T1",
+    "stoch_cross_trend":        "T1",
+    "double_ema_slope":         "T1",
+    "rsi_roc_combo":            "T1",
 }
 
 # Parameter spaces for each strategy: {param: (min, max, step, type)}
@@ -1966,5 +2271,65 @@ STRATEGY_PARAMS = {
     "ema_regime": {
         "fast_ema": (10, 40, 5, int), "slow_ema": (30, 120, 10, int),
         "entry_confirm": (2, 6, 1, int), "exit_confirm": (2, 8, 1, int),
+    },
+    # ── T1 grid-searchable: Spike batch 2026-04-14 ──
+    "roc_above_trend": {
+        "roc_len":      (10, 50, 10, int),
+        "trend_len":    (100, 200, 50, int),
+        "entry_bars":   (2, 5, 1, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "stoch_recovery_trend": {
+        "stoch_len":    (7, 21, 7, int),
+        "trend_len":    (100, 200, 50, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "adx_di_trend": {
+        "adx_len":      (7, 21, 7, int),
+        "trend_len":    (100, 200, 50, int),
+        "entry_bars":   (2, 5, 1, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "keltner_breakout": {
+        "kc_ema_len":   (20, 50, 10, int),
+        "kc_atr_mult":  (1.5, 2.5, 0.5, float),
+        "trend_len":    (100, 200, 50, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "vol_calm_regime": {
+        "vol_short":    (10, 50, 10, int),
+        "vol_long":     (100, 200, 50, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "macd_hist_trend": {
+        "trend_len":    (100, 200, 50, int),
+        "entry_bars":   (2, 5, 1, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "roc_ema_slope": {
+        "roc_len":      (10, 50, 10, int),
+        "ema_len":      (100, 200, 50, int),
+        "slope_window": (3, 5, 2, int),
+        "entry_bars":   (2, 5, 1, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "stoch_cross_trend": {
+        "stoch_len":    (7, 21, 7, int),
+        "trend_len":    (100, 200, 50, int),
+        "entry_bars":   (2, 5, 1, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "double_ema_slope": {
+        "fast_ema":     (20, 50, 10, int),
+        "slow_ema":     (100, 200, 50, int),
+        "slope_window": (3, 5, 2, int),
+        "entry_bars":   (2, 5, 1, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "rsi_roc_combo": {
+        "rsi_len":      (7, 21, 7, int),
+        "roc_len":      (10, 50, 10, int),
+        "trend_len":    (100, 200, 50, int),
+        "cooldown":     (2, 10, 3, int),
     },
 }
