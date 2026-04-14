@@ -100,6 +100,11 @@ GRIDS = {
         "entry_bars":   [2, 3],
         "cooldown":     [5],
     },
+    "ema_200_confirm": {                            # 3 × 3 = 9 combos
+        "ema_len":      [100, 150, 200],
+        "entry_bars":   [2, 3, 5],
+        "cooldown":     [5],
+    },
     "ema_200_regime": {                             # 3 × 2 = 6 combos
         "ema_len":      [100, 150, 200],
         "cooldown":     [2, 5],

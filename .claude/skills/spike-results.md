@@ -60,7 +60,7 @@ If user asks for Pine Script for any winner:
 1. Read the winning Python function from `scripts/strategies.py`
 2. Read its best params from `spike/runs/<N>/results.json`
 3. Read `src/strategy/active/Project Montauk 8.2.1.txt` as structural template
-4. Use `reference/pinescriptv6-main/` for syntax — do NOT guess
+4. Use `docs/pine-reference/` for syntax — do NOT guess
 5. Write Pine Script v6 with winning params as `input.*` defaults
 6. Save to `src/strategy/testing/Project Montauk <version>-candidate.txt`
 7. Also save to `spike/runs/<N>/candidate.txt`

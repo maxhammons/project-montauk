@@ -1550,6 +1550,43 @@ def _build_golden_cross_slope(params: dict) -> str:
     )
 
 
+def _build_ema_200_confirm(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - EMA-200 Confirm (T0)",
+        "EMA200Conf",
+        "ema_200_confirm",
+        f"""
+        emaLen       = input.int({_pine_number(params.get("ema_len", 200))}, "EMA Length", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        ema = ta.ema(close, emaLen)
+
+        var int aboveCount = 0
+        if not na(ema)
+            if close > ema
+                aboveCount += 1
+            else
+                aboveCount := 0
+
+        entrySignal = aboveCount == entryBars
+        crossDown = not na(ema) and not na(ema[1]) and close[1] >= ema[1] and close < ema
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and crossDown
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Trend Break", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(ema, "EMA", color=color.new(color.blue, 30), linewidth=2)
+        """,
+    )
+
+
 def _build_ema_200_regime(params: dict) -> str:
     return _wrap(
         "Project Montauk Candidate - EMA-200 Regime (T0)",
@@ -1592,7 +1629,7 @@ _BUILDERS = {
     "donchian_filter": _build_donchian_200_100,
     "macd_above_zero_trend": _build_macd_above_zero_trend,
     "ema_pure_slope": _build_ema_100_pure_slope,
-    "ema_200_regime": _build_ema_200_regime,
+    "ema_200_confirm": _build_ema_200_confirm,
     "ema_200_regime": _build_ema_200_regime,
     "montauk_821": _build_montauk_821,
     "rsi_regime": _build_rsi_regime,

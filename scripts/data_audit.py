@@ -23,7 +23,7 @@ sys.path.insert(0, SCRIPT_DIR)
 from data import _fetch_ticker_yahoo, fetch_vix, load_csv
 
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-TS_DIR = os.path.join(PROJECT_ROOT, "reference", "time-series data")
+TS_DIR = os.path.join(PROJECT_ROOT, "data")
 
 
 def fetch_fred_series(series_id: str, start: str = "1998-01-01") -> pd.DataFrame:
@@ -190,7 +190,7 @@ def download_vix():
     vix = df[["date", "open", "high", "low", "close", "volume"]].copy()
     vix.columns = ["date", "vix_open", "vix_high", "vix_low", "vix_close", "vix_volume"]
 
-    out_path = os.path.join(TS_DIR, "VIX Daily.csv")
+    out_path = os.path.join(TS_DIR, "VIX.csv")
     vix.to_csv(out_path, index=False)
     print(f"  Saved: {out_path}")
     print(f"  Bars: {len(vix)}, {vix['date'].min().date()} to {vix['date'].max().date()}")
@@ -211,7 +211,7 @@ def download_xlk():
         print("  ERROR: Could not fetch XLK")
         return None
 
-    out_path = os.path.join(TS_DIR, "XLK Daily.csv")
+    out_path = os.path.join(TS_DIR, "XLK.csv")
     df.to_csv(out_path, index=False)
     print(f"  Saved: {out_path}")
     print(f"  Bars: {len(df)}, {df['date'].min().date()} to {df['date'].max().date()}")
@@ -233,7 +233,7 @@ def download_yield_spread():
         return None
 
     df.columns = ["date", "yield_spread_10y2y"]
-    out_path = os.path.join(TS_DIR, "Treasury Yield Spread 10Y-2Y.csv")
+    out_path = os.path.join(TS_DIR, "treasury-spread-10y2y.csv")
     df.to_csv(out_path, index=False)
     print(f"  Saved: {out_path}")
     print(f"  Bars: {len(df)}, {df['date'].min().date()} to {df['date'].max().date()}")
@@ -255,7 +255,7 @@ def download_cross_assets():
         if df.empty:
             print(f"  ERROR: Could not fetch {ticker}")
             continue
-        out_path = os.path.join(TS_DIR, f"{ticker} Daily.csv")
+        out_path = os.path.join(TS_DIR, f"{ticker}.csv")
         df.to_csv(out_path, index=False)
         print(f"  Saved: {out_path}")
         print(f"  {ticker}: {len(df)} bars, {df['date'].min().date()} to {df['date'].max().date()}")
@@ -276,7 +276,7 @@ def download_fed_funds():
         return None
 
     df.columns = ["date", "fed_funds_rate"]
-    out_path = os.path.join(TS_DIR, "Fed Funds Rate.csv")
+    out_path = os.path.join(TS_DIR, "fed-funds-rate.csv")
     df.to_csv(out_path, index=False)
     print(f"  Saved: {out_path}")
     print(f"  Bars: {len(df)}, {df['date'].min().date()} to {df['date'].max().date()}")
@@ -321,7 +321,7 @@ def build_master_csv():
     print(f"  TECL base: {len(master)} bars")
 
     # Merge VIX
-    vix_path = os.path.join(TS_DIR, "VIX Daily.csv")
+    vix_path = os.path.join(TS_DIR, "VIX.csv")
     if os.path.exists(vix_path):
         vix = pd.read_csv(vix_path, parse_dates=["date"])
         master = master.merge(vix[["date", "vix_close"]], on="date", how="left")
@@ -332,7 +332,7 @@ def build_master_csv():
         print(f"  VIX: file not found, filled NaN")
 
     # Merge XLK close
-    xlk_path = os.path.join(TS_DIR, "XLK Daily.csv")
+    xlk_path = os.path.join(TS_DIR, "XLK.csv")
     if os.path.exists(xlk_path):
         xlk = pd.read_csv(xlk_path, parse_dates=["date"])
         master = master.merge(xlk[["date", "close"]].rename(columns={"close": "xlk_close"}),
@@ -344,7 +344,7 @@ def build_master_csv():
         print(f"  XLK: file not found, filled NaN")
 
     # Merge yield spread (FRED data is daily but not every trading day)
-    spread_path = os.path.join(TS_DIR, "Treasury Yield Spread 10Y-2Y.csv")
+    spread_path = os.path.join(TS_DIR, "treasury-spread-10y2y.csv")
     if os.path.exists(spread_path):
         spread = pd.read_csv(spread_path, parse_dates=["date"])
         master = master.merge(spread, on="date", how="left")
@@ -357,7 +357,7 @@ def build_master_csv():
         print(f"  Yield spread: file not found, filled NaN")
 
     # Merge Fed Funds
-    ff_path = os.path.join(TS_DIR, "Fed Funds Rate.csv")
+    ff_path = os.path.join(TS_DIR, "fed-funds-rate.csv")
     if os.path.exists(ff_path):
         ff = pd.read_csv(ff_path, parse_dates=["date"])
         master = master.merge(ff, on="date", how="left")

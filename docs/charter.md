@@ -43,7 +43,7 @@ The project may search across many strategy families, but every family must stil
 
 ## 3. North Star: The Marker Chart
 
-The hand-marked TECL cycle file [`reference/research/chart/TECL-markers.csv`](../research/chart/TECL-markers.csv) is the platonic ideal of cycle timing — Max's hindsight-perfect buy/sell calls across the full TECL history.
+The hand-marked TECL cycle file [`data/markers/TECL-markers.csv`](../data/markers/TECL-markers.csv) is the platonic ideal of cycle timing — Max's hindsight-perfect buy/sell calls across the full TECL history.
 
 **The marker chart is a north star for hypothesis design and a diagnostic for ranking — not a hard validation gate.**
 
@@ -141,7 +141,7 @@ Validation quality matters as much as performance. A high-share-count strategy t
 - One strategy block. One entry id `"Long"`. Exits via `strategy.close`
 - Preserve stable parameter names unless there is a strong migration reason
 - Python is the research engine; Pine is the execution artifact
-- When uncertain about Pine syntax, consult `reference/pinescriptv6-main/`
+- When uncertain about Pine syntax, consult `docs/pine-reference/`
 
 ---
 

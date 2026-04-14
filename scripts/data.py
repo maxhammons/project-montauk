@@ -3,20 +3,19 @@ from __future__ import annotations
 """
 TECL data module — local-first with API refresh on /spike invocation.
 
-All data lives in reference/time-series data/ as CSVs. The optimizer reads
-from local files and never calls an API during a run. The refresh_all()
-function is called once at /spike start to pull any new bars and update
-every CSV in place.
+All data lives in data/ as CSVs. The optimizer reads from local files
+and never calls an API during a run. The refresh_all() function is called
+once at /spike start to pull any new bars and update every CSV in place.
 
 Files managed:
-  TECL.csv          TECL OHLCV (synthetic 1998-2008 + real 2009+) + vix_close
-  VIX Daily.csv     CBOE VIX OHLCV
-  XLK Daily.csv     TECL underlying
-  TQQQ Daily.csv    Synthetic 1999-2010 + real 2010+
-  QQQ Daily.csv     TQQQ underlying
-  SGOV Daily.csv    iShares 0-3 Month Treasury Bond ETF
-  Treasury Yield Spread 10Y-2Y.csv   FRED T10Y2Y
-  Fed Funds Rate.csv                 FRED DFF
+  TECL.csv                    TECL OHLCV (synthetic 1998-2008 + real 2009+) + vix_close
+  VIX.csv                     CBOE VIX OHLCV
+  XLK.csv                     TECL underlying
+  TQQQ.csv                    Synthetic 1999-2010 + real 2010+
+  QQQ.csv                     TQQQ underlying
+  SGOV.csv                    iShares 0-3 Month Treasury Bond ETF
+  treasury-spread-10y2y.csv   FRED T10Y2Y
+  fed-funds-rate.csv          FRED DFF
 """
 
 import os
@@ -25,14 +24,14 @@ import numpy as np
 from datetime import datetime, timedelta
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TS_DIR = os.path.join(PROJECT_ROOT, "reference", "time-series data")
+TS_DIR = os.path.join(PROJECT_ROOT, "data")
 TECL_CSV = os.path.join(TS_DIR, "TECL.csv")
-VIX_CSV = os.path.join(TS_DIR, "VIX Daily.csv")
-XLK_CSV = os.path.join(TS_DIR, "XLK Daily.csv")
-QQQ_CSV = os.path.join(TS_DIR, "QQQ Daily.csv")
-TQQQ_CSV = os.path.join(TS_DIR, "TQQQ Daily.csv")
-SGOV_CSV = os.path.join(TS_DIR, "SGOV Daily.csv")
-TBILL_3M_CSV = os.path.join(TS_DIR, "3-Month Treasury Bill Rate.csv")
+VIX_CSV = os.path.join(TS_DIR, "VIX.csv")
+XLK_CSV = os.path.join(TS_DIR, "XLK.csv")
+QQQ_CSV = os.path.join(TS_DIR, "QQQ.csv")
+TQQQ_CSV = os.path.join(TS_DIR, "TQQQ.csv")
+SGOV_CSV = os.path.join(TS_DIR, "SGOV.csv")
+TBILL_3M_CSV = os.path.join(TS_DIR, "tbill-3m.csv")
 
 # Legacy path — migrated to TECL.csv on first load
 _LEGACY_CSV = os.path.join(TS_DIR, "TECL Price History (2-23-26).csv")
@@ -248,9 +247,9 @@ def refresh_all():
     print(f"[refresh] SGOV: +{n} new bars")
 
     # ── FRED data (yield spread, fed funds) ──
-    _refresh_fred("3-Month Treasury Bill Rate.csv", "DTB3", "rate_3m_tbill")
-    _refresh_fred("Treasury Yield Spread 10Y-2Y.csv", "T10Y2Y", "yield_spread_10y2y")
-    _refresh_fred("Fed Funds Rate.csv", "DFF", "fed_funds_rate")
+    _refresh_fred("tbill-3m.csv", "DTB3", "rate_3m_tbill")
+    _refresh_fred("treasury-spread-10y2y.csv", "T10Y2Y", "yield_spread_10y2y")
+    _refresh_fred("fed-funds-rate.csv", "DFF", "fed_funds_rate")
 
     # Summary
     tecl = pd.read_csv(TECL_CSV, parse_dates=["date"])
@@ -283,7 +282,7 @@ def _append_tecl_bars() -> int:
 
 
 def _append_vix_bars() -> int:
-    """Append new VIX bars from Yahoo and save to VIX Daily.csv."""
+    """Append new VIX bars from Yahoo and save to VIX.csv."""
     if not os.path.exists(VIX_CSV):
         # Full download
         vix = _fetch_ticker_yahoo("^VIX", start="1990-01-01")
@@ -472,7 +471,7 @@ def get_sgov_data() -> pd.DataFrame:
 def get_3m_tbill_rate_data() -> pd.DataFrame:
     """Load the local 3-month Treasury bill rate proxy used for diagnostics/fallbacks."""
     if not os.path.exists(TBILL_3M_CSV):
-        _refresh_fred("3-Month Treasury Bill Rate.csv", "DTB3", "rate_3m_tbill")
+        _refresh_fred("tbill-3m.csv", "DTB3", "rate_3m_tbill")
         if not os.path.exists(TBILL_3M_CSV):
             raise FileNotFoundError(f"No 3M T-bill rate data. Expected: {TBILL_3M_CSV}")
     df = pd.read_csv(TBILL_3M_CSV, parse_dates=["date"])

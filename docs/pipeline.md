@@ -162,6 +162,22 @@ Python is the research and validation layer. Pine is the execution layer.
 
 The Roth overlay sits after validation and before manual deployment review. It is an account-analysis layer, not a change to the signal definition.
 
+### Python-vs-Pine Parity
+
+Gate 7 runs automated **structural parity checks** (`scripts/parity.py`) before setting `pine_eligible`. These verify that the generated Pine Script matches the Python source on:
+
+- **Param defaults** — every Python param appears as a Pine `input.*()` with the correct default value
+- **Strategy settings** — `process_orders_on_close=true`, `commission_value=0.05`, `pyramiding=0`, etc.
+- **Indicator coverage** — every Python indicator has a corresponding `ta.*()` call
+- **Condition structure** — entry/exit counts, cooldown logic, exit-priority order
+
+If structural parity fails, the strategy is not Pine-eligible and cannot be promoted.
+
+For deeper trust, two additional tiers are available via CLI:
+
+- **Signal replay** (`parity.py replay`): generates a diagnostic Pine with extra plots + a reference CSV for visual comparison in TradingView
+- **Trade-list comparison** (`parity.py trade-compare`): parses a TradingView export and compares trade-by-trade against the Python backtest
+
 ---
 
 ## 8. CI And Local Should Match

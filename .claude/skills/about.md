@@ -2,7 +2,7 @@
 
 ## What it does
 
-The Spike skill launches and runs the **Montauk Engine** — Project Montauk's autonomous evolutionary strategy optimizer + tier-routed validator + Pine generator. It tests hundreds of thousands of parameter combinations across multiple TECL strategies using a genetic algorithm, with the goal of accumulating more shares of TECL than buy-and-hold while matching the hand-marked cycle shape in `reference/research/chart/TECL-markers.csv`.
+The Spike skill launches and runs the **Montauk Engine** — Project Montauk's autonomous evolutionary strategy optimizer + tier-routed validator + Pine generator. It tests hundreds of thousands of parameter combinations across multiple TECL strategies using a genetic algorithm, with the goal of accumulating more shares of TECL than buy-and-hold while matching the hand-marked cycle shape in `data/markers/TECL-markers.csv`.
 
 > Spike = the entrypoint / command surface (`/spike`, `/spike-focus`, `/spike-results`).
 > Montauk Engine = the underlying machinery (search + tier-routed validation + Pine emission).
@@ -52,7 +52,7 @@ Each backtest takes ~0.03ms. Over 5 hours that's ~600,000 evaluations. An evolut
 
 ## Anti-overfitting
 
-The Montauk Engine's defense against overfitting is **tier-routed validation** — validation difficulty scales with how the candidate was selected (T0 hypothesis vs T1 tuned vs T2 discovered). See `reference/spirit-guide/VALIDATION-PHILOSOPHY.md` for the framework.
+The Montauk Engine's defense against overfitting is **tier-routed validation** — validation difficulty scales with how the candidate was selected (T0 hypothesis vs T1 tuned vs T2 discovered). See `docs/validation-philosophy.md` for the framework.
 
 Existing in-engine defenses:
 

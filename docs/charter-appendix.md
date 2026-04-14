@@ -11,7 +11,7 @@ Neither layer changes the core identity of Project Montauk. The project remains 
 
 ## 1. Marker-Aligned Discovery
 
-The hand-marked TECL cycle file [`reference/research/chart/TECL-markers.csv`](../research/chart/TECL-markers.csv) is a **north star for hypothesis design and a diagnostic for ranking** — not a hard validation gate.
+The hand-marked TECL cycle file [`data/markers/TECL-markers.csv`](../data/markers/TECL-markers.csv) is a **north star for hypothesis design and a diagnostic for ranking** — not a hard validation gate.
 
 History note: an earlier revision (first 2026-04-13 charter rewrite) made marker alignment a first-class hard gate at every tier. That overcorrected — it caused strategies that maximize share count via different but valid cycle shapes to fail solely on "doesn't match Max's drawing." Per the second 2026-04-13 revision, the marker is back to being directional guidance plus a diagnostic, not the bouncer at the door.
 

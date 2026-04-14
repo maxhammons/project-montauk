@@ -7,7 +7,7 @@ come from this fixed list — the point is to force hypotheses to be argued from
 first principles, not param-fiddled into existence. "200-day moving average"
 is a thing in the world. "EMA-187" is a search result.
 
-See `reference/spirit-guide/VALIDATION-PHILOSOPHY.md` Section 5.
+See `docs/validation-philosophy.md` Section 5.
 """
 
 from __future__ import annotations

@@ -16,7 +16,7 @@ These use the 918K configs already in `spike/hash-index.json` and the leaderboar
 
 **Files to modify**:
 - `scripts/evolve.py` — add deflation to the fitness evaluation / leaderboard promotion logic (around `evaluate()` at line 354)
-- New: `scripts/deflate.py` — standalone module with `StrategyDiscoveryGovernor` class (adapt from code in `reference/research/reports/deflated-sharpe-evolutionary.md`)
+- New: `scripts/deflate.py` — standalone module with `StrategyDiscoveryGovernor` class (adapt from code in `docs/research/reports/deflated-sharpe-evolutionary.md`)
 
 **Algorithm**:
 1. Compute cross-sectional mean and std of Regime Scores across all 918K configs (from hash-index.json)
@@ -277,7 +277,7 @@ This step:
 **What**: Implement Probability of Backtest Overfitting using CSCV on monthly-aggregated returns with S=8 partitions.
 
 **Files to modify**:
-- New: `scripts/pbo.py` — adapt from code in `reference/research/reports/compass_artifact_wf-02502eac-...md` (lines 11-243)
+- New: `scripts/pbo.py` — adapt from code in `docs/research/reports/compass_artifact_wf-02502eac-...md` (lines 11-243)
 - `scripts/validate_candidate.py` — add PBO check
 
 **Compute cost**: ~0.02 seconds per strategy (pure matrix operations on pre-computed monthly returns). Negligible.

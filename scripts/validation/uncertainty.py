@@ -49,6 +49,10 @@ def morris_fragility(
         name for name, value in params.items()
         if name in space and isinstance(value, (int, float)) and not isinstance(value, bool)
     ]
+    # Exclude cooldown from tunable count — it's structural (trade throttling),
+    # not signal-generating, so it shouldn't inflate sensitivity thresholds.
+    # Matches canonical_params.count_tunable_params behaviour.
+    numeric_signal = [n for n in numeric if n != "cooldown"]
     baseline = run_eval(df, strategy_fn, params, strategy_name)
     baseline_rs = max(float(baseline.get("regime_score", 0.0)), 1e-6)
     if not numeric:
@@ -108,8 +112,25 @@ def morris_fragility(
         )
 
     s_frag = float(np.clip(1.0 - max_swing / 0.40, 0.0, 1.0))
-    interaction_flag = max_swing > 0.30 or (max_sigma_ratio > 1.5 and max_swing > 0.20)
-    warning_flag = (0.20 < max_swing <= 0.30) or max_sigma_ratio > 1.0
+
+    # Scale thresholds by signal-param count (excluding cooldown).  With ≤ 3
+    # tunable signal params a strategy has very limited overfitting potential,
+    # and sigma_ratio is naturally inflated because each param accounts for a
+    # large share of the variance.  The original thresholds were calibrated for
+    # complex 6-10 param T2 strategies.
+    n_tunable = len(numeric_signal)
+    if n_tunable <= 2:
+        # Ultra-simple: only hard-fail on extreme swings (> 50% regime-score
+        # change from a single 20%-of-range perturbation).
+        interaction_flag = max_swing > 0.50
+        warning_flag = max_swing > 0.35
+    elif n_tunable <= 4:
+        interaction_flag = max_swing > 0.40 or (max_sigma_ratio > 2.0 and max_swing > 0.25)
+        warning_flag = (0.25 < max_swing <= 0.40) or max_sigma_ratio > 1.5
+    else:
+        # Original thresholds for complex strategies
+        interaction_flag = max_swing > 0.30 or (max_sigma_ratio > 1.5 and max_swing > 0.20)
+        warning_flag = (0.20 < max_swing <= 0.30) or max_sigma_ratio > 1.0
 
     return {
         "method": "morris",

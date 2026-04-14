@@ -22,7 +22,7 @@ If the user has an idea (e.g., "what about RSI recovery after oversold + a trend
 
 ### Step 2 — Read the design guide + current state
 
-1. Read `reference/spirit-guide/T0-DESIGN-GUIDE.md` — the patterns that work and fail
+1. Read `docs/design-guide.md` — the patterns that work and fail
 2. Read `scripts/strategies.py` — existing concepts and GRIDS in `scripts/grid_search.py`
 3. Read `spike/leaderboard.json` — current champion and gaps
 
@@ -115,11 +115,12 @@ Only suggest T2 if:
 | `scripts/grid_search.py` | **Primary entry point** — exhaustive canonical search + validate |
 | `scripts/strategies.py` | Strategy concepts + REGISTRY + TIERS + PARAMS |
 | `scripts/pine_generator.py` | Pine template generators + _BUILDERS |
+| `scripts/parity.py` | Python-vs-Pine parity checks (structural, signal replay, trade-list) |
 | `scripts/canonical_params.py` | Strict canonical parameter sets |
 | `scripts/spike_runner.py` | GA entry point (T2 deep search only) |
 | `scripts/evolve.py` | Evolutionary optimizer (used by spike_runner) |
 | `spike/leaderboard.json` | Validated PASS entries |
-| `reference/spirit-guide/T0-DESIGN-GUIDE.md` | Strategy design patterns + pre-flight checklist |
+| `docs/design-guide.md` | Strategy design patterns + pre-flight checklist |
 
 ## Constraints
 

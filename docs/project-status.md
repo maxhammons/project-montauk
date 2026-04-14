@@ -1,6 +1,6 @@
 # Project Montauk — Project Status
 
-> As of 2026-04-13
+> As of 2026-04-14
 
 ---
 
@@ -72,9 +72,17 @@ The existing T2 statistical stack stays intact. It is not wrong — it is just b
 
 Math identity established: `vs_bah_multiple` equals share-count multiplier when equity is marked-to-market. `strategy_engine.BacktestResult` now exposes `share_multiple` as the primary name. Fitness formula renamed and reframed. `trade_scale` low-trade penalty removed. `discovery_score_value` retired as a nudge — now an alias for fitness so the marker operates at the gate level instead.
 
-### Python-to-Pine trust is not fully closed
+### Python-to-Pine trust — structural parity implemented (2026-04-14)
 
-Pine candidates are generated, but the project still needs formal parity confidence between Python strategy logic, emitted Pine logic, and actual TradingView compile / runtime behavior.
+`scripts/parity.py` provides three tiers of Python-vs-Pine parity checking:
+
+- **Tier 1 — Structural parity** (automated): parses generated Pine to verify every param default, strategy setting, indicator call, and entry/exit condition structure matches the Python source. Integrated into gate 7 of the validation pipeline — strategies cannot be `pine_eligible` without passing. Batch-verified against all 30 strategies in `_BUILDERS`.
+- **Tier 2 — Signal replay** (automated prep): runs the Python strategy, exports bar-by-bar indicator traces to CSV, generates a diagnostic Pine with extra `plot()` statements for visual comparison in TradingView.
+- **Tier 3 — Trade-list comparison** (semi-automated): parses a TradingView Strategy Tester export, matches trades by date against the Python backtest, flags PnL divergences beyond the expected commission-vs-slippage tolerance (~0.15%).
+
+**Known divergence**: Python applies 0.05% slippage to fill prices; Pine deducts 0.05% commission post-trade. Economically similar but not mathematically identical. The parity system models this and separates expected noise from real logic bugs.
+
+What remains open: TradingView compile / runtime behavioral parity requires Tier 3 (manual TV export). Structural and indicator parity are now automated.
 
 ### Final deployment is still manual
 
@@ -107,7 +115,7 @@ The next implementation sprint must close the gap between what the spirit-guide 
 5. ~~Remove low-trade-frequency punishment from fitness and gates.~~ ✓ 2026-04-13 (`trade_scale` removed; gate1 tier-aware)
 6. Author a real T0 hypothesis strategy (e.g. EMA-200 crossover with canonical params) to exercise the T0 pipeline end-to-end.
 7. Update the `VALIDATION-THRESHOLDS.md` doc to split per tier now that the code supports it.
-8. Add formal Python-vs-Pine parity checks.
+8. ~~Add formal Python-vs-Pine parity checks.~~ ✓ 2026-04-14 (`scripts/parity.py`, integrated into gate 7)
 9. Keep the leaderboard PASS-only, with tier tags.
 
 ---

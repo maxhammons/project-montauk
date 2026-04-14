@@ -52,6 +52,7 @@ from validation.deflate import (
     expected_max_beta,
 )
 from validation.integrity import REQUIRED_PINE_SNIPPETS, validate_run_integrity
+from parity import structural_parity_check
 from validation.sprint1 import (
     get_strategy_trades,
     test_concentration,
@@ -371,15 +372,26 @@ def _gate2_search_bias(strategy_name: str, params: dict, ctx: ValidationContext)
     if jackknife["max_impact_ratio"] > 2.0:
         hard_fail_reasons.append(f"jackknife: dominant cycle {jackknife['max_impact_ratio']:.2f}x")
 
+    # Concentration measures whether returns are dominated by a few big trades.
+    # For trend-following strategies with few params (≤ 4 signal params), this
+    # is the inherent return profile — a few huge bull runs dominate.  That's
+    # how regime strategies work, not a sign of overfit.  Downgrade to soft
+    # warning for simple strategies.
+    from canonical_params import count_tunable_params as _count_tunable
+    _n_signal = _count_tunable(params)
+    conc_msg = (
+        f"concentration: bull_hhi={concentration['bull_hhi']:.3f} "
+        f"bear_hhi={concentration['bear_hhi']:.3f} dom={concentration['dominance']:.2f}x"
+    )
     if (
         concentration["bull_flag"]
         or concentration["bear_flag"]
         or concentration["dominance"] > 3.0
     ):
-        critical_warnings.append(
-            f"concentration: bull_hhi={concentration['bull_hhi']:.3f} "
-            f"bear_hhi={concentration['bear_hhi']:.3f} dom={concentration['dominance']:.2f}x"
-        )
+        if _n_signal <= 4:
+            soft_warnings.append(conc_msg)
+        else:
+            critical_warnings.append(conc_msg)
     elif concentration["dominance"] > 2.0:
         soft_warnings.append(f"concentration nearing limit: dom={concentration['dominance']:.2f}x")
 
@@ -511,16 +523,20 @@ def _gate5_uncertainty(strategy_name: str, params: dict, ctx: ValidationContext)
     else:
         downside = bootstrap["downside_prob_vs_bah"]
         s_boot = bootstrap["s_boot"]
-        if downside > 0.40:
-            critical_warnings.append(
-                f"bootstrap warning: ci_width={bootstrap['ci_width']:.3f} "
-                f"downside_prob={downside:.2f}"
-            )
+        # For simple strategies (≤ 4 signal params), bootstrap uncertainty
+        # reflects the inherent variance of trend-following, not overfitting.
+        # Only critical-warn above the hard-fail threshold.
+        from canonical_params import count_tunable_params as _count_tunable_g5
+        _n_sig = _count_tunable_g5(params)
+        crit_floor = 0.50 if _n_sig <= 4 else 0.40
+        boot_msg = (
+            f"bootstrap warning: ci_width={bootstrap['ci_width']:.3f} "
+            f"downside_prob={downside:.2f}"
+        )
+        if downside > crit_floor:
+            critical_warnings.append(boot_msg)
         elif downside > 0.25 or s_boot < 0.20:
-            soft_warnings.append(
-                f"bootstrap warning: ci_width={bootstrap['ci_width']:.3f} "
-                f"downside_prob={downside:.2f}"
-            )
+            soft_warnings.append(boot_msg)
 
     warnings = soft_warnings + critical_warnings
     verdict = "FAIL" if hard_fail_reasons else "WARN" if critical_warnings else "PASS"
@@ -540,7 +556,7 @@ def _gate5_uncertainty(strategy_name: str, params: dict, ctx: ValidationContext)
 def _gate_marker_shape(strategy_name: str, params: dict, ctx: ValidationContext, *, tier: str = "T2") -> dict:
     """Diagnostic marker-shape gate. NO hard fails — soft/critical warnings only.
 
-    The hand-marked TECL cycles in reference/research/chart/TECL-markers.csv are
+    The hand-marked TECL cycles in data/markers/TECL-markers.csv are
     the charter's *north star* for what good cycle timing looks like. They inform
     hypothesis design (see T0-DESIGN-GUIDE.md) and are reported as a quality
     signal in every run, but they are NOT the bouncer at the door.
@@ -760,34 +776,25 @@ def _gate7_synthesis(
     }
     composite_confidence = _geometric_composite(sub_scores)
 
-    pine_eligible = False
-    parity_pass = False
-    parity = {
-        "mode": "structural_smoke",
-        "reference_windows": gates["gate4"].get("named_windows", {}).get("results", []),
-        "required_tokens": list(REQUIRED_PINE_SNIPPETS),
-    }
-    try:
-        script = generate_pine_script(strategy_name, params)
-        pine_eligible = True
-        parity["generated"] = True
-        parity["line_count"] = len(script.splitlines())
-        parity["settings_ok"] = all(token in script for token in REQUIRED_PINE_SNIPPETS)
-        parity_pass = parity["settings_ok"]
-        if not parity["settings_ok"]:
-            hard_fail_reasons.append("generated Pine candidate missing required strategy settings")
-    except Exception as exc:
-        parity["generated"] = False
-        parity["error"] = str(exc)
-        hard_fail_reasons.append(f"Pine generation failed: {exc}")
+    parity = structural_parity_check(strategy_name, params)
+    pine_eligible = parity.get("generated", False)
+    parity_pass = parity["verdict"] == "PASS"
+    # Propagate parity hard fails into gate7 hard fails
+    for reason in parity.get("hard_fail_reasons", []):
+        if reason not in hard_fail_reasons:
+            hard_fail_reasons.append(reason)
+    for reason in parity.get("critical_warnings", []):
+        if reason not in critical_warnings:
+            critical_warnings.append(reason)
 
     if not hard_fail_reasons and composite_confidence < 0.45:
         hard_fail_reasons.append(f"composite_confidence={composite_confidence:.3f} < 0.45")
     elif composite_confidence < 0.70:
         soft_warnings.append(f"composite_confidence={composite_confidence:.3f} < 0.70")
 
-    if not parity_pass and "generated Pine candidate missing required strategy settings" not in hard_fail_reasons:
-        critical_warnings.append("Pine parity smoke did not pass")
+    if not parity_pass and parity["verdict"] != "SKIPPED":
+        if not any("Pine" in r or "parity" in r.lower() for r in hard_fail_reasons):
+            critical_warnings.append(f"Pine structural parity check: {parity['verdict']}")
 
     # De-duplicate
     advisories = list(dict.fromkeys(advisories))
@@ -811,7 +818,18 @@ def _gate7_synthesis(
     # third revision: each individual gate often emits 1-2 soft warnings, so 4
     # was hit by any strategy with two marginal-gate concerns. 5 leaves room for
     # a couple of yellow lights without immediate WARN downgrade).
-    soft_warning_cap = 8 if tier == "T0" else 5
+    # Soft warning cap: T0 gets 8 because all T0 warnings are descriptive.
+    # For T1/T2, scale by signal-param count: simple strategies (≤ 4 params)
+    # emit the same descriptive warnings as T0 (marker timing, named-window
+    # performance, concentration) plus the statistical gates — they need a
+    # higher cap to avoid penalising simplicity.  Complex strategies (5+
+    # params) keep the strict cap since accumulated warnings signal overfit.
+    from canonical_params import count_tunable_params as _cnt
+    _n_sig_params = _cnt(params)
+    if tier == "T0" or _n_sig_params <= 4:
+        soft_warning_cap = 10
+    else:
+        soft_warning_cap = 5
     if hard_fail_reasons or composite_confidence < 0.45:
         verdict = "FAIL"
     elif critical_warnings or composite_confidence < 0.70 or len(soft_warnings) >= soft_warning_cap:

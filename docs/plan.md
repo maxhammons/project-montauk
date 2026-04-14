@@ -1,12 +1,12 @@
 # Project Montauk Discovery + Roth Overlay Plan
 
-> **Status (2026-04-13):** The marker-prior section of this plan is **superseded** by the 2026-04-13 charter revision. Marker alignment is now a first-class validation gate at every tier, not a ±5% soft-prior nudge on raw fitness. See `spirit-guide/VALIDATION-PHILOSOPHY.md` and `spirit-guide/Montauk Charter Appendix - Discovery and Roth Overlay.md` for the current framing. The Roth overlay sections below remain the active plan.
+> **Status (2026-04-13):** The marker-prior section of this plan is **superseded** by the 2026-04-13 charter revision. Marker alignment is now a first-class validation gate at every tier, not a ±5% soft-prior nudge on raw fitness. See `validation-philosophy.md` and `charter-appendix.md` for the current framing. The Roth overlay sections below remain the active plan.
 
 ## Summary
 
 Keep the core Montauk mission unchanged: discover robust long-only TECL signals, validate them at the tier appropriate to how they were selected, and generate Pine for the best PASS winner. Two supporting layers sit around that core:
 
-- a **marker-aligned discovery north star** — the hand-marked TECL cycles in [TECL-markers.csv](/Users/Max.Hammons/Documents/local-sandbox/Project%20Montauk/reference/research/chart/TECL-markers.csv#L1) define the working shape of success, and shape alignment is a validation gate
+- a **marker-aligned discovery north star** — the hand-marked TECL cycles in [TECL-markers.csv](../data/markers/TECL-markers.csv) define the working shape of success, and shape alignment is a validation gate
 - a **post-validation Roth account overlay** that routes ongoing Roth cash into `SGOV` when risk-off and into `TECL` when risk-on
 
 The core strategy remains a binary TECL in/out engine. The Roth cashflow layer is an approved deployment overlay on top of any charter-compatible PASS winner.

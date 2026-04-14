@@ -1673,6 +1673,53 @@ def golden_cross_slope(ind: Indicators, p: dict) -> tuple:
     return entries, exits, labels
 
 
+def ema_200_confirm(ind: Indicators, p: dict) -> tuple:
+    """T0 HYPOTHESIS — EMA-200 price crossover with confirmation bars.
+
+    Hypothesis: the raw EMA-200 crossover (ema_200_regime) whipsaws at cycle
+    boundaries because a single bar above/below triggers entry/exit.  Requiring
+    close to stay above EMA-200 for entry_bars consecutive bars before entering
+    filters out noise transitions.  Exit is immediate on close crossing below
+    EMA-200 — asymmetric by design (slow in, fast out preserves capital).
+
+    Distinct from ema_slope_above: NO slope condition on the EMA.  The
+    hypothesis is that confirmation alone (sustained above) is sufficient.
+
+    Pre-registered as T0 at 2026-04-14.  2 tunable canonical params.
+    Params (all canonical):
+      ema_len     = 200  (MA_PERIODS)
+      entry_bars  = 3    (SLOPE_CONFIRM_BARS) — consecutive bars close > EMA
+      cooldown    = 5    (COOLDOWN_BARS, structural — not counted toward tier)
+    """
+    n = ind.n
+    cl = ind.close
+    ema = ind.ema(int(p.get("ema_len", 200)))
+    entry_bars = int(p.get("entry_bars", 3))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    above_count = 0
+    for i in range(1, n):
+        if np.isnan(ema[i]) or np.isnan(ema[i - 1]):
+            continue
+        # Track consecutive bars where close > EMA
+        if cl[i] > ema[i]:
+            above_count += 1
+        else:
+            above_count = 0
+        # Entry: close has been above EMA for entry_bars consecutive bars
+        if above_count == entry_bars:
+            entries[i] = True
+        # Exit: close crosses below EMA — immediate, no confirmation
+        if cl[i - 1] >= ema[i - 1] and cl[i] < ema[i]:
+            exits[i] = True
+            labels[i] = "T"  # trend break
+
+    return entries, exits, labels
+
+
 def ema_200_regime(ind: Indicators, p: dict) -> tuple:
     n = ind.n
     cl = ind.close
@@ -1709,6 +1756,7 @@ STRATEGY_REGISTRY = {
     "donchian_filter":          donchian_200_100,         # channel breakout + trend filter
     "macd_above_zero_trend":    macd_above_zero_trend,    # MACD zero-cross + trend
     "ema_pure_slope":           ema_100_pure_slope,       # slope-only, no price condition
+    "ema_200_confirm":          ema_200_confirm,            # T0: close > EMA-200 with confirm bars
     "ema_200_regime":           ema_200_regime,            # simplest: close > EMA-200
     # Legacy T2 strategies (GA-searched, complex param spaces)
     "montauk_821":              montauk_821,
@@ -1732,7 +1780,7 @@ STRATEGY_REGISTRY = {
 # "T0" = hand-authored hypothesis with ≤5 canonical params — pre-registered before any backtest
 # "T1" = hand-authored logic with tuned or non-canonical params — registered with grid size up front
 # "T2" = optimizer-discovered, or anything pulled from large search — full statistical stack
-# See reference/spirit-guide/VALIDATION-PHILOSOPHY.md for routing rules.
+# See docs/validation-philosophy.md for routing rules.
 # Any strategy whose params get touched by the GA is effectively T2 regardless of its
 # declared tier — the declared tier is an upper bound on leniency, not a bypass.
 STRATEGY_TIERS = {
@@ -1746,6 +1794,7 @@ STRATEGY_TIERS = {
     "donchian_filter":          "T1",
     "macd_above_zero_trend":    "T1",
     "ema_pure_slope":           "T1",
+    "ema_200_confirm":          "T2",   # run ALL gates — simple strategy should pass everything
     "ema_200_regime":           "T1",
     "montauk_821":              "T2",  # heavily tuned
     "rsi_regime":               "T2",
@@ -1821,6 +1870,11 @@ STRATEGY_PARAMS = {
         "ema_len":      (50, 200, 50, int),
         "slope_window": (3, 5, 2, int),
         "entry_bars":   (2, 5, 1, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "ema_200_confirm": {
+        "ema_len":      (100, 200, 50, int),    # canonical: 100, 150, 200
+        "entry_bars":   (2, 5, 1, int),          # canonical: 2, 3, 5
         "cooldown":     (2, 10, 3, int),
     },
     "ema_200_regime": {

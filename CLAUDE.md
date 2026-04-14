@@ -7,34 +7,76 @@ A Pine Script trading strategy system for TECL (Direxion Daily Technology Bull 3
 ```
 Project Montauk/
 ├── CLAUDE.md                  ← You are here
-├── reference/
-│   ├── Montauk Charter.md               # Coding rules, guardrails, and evaluation criteria
-│   └── pinescriptv6-main/               # Pine Script v6 reference (structured repo)
+├── data/                      # All data files
+│   ├── TECL.csv               # TECL OHLCV (synthetic 1998-2008 + real 2009+) + vix_close
+│   ├── VIX.csv                # CBOE VIX OHLCV
+│   ├── XLK.csv                # TECL underlying
+│   ├── TQQQ.csv               # Synthetic 1999-2010 + real 2010+
+│   ├── QQQ.csv                # TQQQ underlying
+│   ├── SGOV.csv               # iShares 0-3 Month Treasury Bond ETF
+│   ├── treasury-spread-10y2y.csv  # FRED T10Y2Y
+│   ├── fed-funds-rate.csv     # FRED DFF
+│   ├── tbill-3m.csv           # 3-Month Treasury Bill Rate
+│   └── markers/               # Hand-marked cycle data
+│       ├── TECL-markers.csv   # Buy/sell cycle markers (north star)
+│       ├── TECL-chart.csv     # Chart data
+│       └── TECL-chart.html    # Interactive chart
+├── docs/                      # All documentation
+│   ├── charter.md             # Project mission, guardrails, success definition
+│   ├── charter-appendix.md    # Discovery north star + Roth overlay extensions
+│   ├── design-guide.md        # T0 hypothesis design patterns + pre-flight checklist
+│   ├── validation-philosophy.md  # Tier framework (T0/T1/T2) + overfitting defense
+│   ├── validation-thresholds.md  # Threshold definitions for validation gates
+│   ├── project-status.md      # Current implementation status + known gaps
+│   ├── pipeline.md            # Visual pipeline diagram (source of truth)
+│   ├── plan.md                # Marker prior + Roth overlay plan
+│   ├── research/              # Market research + academic papers
+│   │   ├── synthesis.md       # Research synthesis
+│   │   ├── roadmap.md         # Optimization roadmap
+│   │   ├── checklist.md       # Research checklist
+│   │   ├── sources.csv        # Research source citations
+│   │   └── reports/           # Academic papers + deep research
+│   └── pine-reference/        # Pine Script v6 documentation
 ├── scripts/                   # Python backtesting & optimization tools
 │   ├── data.py                # TECL data fetcher (Yahoo Finance API + CSV merge)
 │   ├── strategies.py          # Strategy library — all strategy functions + registry
 │   ├── strategy_engine.py     # Backtest engine + indicator cache
+│   ├── pine_generator.py      # Pine Script generation — per-strategy builders
+│   ├── parity.py              # Python-vs-Pine parity checks (structural, signal replay, trade comparison)
 │   ├── evolve.py              # Multi-strategy evolutionary optimizer (with history/dedup)
 │   ├── spike_runner.py        # Main /spike entry point — wraps everything
+│   ├── grid_search.py         # Exhaustive canonical grid search + validate
 │   ├── report.py              # Auto-generates markdown reports from results
+│   ├── canonical_params.py    # Strict canonical parameter sets for T0
+│   ├── deploy.py              # Patch active Pine script with optimizer results
 │   ├── requirements.txt       # Python deps: pandas, numpy, requests
-│   └── archive/               # Old scripts (validation.py, generate_pine.py, etc.)
-├── .claude/skills/
-│   └── spike.md               # /spike skill — canonical source
-├── .claude/commands/
-│   └── spike.md -> ../skills/spike.md   # symlink (Claude Code reads from commands/)
+│   └── validation/            # Tier-routed validation framework
+│       ├── pipeline.py        # Main validation funnel
+│       ├── sprint1.py         # Zero-backtest validation suite
+│       ├── candidate.py       # Walk-forward validation
+│       ├── cross_asset.py     # Cross-asset validation (TQQQ, QQQ)
+│       ├── deflate.py         # Monte Carlo null distribution
+│       ├── integrity.py       # Data integrity checks
+│       ├── uncertainty.py     # Morris fragility + bootstrap
+│       └── walk_forward.py    # Walk-forward test harness
 ├── spike/                     # All /spike optimization output
 │   ├── runs/NNN/              # Per-session: report.md, results.json, log.txt, candidate.txt
 │   ├── leaderboard.json       # All-time top 20 strategies
 │   └── hash-index.json        # Compact dedup index: {hash: fitness}
-└── src/
-    ├── strategy/
-    │   ├── active/            # Current production strategy
-    │   ├── archive/           # All previous versions (kept for reference)
-    │   └── debug/             # Debug builds with visual labels
-    └── indicator/
-        ├── active/            # Current production indicator
-        └── archive/           # Previous indicator versions
+├── src/                       # Pine Script production code
+│   ├── strategy/
+│   │   ├── active/            # Current production strategy
+│   │   ├── archive/           # All previous versions (kept for reference)
+│   │   └── debug/             # Debug builds with visual labels
+│   └── indicator/
+│       ├── active/            # Current production indicator
+│       └── archive/           # Previous indicator versions
+└── .claude/skills/            # Claude Code skills
+    ├── spike.md               # /spike — interactive creative loop
+    ├── spike-focus.md         # /spike-focus — GH Actions deep search
+    ├── spike-results.md       # /spike-results — view results + generate Pine
+    ├── about.md               # Architecture documentation
+    └── sync.md                # Git sync utility
 ```
 
 ## Active Code (what's running in TradingView)
@@ -130,7 +172,7 @@ Keep the folder and file structure clean and easy to navigate. The owner needs t
 - **Clean up after yourself** — remove temp files, don't leave orphaned outputs or half-finished work lying around
 - **Keep output organized sequentially** — spike runs go in `spike/runs/NNN/`, not loose in the project root
 - **When in doubt, match the existing pattern** — look at how similar files are already named and placed
-- **Keep `reference/PIPELINE.md` current** — when you change the fitness function, optimizer logic, validation suite, data flow, GH Actions workflow, or any process/pipeline behavior, update the pipeline diagram to match. This is the visual source of truth for how the system works.
+- **Keep `docs/pipeline.md` current** — when you change the fitness function, optimizer logic, validation suite, data flow, GH Actions workflow, or any process/pipeline behavior, update the pipeline diagram to match. This is the visual source of truth for how the system works.
 
 ## Optimization Tools — Spike + the Montauk Engine
 
@@ -187,16 +229,16 @@ Marker shape alignment (state agreement % vs `TECL-markers.csv`, plus median tra
 | MAR Ratio (CAGR/MaxDD) | Risk-adjusted return |
 | Avg Bars Held | High (50+) — trend system, not scalper |
 
-> **Note (2026-04-13):** The fitness formula in scripts still uses dollar `vs_bah` and a `trade_scale` factor. The spirit-guide now defines share-count as the primary metric and removes the trade-frequency punishment. The scripts have not yet been updated to match — see `reference/spirit-guide/PROJECT-STATUS.md` for the full implementation gap.
+> **Note (2026-04-13):** The fitness formula in scripts still uses dollar `vs_bah` and a `trade_scale` factor. The charter now defines share-count as the primary metric and removes the trade-frequency punishment. The scripts have not yet been updated to match — see `docs/project-status.md` for the full implementation gap.
 
 ## Reference Files
 
-- **`reference/spirit-guide/T0-DESIGN-GUIDE.md`**: **Read before authoring ANY new T0 hypothesis strategy.** Distills what has cleared the pipeline (and what has predictably failed), with a pre-flight design checklist. Prevents wasted cycles on strategies that fail for reasons we already understand.
-- **`reference/VALIDATION-PHILOSOPHY.md`**: Why we test, what we've built, and where we're going. Read this to understand the overfitting problem and how every component (fitness function, GA diversity, validation tests, slippage) connects to the research.
-- **`reference/Montauk Charter.md`**: The governing spec for all code work on this project. Read this before proposing any changes — it defines scope, coding rules, feature acceptance criteria, evaluation metrics, and response format.
-- **`reference/pinescriptv6-main/`**: Structured Pine Script v6 reference. Use the modular files for quick lookups, fall back to the all-in-one for anything not found there:
-  - `reference/functions/ta.md` — TA functions (`ta.ema`, `ta.atr`, `ta.crossover`, etc.)
-  - `reference/variables.md` — Built-in variables (`close`, `bar_index`, `barstate.*`, etc.)
+- **`docs/design-guide.md`**: **Read before authoring ANY new T0 hypothesis strategy.** Distills what has cleared the pipeline (and what has predictably failed), with a pre-flight design checklist. Prevents wasted cycles on strategies that fail for reasons we already understand.
+- **`docs/validation-philosophy.md`**: Why we test, what we've built, and where we're going. Read this to understand the overfitting problem and how every component (fitness function, GA diversity, validation tests, slippage) connects to the research.
+- **`docs/charter.md`**: The governing spec for all code work on this project. Read this before proposing any changes — it defines scope, coding rules, feature acceptance criteria, evaluation metrics, and response format.
+- **`docs/pine-reference/`**: Structured Pine Script v6 reference. Use the modular files for quick lookups, fall back to the all-in-one for anything not found there:
+  - `docs/pine-reference/reference/ta.md` — TA functions (`ta.ema`, `ta.atr`, `ta.crossover`, etc.)
+  - `docs/pine-reference/reference/variables.md` — Built-in variables (`close`, `bar_index`, `barstate.*`, etc.)
   - `concepts/common_errors.md`, `pine_script_execution_model.md` — execution and error docs
   - `Pine Script language reference manual` — 393KB all-in-one covering all 884 functions including all `strategy.*` functions. Use Grep or offset reads to search it.
   - Do not guess at Pine v6 API details — look them up.
