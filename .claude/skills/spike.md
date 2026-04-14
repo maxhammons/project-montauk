@@ -1,219 +1,129 @@
-# /spike — Iterative TECL Strategy Optimization (v2)
+# /spike — Montauk Engine Strategy Discovery
 
-**Spike is the skill. Spike launches and runs the Montauk Engine** — the optimizer + tier-routed validator + Pine generator pipeline. Throughout this doc, "the engine" / "the optimizer" / "the GA" all refer to the Montauk Engine.
+**Spike is the skill. Spike launches and runs the Montauk Engine** — the strategy concept authoring + grid search + validation + Pine generation pipeline.
 
-Goal: find strategies that **accumulate more shares of TECL than buy-and-hold** AND match the hand-marked cycle shape in `reference/research/chart/TECL-markers.csv`. Iterative creative loop — Claude sees per-cycle diagnostics, revises strategy code, the engine tunes params, repeat.
-
-> **Metric note (2026-04-13):** The spirit-guide defines share-count multiplier vs B&H as the primary metric and marker shape alignment as a first-class validation gate. The scripts still use dollar `vs_bah` and have not yet been migrated. Until the migration lands, Spike runs against the legacy fitness function — read results with that caveat.
+Goal: find strategies that **accumulate more shares of TECL than buy-and-hold** with ≤5 trades/year. Strategies must survive walk-forward, cross-asset, and concentration validation to earn a leaderboard slot and Pine candidate.
 
 ## The Flow
 
-### Step 1 — Ask one question
+### Step 1 — Ask two questions
 
-**"How long should we work on this?"** (default 2 hours)
+1. **"Do you have a strategy idea?"** (optional — Claude will also brainstorm its own)
+2. **"How long should we work on this?"** (default 30 min)
 
-This is local-only. The iterative loop requires Claude in the loop between optimizer chunks.
+If the user has an idea (e.g., "what about RSI recovery after oversold + a trend filter?"), Claude will author it as a concept. If no idea, Claude brainstorms 2-3 new concepts based on:
+- What signal families are NOT yet in the registry (check `scripts/strategies.py`)
+- Weaknesses of current leaderboard entries (e.g., "nothing handles post-crash rebounds well")
+- The T0-DESIGN-GUIDE patterns that haven't been tried
+- Cross-pollination of existing families (e.g., combining slope + RSI)
 
-### Step 2 — Refresh data + build context
+### Step 2 — Read the design guide + current state
 
-1. Run data refresh:
+1. Read `reference/spirit-guide/T0-DESIGN-GUIDE.md` — the patterns that work and fail
+2. Read `scripts/strategies.py` — existing concepts and GRIDS in `scripts/grid_search.py`
+3. Read `spike/leaderboard.json` — current champion and gaps
+
+### Step 3 — Author new concepts (the creative phase)
+
+For each new idea (user's + Claude's brainstorms):
+
+1. **Write the strategy function** in `scripts/strategies.py`
+   - Use existing helpers where possible (`_ma_cross_with_slope`, `_ema_slope_above`, `_rsi_recovery_above_ema`)
+   - Or write a new function following the `(ind, params) -> (entries, exits, labels)` pattern
+   - Add docstring with the hypothesis in plain English
+
+2. **Register** in `STRATEGY_REGISTRY`, `STRATEGY_TIERS` (as "T1"), and `STRATEGY_PARAMS`
+
+3. **Write the Pine generator** in `scripts/pine_generator.py`
+   - Use template functions where possible (`_ma_cross_slope_pine`, `_ema_slope_above_pine`)
+   - Or write a custom builder
+   - Add to `_BUILDERS`
+
+4. **Define the canonical grid** in `scripts/grid_search.py :: GRIDS`
+   - Each param gets a list of canonical values from `canonical_params.py`
+   - Constraint: all values from the strict canonical set
+   - Target: 10-50 combos per concept (product of list lengths)
+
+5. **Smoke test (T0)** — backtest ONE canonical config to verify the concept has signal:
+   ```bash
+   cd scripts && ~/Documents/.venv/bin/python3 -c "
+   from data import get_tecl_data
+   from strategy_engine import Indicators, backtest
+   from strategies import new_concept_fn
+   df = get_tecl_data(); ind = Indicators(df)
+   e, x, l = new_concept_fn(ind, {committed_params})
+   r = backtest(df, e, x, l, cooldown_bars=5, strategy_name='new_concept')
+   print(f'share={r.vs_bah_multiple:.3f}x trades={r.num_trades} tpy={r.trades_per_year:.2f}')
+   "
+   ```
+   - If share < 1.5x → reconsider the concept before grid searching
+   - If 0 trades → the concept is degenerate, redesign
+   - If tpy > 5.0 → too active, add filtering
+
+### Step 4 — Grid search (the testing phase)
+
+Run the grid search on ALL registered concepts (existing + new):
+
 ```bash
-cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 -c "from data import refresh_all; refresh_all()"
+cd scripts && ~/Documents/.venv/bin/python3 grid_search.py --top-n 25
 ```
 
-2. Build and display the regime map:
+This does:
+1. **Exhaustive backtest** of every combo in every grid (~200 combos, ~5 seconds)
+2. **Charter pre-filter** — drop combos with share < 1.0, trades < 5, tpy > 5.0
+3. **Validate** top 25 survivors through the full tier-routed pipeline (~5-10 min):
+   - Walk-forward across 4 time windows
+   - Cross-asset on TQQQ + QQQ (same params)
+   - Cross-asset re-optimization on TQQQ
+   - Concentration (HHI), meta-robustness
+   - Marker shape alignment (diagnostic, not a gate)
+   - Composite confidence synthesis
+4. **Update leaderboard** with PASS entries
+5. **Report** champion + Pine candidate
+
+### Step 5 — Report results
+
+Show the user:
+- Total combos tested → charter survivors → validated PASS/WARN/FAIL counts
+- New leaderboard state (ranked by share_multiple)
+- Champion: strategy name, params, share_multiple, trades/yr, CAGR, MaxDD
+- Key validation metrics: composite confidence, walk-forward score, cross-asset score
+- Pine candidate path (auto-generated for champion)
+
+### Step 6 — Optional: GA deep search (T2)
+
+If the user wants to explore beyond canonical grids (rare — grid search usually suffices):
+
 ```bash
-cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 regime_map.py
+cd scripts && ~/Documents/.venv/bin/python3 spike_runner.py --hours 1 --quick
 ```
 
-3. Read the regime map output. Study every bull/bear cycle — dates, magnitude, duration.
+This runs the GA evolutionary optimizer on all registered strategies with their `STRATEGY_PARAMS` ranges. GA-found candidates go through T2 validation (full statistical stack including Morris fragility, bootstrap, exit-proximity). T2 is the strictest tier — very few candidates survive.
 
-### Step 3 — Diagnose current strategies
-
-1. Read `spike/leaderboard.json` — the all-time top 20
-2. Read `scripts/strategies.py` — all existing strategy functions
-3. Run cycle diagnostics on top 5 leaderboard strategies:
-```bash
-cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 -c "
-from data import get_tecl_data
-from regime_map import build_regime_map
-from cycle_diagnostics import diagnose_strategy, format_diagnostics
-import json
-
-df = get_tecl_data()
-rm = build_regime_map(df)
-with open('../spike/leaderboard.json') as f:
-    lb = json.load(f)
-
-for entry in lb[:5]:
-    diag = diagnose_strategy(entry['strategy'], entry['params'], df, rm)
-    print(format_diagnostics(diag))
-    print('\n' + '='*65 + '\n')
-"
-```
-
-4. **Study the diagnostics.** For each strategy, identify:
-   - Which bull cycles have the lowest capture (biggest missed opportunities)
-   - Which exit conditions fire mostly during bulls (these are killing performance)
-   - Whether the bottleneck is bull_capture or bear_avoidance
-   - Gaps where the strategy was out of market during major moves
-
-### Step 4 — Creative phase (write/revise strategies)
-
-With the regime map and cycle diagnostics in hand:
-
-1. **Read `reference/VALIDATION-PHILOSOPHY.md`** — understand fitness targets
-2. **Check `converged` flags** in leaderboard. Skip converged strategies.
-3. **Design new strategies** targeting the specific weaknesses you identified:
-   - If bull capture is the bottleneck → design strategies that stay in longer (wider exit triggers, faster re-entry)
-   - If a specific exit reason fires too much during bulls → write a variant that softens or removes that exit
-   - If gaps show the strategy exits and doesn't re-enter for months → add re-entry logic
-4. **Generate 2-4 new strategy functions** in `scripts/strategies.py`
-5. **Check parameter complexity.** Prefer 5-8 params. Fitness rejects trades-per-param < 5.0.
-6. **Prune dead weight** — delete strategies below 0.05 fitness after 2+ runs, or converged below top 5. Max 15 strategies in registry.
-7. Add new functions to `STRATEGY_REGISTRY` and `STRATEGY_PARAMS`
-
-**Available indicators** (all cached):
-```
-ind.ema(N)  ind.sma(N)  ind.tema(N)  ind.rsi(N)  ind.cci(N)  ind.willr(N)
-ind.mfi(N)  ind.stoch_k(N)  ind.stoch_d(N)  ind.roc(N)  ind.mom(N)
-ind.macd_line(F,S)  ind.macd_signal(F,S,Sig)  ind.macd_hist(F,S,Sig)
-ind.atr(N)  ind.tr()  ind.stddev(N)  ind.realized_vol(N)
-ind.bb_upper(N,M)  ind.bb_lower(N,M)  ind.bb_width(N,M)
-ind.keltner_upper(E,A,M)  ind.keltner_lower(E,A,M)
-ind.donchian_upper(N)  ind.donchian_lower(N)  ind.donchian_mid(N)
-ind.adx(N)  ind.di_plus(N)  ind.di_minus(N)  ind.psar()
-ind.ichimoku_tenkan(N)  ind.ichimoku_kijun(N)
-ind.obv()  ind.vwap()  ind.vol_ema(N)
-ind.highest(N)  ind.lowest(N)  ind.pct_change(N)
-ind.slope(key, series, N)  ind.ema_of(key, series, N)
-ind.crossover(a, b)  ind.crossunder(a, b)
-ind.close  ind.high  ind.low  ind.open  ind.volume  ind.dates  ind.n
-```
-
-### Step 5 — Optimizer chunk (~20 minutes)
-
-Launch the first optimizer chunk:
-```bash
-cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 spike_runner.py --chunk --minutes 20 --pop-size 40
-```
-
-When it finishes, read the chunk results. Note the state file path for the next chunk.
-
-### Step 5b — Validate top 3 immediately (REQUIRED after every chunk)
-
-Run 3 tiers of validation on the chunk's top strategies:
-
-**Tier 1 (already enforced by fitness function):**
-- trades-per-param >= 5.0 (hard gate — configs below this get fitness=0)
-- trades/year <= 5.0, HHI <= 0.35
-
-**Tier 2 — Walk-forward (same asset, different time):**
-```bash
-cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 -c "
-from data import get_tecl_data
-from validation.walk_forward import walk_forward_test
-df = get_tecl_data()
-# For each top strategy from chunk results:
-result = walk_forward_test('<NAME>', <PARAMS>, df, split_date='2020-01-01')
-print(f'{result[\"verdict\"]}: train={result[\"train\"][\"vs_bah\"]:.3f}x test={result[\"test\"][\"vs_bah\"]:.3f}x degradation={result.get(\"degradation\",0):.2f}')
-"
-```
-**Discard if:** verdict=FAIL (test vs_bah < 0.8 or <2 trades in test period)
-
-**Tier 3 — Cross-asset re-optimization (final validation only, not every chunk):**
-Run at end of session on the winner. Re-optimizes the strategy *logic* on TQQQ with fresh params:
-```bash
-cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 -c "
-from validation.cross_asset import cross_asset_reoptimize, format_reoptimize
-result = cross_asset_reoptimize('<WINNER_STRATEGY>', minutes=5)
-print(format_reoptimize(result))
-"
-```
-**Interpretation:** If the same strategy function finds alpha on TQQQ with different params, the strategy *concept* generalizes. If it fails, the logic may be TECL-specific.
-
-Only strategies that pass Tier 2 walk-forward move forward to analysis.
-
-### Step 6 — Analyze intermediate results
-
-After each chunk (using only VALIDATED strategies):
-
-1. Read the chunk results (printed as `###CHUNK_RESULT###` JSON)
-2. Run cycle diagnostics on the chunk's validated top strategies:
-```bash
-cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 -c "
-from data import get_tecl_data
-from regime_map import build_regime_map
-from cycle_diagnostics import diagnose_strategy, format_diagnostics
-
-df = get_tecl_data()
-rm = build_regime_map(df)
-
-# Use the best strategy/params from the chunk results
-diag = diagnose_strategy('<STRATEGY_NAME>', <PARAMS_DICT>, df, rm)
-print(format_diagnostics(diag))
-"
-```
-
-3. **Check boundary hits** in diagnostics — if a param is hitting "high" or "low", consider expanding the search space in `STRATEGY_PARAMS`
-4. **Identify what changed** — did bull capture improve? Did the bottleneck shift?
-
-### Step 7 — Revise strategy CODE and repeat
-
-Based on the intermediate results:
-
-1. **Revise strategy logic** — not just params, the actual entry/exit code
-2. **Expand param spaces** if boundary hits were detected
-3. **Add/remove strategies** as needed
-
-Launch the next chunk (with state from previous chunk):
-```bash
-cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 spike_runner.py --chunk --minutes 20 --pop-size 40 --state-file <STATE_FILE_PATH>
-```
-
-**Repeat Steps 6-7 until the time budget is exhausted.**
-
-### Step 8 — Final validation
-
-After the last chunk:
-
-1. **Cross-asset validation** — test the winner on TQQQ and QQQ:
-```bash
-cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 -m validation.cross_asset
-```
-
-2. **Sprint 1 validation** — 6 anti-overfitting tests:
-```bash
-cd /Users/Max.Hammons/Documents/local-sandbox/Project\ Montauk/scripts && ~/Documents/.venv/bin/python3 -m validation.sprint1
-```
-
-3. **Compare winner to montauk_821 baseline**
-
-4. If user wants Pine Script → generate for #1 winner
-
-5. If user wants to push results → commit and push
-
-6. If user wants extended param tuning → suggest `/spike-focus`
+Only suggest T2 if:
+- Grid search found promising concepts but the canonical grid seems too coarse
+- User explicitly asks for "deep search" or "overnight run"
+- User wants to explore strategy families outside the canonical set
 
 ## Key files
 
 | File | Role |
 |------|------|
-| `scripts/strategies.py` | Strategy library — add new strategies here |
-| `scripts/evolve.py` | Optimizer: `evolve()` for full runs, `evolve_chunk()` for iterative |
-| `scripts/spike_runner.py` | Entry point: `--hours` for full, `--chunk` for iterative |
-| `scripts/regime_map.py` | Bull/bear cycle detection and formatting |
-| `scripts/cycle_diagnostics.py` | Per-cycle trade analysis |
-| `scripts/validation/cross_asset.py` | Cross-asset validation (TQQQ, QQQ) |
-| `scripts/validation/sprint1.py` | 6-test overfitting validation suite |
-| `spike/leaderboard.json` | All-time top 20 |
+| `scripts/grid_search.py` | **Primary entry point** — exhaustive canonical search + validate |
+| `scripts/strategies.py` | Strategy concepts + REGISTRY + TIERS + PARAMS |
+| `scripts/pine_generator.py` | Pine template generators + _BUILDERS |
+| `scripts/canonical_params.py` | Strict canonical parameter sets |
+| `scripts/spike_runner.py` | GA entry point (T2 deep search only) |
+| `scripts/evolve.py` | Evolutionary optimizer (used by spike_runner) |
+| `spike/leaderboard.json` | Validated PASS entries |
+| `reference/spirit-guide/T0-DESIGN-GUIDE.md` | Strategy design patterns + pre-flight checklist |
 
 ## Constraints
 
 - **TECL only** — long only, no shorting
-- **Regime strategy, not scalper** — multi-week to multi-month trend capture. Low trade frequency is a feature, not a bug. The engine must not punish a strategy for holding through a year of new highs.
-- **Share-count multiplier vs B&H is primary** — must accumulate more shares than passively holding
-- **Marker shape alignment** is a first-class concern — strategies should be clearly trying to trade the same cycles as `reference/research/chart/TECL-markers.csv`
-- **Tier routing** — every strategy is registered as T0 / T1 / T2 (see `reference/spirit-guide/VALIDATION-PHILOSOPHY.md`). T0 must use the strict canonical parameter set. Optimizer-touched strategies are T2 by default.
+- **Regime strategy, not scalper** — ≤5 trades/year by charter. Low trade frequency is a feature.
+- **Share-count multiplier vs B&H is primary** — must accumulate more TECL units than passive
+- **Marker alignment** is a diagnostic, not a gate — north star for design, not the bouncer at the door
+- **Every param value from the canonical set** — see `canonical_params.py`
 - **Never modify `src/strategy/active/`** — candidates go in `testing/`
-- **Max 15 strategies** in registry
+- **Read T0-DESIGN-GUIDE.md before authoring** — avoid known-failing patterns
