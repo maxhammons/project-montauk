@@ -922,10 +922,17 @@ def _validate_entry(
     hard_stop = hard_stop or bool(gate_marker.get("hard_fail_reasons"))
 
     # ── Gate 2: search-bias / regime memorization — T2 only ──
+    # Gate2 bundles result-quality checks (HHI, exit-proximity) with search-bias
+    # corrections (deflation, selection-bias score). The result-quality checks
+    # ARE informative at T1 but the search-bias thresholds are calibrated for
+    # 50K+ GA configs and are too strict for T1's small canonical grid (~50 combos).
+    # TODO: split gate2 into result-quality (all tiers) vs search-bias (T2 only).
+    # For now, gate2 runs at T2 only. T1 relies on walk-forward + cross-asset +
+    # fragility for result quality.
     if tier == "T2" and not hard_stop:
         gate2, _bt_result = _gate2_search_bias(strategy_name, params, ctx)
     elif tier != "T2":
-        gate2 = _skip_gate(f"skipped for {tier} — search-bias stack is T2-only")
+        gate2 = _skip_gate(f"skipped for {tier} — gate2 is T2-only (TODO: split result-quality checks out)")
     else:
         gate2 = _skip_gate("earlier hard fail")
     validation["gates"]["gate2"] = gate2

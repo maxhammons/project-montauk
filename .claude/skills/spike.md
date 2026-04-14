@@ -11,11 +11,14 @@ Goal: find strategies that **accumulate more shares of TECL than buy-and-hold** 
 1. **"Do you have a strategy idea?"** (optional — Claude will also brainstorm its own)
 2. **"How long should we work on this?"** (default 30 min)
 
-If the user has an idea (e.g., "what about RSI recovery after oversold + a trend filter?"), Claude will author it as a concept. If no idea, Claude brainstorms 2-3 new concepts based on:
-- What signal families are NOT yet in the registry (check `scripts/strategies.py`)
+If the user has an idea (e.g., "what about RSI recovery after oversold + a trend filter?"), Claude authors it as a concept. **Claude ALSO brainstorms 10 additional new concepts** regardless of whether the user has an idea. Shoot for 10 new concepts every run — more ideas = more grid combos = higher chance of finding winners. Sources for brainstorming:
+- Signal families NOT yet in the registry (check `scripts/strategies.py`)
 - Weaknesses of current leaderboard entries (e.g., "nothing handles post-crash rebounds well")
 - The T0-DESIGN-GUIDE patterns that haven't been tried
 - Cross-pollination of existing families (e.g., combining slope + RSI)
+- Published trend-following signals (Donchian, Keltner, ADX, Parabolic SAR, etc.)
+- Volatility-regime filters (realized vol vs long-term average)
+- Momentum indicators (ROC, Williams %R, Stochastic) + trend confirmation
 
 ### Step 2 — Read the design guide + current state
 
