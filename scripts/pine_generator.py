@@ -1579,29 +1579,20 @@ def _build_ema_200_regime(params: dict) -> str:
 
 
 _BUILDERS = {
-    # T0 batch 2 (2026-04-13)
-    "golden_cross_30_150": _build_golden_cross_30_150,
-    "golden_cross_20_100": _build_golden_cross_20_100,
-    "golden_cross_50_150": _build_golden_cross_50_150,
-    "golden_cross_100_200": _build_golden_cross_100_200,
-    "ema_50_slope_above": _build_ema_50_slope_above,
-    "ema_100_slope_above": _build_ema_100_slope_above,
-    "ema_150_slope_above": _build_ema_150_slope_above,
-    "ema_200_slope_above": _build_ema_200_slope_above,
-    "rsi_recovery_ema_100": _build_rsi_recovery_ema_100,
-    "rsi_recovery_ema_200": _build_rsi_recovery_ema_200,
-    "rsi_50_above_ema_200": _build_rsi_50_above_ema_200,
+    # T1 grid-searchable concepts — each uses a template function that
+    # accepts arbitrary params, so the same builder works for any grid combo.
+    "golden_cross_slope": _build_golden_cross_slope,
+    "ema_slope_above": lambda p: _ema_slope_above_pine(
+        "EMA Slope-Above (T1)", "EMASlopeAbove", "ema_slope_above", p.get("ema_len", 200), p),
+    "rsi_recovery_ema": lambda p: _rsi_recovery_above_ema_pine(
+        "RSI Recovery + Trend (T1)", "RSIRecovery", "rsi_recovery_ema", p.get("trend_len", 200), p),
+    "rsi_50_above_trend": _build_rsi_50_above_ema_200,
     "triple_ema_stack": _build_triple_ema_stack,
     "dual_ema_stack": _build_dual_ema_stack,
-    "donchian_100_50_filter": _build_donchian_100_50_filter,
-    "donchian_150_50_filter": _build_donchian_150_50_filter,
+    "donchian_filter": _build_donchian_200_100,
     "macd_above_zero_trend": _build_macd_above_zero_trend,
-    "ema_100_pure_slope": _build_ema_100_pure_slope,
-    # T0 batch 1
-    "golden_cross_slope": _build_golden_cross_slope,
-    "golden_cross_100_300": _build_golden_cross_100_300,
-    "tema_200_slope": _build_tema_200_slope,
-    "donchian_200_100": _build_donchian_200_100,
+    "ema_pure_slope": _build_ema_100_pure_slope,
+    "ema_200_regime": _build_ema_200_regime,
     "ema_200_regime": _build_ema_200_regime,
     "montauk_821": _build_montauk_821,
     "rsi_regime": _build_rsi_regime,

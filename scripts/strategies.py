@@ -1697,30 +1697,20 @@ def ema_200_regime(ind: Indicators, p: dict) -> tuple:
 
 
 STRATEGY_REGISTRY = {
-    # T0 batch 2 (2026-04-13) — 17 hypotheses queued for spike
-    "golden_cross_30_150":      golden_cross_30_150,
-    "golden_cross_20_100":      golden_cross_20_100,
-    "golden_cross_50_150":      golden_cross_50_150,
-    "golden_cross_100_200":     golden_cross_100_200,
-    "ema_50_slope_above":       ema_50_slope_above,
-    "ema_100_slope_above":      ema_100_slope_above,
-    "ema_150_slope_above":      ema_150_slope_above,
-    "ema_200_slope_above":      ema_200_slope_above,
-    "rsi_recovery_ema_100":     rsi_recovery_ema_100,
-    "rsi_recovery_ema_200":     rsi_recovery_ema_200,
-    "rsi_50_above_ema_200":     rsi_50_above_ema_200,
-    "triple_ema_stack":         triple_ema_stack,
-    "dual_ema_stack":           dual_ema_stack,
-    "donchian_100_50_filter":   donchian_100_50_filter,
-    "donchian_150_50_filter":   donchian_150_50_filter,
-    "macd_above_zero_trend":    macd_above_zero_trend,
-    "ema_100_pure_slope":       ema_100_pure_slope,
-    # T0 batch 1
-    "golden_cross_slope":       golden_cross_slope,
-    "golden_cross_100_300":     golden_cross_100_300,
-    "tema_200_slope":           tema_200_slope,
-    "donchian_200_100":         donchian_200_100,
-    "ema_200_regime":           ema_200_regime,
+    # Grid-searchable T1 concepts (logic functions that accept any canonical param combo).
+    # Grid search evaluates these exhaustively over canonical param grids.
+    # The GA/spike can also search their STRATEGY_PARAMS ranges if desired.
+    "golden_cross_slope":       golden_cross_slope,      # _ma_cross_with_slope — EMA cross + slope + confirm
+    "ema_slope_above":          ema_200_slope_above,     # _ema_slope_above — close > EMA + slope + confirm
+    "rsi_recovery_ema":         rsi_recovery_ema_200,    # _rsi_recovery_above_ema — RSI oversold + trend
+    "rsi_50_above_trend":       rsi_50_above_ema_200,    # RSI sustained > 50 + trend
+    "triple_ema_stack":         triple_ema_stack,         # 3-EMA alignment
+    "dual_ema_stack":           dual_ema_stack,           # 2-EMA alignment
+    "donchian_filter":          donchian_200_100,         # channel breakout + trend filter
+    "macd_above_zero_trend":    macd_above_zero_trend,    # MACD zero-cross + trend
+    "ema_pure_slope":           ema_100_pure_slope,       # slope-only, no price condition
+    "ema_200_regime":           ema_200_regime,            # simplest: close > EMA-200
+    # Legacy T2 strategies (GA-searched, complex param spaces)
     "montauk_821":              montauk_821,
     "rsi_regime":               rsi_regime,
     "breakout":                 breakout,
@@ -1746,30 +1736,17 @@ STRATEGY_REGISTRY = {
 # Any strategy whose params get touched by the GA is effectively T2 regardless of its
 # declared tier — the declared tier is an upper bound on leniency, not a bypass.
 STRATEGY_TIERS = {
-    # T0 batch 2 (2026-04-13) — all canonical, pre-registered
-    "golden_cross_30_150":      "T0",
-    "golden_cross_20_100":      "T0",
-    "golden_cross_50_150":      "T0",
-    "golden_cross_100_200":     "T0",
-    "ema_50_slope_above":       "T0",
-    "ema_100_slope_above":      "T0",
-    "ema_150_slope_above":      "T0",
-    "ema_200_slope_above":      "T0",
-    "rsi_recovery_ema_100":     "T0",
-    "rsi_recovery_ema_200":     "T0",
-    "rsi_50_above_ema_200":     "T0",
-    "triple_ema_stack":         "T0",
-    "dual_ema_stack":           "T0",
-    "donchian_100_50_filter":   "T0",
-    "donchian_150_50_filter":   "T0",
-    "macd_above_zero_trend":    "T0",
-    "ema_100_pure_slope":       "T0",
-    # T0 batch 1
-    "golden_cross_slope":       "T0",  # hypothesis: 50/200 golden cross + slow-slope filter, canonical
-    "golden_cross_100_300":     "T0",  # hypothesis: long-horizon golden cross 100/300, canonical
-    "tema_200_slope":           "T0",  # hypothesis: TEMA-200 regime + slope filter, canonical
-    "donchian_200_100":         "T0",  # hypothesis: 200-day breakout + EMA-200 trend filter, canonical
-    "ema_200_regime":           "T0",  # hypothesis: 200-EMA regime filter, canonical params only
+    # T1 grid-searchable concepts (hand-authored logic + canonical param grid)
+    "golden_cross_slope":       "T1",
+    "ema_slope_above":          "T1",
+    "rsi_recovery_ema":         "T1",
+    "rsi_50_above_trend":       "T1",
+    "triple_ema_stack":         "T1",
+    "dual_ema_stack":           "T1",
+    "donchian_filter":          "T1",
+    "macd_above_zero_trend":    "T1",
+    "ema_pure_slope":           "T1",
+    "ema_200_regime":           "T1",
     "montauk_821":              "T2",  # heavily tuned
     "rsi_regime":               "T2",
     "breakout":                 "T2",
@@ -1789,77 +1766,66 @@ STRATEGY_TIERS = {
 
 # Parameter spaces for each strategy: {param: (min, max, step, type)}
 STRATEGY_PARAMS = {
-    # T0: committed canonical values, zero search space.
-    # The degenerate (200, 200, 1, int) range makes the GA a no-op on this
-    # strategy — it can only ever evaluate the pre-registered configuration.
-    "ema_200_regime": {
-        "ema_len":  (200, 200, 1, int),
-        "cooldown": (2, 2, 1, int),
-    },
+    # ── T1 grid-searchable concepts ──
+    # Real canonical ranges for GA (if spike is used) or grid_search.py.
+    # grid_search.py defines its own discrete grids from canonical values;
+    # these ranges are used by the GA's random_params/mutate_params.
     "golden_cross_slope": {
-        "fast_ema":     (50, 50, 1, int),
-        "slow_ema":     (200, 200, 1, int),
-        "slope_window": (5, 5, 1, int),
-        "entry_bars":   (3, 3, 1, int),
-        "cooldown":     (5, 5, 1, int),
+        "fast_ema":     (20, 100, 10, int),   # canonical: 20, 30, 50, 100
+        "slow_ema":     (100, 300, 50, int),   # canonical: 100, 150, 200, 300
+        "slope_window": (3, 5, 2, int),        # canonical: 3, 5
+        "entry_bars":   (2, 5, 1, int),        # canonical: 2, 3, 5
+        "cooldown":     (2, 10, 3, int),
     },
-    # ── T0 batch 2 ──
-    "golden_cross_30_150":  {"fast_ema": (30, 30, 1, int), "slow_ema": (150, 150, 1, int),
-                              "slope_window": (5, 5, 1, int), "entry_bars": (3, 3, 1, int),
-                              "cooldown": (5, 5, 1, int)},
-    "golden_cross_20_100":  {"fast_ema": (20, 20, 1, int), "slow_ema": (100, 100, 1, int),
-                              "slope_window": (5, 5, 1, int), "entry_bars": (3, 3, 1, int),
-                              "cooldown": (5, 5, 1, int)},
-    "golden_cross_50_150":  {"fast_ema": (50, 50, 1, int), "slow_ema": (150, 150, 1, int),
-                              "slope_window": (5, 5, 1, int), "entry_bars": (3, 3, 1, int),
-                              "cooldown": (5, 5, 1, int)},
-    "golden_cross_100_200": {"fast_ema": (100, 100, 1, int), "slow_ema": (200, 200, 1, int),
-                              "slope_window": (5, 5, 1, int), "entry_bars": (3, 3, 1, int),
-                              "cooldown": (5, 5, 1, int)},
-    "ema_50_slope_above":   {"ema_len": (50, 50, 1, int), "slope_window": (5, 5, 1, int),
-                              "entry_bars": (3, 3, 1, int), "cooldown": (5, 5, 1, int)},
-    "ema_100_slope_above":  {"ema_len": (100, 100, 1, int), "slope_window": (5, 5, 1, int),
-                              "entry_bars": (3, 3, 1, int), "cooldown": (5, 5, 1, int)},
-    "ema_150_slope_above":  {"ema_len": (150, 150, 1, int), "slope_window": (5, 5, 1, int),
-                              "entry_bars": (3, 3, 1, int), "cooldown": (5, 5, 1, int)},
-    "ema_200_slope_above":  {"ema_len": (200, 200, 1, int), "slope_window": (5, 5, 1, int),
-                              "entry_bars": (3, 3, 1, int), "cooldown": (5, 5, 1, int)},
-    "rsi_recovery_ema_100": {"rsi_len": (14, 14, 1, int), "trend_len": (100, 100, 1, int),
-                              "cooldown": (5, 5, 1, int)},
-    "rsi_recovery_ema_200": {"rsi_len": (14, 14, 1, int), "trend_len": (200, 200, 1, int),
-                              "cooldown": (5, 5, 1, int)},
-    "rsi_50_above_ema_200": {"rsi_len": (14, 14, 1, int), "trend_len": (200, 200, 1, int),
-                              "entry_bars": (3, 3, 1, int), "cooldown": (5, 5, 1, int)},
-    "triple_ema_stack":     {"short_ema": (50, 50, 1, int), "med_ema": (100, 100, 1, int),
-                              "long_ema": (200, 200, 1, int), "entry_bars": (3, 3, 1, int),
-                              "cooldown": (5, 5, 1, int)},
-    "dual_ema_stack":       {"short_ema": (50, 50, 1, int), "long_ema": (200, 200, 1, int),
-                              "entry_bars": (3, 3, 1, int), "cooldown": (5, 5, 1, int)},
-    "donchian_100_50_filter": {"entry_len": (100, 100, 1, int), "exit_len": (50, 50, 1, int),
-                                "trend_len": (100, 100, 1, int), "cooldown": (5, 5, 1, int)},
-    "donchian_150_50_filter": {"entry_len": (150, 150, 1, int), "exit_len": (50, 50, 1, int),
-                                "trend_len": (200, 200, 1, int), "cooldown": (5, 5, 1, int)},
-    "macd_above_zero_trend": {"trend_len": (200, 200, 1, int), "cooldown": (5, 5, 1, int)},
-    "ema_100_pure_slope":   {"ema_len": (100, 100, 1, int), "slope_window": (5, 5, 1, int),
-                              "entry_bars": (3, 3, 1, int), "cooldown": (5, 5, 1, int)},
-    "golden_cross_100_300": {
-        "fast_ema":     (100, 100, 1, int),
-        "slow_ema":     (300, 300, 1, int),
-        "slope_window": (5, 5, 1, int),
-        "entry_bars":   (3, 3, 1, int),
-        "cooldown":     (5, 5, 1, int),
+    "ema_slope_above": {
+        "ema_len":      (50, 200, 50, int),    # canonical: 50, 100, 150, 200
+        "slope_window": (3, 5, 2, int),
+        "entry_bars":   (2, 5, 1, int),
+        "cooldown":     (2, 10, 3, int),
     },
-    "tema_200_slope": {
-        "tema_len":     (200, 200, 1, int),
-        "slope_window": (5, 5, 1, int),
-        "entry_bars":   (3, 3, 1, int),
-        "cooldown":     (5, 5, 1, int),
+    "rsi_recovery_ema": {
+        "rsi_len":      (7, 21, 7, int),       # canonical: 7, 14, 21
+        "trend_len":    (50, 200, 50, int),     # canonical: 50, 100, 150, 200
+        "cooldown":     (2, 10, 3, int),
     },
-    "donchian_200_100": {
-        "entry_len":    (200, 200, 1, int),
-        "exit_len":     (100, 100, 1, int),
-        "trend_len":    (200, 200, 1, int),
-        "cooldown":     (5, 5, 1, int),
+    "rsi_50_above_trend": {
+        "rsi_len":      (7, 21, 7, int),
+        "trend_len":    (100, 200, 50, int),
+        "entry_bars":   (2, 5, 1, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "triple_ema_stack": {
+        "short_ema":    (20, 50, 10, int),
+        "med_ema":      (50, 150, 50, int),
+        "long_ema":     (100, 300, 50, int),
+        "entry_bars":   (2, 5, 1, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "dual_ema_stack": {
+        "short_ema":    (20, 100, 10, int),
+        "long_ema":     (100, 300, 50, int),
+        "entry_bars":   (2, 5, 1, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "donchian_filter": {
+        "entry_len":    (50, 200, 50, int),
+        "exit_len":     (20, 100, 20, int),
+        "trend_len":    (50, 200, 50, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "macd_above_zero_trend": {
+        "trend_len":    (100, 200, 50, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "ema_pure_slope": {
+        "ema_len":      (50, 200, 50, int),
+        "slope_window": (3, 5, 2, int),
+        "entry_bars":   (2, 5, 1, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "ema_200_regime": {
+        "ema_len":      (100, 200, 50, int),
+        "cooldown":     (2, 10, 3, int),
     },
     "montauk_821": {
         "short_ema": (5, 25, 2, int), "med_ema": (15, 60, 5, int),
