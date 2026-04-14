@@ -93,7 +93,7 @@ T0 strategies may only use parameter values drawn from this fixed list:
 | RSI period | 7, 14, 21 |
 | ATR period | 7, 14, 20, 40 |
 | ATR multiplier | 0.5, 1.0, 1.5, 2.0, 2.5, 3.0 |
-| Lookback / Donchian / Highest-Lowest period | 5, 10, 20, 50, 100, 200 |
+| Lookback / Donchian / Highest-Lowest period | 5, 10, 20, 50, 100, 150, 200 |
 | Slope / confirmation bars | 1, 2, 3, 5 |
 | Cooldown bars | 0, 1, 2, 3, 5, 10 |
 | Percent thresholds (drawdown, drop, etc.) | 5%, 8%, 10%, 15%, 20%, 25% |

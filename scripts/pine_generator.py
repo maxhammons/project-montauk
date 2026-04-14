@@ -1033,6 +1033,361 @@ def _build_ema_regime(params: dict) -> str:
     )
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# T0 BATCH 2026-04-13 — 17 Pine generators
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def _ma_cross_slope_pine(title, suffix, strategy_name, fast_default, slow_default, params):
+    """Templated golden_cross-style Pine: fast EMA crosses slow + slope filter + entry confirm."""
+    return _wrap(title, suffix, strategy_name, f"""
+        fastLen      = input.int({_pine_number(params.get("fast_ema", fast_default))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", slow_default))}, "Slow EMA", minval=1, group="1 - Inputs")
+        slopeWindow  = input.int({_pine_number(params.get("slope_window", 5))}, "Slow Slope Window", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+        slowRising = not na(slowEma) and not na(slowEma[slopeWindow]) and slowEma > slowEma[slopeWindow]
+        golden = not na(fastEma) and not na(slowEma) and fastEma > slowEma
+
+        var int bullCount = 0
+        if golden and slowRising
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        crossDown = not na(fastEma) and not na(slowEma) and not na(fastEma[1]) and not na(slowEma[1]) and fastEma[1] >= slowEma[1] and fastEma < slowEma
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and crossDown
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Death Cross", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(fastEma, "Fast EMA", color=color.new(color.green, 30), linewidth=2)
+        plot(slowEma, "Slow EMA", color=color.new(color.blue, 30), linewidth=2)
+    """)
+
+
+def _ema_slope_above_pine(title, suffix, strategy_name, ema_default, params):
+    """Templated single-EMA + slope filter Pine: close > EMA AND EMA rising for entry_bars."""
+    return _wrap(title, suffix, strategy_name, f"""
+        emaLen       = input.int({_pine_number(params.get("ema_len", ema_default))}, "EMA Length", minval=1, group="1 - Inputs")
+        slopeWindow  = input.int({_pine_number(params.get("slope_window", 5))}, "EMA Slope Window", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        ema = ta.ema(close, emaLen)
+        rising = not na(ema) and not na(ema[slopeWindow]) and ema > ema[slopeWindow]
+        above = not na(ema) and close > ema
+
+        var int bullCount = 0
+        if above and rising
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        crossDown = not na(ema) and not na(ema[1]) and close[1] >= ema[1] and close < ema
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and crossDown
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Trend Break", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(ema, "EMA", color=color.new(color.blue, 30), linewidth=2)
+    """)
+
+
+def _rsi_recovery_above_ema_pine(title, suffix, strategy_name, trend_default, params):
+    """Templated RSI-recovery-above-trend Pine."""
+    return _wrap(title, suffix, strategy_name, f"""
+        rsiLen       = input.int({_pine_number(params.get("rsi_len", 14))}, "RSI Length", minval=1, group="1 - Inputs")
+        trendLen     = input.int({_pine_number(params.get("trend_len", trend_default))}, "Trend EMA Length", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        rsi = ta.rsi(close, rsiLen)
+        trend = ta.ema(close, trendLen)
+        entryRsi = 30
+        exitRsi = 20
+
+        var bool wasBelow = false
+        if not na(rsi) and rsi < entryRsi
+            wasBelow := true
+
+        entrySignal = wasBelow and not na(rsi[1]) and rsi[1] < entryRsi and rsi >= entryRsi and not na(trend) and close > trend
+        if entrySignal
+            wasBelow := false
+
+        exitSignal = (not na(rsi) and rsi < exitRsi) or (not na(trend) and close < trend)
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Exit", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(trend, "Trend EMA", color=color.new(color.blue, 30), linewidth=2)
+    """)
+
+
+def _build_golden_cross_30_150(p):  return _ma_cross_slope_pine("Golden Cross 30/150 (T0)", "GC30150", "golden_cross_30_150", 30, 150, p)
+def _build_golden_cross_20_100(p):  return _ma_cross_slope_pine("Golden Cross 20/100 (T0)", "GC20100", "golden_cross_20_100", 20, 100, p)
+def _build_golden_cross_50_150(p):  return _ma_cross_slope_pine("Golden Cross 50/150 (T0)", "GC50150", "golden_cross_50_150", 50, 150, p)
+def _build_golden_cross_100_200(p): return _ma_cross_slope_pine("Golden Cross 100/200 (T0)", "GC100200", "golden_cross_100_200", 100, 200, p)
+
+def _build_ema_50_slope_above(p):   return _ema_slope_above_pine("EMA-50 Slope-Above (T0)", "EMA50Slope", "ema_50_slope_above", 50, p)
+def _build_ema_100_slope_above(p):  return _ema_slope_above_pine("EMA-100 Slope-Above (T0)", "EMA100Slope", "ema_100_slope_above", 100, p)
+def _build_ema_150_slope_above(p):  return _ema_slope_above_pine("EMA-150 Slope-Above (T0)", "EMA150Slope", "ema_150_slope_above", 150, p)
+def _build_ema_200_slope_above(p):  return _ema_slope_above_pine("EMA-200 Slope-Above (T0)", "EMA200Slope", "ema_200_slope_above", 200, p)
+
+def _build_rsi_recovery_ema_100(p): return _rsi_recovery_above_ema_pine("RSI Recovery + EMA-100 (T0)", "RSIRec100", "rsi_recovery_ema_100", 100, p)
+def _build_rsi_recovery_ema_200(p): return _rsi_recovery_above_ema_pine("RSI Recovery + EMA-200 (T0)", "RSIRec200", "rsi_recovery_ema_200", 200, p)
+
+
+def _build_rsi_50_above_ema_200(p):
+    return _wrap("RSI > 50 + EMA-200 (T0)", "RSI50EMA200", "rsi_50_above_ema_200", f"""
+        rsiLen       = input.int({_pine_number(p.get("rsi_len", 14))}, "RSI Length", minval=1, group="1 - Inputs")
+        trendLen     = input.int({_pine_number(p.get("trend_len", 200))}, "Trend EMA", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(p.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(p.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        rsi = ta.rsi(close, rsiLen)
+        trend = ta.ema(close, trendLen)
+        bullCondition = not na(rsi) and rsi > 50 and not na(trend) and close > trend
+
+        var int bullCount = 0
+        if bullCondition
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        exitSignal = not na(rsi) and (rsi < 50 or (not na(trend) and close < trend))
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Exit", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(trend, "Trend EMA", color=color.new(color.blue, 30), linewidth=2)
+    """)
+
+
+def _build_triple_ema_stack(p):
+    return _wrap("Triple EMA Stack 50/100/200 (T0)", "TripleStack", "triple_ema_stack", f"""
+        shortLen     = input.int({_pine_number(p.get("short_ema", 50))}, "Short EMA", minval=1, group="1 - Inputs")
+        medLen       = input.int({_pine_number(p.get("med_ema", 100))}, "Medium EMA", minval=1, group="1 - Inputs")
+        longLen      = input.int({_pine_number(p.get("long_ema", 200))}, "Long EMA", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(p.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(p.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        emaShort = ta.ema(close, shortLen)
+        emaMed = ta.ema(close, medLen)
+        emaLong = ta.ema(close, longLen)
+        aligned = not na(emaShort) and not na(emaMed) and not na(emaLong) and close > emaShort and emaShort > emaMed and emaMed > emaLong
+
+        var int bullCount = 0
+        if aligned
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        crossDown = not na(emaShort) and not na(emaShort[1]) and close[1] >= emaShort[1] and close < emaShort
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and crossDown
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Stack Break", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(emaShort, "EMA Short", color=color.new(color.green, 30))
+        plot(emaMed, "EMA Med", color=color.new(color.orange, 30))
+        plot(emaLong, "EMA Long", color=color.new(color.blue, 30))
+    """)
+
+
+def _build_dual_ema_stack(p):
+    return _wrap("Dual EMA Stack 50+200 (T0)", "DualStack", "dual_ema_stack", f"""
+        shortLen     = input.int({_pine_number(p.get("short_ema", 50))}, "Short EMA", minval=1, group="1 - Inputs")
+        longLen      = input.int({_pine_number(p.get("long_ema", 200))}, "Long EMA", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(p.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(p.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        emaShort = ta.ema(close, shortLen)
+        emaLong = ta.ema(close, longLen)
+        aligned = not na(emaShort) and not na(emaLong) and close > emaShort and close > emaLong
+
+        var int bullCount = 0
+        if aligned
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        exitSignal = not na(emaLong) and close < emaLong
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Trend Break", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(emaShort, "EMA Short", color=color.new(color.green, 30))
+        plot(emaLong, "EMA Long", color=color.new(color.blue, 30))
+    """)
+
+
+def _build_donchian_100_50_filter(p):
+    return _wrap("Donchian 100/50 + EMA-100 (T0)", "Don10050", "donchian_100_50_filter", f"""
+        entryLen     = input.int({_pine_number(p.get("entry_len", 100))}, "Entry Lookback", minval=1, group="1 - Inputs")
+        exitLen      = input.int({_pine_number(p.get("exit_len", 50))}, "Exit Lookback", minval=1, group="1 - Inputs")
+        trendLen     = input.int({_pine_number(p.get("trend_len", 100))}, "Trend EMA", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(p.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        upper = ta.highest(high, entryLen)[1]
+        lower = ta.lowest(low, exitLen)[1]
+        trendEma = ta.ema(close, trendLen)
+
+        breakoutEntry = not na(upper) and not na(trendEma) and close > upper and close > trendEma
+        breakdownExit = not na(lower) and close < lower
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and breakdownExit
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Breakdown", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if breakoutEntry and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(upper, "Donchian Upper", color=color.new(color.green, 40))
+        plot(lower, "Donchian Lower", color=color.new(color.red, 40))
+        plot(trendEma, "Trend EMA", color=color.new(color.blue, 30), linewidth=2)
+    """)
+
+
+def _build_donchian_150_50_filter(p):
+    # Same template as 100_50, just different defaults
+    return _wrap("Donchian 150/50 + EMA-200 (T0)", "Don15050", "donchian_150_50_filter", f"""
+        entryLen     = input.int({_pine_number(p.get("entry_len", 150))}, "Entry Lookback", minval=1, group="1 - Inputs")
+        exitLen      = input.int({_pine_number(p.get("exit_len", 50))}, "Exit Lookback", minval=1, group="1 - Inputs")
+        trendLen     = input.int({_pine_number(p.get("trend_len", 200))}, "Trend EMA", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(p.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        upper = ta.highest(high, entryLen)[1]
+        lower = ta.lowest(low, exitLen)[1]
+        trendEma = ta.ema(close, trendLen)
+
+        breakoutEntry = not na(upper) and not na(trendEma) and close > upper and close > trendEma
+        breakdownExit = not na(lower) and close < lower
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and breakdownExit
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Breakdown", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if breakoutEntry and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(upper, "Donchian Upper", color=color.new(color.green, 40))
+        plot(lower, "Donchian Lower", color=color.new(color.red, 40))
+        plot(trendEma, "Trend EMA", color=color.new(color.blue, 30), linewidth=2)
+    """)
+
+
+def _build_macd_above_zero_trend(p):
+    return _wrap("MACD Above Zero + EMA-200 (T0)", "MACDZero", "macd_above_zero_trend", f"""
+        trendLen     = input.int({_pine_number(p.get("trend_len", 200))}, "Trend EMA", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(p.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        [macdLine, _, _] = ta.macd(close, 12, 26, 9)
+        trendEma = ta.ema(close, trendLen)
+        crossUp = not na(macdLine) and not na(macdLine[1]) and macdLine[1] <= 0 and macdLine > 0
+        crossDown = not na(macdLine) and not na(macdLine[1]) and macdLine[1] >= 0 and macdLine < 0
+        trendOk = not na(trendEma) and close > trendEma
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and crossDown
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "MACD Down", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if crossUp and trendOk and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(macdLine, "MACD", color=color.new(color.purple, 30))
+        hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)
+    """)
+
+
+def _build_ema_100_pure_slope(p):
+    return _wrap("EMA-100 Pure Slope (T0)", "EMA100Pure", "ema_100_pure_slope", f"""
+        emaLen       = input.int({_pine_number(p.get("ema_len", 100))}, "EMA Length", minval=1, group="1 - Inputs")
+        slopeWindow  = input.int({_pine_number(p.get("slope_window", 5))}, "Slope Window", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(p.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(p.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        ema = ta.ema(close, emaLen)
+        rising = not na(ema) and not na(ema[slopeWindow]) and ema > ema[slopeWindow]
+
+        var int bullCount = 0
+        if rising
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        exitSignal = not rising and not na(ema) and not na(ema[1]) and ema < ema[1]
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Slope Down", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(ema, "EMA", color=color.new(color.blue, 30), linewidth=2)
+    """)
+
+
 def _build_golden_cross_100_300(params: dict) -> str:
     return _wrap(
         "Project Montauk Candidate - Golden Cross 100/300 (T0)",
@@ -1224,6 +1579,25 @@ def _build_ema_200_regime(params: dict) -> str:
 
 
 _BUILDERS = {
+    # T0 batch 2 (2026-04-13)
+    "golden_cross_30_150": _build_golden_cross_30_150,
+    "golden_cross_20_100": _build_golden_cross_20_100,
+    "golden_cross_50_150": _build_golden_cross_50_150,
+    "golden_cross_100_200": _build_golden_cross_100_200,
+    "ema_50_slope_above": _build_ema_50_slope_above,
+    "ema_100_slope_above": _build_ema_100_slope_above,
+    "ema_150_slope_above": _build_ema_150_slope_above,
+    "ema_200_slope_above": _build_ema_200_slope_above,
+    "rsi_recovery_ema_100": _build_rsi_recovery_ema_100,
+    "rsi_recovery_ema_200": _build_rsi_recovery_ema_200,
+    "rsi_50_above_ema_200": _build_rsi_50_above_ema_200,
+    "triple_ema_stack": _build_triple_ema_stack,
+    "dual_ema_stack": _build_dual_ema_stack,
+    "donchian_100_50_filter": _build_donchian_100_50_filter,
+    "donchian_150_50_filter": _build_donchian_150_50_filter,
+    "macd_above_zero_trend": _build_macd_above_zero_trend,
+    "ema_100_pure_slope": _build_ema_100_pure_slope,
+    # T0 batch 1
     "golden_cross_slope": _build_golden_cross_slope,
     "golden_cross_100_300": _build_golden_cross_100_300,
     "tema_200_slope": _build_tema_200_slope,

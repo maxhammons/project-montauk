@@ -1171,6 +1171,327 @@ def ema_regime(ind: Indicators, p: dict) -> tuple:
 # Pre-registered as T0 at 2026-04-13. Params committed before first backtest.
 # ─────────────────────────────────────────────────────────────────────────────
 
+# ─────────────────────────────────────────────────────────────────────────────
+# T0 BATCH 2026-04-13 — 17 hypotheses queued for spike testing
+#
+# All canonical params, ≤5 tunable, pre-registered. Designed across signal
+# families known to pass (slope-filtered MA cross, RSI recovery, multi-EMA
+# stack, Donchian breakout, MACD trend) at moderate horizons that don't
+# over-lag TECL's 3× volatility.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def _ma_cross_with_slope(ind, p, fast_len, slow_len):
+    """Shared logic: golden_cross_NN_MM strategies (fast EMA crosses slow,
+    with slope filter on slow EMA + entry confirmation bars). Exits on death cross."""
+    n = ind.n
+    fast = ind.ema(fast_len)
+    slow = ind.ema(slow_len)
+    slope_window = int(p.get("slope_window", 5))
+    entry_bars = int(p.get("entry_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(slope_window + 1, n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(slow[i - slope_window]):
+            continue
+        if fast[i] > slow[i] and slow[i] > slow[i - slope_window]:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if fast[i - 1] >= slow[i - 1] and fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def golden_cross_30_150(ind, p):
+    """T0: 30/150 EMA golden cross with slope filter — faster cycle response than 50/200."""
+    return _ma_cross_with_slope(ind, p, p.get("fast_ema", 30), p.get("slow_ema", 150))
+
+
+def golden_cross_20_100(ind, p):
+    """T0: 20/100 EMA golden cross with slope filter — fastest practical golden cross."""
+    return _ma_cross_with_slope(ind, p, p.get("fast_ema", 20), p.get("slow_ema", 100))
+
+
+def golden_cross_50_150(ind, p):
+    """T0: 50/150 asymmetric golden cross — same fast as proven 50/200, shorter slow."""
+    return _ma_cross_with_slope(ind, p, p.get("fast_ema", 50), p.get("slow_ema", 150))
+
+
+def golden_cross_100_200(ind, p):
+    """T0: 100/200 golden cross — slower fast EMA, classic 200 trend."""
+    return _ma_cross_with_slope(ind, p, p.get("fast_ema", 100), p.get("slow_ema", 200))
+
+
+def _ema_slope_above(ind, p, ema_len):
+    """Shared logic: close > EMA AND EMA rising for entry_bars consecutive bars."""
+    n = ind.n
+    cl = ind.close
+    ema = ind.ema(ema_len)
+    slope_window = int(p.get("slope_window", 5))
+    entry_bars = int(p.get("entry_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(slope_window + 1, n):
+        if np.isnan(ema[i]) or np.isnan(ema[i - slope_window]):
+            continue
+        if cl[i] > ema[i] and ema[i] > ema[i - slope_window]:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if cl[i - 1] >= ema[i - 1] and cl[i] < ema[i]:
+            exits[i] = True
+            labels[i] = "T"
+    return entries, exits, labels
+
+
+def ema_50_slope_above(ind, p):
+    """T0: close > EMA-50 + EMA-50 rising. Faster trend follow than 100+."""
+    return _ema_slope_above(ind, p, p.get("ema_len", 50))
+
+
+def ema_100_slope_above(ind, p):
+    """T0: close > EMA-100 + EMA-100 rising. Medium-horizon regime filter with slope."""
+    return _ema_slope_above(ind, p, p.get("ema_len", 100))
+
+
+def ema_150_slope_above(ind, p):
+    """T0: close > EMA-150 + EMA-150 rising. Between 100 and 200."""
+    return _ema_slope_above(ind, p, p.get("ema_len", 150))
+
+
+def ema_200_slope_above(ind, p):
+    """T0: close > EMA-200 + EMA-200 rising. Improvement on bare ema_200_regime
+    by adding slope filter + entry confirmation to reduce whipsaws."""
+    return _ema_slope_above(ind, p, p.get("ema_len", 200))
+
+
+def _rsi_recovery_above_ema(ind, p, trend_len):
+    """Shared logic: RSI-14 crosses up through entry_rsi (was below) AND close > trend EMA.
+    Designed for fast re-entry after crashes — addresses 2020/2023 weakness."""
+    n = ind.n
+    cl = ind.close
+    rsi = ind.rsi(int(p.get("rsi_len", 14)))
+    trend = ind.ema(trend_len)
+    entry_rsi = 30  # canonical-implicit (oversold recovery threshold)
+    exit_rsi = 20  # canonical-implicit (deep panic exit)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    was_below = False
+    for i in range(1, n):
+        if np.isnan(rsi[i]) or np.isnan(trend[i]):
+            continue
+        if rsi[i] < entry_rsi:
+            was_below = True
+        if was_below and rsi[i - 1] < entry_rsi <= rsi[i] and cl[i] > trend[i]:
+            entries[i] = True
+            was_below = False
+        if rsi[i] < exit_rsi or cl[i] < trend[i]:
+            exits[i] = True
+            labels[i] = "T"
+    return entries, exits, labels
+
+
+def rsi_recovery_ema_100(ind, p):
+    """T0: RSI-14 recovers above 30 + close > EMA-100. Fast post-crash re-entry."""
+    return _rsi_recovery_above_ema(ind, p, p.get("trend_len", 100))
+
+
+def rsi_recovery_ema_200(ind, p):
+    """T0: RSI-14 recovers above 30 + close > EMA-200. Same logic, slower trend filter."""
+    return _rsi_recovery_above_ema(ind, p, p.get("trend_len", 200))
+
+
+def rsi_50_above_ema_200(ind, p):
+    """T0: RSI-14 sustained > 50 + close > EMA-200. Sustained bullish momentum signal."""
+    n = ind.n
+    cl = ind.close
+    rsi = ind.rsi(int(p.get("rsi_len", 14)))
+    trend = ind.ema(int(p.get("trend_len", 200)))
+    entry_bars = int(p.get("entry_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(1, n):
+        if np.isnan(rsi[i]) or np.isnan(trend[i]):
+            continue
+        if rsi[i] > 50 and cl[i] > trend[i]:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if rsi[i] < 50 or cl[i] < trend[i]:
+            exits[i] = True
+            labels[i] = "M"
+    return entries, exits, labels
+
+
+def triple_ema_stack(ind, p):
+    """T0: close > EMA-50 > EMA-100 > EMA-200 (full bullish alignment).
+    Exit when alignment breaks (close crosses below EMA-50)."""
+    n = ind.n
+    cl = ind.close
+    ema_short = ind.ema(int(p.get("short_ema", 50)))
+    ema_med = ind.ema(int(p.get("med_ema", 100)))
+    ema_long = ind.ema(int(p.get("long_ema", 200)))
+    entry_bars = int(p.get("entry_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(1, n):
+        if np.isnan(ema_short[i]) or np.isnan(ema_med[i]) or np.isnan(ema_long[i]):
+            continue
+        if cl[i] > ema_short[i] > ema_med[i] > ema_long[i]:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if cl[i - 1] >= ema_short[i - 1] and cl[i] < ema_short[i]:
+            exits[i] = True
+            labels[i] = "S"
+    return entries, exits, labels
+
+
+def dual_ema_stack(ind, p):
+    """T0: close > EMA-50 AND close > EMA-200 (both trend filters bullish).
+    Simpler than triple stack, more responsive than single."""
+    n = ind.n
+    cl = ind.close
+    ema_short = ind.ema(int(p.get("short_ema", 50)))
+    ema_long = ind.ema(int(p.get("long_ema", 200)))
+    entry_bars = int(p.get("entry_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(1, n):
+        if np.isnan(ema_short[i]) or np.isnan(ema_long[i]):
+            continue
+        if cl[i] > ema_short[i] and cl[i] > ema_long[i]:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        # Exit on close below either trend
+        if cl[i] < ema_long[i]:
+            exits[i] = True
+            labels[i] = "T"
+    return entries, exits, labels
+
+
+def donchian_100_50_filter(ind, p):
+    """T0: 100-day high entry + EMA-100 trend filter; 50-day low exit.
+    Faster than 200/100 — should engage more cycles."""
+    n = ind.n
+    cl = ind.close
+    entry_len = int(p.get("entry_len", 100))
+    exit_len = int(p.get("exit_len", 50))
+    trend = ind.ema(int(p.get("trend_len", 100)))
+    upper = ind.donchian_upper(entry_len)
+    lower = ind.donchian_lower(exit_len)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(max(entry_len, exit_len), n):
+        if np.isnan(upper[i - 1]) or np.isnan(lower[i - 1]) or np.isnan(trend[i]):
+            continue
+        if cl[i] > upper[i - 1] and cl[i] > trend[i]:
+            entries[i] = True
+        if cl[i] < lower[i - 1]:
+            exits[i] = True
+            labels[i] = "B"
+    return entries, exits, labels
+
+
+def donchian_150_50_filter(ind, p):
+    """T0: 150-day high entry + EMA-200 trend filter; 50-day low exit.
+    Middle-ground breakout horizon."""
+    n = ind.n
+    cl = ind.close
+    entry_len = int(p.get("entry_len", 150))
+    exit_len = int(p.get("exit_len", 50))
+    trend = ind.ema(int(p.get("trend_len", 200)))
+    upper = ind.donchian_upper(entry_len)
+    lower = ind.donchian_lower(exit_len)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(max(entry_len, exit_len), n):
+        if np.isnan(upper[i - 1]) or np.isnan(lower[i - 1]) or np.isnan(trend[i]):
+            continue
+        if cl[i] > upper[i - 1] and cl[i] > trend[i]:
+            entries[i] = True
+        if cl[i] < lower[i - 1]:
+            exits[i] = True
+            labels[i] = "B"
+    return entries, exits, labels
+
+
+def macd_above_zero_trend(ind, p):
+    """T0: MACD line crosses above zero AND close > EMA-200 trend filter.
+    Exit on MACD crossing back below zero."""
+    n = ind.n
+    cl = ind.close
+    macd_line = ind.macd_line(12, 26)
+    trend = ind.ema(int(p.get("trend_len", 200)))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(1, n):
+        if np.isnan(macd_line[i]) or np.isnan(trend[i]) or np.isnan(macd_line[i - 1]):
+            continue
+        # Entry: MACD crosses above 0 AND close > trend
+        if macd_line[i - 1] <= 0 < macd_line[i] and cl[i] > trend[i]:
+            entries[i] = True
+        # Exit: MACD crosses below 0
+        if macd_line[i - 1] >= 0 > macd_line[i]:
+            exits[i] = True
+            labels[i] = "M"
+    return entries, exits, labels
+
+
+def ema_100_pure_slope(ind, p):
+    """T0: pure slope signal — enter when EMA-100 has been rising for entry_bars
+    consecutive bars; exit when slope turns negative. No price condition."""
+    n = ind.n
+    ema = ind.ema(int(p.get("ema_len", 100)))
+    slope_window = int(p.get("slope_window", 5))
+    entry_bars = int(p.get("entry_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(slope_window + 1, n):
+        if np.isnan(ema[i]) or np.isnan(ema[i - slope_window]):
+            continue
+        rising = ema[i] > ema[i - slope_window]
+        if rising:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if not rising and ema[i] < ema[i - 1]:
+            exits[i] = True
+            labels[i] = "S"
+    return entries, exits, labels
+
+
 def golden_cross_100_300(ind: Indicators, p: dict) -> tuple:
     """T0 HYPOTHESIS — Long-horizon golden cross (100/300) with slope filter.
 
@@ -1376,6 +1697,25 @@ def ema_200_regime(ind: Indicators, p: dict) -> tuple:
 
 
 STRATEGY_REGISTRY = {
+    # T0 batch 2 (2026-04-13) — 17 hypotheses queued for spike
+    "golden_cross_30_150":      golden_cross_30_150,
+    "golden_cross_20_100":      golden_cross_20_100,
+    "golden_cross_50_150":      golden_cross_50_150,
+    "golden_cross_100_200":     golden_cross_100_200,
+    "ema_50_slope_above":       ema_50_slope_above,
+    "ema_100_slope_above":      ema_100_slope_above,
+    "ema_150_slope_above":      ema_150_slope_above,
+    "ema_200_slope_above":      ema_200_slope_above,
+    "rsi_recovery_ema_100":     rsi_recovery_ema_100,
+    "rsi_recovery_ema_200":     rsi_recovery_ema_200,
+    "rsi_50_above_ema_200":     rsi_50_above_ema_200,
+    "triple_ema_stack":         triple_ema_stack,
+    "dual_ema_stack":           dual_ema_stack,
+    "donchian_100_50_filter":   donchian_100_50_filter,
+    "donchian_150_50_filter":   donchian_150_50_filter,
+    "macd_above_zero_trend":    macd_above_zero_trend,
+    "ema_100_pure_slope":       ema_100_pure_slope,
+    # T0 batch 1
     "golden_cross_slope":       golden_cross_slope,
     "golden_cross_100_300":     golden_cross_100_300,
     "tema_200_slope":           tema_200_slope,
@@ -1406,6 +1746,25 @@ STRATEGY_REGISTRY = {
 # Any strategy whose params get touched by the GA is effectively T2 regardless of its
 # declared tier — the declared tier is an upper bound on leniency, not a bypass.
 STRATEGY_TIERS = {
+    # T0 batch 2 (2026-04-13) — all canonical, pre-registered
+    "golden_cross_30_150":      "T0",
+    "golden_cross_20_100":      "T0",
+    "golden_cross_50_150":      "T0",
+    "golden_cross_100_200":     "T0",
+    "ema_50_slope_above":       "T0",
+    "ema_100_slope_above":      "T0",
+    "ema_150_slope_above":      "T0",
+    "ema_200_slope_above":      "T0",
+    "rsi_recovery_ema_100":     "T0",
+    "rsi_recovery_ema_200":     "T0",
+    "rsi_50_above_ema_200":     "T0",
+    "triple_ema_stack":         "T0",
+    "dual_ema_stack":           "T0",
+    "donchian_100_50_filter":   "T0",
+    "donchian_150_50_filter":   "T0",
+    "macd_above_zero_trend":    "T0",
+    "ema_100_pure_slope":       "T0",
+    # T0 batch 1
     "golden_cross_slope":       "T0",  # hypothesis: 50/200 golden cross + slow-slope filter, canonical
     "golden_cross_100_300":     "T0",  # hypothesis: long-horizon golden cross 100/300, canonical
     "tema_200_slope":           "T0",  # hypothesis: TEMA-200 regime + slope filter, canonical
@@ -1444,6 +1803,45 @@ STRATEGY_PARAMS = {
         "entry_bars":   (3, 3, 1, int),
         "cooldown":     (5, 5, 1, int),
     },
+    # ── T0 batch 2 ──
+    "golden_cross_30_150":  {"fast_ema": (30, 30, 1, int), "slow_ema": (150, 150, 1, int),
+                              "slope_window": (5, 5, 1, int), "entry_bars": (3, 3, 1, int),
+                              "cooldown": (5, 5, 1, int)},
+    "golden_cross_20_100":  {"fast_ema": (20, 20, 1, int), "slow_ema": (100, 100, 1, int),
+                              "slope_window": (5, 5, 1, int), "entry_bars": (3, 3, 1, int),
+                              "cooldown": (5, 5, 1, int)},
+    "golden_cross_50_150":  {"fast_ema": (50, 50, 1, int), "slow_ema": (150, 150, 1, int),
+                              "slope_window": (5, 5, 1, int), "entry_bars": (3, 3, 1, int),
+                              "cooldown": (5, 5, 1, int)},
+    "golden_cross_100_200": {"fast_ema": (100, 100, 1, int), "slow_ema": (200, 200, 1, int),
+                              "slope_window": (5, 5, 1, int), "entry_bars": (3, 3, 1, int),
+                              "cooldown": (5, 5, 1, int)},
+    "ema_50_slope_above":   {"ema_len": (50, 50, 1, int), "slope_window": (5, 5, 1, int),
+                              "entry_bars": (3, 3, 1, int), "cooldown": (5, 5, 1, int)},
+    "ema_100_slope_above":  {"ema_len": (100, 100, 1, int), "slope_window": (5, 5, 1, int),
+                              "entry_bars": (3, 3, 1, int), "cooldown": (5, 5, 1, int)},
+    "ema_150_slope_above":  {"ema_len": (150, 150, 1, int), "slope_window": (5, 5, 1, int),
+                              "entry_bars": (3, 3, 1, int), "cooldown": (5, 5, 1, int)},
+    "ema_200_slope_above":  {"ema_len": (200, 200, 1, int), "slope_window": (5, 5, 1, int),
+                              "entry_bars": (3, 3, 1, int), "cooldown": (5, 5, 1, int)},
+    "rsi_recovery_ema_100": {"rsi_len": (14, 14, 1, int), "trend_len": (100, 100, 1, int),
+                              "cooldown": (5, 5, 1, int)},
+    "rsi_recovery_ema_200": {"rsi_len": (14, 14, 1, int), "trend_len": (200, 200, 1, int),
+                              "cooldown": (5, 5, 1, int)},
+    "rsi_50_above_ema_200": {"rsi_len": (14, 14, 1, int), "trend_len": (200, 200, 1, int),
+                              "entry_bars": (3, 3, 1, int), "cooldown": (5, 5, 1, int)},
+    "triple_ema_stack":     {"short_ema": (50, 50, 1, int), "med_ema": (100, 100, 1, int),
+                              "long_ema": (200, 200, 1, int), "entry_bars": (3, 3, 1, int),
+                              "cooldown": (5, 5, 1, int)},
+    "dual_ema_stack":       {"short_ema": (50, 50, 1, int), "long_ema": (200, 200, 1, int),
+                              "entry_bars": (3, 3, 1, int), "cooldown": (5, 5, 1, int)},
+    "donchian_100_50_filter": {"entry_len": (100, 100, 1, int), "exit_len": (50, 50, 1, int),
+                                "trend_len": (100, 100, 1, int), "cooldown": (5, 5, 1, int)},
+    "donchian_150_50_filter": {"entry_len": (150, 150, 1, int), "exit_len": (50, 50, 1, int),
+                                "trend_len": (200, 200, 1, int), "cooldown": (5, 5, 1, int)},
+    "macd_above_zero_trend": {"trend_len": (200, 200, 1, int), "cooldown": (5, 5, 1, int)},
+    "ema_100_pure_slope":   {"ema_len": (100, 100, 1, int), "slope_window": (5, 5, 1, int),
+                              "entry_bars": (3, 3, 1, int), "cooldown": (5, 5, 1, int)},
     "golden_cross_100_300": {
         "fast_ema":     (100, 100, 1, int),
         "slow_ema":     (300, 300, 1, int),
