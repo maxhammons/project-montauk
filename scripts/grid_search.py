@@ -465,7 +465,6 @@ def _is_valid_combo(concept: str, params: dict) -> bool:
     return True
 
 
-
 # ── Multiprocessing worker infrastructure ──
 # Each worker process gets its own copy of data + indicators (avoids pickling).
 _worker_df = None
@@ -515,7 +514,9 @@ def _worker_backtest(job: tuple[str, dict]) -> dict | None:
         return {"_rejected": True}
 
     # Compute regime score + marker alignment
-    result.regime_score = score_regime_capture(result.trades, _worker_close, _worker_dates)
+    result.regime_score = score_regime_capture(
+        result.trades, _worker_close, _worker_dates
+    )
     align = score_marker_alignment(_worker_df, result.trades)
     tier = STRATEGY_TIERS.get(concept, "T1")
     fit = compute_fitness(result, tier=tier)
@@ -536,9 +537,79 @@ def _worker_backtest(job: tuple[str, dict]) -> dict | None:
             "cagr": result.cagr_pct,
             "max_dd": result.max_drawdown_pct,
             "mar": result.mar_ratio,
-            "regime_score": result.regime_score.composite
+            "regime_score": result.regime_score.composite if result.regime_score else 0,
+            "hhi": (result.regime_score.hhi or 0) if result.regime_score else 0,
+            "bull_capture": result.regime_score.bull_capture_ratio
             if result.regime_score
             else 0,
+            "bear_avoidance": result.regime_score.bear_avoidance_ratio
+            if result.regime_score
+            else 0,
+            "win_rate": result.win_rate_pct,
+            "exit_reasons": result.exit_reasons,
+        },
+        "trades": [
+            {
+                "entry_bar": t.entry_bar,
+                "exit_bar": t.exit_bar,
+                "entry_date": t.entry_date,
+                "exit_date": t.exit_date,
+                "entry_price": t.entry_price,
+                "exit_price": t.exit_price,
+                "pnl_pct": t.pnl_pct,
+                "bars_held": t.bars_held,
+                "exit_reason": t.exit_reason,
+            }
+            for t in result.trades
+        ],
+    }
+
+
+def _backtest_single(concept, params, ind, df, close, dates):
+    """Single-thread backtest for small workloads (no pickling overhead)."""
+    fn = STRATEGY_REGISTRY.get(concept)
+    if fn is None:
+        return None
+    try:
+        entries, exits, labels = fn(ind, params)
+        result = backtest(
+            df,
+            entries,
+            exits,
+            labels,
+            cooldown_bars=params.get("cooldown", 0),
+            strategy_name=concept,
+        )
+        result.params = params
+    except Exception:
+        return None
+    if result.vs_bah_multiple < 1.0:
+        return {"_rejected": True}
+    if result.num_trades < 5:
+        return {"_rejected": True}
+    if result.trades_per_year > 5.0:
+        return {"_rejected": True}
+    result.regime_score = score_regime_capture(result.trades, close, dates)
+    align = score_marker_alignment(df, result.trades)
+    tier = STRATEGY_TIERS.get(concept, "T1")
+    fit = compute_fitness(result, tier=tier)
+    return {
+        "strategy": concept,
+        "rank": 0,
+        "fitness": fit,
+        "tier": tier,
+        "params": params,
+        "marker_alignment_score": align["score"],
+        "marker_alignment_detail": align,
+        "metrics": {
+            "trades": result.num_trades,
+            "trades_yr": result.trades_per_year,
+            "n_params": _count_tunable_params(params),
+            "vs_bah": result.vs_bah_multiple,
+            "cagr": result.cagr_pct,
+            "max_dd": result.max_drawdown_pct,
+            "mar": result.mar_ratio,
+            "regime_score": result.regime_score.composite if result.regime_score else 0,
             "hhi": (result.regime_score.hhi or 0) if result.regime_score else 0,
             "bull_capture": result.regime_score.bull_capture_ratio
             if result.regime_score
@@ -606,16 +677,33 @@ def run_grid_search(
         print("\n[grid] Dry run — no backtests. Exiting.")
         return {"total_combos": total_combos}
 
-    # ── Phase 1: Exhaustive backtest + pre-filter (multicore) ──
-    n_workers = min(multiprocessing.cpu_count(), total_combos) or 1
-    print(f"\n[grid] Launching {n_workers} worker processes...")
+    # ── Phase 1: Exhaustive backtest + pre-filter ──
+    # For small job counts, single-thread is faster (avoids process spawn overhead).
+    MULTICORE_THRESHOLD = 150
     start = time.time()
-
     all_results = []
     charter_rejects = 0
 
-    with multiprocessing.Pool(processes=n_workers, initializer=_worker_init) as pool:
-        for result in pool.imap_unordered(_worker_backtest, jobs, chunksize=8):
+    if total_combos >= MULTICORE_THRESHOLD:
+        n_workers = min(multiprocessing.cpu_count() - 1, total_combos // 10) or 1
+        n_workers = max(2, min(n_workers, 12))
+        print(f"\n[grid] Multicore: {n_workers} workers for {total_combos} combos...")
+        with multiprocessing.Pool(
+            processes=n_workers, initializer=_worker_init
+        ) as pool:
+            for result in pool.imap_unordered(_worker_backtest, jobs, chunksize=8):
+                if result is None:
+                    continue
+                if result.get("_rejected"):
+                    charter_rejects += 1
+                    continue
+                all_results.append(result)
+    else:
+        print(
+            f"\n[grid] Single-core: {total_combos} combos (below multicore threshold)..."
+        )
+        for concept, params in jobs:
+            result = _backtest_single(concept, params, ind, df, close, dates)
             if result is None:
                 continue
             if result.get("_rejected"):

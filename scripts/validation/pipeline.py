@@ -36,7 +36,6 @@ from backtest_engine import detect_bear_regimes, detect_bull_regimes, score_regi
 from canonical_params import effective_tier as compute_effective_tier
 from data import get_tecl_data
 from discovery_markers import score_marker_alignment
-from pine_generator import generate_pine_script
 from strategies import STRATEGY_REGISTRY, STRATEGY_TIERS
 from validation.candidate import (
     analyze_four_year_degeneracy,
@@ -51,7 +50,7 @@ from validation.deflate import (
     estimate_n_eff_heuristic,
     expected_max_beta,
 )
-from validation.integrity import REQUIRED_PINE_SNIPPETS, validate_run_integrity
+from validation.integrity import validate_run_integrity
 from parity import structural_parity_check
 from validation.sprint1 import (
     get_strategy_trades,
@@ -1011,6 +1010,58 @@ def _validate_entry(
     return entry
 
 
+import multiprocessing
+
+# ── Multiprocessing worker infrastructure for validation ──
+_val_ctx = None
+_val_reopt_minutes = None
+_val_reopt_pop_size = None
+
+
+def _val_worker_init(strategy_names, reopt_minutes, reopt_pop_size):
+    """Per-process initializer — builds ValidationContext once per worker."""
+    global _val_ctx, _val_reopt_minutes, _val_reopt_pop_size
+    _val_reopt_minutes = reopt_minutes
+    _val_reopt_pop_size = reopt_pop_size
+    run_integrity = validate_run_integrity(strategy_names)
+    df = get_tecl_data(use_yfinance=False)
+    close = df["close"].values.astype(np.float64)
+    dates = df["date"].values
+    bears = detect_bear_regimes(close, dates)
+    bulls = detect_bull_regimes(close, dates, bears)
+    null = calibrate_null_distribution(samples_per_family=40, use_cache=True)
+    n_eff = estimate_n_eff_heuristic()
+    expected_max = expected_max_beta(null["beta_alpha"], null["beta_beta"], n_eff)
+    leaderboard = []
+    lb_path = os.path.join(PROJECT_ROOT, "spike", "leaderboard.json")
+    if os.path.exists(lb_path):
+        try:
+            with open(lb_path) as f:
+                leaderboard = json.load(f)
+        except Exception:
+            leaderboard = []
+    _val_ctx = ValidationContext(
+        df=df, close=close, dates=dates, bears=bears, bulls=bulls,
+        null=null, n_eff=n_eff, expected_max=expected_max,
+        regime_transitions=len(bears) + len(bulls),
+        leaderboard=leaderboard, run_integrity=run_integrity,
+    )
+
+
+def _val_worker_run(entry):
+    """Validate a single entry in a worker process."""
+    if not entry.get("metrics"):
+        return None
+    return _validate_entry(
+        entry, _val_ctx,
+        reopt_minutes=_val_reopt_minutes,
+        reopt_pop_size=_val_reopt_pop_size,
+    )
+
+
+PARALLEL_VALIDATION_THRESHOLD = 4
+
+
 def run_validation_pipeline(
     results: dict,
     *,
@@ -1034,16 +1085,32 @@ def run_validation_pipeline(
     reopt_minutes, reopt_pop_size = _choose_reopt_budget(hours, quick)
     print(f"[validate] Gate 6 re-opt budget: {reopt_minutes:.1f}m @ pop {reopt_pop_size}")
 
-    enriched_rankings = [
-        _validate_entry(
-            entry,
-            ctx,
-            reopt_minutes=reopt_minutes,
-            reopt_pop_size=reopt_pop_size,
-        )
-        for entry in raw_rankings
-        if entry.get("metrics")
-    ]
+    candidates = [e for e in raw_rankings if e.get("metrics")]
+    n_candidates = len(candidates)
+
+    if n_candidates >= PARALLEL_VALIDATION_THRESHOLD:
+        strategy_names = [e.get("strategy", "") for e in raw_rankings if e.get("strategy")]
+        n_workers = min(multiprocessing.cpu_count() - 1, n_candidates)
+        n_workers = max(2, min(n_workers, 8))
+        print(f"[validate] Multicore: {n_workers} workers for {n_candidates} candidates...")
+        with multiprocessing.Pool(
+            processes=n_workers,
+            initializer=_val_worker_init,
+            initargs=(strategy_names, reopt_minutes, reopt_pop_size),
+        ) as pool:
+            enriched_rankings = [
+                r for r in pool.map(_val_worker_run, candidates) if r is not None
+            ]
+    else:
+        print(f"[validate] Single-core: {n_candidates} candidates...")
+        enriched_rankings = [
+            _validate_entry(
+                entry, ctx,
+                reopt_minutes=reopt_minutes,
+                reopt_pop_size=reopt_pop_size,
+            )
+            for entry in candidates
+        ]
 
     final_pass = [entry for entry in enriched_rankings if entry["validation"]["verdict"] == "PASS"]
     final_warn = [entry for entry in enriched_rankings if entry["validation"]["verdict"] == "WARN"]
