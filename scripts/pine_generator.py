@@ -3245,6 +3245,175 @@ def _build_gc_precross_strict(params: dict) -> str:
     )
 
 
+def _vix_breaker_pine() -> str:
+    """Shared VIX panic circuit breaker block for Pine generators."""
+    return """
+        // VIX panic circuit breaker — VIX > 30 AND 5-day jump > 75%
+        vixVal   = request.security("CBOE:VIX", timeframe.period, close)
+        vix5dAgo = vixVal[5]
+        vixSpike = not na(vixVal) and not na(vix5dAgo) and vix5dAgo > 0 and vixVal > 30 and (vixVal - vix5dAgo) / vix5dAgo > 0.75
+    """
+
+
+def _build_gc_strict_vix(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - GC Strict Pre-Cross + VIX (T1)",
+        "GCStrictVIX",
+        "gc_strict_vix",
+        f"""
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 100))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 150))}, "Slow EMA", minval=1, group="1 - Inputs")
+        slopeWin     = input.int({_pine_number(params.get("slope_window", 5))}, "Slope Window", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 2))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+
+        gap     = fastEma - slowEma
+        prevGap = gap[1]
+        fastRising = not na(fastEma[slopeWin]) and fastEma > fastEma[slopeWin]
+        slowRising = not na(slowEma[slopeWin]) and slowEma > slowEma[slopeWin]
+
+        // Track consecutive narrowing + fast slope bars
+        var int narrowCount = 0
+        var int fastSlopeCount = 0
+        if gap < 0 and gap > prevGap
+            narrowCount += 1
+        else
+            narrowCount := 0
+        if fastRising
+            fastSlopeCount += 1
+        else
+            fastSlopeCount := 0
+
+        entrySignal = narrowCount >= entryBars and fastSlopeCount >= 2 * entryBars and slowRising
+        deathExit = fastEma < slowEma and gap < prevGap
+
+        {_vix_breaker_pine()}
+
+        exitSignal = deathExit or vixSpike
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            exitLabel = vixSpike ? "VIX PANIC" : "Death X"
+            exitColor = vixSpike ? color.orange : color.red
+            label.new(bar_index, high, exitLabel, yloc=yloc.abovebar, style=label.style_label_down, color=exitColor, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(fastEma, "Fast EMA", color=color.new(color.green, 30), linewidth=1)
+        plot(slowEma, "Slow EMA", color=color.new(color.red, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_atr_ratio_vix(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - ATR Ratio + VIX (T1)",
+        "ATRVIX",
+        "atr_ratio_vix",
+        f"""
+        atrShort     = input.int({_pine_number(params.get("atr_short", 14))}, "ATR Short", minval=1, group="1 - Inputs")
+        atrLong      = input.int({_pine_number(params.get("atr_long", 100))}, "ATR Long", minval=1, group="1 - Inputs")
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 30))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 100))}, "Slow EMA", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        atrS    = ta.atr(atrShort)
+        atrL    = ta.atr(atrLong)
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+        ratio   = not na(atrS) and not na(atrL) and atrL > 0 ? atrS / atrL : na
+
+        entrySignal = not na(ratio) and ratio < 1.0 and not na(fastEma) and not na(slowEma) and fastEma > slowEma
+        deathExit = not na(fastEma) and not na(slowEma) and fastEma < slowEma
+
+        {_vix_breaker_pine()}
+
+        exitSignal = deathExit or vixSpike
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            exitLabel = vixSpike ? "VIX PANIC" : "Death X"
+            exitColor = vixSpike ? color.orange : color.red
+            label.new(bar_index, high, exitLabel, yloc=yloc.abovebar, style=label.style_label_down, color=exitColor, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(fastEma, "Fast EMA", color=color.new(color.green, 30), linewidth=1)
+        plot(slowEma, "Slow EMA", color=color.new(color.red, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_gc_pre_vix(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - GC Pre-Cross + VIX Breaker (T1)",
+        "GCPreVIX",
+        "gc_pre_vix",
+        f"""
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 30))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 100))}, "Slow EMA", minval=1, group="1 - Inputs")
+        slopeWin     = input.int({_pine_number(params.get("slope_window", 5))}, "Slope Window", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+
+        gap     = fastEma - slowEma
+        prevGap = gap[1]
+        fastRising = not na(fastEma[slopeWin]) and fastEma > fastEma[slopeWin]
+        slowRising = not na(slowEma[slopeWin]) and slowEma > slowEma[slopeWin]
+
+        // Pre-cross: fast below slow but gap narrowing + both slopes positive
+        preCross = gap < 0 and gap > prevGap and fastRising and slowRising
+
+        var int bullCount = 0
+        if preCross
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+
+        // Exit 1: death cross + gap widening
+        deathExit = fastEma < slowEma and gap < prevGap
+
+        // Exit 2: VIX panic circuit breaker — VIX > 30 AND 5-day jump > 75%
+        vixVal   = request.security("CBOE:VIX", timeframe.period, close)
+        vix5dAgo = vixVal[5]
+        vixSpike = not na(vixVal) and not na(vix5dAgo) and vix5dAgo > 0 and vixVal > 30 and (vixVal - vix5dAgo) / vix5dAgo > 0.75
+
+        exitSignal = deathExit or vixSpike
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            exitLabel = vixSpike ? "VIX PANIC" : "Death X"
+            exitColor = vixSpike ? color.orange : color.red
+            label.new(bar_index, high, exitLabel, yloc=yloc.abovebar, style=label.style_label_down, color=exitColor, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(fastEma, "Fast EMA", color=color.new(color.green, 30), linewidth=1)
+        plot(slowEma, "Slow EMA", color=color.new(color.red, 30), linewidth=2)
+        """,
+    )
+
+
 _BUILDERS = {
     # T1 grid-searchable concepts — each uses a template function that
     # accepts arbitrary params, so the same builder works for any grid combo.
@@ -3334,6 +3503,9 @@ _BUILDERS = {
     "gc_precross_vol": _build_gc_precross_vol,
     "gc_asym_slope": _build_gc_asym_slope,
     "gc_precross_strict": _build_gc_precross_strict,
+    "gc_pre_vix": _build_gc_pre_vix,
+    "gc_strict_vix": _build_gc_strict_vix,
+    "atr_ratio_vix": _build_atr_ratio_vix,
 }
 
 

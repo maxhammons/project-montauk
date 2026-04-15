@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import itertools
+import multiprocessing
 import os
 import sys
 import time
@@ -373,6 +374,28 @@ GRIDS = {
         "entry_bars": [2, 3],
         "cooldown": [5],
     },
+    # ── gc-pre-VIX: pre-cross + VIX panic circuit breaker ──
+    "gc_pre_vix": {  # 4 × 3 × 2 × 2 = 48 combos (filtered fast < slow)
+        "fast_ema": [20, 30, 50, 100],
+        "slow_ema": [100, 150, 200],
+        "slope_window": [3, 5],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "gc_strict_vix": {  # 4 × 3 × 2 × 2 = 48 combos (filtered fast < slow)
+        "fast_ema": [20, 30, 50, 100],
+        "slow_ema": [100, 150, 200],
+        "slope_window": [3, 5],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "atr_ratio_vix": {  # 3 × 3 × 2 × 2 = 36 combos (filtered atr_short < atr_long, fast < slow)
+        "atr_short": [7, 14, 20],
+        "atr_long": [50, 100, 200],
+        "fast_ema": [30, 50],
+        "slow_ema": [100, 200],
+        "cooldown": [5],
+    },
 }
 
 
@@ -442,6 +465,107 @@ def _is_valid_combo(concept: str, params: dict) -> bool:
     return True
 
 
+
+# ── Multiprocessing worker infrastructure ──
+# Each worker process gets its own copy of data + indicators (avoids pickling).
+_worker_df = None
+_worker_ind = None
+_worker_close = None
+_worker_dates = None
+
+
+def _worker_init():
+    """Per-process initializer — loads data once per worker."""
+    global _worker_df, _worker_ind, _worker_close, _worker_dates
+    _worker_df = get_tecl_data()
+    _worker_ind = Indicators(_worker_df)
+    _worker_close = _worker_df["close"].values.astype(np.float64)
+    _worker_dates = _worker_df["date"].values
+
+
+def _worker_backtest(job: tuple[str, dict]) -> dict | None:
+    """Backtest a single (concept, params) combo in a worker process.
+
+    Returns a result dict if the combo passes charter pre-filter, else None.
+    """
+    concept, params = job
+    fn = STRATEGY_REGISTRY.get(concept)
+    if fn is None:
+        return None
+    try:
+        entries, exits, labels = fn(_worker_ind, params)
+        result = backtest(
+            _worker_df,
+            entries,
+            exits,
+            labels,
+            cooldown_bars=params.get("cooldown", 0),
+            strategy_name=concept,
+        )
+        result.params = params
+    except Exception:
+        return None
+
+    # Charter pre-filter
+    if result.vs_bah_multiple < 1.0:
+        return {"_rejected": True}
+    if result.num_trades < 5:
+        return {"_rejected": True}
+    if result.trades_per_year > 5.0:
+        return {"_rejected": True}
+
+    # Compute regime score + marker alignment
+    result.regime_score = score_regime_capture(result.trades, _worker_close, _worker_dates)
+    align = score_marker_alignment(_worker_df, result.trades)
+    tier = STRATEGY_TIERS.get(concept, "T1")
+    fit = compute_fitness(result, tier=tier)
+
+    return {
+        "strategy": concept,
+        "rank": 0,
+        "fitness": fit,
+        "tier": tier,
+        "params": params,
+        "marker_alignment_score": align["score"],
+        "marker_alignment_detail": align,
+        "metrics": {
+            "trades": result.num_trades,
+            "trades_yr": result.trades_per_year,
+            "n_params": _count_tunable_params(params),
+            "vs_bah": result.vs_bah_multiple,
+            "cagr": result.cagr_pct,
+            "max_dd": result.max_drawdown_pct,
+            "mar": result.mar_ratio,
+            "regime_score": result.regime_score.composite
+            if result.regime_score
+            else 0,
+            "hhi": (result.regime_score.hhi or 0) if result.regime_score else 0,
+            "bull_capture": result.regime_score.bull_capture_ratio
+            if result.regime_score
+            else 0,
+            "bear_avoidance": result.regime_score.bear_avoidance_ratio
+            if result.regime_score
+            else 0,
+            "win_rate": result.win_rate_pct,
+            "exit_reasons": result.exit_reasons,
+        },
+        "trades": [
+            {
+                "entry_bar": t.entry_bar,
+                "exit_bar": t.exit_bar,
+                "entry_date": t.entry_date,
+                "exit_date": t.exit_date,
+                "entry_price": t.entry_price,
+                "exit_price": t.exit_price,
+                "pnl_pct": t.pnl_pct,
+                "bars_held": t.bars_held,
+                "exit_reason": t.exit_reason,
+            }
+            for t in result.trades
+        ],
+    }
+
+
 def run_grid_search(
     concepts: list[str] | None = None,
     dry_run: bool = False,
@@ -455,7 +579,7 @@ def run_grid_search(
     if concepts is None:
         concepts = list(GRIDS.keys())
 
-    # Load data once
+    # Load data once (main process — for combo counting + post-search use)
     print("[grid] Loading TECL data...")
     df = get_tecl_data()
     ind = Indicators(df)
@@ -463,23 +587,8 @@ def run_grid_search(
     dates = df["date"].values
     print(f"[grid] {len(df)} bars, {len(concepts)} concepts")
 
-    # Count total combos
-    total_combos = 0
-    for concept in concepts:
-        grid = GRIDS.get(concept, {})
-        combos = [c for c in _grid_combos(grid) if _is_valid_combo(concept, c)]
-        total_combos += len(combos)
-        print(f"  {concept:<28} {len(combos):>4} combos")
-    print(f"  {'TOTAL':<28} {total_combos:>4} combos")
-
-    if dry_run:
-        print("\n[grid] Dry run — no backtests. Exiting.")
-        return {"total_combos": total_combos}
-
-    # ── Phase 1: Exhaustive backtest + pre-filter ──
-    start = time.time()
-    all_results = []
-    charter_rejects = 0
+    # Build flat job list: [(concept, params), ...]
+    jobs = []
     for concept in concepts:
         fn = STRATEGY_REGISTRY.get(concept)
         if fn is None:
@@ -487,92 +596,42 @@ def run_grid_search(
             continue
         grid = GRIDS.get(concept, {})
         combos = [c for c in _grid_combos(grid) if _is_valid_combo(concept, c)]
-        best_share = 0.0
-        concept_pass = 0
+        print(f"  {concept:<28} {len(combos):>4} combos")
         for params in combos:
-            try:
-                entries, exits, labels = fn(ind, params)
-                result = backtest(
-                    df,
-                    entries,
-                    exits,
-                    labels,
-                    cooldown_bars=params.get("cooldown", 0),
-                    strategy_name=concept,
-                )
-                result.params = params
-            except Exception:
-                continue
+            jobs.append((concept, params))
+    total_combos = len(jobs)
+    print(f"  {'TOTAL':<28} {total_combos:>4} combos")
 
-            # Charter pre-filter
-            if result.vs_bah_multiple < 1.0:
+    if dry_run:
+        print("\n[grid] Dry run — no backtests. Exiting.")
+        return {"total_combos": total_combos}
+
+    # ── Phase 1: Exhaustive backtest + pre-filter (multicore) ──
+    n_workers = min(multiprocessing.cpu_count(), total_combos) or 1
+    print(f"\n[grid] Launching {n_workers} worker processes...")
+    start = time.time()
+
+    all_results = []
+    charter_rejects = 0
+
+    with multiprocessing.Pool(processes=n_workers, initializer=_worker_init) as pool:
+        for result in pool.imap_unordered(_worker_backtest, jobs, chunksize=8):
+            if result is None:
+                continue
+            if result.get("_rejected"):
                 charter_rejects += 1
                 continue
-            if result.num_trades < 5:
-                charter_rejects += 1
-                continue
-            if result.trades_per_year > 5.0:
-                charter_rejects += 1
-                continue
+            all_results.append(result)
 
-            # Compute regime score + marker alignment
-            result.regime_score = score_regime_capture(result.trades, close, dates)
-            align = score_marker_alignment(df, result.trades)
-            tier = STRATEGY_TIERS.get(concept, "T1")
-            fit = compute_fitness(result, tier=tier)
-
-            entry = {
-                "strategy": concept,
-                "rank": 0,
-                "fitness": fit,
-                "tier": tier,
-                "params": params,
-                "marker_alignment_score": align["score"],
-                "marker_alignment_detail": align,
-                "metrics": {
-                    "trades": result.num_trades,
-                    "trades_yr": result.trades_per_year,
-                    "n_params": _count_tunable_params(params),
-                    "vs_bah": result.vs_bah_multiple,
-                    "cagr": result.cagr_pct,
-                    "max_dd": result.max_drawdown_pct,
-                    "mar": result.mar_ratio,
-                    "regime_score": result.regime_score.composite
-                    if result.regime_score
-                    else 0,
-                    "hhi": (result.regime_score.hhi or 0) if result.regime_score else 0,
-                    "bull_capture": result.regime_score.bull_capture_ratio
-                    if result.regime_score
-                    else 0,
-                    "bear_avoidance": result.regime_score.bear_avoidance_ratio
-                    if result.regime_score
-                    else 0,
-                    "win_rate": result.win_rate_pct,
-                    "exit_reasons": result.exit_reasons,
-                },
-                "trades": [
-                    {
-                        "entry_bar": t.entry_bar,
-                        "exit_bar": t.exit_bar,
-                        "entry_date": t.entry_date,
-                        "exit_date": t.exit_date,
-                        "entry_price": t.entry_price,
-                        "exit_price": t.exit_price,
-                        "pnl_pct": t.pnl_pct,
-                        "bars_held": t.bars_held,
-                        "exit_reason": t.exit_reason,
-                    }
-                    for t in result.trades
-                ],
-            }
-            all_results.append(entry)
-            concept_pass += 1
-            if result.vs_bah_multiple > best_share:
-                best_share = result.vs_bah_multiple
-
-        print(
-            f"  {concept:<28} {concept_pass:>3} pass charter  best_share={best_share:.2f}x"
-        )
+    # Per-concept summary
+    concept_stats: dict[str, tuple[int, float]] = {}
+    for e in all_results:
+        c = e["strategy"]
+        prev_count, prev_best = concept_stats.get(c, (0, 0.0))
+        concept_stats[c] = (prev_count + 1, max(prev_best, e["metrics"]["vs_bah"]))
+    for concept in concepts:
+        count, best = concept_stats.get(concept, (0, 0.0))
+        print(f"  {concept:<28} {count:>3} pass charter  best_share={best:.2f}x")
 
     elapsed_search = time.time() - start
     # Rank by share_multiple (primary metric)

@@ -2963,6 +2963,134 @@ def gc_precross_strict(ind, p):
     return entries, exits, labels
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# gc-pre-VIX: pre-cross entry + VIX panic circuit breaker
+# Same pre-cross logic as gc_precross, plus an emergency exit when VIX
+# spikes > 30 AND has jumped > 75% in 5 trading days (genuine panic event).
+# The VIX exit fires ~4 times in 33 years: Flash Crash, Volmageddon,
+# COVID, Japan carry unwind. Death cross handles normal exits.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def gc_pre_vix(ind, p):
+    """T1: Pre-cross entry + VIX panic circuit breaker.
+    Entry: fast < slow BUT gap narrowing + fast slope positive for entry_bars + slow slope positive.
+    Exit: (fast < slow AND gap widening) OR (VIX > 30 AND VIX 5-day change > 75%).
+    The VIX exit is a safety net for black-swan events, not a regime signal."""
+    n = ind.n
+    fast = ind.ema(int(p.get("fast_ema", 30)))
+    slow = ind.ema(int(p.get("slow_ema", 100)))
+    slope_w = int(p.get("slope_window", 5))
+    entry_bars = int(p.get("entry_bars", 3))
+    vix = ind.vix
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(max(slope_w + 1, 6), n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(fast[i - 1]) or np.isnan(slow[i - 1]):
+            bull_count = 0
+            continue
+        gap = fast[i] - slow[i]
+        prev_gap = fast[i - 1] - slow[i - 1]
+        fast_rising = fast[i] > fast[i - slope_w]
+        slow_rising = slow[i] > slow[i - slope_w]
+        # Pre-cross entry: fast still below slow but gap narrowing + both slopes positive
+        if gap < 0 and gap > prev_gap and fast_rising and slow_rising:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        # Exit 1: death cross + gap widening (same as gc_precross)
+        if fast[i] < slow[i] and gap < prev_gap:
+            exits[i] = True
+            labels[i] = "D"
+        # Exit 2: VIX panic circuit breaker — VIX > 30 AND spiked 75%+ in 5 days
+        if vix is not None and not np.isnan(vix[i]) and not np.isnan(vix[i - 5]):
+            if vix[i] > 30 and vix[i - 5] > 0 and (vix[i] - vix[i - 5]) / vix[i - 5] > 0.75:
+                exits[i] = True
+                labels[i] = "V"
+    return entries, exits, labels
+
+
+def gc_strict_vix(ind, p):
+    """T1: gc_precross_strict + VIX panic circuit breaker.
+    Entry: pre-cross with multi-bar narrowing + fast slope for 2x entry_bars + slow slope.
+    Exit: (death cross + gap widening) OR (VIX > 30 AND 5-day jump > 75%)."""
+    n = ind.n
+    fast = ind.ema(int(p.get("fast_ema", 100)))
+    slow = ind.ema(int(p.get("slow_ema", 150)))
+    slope_w = int(p.get("slope_window", 5))
+    entry_bars = int(p.get("entry_bars", 2))
+    vix = ind.vix
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    narrow_count = 0
+    fast_slope_count = 0
+    for i in range(max(slope_w + 1, 6), n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(fast[i - 1]) or np.isnan(slow[i - 1]) or np.isnan(fast[i - slope_w]) or np.isnan(slow[i - slope_w]):
+            narrow_count = 0
+            fast_slope_count = 0
+            continue
+        gap = fast[i] - slow[i]
+        prev_gap = fast[i - 1] - slow[i - 1]
+        fast_rising = fast[i] > fast[i - slope_w]
+        slow_rising = slow[i] > slow[i - slope_w]
+        if gap < 0 and gap > prev_gap:
+            narrow_count += 1
+        else:
+            narrow_count = 0
+        if fast_rising:
+            fast_slope_count += 1
+        else:
+            fast_slope_count = 0
+        if narrow_count >= entry_bars and fast_slope_count >= 2 * entry_bars and slow_rising:
+            entries[i] = True
+        # Exit 1: death cross + gap widening
+        if fast[i] < slow[i] and gap < prev_gap:
+            exits[i] = True
+            labels[i] = "D"
+        # Exit 2: VIX panic circuit breaker
+        if vix is not None and not np.isnan(vix[i]) and not np.isnan(vix[i - 5]):
+            if vix[i] > 30 and vix[i - 5] > 0 and (vix[i] - vix[i - 5]) / vix[i - 5] > 0.75:
+                exits[i] = True
+                labels[i] = "V"
+    return entries, exits, labels
+
+
+def atr_ratio_vix(ind, p):
+    """T1: atr_ratio_trend + VIX panic circuit breaker.
+    Entry: ATR(short)/ATR(long) < 1.0 + fast > slow EMA (calm vol + golden cross).
+    Exit: death cross OR (VIX > 30 AND 5-day jump > 75%)."""
+    n = ind.n
+    atr_s = ind.atr(int(p.get("atr_short", 14)))
+    atr_l = ind.atr(int(p.get("atr_long", 100)))
+    fast = ind.ema(int(p.get("fast_ema", 30)))
+    slow = ind.ema(int(p.get("slow_ema", 100)))
+    vix = ind.vix
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(6, n):
+        if np.isnan(atr_s[i]) or np.isnan(atr_l[i]) or atr_l[i] == 0 or np.isnan(fast[i]) or np.isnan(slow[i]):
+            continue
+        ratio = atr_s[i] / atr_l[i]
+        if ratio < 1.0 and fast[i] > slow[i]:
+            entries[i] = True
+        # Exit 1: death cross
+        if fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+        # Exit 2: VIX panic circuit breaker
+        if vix is not None and not np.isnan(vix[i]) and not np.isnan(vix[i - 5]):
+            if vix[i] > 30 and vix[i - 5] > 0 and (vix[i] - vix[i - 5]) / vix[i - 5] > 0.75:
+                exits[i] = True
+                labels[i] = "V"
+    return entries, exits, labels
+
+
 STRATEGY_REGISTRY = {
     # Grid-searchable T1 concepts (logic functions that accept any canonical param combo).
     # Grid search evaluates these exhaustively over canonical param grids.
@@ -3038,6 +3166,10 @@ STRATEGY_REGISTRY = {
     "gc_precross_vol":          gc_precross_vol,
     "gc_asym_slope":            gc_asym_slope,
     "gc_precross_strict":       gc_precross_strict,
+    # ── gc-pre-VIX: pre-cross + VIX panic circuit breaker ──
+    "gc_pre_vix":               gc_pre_vix,
+    "gc_strict_vix":            gc_strict_vix,
+    "atr_ratio_vix":            atr_ratio_vix,
 }
 
 # Declared validation tier for each strategy family.
@@ -3119,6 +3251,9 @@ STRATEGY_TIERS = {
     "gc_precross_vol":          "T1",
     "gc_asym_slope":            "T1",
     "gc_precross_strict":       "T1",
+    "gc_pre_vix":               "T1",
+    "gc_strict_vix":            "T1",
+    "atr_ratio_vix":            "T1",
 }
 
 # Parameter spaces for each strategy: {param: (min, max, step, type)}
@@ -3541,6 +3676,27 @@ STRATEGY_PARAMS = {
         "slow_ema":       (100, 300, 50, int),
         "slope_window":   (3, 5, 2, int),
         "entry_bars":     (2, 5, 1, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "gc_pre_vix": {
+        "fast_ema":       (20, 100, 10, int),
+        "slow_ema":       (100, 300, 50, int),
+        "slope_window":   (3, 5, 2, int),
+        "entry_bars":     (2, 5, 1, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "gc_strict_vix": {
+        "fast_ema":       (20, 100, 10, int),
+        "slow_ema":       (100, 300, 50, int),
+        "slope_window":   (3, 5, 2, int),
+        "entry_bars":     (2, 5, 1, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "atr_ratio_vix": {
+        "atr_short":      (7, 20, 7, int),
+        "atr_long":       (50, 200, 50, int),
+        "fast_ema":       (20, 100, 10, int),
+        "slow_ema":       (100, 300, 50, int),
         "cooldown":       (2, 10, 3, int),
     },
 }
