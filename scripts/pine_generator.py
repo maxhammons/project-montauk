@@ -69,7 +69,13 @@ def _wrap(title: str, shorttitle: str, strategy_name: str, body: str) -> str:
         alertcondition(riskOffFlip, "Risk Off", "Project Montauk risk_state=risk_off")
         """
     ).strip()
-    return _header(title, shorttitle, strategy_name) + dedent(body).strip() + "\n\n" + footer + "\n"
+    return (
+        _header(title, shorttitle, strategy_name)
+        + dedent(body).strip()
+        + "\n\n"
+        + footer
+        + "\n"
+    )
 
 
 def _build_montauk_821(params: dict) -> str:
@@ -1038,9 +1044,15 @@ def _build_ema_regime(params: dict) -> str:
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-def _ma_cross_slope_pine(title, suffix, strategy_name, fast_default, slow_default, params):
+def _ma_cross_slope_pine(
+    title, suffix, strategy_name, fast_default, slow_default, params
+):
     """Templated golden_cross-style Pine: fast EMA crosses slow + slope filter + entry confirm."""
-    return _wrap(title, suffix, strategy_name, f"""
+    return _wrap(
+        title,
+        suffix,
+        strategy_name,
+        f"""
         fastLen      = input.int({_pine_number(params.get("fast_ema", fast_default))}, "Fast EMA", minval=1, group="1 - Inputs")
         slowLen      = input.int({_pine_number(params.get("slow_ema", slow_default))}, "Slow EMA", minval=1, group="1 - Inputs")
         slopeWindow  = input.int({_pine_number(params.get("slope_window", 5))}, "Slow Slope Window", minval=1, group="1 - Inputs")
@@ -1073,12 +1085,17 @@ def _ma_cross_slope_pine(title, suffix, strategy_name, fast_default, slow_defaul
 
         plot(fastEma, "Fast EMA", color=color.new(color.green, 30), linewidth=2)
         plot(slowEma, "Slow EMA", color=color.new(color.blue, 30), linewidth=2)
-    """)
+    """,
+    )
 
 
 def _ema_slope_above_pine(title, suffix, strategy_name, ema_default, params):
     """Templated single-EMA + slope filter Pine: close > EMA AND EMA rising for entry_bars."""
-    return _wrap(title, suffix, strategy_name, f"""
+    return _wrap(
+        title,
+        suffix,
+        strategy_name,
+        f"""
         emaLen       = input.int({_pine_number(params.get("ema_len", ema_default))}, "EMA Length", minval=1, group="1 - Inputs")
         slopeWindow  = input.int({_pine_number(params.get("slope_window", 5))}, "EMA Slope Window", minval=1, group="1 - Inputs")
         entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
@@ -1108,12 +1125,17 @@ def _ema_slope_above_pine(title, suffix, strategy_name, ema_default, params):
             strategy.entry("Long", strategy.long)
 
         plot(ema, "EMA", color=color.new(color.blue, 30), linewidth=2)
-    """)
+    """,
+    )
 
 
 def _rsi_recovery_above_ema_pine(title, suffix, strategy_name, trend_default, params):
     """Templated RSI-recovery-above-trend Pine."""
-    return _wrap(title, suffix, strategy_name, f"""
+    return _wrap(
+        title,
+        suffix,
+        strategy_name,
+        f"""
         rsiLen       = input.int({_pine_number(params.get("rsi_len", 14))}, "RSI Length", minval=1, group="1 - Inputs")
         trendLen     = input.int({_pine_number(params.get("trend_len", trend_default))}, "Trend EMA Length", minval=1, group="1 - Inputs")
         cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
@@ -1144,25 +1166,76 @@ def _rsi_recovery_above_ema_pine(title, suffix, strategy_name, trend_default, pa
             strategy.entry("Long", strategy.long)
 
         plot(trend, "Trend EMA", color=color.new(color.blue, 30), linewidth=2)
-    """)
+    """,
+    )
 
 
-def _build_golden_cross_30_150(p):  return _ma_cross_slope_pine("Golden Cross 30/150 (T0)", "GC30150", "golden_cross_30_150", 30, 150, p)
-def _build_golden_cross_20_100(p):  return _ma_cross_slope_pine("Golden Cross 20/100 (T0)", "GC20100", "golden_cross_20_100", 20, 100, p)
-def _build_golden_cross_50_150(p):  return _ma_cross_slope_pine("Golden Cross 50/150 (T0)", "GC50150", "golden_cross_50_150", 50, 150, p)
-def _build_golden_cross_100_200(p): return _ma_cross_slope_pine("Golden Cross 100/200 (T0)", "GC100200", "golden_cross_100_200", 100, 200, p)
+def _build_golden_cross_30_150(p):
+    return _ma_cross_slope_pine(
+        "Golden Cross 30/150 (T0)", "GC30150", "golden_cross_30_150", 30, 150, p
+    )
 
-def _build_ema_50_slope_above(p):   return _ema_slope_above_pine("EMA-50 Slope-Above (T0)", "EMA50Slope", "ema_50_slope_above", 50, p)
-def _build_ema_100_slope_above(p):  return _ema_slope_above_pine("EMA-100 Slope-Above (T0)", "EMA100Slope", "ema_100_slope_above", 100, p)
-def _build_ema_150_slope_above(p):  return _ema_slope_above_pine("EMA-150 Slope-Above (T0)", "EMA150Slope", "ema_150_slope_above", 150, p)
-def _build_ema_200_slope_above(p):  return _ema_slope_above_pine("EMA-200 Slope-Above (T0)", "EMA200Slope", "ema_200_slope_above", 200, p)
 
-def _build_rsi_recovery_ema_100(p): return _rsi_recovery_above_ema_pine("RSI Recovery + EMA-100 (T0)", "RSIRec100", "rsi_recovery_ema_100", 100, p)
-def _build_rsi_recovery_ema_200(p): return _rsi_recovery_above_ema_pine("RSI Recovery + EMA-200 (T0)", "RSIRec200", "rsi_recovery_ema_200", 200, p)
+def _build_golden_cross_20_100(p):
+    return _ma_cross_slope_pine(
+        "Golden Cross 20/100 (T0)", "GC20100", "golden_cross_20_100", 20, 100, p
+    )
+
+
+def _build_golden_cross_50_150(p):
+    return _ma_cross_slope_pine(
+        "Golden Cross 50/150 (T0)", "GC50150", "golden_cross_50_150", 50, 150, p
+    )
+
+
+def _build_golden_cross_100_200(p):
+    return _ma_cross_slope_pine(
+        "Golden Cross 100/200 (T0)", "GC100200", "golden_cross_100_200", 100, 200, p
+    )
+
+
+def _build_ema_50_slope_above(p):
+    return _ema_slope_above_pine(
+        "EMA-50 Slope-Above (T0)", "EMA50Slope", "ema_50_slope_above", 50, p
+    )
+
+
+def _build_ema_100_slope_above(p):
+    return _ema_slope_above_pine(
+        "EMA-100 Slope-Above (T0)", "EMA100Slope", "ema_100_slope_above", 100, p
+    )
+
+
+def _build_ema_150_slope_above(p):
+    return _ema_slope_above_pine(
+        "EMA-150 Slope-Above (T0)", "EMA150Slope", "ema_150_slope_above", 150, p
+    )
+
+
+def _build_ema_200_slope_above(p):
+    return _ema_slope_above_pine(
+        "EMA-200 Slope-Above (T0)", "EMA200Slope", "ema_200_slope_above", 200, p
+    )
+
+
+def _build_rsi_recovery_ema_100(p):
+    return _rsi_recovery_above_ema_pine(
+        "RSI Recovery + EMA-100 (T0)", "RSIRec100", "rsi_recovery_ema_100", 100, p
+    )
+
+
+def _build_rsi_recovery_ema_200(p):
+    return _rsi_recovery_above_ema_pine(
+        "RSI Recovery + EMA-200 (T0)", "RSIRec200", "rsi_recovery_ema_200", 200, p
+    )
 
 
 def _build_rsi_50_above_ema_200(p):
-    return _wrap("RSI > 50 + EMA-200 (T0)", "RSI50EMA200", "rsi_50_above_ema_200", f"""
+    return _wrap(
+        "RSI > 50 + EMA-200 (T0)",
+        "RSI50EMA200",
+        "rsi_50_above_ema_200",
+        f"""
         rsiLen       = input.int({_pine_number(p.get("rsi_len", 14))}, "RSI Length", minval=1, group="1 - Inputs")
         trendLen     = input.int({_pine_number(p.get("trend_len", 200))}, "Trend EMA", minval=1, group="1 - Inputs")
         entryBars    = input.int({_pine_number(p.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
@@ -1192,11 +1265,16 @@ def _build_rsi_50_above_ema_200(p):
             strategy.entry("Long", strategy.long)
 
         plot(trend, "Trend EMA", color=color.new(color.blue, 30), linewidth=2)
-    """)
+    """,
+    )
 
 
 def _build_triple_ema_stack(p):
-    return _wrap("Triple EMA Stack 50/100/200 (T0)", "TripleStack", "triple_ema_stack", f"""
+    return _wrap(
+        "Triple EMA Stack 50/100/200 (T0)",
+        "TripleStack",
+        "triple_ema_stack",
+        f"""
         shortLen     = input.int({_pine_number(p.get("short_ema", 50))}, "Short EMA", minval=1, group="1 - Inputs")
         medLen       = input.int({_pine_number(p.get("med_ema", 100))}, "Medium EMA", minval=1, group="1 - Inputs")
         longLen      = input.int({_pine_number(p.get("long_ema", 200))}, "Long EMA", minval=1, group="1 - Inputs")
@@ -1230,11 +1308,16 @@ def _build_triple_ema_stack(p):
         plot(emaShort, "EMA Short", color=color.new(color.green, 30))
         plot(emaMed, "EMA Med", color=color.new(color.orange, 30))
         plot(emaLong, "EMA Long", color=color.new(color.blue, 30))
-    """)
+    """,
+    )
 
 
 def _build_dual_ema_stack(p):
-    return _wrap("Dual EMA Stack 50+200 (T0)", "DualStack", "dual_ema_stack", f"""
+    return _wrap(
+        "Dual EMA Stack 50+200 (T0)",
+        "DualStack",
+        "dual_ema_stack",
+        f"""
         shortLen     = input.int({_pine_number(p.get("short_ema", 50))}, "Short EMA", minval=1, group="1 - Inputs")
         longLen      = input.int({_pine_number(p.get("long_ema", 200))}, "Long EMA", minval=1, group="1 - Inputs")
         entryBars    = input.int({_pine_number(p.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
@@ -1265,11 +1348,16 @@ def _build_dual_ema_stack(p):
 
         plot(emaShort, "EMA Short", color=color.new(color.green, 30))
         plot(emaLong, "EMA Long", color=color.new(color.blue, 30))
-    """)
+    """,
+    )
 
 
 def _build_donchian_100_50_filter(p):
-    return _wrap("Donchian 100/50 + EMA-100 (T0)", "Don10050", "donchian_100_50_filter", f"""
+    return _wrap(
+        "Donchian 100/50 + EMA-100 (T0)",
+        "Don10050",
+        "donchian_100_50_filter",
+        f"""
         entryLen     = input.int({_pine_number(p.get("entry_len", 100))}, "Entry Lookback", minval=1, group="1 - Inputs")
         exitLen      = input.int({_pine_number(p.get("exit_len", 50))}, "Exit Lookback", minval=1, group="1 - Inputs")
         trendLen     = input.int({_pine_number(p.get("trend_len", 100))}, "Trend EMA", minval=1, group="1 - Inputs")
@@ -1295,12 +1383,17 @@ def _build_donchian_100_50_filter(p):
         plot(upper, "Donchian Upper", color=color.new(color.green, 40))
         plot(lower, "Donchian Lower", color=color.new(color.red, 40))
         plot(trendEma, "Trend EMA", color=color.new(color.blue, 30), linewidth=2)
-    """)
+    """,
+    )
 
 
 def _build_donchian_150_50_filter(p):
     # Same template as 100_50, just different defaults
-    return _wrap("Donchian 150/50 + EMA-200 (T0)", "Don15050", "donchian_150_50_filter", f"""
+    return _wrap(
+        "Donchian 150/50 + EMA-200 (T0)",
+        "Don15050",
+        "donchian_150_50_filter",
+        f"""
         entryLen     = input.int({_pine_number(p.get("entry_len", 150))}, "Entry Lookback", minval=1, group="1 - Inputs")
         exitLen      = input.int({_pine_number(p.get("exit_len", 50))}, "Exit Lookback", minval=1, group="1 - Inputs")
         trendLen     = input.int({_pine_number(p.get("trend_len", 200))}, "Trend EMA", minval=1, group="1 - Inputs")
@@ -1326,11 +1419,16 @@ def _build_donchian_150_50_filter(p):
         plot(upper, "Donchian Upper", color=color.new(color.green, 40))
         plot(lower, "Donchian Lower", color=color.new(color.red, 40))
         plot(trendEma, "Trend EMA", color=color.new(color.blue, 30), linewidth=2)
-    """)
+    """,
+    )
 
 
 def _build_macd_above_zero_trend(p):
-    return _wrap("MACD Above Zero + EMA-200 (T0)", "MACDZero", "macd_above_zero_trend", f"""
+    return _wrap(
+        "MACD Above Zero + EMA-200 (T0)",
+        "MACDZero",
+        "macd_above_zero_trend",
+        f"""
         trendLen     = input.int({_pine_number(p.get("trend_len", 200))}, "Trend EMA", minval=1, group="1 - Inputs")
         cooldownBars = input.int({_pine_number(p.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
 
@@ -1352,11 +1450,16 @@ def _build_macd_above_zero_trend(p):
 
         plot(macdLine, "MACD", color=color.new(color.purple, 30))
         hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)
-    """)
+    """,
+    )
 
 
 def _build_ema_100_pure_slope(p):
-    return _wrap("EMA-100 Pure Slope (T0)", "EMA100Pure", "ema_100_pure_slope", f"""
+    return _wrap(
+        "EMA-100 Pure Slope (T0)",
+        "EMA100Pure",
+        "ema_100_pure_slope",
+        f"""
         emaLen       = input.int({_pine_number(p.get("ema_len", 100))}, "EMA Length", minval=1, group="1 - Inputs")
         slopeWindow  = input.int({_pine_number(p.get("slope_window", 5))}, "Slope Window", minval=1, group="1 - Inputs")
         entryBars    = input.int({_pine_number(p.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
@@ -1385,7 +1488,8 @@ def _build_ema_100_pure_slope(p):
             strategy.entry("Long", strategy.long)
 
         plot(ema, "EMA", color=color.new(color.blue, 30), linewidth=2)
-    """)
+    """,
+    )
 
 
 def _build_golden_cross_100_300(params: dict) -> str:
@@ -1985,14 +2089,1180 @@ def _build_rsi_roc_combo(params: dict) -> str:
     )
 
 
+# ── Spike batch 2026-04-14b: oscillator-filtered golden cross ──
+# All share the same structure: golden cross regime + oscillator entry filter + death cross exit
+
+
+def _death_cross_exit_pine(fast_var: str, slow_var: str) -> str:
+    """Common death cross exit + cooldown block for all batch-14b strategies."""
+    return f"""
+        exitSignal = {fast_var} < {slow_var}
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Death X", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(fastEma, "Fast EMA", color=color.new(color.green, 30), linewidth=1)
+        plot(slowEma, "Slow EMA", color=color.new(color.red, 30), linewidth=2)
+    """
+
+
+def _build_cci_regime_trend(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - CCI Regime + GC (T1)",
+        "CCIRegime",
+        "cci_regime_trend",
+        f"""
+        cciLen       = input.int({_pine_number(params.get("cci_len", 20))}, "CCI Length", minval=1, group="1 - Inputs")
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 50))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 200))}, "Slow EMA", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        cciVal  = ta.cci(close, cciLen)
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+
+        var int bullCount = 0
+        if not na(cciVal) and not na(fastEma) and not na(slowEma) and cciVal > 0 and fastEma > slowEma
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        {_death_cross_exit_pine("fastEma", "slowEma")}
+        """,
+    )
+
+
+def _build_willr_recovery_trend(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Williams %R + GC (T1)",
+        "WillRGC",
+        "willr_recovery_trend",
+        f"""
+        willrLen     = input.int({_pine_number(params.get("willr_len", 14))}, "Williams %R Length", minval=1, group="1 - Inputs")
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 50))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 200))}, "Slow EMA", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        willrVal = ta.percentrank(close, willrLen) - 100  // approximation of Williams %R
+        fastEma  = ta.ema(close, fastLen)
+        slowEma  = ta.ema(close, slowLen)
+
+        var int bullCount = 0
+        if not na(willrVal) and not na(fastEma) and not na(slowEma) and willrVal > -50 and fastEma > slowEma
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        {_death_cross_exit_pine("fastEma", "slowEma")}
+        """,
+    )
+
+
+def _build_mfi_above_trend(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - MFI + GC (T1)",
+        "MFIGC",
+        "mfi_above_trend",
+        f"""
+        mfiLen       = input.int({_pine_number(params.get("mfi_len", 14))}, "MFI Length", minval=1, group="1 - Inputs")
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 50))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 200))}, "Slow EMA", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        mfiVal  = ta.mfi(hlc3, mfiLen)
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+
+        var int bullCount = 0
+        if not na(mfiVal) and not na(fastEma) and not na(slowEma) and mfiVal > 50 and fastEma > slowEma
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        {_death_cross_exit_pine("fastEma", "slowEma")}
+        """,
+    )
+
+
+def _build_obv_slope_trend(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - OBV Slope + GC (T1)",
+        "OBVGC",
+        "obv_slope_trend",
+        f"""
+        obvEmaLen    = input.int({_pine_number(params.get("obv_ema_len", 50))}, "OBV EMA Length", minval=1, group="1 - Inputs")
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 50))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 200))}, "Slow EMA", minval=1, group="1 - Inputs")
+        slopeWin     = input.int({_pine_number(params.get("slope_window", 5))}, "Slope Window", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        obvRaw  = ta.obv
+        obvMa   = ta.ema(obvRaw, obvEmaLen)
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+        obvRising = not na(obvMa) and not na(obvMa[slopeWin]) and obvMa > obvMa[slopeWin]
+
+        var int bullCount = 0
+        if obvRising and not na(fastEma) and not na(slowEma) and fastEma > slowEma
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        {_death_cross_exit_pine("fastEma", "slowEma")}
+        """,
+    )
+
+
+def _build_bb_width_regime(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - BB Width + GC (T1)",
+        "BBWGC",
+        "bb_width_regime",
+        f"""
+        bbLen        = input.int({_pine_number(params.get("bb_len", 20))}, "BB Length", minval=1, group="1 - Inputs")
+        bbAvgLen     = input.int({_pine_number(params.get("bb_avg_len", 100))}, "BB Width Avg Length", minval=1, group="1 - Inputs")
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 50))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 200))}, "Slow EMA", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        [bbMid, bbUp, bbLo] = ta.bb(close, bbLen, 2.0)
+        bbWidth    = bbMid > 0 ? (bbUp - bbLo) / bbMid : na
+        bbWidthAvg = ta.sma(bbWidth, bbAvgLen)
+        fastEma    = ta.ema(close, fastLen)
+        slowEma    = ta.ema(close, slowLen)
+
+        entrySignal = not na(bbWidth) and not na(bbWidthAvg) and bbWidth < bbWidthAvg and not na(fastEma) and not na(slowEma) and fastEma > slowEma
+        {_death_cross_exit_pine("fastEma", "slowEma")}
+        """,
+    )
+
+
+def _build_tema_short_slope(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - TEMA Slope + GC (T1)",
+        "TEMAGC",
+        "tema_short_slope",
+        f"""
+        temaLen      = input.int({_pine_number(params.get("tema_len", 50))}, "TEMA Length", minval=1, group="1 - Inputs")
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 50))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 200))}, "Slow EMA", minval=1, group="1 - Inputs")
+        slopeWin     = input.int({_pine_number(params.get("slope_window", 5))}, "Slope Window", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        temaVal = ta.tema(close, temaLen)
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+        slopePos = not na(temaVal) and not na(temaVal[slopeWin]) and temaVal > temaVal[slopeWin]
+
+        var int bullCount = 0
+        if slopePos and close > temaVal and not na(fastEma) and not na(slowEma) and fastEma > slowEma
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        {_death_cross_exit_pine("fastEma", "slowEma")}
+        """,
+    )
+
+
+def _build_cci_willr_combo(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - CCI + Williams %R + GC (T1)",
+        "CCIWillR",
+        "cci_willr_combo",
+        f"""
+        cciLen       = input.int({_pine_number(params.get("cci_len", 20))}, "CCI Length", minval=1, group="1 - Inputs")
+        willrLen     = input.int({_pine_number(params.get("willr_len", 14))}, "Williams %R Length", minval=1, group="1 - Inputs")
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 50))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 200))}, "Slow EMA", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        cciVal   = ta.cci(close, cciLen)
+        willrVal = ta.percentrank(close, willrLen) - 100
+        fastEma  = ta.ema(close, fastLen)
+        slowEma  = ta.ema(close, slowLen)
+
+        entrySignal = not na(cciVal) and not na(willrVal) and cciVal > 0 and willrVal > -50 and not na(fastEma) and not na(slowEma) and fastEma > slowEma
+        {_death_cross_exit_pine("fastEma", "slowEma")}
+        """,
+    )
+
+
+def _build_mfi_obv_trend(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - MFI + OBV + GC (T1)",
+        "MFIOBV",
+        "mfi_obv_trend",
+        f"""
+        mfiLen       = input.int({_pine_number(params.get("mfi_len", 14))}, "MFI Length", minval=1, group="1 - Inputs")
+        obvEmaLen    = input.int({_pine_number(params.get("obv_ema_len", 50))}, "OBV EMA Length", minval=1, group="1 - Inputs")
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 50))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 200))}, "Slow EMA", minval=1, group="1 - Inputs")
+        slopeWin     = input.int({_pine_number(params.get("slope_window", 5))}, "Slope Window", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        mfiVal    = ta.mfi(hlc3, mfiLen)
+        obvRaw    = ta.obv
+        obvMa     = ta.ema(obvRaw, obvEmaLen)
+        fastEma   = ta.ema(close, fastLen)
+        slowEma   = ta.ema(close, slowLen)
+        obvRising = not na(obvMa) and not na(obvMa[slopeWin]) and obvMa > obvMa[slopeWin]
+
+        entrySignal = not na(mfiVal) and mfiVal > 50 and obvRising and not na(fastEma) and not na(slowEma) and fastEma > slowEma
+        {_death_cross_exit_pine("fastEma", "slowEma")}
+        """,
+    )
+
+
+def _build_atr_ratio_trend(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - ATR Ratio + GC (T1)",
+        "ATRGC",
+        "atr_ratio_trend",
+        f"""
+        atrShort     = input.int({_pine_number(params.get("atr_short", 14))}, "ATR Short", minval=1, group="1 - Inputs")
+        atrLong      = input.int({_pine_number(params.get("atr_long", 100))}, "ATR Long", minval=1, group="1 - Inputs")
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 50))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 200))}, "Slow EMA", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        atrS    = ta.atr(atrShort)
+        atrL    = ta.atr(atrLong)
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+        ratio   = not na(atrS) and not na(atrL) and atrL > 0 ? atrS / atrL : na
+
+        entrySignal = not na(ratio) and ratio < 1.0 and not na(fastEma) and not na(slowEma) and fastEma > slowEma
+        {_death_cross_exit_pine("fastEma", "slowEma")}
+        """,
+    )
+
+
+def _build_bb_cci_combo(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - BB + CCI + GC (T1)",
+        "BBCCI",
+        "bb_cci_combo",
+        f"""
+        cciLen       = input.int({_pine_number(params.get("cci_len", 20))}, "CCI Length", minval=1, group="1 - Inputs")
+        bbLen        = input.int({_pine_number(params.get("bb_len", 20))}, "BB Length", minval=1, group="1 - Inputs")
+        bbAvgLen     = input.int({_pine_number(params.get("bb_avg_len", 100))}, "BB Width Avg Length", minval=1, group="1 - Inputs")
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 50))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 200))}, "Slow EMA", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        cciVal     = ta.cci(close, cciLen)
+        [bbMid, bbUp, bbLo] = ta.bb(close, bbLen, 2.0)
+        bbWidth    = bbMid > 0 ? (bbUp - bbLo) / bbMid : na
+        bbWidthAvg = ta.sma(bbWidth, bbAvgLen)
+        fastEma    = ta.ema(close, fastLen)
+        slowEma    = ta.ema(close, slowLen)
+
+        entrySignal = not na(cciVal) and cciVal > 0 and not na(bbWidth) and not na(bbWidthAvg) and bbWidth < bbWidthAvg and not na(fastEma) and not na(slowEma) and fastEma > slowEma
+        {_death_cross_exit_pine("fastEma", "slowEma")}
+        """,
+    )
+
+
+# ── Spike batch 2026-04-14c: macro + cross-asset + advanced Pine builders ──
+
+
+def _build_vix_gc_filter(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - VIX GC Filter (T1)",
+        "VixGC",
+        "vix_gc_filter",
+        f"""
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 30))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 100))}, "Slow EMA", minval=1, group="1 - Inputs")
+        vixThresh    = input.float({_pine_number(params.get("vix_threshold", 25), force_float=True)}, "VIX Threshold", step=1.0, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+        vixVal  = request.security("CBOE:VIX", timeframe.period, close)
+        vixDanger = vixThresh * 2
+
+        goldenCross = not na(fastEma) and not na(slowEma) and fastEma > slowEma
+        vixOk       = not na(vixVal) and vixVal < vixThresh
+        entrySignal = goldenCross and vixOk
+
+        isDeathCross = not na(fastEma) and not na(slowEma) and fastEma < slowEma
+        isVixDanger  = not na(vixVal) and vixVal > vixDanger
+        exitSignal   = isDeathCross or isVixDanger
+
+        var string exitReason = na
+        if strategy.position_size > 0
+            if isDeathCross
+                exitReason := "Death X"
+            else if isVixDanger
+                exitReason := "VIX Danger"
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, exitReason, yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(fastEma, "Fast EMA", color=color.new(color.green, 30), linewidth=1)
+        plot(slowEma, "Slow EMA", color=color.new(color.red, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_treasury_curve_trend(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Treasury Curve + Trend (T1)",
+        "TreasuryCurve",
+        "treasury_curve_trend",
+        f"""
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 30))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 100))}, "Slow EMA", minval=1, group="1 - Inputs")
+        slopeWin     = input.int({_pine_number(params.get("slope_window", 5))}, "Slope Window", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        fastEma  = ta.ema(close, fastLen)
+        slowEma  = ta.ema(close, slowLen)
+        spread   = request.security("FRED:T10Y2Y", timeframe.period, close)
+
+        slopePos = not na(fastEma) and not na(fastEma[slopeWin]) and fastEma > fastEma[slopeWin]
+        curveOk  = not na(spread) and spread > 0
+
+        var int bullCount = 0
+        if slopePos and curveOk and not na(slowEma) and fastEma > slowEma
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        {_death_cross_exit_pine("fastEma", "slowEma")}
+        """,
+    )
+
+
+def _build_xlk_relative_strength(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - XLK Relative Strength (T1)",
+        "XLKRelStr",
+        "xlk_relative_strength",
+        f"""
+        xlkFastLen   = input.int({_pine_number(params.get("xlk_fast", 50))}, "XLK Fast EMA", minval=1, group="1 - Inputs")
+        xlkSlowLen   = input.int({_pine_number(params.get("xlk_slow", 200))}, "XLK Slow EMA", minval=1, group="1 - Inputs")
+        slopeWin     = input.int({_pine_number(params.get("slope_window", 5))}, "TECL Slope Window", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        xlkClose = request.security("XLK", timeframe.period, close)
+        xlkFast  = ta.ema(xlkClose, xlkFastLen)
+        xlkSlow  = ta.ema(xlkClose, xlkSlowLen)
+        teclFast = ta.ema(close, xlkFastLen)
+
+        xlkBull      = not na(xlkFast) and not na(xlkSlow) and xlkFast > xlkSlow
+        teclSlopePos = not na(teclFast) and not na(teclFast[slopeWin]) and teclFast > teclFast[slopeWin]
+        entrySignal  = xlkBull and teclSlopePos
+
+        exitSignal = not na(xlkFast) and not na(xlkSlow) and xlkFast < xlkSlow
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "XLK Death X", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(xlkFast, "XLK Fast", color=color.new(color.green, 30), linewidth=1)
+        plot(xlkSlow, "XLK Slow", color=color.new(color.red, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_fed_funds_pivot(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Fed Funds Pivot (T1)",
+        "FedPivot",
+        "fed_funds_pivot",
+        f"""
+        rsiLen       = input.int({_pine_number(params.get("rsi_len", 14))}, "RSI Length", minval=1, group="1 - Inputs")
+        trendLen     = input.int({_pine_number(params.get("trend_len", 100))}, "Trend EMA Length", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        rsiVal   = ta.rsi(close, rsiLen)
+        trendEma = ta.ema(close, trendLen)
+        fedFunds = request.security("FRED:DFF", timeframe.period, close)
+        ffSlope  = not na(fedFunds) and not na(fedFunds[63]) ? fedFunds - fedFunds[63] : na
+
+        entrySignal = not na(rsiVal) and rsiVal < 30 and not na(ffSlope) and ffSlope <= 0
+
+        isRsiExit   = strategy.position_size > 0 and not na(rsiVal) and rsiVal > 70
+        isTrendExit = strategy.position_size > 0 and not na(trendEma) and close > trendEma
+        exitCond    = isRsiExit or isTrendExit
+
+        var string exitReason = na
+        if strategy.position_size > 0
+            if isRsiExit
+                exitReason := "RSI > 70"
+            else if isTrendExit
+                exitReason := "Above Trend"
+
+        var int lastSellBar = na
+        if exitCond
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, exitReason, yloc=yloc.abovebar, style=label.style_label_down, color=color.orange, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter and not exitCond
+            strategy.entry("Long", strategy.long)
+
+        plot(trendEma, "Trend EMA", color=color.new(color.blue, 40))
+        """,
+    )
+
+
+def _build_keltner_squeeze_breakout(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Keltner Squeeze Breakout (T1)",
+        "KCSqueeze",
+        "keltner_squeeze_breakout",
+        f"""
+        kcEmaLen     = input.int({_pine_number(params.get("kc_ema_len", 20))}, "KC EMA Length", minval=1, group="1 - Inputs")
+        kcAtrMult    = input.float({_pine_number(params.get("kc_atr_mult", 2.0), force_float=True)}, "KC ATR Multiplier", step=0.1, group="1 - Inputs")
+        kcAvgLen     = input.int({_pine_number(params.get("kc_avg_len", 50))}, "KC Width Avg Length", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        kcMid   = ta.ema(close, kcEmaLen)
+        kcUpper = kcMid + kcAtrMult * ta.atr(kcEmaLen)
+        kcLower = kcMid - kcAtrMult * ta.atr(kcEmaLen)
+        kcWidth = kcMid > 0 ? (kcUpper - kcLower) / kcMid : na
+        kcWidthAvg = ta.sma(kcWidth, kcAvgLen)
+
+        var bool inSqueeze = false
+        if not na(kcWidth) and not na(kcWidthAvg) and kcWidth < kcWidthAvg
+            inSqueeze := true
+
+        entrySignal = inSqueeze and close > kcUpper
+        if entrySignal
+            inSqueeze := false
+
+        exitSignal = strategy.position_size > 0 and close < kcMid
+
+        var int lastSellBar = na
+        if exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "KC Mid", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(kcMid, "KC Mid", color=color.new(color.blue, 30))
+        plot(kcUpper, "KC Upper", color=color.new(color.green, 50))
+        plot(kcLower, "KC Lower", color=color.new(color.red, 50))
+        """,
+    )
+
+
+def _build_vix_term_proxy(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - VIX Term Proxy (T1)",
+        "VixTerm",
+        "vix_term_proxy",
+        f"""
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 30))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 100))}, "Slow EMA", minval=1, group="1 - Inputs")
+        vixSmaLen    = input.int({_pine_number(params.get("vix_sma_len", 30))}, "VIX SMA Length", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+        vixVal  = request.security("CBOE:VIX", timeframe.period, close)
+        vixAvg  = ta.sma(vixVal, vixSmaLen)
+
+        slopePos = not na(fastEma) and not na(fastEma[5]) and fastEma > fastEma[5]
+        vixBelow = not na(vixVal) and not na(vixAvg) and vixVal < vixAvg
+        entrySignal = slopePos and vixBelow and not na(slowEma) and fastEma > slowEma
+
+        isDeathCross = not na(fastEma) and not na(slowEma) and fastEma < slowEma
+        isVixSpike   = not na(vixVal) and not na(vixAvg) and vixAvg > 0 and vixVal > vixAvg * 1.05
+        exitSignal   = isDeathCross or isVixSpike
+
+        var string exitReason = na
+        if strategy.position_size > 0
+            if isDeathCross
+                exitReason := "Death X"
+            else if isVixSpike
+                exitReason := "VIX Spike"
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, exitReason, yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(fastEma, "Fast EMA", color=color.new(color.green, 30), linewidth=1)
+        plot(slowEma, "Slow EMA", color=color.new(color.red, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_macd_qqq_bull(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - MACD QQQ Bull (T1)",
+        "MACDBull",
+        "macd_qqq_bull",
+        f"""
+        trendLen     = input.int({_pine_number(params.get("trend_len", 200))}, "XLK Trend SMA Length", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        [macdLine, signalLine, _] = ta.macd(close, 12, 26, 9)
+        xlkClose  = request.security("XLK", timeframe.period, close)
+        xlkTrend  = ta.sma(xlkClose, trendLen)
+        xlkSlopeOk = not na(xlkTrend) and not na(xlkTrend[5]) and xlkTrend > xlkTrend[5]
+
+        macdCrossUp = ta.crossover(macdLine, signalLine)
+        entrySignal = macdCrossUp and xlkSlopeOk
+
+        macdCrossDn = ta.crossunder(macdLine, signalLine)
+        exitSignal  = strategy.position_size > 0 and macdCrossDn
+
+        var int lastSellBar = na
+        if exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "MACD X Dn", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(macdLine, "MACD", color=color.new(color.blue, 50), display=display.data_window)
+        plot(signalLine, "Signal", color=color.new(color.orange, 50), display=display.data_window)
+        """,
+    )
+
+
+def _build_dual_tema_breakout(params: dict) -> str:
+    tema_len = params.get("tema_len", 20)
+    return _wrap(
+        "Project Montauk Candidate - Dual TEMA Breakout (T1)",
+        "DualTEMA",
+        "dual_tema_breakout",
+        f"""
+        temaLen      = input.int({_pine_number(tema_len)}, "Daily TEMA Length", minval=1, group="1 - Inputs")
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 30))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 100))}, "Slow EMA", minval=1, group="1 - Inputs")
+        slopeWin     = input.int({_pine_number(params.get("slope_window", 5))}, "Slope Window", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 3))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        temaDaily  = ta.tema(close, temaLen)
+        temaWeekly = ta.tema(close, temaLen * 5)
+        fastEma    = ta.ema(close, fastLen)
+        slowEma    = ta.ema(close, slowLen)
+
+        weeklyUp = not na(temaWeekly) and not na(temaWeekly[slopeWin]) and temaWeekly > temaWeekly[slopeWin]
+        dailyUp  = not na(temaDaily) and not na(temaDaily[slopeWin]) and temaDaily > temaDaily[slopeWin]
+
+        var int bullCount = 0
+        if weeklyUp and dailyUp
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        {_death_cross_exit_pine("fastEma", "slowEma")}
+        """,
+    )
+
+
+def _build_vol_donchian_breakout(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Volume Donchian Breakout (T1)",
+        "VolDonch",
+        "vol_donchian_breakout",
+        f"""
+        entryLen     = input.int({_pine_number(params.get("entry_len", 50))}, "Donchian Entry Length", minval=1, group="1 - Inputs")
+        exitLen      = input.int({_pine_number(params.get("exit_len", 20))}, "Donchian Exit Length", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        donchUpper = ta.highest(high, entryLen)
+        donchLower = ta.lowest(low, exitLen)
+        volAvg     = ta.sma(volume, entryLen)
+
+        entrySignal = close > donchUpper and volume > 1.5 * volAvg
+        exitSignal  = strategy.position_size > 0 and close < donchLower
+
+        var int lastSellBar = na
+        if exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Donch Lo", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(donchUpper, "Donch Upper", color=color.new(color.green, 50))
+        plot(donchLower, "Donch Lower", color=color.new(color.red, 50))
+        """,
+    )
+
+
+def _build_sgov_flight_switch(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - SGOV Flight Switch (T1)",
+        "SGOVSwitch",
+        "sgov_flight_switch",
+        f"""
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 30))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 100))}, "Slow EMA", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        fastEma   = ta.ema(close, fastLen)
+        slowEma   = ta.ema(close, slowLen)
+        sgovClose = request.security("SGOV", timeframe.period, close)
+        sgovRoc   = not na(sgovClose) and not na(sgovClose[10]) and sgovClose[10] != 0 ? 100.0 * (sgovClose - sgovClose[10]) / sgovClose[10] : na
+
+        goldenCross = not na(fastEma) and not na(slowEma) and fastEma > slowEma
+        sgovSafe    = not na(sgovRoc) and sgovRoc <= 0
+        entrySignal = goldenCross and sgovSafe
+
+        isDeathCross  = not na(fastEma) and not na(slowEma) and fastEma < slowEma
+        isFlightPanic = not na(sgovRoc) and sgovRoc > 0.5
+        exitSignal    = isDeathCross or isFlightPanic
+
+        var string exitReason = na
+        if strategy.position_size > 0
+            if isDeathCross
+                exitReason := "Death X"
+            else if isFlightPanic
+                exitReason := "SGOV Flight"
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, exitReason, yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(fastEma, "Fast EMA", color=color.new(color.green, 30), linewidth=1)
+        plot(slowEma, "Slow EMA", color=color.new(color.red, 30), linewidth=2)
+        """,
+    )
+
+
+# ── Spike batch 2026-04-14d: golden cross hybrids ──
+
+
+def _build_gc_precross(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Pre-Cross Entry (T1)",
+        "GCPreCross",
+        "gc_precross",
+        f"""
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 20))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 100))}, "Slow EMA", minval=1, group="1 - Inputs")
+        slopeWindow  = input.int({_pine_number(params.get("slope_window", 5))}, "Slope Window", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 2))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+
+        gap     = not na(fastEma) and not na(slowEma) ? fastEma - slowEma : na
+        prevGap = not na(fastEma[1]) and not na(slowEma[1]) ? fastEma[1] - slowEma[1] : na
+
+        fastRising = not na(fastEma) and not na(fastEma[slopeWindow]) and fastEma > fastEma[slopeWindow]
+        slowRising = not na(slowEma) and not na(slowEma[slopeWindow]) and slowEma > slowEma[slopeWindow]
+
+        // Pre-cross: fast still below slow but gap narrowing + both slopes positive
+        preCross = not na(gap) and not na(prevGap) and gap < 0 and gap > prevGap and fastRising and slowRising
+
+        var int bullCount = 0
+        if preCross
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+
+        // Exit: fast < slow AND gap widening
+        exitSignal = strategy.position_size > 0 and not na(gap) and not na(prevGap) and fastEma < slowEma and gap < prevGap
+
+        var int lastSellBar = na
+        if exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "PreX Exit", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(fastEma, "Fast EMA", color=color.new(color.green, 30), linewidth=1)
+        plot(slowEma, "Slow EMA", color=color.new(color.red, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_gc_asym_fast_entry(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Asymmetric Fast Entry (T1)",
+        "GCAsymFast",
+        "gc_asym_fast_entry",
+        f"""
+        entryFastLen = input.int({_pine_number(params.get("entry_fast", 20))}, "Entry Fast EMA", minval=1, group="1 - Inputs")
+        entrySlowLen = input.int({_pine_number(params.get("entry_slow", 50))}, "Entry Slow EMA", minval=1, group="1 - Inputs")
+        exitFastLen  = input.int({_pine_number(params.get("exit_fast", 30))}, "Exit Fast EMA", minval=1, group="1 - Inputs")
+        exitSlowLen  = input.int({_pine_number(params.get("exit_slow", 100))}, "Exit Slow EMA", minval=1, group="1 - Inputs")
+        slopeWindow  = input.int({_pine_number(params.get("slope_window", 5))}, "Slope Window", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 2))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        entryFast = ta.ema(close, entryFastLen)
+        entrySlow = ta.ema(close, entrySlowLen)
+        exitFast  = ta.ema(close, exitFastLen)
+        exitSlow  = ta.ema(close, exitSlowLen)
+
+        golden    = not na(entryFast) and not na(entrySlow) and entryFast > entrySlow
+        esRising  = not na(entrySlow) and not na(entrySlow[slopeWindow]) and entrySlow > entrySlow[slopeWindow]
+
+        var int bullCount = 0
+        if golden and esRising
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        exitSignal  = not na(exitFast) and not na(exitSlow) and exitFast < exitSlow
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Asym Exit", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(entryFast, "Entry Fast", color=color.new(color.green, 30), linewidth=1)
+        plot(entrySlow, "Entry Slow", color=color.new(color.orange, 30), linewidth=1)
+        plot(exitFast, "Exit Fast", color=color.new(color.teal, 50), linewidth=1)
+        plot(exitSlow, "Exit Slow", color=color.new(color.red, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_gc_tema_asym(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - TEMA Asym Entry (T1)",
+        "GCTemaAsym",
+        "gc_tema_asym",
+        f"""
+        temaLen      = input.int({_pine_number(params.get("tema_len", 30))}, "TEMA Length", minval=1, group="1 - Inputs")
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 30))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 100))}, "Slow EMA", minval=1, group="1 - Inputs")
+        slopeWindow  = input.int({_pine_number(params.get("slope_window", 5))}, "Slope Window", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 2))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        temaVal = ta.tema(close, temaLen)
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+
+        temaAbove  = not na(temaVal) and not na(slowEma) and temaVal > slowEma
+        temaRising = not na(temaVal) and not na(temaVal[slopeWindow]) and temaVal > temaVal[slopeWindow]
+
+        var int bullCount = 0
+        if temaAbove and temaRising
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        {_death_cross_exit_pine("fastEma", "slowEma")}
+        """,
+    )
+
+
+def _build_gc_spread_momentum(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Spread Momentum (T1)",
+        "GCSpreadMom",
+        "gc_spread_momentum",
+        f"""
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 30))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 100))}, "Slow EMA", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 2))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+
+        spread     = not na(fastEma) and not na(slowEma) and slowEma != 0 ? (fastEma - slowEma) / slowEma : na
+        prevSpread = not na(fastEma[1]) and not na(slowEma[1]) and slowEma[1] != 0 ? (fastEma[1] - slowEma[1]) / slowEma[1] : na
+        slowRising = not na(slowEma) and not na(slowEma[5]) and slowEma > slowEma[5]
+
+        var int bullCount = 0
+        if not na(spread) and not na(prevSpread) and spread > 0 and spread > prevSpread and slowRising
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+
+        exitSignal = strategy.position_size > 0 and not na(spread) and spread < 0
+
+        var int lastSellBar = na
+        if exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Spread -", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(fastEma, "Fast EMA", color=color.new(color.green, 30), linewidth=1)
+        plot(slowEma, "Slow EMA", color=color.new(color.red, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_gc_precross_roc(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Pre-Cross + ROC (T1)",
+        "GCPreROC",
+        "gc_precross_roc",
+        f"""
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 20))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 100))}, "Slow EMA", minval=1, group="1 - Inputs")
+        rocLen       = input.int({_pine_number(params.get("roc_len", 20))}, "ROC Length", minval=1, group="1 - Inputs")
+        slopeWindow  = input.int({_pine_number(params.get("slope_window", 5))}, "Slope Window", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+        rocVal  = ta.roc(close, rocLen)
+
+        gap     = not na(fastEma) and not na(slowEma) ? fastEma - slowEma : na
+        prevGap = not na(fastEma[1]) and not na(slowEma[1]) ? fastEma[1] - slowEma[1] : na
+        fastRising = not na(fastEma) and not na(fastEma[slopeWindow]) and fastEma > fastEma[slopeWindow]
+
+        // Pre-cross: below but narrowing + fast rising + ROC positive
+        entrySignal = not na(gap) and not na(prevGap) and gap < 0 and gap > prevGap and fastRising and not na(rocVal) and rocVal > 0
+
+        // Exit: below and widening
+        exitSignal = strategy.position_size > 0 and not na(gap) and not na(prevGap) and fastEma < slowEma and gap < prevGap
+
+        var int lastSellBar = na
+        if exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "PreX Exit", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(fastEma, "Fast EMA", color=color.new(color.green, 30), linewidth=1)
+        plot(slowEma, "Slow EMA", color=color.new(color.red, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_gc_asym_triple(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Triple Asymmetric (T1)",
+        "GCAsymTriple",
+        "gc_asym_triple",
+        f"""
+        entryFastLen = input.int({_pine_number(params.get("entry_fast", 14))}, "Entry Fast EMA", minval=1, group="1 - Inputs")
+        entryMidLen  = input.int({_pine_number(params.get("entry_mid", 50))}, "Entry Mid EMA", minval=1, group="1 - Inputs")
+        exitFastLen  = input.int({_pine_number(params.get("exit_fast", 30))}, "Exit Fast EMA", minval=1, group="1 - Inputs")
+        exitSlowLen  = input.int({_pine_number(params.get("exit_slow", 100))}, "Exit Slow EMA", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        entryFast = ta.ema(close, entryFastLen)
+        entryMid  = ta.ema(close, entryMidLen)
+        exitFast  = ta.ema(close, exitFastLen)
+        exitSlow  = ta.ema(close, exitSlowLen)
+
+        // Both crosses must agree for entry
+        entrySignal = not na(entryFast) and not na(entryMid) and not na(exitSlow) and entryFast > entryMid and entryMid > exitSlow
+        exitSignal  = not na(exitFast) and not na(exitSlow) and exitFast < exitSlow
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Death X", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(entryFast, "Entry Fast", color=color.new(color.green, 30), linewidth=1)
+        plot(entryMid, "Entry Mid", color=color.new(color.orange, 30), linewidth=1)
+        plot(exitFast, "Exit Fast", color=color.new(color.teal, 50), linewidth=1)
+        plot(exitSlow, "Exit Slow", color=color.new(color.red, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_gc_spread_band(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Spread Band (T1)",
+        "GCSpreadBand",
+        "gc_spread_band",
+        f"""
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 30))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 100))}, "Slow EMA", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 2))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+
+        spread     = not na(fastEma) and not na(slowEma) and slowEma != 0 ? (fastEma - slowEma) / slowEma : na
+        slowRising = not na(slowEma) and not na(slowEma[5]) and slowEma > slowEma[5]
+
+        var int bullCount = 0
+        if not na(spread) and spread > 0.01 and slowRising
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+
+        exitSignal = strategy.position_size > 0 and not na(spread) and spread < -0.01
+
+        var int lastSellBar = na
+        if exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Band -", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(fastEma, "Fast EMA", color=color.new(color.green, 30), linewidth=1)
+        plot(slowEma, "Slow EMA", color=color.new(color.red, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_gc_precross_vol(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Pre-Cross + Volume (T1)",
+        "GCPreVol",
+        "gc_precross_vol",
+        f"""
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 20))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 100))}, "Slow EMA", minval=1, group="1 - Inputs")
+        slopeWindow  = input.int({_pine_number(params.get("slope_window", 5))}, "Slope Window", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 2))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+        volAvg  = ta.sma(volume, 50)
+
+        gap     = not na(fastEma) and not na(slowEma) ? fastEma - slowEma : na
+        prevGap = not na(fastEma[1]) and not na(slowEma[1]) ? fastEma[1] - slowEma[1] : na
+        fastRising = not na(fastEma) and not na(fastEma[slopeWindow]) and fastEma > fastEma[slopeWindow]
+        volAbove   = not na(volAvg) and volume > volAvg
+
+        // Pre-cross: below but narrowing + fast rising + volume above average
+        preCross = not na(gap) and not na(prevGap) and gap < 0 and gap > prevGap and fastRising and volAbove
+
+        var int bullCount = 0
+        if preCross
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+
+        // Exit: death cross (fast crosses below slow)
+        crossDown = not na(fastEma) and not na(slowEma) and not na(fastEma[1]) and not na(slowEma[1]) and fastEma[1] >= slowEma[1] and fastEma < slowEma
+        exitSignal = strategy.position_size > 0 and crossDown
+
+        var int lastSellBar = na
+        if exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Death X", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(fastEma, "Fast EMA", color=color.new(color.green, 30), linewidth=1)
+        plot(slowEma, "Slow EMA", color=color.new(color.red, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_gc_asym_slope(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Asymmetric Slope (T1)",
+        "GCAsymSlope",
+        "gc_asym_slope",
+        f"""
+        entryFastLen = input.int({_pine_number(params.get("entry_fast", 20))}, "Entry Fast EMA", minval=1, group="1 - Inputs")
+        entrySlowLen = input.int({_pine_number(params.get("entry_slow", 50))}, "Entry Slow EMA", minval=1, group="1 - Inputs")
+        exitFastLen  = input.int({_pine_number(params.get("exit_fast", 30))}, "Exit Fast EMA", minval=1, group="1 - Inputs")
+        exitSlowLen  = input.int({_pine_number(params.get("exit_slow", 100))}, "Exit Slow EMA", minval=1, group="1 - Inputs")
+        slopeWindow  = input.int({_pine_number(params.get("slope_window", 5))}, "Slope Window", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 2))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        entryFast = ta.ema(close, entryFastLen)
+        entrySlow = ta.ema(close, entrySlowLen)
+        exitFast  = ta.ema(close, exitFastLen)
+        exitSlow  = ta.ema(close, exitSlowLen)
+
+        golden    = not na(entryFast) and not na(entrySlow) and entryFast > entrySlow
+        efRising  = not na(entryFast) and not na(entryFast[slopeWindow]) and entryFast > entryFast[slopeWindow]
+        esRising  = not na(entrySlow) and not na(entrySlow[slopeWindow]) and entrySlow > entrySlow[slopeWindow]
+
+        var int bullCount = 0
+        if golden and efRising and esRising
+            bullCount += 1
+        else
+            bullCount := 0
+
+        entrySignal = bullCount == entryBars
+        exitSignal  = not na(exitFast) and not na(exitSlow) and exitFast < exitSlow
+
+        var int lastSellBar = na
+        if strategy.position_size > 0 and exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "Asym Exit", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(entryFast, "Entry Fast", color=color.new(color.green, 30), linewidth=1)
+        plot(entrySlow, "Entry Slow", color=color.new(color.orange, 30), linewidth=1)
+        plot(exitFast, "Exit Fast", color=color.new(color.teal, 50), linewidth=1)
+        plot(exitSlow, "Exit Slow", color=color.new(color.red, 30), linewidth=2)
+        """,
+    )
+
+
+def _build_gc_precross_strict(params: dict) -> str:
+    return _wrap(
+        "Project Montauk Candidate - Pre-Cross Strict (T1)",
+        "GCPreStrict",
+        "gc_precross_strict",
+        f"""
+        fastLen      = input.int({_pine_number(params.get("fast_ema", 20))}, "Fast EMA", minval=1, group="1 - Inputs")
+        slowLen      = input.int({_pine_number(params.get("slow_ema", 100))}, "Slow EMA", minval=1, group="1 - Inputs")
+        slopeWindow  = input.int({_pine_number(params.get("slope_window", 5))}, "Slope Window", minval=1, group="1 - Inputs")
+        entryBars    = input.int({_pine_number(params.get("entry_bars", 2))}, "Entry Confirm Bars", minval=1, group="1 - Inputs")
+        cooldownBars = input.int({_pine_number(params.get("cooldown", 5))}, "Cooldown Bars", minval=0, group="1 - Inputs")
+
+        fastEma = ta.ema(close, fastLen)
+        slowEma = ta.ema(close, slowLen)
+
+        gap     = not na(fastEma) and not na(slowEma) ? fastEma - slowEma : na
+        prevGap = not na(fastEma[1]) and not na(slowEma[1]) ? fastEma[1] - slowEma[1] : na
+        fastRising = not na(fastEma) and not na(fastEma[slopeWindow]) and fastEma > fastEma[slopeWindow]
+        slowRising = not na(slowEma) and not na(slowEma[slopeWindow]) and slowEma > slowEma[slopeWindow]
+
+        // Track narrowing: gap < 0 and gap > prevGap
+        narrowing = not na(gap) and not na(prevGap) and gap < 0 and gap > prevGap
+
+        var int narrowCount = 0
+        if narrowing
+            narrowCount += 1
+        else
+            narrowCount := 0
+
+        var int fastSlopeCount = 0
+        if fastRising
+            fastSlopeCount += 1
+        else
+            fastSlopeCount := 0
+
+        // Entry: narrowing for entry_bars + fast slope for 2*entry_bars + slow rising
+        entrySignal = narrowCount >= entryBars and fastSlopeCount >= 2 * entryBars and slowRising
+
+        // Exit: death cross + gap widening
+        exitSignal = strategy.position_size > 0 and not na(gap) and not na(prevGap) and fastEma < slowEma and gap < prevGap
+
+        var int lastSellBar = na
+        if exitSignal
+            strategy.close("Long")
+            lastSellBar := bar_index
+            label.new(bar_index, high, "PreX Exit", yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+        canEnter = strategy.position_size == 0 and (na(lastSellBar) or (bar_index - lastSellBar) > cooldownBars)
+        if entrySignal and canEnter
+            strategy.entry("Long", strategy.long)
+
+        plot(fastEma, "Fast EMA", color=color.new(color.green, 30), linewidth=1)
+        plot(slowEma, "Slow EMA", color=color.new(color.red, 30), linewidth=2)
+        """,
+    )
+
+
 _BUILDERS = {
     # T1 grid-searchable concepts — each uses a template function that
     # accepts arbitrary params, so the same builder works for any grid combo.
     "golden_cross_slope": _build_golden_cross_slope,
     "ema_slope_above": lambda p: _ema_slope_above_pine(
-        "EMA Slope-Above (T1)", "EMASlopeAbove", "ema_slope_above", p.get("ema_len", 200), p),
+        "EMA Slope-Above (T1)",
+        "EMASlopeAbove",
+        "ema_slope_above",
+        p.get("ema_len", 200),
+        p,
+    ),
     "rsi_recovery_ema": lambda p: _rsi_recovery_above_ema_pine(
-        "RSI Recovery + Trend (T1)", "RSIRecovery", "rsi_recovery_ema", p.get("trend_len", 200), p),
+        "RSI Recovery + Trend (T1)",
+        "RSIRecovery",
+        "rsi_recovery_ema",
+        p.get("trend_len", 200),
+        p,
+    ),
     "rsi_50_above_trend": _build_rsi_50_above_ema_200,
     "triple_ema_stack": _build_triple_ema_stack,
     "dual_ema_stack": _build_dual_ema_stack,
@@ -2031,6 +3301,39 @@ _BUILDERS = {
     "stoch_cross_trend": _build_stoch_cross_trend,
     "double_ema_slope": _build_double_ema_slope,
     "rsi_roc_combo": _build_rsi_roc_combo,
+    # ── Spike batch 2026-04-14b: oscillator-filtered golden cross ──
+    "cci_regime_trend": _build_cci_regime_trend,
+    "willr_recovery_trend": _build_willr_recovery_trend,
+    "mfi_above_trend": _build_mfi_above_trend,
+    "obv_slope_trend": _build_obv_slope_trend,
+    "bb_width_regime": _build_bb_width_regime,
+    "tema_short_slope": _build_tema_short_slope,
+    "cci_willr_combo": _build_cci_willr_combo,
+    "mfi_obv_trend": _build_mfi_obv_trend,
+    "atr_ratio_trend": _build_atr_ratio_trend,
+    "bb_cci_combo": _build_bb_cci_combo,
+    # ── Spike batch 2026-04-14c: macro + cross-asset + advanced ──
+    "vix_gc_filter": _build_vix_gc_filter,
+    "treasury_curve_trend": _build_treasury_curve_trend,
+    "xlk_relative_strength": _build_xlk_relative_strength,
+    "fed_funds_pivot": _build_fed_funds_pivot,
+    "keltner_squeeze_breakout": _build_keltner_squeeze_breakout,
+    "vix_term_proxy": _build_vix_term_proxy,
+    "macd_qqq_bull": _build_macd_qqq_bull,
+    "dual_tema_breakout": _build_dual_tema_breakout,
+    "vol_donchian_breakout": _build_vol_donchian_breakout,
+    "sgov_flight_switch": _build_sgov_flight_switch,
+    # ── Spike batch 2026-04-14d: golden cross hybrids ──
+    "gc_precross": _build_gc_precross,
+    "gc_asym_fast_entry": _build_gc_asym_fast_entry,
+    "gc_tema_asym": _build_gc_tema_asym,
+    "gc_spread_momentum": _build_gc_spread_momentum,
+    "gc_precross_roc": _build_gc_precross_roc,
+    "gc_asym_triple": _build_gc_asym_triple,
+    "gc_spread_band": _build_gc_spread_band,
+    "gc_precross_vol": _build_gc_precross_vol,
+    "gc_asym_slope": _build_gc_asym_slope,
+    "gc_precross_strict": _build_gc_precross_strict,
 }
 
 
@@ -2049,7 +3352,9 @@ def generate_pine_script(strategy_name: str, params: dict) -> str:
     return builder(params)
 
 
-def write_candidate_strategy(run_dir: str | Path, strategy_name: str, params: dict) -> str:
+def write_candidate_strategy(
+    run_dir: str | Path, strategy_name: str, params: dict
+) -> str:
     run_path = Path(run_dir)
     run_path.mkdir(parents=True, exist_ok=True)
     text = generate_pine_script(strategy_name, params)
@@ -2059,7 +3364,9 @@ def write_candidate_strategy(run_dir: str | Path, strategy_name: str, params: di
     return str(output_path)
 
 
-def write_montauk_patch(run_dir: str | Path, strategy_name: str, params: dict) -> str | None:
+def write_montauk_patch(
+    run_dir: str | Path, strategy_name: str, params: dict
+) -> str | None:
     if strategy_name != "montauk_821":
         return None
 

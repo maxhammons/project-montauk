@@ -384,6 +384,85 @@ def _migrate_legacy_tecl():
 
 
 # ─────────────────────────────────────────────────────────────────────
+# Macro data merge — VIX, Treasury spread, Fed Funds, XLK, SGOV
+# Shared across TECL / TQQQ / QQQ so strategies that use macro
+# indicators can run unchanged in cross-asset validation.
+# ─────────────────────────────────────────────────────────────────────
+
+_TREASURY_CSV = os.path.join(TS_DIR, "treasury-spread-10y2y.csv")
+_FED_FUNDS_CSV = os.path.join(TS_DIR, "fed-funds-rate.csv")
+
+
+def _merge_macro_data(df: pd.DataFrame) -> pd.DataFrame:
+    """Merge macro indicators into a price DataFrame by date (left join).
+
+    Adds columns: vix_close, treasury_spread, fed_funds_rate, xlk_close, sgov_close.
+    Missing data is NaN — strategies must handle gracefully.
+    """
+    # VIX (already in TECL but not TQQQ/QQQ)
+    if "vix_close" not in df.columns:
+        if os.path.exists(VIX_CSV):
+            vix = pd.read_csv(VIX_CSV, parse_dates=["date"])
+            vix.columns = [c.lower().strip() for c in vix.columns]
+            vix = _normalize_date_column(vix)
+            # VIX.csv uses "vix_close" column name
+            vix_col = "vix_close" if "vix_close" in vix.columns else "close"
+            if vix_col in vix.columns:
+                vix = vix[["date", vix_col]].rename(columns={vix_col: "vix_close"})
+                df = df.merge(vix, on="date", how="left")
+        if "vix_close" not in df.columns:
+            df["vix_close"] = np.nan
+
+    # Treasury spread (10Y - 2Y)
+    if os.path.exists(_TREASURY_CSV):
+        ts = pd.read_csv(_TREASURY_CSV, parse_dates=["date"])
+        ts.columns = [c.lower().strip() for c in ts.columns]
+        ts = _normalize_date_column(ts)
+        col = "yield_spread_10y2y" if "yield_spread_10y2y" in ts.columns else ts.columns[1]
+        ts = ts[["date", col]].rename(columns={col: "treasury_spread"})
+        df = df.merge(ts, on="date", how="left")
+        df["treasury_spread"] = df["treasury_spread"].ffill()
+    else:
+        df["treasury_spread"] = np.nan
+
+    # Fed Funds Rate
+    if os.path.exists(_FED_FUNDS_CSV):
+        ff = pd.read_csv(_FED_FUNDS_CSV, parse_dates=["date"])
+        ff.columns = [c.lower().strip() for c in ff.columns]
+        ff = _normalize_date_column(ff)
+        col = "fed_funds_rate" if "fed_funds_rate" in ff.columns else ff.columns[1]
+        ff = ff[["date", col]].rename(columns={col: "fed_funds_rate"})
+        df = df.merge(ff, on="date", how="left")
+        df["fed_funds_rate"] = df["fed_funds_rate"].ffill()
+    else:
+        df["fed_funds_rate"] = np.nan
+
+    # XLK close (TECL underlying)
+    if os.path.exists(XLK_CSV):
+        xlk = pd.read_csv(XLK_CSV, parse_dates=["date"])
+        xlk.columns = [c.lower().strip() for c in xlk.columns]
+        xlk = _normalize_date_column(xlk)
+        if "close" in xlk.columns:
+            xlk = xlk[["date", "close"]].rename(columns={"close": "xlk_close"})
+            df = df.merge(xlk, on="date", how="left")
+    if "xlk_close" not in df.columns:
+        df["xlk_close"] = np.nan
+
+    # SGOV close
+    if os.path.exists(SGOV_CSV):
+        sgov = pd.read_csv(SGOV_CSV, parse_dates=["date"])
+        sgov.columns = [c.lower().strip() for c in sgov.columns]
+        sgov = _normalize_date_column(sgov)
+        if "close" in sgov.columns:
+            sgov_df = sgov[["date", "close"]].rename(columns={"close": "sgov_close"})
+            df = df.merge(sgov_df, on="date", how="left")
+    if "sgov_close" not in df.columns:
+        df["sgov_close"] = np.nan
+
+    return df
+
+
+# ─────────────────────────────────────────────────────────────────────
 # get_tecl_data() — main entry point for the optimizer
 # ─────────────────────────────────────────────────────────────────────
 
@@ -417,6 +496,7 @@ def get_tecl_data(use_yfinance: bool = False) -> pd.DataFrame:
     for col in ["open", "high", "low", "close", "volume"]:
         assert col in df.columns, f"Missing column: {col}"
 
+    df = _merge_macro_data(df)
     return df
 
 
@@ -433,6 +513,7 @@ def get_tqqq_data() -> pd.DataFrame:
     df = _normalize_date_column(df)
     for col in ["open", "high", "low", "close", "volume"]:
         assert col in df.columns, f"Missing column: {col}"
+    df = _merge_macro_data(df)
     print(f"[data] TQQQ: {len(df)} bars, {df['date'].min().date()} to {df['date'].max().date()}")
     return df
 
@@ -446,6 +527,7 @@ def get_qqq_data() -> pd.DataFrame:
     df = _normalize_date_column(df)
     for col in ["open", "high", "low", "close", "volume"]:
         assert col in df.columns, f"Missing column: {col}"
+    df = _merge_macro_data(df)
     print(f"[data] QQQ: {len(df)} bars, {df['date'].min().date()} to {df['date'].max().date()}")
     return df
 

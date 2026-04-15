@@ -1,0 +1,5 @@
+## Accelerator — Round 1 Position
+**Claim:** A new engineer cannot safely ship a change to the core engine today because the absence of a fast, localized unit test suite makes fearless refactoring impossible.
+**Evidence:** The project relies entirely on a heavy, data-science-style validation pipeline (`scripts/validation/`) to test strategies, but lacks a basic `pytest` suite for the Python backtester itself. This means engineers have no immediate, low-latency feedback loop to verify they haven't broken basic execution logic when modifying files like `backtest_engine.py`.
+**Biggest opportunity:** Decoupling code validation from strategy validation by introducing a sub-2-second unit test suite that stubs out the data layer, giving engineers the fast feedback loop required to safely evolve the system.
+**Biggest blocker:** The completely manual deployment pipeline, which requires human copy-pasting of generated code into the TradingView UI. This acts as a hard ceiling on velocity, introduces final-mile error risk, and fundamentally prevents rapid, automated rollbacks.

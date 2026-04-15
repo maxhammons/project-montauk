@@ -166,6 +166,213 @@ GRIDS = {
         "trend_len": [100, 200],
         "cooldown": [5],
     },
+    # ── Spike batch 2026-04-14b: oscillator-filtered golden cross ──
+    "cci_regime_trend": {  # 2 × 2 × 2 × 2 = 16 combos
+        "cci_len": [14, 20],
+        "fast_ema": [30, 50],
+        "slow_ema": [100, 200],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "willr_recovery_trend": {  # 3 × 2 × 2 × 2 = 24 combos
+        "willr_len": [7, 14, 21],
+        "fast_ema": [30, 50],
+        "slow_ema": [100, 200],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "mfi_above_trend": {  # 3 × 2 × 2 × 2 = 24 combos
+        "mfi_len": [7, 14, 21],
+        "fast_ema": [30, 50],
+        "slow_ema": [100, 200],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "obv_slope_trend": {  # 3 × 2 × 2 × 2 × 2 = 48 combos
+        "obv_ema_len": [20, 50, 100],
+        "fast_ema": [30, 50],
+        "slow_ema": [100, 200],
+        "slope_window": [3, 5],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "bb_width_regime": {  # 2 × 2 × 2 × 2 = 16 combos
+        "bb_len": [20, 50],
+        "bb_avg_len": [50, 100],
+        "fast_ema": [30, 50],
+        "slow_ema": [100, 200],
+        "cooldown": [5],
+    },
+    "tema_short_slope": {  # 3 × 2 × 2 × 2 × 2 = 48 combos
+        "tema_len": [20, 30, 50],
+        "fast_ema": [30, 50],
+        "slow_ema": [100, 200],
+        "slope_window": [3, 5],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "cci_willr_combo": {  # 2 × 3 × 2 × 2 = 24 combos
+        "cci_len": [14, 20],
+        "willr_len": [7, 14, 21],
+        "fast_ema": [30, 50],
+        "slow_ema": [100, 200],
+        "cooldown": [5],
+    },
+    "mfi_obv_trend": {  # 3 × 2 × 2 × 2 × 2 = 48 combos
+        "mfi_len": [7, 14, 21],
+        "obv_ema_len": [20, 50],
+        "fast_ema": [30, 50],
+        "slow_ema": [100, 200],
+        "slope_window": [3, 5],
+        "cooldown": [5],
+    },
+    "atr_ratio_trend": {  # 3 × 3 × 2 × 2 = 36 combos
+        "atr_short": [7, 14, 20],
+        "atr_long": [50, 100, 200],
+        "fast_ema": [30, 50],
+        "slow_ema": [100, 200],
+        "cooldown": [5],
+    },
+    "bb_cci_combo": {  # 2 × 2 × 2 × 2 × 2 = 32 combos
+        "cci_len": [14, 20],
+        "bb_len": [20, 50],
+        "bb_avg_len": [50, 100],
+        "fast_ema": [30, 50],
+        "slow_ema": [100, 200],
+        "cooldown": [5],
+    },
+    # ── Spike batch 2026-04-14c: macro + cross-asset + advanced ──
+    "vix_gc_filter": {  # 3 × 2 × 2 = 12 combos
+        "fast_ema": [20, 30, 50],
+        "slow_ema": [100, 200],
+        "vix_threshold": [20, 50],
+        "cooldown": [5],
+    },
+    "treasury_curve_trend": {  # 3 × 2 × 2 × 2 = 24 combos
+        "fast_ema": [20, 30, 50],
+        "slow_ema": [100, 200],
+        "slope_window": [3, 5],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "xlk_relative_strength": {  # 3 × 2 × 2 = 12 combos
+        "xlk_fast": [20, 50, 100],
+        "xlk_slow": [100, 200],
+        "slope_window": [3, 5],
+        "cooldown": [5],
+    },
+    "fed_funds_pivot": {  # 3 × 4 = 12 combos
+        "rsi_len": [7, 14, 21],
+        "trend_len": [50, 100, 150, 200],
+        "cooldown": [5],
+    },
+    "keltner_squeeze_breakout": {  # 2 × 3 × 3 = 18 combos
+        "kc_ema_len": [20, 50],
+        "kc_atr_mult": [1.5, 2.0, 2.5],
+        "kc_avg_len": [20, 50, 100],
+        "cooldown": [5],
+    },
+    "vix_term_proxy": {  # 3 × 2 × 3 = 18 combos
+        "fast_ema": [20, 30, 50],
+        "slow_ema": [100, 200],
+        "vix_sma_len": [20, 30, 50],
+        "cooldown": [5],
+    },
+    "macd_qqq_bull": {  # 3 = 3 combos
+        "trend_len": [100, 150, 200],
+        "cooldown": [5],
+    },
+    "dual_tema_breakout": {  # 3 × 2 × 2 × 2 × 2 = 48 combos
+        "tema_len": [20, 30, 50],
+        "fast_ema": [30, 50],
+        "slow_ema": [100, 200],
+        "slope_window": [3, 5],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "vol_donchian_breakout": {  # 3 × 3 = 9 combos (filtered by exit < entry)
+        "entry_len": [50, 100, 200],
+        "exit_len": [10, 20, 50],
+        "cooldown": [5],
+    },
+    "sgov_flight_switch": {  # 3 × 2 = 6 combos
+        "fast_ema": [20, 30, 50],
+        "slow_ema": [100, 200],
+        "cooldown": [5],
+    },
+    # ── Spike batch 2026-04-14d: golden cross hybrids ──
+    "gc_precross": {  # 4 × 2 × 2 = 16 combos (filtered fast < slow)
+        "fast_ema": [20, 30, 50, 100],
+        "slow_ema": [100, 150, 200],
+        "slope_window": [3, 5],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "gc_asym_fast_entry": {  # 3 × 2 × 2 = 12 combos (filtered entry_fast < entry_slow < exit_slow)
+        "entry_fast": [14, 20, 30],
+        "entry_slow": [50, 100],
+        "exit_fast": [30, 50],
+        "exit_slow": [100, 200],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "gc_tema_asym": {  # 3 × 2 × 2 × 2 × 2 = 48 combos (filtered by fast < slow, tema < slow)
+        "tema_len": [20, 30, 50],
+        "fast_ema": [30, 50],
+        "slow_ema": [100, 200],
+        "slope_window": [3, 5],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "gc_spread_momentum": {  # 4 × 2 × 2 = 16 combos (filtered fast < slow)
+        "fast_ema": [20, 30, 50, 100],
+        "slow_ema": [100, 150, 200],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "gc_precross_roc": {  # 3 × 2 × 3 × 2 = 36 combos (filtered fast < slow)
+        "fast_ema": [20, 30, 50],
+        "slow_ema": [100, 200],
+        "roc_len": [10, 20, 50],
+        "slope_window": [3, 5],
+        "cooldown": [5],
+    },
+    "gc_asym_triple": {  # 2 × 2 × 2 = 8 combos (filtered entry_fast < entry_mid < exit_slow)
+        "entry_fast": [14, 20],
+        "entry_mid": [50, 100],
+        "exit_fast": [30, 50],
+        "exit_slow": [100, 200],
+        "cooldown": [5],
+    },
+    "gc_spread_band": {  # 4 × 2 × 2 = 16 combos (filtered fast < slow)
+        "fast_ema": [20, 30, 50, 100],
+        "slow_ema": [100, 150, 200],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "gc_precross_vol": {  # 4 × 2 × 2 × 2 = 32 combos (filtered fast < slow)
+        "fast_ema": [20, 30, 50, 100],
+        "slow_ema": [100, 150, 200],
+        "slope_window": [3, 5],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "gc_asym_slope": {  # 2 × 2 × 2 × 2 = 16 combos (filtered entry_fast < entry_slow, exit_fast < exit_slow)
+        "entry_fast": [14, 20],
+        "entry_slow": [50, 100],
+        "exit_fast": [30, 50],
+        "exit_slow": [100, 200],
+        "slope_window": [5],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "gc_precross_strict": {  # 4 × 2 × 2 × 2 = 32 combos (filtered fast < slow)
+        "fast_ema": [20, 30, 50, 100],
+        "slow_ema": [100, 150, 200],
+        "slope_window": [3, 5],
+        "entry_bars": [2, 3],
+        "cooldown": [5],
+    },
 }
 
 
@@ -193,6 +400,44 @@ def _is_valid_combo(concept: str, params: dict) -> bool:
     entry = params.get("entry_len")
     exit_ = params.get("exit_len")
     if entry is not None and exit_ is not None and exit_ >= entry:
+        return False
+    # For ATR ratio: short < long
+    atr_s = params.get("atr_short")
+    atr_l = params.get("atr_long")
+    if atr_s is not None and atr_l is not None and atr_s >= atr_l:
+        return False
+    # For BB width: bb_len < bb_avg_len
+    bb = params.get("bb_len")
+    bb_avg = params.get("bb_avg_len")
+    if bb is not None and bb_avg is not None and bb >= bb_avg:
+        return False
+    # For XLK relative strength: xlk_fast < xlk_slow
+    xlk_f = params.get("xlk_fast")
+    xlk_s = params.get("xlk_slow")
+    if xlk_f is not None and xlk_s is not None and xlk_f >= xlk_s:
+        return False
+    # For Keltner squeeze: kc_avg_len > kc_ema_len (averaging window wider than channel)
+    kc_ema = params.get("kc_ema_len")
+    kc_avg = params.get("kc_avg_len")
+    if kc_ema is not None and kc_avg is not None and kc_avg <= kc_ema:
+        return False
+    # For asymmetric entry/exit pairs: entry_fast < entry_slow, exit_fast < exit_slow,
+    # and entry_fast < exit_slow (faster entry than exit)
+    ef = params.get("entry_fast")
+    es = params.get("entry_slow")
+    xf = params.get("exit_fast")
+    xs = params.get("exit_slow")
+    if ef is not None and es is not None and ef >= es:
+        return False
+    if xf is not None and xs is not None and xf >= xs:
+        return False
+    if ef is not None and xs is not None and ef >= xs:
+        return False
+    # For triple-pair asymmetric: entry_fast < entry_mid < exit_slow
+    em = params.get("entry_mid")
+    if ef is not None and em is not None and ef >= em:
+        return False
+    if em is not None and xs is not None and em >= xs:
         return False
     return True
 

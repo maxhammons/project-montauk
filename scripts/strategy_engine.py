@@ -19,7 +19,6 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 from dataclasses import dataclass, field
-from typing import Optional
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -27,14 +26,37 @@ from typing import Optional
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _ema(series: np.ndarray, length: int) -> np.ndarray:
-    """Pine Script ta.ema() — recursive EMA with SMA seed."""
+    """Pine Script ta.ema() — recursive EMA with SMA seed.
+
+    Handles NaN-prefixed input (e.g., chained EMAs in TEMA) by finding the
+    first window of `length` consecutive non-NaN values for the SMA seed.
+    """
     out = np.full_like(series, np.nan, dtype=np.float64)
     if len(series) < length:
         return out
     alpha = 2.0 / (length + 1)
-    out[length - 1] = np.mean(series[:length])
-    for i in range(length, len(series)):
-        out[i] = alpha * series[i] + (1 - alpha) * out[i - 1]
+    # Find first index where we have `length` consecutive non-NaN values
+    run = 0
+    seed_end = -1
+    for i in range(len(series)):
+        if not np.isnan(series[i]):
+            run += 1
+            if run >= length:
+                seed_end = i
+                break
+        else:
+            run = 0
+    if seed_end < 0:
+        return out
+    seed_start = seed_end - length + 1
+    out[seed_end] = np.mean(series[seed_start:seed_end + 1])
+    for i in range(seed_end + 1, len(series)):
+        if np.isnan(series[i]):
+            continue  # skip NaN input, leave output NaN
+        if np.isnan(out[i - 1]):
+            out[i] = series[i]  # re-seed after gap
+        else:
+            out[i] = alpha * series[i] + (1 - alpha) * out[i - 1]
     return out
 
 
@@ -142,6 +164,10 @@ class Indicators:
         self.close = df["close"].values.astype(np.float64)
         self.volume = df["volume"].values.astype(np.float64) if "volume" in df.columns else np.ones(len(self.close))
         self.vix = df["vix_close"].values.astype(np.float64) if "vix_close" in df.columns else None
+        self.treasury_spread = df["treasury_spread"].values.astype(np.float64) if "treasury_spread" in df.columns else None
+        self.fed_funds_rate = df["fed_funds_rate"].values.astype(np.float64) if "fed_funds_rate" in df.columns else None
+        self.xlk_close = df["xlk_close"].values.astype(np.float64) if "xlk_close" in df.columns else None
+        self.sgov_close = df["sgov_close"].values.astype(np.float64) if "sgov_close" in df.columns else None
         self.n = len(self.close)
         self._cache = {}
 
@@ -325,6 +351,27 @@ class Indicators:
                 out[i] = self.close[i] - self.close[i - length]
             return out
         return self._cached(("mom", length), _calc)
+
+    # ── External series indicators (VIX, XLK, Treasury, Fed Funds, SGOV) ──
+    def vix_ema(self, length: int) -> np.ndarray | None:
+        if self.vix is None:
+            return None
+        return self._cached(("vix_ema", length), lambda: _ema(self.vix, length))
+
+    def vix_sma(self, length: int) -> np.ndarray | None:
+        if self.vix is None:
+            return None
+        return self._cached(("vix_sma", length), lambda: _sma(self.vix, length))
+
+    def xlk_ema(self, length: int) -> np.ndarray | None:
+        if self.xlk_close is None:
+            return None
+        return self._cached(("xlk_ema", length), lambda: _ema(self.xlk_close, length))
+
+    def sgov_roc(self, length: int) -> np.ndarray | None:
+        if self.sgov_close is None:
+            return None
+        return self._cached(("sgov_roc", length), lambda: _pct_change(self.sgov_close, length))
 
     # ── True Range ──
     def tr(self) -> np.ndarray:

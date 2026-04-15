@@ -54,6 +54,11 @@ _NAME_FAMILY_RULES: list[tuple[str, set]] = [
     ("short_ema", MA_PERIODS),
     ("med_ema", MA_PERIODS),
     ("long_ema", MA_PERIODS),
+    ("entry_fast", MA_PERIODS),
+    ("entry_slow", MA_PERIODS),
+    ("entry_mid", MA_PERIODS),
+    ("exit_fast", MA_PERIODS),
+    ("exit_slow", MA_PERIODS),
     ("fast_ema", MA_PERIODS),
     ("slow_ema", MA_PERIODS),
     ("trend_ema", MA_PERIODS),
@@ -65,6 +70,21 @@ _NAME_FAMILY_RULES: list[tuple[str, set]] = [
     ("tenkan_len", MA_PERIODS),
     ("kijun_len", MA_PERIODS),
     ("cloud_len", MA_PERIODS),
+    # Oscillator period families
+    ("cci_len", MA_PERIODS),  # CCI — canonical: 14, 20, 50
+    ("willr_len", RSI_PERIODS),  # Williams %R — canonical: 7, 14, 21
+    ("mfi_len", RSI_PERIODS),  # MFI — canonical: 7, 14, 21
+    ("bb_len", MA_PERIODS),  # Bollinger Band — canonical: 14, 20, 50
+    ("bb_avg_len", MA_PERIODS),  # BB width averaging — canonical: 50, 100, 200
+    ("obv_ema_len", MA_PERIODS),  # OBV smoothing — canonical: 20, 50, 100
+    ("atr_short", ATR_PERIODS),  # ATR short window — canonical: 7, 14, 20
+    ("atr_long", MA_PERIODS),  # ATR long window — canonical: 50, 100, 200
+    # Cross-asset / macro parameter families
+    ("vix_threshold", LOOKBACK_PERIODS),  # VIX threshold levels: 20, 50, etc.
+    ("vix_sma_len", MA_PERIODS),  # VIX SMA averaging length
+    ("kc_avg_len", MA_PERIODS),  # Keltner width averaging length
+    ("xlk_fast", MA_PERIODS),  # XLK fast EMA period
+    ("xlk_slow", MA_PERIODS),  # XLK slow EMA period
     # Lookback windows
     ("lookback", LOOKBACK_PERIODS),
     ("entry_len", LOOKBACK_PERIODS),
@@ -122,7 +142,11 @@ def check_canonical(params: dict) -> tuple[bool, list[str]]:
     violations: list[str] = []
     for name, value in params.items():
         # Ignore obvious non-tunables
-        if name in {"cooldown"} and isinstance(value, (int, float)) and float(value) in COOLDOWN_BARS:
+        if (
+            name in {"cooldown"}
+            and isinstance(value, (int, float))
+            and float(value) in COOLDOWN_BARS
+        ):
             continue
         if isinstance(value, bool):
             violations.append(f"{name}={value} (boolean not canonical)")
@@ -179,7 +203,9 @@ def effective_tier(declared_tier: str, params: dict) -> tuple[str, list[str]]:
 
     if declared == "T0":
         if n_params > T0_MAX_PARAMS:
-            reasons.append(f"T0 declared but {n_params} tunable params > {T0_MAX_PARAMS}")
+            reasons.append(
+                f"T0 declared but {n_params} tunable params > {T0_MAX_PARAMS}"
+            )
             declared = "T1"
         else:
             ok, violations = check_canonical(params)
@@ -189,7 +215,9 @@ def effective_tier(declared_tier: str, params: dict) -> tuple[str, list[str]]:
 
     if declared == "T1":
         if n_params > T1_MAX_PARAMS:
-            reasons.append(f"T1 effective but {n_params} tunable params > {T1_MAX_PARAMS}")
+            reasons.append(
+                f"T1 effective but {n_params} tunable params > {T1_MAX_PARAMS}"
+            )
             declared = "T2"
 
     return declared, reasons

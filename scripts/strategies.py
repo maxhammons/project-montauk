@@ -15,7 +15,7 @@ The optimizer will test all registered strategies and all parameter combos.
 
 from __future__ import annotations
 import numpy as np
-from strategy_engine import Indicators
+from strategy_engine import Indicators, _ema, _sma
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -2026,6 +2026,943 @@ def rsi_roc_combo(ind, p):
     return entries, exits, labels
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Spike batch 2026-04-14b: Untapped indicator families
+# CCI, Williams %R, MFI, OBV, Bollinger Width, TEMA, ATR ratio, combos
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def cci_regime_trend(ind, p):
+    """T1: CCI > 0 + fast EMA > slow EMA for confirm bars. Exit: death cross.
+    Hypothesis: CCI confirms bullish regime within a golden cross. Oscillator
+    gates entry timing (avoids false golden crosses), death cross exits."""
+    n = ind.n
+    cci = ind.cci(int(p.get("cci_len", 20)))
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    entry_bars = int(p.get("entry_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(1, n):
+        if np.isnan(cci[i]) or np.isnan(fast[i]) or np.isnan(slow[i]):
+            continue
+        if cci[i] > 0 and fast[i] > slow[i]:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def willr_recovery_trend(ind, p):
+    """T1: Williams %R > -50 + fast EMA > slow EMA + confirm. Exit: death cross.
+    Hypothesis: Williams %R in upper half of range confirms momentum within a
+    golden cross regime. Death cross exit prevents oscillator whipsaw."""
+    n = ind.n
+    willr = ind.willr(int(p.get("willr_len", 14)))
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    entry_bars = int(p.get("entry_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(1, n):
+        if np.isnan(willr[i]) or np.isnan(fast[i]) or np.isnan(slow[i]):
+            continue
+        if willr[i] > -50 and fast[i] > slow[i]:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def mfi_above_trend(ind, p):
+    """T1: MFI > 50 + fast EMA > slow EMA + confirm. Exit: death cross.
+    Hypothesis: MFI (volume-weighted RSI) > 50 = buying pressure dominates.
+    Volume confirmation gates entry into golden cross regime."""
+    n = ind.n
+    mfi = ind.mfi(int(p.get("mfi_len", 14)))
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    entry_bars = int(p.get("entry_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(1, n):
+        if np.isnan(mfi[i]) or np.isnan(fast[i]) or np.isnan(slow[i]):
+            continue
+        if mfi[i] > 50 and fast[i] > slow[i]:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def obv_slope_trend(ind, p):
+    """T1: OBV EMA slope positive + fast EMA > slow EMA + confirm. Exit: death cross.
+    Hypothesis: rising OBV = accumulation confirms uptrend within golden cross.
+    Volume-confirmed entries, death cross exit."""
+    n = ind.n
+    obv = ind.obv()
+    obv_ma = _ema(obv, int(p.get("obv_ema_len", 50)))
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    slope_w = int(p.get("slope_window", 5))
+    entry_bars = int(p.get("entry_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(slope_w, n):
+        if np.isnan(obv_ma[i]) or np.isnan(obv_ma[i - slope_w]) or np.isnan(fast[i]) or np.isnan(slow[i]):
+            continue
+        obv_rising = obv_ma[i] > obv_ma[i - slope_w]
+        if obv_rising and fast[i] > slow[i]:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def bb_width_regime(ind, p):
+    """T1: BB width < SMA (vol calm) + fast EMA > slow EMA. Exit: death cross.
+    Hypothesis: calm volatility during golden cross = healthy trend. Entry requires
+    both calm vol AND uptrend. Death cross exit."""
+    n = ind.n
+    bb_w = ind.bb_width(int(p.get("bb_len", 20)))
+    bb_w_avg = _sma(bb_w, int(p.get("bb_avg_len", 100)))
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(1, n):
+        if np.isnan(bb_w[i]) or np.isnan(bb_w_avg[i]) or np.isnan(fast[i]) or np.isnan(slow[i]):
+            continue
+        if bb_w[i] < bb_w_avg[i] and fast[i] > slow[i]:
+            entries[i] = True
+        if fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def tema_short_slope(ind, p):
+    """T1: Short TEMA slope positive + close > TEMA + fast > slow. Exit: death cross.
+    Hypothesis: TEMA entry catches trend turns earlier than EMA cross alone.
+    Asymmetric: fast TEMA entry, slow death cross exit."""
+    n = ind.n
+    cl = ind.close
+    tema = ind.tema(int(p.get("tema_len", 50)))
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    slope_w = int(p.get("slope_window", 5))
+    entry_bars = int(p.get("entry_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(slope_w, n):
+        if np.isnan(tema[i]) or np.isnan(tema[i - slope_w]) or np.isnan(fast[i]) or np.isnan(slow[i]):
+            continue
+        slope_pos = tema[i] > tema[i - slope_w]
+        above = cl[i] > tema[i]
+        if slope_pos and above and fast[i] > slow[i]:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def cci_willr_combo(ind, p):
+    """T1: CCI > 0 AND Williams %R > -50 + fast > slow EMA. Exit: death cross.
+    Hypothesis: dual oscillator confirmation (deviation + range families) gates
+    entry into golden cross regime. Both must agree. Death cross exit."""
+    n = ind.n
+    cci = ind.cci(int(p.get("cci_len", 20)))
+    willr = ind.willr(int(p.get("willr_len", 14)))
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(1, n):
+        if np.isnan(cci[i]) or np.isnan(willr[i]) or np.isnan(fast[i]) or np.isnan(slow[i]):
+            continue
+        if cci[i] > 0 and willr[i] > -50 and fast[i] > slow[i]:
+            entries[i] = True
+        if fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def mfi_obv_trend(ind, p):
+    """T1: MFI > 50 AND OBV slope positive + fast > slow EMA. Exit: death cross.
+    Hypothesis: volume consensus — MFI + OBV agree — gates golden cross entry."""
+    n = ind.n
+    mfi = ind.mfi(int(p.get("mfi_len", 14)))
+    obv = ind.obv()
+    obv_ma = _ema(obv, int(p.get("obv_ema_len", 50)))
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    slope_w = int(p.get("slope_window", 5))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(slope_w, n):
+        if np.isnan(mfi[i]) or np.isnan(obv_ma[i]) or np.isnan(obv_ma[i - slope_w]) or np.isnan(fast[i]) or np.isnan(slow[i]):
+            continue
+        obv_rising = obv_ma[i] > obv_ma[i - slope_w]
+        if mfi[i] > 50 and obv_rising and fast[i] > slow[i]:
+            entries[i] = True
+        if fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def atr_ratio_trend(ind, p):
+    """T1: ATR(short)/ATR(long) < 1.0 + fast > slow EMA. Exit: death cross.
+    Hypothesis: low ATR ratio = calm vol = trending. Gates golden cross entry."""
+    n = ind.n
+    atr_s = ind.atr(int(p.get("atr_short", 14)))
+    atr_l = ind.atr(int(p.get("atr_long", 100)))
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(1, n):
+        if np.isnan(atr_s[i]) or np.isnan(atr_l[i]) or atr_l[i] == 0 or np.isnan(fast[i]) or np.isnan(slow[i]):
+            continue
+        ratio = atr_s[i] / atr_l[i]
+        if ratio < 1.0 and fast[i] > slow[i]:
+            entries[i] = True
+        if fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def bb_cci_combo(ind, p):
+    """T1: CCI > 0 AND BB width < average + fast > slow EMA. Exit: death cross.
+    Hypothesis: above statistical mean + calm vol + golden cross. Triple filter."""
+    n = ind.n
+    cci = ind.cci(int(p.get("cci_len", 20)))
+    bb_w = ind.bb_width(int(p.get("bb_len", 20)))
+    bb_w_avg = _sma(bb_w, int(p.get("bb_avg_len", 100)))
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(1, n):
+        if np.isnan(cci[i]) or np.isnan(bb_w[i]) or np.isnan(bb_w_avg[i]) or np.isnan(fast[i]) or np.isnan(slow[i]):
+            continue
+        if cci[i] > 0 and bb_w[i] < bb_w_avg[i] and fast[i] > slow[i]:
+            entries[i] = True
+        if fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+# ── Spike batch 2026-04-14c: queued strategies ──
+# Macro-overlay and cross-asset strategies using external data (VIX, Treasury,
+# XLK, Fed Funds, SGOV) plus advanced technical setups (Keltner squeeze,
+# dual TEMA, volume Donchian).  All T1 grid-searchable.
+
+
+def vix_gc_filter(ind, p):
+    """T1: VIX regime filter + golden cross.
+    Entry: fast EMA > slow EMA AND VIX < threshold.
+    Exit: death cross OR VIX > danger threshold (2x entry threshold).
+    When VIX data unavailable, produce no signals."""
+    n = ind.n
+    if ind.vix is None:
+        return np.zeros(n, dtype=bool), np.zeros(n, dtype=bool), np.array([""] * n)
+    vix = ind.vix
+    fast = ind.ema(int(p.get("fast_ema", 30)))
+    slow = ind.ema(int(p.get("slow_ema", 100)))
+    vix_thresh = float(p.get("vix_threshold", 25))
+    vix_danger = vix_thresh * 2
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(1, n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(vix[i]):
+            continue
+        if fast[i] > slow[i] and vix[i] < vix_thresh:
+            entries[i] = True
+        if fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+        elif vix[i] > vix_danger:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def treasury_curve_trend(ind, p):
+    """T1: EMA slope positive + treasury spread > 0 (not inverted) + confirm.
+    Exit: death cross. When treasury spread unavailable, produce no signals."""
+    n = ind.n
+    if ind.treasury_spread is None:
+        return np.zeros(n, dtype=bool), np.zeros(n, dtype=bool), np.array([""] * n)
+    spread = ind.treasury_spread
+    fast = ind.ema(int(p.get("fast_ema", 30)))
+    slow = ind.ema(int(p.get("slow_ema", 100)))
+    slope_w = int(p.get("slope_window", 5))
+    entry_bars = int(p.get("entry_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(slope_w, n):
+        if np.isnan(fast[i]) or np.isnan(fast[i - slope_w]) or np.isnan(slow[i]) or np.isnan(spread[i]):
+            bull_count = 0
+            continue
+        slope_pos = fast[i] > fast[i - slope_w]
+        curve_ok = spread[i] > 0
+        if slope_pos and curve_ok and fast[i] > slow[i]:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def xlk_relative_strength(ind, p):
+    """T1: XLK fast EMA > XLK slow EMA AND TECL fast EMA slope positive.
+    Exit: XLK death cross (XLK fast < XLK slow).
+    When xlk_close unavailable, produce no signals."""
+    n = ind.n
+    if ind.xlk_close is None:
+        return np.zeros(n, dtype=bool), np.zeros(n, dtype=bool), np.array([""] * n)
+    xlk = ind.xlk_close
+    xlk_fast_len = int(p.get("xlk_fast", 50))
+    xlk_slow_len = int(p.get("xlk_slow", 200))
+    xlk_f = _ema(xlk, xlk_fast_len)
+    xlk_s = _ema(xlk, xlk_slow_len)
+    slope_w = int(p.get("slope_window", 5))
+    tecl_fast = ind.ema(int(p.get("fast_ema", 30)))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(slope_w, n):
+        if np.isnan(xlk_f[i]) or np.isnan(xlk_s[i]) or np.isnan(tecl_fast[i]) or np.isnan(tecl_fast[i - slope_w]):
+            continue
+        xlk_bull = xlk_f[i] > xlk_s[i]
+        tecl_slope_pos = tecl_fast[i] > tecl_fast[i - slope_w]
+        if xlk_bull and tecl_slope_pos:
+            entries[i] = True
+        if xlk_f[i] < xlk_s[i]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def fed_funds_pivot(ind, p):
+    """T1: Mean-reversion capitulation strategy.
+    Entry: RSI < 30 AND fed funds 3-month slope <= 0 (rates peaked/paused).
+    Exit: RSI > 70 OR close > trend EMA.
+    When fed_funds_rate unavailable, produce no signals."""
+    n = ind.n
+    if ind.fed_funds_rate is None:
+        return np.zeros(n, dtype=bool), np.zeros(n, dtype=bool), np.array([""] * n)
+    ff = ind.fed_funds_rate
+    rsi = ind.rsi(int(p.get("rsi_len", 14)))
+    trend = ind.ema(int(p.get("trend_len", 100)))
+    cl = ind.close
+    slope_w = 63  # ~3 months of trading days
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(slope_w, n):
+        if np.isnan(rsi[i]) or np.isnan(ff[i]) or np.isnan(ff[i - slope_w]) or np.isnan(trend[i]):
+            continue
+        ff_slope = ff[i] - ff[i - slope_w]
+        if rsi[i] < 30 and ff_slope <= 0:
+            entries[i] = True
+        if rsi[i] > 70:
+            exits[i] = True
+            labels[i] = "R"
+        elif cl[i] > trend[i]:
+            exits[i] = True
+            labels[i] = "T"
+    return entries, exits, labels
+
+
+def keltner_squeeze_breakout(ind, p):
+    """T1: Keltner channel squeeze then breakout.
+    Entry: Keltner width < its SMA (squeeze) then close > upper Keltner.
+    Exit: close < middle Keltner (the EMA center line)."""
+    n = ind.n
+    kc_ema_len = int(p.get("kc_ema_len", 20))
+    kc_atr_mult = float(p.get("kc_atr_mult", 2.0))
+    kc_avg_len = int(p.get("kc_avg_len", 50))
+    cl = ind.close
+    kc_upper = ind.keltner_upper(kc_ema_len, kc_ema_len, kc_atr_mult)
+    kc_lower = ind.keltner_lower(kc_ema_len, kc_ema_len, kc_atr_mult)
+    kc_mid = ind.ema(kc_ema_len)
+    # Keltner width = (upper - lower) / mid
+    kc_width = np.full(n, np.nan)
+    for i in range(n):
+        if not np.isnan(kc_upper[i]) and not np.isnan(kc_lower[i]) and not np.isnan(kc_mid[i]) and kc_mid[i] > 0:
+            kc_width[i] = (kc_upper[i] - kc_lower[i]) / kc_mid[i]
+    kc_width_avg = _sma(kc_width, kc_avg_len)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    in_squeeze = False
+    for i in range(1, n):
+        if np.isnan(kc_width[i]) or np.isnan(kc_width_avg[i]) or np.isnan(kc_upper[i]) or np.isnan(kc_mid[i]):
+            continue
+        if kc_width[i] < kc_width_avg[i]:
+            in_squeeze = True
+        if in_squeeze and cl[i] > kc_upper[i]:
+            entries[i] = True
+            in_squeeze = False
+        if cl[i] < kc_mid[i]:
+            exits[i] = True
+            labels[i] = "K"
+    return entries, exits, labels
+
+
+def vix_term_proxy(ind, p):
+    """T1: VIX term structure proxy.
+    Entry: EMA slope positive AND VIX < VIX SMA (contango proxy).
+    Exit: VIX > VIX SMA * 1.05 OR death cross.
+    When VIX unavailable, produce no signals."""
+    n = ind.n
+    if ind.vix is None:
+        return np.zeros(n, dtype=bool), np.zeros(n, dtype=bool), np.array([""] * n)
+    vix = ind.vix
+    vix_avg = ind.vix_sma(int(p.get("vix_sma_len", 30)))
+    if vix_avg is None:
+        return np.zeros(n, dtype=bool), np.zeros(n, dtype=bool), np.array([""] * n)
+    fast = ind.ema(int(p.get("fast_ema", 30)))
+    slow = ind.ema(int(p.get("slow_ema", 100)))
+    slope_w = 5
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(slope_w, n):
+        if np.isnan(fast[i]) or np.isnan(fast[i - slope_w]) or np.isnan(slow[i]) or np.isnan(vix[i]) or np.isnan(vix_avg[i]):
+            continue
+        slope_pos = fast[i] > fast[i - slope_w]
+        vix_below = vix[i] < vix_avg[i]
+        if slope_pos and vix_below and fast[i] > slow[i]:
+            entries[i] = True
+        if fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+        elif vix_avg[i] > 0 and vix[i] > vix_avg[i] * 1.05:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def macd_qqq_bull(ind, p):
+    """T1: MACD zero-line crossover in bull regime.
+    Entry: MACD line crosses above signal AND XLK 200-SMA slope positive.
+    Exit: MACD line crosses below signal.
+    When xlk_close unavailable, skip XLK filter (just use MACD cross)."""
+    n = ind.n
+    macd_l = ind.macd_line()
+    macd_s = ind.macd_signal()
+    trend_len = int(p.get("trend_len", 200))
+    # XLK trend filter (optional)
+    xlk_trend = None
+    if ind.xlk_close is not None:
+        xlk_trend = _sma(ind.xlk_close, trend_len)
+    slope_w = 5
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(slope_w + 1, n):
+        if np.isnan(macd_l[i]) or np.isnan(macd_s[i]) or np.isnan(macd_l[i - 1]) or np.isnan(macd_s[i - 1]):
+            continue
+        # MACD crosses above signal
+        macd_cross_up = macd_l[i] > macd_s[i] and macd_l[i - 1] <= macd_s[i - 1]
+        # XLK bull regime check
+        xlk_ok = True
+        if xlk_trend is not None and not np.isnan(xlk_trend[i]) and not np.isnan(xlk_trend[i - slope_w]):
+            xlk_ok = xlk_trend[i] > xlk_trend[i - slope_w]
+        if macd_cross_up and xlk_ok:
+            entries[i] = True
+        # MACD crosses below signal
+        macd_cross_dn = macd_l[i] < macd_s[i] and macd_l[i - 1] >= macd_s[i - 1]
+        if macd_cross_dn:
+            exits[i] = True
+            labels[i] = "M"
+    return entries, exits, labels
+
+
+def dual_tema_breakout(ind, p):
+    """T1: Dual-timeframe TEMA breakout.
+    Entry: Weekly TEMA (synthesized via 5x multiplier) slope positive
+    AND daily TEMA slope positive + confirm.
+    Exit: death cross (fast < slow EMA) for stability."""
+    n = ind.n
+    tema_len = int(p.get("tema_len", 20))
+    tema_daily = ind.tema(tema_len)
+    tema_weekly = ind.tema(tema_len * 5)  # synthesize weekly via 5x multiplier
+    fast = ind.ema(int(p.get("fast_ema", 30)))
+    slow = ind.ema(int(p.get("slow_ema", 100)))
+    slope_w = int(p.get("slope_window", 5))
+    entry_bars = int(p.get("entry_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(slope_w, n):
+        if np.isnan(tema_daily[i]) or np.isnan(tema_daily[i - slope_w]) or np.isnan(tema_weekly[i]) or np.isnan(tema_weekly[i - slope_w]) or np.isnan(fast[i]) or np.isnan(slow[i]):
+            bull_count = 0
+            continue
+        weekly_up = tema_weekly[i] > tema_weekly[i - slope_w]
+        daily_up = tema_daily[i] > tema_daily[i - slope_w]
+        if weekly_up and daily_up:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def vol_donchian_breakout(ind, p):
+    """T1: Volume-weighted Donchian breakout.
+    Entry: close > Donchian upper(entry_len) AND volume > 1.5x volume SMA.
+    Exit: close < Donchian lower(exit_len).
+    Constraint: exit_len < entry_len."""
+    n = ind.n
+    cl = ind.close
+    vol = ind.volume
+    entry_len = int(p.get("entry_len", 50))
+    exit_len = int(p.get("exit_len", 20))
+    don_upper = ind.donchian_upper(entry_len)
+    don_lower = ind.donchian_lower(exit_len)
+    vol_avg = _sma(vol.astype(np.float64), entry_len)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(1, n):
+        if np.isnan(don_upper[i]) or np.isnan(vol_avg[i]) or vol_avg[i] == 0:
+            continue
+        if cl[i] > don_upper[i] and vol[i] > 1.5 * vol_avg[i]:
+            entries[i] = True
+        if not np.isnan(don_lower[i]) and cl[i] < don_lower[i]:
+            exits[i] = True
+            labels[i] = "C"
+    return entries, exits, labels
+
+
+def sgov_flight_switch(ind, p):
+    """T1: SGOV flight-to-safety switch.
+    Entry: fast EMA > slow EMA AND SGOV ROC(10) <= 0 (capital NOT fleeing to safety).
+    Exit: death cross OR SGOV ROC > 0.5 (sudden flight to safety).
+    When sgov_close unavailable, produce no signals."""
+    n = ind.n
+    if ind.sgov_close is None:
+        return np.zeros(n, dtype=bool), np.zeros(n, dtype=bool), np.array([""] * n)
+    sgov_r = ind.sgov_roc(10)
+    if sgov_r is None:
+        return np.zeros(n, dtype=bool), np.zeros(n, dtype=bool), np.array([""] * n)
+    fast = ind.ema(int(p.get("fast_ema", 30)))
+    slow = ind.ema(int(p.get("slow_ema", 100)))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(1, n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(sgov_r[i]):
+            continue
+        if fast[i] > slow[i] and sgov_r[i] <= 0:
+            entries[i] = True
+        if fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+        elif sgov_r[i] > 0.5:
+            exits[i] = True
+            labels[i] = "S"
+    return entries, exits, labels
+
+
+# ── Spike batch 2026-04-14d: golden cross hybrids ──
+# Pre-cross entry, asymmetric pairs, spread-based regime, and multi-confirmation hybrids.
+# These exploit two prototyped innovations: pre-cross entry (enter BEFORE golden cross
+# when gap is narrowing) and asymmetric pairs (faster entry pair, slower exit pair).
+
+
+def gc_precross(ind, p):
+    """T1: Pre-cross entry — enter BEFORE golden cross when gap is narrowing.
+    Entry: fast < slow BUT (fast-slow) > prev (fast-slow) AND fast slope positive
+    for entry_bars AND slow slope positive.
+    Exit: fast < slow AND gap widening (death cross + divergence)."""
+    n = ind.n
+    fast = ind.ema(int(p.get("fast_ema", 20)))
+    slow = ind.ema(int(p.get("slow_ema", 100)))
+    slope_w = int(p.get("slope_window", 5))
+    entry_bars = int(p.get("entry_bars", 2))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(slope_w + 1, n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(fast[i - 1]) or np.isnan(slow[i - 1]):
+            bull_count = 0
+            continue
+        gap = fast[i] - slow[i]
+        prev_gap = fast[i - 1] - slow[i - 1]
+        fast_rising = fast[i] > fast[i - slope_w]
+        slow_rising = slow[i] > slow[i - slope_w]
+        # Pre-cross: fast still below slow but gap is narrowing + both slopes positive
+        if gap < 0 and gap > prev_gap and fast_rising and slow_rising:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        # Exit: fast < slow AND gap is widening (diverging further below)
+        if fast[i] < slow[i] and gap < prev_gap:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def gc_asym_fast_entry(ind, p):
+    """T1: Asymmetric fast entry / slow exit.
+    Entry: entry_fast EMA > entry_slow EMA AND entry_slow slope positive for entry_bars.
+    Exit: exit_fast EMA < exit_slow EMA (different, slower pair)."""
+    n = ind.n
+    ef = ind.ema(int(p.get("entry_fast", 20)))
+    es = ind.ema(int(p.get("entry_slow", 50)))
+    xf = ind.ema(int(p.get("exit_fast", 30)))
+    xs = ind.ema(int(p.get("exit_slow", 100)))
+    slope_w = int(p.get("slope_window", 5))
+    entry_bars = int(p.get("entry_bars", 2))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(slope_w + 1, n):
+        if np.isnan(ef[i]) or np.isnan(es[i]) or np.isnan(xf[i]) or np.isnan(xs[i]) or np.isnan(es[i - slope_w]):
+            bull_count = 0
+            continue
+        golden = ef[i] > es[i]
+        es_rising = es[i] > es[i - slope_w]
+        if golden and es_rising:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        # Exit on slower pair death cross
+        if xf[i] < xs[i]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def gc_tema_asym(ind, p):
+    """T1: TEMA fast entry, EMA slow exit.
+    Entry: TEMA(tema_len) > EMA(slow_ema) AND TEMA slope positive for entry_bars.
+    Exit: EMA(fast_ema) < EMA(slow_ema) death cross."""
+    n = ind.n
+    tema = ind.tema(int(p.get("tema_len", 30)))
+    fast = ind.ema(int(p.get("fast_ema", 30)))
+    slow = ind.ema(int(p.get("slow_ema", 100)))
+    slope_w = int(p.get("slope_window", 5))
+    entry_bars = int(p.get("entry_bars", 2))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(slope_w + 1, n):
+        if np.isnan(tema[i]) or np.isnan(tema[i - slope_w]) or np.isnan(fast[i]) or np.isnan(slow[i]):
+            bull_count = 0
+            continue
+        tema_above = tema[i] > slow[i]
+        tema_rising = tema[i] > tema[i - slope_w]
+        if tema_above and tema_rising:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def gc_spread_momentum(ind, p):
+    """T1: Spread acceleration entry — pure spread-based regime.
+    Entry: (fast-slow)/slow > 0 AND increasing for entry_bars AND slow slope positive.
+    Exit: (fast-slow)/slow < 0."""
+    n = ind.n
+    fast = ind.ema(int(p.get("fast_ema", 30)))
+    slow = ind.ema(int(p.get("slow_ema", 100)))
+    entry_bars = int(p.get("entry_bars", 2))
+    slope_w = 5  # hardcoded for slow slope check
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(slope_w + 1, n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(fast[i - 1]) or np.isnan(slow[i - 1]) or slow[i] == 0 or slow[i - 1] == 0:
+            bull_count = 0
+            continue
+        spread = (fast[i] - slow[i]) / slow[i]
+        prev_spread = (fast[i - 1] - slow[i - 1]) / slow[i - 1]
+        slow_rising = slow[i] > slow[i - slope_w]
+        if spread > 0 and spread > prev_spread and slow_rising:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if spread < 0:
+            exits[i] = True
+            labels[i] = "S"
+    return entries, exits, labels
+
+
+def gc_precross_roc(ind, p):
+    """T1: Pre-cross entry with ROC confirmation.
+    Entry: fast < slow BUT gap narrowing AND fast slope positive AND ROC > 0.
+    Exit: fast < slow AND gap widening."""
+    n = ind.n
+    fast = ind.ema(int(p.get("fast_ema", 20)))
+    slow = ind.ema(int(p.get("slow_ema", 100)))
+    roc = ind.roc(int(p.get("roc_len", 20)))
+    slope_w = int(p.get("slope_window", 5))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(slope_w + 1, n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(fast[i - 1]) or np.isnan(slow[i - 1]) or np.isnan(roc[i]):
+            continue
+        gap = fast[i] - slow[i]
+        prev_gap = fast[i - 1] - slow[i - 1]
+        fast_rising = fast[i] > fast[i - slope_w]
+        # Pre-cross: below but narrowing + fast rising + ROC positive
+        if gap < 0 and gap > prev_gap and fast_rising and roc[i] > 0:
+            entries[i] = True
+        # Exit: below and widening
+        if fast[i] < slow[i] and gap < prev_gap:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def gc_asym_triple(ind, p):
+    """T1: Triple-pair asymmetric — two crosses must agree for entry, one for exit.
+    Entry: entry_fast/entry_mid golden cross AND entry_mid/exit_slow golden cross.
+    Exit: exit_fast/exit_slow death cross."""
+    n = ind.n
+    ef = ind.ema(int(p.get("entry_fast", 14)))
+    em = ind.ema(int(p.get("entry_mid", 50)))
+    xf = ind.ema(int(p.get("exit_fast", 30)))
+    xs = ind.ema(int(p.get("exit_slow", 100)))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(1, n):
+        if np.isnan(ef[i]) or np.isnan(em[i]) or np.isnan(xf[i]) or np.isnan(xs[i]):
+            continue
+        # Both crosses must agree for entry
+        if ef[i] > em[i] and em[i] > xs[i]:
+            entries[i] = True
+        # Single slower cross for exit
+        if xf[i] < xs[i]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def gc_spread_band(ind, p):
+    """T1: Spread threshold entry — symmetric band around zero.
+    Entry: (fast-slow)/slow > 1% AND slow slope positive for entry_bars.
+    Exit: (fast-slow)/slow < -1%. Threshold hardcoded at 1%."""
+    n = ind.n
+    fast = ind.ema(int(p.get("fast_ema", 30)))
+    slow = ind.ema(int(p.get("slow_ema", 100)))
+    entry_bars = int(p.get("entry_bars", 2))
+    slope_w = 5  # hardcoded for slow slope check
+    threshold = 0.01  # 1% hardcoded
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(slope_w + 1, n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or slow[i] == 0 or np.isnan(slow[i - slope_w]):
+            bull_count = 0
+            continue
+        spread = (fast[i] - slow[i]) / slow[i]
+        slow_rising = slow[i] > slow[i - slope_w]
+        if spread > threshold and slow_rising:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if spread < -threshold:
+            exits[i] = True
+            labels[i] = "S"
+    return entries, exits, labels
+
+
+def gc_precross_vol(ind, p):
+    """T1: Pre-cross with volume confirmation.
+    Entry: fast < slow BUT gap narrowing AND fast slope positive AND volume > volume SMA.
+    Exit: death cross."""
+    n = ind.n
+    fast = ind.ema(int(p.get("fast_ema", 20)))
+    slow = ind.ema(int(p.get("slow_ema", 100)))
+    slope_w = int(p.get("slope_window", 5))
+    entry_bars = int(p.get("entry_bars", 2))
+    vol = ind.volume
+    vol_avg = _sma(vol.astype(np.float64), 50)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(slope_w + 1, n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(fast[i - 1]) or np.isnan(slow[i - 1]) or np.isnan(vol_avg[i]):
+            bull_count = 0
+            continue
+        gap = fast[i] - slow[i]
+        prev_gap = fast[i - 1] - slow[i - 1]
+        fast_rising = fast[i] > fast[i - slope_w]
+        # Pre-cross: below but narrowing + fast rising + volume above average
+        if gap < 0 and gap > prev_gap and fast_rising and vol[i] > vol_avg[i]:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        # Exit: death cross
+        if fast[i] < slow[i] and fast[i - 1] >= slow[i - 1]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def gc_asym_slope(ind, p):
+    """T1: Asymmetric pairs with strict slope — both entry EMA slopes must be positive.
+    Entry: entry_fast > entry_slow AND BOTH slopes positive for entry_bars.
+    Exit: exit_fast < exit_slow."""
+    n = ind.n
+    ef = ind.ema(int(p.get("entry_fast", 20)))
+    es = ind.ema(int(p.get("entry_slow", 50)))
+    xf = ind.ema(int(p.get("exit_fast", 30)))
+    xs = ind.ema(int(p.get("exit_slow", 100)))
+    slope_w = int(p.get("slope_window", 5))
+    entry_bars = int(p.get("entry_bars", 2))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(slope_w + 1, n):
+        if np.isnan(ef[i]) or np.isnan(es[i]) or np.isnan(xf[i]) or np.isnan(xs[i]) or np.isnan(ef[i - slope_w]) or np.isnan(es[i - slope_w]):
+            bull_count = 0
+            continue
+        golden = ef[i] > es[i]
+        ef_rising = ef[i] > ef[i - slope_w]
+        es_rising = es[i] > es[i - slope_w]
+        if golden and ef_rising and es_rising:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if xf[i] < xs[i]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def gc_precross_strict(ind, p):
+    """T1: Pre-cross with multi-bar confirmation.
+    Entry: fast < slow BUT gap narrowing for entry_bars consecutive bars AND
+    fast slope positive for 2*entry_bars AND slow slope positive.
+    Exit: death cross + gap widening."""
+    n = ind.n
+    fast = ind.ema(int(p.get("fast_ema", 20)))
+    slow = ind.ema(int(p.get("slow_ema", 100)))
+    slope_w = int(p.get("slope_window", 5))
+    entry_bars = int(p.get("entry_bars", 2))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    narrow_count = 0
+    fast_slope_count = 0
+    for i in range(slope_w + 1, n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(fast[i - 1]) or np.isnan(slow[i - 1]) or np.isnan(fast[i - slope_w]) or np.isnan(slow[i - slope_w]):
+            narrow_count = 0
+            fast_slope_count = 0
+            continue
+        gap = fast[i] - slow[i]
+        prev_gap = fast[i - 1] - slow[i - 1]
+        fast_rising = fast[i] > fast[i - slope_w]
+        slow_rising = slow[i] > slow[i - slope_w]
+        # Track consecutive narrowing bars
+        if gap < 0 and gap > prev_gap:
+            narrow_count += 1
+        else:
+            narrow_count = 0
+        # Track consecutive fast slope positive bars
+        if fast_rising:
+            fast_slope_count += 1
+        else:
+            fast_slope_count = 0
+        # Entry: narrowing for entry_bars + fast slope for 2*entry_bars + slow rising
+        if narrow_count >= entry_bars and fast_slope_count >= 2 * entry_bars and slow_rising:
+            entries[i] = True
+        # Exit: death cross + gap widening
+        if fast[i] < slow[i] and gap < prev_gap:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
 STRATEGY_REGISTRY = {
     # Grid-searchable T1 concepts (logic functions that accept any canonical param combo).
     # Grid search evaluates these exhaustively over canonical param grids.
@@ -2068,6 +3005,39 @@ STRATEGY_REGISTRY = {
     "stoch_cross_trend":        stoch_cross_trend,
     "double_ema_slope":         double_ema_slope,
     "rsi_roc_combo":            rsi_roc_combo,
+    # ── T1 grid-searchable: Spike batch 2026-04-14b (untapped families) ──
+    "cci_regime_trend":         cci_regime_trend,
+    "willr_recovery_trend":     willr_recovery_trend,
+    "mfi_above_trend":          mfi_above_trend,
+    "obv_slope_trend":          obv_slope_trend,
+    "bb_width_regime":          bb_width_regime,
+    "tema_short_slope":         tema_short_slope,
+    "cci_willr_combo":          cci_willr_combo,
+    "mfi_obv_trend":            mfi_obv_trend,
+    "atr_ratio_trend":          atr_ratio_trend,
+    "bb_cci_combo":             bb_cci_combo,
+    # ── T1 grid-searchable: Spike batch 2026-04-14c (macro + cross-asset + advanced) ──
+    "vix_gc_filter":            vix_gc_filter,
+    "treasury_curve_trend":     treasury_curve_trend,
+    "xlk_relative_strength":    xlk_relative_strength,
+    "fed_funds_pivot":          fed_funds_pivot,
+    "keltner_squeeze_breakout": keltner_squeeze_breakout,
+    "vix_term_proxy":           vix_term_proxy,
+    "macd_qqq_bull":            macd_qqq_bull,
+    "dual_tema_breakout":       dual_tema_breakout,
+    "vol_donchian_breakout":    vol_donchian_breakout,
+    "sgov_flight_switch":       sgov_flight_switch,
+    # ── T1 grid-searchable: Spike batch 2026-04-14d (golden cross hybrids) ──
+    "gc_precross":              gc_precross,
+    "gc_asym_fast_entry":       gc_asym_fast_entry,
+    "gc_tema_asym":             gc_tema_asym,
+    "gc_spread_momentum":       gc_spread_momentum,
+    "gc_precross_roc":          gc_precross_roc,
+    "gc_asym_triple":           gc_asym_triple,
+    "gc_spread_band":           gc_spread_band,
+    "gc_precross_vol":          gc_precross_vol,
+    "gc_asym_slope":            gc_asym_slope,
+    "gc_precross_strict":       gc_precross_strict,
 }
 
 # Declared validation tier for each strategy family.
@@ -2116,6 +3086,39 @@ STRATEGY_TIERS = {
     "stoch_cross_trend":        "T1",
     "double_ema_slope":         "T1",
     "rsi_roc_combo":            "T1",
+    # ── T1 grid-searchable: Spike batch 2026-04-14b (untapped families) ──
+    "cci_regime_trend":         "T1",
+    "willr_recovery_trend":     "T1",
+    "mfi_above_trend":          "T1",
+    "obv_slope_trend":          "T1",
+    "bb_width_regime":          "T1",
+    "tema_short_slope":         "T1",
+    "cci_willr_combo":          "T1",
+    "mfi_obv_trend":            "T1",
+    "atr_ratio_trend":          "T1",
+    "bb_cci_combo":             "T1",
+    # ── T1 grid-searchable: Spike batch 2026-04-14c (macro + cross-asset + advanced) ──
+    "vix_gc_filter":            "T1",
+    "treasury_curve_trend":     "T1",
+    "xlk_relative_strength":    "T1",
+    "fed_funds_pivot":          "T1",
+    "keltner_squeeze_breakout": "T1",
+    "vix_term_proxy":           "T1",
+    "macd_qqq_bull":            "T1",
+    "dual_tema_breakout":       "T1",
+    "vol_donchian_breakout":    "T1",
+    "sgov_flight_switch":       "T1",
+    # ── T1 grid-searchable: Spike batch 2026-04-14d (golden cross hybrids) ──
+    "gc_precross":              "T1",
+    "gc_asym_fast_entry":       "T1",
+    "gc_tema_asym":             "T1",
+    "gc_spread_momentum":       "T1",
+    "gc_precross_roc":          "T1",
+    "gc_asym_triple":           "T1",
+    "gc_spread_band":           "T1",
+    "gc_precross_vol":          "T1",
+    "gc_asym_slope":            "T1",
+    "gc_precross_strict":       "T1",
 }
 
 # Parameter spaces for each strategy: {param: (min, max, step, type)}
@@ -2331,5 +3334,213 @@ STRATEGY_PARAMS = {
         "roc_len":      (10, 50, 10, int),
         "trend_len":    (100, 200, 50, int),
         "cooldown":     (2, 10, 3, int),
+    },
+    # ── T1 grid-searchable: Spike batch 2026-04-14b (oscillator-filtered golden cross) ──
+    "cci_regime_trend": {
+        "cci_len":      (14, 50, 10, int),
+        "fast_ema":     (20, 100, 10, int),
+        "slow_ema":     (100, 300, 50, int),
+        "entry_bars":   (2, 5, 1, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "willr_recovery_trend": {
+        "willr_len":    (7, 21, 7, int),
+        "fast_ema":     (20, 100, 10, int),
+        "slow_ema":     (100, 300, 50, int),
+        "entry_bars":   (2, 5, 1, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "mfi_above_trend": {
+        "mfi_len":      (7, 21, 7, int),
+        "fast_ema":     (20, 100, 10, int),
+        "slow_ema":     (100, 300, 50, int),
+        "entry_bars":   (2, 5, 1, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "obv_slope_trend": {
+        "obv_ema_len":  (20, 100, 20, int),
+        "fast_ema":     (20, 100, 10, int),
+        "slow_ema":     (100, 300, 50, int),
+        "slope_window": (3, 5, 2, int),
+        "entry_bars":   (2, 5, 1, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "bb_width_regime": {
+        "bb_len":       (14, 50, 10, int),
+        "bb_avg_len":   (50, 200, 50, int),
+        "fast_ema":     (20, 100, 10, int),
+        "slow_ema":     (100, 300, 50, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "tema_short_slope": {
+        "tema_len":     (20, 50, 10, int),
+        "fast_ema":     (20, 100, 10, int),
+        "slow_ema":     (100, 300, 50, int),
+        "slope_window": (3, 5, 2, int),
+        "entry_bars":   (2, 5, 1, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "cci_willr_combo": {
+        "cci_len":      (14, 50, 10, int),
+        "willr_len":    (7, 21, 7, int),
+        "fast_ema":     (20, 100, 10, int),
+        "slow_ema":     (100, 300, 50, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "mfi_obv_trend": {
+        "mfi_len":      (7, 21, 7, int),
+        "obv_ema_len":  (20, 100, 20, int),
+        "fast_ema":     (20, 100, 10, int),
+        "slow_ema":     (100, 300, 50, int),
+        "slope_window": (3, 5, 2, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "atr_ratio_trend": {
+        "atr_short":    (7, 20, 7, int),
+        "atr_long":     (50, 200, 50, int),
+        "fast_ema":     (20, 100, 10, int),
+        "slow_ema":     (100, 300, 50, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    "bb_cci_combo": {
+        "cci_len":      (14, 50, 10, int),
+        "bb_len":       (14, 50, 10, int),
+        "bb_avg_len":   (50, 200, 50, int),
+        "fast_ema":     (20, 100, 10, int),
+        "slow_ema":     (100, 300, 50, int),
+        "cooldown":     (2, 10, 3, int),
+    },
+    # ── T1 grid-searchable: Spike batch 2026-04-14c (macro + cross-asset + advanced) ──
+    "vix_gc_filter": {
+        "fast_ema":       (20, 100, 10, int),
+        "slow_ema":       (100, 300, 50, int),
+        "vix_threshold":  (20, 50, 10, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "treasury_curve_trend": {
+        "fast_ema":       (20, 100, 10, int),
+        "slow_ema":       (100, 300, 50, int),
+        "slope_window":   (3, 5, 2, int),
+        "entry_bars":     (2, 5, 1, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "xlk_relative_strength": {
+        "xlk_fast":       (20, 100, 10, int),
+        "xlk_slow":       (100, 300, 50, int),
+        "slope_window":   (3, 5, 2, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "fed_funds_pivot": {
+        "rsi_len":        (7, 21, 7, int),
+        "trend_len":      (50, 200, 50, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "keltner_squeeze_breakout": {
+        "kc_ema_len":     (20, 50, 10, int),
+        "kc_atr_mult":    (1.5, 2.5, 0.5, float),
+        "kc_avg_len":     (20, 100, 20, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "vix_term_proxy": {
+        "fast_ema":       (20, 100, 10, int),
+        "slow_ema":       (100, 300, 50, int),
+        "vix_sma_len":    (20, 100, 20, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "macd_qqq_bull": {
+        "trend_len":      (100, 200, 50, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "dual_tema_breakout": {
+        "tema_len":       (20, 50, 10, int),
+        "fast_ema":       (20, 100, 10, int),
+        "slow_ema":       (100, 300, 50, int),
+        "slope_window":   (3, 5, 2, int),
+        "entry_bars":     (2, 5, 1, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "vol_donchian_breakout": {
+        "entry_len":      (50, 200, 50, int),
+        "exit_len":       (10, 100, 10, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "sgov_flight_switch": {
+        "fast_ema":       (20, 100, 10, int),
+        "slow_ema":       (100, 300, 50, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    # ── T1 grid-searchable: Spike batch 2026-04-14d (golden cross hybrids) ──
+    "gc_precross": {
+        "fast_ema":       (20, 100, 10, int),
+        "slow_ema":       (100, 300, 50, int),
+        "slope_window":   (3, 5, 2, int),
+        "entry_bars":     (2, 5, 1, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "gc_asym_fast_entry": {
+        "entry_fast":     (14, 50, 10, int),
+        "entry_slow":     (50, 100, 10, int),
+        "exit_fast":      (20, 100, 10, int),
+        "exit_slow":      (100, 300, 50, int),
+        "slope_window":   (3, 5, 2, int),
+        "entry_bars":     (2, 5, 1, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "gc_tema_asym": {
+        "tema_len":       (20, 50, 10, int),
+        "fast_ema":       (20, 100, 10, int),
+        "slow_ema":       (100, 300, 50, int),
+        "slope_window":   (3, 5, 2, int),
+        "entry_bars":     (2, 5, 1, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "gc_spread_momentum": {
+        "fast_ema":       (20, 100, 10, int),
+        "slow_ema":       (100, 300, 50, int),
+        "entry_bars":     (2, 5, 1, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "gc_precross_roc": {
+        "fast_ema":       (20, 100, 10, int),
+        "slow_ema":       (100, 300, 50, int),
+        "roc_len":        (10, 50, 10, int),
+        "slope_window":   (3, 5, 2, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "gc_asym_triple": {
+        "entry_fast":     (14, 50, 10, int),
+        "entry_mid":      (30, 100, 10, int),
+        "exit_fast":      (20, 100, 10, int),
+        "exit_slow":      (100, 300, 50, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "gc_spread_band": {
+        "fast_ema":       (20, 100, 10, int),
+        "slow_ema":       (100, 300, 50, int),
+        "entry_bars":     (2, 5, 1, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "gc_precross_vol": {
+        "fast_ema":       (20, 100, 10, int),
+        "slow_ema":       (100, 300, 50, int),
+        "slope_window":   (3, 5, 2, int),
+        "entry_bars":     (2, 5, 1, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "gc_asym_slope": {
+        "entry_fast":     (14, 50, 10, int),
+        "entry_slow":     (50, 100, 10, int),
+        "exit_fast":      (20, 100, 10, int),
+        "exit_slow":      (100, 300, 50, int),
+        "slope_window":   (3, 5, 2, int),
+        "entry_bars":     (2, 5, 1, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "gc_precross_strict": {
+        "fast_ema":       (20, 100, 10, int),
+        "slow_ema":       (100, 300, 50, int),
+        "slope_window":   (3, 5, 2, int),
+        "entry_bars":     (2, 5, 1, int),
+        "cooldown":       (2, 10, 3, int),
     },
 }
