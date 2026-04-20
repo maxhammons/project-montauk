@@ -1,8 +1,8 @@
 # /spike — Montauk Engine Strategy Discovery
 
-**Spike is the skill. Spike launches and runs the Montauk Engine** — the strategy concept authoring + grid search + validation + Pine generation pipeline.
+**Spike is the skill. Spike launches and runs the Montauk Engine** — the strategy concept authoring + grid search + validation + backtest-artifact pipeline.
 
-Goal: find strategies that **accumulate more shares of TECL than buy-and-hold** with ≤5 trades/year. Strategies must survive walk-forward, cross-asset, and concentration validation to earn a leaderboard slot and Pine candidate.
+Goal: find strategies that **accumulate more shares of TECL than buy-and-hold** with ≤5 trades/year. Strategies must survive walk-forward, cross-asset, and concentration validation to earn a leaderboard slot and artifact bundle.
 
 ## The Flow
 
@@ -37,17 +37,12 @@ For each new idea (user's + Claude's brainstorms):
 
 2. **Register** in `STRATEGY_REGISTRY`, `STRATEGY_TIERS` (as "T1"), and `STRATEGY_PARAMS`
 
-3. **Write the Pine generator** in `scripts/pine_generator.py`
-   - Use template functions where possible (`_ma_cross_slope_pine`, `_ema_slope_above_pine`)
-   - Or write a custom builder
-   - Add to `_BUILDERS`
-
-4. **Define the canonical grid** in `scripts/grid_search.py :: GRIDS`
+3. **Define the canonical grid** in `scripts/grid_search.py :: GRIDS`
    - Each param gets a list of canonical values from `canonical_params.py`
    - Constraint: all values from the strict canonical set
    - Target: 10-50 combos per concept (product of list lengths)
 
-5. **Smoke test (T0)** — backtest ONE canonical config to verify the concept has signal:
+4. **Smoke test (T0)** — backtest ONE canonical config to verify the concept has signal:
    ```bash
    cd scripts && ~/Documents/.venv/bin/python3 -c "
    from data import get_tecl_data
@@ -56,7 +51,7 @@ For each new idea (user's + Claude's brainstorms):
    df = get_tecl_data(); ind = Indicators(df)
    e, x, l = new_concept_fn(ind, {committed_params})
    r = backtest(df, e, x, l, cooldown_bars=5, strategy_name='new_concept')
-   print(f'share={r.vs_bah_multiple:.3f}x trades={r.num_trades} tpy={r.trades_per_year:.2f}')
+   print(f'share={r.share_multiple:.3f}x trades={r.num_trades} tpy={r.trades_per_year:.2f}')
    "
    ```
    - If share < 1.5x → reconsider the concept before grid searching
@@ -82,7 +77,7 @@ This does:
    - Marker shape alignment (diagnostic, not a gate)
    - Composite confidence synthesis
 4. **Update leaderboard** with PASS entries
-5. **Report** champion + Pine candidate
+5. **Report** champion + artifact bundle (`trade_ledger.json`, `signal_series.json`, `equity_curve.json`, `validation_summary.json`, `dashboard_data.json`)
 
 ### Step 5 — Report results
 
@@ -91,7 +86,7 @@ Show the user:
 - New leaderboard state (ranked by share_multiple)
 - Champion: strategy name, params, share_multiple, trades/yr, CAGR, MaxDD
 - Key validation metrics: composite confidence, walk-forward score, cross-asset score
-- Pine candidate path (auto-generated for champion)
+- Artifact bundle paths (auto-generated for champion)
 
 ### Step 6 — Optional: GA deep search (T2)
 
@@ -114,8 +109,6 @@ Only suggest T2 if:
 |------|------|
 | `scripts/grid_search.py` | **Primary entry point** — exhaustive canonical search + validate |
 | `scripts/strategies.py` | Strategy concepts + REGISTRY + TIERS + PARAMS |
-| `scripts/pine_generator.py` | Pine template generators + _BUILDERS |
-| `scripts/parity.py` | Python-vs-Pine parity checks (structural, signal replay, trade-list) |
 | `scripts/canonical_params.py` | Strict canonical parameter sets |
 | `scripts/spike_runner.py` | GA entry point (T2 deep search only) |
 | `scripts/evolve.py` | Evolutionary optimizer (used by spike_runner) |
@@ -129,5 +122,5 @@ Only suggest T2 if:
 - **Share-count multiplier vs B&H is primary** — must accumulate more TECL units than passive
 - **Marker alignment** is a diagnostic, not a gate — north star for design, not the bouncer at the door
 - **Every param value from the canonical set** — see `canonical_params.py`
-- **Never modify `src/strategy/active/`** — candidates go in `testing/`
+- **Do not edit 8.2.1 defaults casually** — `StrategyParams` in `scripts/backtest_engine.py` is pinned by the golden-trade regression (`tests/test_regression.py`). Changing defaults means regenerating `tests/golden_trades_821.json` intentionally.
 - **Read T0-DESIGN-GUIDE.md before authoring** — avoid known-failing patterns

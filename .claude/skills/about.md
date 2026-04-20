@@ -2,10 +2,10 @@
 
 ## What it does
 
-The Spike skill launches and runs the **Montauk Engine** — Project Montauk's autonomous evolutionary strategy optimizer + tier-routed validator + Pine generator. It tests hundreds of thousands of parameter combinations across multiple TECL strategies using a genetic algorithm, with the goal of accumulating more shares of TECL than buy-and-hold while matching the hand-marked cycle shape in `data/markers/TECL-markers.csv`.
+The Spike skill launches and runs the **Montauk Engine** — Project Montauk's autonomous evolutionary strategy optimizer + tier-routed validator + artifact emitter. It tests hundreds of thousands of parameter combinations across multiple TECL strategies using a genetic algorithm, with the goal of accumulating more shares of TECL than buy-and-hold while matching the hand-marked cycle shape in `data/markers/TECL-markers.csv`.
 
 > Spike = the entrypoint / command surface (`/spike`, `/spike-focus`, `/spike-results`).
-> Montauk Engine = the underlying machinery (search + tier-routed validation + Pine emission).
+> Montauk Engine = the underlying machinery (search + tier-routed validation + run artifact emission).
 
 ## Architecture
 
@@ -30,7 +30,7 @@ Claude (post-run)
 ─────────────────
 git pull
 Read report
-Generate Pine Script for #1 winner
+Inspect the artifact bundle for #1 winner
 ```
 
 ## Why evolutionary?

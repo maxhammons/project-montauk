@@ -193,19 +193,19 @@ def stationary_bootstrap_validation(
     block_p = 1.0 / max(expected_block, 1)
 
     regime_scores = []
-    vs_bah_values = []
+    share_multiple_values = []
     for _ in range(resamples):
         indices = _stationary_bootstrap_indices(n, block_p=block_p, rng=rng)
         boot_df = _bootstrap_df(df, indices)
         metrics = run_eval(boot_df, strategy_fn, params, strategy_name)
         regime_scores.append(float(metrics.get("regime_score", 0.0)))
-        vs_bah_values.append(float(metrics.get("vs_bah", 0.0)))
+        share_multiple_values.append(float(metrics.get("share_multiple", 0.0)))
 
     regime_arr = np.asarray(regime_scores, dtype=np.float64)
-    vs_bah_arr = np.asarray(vs_bah_values, dtype=np.float64)
+    share_multiple_arr = np.asarray(share_multiple_values, dtype=np.float64)
     lo, hi = np.percentile(regime_arr, [5, 95])
     ci_width = float(hi - lo)
-    downside_prob = float(np.mean(vs_bah_arr < 1.0))
+    downside_prob = float(np.mean(share_multiple_arr < 1.0))
     s_boot = float(np.clip(1.0 - ci_width / max(observed_rs, 1e-6), 0.0, 1.0))
 
     return {
@@ -216,8 +216,8 @@ def stationary_bootstrap_validation(
         "ci_90": [round(float(lo), 4), round(float(hi), 4)],
         "ci_width": round(ci_width, 4),
         "mean_regime_score": round(float(regime_arr.mean()), 4),
-        "mean_vs_bah": round(float(vs_bah_arr.mean()), 4),
-        "downside_prob_vs_bah": round(downside_prob, 4),
+        "mean_share_multiple": round(float(share_multiple_arr.mean()), 4),
+        "downside_prob_share_multiple": round(downside_prob, 4),
         "s_boot": round(s_boot, 4),
         "hard_fail": downside_prob > 0.5,
         "warning_flag": s_boot < 0.20 or downside_prob > 0.25,

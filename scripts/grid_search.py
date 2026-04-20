@@ -396,6 +396,103 @@ GRIDS = {
         "slow_ema": [100, 200],
         "cooldown": [5],
     },
+    # ── Spike batch 2026-04-15: diversity strategies (non-crossover) ──
+    "drawdown_recovery": {  # 2 × 3 × 3 × 3 × 3 = 162 combos
+        "trend_len": [100, 200],
+        "lookback": [50, 100, 200],
+        "thresh_pct": [15.0, 20.0, 25.0],
+        "recover_pct": [25.0, 50.0, 75.0],
+        "exit_dd_pct": [15.0, 20.0, 25.0],
+    },
+    "multi_tf_momentum": {  # 3 × 2 × 2 × 2 = 24 combos
+        "short_lb": [20, 30, 50],
+        "med_lb": [50, 100],
+        "long_lb": [100, 200],
+        "confirm_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "rsi_mean_revert_trend": {  # 3 × 2 × 3 × 3 = 54 combos
+        "rsi_len": [7, 14, 21],
+        "trend_len": [100, 200],
+        "oversold": [20.0, 30.0, 40.0],
+        "overbought": [70.0, 75.0, 80.0],
+        "cooldown": [5],
+    },
+    "vol_compression_breakout": {  # 3 × 3 × 3 × 3 × 3 = 243 combos
+        "atr_period": [7, 14, 20],
+        "trend_len": [50, 100, 200],
+        "lookback": [20, 50, 100],
+        "compress_pct": [2.0, 3.0, 5.0],
+        "expand_pct": [6.0, 8.0, 10.0],
+    },
+    "price_position_regime": {  # 2 × 3 × 2 × 3 = 36 combos
+        "high_lb": [100, 200],
+        "low_lb": [20, 50, 100],
+        "exit_lb": [50, 200],
+        "pct_of_high": [85.0, 90.0, 95.0],
+        "cooldown": [5],
+    },
+    "treasury_regime": {  # 3 × 2 × 2 = 12 combos
+        "trend_len": [50, 100, 200],
+        "slope_window": [3, 5],
+        "exit_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "xlk_relative_momentum": {  # 3 × 3 × 2 = 18 combos
+        "lookback": [20, 50, 100],
+        "trend_len": [20, 50, 100],
+        "confirm_bars": [2, 3],
+        "cooldown": [5],
+    },
+    "consecutive_strength": {  # 3 × 3 × 3 × 3 = 81 combos
+        "atr_period": [7, 14, 20],
+        "entry_streak": [3, 5],
+        "exit_streak": [2, 3, 5],
+        "atr_mult": [2.0, 2.5, 3.0],
+        "cooldown": [5],
+    },
+    # ── Spike batch 2026-04-15b: diagnostic-informed (fix gc_* weaknesses) ──
+    "gc_atr_trail": {  # 4 × 3 × 3 × 2 × 2 × 3 = 432 combos (filtered fast < slow)
+        "fast_ema": [20, 30, 50, 100],
+        "slow_ema": [100, 150, 200],
+        "atr_period": [7, 14, 20],
+        "slope_window": [3, 5],
+        "entry_bars": [2, 3],
+        "atr_mult": [2.0, 2.5, 3.0],
+    },
+    "fast_ema_atr_trail": {  # 3 × 3 × 3 × 2 × 2 × 3 = 324 combos (filtered fast < slow)
+        "fast_ema": [20, 30, 50],
+        "slow_ema": [50, 100, 150],
+        "atr_period": [7, 14, 20],
+        "slope_window": [3, 5],
+        "confirm_bars": [2, 3],
+        "atr_mult": [2.0, 2.5, 3.0],
+    },
+    "vix_regime_entry": {  # 3 × 3 × 3 = 27 combos
+        "trend_len": [50, 100, 200],
+        "entry_vix": [15.0, 20.0, 25.0],
+        "exit_vix": [25.0, 30.0, 35.0],
+        "cooldown": [5],
+    },
+    "rsi_bull_regime": {  # 3 × 2 × 4 = 24 combos
+        "rsi_len": [7, 14, 21],
+        "confirm_bars": [2, 3],
+        "exit_level": [30.0, 35.0, 40.0, 45.0],
+        "cooldown": [5],
+    },
+    "donchian_vix": {  # 4 × 5 = 20 combos
+        "entry_len": [50, 100, 150, 200],
+        "exit_len": [20, 30, 50, 70, 100],
+        "cooldown": [5],
+    },
+    "gc_slope_no_death": {  # 4 × 3 × 3 × 2 × 2 × 3 = 432 combos (filtered fast < slow)
+        "fast_ema": [20, 30, 50, 100],
+        "slow_ema": [100, 150, 200],
+        "atr_period": [7, 14, 20],
+        "slope_window": [3, 5],
+        "confirm_bars": [2, 3],
+        "atr_mult": [2.0, 2.5, 3.0],
+    },
 }
 
 
@@ -506,7 +603,7 @@ def _worker_backtest(job: tuple[str, dict]) -> dict | None:
         return None
 
     # Charter pre-filter
-    if result.vs_bah_multiple < 1.0:
+    if result.share_multiple < 1.0:
         return {"_rejected": True}
     if result.num_trades < 5:
         return {"_rejected": True}
@@ -533,7 +630,7 @@ def _worker_backtest(job: tuple[str, dict]) -> dict | None:
             "trades": result.num_trades,
             "trades_yr": result.trades_per_year,
             "n_params": _count_tunable_params(params),
-            "vs_bah": result.vs_bah_multiple,
+            "share_multiple": result.share_multiple,
             "cagr": result.cagr_pct,
             "max_dd": result.max_drawdown_pct,
             "mar": result.mar_ratio,
@@ -583,7 +680,7 @@ def _backtest_single(concept, params, ind, df, close, dates):
         result.params = params
     except Exception:
         return None
-    if result.vs_bah_multiple < 1.0:
+    if result.share_multiple < 1.0:
         return {"_rejected": True}
     if result.num_trades < 5:
         return {"_rejected": True}
@@ -605,7 +702,7 @@ def _backtest_single(concept, params, ind, df, close, dates):
             "trades": result.num_trades,
             "trades_yr": result.trades_per_year,
             "n_params": _count_tunable_params(params),
-            "vs_bah": result.vs_bah_multiple,
+            "share_multiple": result.share_multiple,
             "cagr": result.cagr_pct,
             "max_dd": result.max_drawdown_pct,
             "mar": result.mar_ratio,
@@ -716,14 +813,17 @@ def run_grid_search(
     for e in all_results:
         c = e["strategy"]
         prev_count, prev_best = concept_stats.get(c, (0, 0.0))
-        concept_stats[c] = (prev_count + 1, max(prev_best, e["metrics"]["vs_bah"]))
+        concept_stats[c] = (
+            prev_count + 1,
+            max(prev_best, e["metrics"]["share_multiple"]),
+        )
     for concept in concepts:
         count, best = concept_stats.get(concept, (0, 0.0))
         print(f"  {concept:<28} {count:>3} pass charter  best_share={best:.2f}x")
 
     elapsed_search = time.time() - start
     # Rank by share_multiple (primary metric)
-    all_results.sort(key=lambda e: e["metrics"]["vs_bah"], reverse=True)
+    all_results.sort(key=lambda e: e["metrics"]["share_multiple"], reverse=True)
     for i, e in enumerate(all_results, 1):
         e["rank"] = i
 
@@ -741,7 +841,7 @@ def run_grid_search(
     for e in all_results[:10]:
         m = e["metrics"]
         print(
-            f"  {e['strategy']:<28} share={m['vs_bah']:.2f}x  trades={m['trades']}  "
+            f"  {e['strategy']:<28} share={m['share_multiple']:.2f}x  trades={m['trades']}  "
             f"tpy={m['trades_yr']:.2f}  marker={e['marker_alignment_score']:.3f}  "
             f"params={e['params']}"
         )
@@ -802,7 +902,7 @@ def run_grid_search(
             m = e.get("metrics", {})
             t = (e.get("validation") or {}).get("tier") or e.get("tier") or "?"
             print(
-                f"  #{i} {e['strategy']:<28} [{t}]  share={m.get('vs_bah', 0):.2f}x  "
+                f"  #{i} {e['strategy']:<28} [{t}]  share={m.get('share_multiple', 0):.2f}x  "
                 f"fitness={e.get('fitness', 0):.4f}  params={e.get('params', {})}"
             )
     else:

@@ -86,7 +86,7 @@ def load_hash_index() -> dict:
     """
     Load the compact hash index.
 
-    Format v3 (current): {config_hash: {"bah": vs_bah, "rs": regime_score, "dd": max_dd, "nt": num_trades, "np": n_params, "hhi": hhi}}
+    Format v3 (current): {config_hash: {"bah": share_multiple, "rs": regime_score, "dd": max_dd, "nt": num_trades, "np": n_params, "hhi": hhi}}
     Format v2 (old): {config_hash: {"f": fitness, "rs": regime_score}}
     Format v1 (old): {config_hash: fitness}
 
@@ -144,7 +144,7 @@ def load_hash_index() -> dict:
 def save_hash_index(index: dict):
     """Save the hash index to disk. Prunes stale/empty entries to control size.
 
-    v3 format: {hash: {"bah": vs_bah, "rs": regime_score, "dd": max_dd, "nt": num_trades, "np": n_params, "hhi": hhi}}
+    v3 format: {hash: {"bah": share_multiple, "rs": regime_score, "dd": max_dd, "nt": num_trades, "np": n_params, "hhi": hhi}}
     Entries with bah=None or bah=0 are pruned (they need re-evaluation anyway).
     """
     os.makedirs(HISTORY_DIR, exist_ok=True)
@@ -345,9 +345,10 @@ def set_converged(leaderboard_path: str, strategy_name: str, converged: bool) ->
 # ─────────────────────────────────────────────────────────────────────────────
 #
 # Charter (2026-04-13): the primary metric is share-count multiplier vs B&H.
-# `vs_bah_multiple` in BacktestResult is mathematically identical to the
-# share-count multiplier when equity is marked-to-market. So this fitness
-# function reads `vs_bah_multiple` but is actually rewarding share accumulation.
+# `BacktestResult.share_multiple` is the only Python attribute name —
+# the legacy Python alias was retired in Phase 7. Older
+# leaderboard JSON entries persisted under a legacy key
+# are still readable via `report.py::_share_mult`.
 #
 # What changed from the previous revision:
 #   * REMOVED the `trade_scale = min(1.0, num_trades / 10)` soft ramp that
@@ -384,8 +385,8 @@ def fitness_from_cache(entry: dict, *, tier: str = "T2") -> float:
     Tier-aware: T0 skips the trades-per-param gate (canonical pre-registration
     is the structural defense; see fitness() docstring).
     """
-    vs_bah = entry.get("bah")
-    if vs_bah is None or vs_bah <= 0:
+    share_mult = entry.get("bah")
+    if share_mult is None or share_mult <= 0:
         return 0.0
     num_trades = entry.get("nt") or 0
     if num_trades < 5:
@@ -411,7 +412,7 @@ def fitness_from_cache(entry: dict, *, tier: str = "T2") -> float:
     rs = entry.get("rs") or 0
     regime_mult = 0.4 + 0.6 * min(1.0, rs / 0.7)
 
-    return vs_bah * hhi_penalty * dd_penalty * complexity_penalty * regime_mult
+    return share_mult * hhi_penalty * dd_penalty * complexity_penalty * regime_mult
 
 
 def discovery_score_value(fitness_score: float, marker_alignment_score: float | None) -> float:
@@ -435,9 +436,9 @@ def fitness(result: BacktestResult, *, tier: str = "T2") -> float:
     """
     Share-count accumulation fitness — primary metric is share_multiple vs B&H.
 
-    Primary: share_multiple (== vs_bah_multiple, see strategy_engine.py) —
-        ratio of strategy terminal share-equivalent to B&H terminal shares.
-        > 1.0 means the strategy accumulated more TECL units than passive holding.
+    Primary: share_multiple — ratio of strategy terminal share-equivalent
+        to B&H terminal shares. > 1.0 means the strategy accumulated more
+        TECL units than passive holding.
     Guards: drawdown, cycle concentration (HHI), parameter complexity, trade count floor.
     Charter boundary: `trades_per_year <= MAX_TRADES_PER_YEAR` (regime, not scalper).
     Regime score used as a quality multiplier (not primary driver).
@@ -454,7 +455,7 @@ def fitness(result: BacktestResult, *, tier: str = "T2") -> float:
         return 0.0  # structural: did the strategy actually engage?
 
     # ── Primary: share-count multiplier vs B&H (marked-to-market identity) ──
-    share_mult = result.vs_bah_multiple  # 1.0 = matched B&H shares, > 1.0 = more shares
+    share_mult = result.share_multiple  # 1.0 = matched B&H shares, > 1.0 = more shares
 
     # ── Charter boundary: regime strategy, not scalper ──
     if result.trades_per_year > MAX_TRADES_PER_YEAR:
@@ -510,7 +511,7 @@ def _cache_entry_from_result(
     if regime_score and regime_score.hhi is not None:
         hhi = round(regime_score.hhi, 4)
     return {
-        "bah": round(result.vs_bah_multiple, 4) if result else None,
+        "bah": round(result.share_multiple, 4) if result else None,
         "rs": round(regime_score.composite, 4) if regime_score else None,
         "dd": round(result.max_drawdown_pct, 1) if result else None,
         "nt": result.num_trades if result else 0,
@@ -543,19 +544,19 @@ def _passes_pareto_hard_gates(num_trades: int, trades_per_year: float, n_params:
 
 
 def _objectives_from_cache(entry: dict, dataset_years: float) -> tuple[float, float, float] | None:
-    vs_bah = entry.get("bah")
+    share_mult = entry.get("bah")
     dd = entry.get("dd")
     num_trades = entry.get("nt") or 0
     n_params = entry.get("np") or 0
     hhi = entry.get("hhi")
     if hhi is None:
         hhi = 0.0
-    if vs_bah is None or dd is None:
+    if share_mult is None or dd is None:
         return None
     trades_per_year = (num_trades / dataset_years) if dataset_years > 0 else 0.0
     if not _passes_pareto_hard_gates(num_trades, trades_per_year, n_params, float(hhi)):
         return None
-    return float(vs_bah), float(dd), float(hhi)
+    return float(share_mult), float(dd), float(hhi)
 
 
 def _objectives_from_result(result: BacktestResult | None) -> tuple[float, float, float] | None:
@@ -567,7 +568,7 @@ def _objectives_from_result(result: BacktestResult | None) -> tuple[float, float
     n_params = _count_tunable_params(result.params)
     if not _passes_pareto_hard_gates(result.num_trades, result.trades_per_year, n_params, hhi):
         return None
-    return float(result.vs_bah_multiple), float(result.max_drawdown_pct), hhi
+    return float(result.share_multiple), float(result.max_drawdown_pct), hhi
 
 
 def _require_optuna():
@@ -848,7 +849,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     start_time = time.time()
     end_time = start_time + hours * 3600
 
-    print(f"=== Montauk Multi-Strategy Optimizer ===")
+    print("=== Montauk Multi-Strategy Optimizer ===")
     print(f"Duration: {hours}h | Pop: {pop_size}/strategy | Registered: {len(STRATEGY_REGISTRY_FILTERED)}")
     print(f"Constraint: ≤{MAX_TRADES_PER_YEAR} trades/year")
     print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
@@ -887,7 +888,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
         }
         if result:
             print(f"  {name:<22} discovery={discovery_score:.4f}  fitness={fitness_score:.4f}  "
-                  f"marker={marker_score:.3f}  share={result.vs_bah_multiple:.3f}x  "
+                  f"marker={marker_score:.3f}  share={result.share_multiple:.3f}x  "
                   f"trades/yr={result.trades_per_year:.1f}  CAGR={result.cagr_pct:.1f}%  "
                   f"DD={result.max_drawdown_pct:.1f}%")
         else:
@@ -988,12 +989,12 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     # Allow Ctrl+C or kill to save results gracefully
     _interrupted = [False]
     def _handle_signal(sig, frame):
-        print(f"\n[interrupted — saving results...]")
+        print("\n[interrupted — saving results...]")
         _interrupted[0] = True
     signal.signal(signal.SIGINT, _handle_signal)
     signal.signal(signal.SIGTERM, _handle_signal)
 
-    print(f"\n── Evolving ──")
+    print("\n── Evolving ──")
 
     if bayesian:
         print("Mode: Bayesian (Optuna NSGA-II Pareto)\n")
@@ -1021,7 +1022,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
                         f"{best_val[1]:.1f}%/{best_val[2]:.3f}"
                     )
                 print(f"    Best: discovery={discovery_score:.4f} fitness={fitness_score:.4f} "
-                      f"marker={marker_score:.3f} share={result.vs_bah_multiple:.3f}x "
+                      f"marker={marker_score:.3f} share={result.share_multiple:.3f}x "
                       f"CAGR={result.cagr_pct:.1f}% DD={result.max_drawdown_pct:.1f}% "
                       f"{pareto_str} ({n_trials} trials)")
             generation = n_trials  # for report
@@ -1165,7 +1166,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
                     if res:
                         rs_str = f"RS={res.regime_score.composite:.3f}" if res.regime_score else "RS=?"
                         print(f"    {s:<22} disc={disc:.4f} fit={fit:.4f} marker={marker_score:.3f}  "
-                              f"{rs_str}  share={res.vs_bah_multiple:.3f}x  "
+                              f"{rs_str}  share={res.share_multiple:.3f}x  "
                               f"t/yr={res.trades_per_year:.1f}  DD={res.max_drawdown_pct:.1f}%")
                 last_report = now
 
@@ -1184,19 +1185,19 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     print(f"{'='*60}")
 
     if bl_result:
-        print(f"\n── 8.2.1 Baseline (the strategy to beat) ──")
-        print(f"  share={bl_result.vs_bah_multiple:.3f}x  CAGR={bl_result.cagr_pct:.1f}%  "
+        print("\n── 8.2.1 Baseline (the strategy to beat) ──")
+        print(f"  share={bl_result.share_multiple:.3f}x  CAGR={bl_result.cagr_pct:.1f}%  "
               f"DD={bl_result.max_drawdown_pct:.1f}%  trades/yr={bl_result.trades_per_year:.1f}")
 
-    print(f"\n── Strategy Rankings (vs 8.2.1) ──")
+    print("\n── Strategy Rankings (vs 8.2.1) ──")
     for rank, (name, (discovery_score, fitness_score, params, result, marker_score, _marker_detail)) in enumerate(rankings, 1):
         if result:
             beat_str = ""
-            if bl_result and bl_result.vs_bah_multiple > 0:
-                improvement = (result.vs_bah_multiple / bl_result.vs_bah_multiple - 1) * 100
-                beat_str = f"  {'BEATS' if result.vs_bah_multiple > bl_result.vs_bah_multiple else 'loses to'} 8.2.1 by {improvement:+.0f}%"
+            if bl_result and bl_result.share_multiple > 0:
+                improvement = (result.share_multiple / bl_result.share_multiple - 1) * 100
+                beat_str = f"  {'BEATS' if result.share_multiple > bl_result.share_multiple else 'loses to'} 8.2.1 by {improvement:+.0f}%"
             print(f"  #{rank} {name:<22} discovery={discovery_score:.4f}  fitness={fitness_score:.4f}  "
-                  f"marker={marker_score:.3f}  share={result.vs_bah_multiple:.3f}x  "
+                  f"marker={marker_score:.3f}  share={result.share_multiple:.3f}x  "
                   f"t/yr={result.trades_per_year:.1f}  CAGR={result.cagr_pct:.1f}%  "
                   f"DD={result.max_drawdown_pct:.1f}%  MAR={result.mar_ratio:.2f}{beat_str}")
             print(f"     params: {json.dumps({k: v for k, v in params.items() if k != 'cooldown'}, cls=_Enc)}")
@@ -1243,7 +1244,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
                 "fitness": round(fitness_score, 4),
                 "params": params,
                 "metrics": {
-                    "vs_bah": round(result.vs_bah_multiple, 4),
+                    "share_multiple": round(result.share_multiple, 4),
                     "cagr": round(result.cagr_pct, 2),
                     "max_dd": round(result.max_drawdown_pct, 1),
                     "mar": round(result.mar_ratio, 3),
@@ -1664,7 +1665,7 @@ def evolve_chunk(
             "marker_alignment_detail": marker_detail,
             "params": params,
             "metrics": {
-                "vs_bah": round(result.vs_bah_multiple, 4) if result else 0,
+                "share_multiple": round(result.share_multiple, 4) if result else 0,
                 "cagr": round(result.cagr_pct, 1) if result else 0,
                 "max_dd": round(result.max_drawdown_pct, 1) if result else 0,
                 "trades": result.num_trades if result else 0,

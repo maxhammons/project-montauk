@@ -16,7 +16,6 @@ import json
 import os
 import sys
 
-import numpy as np
 import pandas as pd
 
 _SCRIPTS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,7 +24,6 @@ sys.path.insert(0, _SCRIPTS_DIR)
 from data import get_tecl_data
 from strategy_engine import Indicators, backtest
 from strategies import STRATEGY_REGISTRY
-from backtest_engine import score_regime_capture
 
 PROJECT_ROOT = os.path.dirname(_SCRIPTS_DIR)
 LEADERBOARD_FILE = os.path.join(PROJECT_ROOT, "spike", "leaderboard.json")
@@ -62,7 +60,7 @@ def walk_forward_test(
             result = backtest(df_slice, entries, exits, labels, cooldown_bars=cooldown,
                             strategy_name=strategy_name)
             results[label] = {
-                "vs_bah": round(result.vs_bah_multiple, 4),
+                "share_multiple": round(result.share_multiple, 4),
                 "cagr": round(result.cagr_pct, 2),
                 "max_dd": round(result.max_drawdown_pct, 1),
                 "trades": result.num_trades,
@@ -80,8 +78,8 @@ def walk_forward_test(
         results["reason"] = train.get("error", "") or test.get("error", "")
         return results
 
-    train_bah = train.get("vs_bah", 0)
-    test_bah = test.get("vs_bah", 0)
+    train_bah = train.get("share_multiple", 0)
+    test_bah = test.get("share_multiple", 0)
     test_trades = test.get("trades", 0)
 
     degradation = test_bah / train_bah if train_bah > 0 else 0
@@ -99,7 +97,7 @@ def walk_forward_test(
         results["reason"] = f"Only {test_trades} trades in test period"
     elif not passes_bah:
         results["verdict"] = "FAIL"
-        results["reason"] = f"Test vs_bah {test_bah:.3f} < 0.8"
+        results["reason"] = f"Test share_multiple {test_bah:.3f} < 0.8"
     else:
         results["verdict"] = "WARN"
         results["reason"] = f"Degradation {degradation:.2f} < 0.5 (train={train_bah:.3f} test={test_bah:.3f})"
@@ -149,7 +147,7 @@ def run_walk_forward(split_date: str = "2020-01-01", top_n: int = 20) -> list:
 
         # Color-code verdict
         v_str = verdict
-        print(f"{name:<25} {train.get('vs_bah', 0):>10.3f} {test.get('vs_bah', 0):>10.3f} "
+        print(f"{name:<25} {train.get('share_multiple', 0):>10.3f} {test.get('share_multiple', 0):>10.3f} "
               f"{degrad:>8.2f} {test.get('trades', 0):>8} {v_str:>8}")
 
     # Summary

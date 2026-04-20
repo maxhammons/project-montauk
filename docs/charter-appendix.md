@@ -5,7 +5,7 @@ This appendix defines two approved supporting layers around the core charter:
 - the marker-aligned discovery north star (formalization of Section 3 of the charter)
 - the post-validation Roth cashflow overlay
 
-Neither layer changes the core identity of Project Montauk. The project remains a TECL signal factory whose real winners are validated PASS strategies with Pine artifacts.
+Neither layer changes the core identity of Project Montauk. The project remains a TECL signal factory whose real winners are validated PASS strategies emitting a complete `backtest_certified` signal bundle.
 
 ---
 
@@ -70,21 +70,21 @@ The Roth overlay is not:
 - partial-position strategy logic
 - variable legal contribution logic
 - a replacement for validation
-- a reason to weaken Pine or signal discipline
+- a reason to weaken signal discipline or artifact completeness
 
 The strategy still needs to stand on its own as a binary TECL signal before any overlay is applied.
 
 ---
 
-## 4. Pine Boundary
+## 4. Signal Boundary
 
-Pine remains the signal execution artifact.
+The Python signal engine is the execution contract. `signal_series.json` emits a daily binary risk_on / risk_off state; that is the artifact the Roth overlay consumes and the state the user executes on manually in their brokerage.
 
 That means:
 
-- Pine should expose the normalized risk state
-- Pine should not encode Roth contribution scheduling
-- account-level cashflow allocation stays in Python / account simulation, not in Pine
+- the signal engine exposes a normalized risk state — nothing else
+- the signal engine does not encode Roth contribution scheduling
+- account-level cashflow allocation stays in the overlay simulator (`scripts/roth_overlay.py`), not in the signal engine
 
 This preserves a clean separation between:
 

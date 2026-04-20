@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Montauk Viz</title>
+<link rel="icon" href="data:,">
+<style>
+  :root {
+    --bg-0: #0b0d12;
+    --bg-1: #11141b;
+    --bg-2: #181c25;
+    --bg-3: #1f2532;
+    --line: #232a38;
+    --line-soft: #1a1f29;
+    --text-0: #e6e9ef;
+    --text-1: #b7bdca;
+    --text-2: #7c8493;
+    --text-3: #5a6171;
+    --accent: #4ea1ff;
+    --accent-soft: #2c5f99;
+    --green: #26a69a;
+    --red: #ef5350;
+    --amber: #f0b429;
+    --purple: #a87bd6;
+    --synth-tint: rgba(168, 123, 214, 0.06);
+    --tier-t0: #7c8493;
+    --tier-t1: #4ea1ff;
+    --tier-t2: #f0b429;
+    --tier-t3: #26a69a;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; padding: 0; }
+  body {
+    background: var(--bg-0);
+    color: var(--text-0);
+    font: 13px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  .app {
+    display: grid;
+    grid-template-columns: 280px 1fr 320px;
+    grid-template-rows: 44px 1fr;
+    height: 100vh;
+  }
+
+  /* ---- Top bar ---- */
+  .topbar {
+    grid-column: 1 / -1;
+    background: var(--bg-1);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 14px;
+  }
+  .topbar .title {
+    font-weight: 600;
+    color: var(--text-0);
+    letter-spacing: 0.4px;
+  }
+  .topbar .title .sub {
+    color: var(--text-2);
+    font-weight: 400;
+    margin-left: 8px;
+    font-size: 12px;
+  }
+  .topbar .controls {
+    margin-left: auto;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .btn {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    color: var(--text-1);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .btn:hover { background: var(--bg-3); color: var(--text-0); }
+  .btn.active { background: var(--accent-soft); color: #fff; border-color: var(--accent); }
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-1);
+    font-size: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .toggle input { cursor: pointer; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    padding: 3px 7px;
+    border-radius: 3px;
+    font-size: 11px;
+    color: var(--text-1);
+  }
+  .badge.ok { color: var(--green); border-color: rgba(38, 166, 154, 0.4); }
+  .badge.warn { color: var(--amber); border-color: rgba(240, 180, 41, 0.4); }
+  .badge.fail { color: var(--red); border-color: rgba(239, 83, 80, 0.4); }
+  .badge .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* ---- Sidebar (left) ---- */
+  .sidebar {
+    background: var(--bg-1);
+    border-right: 1px solid var(--line);
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .sidebar h3 {
+    margin: 0;
+    padding: 12px 14px 8px;
+    color: var(--text-2);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .strat-list { padding: 4px 0; }
+  .strat {
+    padding: 8px 14px;
+    border-left: 3px solid transparent;
+    cursor: pointer;
+    border-bottom: 1px solid var(--line-soft);
+    transition: background 0.08s;
+  }
+  .strat:hover { background: var(--bg-2); }
+  .strat.active {
+    background: var(--bg-2);
+    border-left-color: var(--accent);
+  }
+  .strat.stale { opacity: 0.55; }
+  .strat .row1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .strat .rank {
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    font-size: 11px;
+    min-width: 22px;
+  }
+  .strat .name {
+    flex: 1;
+    color: var(--text-0);
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .strat .fitness {
+    color: var(--text-1);
+    font-variant-numeric: tabular-nums;
+    font-size: 11px;
+  }
+  .strat .row2 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 3px;
+    padding-left: 22px;
+    color: var(--text-2);
+    font-size: 11px;
+  }
+  .strat .mult { color: var(--green); font-variant-numeric: tabular-nums; }
+  .strat .mult.bad { color: var(--red); }
+  .strat .tier {
+    font-size: 10px;
+    padding: 1px 5px;
+    border-radius: 2px;
+    background: var(--bg-3);
+  }
+  .strat .tier.T0 { color: var(--tier-t0); }
+  .strat .tier.T1 { color: var(--tier-t1); }
+  .strat .tier.T2 { color: var(--tier-t2); }
+  .strat .tier.T3 { color: var(--tier-t3); }
+  .strat .cert { font-size: 10px; color: var(--green); }
+  .strat .cert.no { color: var(--text-3); }
+
+  /* ---- Center (chart) ---- */
+  .center {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-0);
+    overflow: hidden;
+  }
+  .chart-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--bg-1);
+    border-bottom: 1px solid var(--line);
+    min-height: 36px;
+  }
+  .chart-toolbar .label {
+    color: var(--text-2);
+    font-size: 11px;
+    margin-right: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+  .chart-toolbar .spacer { flex: 1; }
+  .chart-area {
+    flex: 1;
+    display: grid;
+    grid-template-rows: 1.5fr 1fr 0.7fr;
+    min-height: 0;
+  }
+  .pane {
+    position: relative;
+    border-bottom: 1px solid var(--line-soft);
+    min-height: 0;
+  }
+  .pane:last-child { border-bottom: none; }
+  .pane-label {
+    position: absolute;
+    top: 6px;
+    left: 10px;
+    z-index: 5;
+    color: var(--text-2);
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    background: rgba(11, 13, 18, 0.7);
+    padding: 2px 6px;
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .pane-chart {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* ---- Right panel (metrics) ---- */
+  .right {
+    background: var(--bg-1);
+    border-left: 1px solid var(--line);
+    overflow-y: auto;
+  }
+  .right h3 {
+    margin: 0;
+    padding: 12px 14px 8px;
+    color: var(--text-2);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .right .section { padding: 10px 14px 14px; border-bottom: 1px solid var(--line-soft); }
+  .right .strat-name {
+    color: var(--text-0);
+    font-size: 14px;
+    font-weight: 600;
+    margin: 6px 0 8px;
+  }
+  .right .strat-meta {
+    color: var(--text-2);
+    font-size: 11px;
+    margin-bottom: 8px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .metric-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    color: var(--text-1);
+    font-size: 12px;
+  }
+  .metric-row .k { color: var(--text-2); }
+  .metric-row .v {
+    color: var(--text-0);
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
+  .metric-row .v.pos { color: var(--green); }
+  .metric-row .v.neg { color: var(--red); }
+
+  .scorecards {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .scorecard {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 7px 8px;
+    text-align: center;
+  }
+  .scorecard .period {
+    color: var(--text-2);
+    font-size: 10px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+  }
+  .scorecard .mult {
+    color: var(--text-0);
+    font-size: 16px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    margin: 2px 0;
+  }
+  .scorecard .mult.bad { color: var(--red); }
+  .scorecard .mult.good { color: var(--green); }
+  .scorecard .sub {
+    color: var(--text-2);
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .gates {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 8px;
+  }
+  .gate-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-1);
+  }
+  .gate-row .gv { font-weight: 600; }
+  .gate-row .gv.PASS { color: var(--green); }
+  .gate-row .gv.WARN { color: var(--amber); }
+  .gate-row .gv.FAIL { color: var(--red); }
+
+  .params {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 11px;
+    color: var(--text-1);
+    line-height: 1.6;
+    word-break: break-word;
+  }
+  .params .pk { color: var(--text-2); }
+  .params .pv { color: var(--accent); }
+
+  /* ---- Tooltip ---- */
+  .tooltip {
+    position: absolute;
+    z-index: 100;
+    pointer-events: none;
+    background: rgba(11, 13, 18, 0.95);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 6px 9px;
+    font-size: 11px;
+    color: var(--text-0);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.5;
+    display: none;
+    min-width: 140px;
+  }
+  .tooltip .t-date {
+    color: var(--text-2);
+    margin-bottom: 3px;
+    font-size: 10px;
+  }
+  .tooltip .t-trade {
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px solid var(--line-soft);
+    color: var(--amber);
+    font-size: 11px;
+  }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg-1); }
+  ::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #2a3242; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="title">Montauk <span class="sub">native viz</span></div>
+    <span id="provenance-badge" class="badge ok"><span class="dot"></span><span id="prov-text">manifest verified</span></span>
+    <span id="generated-badge" class="badge"></span>
+    <div class="controls">
+      <label class="toggle"><input type="checkbox" id="toggle-northstar" checked> North-star markers</label>
+      <button class="btn" data-range="1Y">1Y</button>
+      <button class="btn" data-range="5Y">5Y</button>
+      <button class="btn active" data-range="ALL">ALL</button>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <h3>Leaderboard</h3>
+    <div class="strat-list" id="strat-list"></div>
+  </div>
+
+  <div class="center">
+    <div class="chart-toolbar">
+      <span class="label">Active</span>
+      <span id="active-name" style="color: var(--text-0); font-weight: 500;">—</span>
+      <span class="spacer"></span>
+      <span id="hover-readout" style="color: var(--text-2); font-size: 11px; font-variant-numeric: tabular-nums;"></span>
+    </div>
+    <div class="chart-area">
+      <div class="pane" id="pane-price">
+        <div class="pane-label">TECL — price + trades</div>
+        <div class="pane-chart" id="chart-price"></div>
+      </div>
+      <div class="pane" id="pane-equity">
+        <div class="pane-label">Equity — strategy vs B&amp;H</div>
+        <div class="pane-chart" id="chart-equity"></div>
+      </div>
+      <div class="pane" id="pane-dd">
+        <div class="pane-label">Drawdown — underwater</div>
+        <div class="pane-chart" id="chart-dd"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="right" id="right-panel">
+    <div class="section">
+      <div class="strat-name" id="r-name">—</div>
+      <div class="strat-meta" id="r-meta"></div>
+    </div>
+
+    <h3>Recent scorecards</h3>
+    <div class="section">
+      <div class="scorecards" id="r-scorecards"></div>
+      <div style="color: var(--text-3); font-size: 10px; margin-top: 6px;">Diagnostic only · not in fitness</div>
+    </div>
+
+    <h3>Primary metrics</h3>
+    <div class="section" id="r-metrics"></div>
+
+    <h3>Validation gates</h3>
+    <div class="section">
+      <div class="gates" id="r-gates"></div>
+    </div>
+
+    <h3>Parameters</h3>
+    <div class="section">
+      <div class="params" id="r-params"></div>
+    </div>
+  </div>
+</div>
+
+<div id="tooltip" class="tooltip"></div>
+
+<script>__LIGHTWEIGHT_CHARTS__</script>
+<script>window.__MONTAUK_DATA__ = /*__MONTAUK_PAYLOAD__*/null;</script>
+<script>__MONTAUK_APP__</script>
+</body>
+</html>

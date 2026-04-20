@@ -11,10 +11,11 @@ This module turns raw optimizer rankings into a strict validation funnel:
 4. Time generalization
 5. Uncertainty and interaction checks
 6. Cross-asset concept generalization
-7. Promotion and deployment eligibility
+7. Promotion readiness and backtest certification
 
-Only PASS candidates are eligible for leaderboard promotion or Pine generation.
-WARN and FAIL candidates remain in run artifacts only.
+Only PASS candidates are eligible for leaderboard promotion. Backtest
+certification is stricter and also depends on run-integrity checks and
+completed run artifacts.
 """
 
 from __future__ import annotations
@@ -51,7 +52,6 @@ from validation.deflate import (
     expected_max_beta,
 )
 from validation.integrity import validate_run_integrity
-from parity import structural_parity_check
 from validation.sprint1 import (
     get_strategy_trades,
     test_concentration,
@@ -233,6 +233,17 @@ def _skip_gate(reason: str) -> dict:
     }
 
 
+def _cert_check(check: dict | None, *, pending_reason: str | None = None) -> dict:
+    payload = dict(check or {})
+    payload.setdefault("passed", False)
+    if pending_reason is not None:
+        payload.setdefault("status", "pending")
+        payload.setdefault("reason", pending_reason)
+    else:
+        payload.setdefault("status", "missing")
+    return payload
+
+
 def _gate1_candidate(entry: dict, ctx: ValidationContext, *, tier: str = "T2") -> dict:
     """Candidate eligibility. Tier-aware trade-count floor; no tpp gate.
 
@@ -280,11 +291,11 @@ def _gate1_candidate(entry: dict, ctx: ValidationContext, *, tier: str = "T2") -
     strategy_integrity = ctx.run_integrity["strategies"].get(strategy_name, {})
 
     # Charter-level hard gate: must accumulate more shares than B&H.
-    # vs_bah_multiple is mathematically the share-count multiplier when equity
+    # `share_multiple` is mathematically the share-count multiplier when equity
     # is marked-to-market — see strategy_engine.BacktestResult.share_multiple.
     # This is the project's primary success criterion; failing it disqualifies
     # the candidate at every tier regardless of marker engagement or other gates.
-    share_mult = float(metrics.get("vs_bah", 0.0))
+    share_mult = float(metrics.get("share_multiple", 0.0))
     if share_mult < 1.0:
         hard_fail_reasons.append(
             f"share_multiple={share_mult:.3f}x < 1.0 (charter: must beat B&H shares)"
@@ -296,8 +307,6 @@ def _gate1_candidate(entry: dict, ctx: ValidationContext, *, tier: str = "T2") -
     if degeneracy["verdict"] == "FAIL":
         hard_fail_reasons.extend(f"degeneracy: {reason}" for reason in degeneracy["hard_fail_reasons"])
     soft_warnings.extend(f"degeneracy: {reason}" for reason in degeneracy.get("warnings", []))
-    if not strategy_integrity.get("pine_supported", False):
-        hard_fail_reasons.append("strategy family is not Pine-deployable")
     if not strategy_integrity.get("charter_compatible", False):
         hard_fail_reasons.append("strategy family is not charter-compatible")
 
@@ -517,10 +526,10 @@ def _gate5_uncertainty(strategy_name: str, params: dict, ctx: ValidationContext)
 
     if bootstrap["hard_fail"]:
         hard_fail_reasons.append(
-            f"bootstrap downside probability {bootstrap['downside_prob_vs_bah']:.2f} > 0.50"
+            f"bootstrap downside probability {bootstrap['downside_prob_share_multiple']:.2f} > 0.50"
         )
     else:
-        downside = bootstrap["downside_prob_vs_bah"]
+        downside = bootstrap["downside_prob_share_multiple"]
         s_boot = bootstrap["s_boot"]
         # For simple strategies (≤ 4 signal params), bootstrap uncertainty
         # reflects the inherent variance of trend-following, not overfitting.
@@ -675,18 +684,18 @@ def _gate6_cross_asset(strategy_name: str, params: dict, ctx: ValidationContext,
     if "error" in tqqq:
         hard_fail_reasons.append(f"TQQQ same-param replay error: {tqqq['error']}")
     else:
-        tqqq_bah = float(tqqq.get("vs_bah", 0.0))
-        if tqqq_bah < 0.50:
-            hard_fail_reasons.append(f"TQQQ same-param vs_bah={tqqq_bah:.3f} < 0.50")
-        elif tqqq_bah < 1.0:
-            soft_warnings.append(f"TQQQ same-param vs_bah={tqqq_bah:.3f} < 1.00")
+        tqqq_share = float(tqqq.get("share_multiple", 0.0))
+        if tqqq_share < 0.50:
+            hard_fail_reasons.append(f"TQQQ same-param share_multiple={tqqq_share:.3f} < 0.50")
+        elif tqqq_share < 1.0:
+            soft_warnings.append(f"TQQQ same-param share_multiple={tqqq_share:.3f} < 1.00")
 
     if "error" in qqq:
         soft_warnings.append(f"QQQ same-param replay error: {qqq['error']}")
     else:
-        qqq_bah = float(qqq.get("vs_bah", 0.0))
-        if qqq_bah < 0.50:
-            soft_warnings.append(f"QQQ same-param vs_bah={qqq_bah:.3f} < 0.50")
+        qqq_share = float(qqq.get("share_multiple", 0.0))
+        if qqq_share < 0.50:
+            soft_warnings.append(f"QQQ same-param share_multiple={qqq_share:.3f} < 0.50")
 
     tier3 = cross_asset_reoptimize(
         strategy_name,
@@ -714,6 +723,7 @@ def _gate7_synthesis(
     params: dict,
     entry: dict,
     gates: dict,
+    run_integrity: dict,
     *,
     tier: str = "T2",
 ) -> dict:
@@ -739,7 +749,7 @@ def _gate7_synthesis(
         value = gate.get(field)
         return float(value) if value is not None else fallback
 
-    # Cross-asset score: same-param TQQQ vs_bah, capped at 1.0 (beating B&H).
+    # Cross-asset score: same-param TQQQ share_multiple, capped at 1.0.
     # Uses the already-computed cross-asset result instead of running again.
     def _cross_asset_score() -> float | None:
         g6 = gates.get("gate6", {})
@@ -748,8 +758,8 @@ def _gate7_synthesis(
         same = (g6.get("same_params") or {}).get("results", {}).get("TQQQ", {})
         if "error" in same:
             return 0.0
-        tqqq_bah = float(same.get("vs_bah", 0.0))
-        return _clamp(tqqq_bah / 1.0)  # 1.0x TQQQ B&H → full credit, 0.5x → 0.5
+        tqqq_share = float(same.get("share_multiple", 0.0))
+        return _clamp(tqqq_share / 1.0)  # 1.0x TQQQ B&H → full credit, 0.5x → 0.5
 
     # Marker shape sub-score (every tier): prefer state_agreement ramped
     # from the tier's own floor, fallback to marker_score composite.
@@ -775,25 +785,33 @@ def _gate7_synthesis(
     }
     composite_confidence = _geometric_composite(sub_scores)
 
-    parity = structural_parity_check(strategy_name, params)
-    pine_eligible = parity.get("generated", False)
-    parity_pass = parity["verdict"] == "PASS"
-    # Propagate parity hard fails into gate7 hard fails
-    for reason in parity.get("hard_fail_reasons", []):
-        if reason not in hard_fail_reasons:
-            hard_fail_reasons.append(reason)
-    for reason in parity.get("critical_warnings", []):
-        if reason not in critical_warnings:
-            critical_warnings.append(reason)
+    certification_checks = {
+        "engine_integrity": _cert_check(run_integrity.get("engine_integrity")),
+        "golden_regression": _cert_check(run_integrity.get("golden_regression")),
+        "shadow_comparator": _cert_check(run_integrity.get("shadow_comparator")),
+        "data_quality_precheck": _cert_check(run_integrity.get("data_quality")),
+        "artifact_completeness": _cert_check(
+            None,
+            pending_reason="run artifacts are generated after validation",
+        ),
+    }
 
     if not hard_fail_reasons and composite_confidence < 0.45:
         hard_fail_reasons.append(f"composite_confidence={composite_confidence:.3f} < 0.45")
     elif composite_confidence < 0.70:
         soft_warnings.append(f"composite_confidence={composite_confidence:.3f} < 0.70")
-
-    if not parity_pass and parity["verdict"] != "SKIPPED":
-        if not any("Pine" in r or "parity" in r.lower() for r in hard_fail_reasons):
-            critical_warnings.append(f"Pine structural parity check: {parity['verdict']}")
+    if not certification_checks["shadow_comparator"]["passed"]:
+        advisories.append(
+            "shadow comparator not satisfied: "
+            f"{certification_checks['shadow_comparator'].get('status')}"
+        )
+    if not certification_checks["data_quality_precheck"]["passed"]:
+        advisories.append(
+            "data-quality precheck not satisfied: "
+            f"{certification_checks['data_quality_precheck'].get('status')}"
+        )
+    if not certification_checks["artifact_completeness"]["passed"]:
+        advisories.append("artifact completeness pending")
 
     # De-duplicate
     advisories = list(dict.fromkeys(advisories))
@@ -837,14 +855,18 @@ def _gate7_synthesis(
         verdict = "PASS"
 
     clean_pass = verdict == "PASS" and len(soft_warnings) == 0
+    promotion_ready = verdict == "PASS"
+    backtest_certified = promotion_ready and all(
+        check.get("passed", False) for check in certification_checks.values()
+    )
 
     return {
         "verdict": verdict,
         "tier": tier,
-        "promotion_eligible": verdict == "PASS",
+        "promotion_ready": promotion_ready,
         "clean_pass": clean_pass,
-        "pine_eligible": pine_eligible and parity_pass,
-        "parity": parity,
+        "backtest_certified": backtest_certified,
+        "certification_checks": certification_checks,
         "sub_scores": {k: (round(v, 4) if v is not None else None) for k, v in sub_scores.items()},
         "composite_confidence": round(composite_confidence, 4),
         "advisories": advisories,
@@ -882,12 +904,13 @@ def _validate_entry(
     params = copy.deepcopy(entry.get("params", {}))
     validation = {
         "verdict": "FAIL",
-        "promotion_eligible": False,
+        "promotion_ready": False,
+        "backtest_certified": False,
         "clean_pass": False,
-        "pine_eligible": False,
         "composite_confidence": 0.0,
         "tier": "T2",
         "tier_reasons": [],
+        "certification_checks": {},
         "sub_scores": {},
         "advisories": [],
         "soft_warnings": [],
@@ -993,12 +1016,20 @@ def _validate_entry(
     validation["gates"]["gate5"] = gate5
     validation["gates"]["gate6"] = gate6
 
-    gate7 = _gate7_synthesis(strategy_name, params, entry, validation["gates"], tier=tier)
+    gate7 = _gate7_synthesis(
+        strategy_name,
+        params,
+        entry,
+        validation["gates"],
+        ctx.run_integrity,
+        tier=tier,
+    )
     validation["gates"]["gate7"] = gate7
     validation["verdict"] = gate7["verdict"]
-    validation["promotion_eligible"] = gate7["promotion_eligible"]
+    validation["promotion_ready"] = gate7["promotion_ready"]
+    validation["backtest_certified"] = gate7["backtest_certified"]
     validation["clean_pass"] = gate7["clean_pass"]
-    validation["pine_eligible"] = gate7["pine_eligible"]
+    validation["certification_checks"] = gate7["certification_checks"]
     validation["composite_confidence"] = gate7["composite_confidence"]
     validation["sub_scores"] = gate7["sub_scores"]
     validation["advisories"] = gate7.get("advisories", [])

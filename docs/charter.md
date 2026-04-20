@@ -1,6 +1,6 @@
 # Project Montauk Charter
 
-**Canonical summary**: Project Montauk is a TECL share-accumulation factory: discover long-only TECL strategies that match the hand-marked cycle shape, validate them at a level that matches how they were selected, and generate Pine for the best PASS winner.
+**Canonical summary**: Project Montauk is a TECL share-accumulation factory: discover long-only TECL strategies that match the hand-marked cycle shape, validate them at a level that matches how they were selected, and emit a certified signal bundle for the best PASS winner.
 
 ---
 
@@ -27,17 +27,17 @@ Every promotable strategy must stay inside these boundaries:
 
 - **Symbol**: TECL only
 - **Direction**: long-only
-- **Position model**: single open position, all-in / all-out, no pyramiding
+- **Position model**: single open position, all-in / all-out, no pyramiding, 100% equity
 - **Time horizon**: multi-week to multi-month trend capture, not intraday
-- **Execution surface**: Pine Script v6 on TradingView
+- **Execution surface**: Python signal engine; manual brokerage execution from the daily risk_on / risk_off output
 - **Signal integrity**: bar-close confirmation only, no lookahead, no repainting
 
 The project may search across many strategy families, but every family must still be:
 
 - TECL-native
 - long-only
-- Pine-expressible
-- compatible with a single `"Long"` order id and `strategy.close`
+- expressible in the Python signal engine as a single binary risk_on / risk_off state
+- compatible with the 100%-equity single-position execution model
 
 ---
 
@@ -73,13 +73,13 @@ A strategy is only considered real when it completes this full chain:
 1. It is registered in the appropriate validation tier (T0 / T1 / T2 — see `VALIDATION-PHILOSOPHY.md`).
 2. It passes the validation pipeline for its tier with a final **PASS** verdict.
 3. It is allowed onto the validated leaderboard, tagged with its tier.
-4. It is emitted as a Pine Script candidate ready for TradingView review.
+4. It is emitted as a `backtest_certified` signal bundle (standardized run artifacts + native HTML visualization) ready for manual brokerage execution review.
 
 Anything short of that is research output, not a winner.
 
 The system-level success condition is:
 
-> hypothesize / discover -> validate at the right tier -> generate Pine -> manually review in TradingView
+> hypothesize / discover -> validate at the right tier -> certify signal bundle -> manually execute in brokerage
 
 ---
 
@@ -136,12 +136,11 @@ Validation quality matters as much as performance. A high-share-count strategy t
 
 ## 7. Coding Rules
 
-- **Pine Script v6 only**
-- `process_orders_on_close=true`, `calc_on_every_tick=false`
-- One strategy block. One entry id `"Long"`. Exits via `strategy.close`
+- **Python is the single source of truth** for signals and execution logic
+- Bar-close confirmation only: no lookahead, no repainting, `process_orders_on_close=true` semantics
+- One strategy block per registered candidate. One long entry, one long exit, no pyramiding
 - Preserve stable parameter names unless there is a strong migration reason
-- Python is the research engine; Pine is the execution artifact
-- When uncertain about Pine syntax, consult `docs/pine-reference/`
+- Every promotable winner ships with the standardized run artifacts (trade ledger, signal series, equity curve, drawdown curve, validation summary, dashboard bundle) — see `docs/pipeline.md`
 
 ---
 
@@ -153,13 +152,13 @@ If asked to add work that breaks the charter, call it out clearly:
 
 If asked whether a raw optimizer winner should be treated as real, the answer is:
 
-> "Not until it passes the validation tier appropriate to how it was selected, and has a deployable Pine artifact."
+> "Not until it passes the validation tier appropriate to how it was selected, and emits a complete `backtest_certified` signal bundle."
 
 ---
 
 ## 9. Naming
 
-The skill is **Spike**. Spike launches and runs the **Montauk Engine** — the optimizer + validator + Pine generator pipeline.
+The skill is **Spike**. Spike launches and runs the **Montauk Engine** — the optimizer + tier-routed validator + run-artifact emitter.
 
 - "Spike" = the entrypoint / command surface
 - "Montauk Engine" = the underlying machinery

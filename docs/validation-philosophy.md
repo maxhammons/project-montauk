@@ -113,7 +113,7 @@ A strategy only becomes real when it receives a final **PASS** verdict from the 
 
 Operational consequences:
 
-- **PASS**: eligible for leaderboard promotion, champion selection, and Pine generation. Tagged as `T0-PASS`, `T1-PASS`, or `T2-PASS`.
+- **PASS**: eligible for leaderboard promotion, champion selection, and `backtest_certified` signal-bundle emission. Tagged as `T0-PASS`, `T1-PASS`, or `T2-PASS`.
 - **WARN**: useful research output, but not promotable
 - **FAIL**: archive only, keep searching
 
@@ -169,7 +169,7 @@ The full stack is the price of using the search machine. It is not punishment �
 2. **PASS at the appropriate tier gets promoted.** Raw scores never outrank a failed validation.
 3. **Pre-registration prevents laundering.** A T0 strategy is identified by its registration timestamp, not by its final params.
 4. **Honesty beats excitement.** A strategy that looks great but fails its tier's gates is not "almost ready." It is rejected.
-5. **The output must be deployable.** The end product is a Pine candidate.
+5. **The output must be deployable.** The end product is a `backtest_certified` signal bundle — five standardized JSON artifacts plus the native HTML viewer — driving manual brokerage execution.
 6. **Deployment overlays are downstream.** The Roth overlay sits after PASS, not before.
 7. **Low-frequency strategies are not punished.** A year of holding through new highs is a successful year.
 
@@ -182,7 +182,7 @@ The project has the right validation culture (integrity checks, cross-asset work
 - introduce explicit T0 / T1 / T2 routing
 - formalize the strict canonical parameter set for T0
 - formalize marker-shape alignment as a first-class gate (not a soft prior)
-- formalize share-count multiplier as the primary metric (not vs_bah dollars)
+- formalize `share_multiple` as the sole metric name (replacing the dollar-based vs-B&H multiple; the deprecated `vs_bah_multiple` alias was retired in Phase 7)
 - remove trade-frequency punishment for low-trade strategies
 - keep the existing T2 stack intact — it is not wrong, it is just being scoped to its actual job
 

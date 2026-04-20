@@ -19,7 +19,6 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import numpy as np
 from strategy_engine import Indicators, backtest
 from strategies import STRATEGY_REGISTRY
 from data import get_tecl_data, get_tqqq_data, get_qqq_data
@@ -34,7 +33,7 @@ def cross_asset_validate(
     Run a strategy on multiple assets with the same params.
 
     Returns dict with per-asset metrics:
-      {asset_name: {vs_bah, cagr, max_dd, trades, trades_yr, win_rate}}
+      {asset_name: {share_multiple, cagr, max_dd, trades, trades_yr, win_rate}}
     """
     if assets is None:
         assets = ["TECL", "TQQQ", "QQQ"]
@@ -58,11 +57,17 @@ def cross_asset_validate(
             df = loaders[asset]()
             ind = Indicators(df)
             entries, exits, labels = strategy_fn(ind, params)
-            result = backtest(df, entries, exits, labels,
-                              cooldown_bars=cooldown, strategy_name=strategy_name)
+            result = backtest(
+                df,
+                entries,
+                exits,
+                labels,
+                cooldown_bars=cooldown,
+                strategy_name=strategy_name,
+            )
 
             results[asset] = {
-                "vs_bah": round(result.vs_bah_multiple, 4),
+                "share_multiple": round(result.share_multiple, 4),
                 "cagr": round(result.cagr_pct, 1),
                 "max_dd": round(result.max_drawdown_pct, 1),
                 "trades": result.num_trades,
@@ -87,7 +92,7 @@ def format_cross_asset(validation: dict) -> str:
     lines.append(f"CROSS-ASSET VALIDATION: {validation['strategy']}")
     lines.append("=" * 60)
 
-    header = f"  {'Asset':<8s} {'vs B&H':>8s} {'CAGR':>7s} {'MaxDD':>7s} {'Trades':>7s} {'Tr/Yr':>6s} {'Win%':>6s}"
+    header = f"  {'Asset':<8s} {'Share':>8s} {'CAGR':>7s} {'MaxDD':>7s} {'Trades':>7s} {'Tr/Yr':>6s} {'Win%':>6s}"
     lines.append(header)
     lines.append("  " + "-" * 52)
 
@@ -96,7 +101,7 @@ def format_cross_asset(validation: dict) -> str:
             lines.append(f"  {asset:<8s} ERROR: {metrics['error']}")
             continue
         lines.append(
-            f"  {asset:<8s} {metrics['vs_bah']:>8.4f} {metrics['cagr']:>6.1f}% "
+            f"  {asset:<8s} {metrics['share_multiple']:>8.4f} {metrics['cagr']:>6.1f}% "
             f"{metrics['max_dd']:>6.1f}% {metrics['trades']:>7d} {metrics['trades_yr']:>5.1f} "
             f"{metrics['win_rate']:>5.1f}%"
         )
@@ -104,13 +109,17 @@ def format_cross_asset(validation: dict) -> str:
     # Consistency check
     asset_results = [v for v in validation["results"].values() if "error" not in v]
     if len(asset_results) >= 2:
-        vs_bahs = [v["vs_bah"] for v in asset_results]
-        if all(v > 0 for v in vs_bahs):
-            ratio = max(vs_bahs) / min(vs_bahs)
+        share_mults = [v["share_multiple"] for v in asset_results]
+        if all(v > 0 for v in share_mults):
+            ratio = max(share_mults) / min(share_mults)
             if ratio < 3:
-                lines.append(f"\n  Consistency: GOOD — vs_bah varies by {ratio:.1f}x across assets")
+                lines.append(
+                    f"\n  Consistency: GOOD — share_multiple varies by {ratio:.1f}x across assets"
+                )
             else:
-                lines.append(f"\n  Consistency: POOR — vs_bah varies by {ratio:.1f}x (possible TECL overfit)")
+                lines.append(
+                    f"\n  Consistency: POOR — share_multiple varies by {ratio:.1f}x (possible TECL overfit)"
+                )
 
     return "\n".join(lines)
 
@@ -131,7 +140,9 @@ def cross_asset_reoptimize(
     from evolve import evolve_chunk
     from data import get_tqqq_data
 
-    print(f"[tier3] Re-optimizing {strategy_name} on TQQQ ({minutes:.0f}m, pop={pop_size})...")
+    print(
+        f"[tier3] Re-optimizing {strategy_name} on TQQQ ({minutes:.0f}m, pop={pop_size})..."
+    )
     tqqq_df = get_tqqq_data()
 
     result = evolve_chunk(
@@ -142,43 +153,50 @@ def cross_asset_reoptimize(
     )
 
     if not result["rankings"]:
-        return {"strategy": strategy_name, "verdict": "FAIL", "reason": "No valid configs found on TQQQ"}
+        return {
+            "strategy": strategy_name,
+            "verdict": "FAIL",
+            "reason": "No valid configs found on TQQQ",
+        }
 
     best = result["rankings"][0]
-    vs_bah = best["metrics"]["vs_bah"]
-    cagr = best["metrics"]["cagr"]
-    trades = best["metrics"]["trades"]
+    metrics = best.get("metrics", {})
+    share_multiple = float(metrics.get("share_multiple", 0.0))
+    cagr = float(metrics.get("cagr", 0.0))
+    trades = int(metrics.get("trades", 0))
 
-    verdict = "PASS" if vs_bah >= 1.0 else "FAIL"
+    verdict = "PASS" if share_multiple >= 1.0 else "FAIL"
 
     return {
         "strategy": strategy_name,
         "asset": "TQQQ",
         "best_fitness": best["fitness"],
         "best_params": best["params"],
-        "vs_bah": vs_bah,
+        "share_multiple": share_multiple,
         "cagr": cagr,
         "trades": trades,
         "verdict": verdict,
-        "reason": f"TQQQ vs_bah={vs_bah:.4f} ({'beats' if vs_bah >= 1 else 'loses to'} buy-and-hold)",
+        "reason": f"TQQQ share_multiple={share_multiple:.4f} ({'beats' if share_multiple >= 1 else 'loses to'} buy-and-hold)",
     }
 
 
 def format_reoptimize(result: dict) -> str:
     """Format Tier 3 re-optimization results."""
-    lines = [f"TIER 3 — Cross-Asset Re-Optimization: {result['strategy']} on {result.get('asset', 'TQQQ')}"]
+    lines = [
+        f"TIER 3 — Cross-Asset Re-Optimization: {result['strategy']} on {result.get('asset', 'TQQQ')}"
+    ]
     lines.append("=" * 60)
     if "error" in result:
         lines.append(f"  ERROR: {result['error']}")
         return "\n".join(lines)
-    lines.append(f"  vs B&H:  {result['vs_bah']:.4f}x")
+    lines.append(f"  share_multiple:  {result['share_multiple']:.4f}x")
     lines.append(f"  CAGR:    {result['cagr']:.1f}%")
     lines.append(f"  Trades:  {result['trades']}")
     lines.append(f"  Verdict: {result['verdict']} — {result['reason']}")
     if result["verdict"] == "PASS":
-        lines.append(f"  Strategy logic GENERALIZES to other 3x leveraged products")
+        lines.append("  Strategy logic GENERALIZES to other 3x leveraged products")
     elif result["verdict"] == "FAIL":
-        lines.append(f"  Strategy logic may be TECL-specific — use with caution")
+        lines.append("  Strategy logic may be TECL-specific — use with caution")
     return "\n".join(lines)
 
 
@@ -186,7 +204,9 @@ if __name__ == "__main__":
     import json
 
     # Test on top leaderboard strategy
-    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    project_root = os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    )
     lb_path = os.path.join(project_root, "spike", "leaderboard.json")
     with open(lb_path) as f:
         lb = json.load(f)

@@ -596,7 +596,7 @@ def dual_momentum(ind: Indicators, p: dict) -> tuple:
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Strategy: Always-In Trend — Default to LONG. Only exit when multiple bear
-# signals confirm. The thesis: missing bull runs kills vs_bah more than
+# signals confirm. The thesis: missing bull runs kills share_multiple more than
 # catching bear drops helps. Stay in unless ADX trend dies AND price breaks
 # below trend EMA. Re-enter quickly when trend resumes. 6 params.
 # ─────────────────────────────────────────────────────────────────────────────
@@ -3091,6 +3091,619 @@ def atr_ratio_vix(ind, p):
     return entries, exits, labels
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Spike batch 2026-04-15a: Diversity strategies (non-crossover signals)
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Spike batch 2026-04-15b: Diagnostic-informed designs
+#
+# Cycle diagnostics on the gc_* champions reveal three structural weaknesses:
+#   1. Miss all pre-2003 bulls (200-bar EMA warmup too slow)
+#   2. Death-cross exit fires 44-58% during bulls (cuts gains)
+#   3. Poor avoidance of short 2-6 month bears (26-37%)
+#
+# These strategies target each weakness directly.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def gc_atr_trail(ind, p):
+    """T1: Golden cross entry (proven) + ATR trailing stop exit (fixes D-in-bull problem).
+    Diagnosis: gc_strict_vix's death-cross exit fires 58% during bulls — the
+    EMA cross is noisy during pullbacks. Replace it with an ATR trailing stop
+    that adapts to volatility. A normal bull pullback won't trigger N×ATR from
+    peak, but a true bear regime change will.
+    Entry: pre-cross (fast < slow, gap narrowing, both slopes positive) — same as gc_precross.
+    Exit: price drops > atr_mult × ATR below highest-close-since-entry.
+    VIX panic circuit breaker retained as safety net."""
+    n = ind.n
+    cl = ind.close
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    atr = ind.atr(int(p.get("atr_period", 20)))
+    slope_w = int(p.get("slope_window", 3))
+    entry_bars = int(p.get("entry_bars", 2))
+    atr_mult = p.get("atr_mult", 3.0)
+    vix = ind.vix
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    peak_since_entry = 0.0
+    in_trade = False
+    for i in range(max(slope_w + 1, 6), n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(fast[i - 1]) or np.isnan(slow[i - 1]):
+            bull_count = 0
+            continue
+        gap = fast[i] - slow[i]
+        prev_gap = fast[i - 1] - slow[i - 1]
+        fast_rising = fast[i] > fast[i - slope_w]
+        slow_rising = slow[i] > slow[i - slope_w]
+        # Pre-cross entry
+        if gap < 0 and gap > prev_gap and fast_rising and slow_rising:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+            peak_since_entry = cl[i]
+            in_trade = True
+        # Track peak
+        if in_trade and cl[i] > peak_since_entry:
+            peak_since_entry = cl[i]
+        # Exit: ATR trailing stop from peak
+        if in_trade and not np.isnan(atr[i]) and atr[i] > 0:
+            stop_level = peak_since_entry - atr_mult * atr[i]
+            if cl[i] < stop_level:
+                exits[i] = True
+                labels[i] = "ATR"
+                in_trade = False
+                peak_since_entry = 0.0
+        # Exit: VIX panic circuit breaker
+        if vix is not None and not np.isnan(vix[i]) and i >= 5 and not np.isnan(vix[i - 5]):
+            if vix[i] > 30 and vix[i - 5] > 0 and (vix[i] - vix[i - 5]) / vix[i - 5] > 0.75:
+                exits[i] = True
+                labels[i] = "V"
+                in_trade = False
+                peak_since_entry = 0.0
+    return entries, exits, labels
+
+
+def fast_ema_atr_trail(ind, p):
+    """T1: Shorter EMAs (faster warmup) + ATR trailing stop.
+    Diagnosis: gc_* misses all pre-2003 bulls because EMA(200) needs 800+ bars.
+    Use EMA(20-50)/EMA(50-150) for faster engagement. Accept more signals but
+    use ATR trailing stop instead of death cross to avoid the D-in-bull problem.
+    Entry: fast > slow AND fast slope positive for confirm bars.
+    Exit: ATR trailing stop OR VIX panic."""
+    n = ind.n
+    cl = ind.close
+    fast = ind.ema(int(p.get("fast_ema", 20)))
+    slow = ind.ema(int(p.get("slow_ema", 100)))
+    atr = ind.atr(int(p.get("atr_period", 20)))
+    slope_w = int(p.get("slope_window", 3))
+    confirm = int(p.get("confirm_bars", 3))
+    atr_mult = p.get("atr_mult", 3.0)
+    vix = ind.vix
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    confirm_count = 0
+    peak = 0.0
+    in_trade = False
+    for i in range(slope_w + 1, n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]):
+            confirm_count = 0
+            continue
+        fast_above = fast[i] > slow[i]
+        fast_rising = fast[i] > fast[i - slope_w]
+        if fast_above and fast_rising:
+            confirm_count += 1
+        else:
+            confirm_count = 0
+        if confirm_count == confirm:
+            entries[i] = True
+            peak = cl[i]
+            in_trade = True
+        if in_trade and cl[i] > peak:
+            peak = cl[i]
+        # ATR trailing stop
+        if in_trade and not np.isnan(atr[i]) and atr[i] > 0:
+            if cl[i] < peak - atr_mult * atr[i]:
+                exits[i] = True
+                labels[i] = "ATR"
+                in_trade = False
+                peak = 0.0
+        # VIX panic
+        if vix is not None and not np.isnan(vix[i]) and i >= 5 and not np.isnan(vix[i - 5]):
+            if vix[i] > 30 and vix[i - 5] > 0 and (vix[i] - vix[i - 5]) / vix[i - 5] > 0.75:
+                exits[i] = True
+                labels[i] = "V"
+                in_trade = False
+                peak = 0.0
+    return entries, exits, labels
+
+
+def vix_regime_entry(ind, p):
+    """T1: VIX as PRIMARY entry signal (inverts current VIX-as-exit-only approach).
+    Hypothesis: VIX declining below threshold = fear subsiding = risk-on.
+    VIX rising above threshold = fear building = risk-off.
+    The gc_* strategies use VIX only as a panic exit. This strategy uses VIX
+    level + direction as the main regime signal, with a trend EMA as confirmation.
+    Entry: VIX < entry_vix AND VIX declining (5-bar) AND close > trend EMA.
+    Exit: VIX > exit_vix AND VIX rising (5-bar)."""
+    n = ind.n
+    cl = ind.close
+    vix = ind.vix
+    trend_ema = ind.ema(int(p.get("trend_len", 100)))
+    entry_vix = p.get("entry_vix", 20.0)
+    exit_vix = p.get("exit_vix", 25.0)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    if vix is None:
+        return entries, exits, labels
+    for i in range(6, n):
+        if np.isnan(vix[i]) or np.isnan(vix[i - 5]) or np.isnan(trend_ema[i]):
+            continue
+        vix_declining = vix[i] < vix[i - 5]
+        vix_rising = vix[i] > vix[i - 5]
+        # Entry: low VIX + declining + uptrend
+        if vix[i] < entry_vix and vix_declining and cl[i] > trend_ema[i]:
+            entries[i] = True
+        # Exit: elevated VIX + rising (fear building)
+        if vix[i] > exit_vix and vix_rising:
+            exits[i] = True
+            labels[i] = "VIX"
+    return entries, exits, labels
+
+
+def rsi_bull_regime(ind, p):
+    """T1: RSI as a regime indicator — fast warmup (14 bars).
+    Diagnosis: EMA(200) warmup misses early bulls. RSI(14) warms up in 14 bars.
+    Hypothesis: RSI sustained above 50 = bull regime. RSI dropping below a lower
+    threshold = regime change. Asymmetric exit (40 not 50) avoids whipsaw.
+    Entry: RSI crosses above 50 AND RSI rising for confirm_bars.
+    Exit: RSI drops below exit_level (< 50, asymmetric to avoid whipsaw)
+          OR VIX panic circuit breaker."""
+    n = ind.n
+    cl = ind.close
+    rsi = ind.rsi(int(p.get("rsi_len", 14)))
+    confirm = int(p.get("confirm_bars", 3))
+    exit_level = p.get("exit_level", 40.0)
+    vix = ind.vix
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    above_count = 0
+    for i in range(2, n):
+        if np.isnan(rsi[i]) or np.isnan(rsi[i - 1]):
+            above_count = 0
+            continue
+        # RSI above 50 and rising
+        if rsi[i] > 50 and rsi[i] > rsi[i - 1]:
+            above_count += 1
+        else:
+            above_count = 0
+        if above_count == confirm:
+            entries[i] = True
+        # Exit: RSI drops below exit level (asymmetric)
+        if rsi[i] < exit_level:
+            exits[i] = True
+            labels[i] = "RSI"
+        # VIX panic
+        if vix is not None and not np.isnan(vix[i]) and i >= 5 and not np.isnan(vix[i - 5]):
+            if vix[i] > 30 and vix[i - 5] > 0 and (vix[i] - vix[i - 5]) / vix[i - 5] > 0.75:
+                exits[i] = True
+                labels[i] = "V"
+    return entries, exits, labels
+
+
+def donchian_vix(ind, p):
+    """T1: Donchian channel breakout + VIX safety net.
+    Diagnosis: gc_* all use EMA cross. Donchian uses pure price extremes —
+    completely different signal family. Fast warmup (N bars).
+    Entry: close > highest(entry_len) — new high breakout.
+    Exit: close < lowest(exit_len) OR VIX panic.
+    Known issue from design guide: pure breakout is slow to re-engage after
+    crashes. The shorter exit_len (vs entry_len) mitigates this."""
+    n = ind.n
+    cl = ind.close
+    entry_len = int(p.get("entry_len", 100))
+    exit_len = int(p.get("exit_len", 50))
+    vix = ind.vix
+    highest_arr = ind.highest(entry_len)
+    lowest_arr = ind.lowest(exit_len)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(max(entry_len, exit_len) + 1, n):
+        if np.isnan(highest_arr[i]) or np.isnan(lowest_arr[i]):
+            continue
+        # Entry: breakout above entry_len-bar high
+        if cl[i] >= highest_arr[i]:
+            entries[i] = True
+        # Exit: breakdown below exit_len-bar low
+        if cl[i] <= lowest_arr[i]:
+            exits[i] = True
+            labels[i] = "Low"
+        # VIX panic
+        if vix is not None and not np.isnan(vix[i]) and i >= 5 and not np.isnan(vix[i - 5]):
+            if vix[i] > 30 and vix[i - 5] > 0 and (vix[i] - vix[i - 5]) / vix[i - 5] > 0.75:
+                exits[i] = True
+                labels[i] = "V"
+    return entries, exits, labels
+
+
+def gc_slope_no_death(ind, p):
+    """T1: Standard golden cross entry but NO death-cross exit.
+    Diagnosis: death cross exit fires 58% during bulls. What if we remove it
+    entirely and rely only on ATR stop + VIX panic? The hypothesis is that
+    staying in longer during bulls is worth the pain of slower bear exits.
+    Entry: fast > slow AND slow slope positive for confirm bars.
+    Exit: ATR trailing stop OR VIX panic. No EMA cross exit at all."""
+    n = ind.n
+    cl = ind.close
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    atr = ind.atr(int(p.get("atr_period", 20)))
+    slope_w = int(p.get("slope_window", 5))
+    confirm = int(p.get("confirm_bars", 3))
+    atr_mult = p.get("atr_mult", 3.0)
+    vix = ind.vix
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    gc_count = 0
+    peak = 0.0
+    in_trade = False
+    for i in range(slope_w + 1, n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(slow[i - slope_w]):
+            gc_count = 0
+            continue
+        above = fast[i] > slow[i]
+        slow_rising = slow[i] > slow[i - slope_w]
+        if above and slow_rising:
+            gc_count += 1
+        else:
+            gc_count = 0
+        if gc_count == confirm:
+            entries[i] = True
+            peak = cl[i]
+            in_trade = True
+        if in_trade and cl[i] > peak:
+            peak = cl[i]
+        # Only ATR trailing stop — no death cross exit
+        if in_trade and not np.isnan(atr[i]) and atr[i] > 0:
+            if cl[i] < peak - atr_mult * atr[i]:
+                exits[i] = True
+                labels[i] = "ATR"
+                in_trade = False
+                peak = 0.0
+        # VIX panic
+        if vix is not None and not np.isnan(vix[i]) and i >= 5 and not np.isnan(vix[i - 5]):
+            if vix[i] > 30 and vix[i - 5] > 0 and (vix[i] - vix[i - 5]) / vix[i - 5] > 0.75:
+                exits[i] = True
+                labels[i] = "V"
+                in_trade = False
+                peak = 0.0
+    return entries, exits, labels
+
+
+def drawdown_recovery(ind, p):
+    """T1: Enter when price recovers from a pullback within an uptrend.
+    Hypothesis: TECL trends hard. Buying dips that bounce within the trend
+    accumulates shares at lower cost. No moving average crossovers.
+    Entry: price dropped >thresh% from recent high, then recovered >recover%
+           of that drop, AND current close > long EMA (still in uptrend).
+    Exit: new drawdown from entry exceeds exit_dd%, OR close < long EMA."""
+    n = ind.n
+    cl = ind.close
+    trend_ema = ind.ema(int(p.get("trend_len", 200)))
+    lookback = int(p.get("lookback", 50))
+    thresh_pct = p.get("thresh_pct", 15.0)
+    recover_pct = p.get("recover_pct", 50.0)  # recover 50% of the dip
+    exit_dd_pct = p.get("exit_dd_pct", 20.0)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(lookback + 1, n):
+        if np.isnan(trend_ema[i]):
+            continue
+        recent_high = np.nanmax(cl[i - lookback:i])
+        recent_low = np.nanmin(cl[i - lookback // 2:i])  # low in more recent window
+        if recent_high == 0:
+            continue
+        drop_pct = (recent_high - recent_low) / recent_high * 100
+        if drop_pct >= thresh_pct and recent_low > 0:
+            recovery = (cl[i] - recent_low) / (recent_high - recent_low) * 100
+            if recovery >= recover_pct and cl[i] > trend_ema[i]:
+                entries[i] = True
+        # Exit: drawdown from local peak or trend break
+        local_peak = np.nanmax(cl[max(0, i - 20):i + 1])
+        if local_peak > 0:
+            dd = (local_peak - cl[i]) / local_peak * 100
+            if dd >= exit_dd_pct:
+                exits[i] = True
+                labels[i] = "DD"
+                continue
+        if cl[i] < trend_ema[i]:
+            exits[i] = True
+            labels[i] = "Trend"
+    return entries, exits, labels
+
+
+def multi_tf_momentum(ind, p):
+    """T1: Multi-timeframe absolute momentum — no MA crosses.
+    Hypothesis: when TECL is rising over all three horizons simultaneously,
+    a strong trend is in place. When any horizon turns negative, the trend
+    is breaking. Different from MA crosses because it compares price to
+    its own history, not two averages to each other.
+    Entry: close > close[short_lb] AND close > close[med_lb] AND close > close[long_lb]
+           sustained for confirm_bars.
+    Exit: close < close[short_lb] (shortest horizon fails)."""
+    n = ind.n
+    cl = ind.close
+    short_lb = int(p.get("short_lb", 20))
+    med_lb = int(p.get("med_lb", 50))
+    long_lb = int(p.get("long_lb", 200))
+    confirm = int(p.get("confirm_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(long_lb + 1, n):
+        all_up = (cl[i] > cl[i - short_lb] and
+                  cl[i] > cl[i - med_lb] and
+                  cl[i] > cl[i - long_lb])
+        if all_up:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == confirm:
+            entries[i] = True
+        # Exit: medium horizon fails (short is too noisy on 3x leverage)
+        if cl[i] < cl[i - med_lb]:
+            exits[i] = True
+            labels[i] = "Mom"
+    return entries, exits, labels
+
+
+def rsi_mean_revert_trend(ind, p):
+    """T1: RSI mean-reversion entry within a trend.
+    Hypothesis: when RSI drops below oversold but price is still above a long
+    EMA, it's a pullback not a breakdown. Buy the dip. Sell when RSI gets
+    overbought or when trend breaks.
+    Entry: RSI < oversold AND close > trend EMA.
+    Exit: RSI > overbought OR close < trend EMA."""
+    n = ind.n
+    cl = ind.close
+    rsi = ind.rsi(int(p.get("rsi_len", 14)))
+    trend_ema = ind.ema(int(p.get("trend_len", 200)))
+    oversold = p.get("oversold", 30.0)
+    overbought = p.get("overbought", 75.0)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(1, n):
+        if np.isnan(rsi[i]) or np.isnan(trend_ema[i]):
+            continue
+        # Entry: RSI oversold + uptrend intact
+        if rsi[i] < oversold and cl[i] > trend_ema[i]:
+            entries[i] = True
+        # Exit: overbought (take profit) or trend break
+        if rsi[i] > overbought:
+            exits[i] = True
+            labels[i] = "OB"
+        elif cl[i] < trend_ema[i]:
+            exits[i] = True
+            labels[i] = "Trend"
+    return entries, exits, labels
+
+
+def vol_compression_breakout(ind, p):
+    """T1: Volatility compression → breakout.
+    Hypothesis: when TECL's realized volatility contracts (ATR as % of price
+    hits a low), it's coiling for a move. Enter when price breaks above the
+    recent range after compression. Exit when vol expands (danger) and price
+    momentum fades. Completely different from VIX — uses TECL's own vol.
+    Entry: ATR%price < compress_pct AND close > highest(lookback).
+    Exit: ATR%price > expand_pct OR close < EMA(trend_len)."""
+    n = ind.n
+    cl = ind.close
+    atr = ind.atr(int(p.get("atr_period", 14)))
+    trend_ema = ind.ema(int(p.get("trend_len", 100)))
+    lookback = int(p.get("lookback", 50))
+    compress_pct = p.get("compress_pct", 3.0)
+    expand_pct = p.get("expand_pct", 8.0)
+    highest_arr = ind.highest(lookback)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(lookback + 1, n):
+        if np.isnan(atr[i]) or cl[i] == 0 or np.isnan(trend_ema[i]):
+            continue
+        atr_pct = atr[i] / cl[i] * 100
+        # Entry: compressed vol + breakout above range
+        if atr_pct < compress_pct and cl[i] >= highest_arr[i]:
+            entries[i] = True
+        # Exit: vol expansion or trend break
+        if atr_pct > expand_pct:
+            exits[i] = True
+            labels[i] = "VolExp"
+        elif cl[i] < trend_ema[i]:
+            exits[i] = True
+            labels[i] = "Trend"
+    return entries, exits, labels
+
+
+def price_position_regime(ind, p):
+    """T1: Price-position within its own range as a regime signal.
+    Hypothesis: when price is near its highs AND well above its lows,
+    the trend is healthy. When it collapses toward the lows, exit.
+    No moving averages. Pure structural price position.
+    Entry: close > pct_of_high% of highest(high_lb) AND
+           close > (1 + above_low_pct%) * lowest(low_lb).
+    Exit: close drops below midpoint of (highest, lowest) over exit_lb."""
+    n = ind.n
+    cl = ind.close
+    high_lb = int(p.get("high_lb", 200))
+    low_lb = int(p.get("low_lb", 50))
+    exit_lb = int(p.get("exit_lb", 100))
+    pct_of_high = p.get("pct_of_high", 90.0)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    highest_arr = ind.highest(high_lb)
+    lowest_arr = ind.lowest(low_lb)
+    for i in range(max(high_lb, low_lb, exit_lb) + 1, n):
+        if np.isnan(highest_arr[i]) or np.isnan(lowest_arr[i]):
+            continue
+        if highest_arr[i] == 0:
+            continue
+        near_high = cl[i] >= highest_arr[i] * (pct_of_high / 100)
+        above_low = cl[i] > lowest_arr[i] * 1.15  # at least 15% above recent low
+        if near_high and above_low:
+            entries[i] = True
+        # Exit: price drops below midpoint of the exit-lookback range
+        exit_high = np.nanmax(cl[max(0, i - exit_lb):i + 1])
+        exit_low = np.nanmin(cl[max(0, i - exit_lb):i + 1])
+        midpoint = (exit_high + exit_low) / 2
+        if cl[i] < midpoint:
+            exits[i] = True
+            labels[i] = "Mid"
+    return entries, exits, labels
+
+
+def treasury_regime(ind, p):
+    """T1: Treasury yield curve as a regime signal.
+    Hypothesis: an inverted yield curve (10Y-2Y < 0) signals recession risk.
+    Stay in TECL when curve is positive and steepening. Exit when it inverts
+    or steepens negatively. Completely macro-driven, no price indicators.
+    Entry: spread > 0 AND spread rising over slope_window AND close > EMA.
+    Exit: spread < 0 (inverted) OR spread falling for exit_bars."""
+    n = ind.n
+    cl = ind.close
+    spread = ind.treasury_spread
+    trend_ema = ind.ema(int(p.get("trend_len", 100)))
+    slope_w = int(p.get("slope_window", 5))
+    exit_bars = int(p.get("exit_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    if spread is None:
+        return entries, exits, labels
+    fall_count = 0
+    for i in range(slope_w + 1, n):
+        if np.isnan(spread[i]) or np.isnan(spread[i - slope_w]) or np.isnan(trend_ema[i]):
+            fall_count = 0
+            continue
+        spread_rising = spread[i] > spread[i - slope_w]
+        # Entry: positive spread + rising + price in uptrend
+        if spread[i] > 0 and spread_rising and cl[i] > trend_ema[i]:
+            entries[i] = True
+        # Exit: inverted curve
+        if spread[i] < 0:
+            exits[i] = True
+            labels[i] = "Inv"
+            fall_count = 0
+            continue
+        # Exit: sustained spread deterioration
+        if spread[i] < spread[i - 1]:
+            fall_count += 1
+        else:
+            fall_count = 0
+        if fall_count >= exit_bars and cl[i] < trend_ema[i]:
+            exits[i] = True
+            labels[i] = "Sprd"
+    return entries, exits, labels
+
+
+def xlk_relative_momentum(ind, p):
+    """T1: TECL vs XLK relative strength momentum.
+    Hypothesis: when 3x leverage is working (TECL outperforming XLK),
+    stay in. When leverage is decaying (TECL underperforming), get out.
+    Uses the TECL/XLK ratio, not price directly.
+    Entry: ratio rising over lookback AND ratio EMA slope positive.
+    Exit: ratio declining over lookback (leverage decay)."""
+    n = ind.n
+    cl = ind.close
+    xlk = ind.xlk_close
+    lookback = int(p.get("lookback", 20))
+    trend_len = int(p.get("trend_len", 50))
+    confirm = int(p.get("confirm_bars", 3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    if xlk is None:
+        return entries, exits, labels
+    # Compute ratio series and its EMA
+    ratio = np.where(xlk > 0, cl / xlk, np.nan)
+    ratio_ema = _ema(ratio, trend_len)
+    rise_count = 0
+    for i in range(max(lookback, trend_len) + 1, n):
+        if np.isnan(ratio[i]) or np.isnan(ratio[i - lookback]) or np.isnan(ratio_ema[i]) or np.isnan(ratio_ema[i - 1]):
+            rise_count = 0
+            continue
+        ratio_rising = ratio[i] > ratio[i - lookback]
+        ema_rising = ratio_ema[i] > ratio_ema[i - 1]
+        if ratio_rising and ema_rising:
+            rise_count += 1
+        else:
+            rise_count = 0
+        if rise_count == confirm:
+            entries[i] = True
+        # Exit: ratio declining
+        if ratio[i] < ratio[i - lookback]:
+            exits[i] = True
+            labels[i] = "Decay"
+    return entries, exits, labels
+
+
+def consecutive_strength(ind, p):
+    """T1: Consecutive bullish price action.
+    Hypothesis: strings of bullish bars (close > open, higher closes) signal
+    strong buying. Enter after N consecutive bullish bars. Exit after M
+    bearish bars. Pure price action, no computed indicators.
+    Entry: N consecutive bars where close > open AND close > prev close.
+    Exit: M consecutive bars where close < open AND close < prev close,
+          OR hard ATR stop."""
+    n = ind.n
+    cl = ind.close
+    op = ind.open
+    atr = ind.atr(int(p.get("atr_period", 14)))
+    entry_streak = int(p.get("entry_streak", 5))
+    exit_streak = int(p.get("exit_streak", 3))
+    atr_mult = p.get("atr_mult", 3.0)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_streak = 0
+    bear_streak = 0
+    for i in range(1, n):
+        # Bullish bar: close > open AND close > prev close
+        if cl[i] > op[i] and cl[i] > cl[i - 1]:
+            bull_streak += 1
+            bear_streak = 0
+        elif cl[i] < op[i] and cl[i] < cl[i - 1]:
+            bear_streak += 1
+            bull_streak = 0
+        else:
+            bull_streak = 0
+            bear_streak = 0
+        if bull_streak == entry_streak:
+            entries[i] = True
+        if bear_streak >= exit_streak:
+            exits[i] = True
+            labels[i] = "Bear"
+        # Hard ATR stop
+        if not np.isnan(atr[i]) and i >= 1 and cl[i] < cl[i - 1] - atr[i] * atr_mult:
+            exits[i] = True
+            labels[i] = "ATR"
+    return entries, exits, labels
+
+
 STRATEGY_REGISTRY = {
     # Grid-searchable T1 concepts (logic functions that accept any canonical param combo).
     # Grid search evaluates these exhaustively over canonical param grids.
@@ -3170,6 +3783,22 @@ STRATEGY_REGISTRY = {
     "gc_pre_vix":               gc_pre_vix,
     "gc_strict_vix":            gc_strict_vix,
     "atr_ratio_vix":            atr_ratio_vix,
+    # ── T1: Spike batch 2026-04-15a (diversity — non-crossover strategies) ──
+    "drawdown_recovery":        drawdown_recovery,
+    "multi_tf_momentum":        multi_tf_momentum,
+    "rsi_mean_revert_trend":    rsi_mean_revert_trend,
+    "vol_compression_breakout": vol_compression_breakout,
+    "price_position_regime":    price_position_regime,
+    "treasury_regime":          treasury_regime,
+    "xlk_relative_momentum":    xlk_relative_momentum,
+    "consecutive_strength":     consecutive_strength,
+    # ── T1: Spike batch 2026-04-15b (diagnostic-informed — fix gc_* weaknesses) ──
+    "gc_atr_trail":             gc_atr_trail,
+    "fast_ema_atr_trail":       fast_ema_atr_trail,
+    "vix_regime_entry":         vix_regime_entry,
+    "rsi_bull_regime":          rsi_bull_regime,
+    "donchian_vix":             donchian_vix,
+    "gc_slope_no_death":        gc_slope_no_death,
 }
 
 # Declared validation tier for each strategy family.
@@ -3698,5 +4327,102 @@ STRATEGY_PARAMS = {
         "fast_ema":       (20, 100, 10, int),
         "slow_ema":       (100, 300, 50, int),
         "cooldown":       (2, 10, 3, int),
+    },
+    # ── T1: Spike batch 2026-04-15 (diversity) ──
+    "drawdown_recovery": {
+        "trend_len":      (100, 200, 50, int),
+        "lookback":       (50, 200, 50, int),
+        "thresh_pct":     (15.0, 25.0, 5.0, float),
+        "recover_pct":    (25.0, 75.0, 25.0, float),
+        "exit_dd_pct":    (15.0, 25.0, 5.0, float),
+    },
+    "multi_tf_momentum": {
+        "short_lb":       (20, 50, 10, int),
+        "med_lb":         (50, 100, 50, int),
+        "long_lb":        (100, 200, 50, int),
+        "confirm_bars":   (2, 5, 1, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "rsi_mean_revert_trend": {
+        "rsi_len":        (7, 21, 7, int),
+        "trend_len":      (100, 200, 50, int),
+        "oversold":       (20.0, 40.0, 10.0, float),
+        "overbought":     (70.0, 80.0, 5.0, float),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "vol_compression_breakout": {
+        "atr_period":     (7, 20, 7, int),
+        "trend_len":      (50, 200, 50, int),
+        "lookback":       (20, 100, 20, int),
+        "compress_pct":   (2.0, 5.0, 1.0, float),
+        "expand_pct":     (6.0, 10.0, 2.0, float),
+    },
+    "price_position_regime": {
+        "high_lb":        (100, 200, 50, int),
+        "low_lb":         (20, 100, 20, int),
+        "exit_lb":        (50, 200, 50, int),
+        "pct_of_high":    (85.0, 95.0, 5.0, float),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "treasury_regime": {
+        "trend_len":      (50, 200, 50, int),
+        "slope_window":   (3, 5, 2, int),
+        "exit_bars":      (2, 5, 1, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "xlk_relative_momentum": {
+        "lookback":       (20, 100, 20, int),
+        "trend_len":      (20, 100, 20, int),
+        "confirm_bars":   (2, 5, 1, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "consecutive_strength": {
+        "atr_period":     (7, 20, 7, int),
+        "entry_streak":   (3, 5, 1, int),
+        "exit_streak":    (2, 5, 1, int),
+        "atr_mult":       (2.0, 3.0, 0.5, float),
+        "cooldown":       (2, 10, 3, int),
+    },
+    # ── T1: Spike batch 2026-04-15b (diagnostic-informed) ──
+    "gc_atr_trail": {
+        "fast_ema":       (20, 100, 10, int),
+        "slow_ema":       (100, 300, 50, int),
+        "atr_period":     (7, 20, 7, int),
+        "slope_window":   (3, 5, 2, int),
+        "entry_bars":     (2, 5, 1, int),
+        "atr_mult":       (2.0, 3.0, 0.5, float),
+    },
+    "fast_ema_atr_trail": {
+        "fast_ema":       (20, 100, 10, int),
+        "slow_ema":       (50, 200, 50, int),
+        "atr_period":     (7, 20, 7, int),
+        "slope_window":   (3, 5, 2, int),
+        "confirm_bars":   (2, 5, 1, int),
+        "atr_mult":       (2.0, 3.0, 0.5, float),
+    },
+    "vix_regime_entry": {
+        "trend_len":      (50, 200, 50, int),
+        "entry_vix":      (15.0, 25.0, 5.0, float),
+        "exit_vix":       (25.0, 35.0, 5.0, float),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "rsi_bull_regime": {
+        "rsi_len":        (7, 21, 7, int),
+        "confirm_bars":   (2, 5, 1, int),
+        "exit_level":     (30.0, 45.0, 5.0, float),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "donchian_vix": {
+        "entry_len":      (50, 200, 50, int),
+        "exit_len":       (20, 100, 20, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "gc_slope_no_death": {
+        "fast_ema":       (20, 100, 10, int),
+        "slow_ema":       (100, 300, 50, int),
+        "atr_period":     (7, 20, 7, int),
+        "slope_window":   (3, 5, 2, int),
+        "confirm_bars":   (2, 5, 1, int),
+        "atr_mult":       (2.0, 3.0, 0.5, float),
     },
 }

@@ -120,7 +120,7 @@ Exit:  close < 100-day low
 
 **Why it WARNs:** share=1.51x ✓, marker=0.68 ✓, every individual hard gate
 clears. But the strategy underperforms B&H in **all 4 named windows** (2020
-meltup, 2021/22 bear, 2023 rebound, 2024 onward) AND QQQ same-param vs_bah=0.28.
+meltup, 2021/22 bear, 2023 rebound, 2024 onward) AND QQQ same-param share_multiple=0.28.
 Eight soft warnings accumulate → WARN.
 
 **Lesson:** Pure breakout-on-new-high is too slow to re-engage after crashes
@@ -174,9 +174,9 @@ is "no" or "I don't know," redesign first.
       recognise this as a sensible signal?
 
 ### Charter compliance
-- [ ] Long-only, single-position
+- [ ] Long-only, single-position, 100% equity
 - [ ] No look-ahead (entry/exit signals computed only from past data)
-- [ ] Pine-expressible (no exotic Python-only operations)
+- [ ] Expressible as a binary risk_on / risk_off signal in the Python engine
 
 ### Smoke test (do this in 60 seconds before validation)
 - [ ] Backtest on TECL once, log: share_multiple, num_trades, marker state_agreement

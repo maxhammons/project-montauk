@@ -1,0 +1,102 @@
+{
+  "_meta": {
+    "built_utc": "2026-04-16T00:57:39+00:00",
+    "schema_version": 1
+  },
+  "files": {
+    "TECL.csv": {
+      "source_real": "Yahoo Finance (TECL)",
+      "source_synthetic": "3x ^SP500-45 (1993-1998) + 3x XLK (1998-2008), 0.95%/yr expense, daily compounded",
+      "seam_date": "2008-12-17",
+      "expense_ratio_source": "ProShares 2024 prospectus (TECL: 0.95%/yr)",
+      "synthetic_model_version": "v2-3xTechIdx-0.95%ER-daily",
+      "rows": 8294,
+      "sha256": "c9db0f190bfe34e8493366a892e9af5c17d5ca26de6db9c29564c44c425ff0fe",
+      "bytes": 917111,
+      "built_utc": "2026-04-16T00:57:39+00:00"
+    },
+    "TQQQ.csv": {
+      "source_real": "Yahoo Finance (TQQQ)",
+      "source_synthetic": "3x QQQ, 0.75%/yr expense, daily compounded",
+      "seam_date": "2010-02-11",
+      "expense_ratio_source": "ProShares prospectus (TQQQ: 0.75%/yr)",
+      "synthetic_model_version": "v1-3xQQQ-0.75%ER-daily",
+      "rows": 8294,
+      "sha256": "074299ce46e921a6e69c6d3332ca7639bba71d748b78fc001b3f8da5864ea7ca",
+      "bytes": 867639,
+      "built_utc": "2026-04-16T00:57:39+00:00"
+    },
+    "XLK.csv": {
+      "source_real": "Yahoo Finance (XLK)",
+      "seam_date": "1998-12-22",
+      "notes": "Underlying ETF for TECL synthetic period (1998-12-22 onward).",
+      "rows": 6869,
+      "sha256": "3fa0b7c3427857318766196fedb60e8e7d9f47298f33557a63778509a7f231e4",
+      "bytes": 720585,
+      "built_utc": "2026-04-16T00:57:39+00:00"
+    },
+    "QQQ.csv": {
+      "source_real": "Yahoo Finance (QQQ; pre-1999 backfilled by Yahoo)",
+      "seam_date": "1999-03-10",
+      "notes": "Underlying ETF for TQQQ synthetic period (full pre-2010 coverage).",
+      "rows": 8294,
+      "sha256": "adae8d5722626f7c40ea3fefacfa2f7f7bf04130231e22ec5e8f6fb4ace9df79",
+      "bytes": 819644,
+      "built_utc": "2026-04-16T00:57:39+00:00"
+    },
+    "SP500-45.csv": {
+      "source_real": "Yahoo Finance (^SP500-45 \u2014 S&P 500 Information Technology Sector index)",
+      "seam_date": "1993-05-04",
+      "notes": "Underlying index for TECL synthetic before XLK existed (1993-05-04 \u2192 1998-12-21). Price-only index; OHLC degenerates to close.",
+      "rows": 3946,
+      "sha256": "a1394f8ca5419dba6e0f2218d756a1d259551a32fd81891a98272d989eb1e929",
+      "bytes": 420775,
+      "built_utc": "2026-04-16T00:57:39+00:00"
+    },
+    "VIX.csv": {
+      "source_real": "Yahoo Finance (^VIX)",
+      "seam_date": "1990-01-02",
+      "notes": "CBOE Volatility Index. Merged into TECL.csv as vix_close column.",
+      "rows": 9138,
+      "sha256": "3aa713c8bfc211d0c10b45b17a7a730b179e31f45421e1639f89ee30fc19a98a",
+      "bytes": 797227,
+      "built_utc": "2026-04-16T00:57:39+00:00"
+    },
+    "SGOV.csv": {
+      "source_real": "Yahoo Finance (SGOV)",
+      "seam_date": "2020-05-26",
+      "notes": "iShares 0-3 Month Treasury Bond ETF. Used by Roth overlay strategies.",
+      "rows": 1476,
+      "sha256": "cbeb4c2f83d62db9101f0df35ca6bb8d89af928696b2accecac53d0ef38499e8",
+      "bytes": 162353,
+      "built_utc": "2026-04-16T00:57:39+00:00"
+    },
+    "treasury-spread-10y2y.csv": {
+      "source_real": "FRED (T10Y2Y \u2014 10Y minus 2Y Treasury constant maturity)",
+      "seam_date": "1976-06-01",
+      "notes": "Recession indicator. Forward-filled into trading calendar.",
+      "rows": 7075,
+      "sha256": "0e9e3b2682fd32e4636c8a9f10c6c9f0025f6c0eaebd3e7e6315c481a2a6c8ea",
+      "bytes": 113592,
+      "built_utc": "2026-04-16T00:57:39+00:00"
+    },
+    "fed-funds-rate.csv": {
+      "source_real": "FRED (DFF \u2014 Effective Federal Funds Rate)",
+      "seam_date": "1954-07-01",
+      "notes": "Monetary policy regime. Forward-filled into trading calendar.",
+      "rows": 10331,
+      "sha256": "89049d14628ede1d09815b7d71e61e636000f9f40a8c5c867bcdc1b0fdebb452",
+      "bytes": 164234,
+      "built_utc": "2026-04-16T00:57:39+00:00"
+    },
+    "tbill-3m.csv": {
+      "source_real": "FRED (DTB3 \u2014 3-Month Treasury Bill: Secondary Market Rate)",
+      "seam_date": "1954-01-04",
+      "notes": "Risk-free rate proxy.",
+      "rows": 7074,
+      "sha256": "7da95f34dcc3d110763d83b55c22c95bbfe011d199cfb46f937384709094591c",
+      "bytes": 112540,
+      "built_utc": "2026-04-16T00:57:39+00:00"
+    }
+  }
+}

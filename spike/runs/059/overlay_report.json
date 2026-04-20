@@ -1,0 +1,35 @@
+{
+  "assumptions": {
+    "annual_contribution": 7500.0,
+    "monthly_contribution": 625.0,
+    "contribution_schedule": "first_trading_day_of_month",
+    "risk_off_sleeve": "SGOV",
+    "allocation_policy": "binary_tecl_or_sgov",
+    "simulation_start": "2020-06-01",
+    "simulation_end": "2026-04-15"
+  },
+  "total_contributions": 44375.0,
+  "final_tecl_value": 0.0,
+  "final_sgov_value": 111607.22,
+  "final_total_value": 111607.22,
+  "max_drawdown_pct": 48.28,
+  "sweep_count": 2,
+  "avg_cash_deployment_lag_days": 38.4,
+  "risk_on_contribution_count": 52,
+  "risk_off_contribution_count": 19,
+  "vs_tecl_dca": {
+    "baseline_final_total_value": 111211.04,
+    "baseline_max_drawdown_pct": 66.91,
+    "difference_value": 396.18,
+    "difference_pct": 0.36
+  },
+  "baseline": {
+    "annual_contribution": 7500.0,
+    "monthly_contribution": 625.0,
+    "simulation_start": "2020-06-01",
+    "simulation_end": "2026-04-15",
+    "total_contributions": 44375.0,
+    "final_total_value": 111211.04,
+    "max_drawdown_pct": 66.91
+  }
+}

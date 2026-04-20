@@ -18,7 +18,7 @@ The pipeline runs seven gates plus a marker-shape diagnostic. Which gates run an
 | **Gate 4** — Time generalization | RUN (WF hard→soft) | RUN | RUN | Walk-forward OOS/IS, named windows |
 | **Gate 5** — Uncertainty | SKIP | SKIP | RUN | Morris elementary effects, stationary bootstrap |
 | **Gate 6** — Cross-asset | RUN | RUN | RUN | TQQQ/QQQ same-param, TQQQ re-optimization |
-| **Gate 7** — Synthesis | RUN | RUN | RUN | Composite confidence, verdict, Pine parity, Pine eligibility |
+| **Gate 7** — Synthesis | RUN | RUN | RUN | Composite confidence, verdict, `backtest_certified`, `promotion_ready` |
 
 **Skipped gates** return `verdict: "SKIPPED"` and contribute `None` sub-scores to the composite, which renormalizes over applicable gates only (no penalty for skipped gates).
 
@@ -41,18 +41,19 @@ Validation gates must distinguish between **overfitting signals** (parameter sen
 
 ## Verdict Logic (Gate 7 Synthesis)
 
-### Pine Structural Parity (runs before verdict)
+### `backtest_certified` pre-check (runs before verdict)
 
-Gate 7 runs `parity.structural_parity_check()` before computing the final verdict. This automated check verifies:
+Gate 7 computes `backtest_certified` before the final verdict. A strategy is certified when **all** of the following hold; any failure propagates hard-fail reasons into the gate 7 verdict:
 
 | Check | Hard Fail | Pass |
 |-------|-----------|------|
-| Param defaults match Python → Pine | any mismatch | all match |
-| Strategy settings (commission, slippage, orders) | any missing or wrong | all correct |
-| Entry/exit condition structure | missing entry/exit calls | correct count |
-| Cooldown logic present when cooldown > 0 | missing | present |
+| Engine integrity (`scripts/validation/integrity.py`) | any failure | all checks pass |
+| Golden regression (`tests/test_regression.py`) | trade-by-trade PnL divergence > ±0.001% on 8.2.1 defaults | match |
+| Shadow comparator (dev-only) | per-trade divergence > 0.5% vs `backtesting.py` / `vectorbt` | within tolerance |
+| Data-quality pre-check (`scripts/data_quality.py`) | any PASS/WARN/FAIL failure (Yahoo-vs-Stooq, seam continuity, manifest checksum, OHLC sanity, etc.) | all PASS |
+| Artifact completeness | any of the five standardized JSON artifacts missing or malformed | all present |
 
-If structural parity fails, `pine_eligible = False` and hard fail reasons propagate into the gate 7 verdict. Note: Python uses 0.05% fill-price slippage; Pine uses 0.05% commission — these are economically similar but not identical (~0.15% max PnL divergence per trade).
+Both engines now apply 0.05% slippage on each fill (unified in Phase 1c of Montauk 2.0), so the two engines produce identical trades on 8.2.1 defaults. `promotion_ready = backtest_certified AND tier-appropriate PASS`.
 
 ### Verdict rules
 
@@ -93,7 +94,7 @@ Source: `pipeline.py :: _gate1_candidate()`
 | Trade count | < tier floor | — | >= floor |
 | Trades/year (charter) | > 5.0 | — | <= 5.0 |
 | Degeneracy (4yr windows) | always-in or always-out across ALL windows | sparse/saturated in some windows | normal exposure |
-| Pine-deployable | not in registry | — | in registry |
+| In strategy registry | not in registry | — | in registry |
 | Charter-compatible | fails charter | — | passes |
 | n_params vs regime_transitions | — | n_params > transitions | n_params <= transitions |
 
@@ -191,9 +192,9 @@ Windows: 2020_meltup, 2021_2022_bear, 2023_rebound, 2024_onward.
 | Check | Hard Fail | Soft Warning | Pass |
 |-------|-----------|--------------|------|
 | Error | yes | — | — |
-| vs_bah <= 0 | yes | — | — |
-| Zero trades (sat out, vs_bah > 0) | — | yes | — |
-| vs_bah | — | < 0.60 | >= 0.60 |
+| share_multiple <= 0 | yes | — | — |
+| Zero trades (sat out, share_multiple > 0) | — | yes | — |
+| share_multiple | — | < 0.60 | >= 0.60 |
 
 ---
 
@@ -243,9 +244,9 @@ Source: `pipeline.py :: _gate6_cross_asset()`
 
 | Check | Hard Fail | Soft Warning | Pass |
 |-------|-----------|--------------|------|
-| TQQQ same-param vs_bah | < 0.50 (or error) | 0.50 - 1.00 | >= 1.00 |
-| QQQ same-param vs_bah | — | < 0.50 (or error) | >= 0.50 |
-| TQQQ re-optimization (tier3) | vs_bah < 1.0 | — | >= 1.0 |
+| TQQQ same-param share_multiple | < 0.50 (or error) | 0.50 - 1.00 | >= 1.00 |
+| QQQ same-param share_multiple | — | < 0.50 (or error) | >= 0.50 |
+| TQQQ re-optimization (tier3) | share_multiple < 1.0 | — | >= 1.0 |
 
 Tier3 re-opt budget scales with run hours: 0.5m/pop12 (quick), up to 2.0m/pop24 (long).
 
@@ -297,7 +298,7 @@ T0 composite is dominated by marker_shape + walk_forward (73%). T1 is evenly spl
 - Marker missed-cycle cap: 2, timing floor: 0.50
 - Soft-warning cap: 10
 
-**Design intent:** T0 cannot overfit (canonical pre-registered params, no tuning). Validation confirms the hypothesis engages cycles, generalizes across time and assets, and produces Pine. Statistical overfitting tests are irrelevant.
+**Design intent:** T0 cannot overfit (canonical pre-registered params, no tuning). Validation confirms the hypothesis engages cycles, generalizes across time and assets, and emits a complete `backtest_certified` signal bundle. Statistical overfitting tests are irrelevant.
 
 ### T1 — Tuned (hand-authored logic, canonical grid search)
 

@@ -15,6 +15,8 @@ import json
 import os
 from datetime import datetime
 
+from share_metric import read_share_multiple
+
 
 def _fmt_pct(val: float) -> str:
     return f"{val:.1f}%"
@@ -32,6 +34,11 @@ def _fmt_money(val: float) -> str:
     return f"${val:,.2f}"
 
 
+def _share_mult(m: dict) -> float:
+    """Back-compat wrapper for share-count metric reads."""
+    return read_share_multiple(m)
+
+
 def _top_n_table(rankings: list, n: int = 10) -> str:
     """Generate a markdown table of the top N results.
 
@@ -40,8 +47,12 @@ def _top_n_table(rankings: list, n: int = 10) -> str:
     validation tier (T0 / T1 / T2) the candidate was evaluated under.
     """
     lines = []
-    lines.append("| # | Strategy | Tier | Share Mult. | Marker | RS | CAGR | Max DD | MAR | Trades | Params | Fitness |")
-    lines.append("|---|----------|------|-------------|--------|----|------|--------|-----|--------|--------|---------|")
+    lines.append(
+        "| # | Strategy | Tier | Share Mult. | Marker | RS | CAGR | Max DD | MAR | Trades | Params | Fitness |"
+    )
+    lines.append(
+        "|---|----------|------|-------------|--------|----|------|--------|-----|--------|--------|---------|"
+    )
 
     for entry in rankings[:n]:
         m = entry.get("metrics")
@@ -50,14 +61,13 @@ def _top_n_table(rankings: list, n: int = 10) -> str:
         rs = m.get("regime_score", 0)
         n_params = m.get("n_params", "?")
         n_trades = m.get("trades", 0)
-        tier = ((entry.get("validation") or {}).get("tier")
-                or entry.get("tier") or "T2")
+        tier = (entry.get("validation") or {}).get("tier") or entry.get("tier") or "T2"
         marker = entry.get("marker_alignment_score", 0.0)
         lines.append(
             f"| {entry['rank']} "
             f"| {entry['strategy']} "
             f"| {tier} "
-            f"| {_fmt_mult(m['vs_bah'])} "
+            f"| {_fmt_mult(_share_mult(m))}"
             f"| {marker:.3f} "
             f"| {rs:.3f} "
             f"| {_fmt_pct(m['cagr'])} "
@@ -79,13 +89,12 @@ def _raw_discovery_table(rankings: list, n: int = 10) -> str:
         m = entry.get("metrics")
         if not m:
             continue
-        tier = ((entry.get("validation") or {}).get("tier")
-                or entry.get("tier") or "T2")
+        tier = (entry.get("validation") or {}).get("tier") or entry.get("tier") or "T2"
         lines.append(
             f"| {entry['rank']} "
             f"| {entry['strategy']} "
             f"| {tier} "
-            f"| {_fmt_mult(m.get('vs_bah', 0.0))} "
+            f"| {_fmt_mult(_share_mult(m))}"
             f"| {entry.get('marker_alignment_score', 0.0):.3f} "
             f"| {_fmt_fitness(entry.get('fitness', 0.0))} "
             f"| {m.get('trades', 0)} |"
@@ -109,11 +118,11 @@ def _detail_block(entry: dict) -> str:
     bear_avoid = m.get("bear_avoidance", 0)
     n_params = m.get("n_params", "?")
 
-    tier = ((entry.get("validation") or {}).get("tier") or entry.get("tier") or "T2")
+    tier = (entry.get("validation") or {}).get("tier") or entry.get("tier") or "T2"
     lines = [
         f"### #{entry['rank']}: {entry['strategy']}  [`{tier}`]",
         "",
-        f"**Share Mult. vs B&H:** {_fmt_mult(m['vs_bah'])} | "
+        f"**Share Mult. vs B&H:** {_fmt_mult(_share_mult(m))} | "
         f"**Marker alignment:** {entry.get('marker_alignment_score', 0.0):.3f} | "
         f"**Fitness:** {_fmt_fitness(entry['fitness'])}",
         "",
@@ -125,10 +134,10 @@ def _detail_block(entry: dict) -> str:
         f"**Max DD:** {_fmt_pct(m['max_dd'])} | "
         f"**MAR:** {m['mar']:.3f}",
         "",
-        f"**Parameters:**",
-        f"```json",
+        "**Parameters:**",
+        "```json",
         json.dumps(display_params, indent=2),
-        f"```",
+        "```",
         "",
         f"**Trades:** {m['trades']} total ({m['trades_yr']:.1f}/yr) | "
         f"**Win rate:** {_fmt_pct(m['win_rate'])}",
@@ -140,17 +149,23 @@ def _detail_block(entry: dict) -> str:
         lines.append(
             f"**Validation:** {validation.get('verdict', '?')} | "
             f"**Composite:** {validation.get('composite_confidence', 0):.3f} | "
-            f"**Pine Eligible:** {validation.get('pine_eligible', False)}"
+            f"**Backtest Certified:** {validation.get('backtest_certified', False)} | "
+            f"**Promotion Ready:** "
+            f"{validation.get('promotion_ready', validation.get('promotion_eligible', False))}"
         )
         if validation.get("critical_warnings"):
-            lines.append("**Critical warnings:** " + "; ".join(validation["critical_warnings"]))
+            lines.append(
+                "**Critical warnings:** " + "; ".join(validation["critical_warnings"])
+            )
         if validation.get("soft_warnings"):
             lines.append("**Soft warnings:** " + "; ".join(validation["soft_warnings"]))
         elif validation.get("warnings") and not validation.get("critical_warnings"):
             # Backward compat: old results without soft/critical split
             lines.append("**Warnings:** " + "; ".join(validation["warnings"]))
         if validation.get("hard_fail_reasons"):
-            lines.append("**Hard fails:** " + "; ".join(validation["hard_fail_reasons"]))
+            lines.append(
+                "**Hard fails:** " + "; ".join(validation["hard_fail_reasons"])
+            )
         lines.append("")
 
     marker_detail = entry.get("marker_alignment_detail") or {}
@@ -166,7 +181,9 @@ def _detail_block(entry: dict) -> str:
     # Exit reason breakdown
     reasons = m.get("exit_reasons", {})
     if reasons:
-        lines.append("**Exit reasons:** " + ", ".join(f"{k}: {v}" for k, v in reasons.items()))
+        lines.append(
+            "**Exit reasons:** " + ", ".join(f"{k}: {v}" for k, v in reasons.items())
+        )
         lines.append("")
 
     # Trade list if available
@@ -175,7 +192,9 @@ def _detail_block(entry: dict) -> str:
         lines.append("| Entry | Exit | PnL | Reason |")
         lines.append("|-------|------|-----|--------|")
         for t in trade_list[:10]:
-            lines.append(f"| {t['entry_date']} | {t['exit_date']} | {t['pnl_pct']:+.1f}% | {t['exit_reason']} |")
+            lines.append(
+                f"| {t['entry_date']} | {t['exit_date']} | {t['pnl_pct']:+.1f}% | {t['exit_reason']} |"
+            )
         if len(trade_list) > 10:
             lines.append(f"| ... | +{len(trade_list) - 10} more | | |")
         lines.append("")
@@ -189,8 +208,12 @@ def _leaderboard_table(leaderboard: list) -> str:
         return "*No historical data yet.*"
 
     lines = []
-    lines.append("| # | Strategy | Tier | Share Mult. | RS | CAGR | Max DD | MAR | Fitness | Status | Date |")
-    lines.append("|---|----------|------|-------------|----|------|--------|-----|---------|--------|------|")
+    lines.append(
+        "| # | Strategy | Tier | Share Mult. | RS | CAGR | Max DD | MAR | Fitness | Status | Date |"
+    )
+    lines.append(
+        "|---|----------|------|-------------|----|------|--------|-----|---------|--------|------|"
+    )
 
     for i, entry in enumerate(leaderboard[:20], 1):
         m = entry.get("metrics", {})
@@ -203,12 +226,12 @@ def _leaderboard_table(leaderboard: list) -> str:
         else:
             status = "active"
         rs = m.get("regime_score", 0)
-        tier = ((entry.get("validation") or {}).get("tier") or entry.get("tier") or "T2")
+        tier = (entry.get("validation") or {}).get("tier") or entry.get("tier") or "T2"
         lines.append(
             f"| {i} "
             f"| {entry.get('strategy', '?')} "
             f"| {tier} "
-            f"| {_fmt_mult(m.get('vs_bah', 0))} "
+            f"| {_fmt_mult(_share_mult(m))}"
             f"| {rs:.3f} "
             f"| {_fmt_pct(m.get('cagr', 0))} "
             f"| {_fmt_pct(m.get('max_dd', 0))} "
@@ -248,7 +271,13 @@ def generate_report(
     elapsed = results.get("elapsed_hours", 0)
     total_evals = results.get("total_evaluations", 0)
     generations = results.get("generations", 0)
-    n_strategies = len(set(r["strategy"] for r in (raw_rankings or display_rankings) if r.get("metrics")))
+    n_strategies = len(
+        set(
+            r["strategy"]
+            for r in (raw_rankings or display_rankings)
+            if r.get("metrics")
+        )
+    )
     validation_summary = results.get("validation_summary")
     champion = results.get("champion")
     artifacts = results.get("artifacts", {})
@@ -274,9 +303,13 @@ def generate_report(
         lines.append("")
         lines.append(f"- Raw candidates: {validation_summary.get('raw_candidates', 0)}")
         lines.append(f"- Pre-tier3 pass: {validation_summary.get('pre_tier3_pass', 0)}")
-        lines.append(f"- Fully validated pass: {validation_summary.get('validated_pass', 0)}")
+        lines.append(
+            f"- Fully validated pass: {validation_summary.get('validated_pass', 0)}"
+        )
         lines.append(f"- Tier3 warns: {validation_summary.get('validated_warn', 0)}")
-        lines.append(f"- Failed validation: {validation_summary.get('validated_fail', 0)}")
+        lines.append(
+            f"- Failed validation: {validation_summary.get('validated_fail', 0)}"
+        )
         lines.append(
             f"- Tier3 budget: {validation_summary.get('tier3_minutes', 0)}m "
             f"@ pop {validation_summary.get('tier3_pop_size', 0)} "
@@ -290,10 +323,16 @@ def generate_report(
             )
         else:
             lines.append("- Champion: none - no entry passed full validation")
-        if artifacts.get("candidate_strategy"):
-            lines.append(f"- Candidate Pine: {artifacts['candidate_strategy']}")
-        if artifacts.get("patched_strategy"):
-            lines.append(f"- Montauk patch: {artifacts['patched_strategy']}")
+        if artifacts.get("trade_ledger"):
+            lines.append(f"- Trade ledger: {artifacts['trade_ledger']}")
+        if artifacts.get("signal_series"):
+            lines.append(f"- Signal series: {artifacts['signal_series']}")
+        if artifacts.get("equity_curve"):
+            lines.append(f"- Equity curve: {artifacts['equity_curve']}")
+        if artifacts.get("validation_summary"):
+            lines.append(f"- Validation summary: {artifacts['validation_summary']}")
+        if artifacts.get("dashboard_data"):
+            lines.append(f"- Dashboard data: {artifacts['dashboard_data']}")
         if artifacts.get("overlay_report"):
             lines.append(f"- Overlay report: {artifacts['overlay_report']}")
         lines.append("")
@@ -343,7 +382,9 @@ def generate_report(
             f"- Simulation window: {assumptions.get('simulation_start', '?')} -> "
             f"{assumptions.get('simulation_end', '?')}"
         )
-        lines.append(f"- Total contributions: {_fmt_money(overlay.get('total_contributions', 0.0))}")
+        lines.append(
+            f"- Total contributions: {_fmt_money(overlay.get('total_contributions', 0.0))}"
+        )
         lines.append(
             f"- Final account value: {_fmt_money(overlay.get('final_total_value', 0.0))} "
             f"(TECL {_fmt_money(overlay.get('final_tecl_value', 0.0))}, "
@@ -378,7 +419,7 @@ def generate_report(
             delta = (curr_fitness / prev_fitness - 1) * 100
             lines.append(f"- **Improved by {delta:+.1f}%**")
         elif curr_fitness == prev_fitness:
-            lines.append(f"- No change")
+            lines.append("- No change")
         else:
             delta = (curr_fitness / prev_fitness - 1) * 100
             lines.append(f"- No improvement ({delta:+.1f}%)")
@@ -395,12 +436,20 @@ def generate_report(
     if history_stats:
         lines.append("## Session Stats")
         lines.append("")
-        lines.append(f"- New unique configs tested: {history_stats.get('new_configs', 0):,}")
-        lines.append(f"- Configs reused from cache: {history_stats.get('cached_configs', 0):,}")
-        lines.append(f"- Total configs in history: {history_stats.get('total_history', 0):,}")
-        seeded = history_stats.get('seeded_per_strategy', 0)
+        lines.append(
+            f"- New unique configs tested: {history_stats.get('new_configs', 0):,}"
+        )
+        lines.append(
+            f"- Configs reused from cache: {history_stats.get('cached_configs', 0):,}"
+        )
+        lines.append(
+            f"- Total configs in history: {history_stats.get('total_history', 0):,}"
+        )
+        seeded = history_stats.get("seeded_per_strategy", 0)
         if seeded:
-            lines.append(f"- Population seeded with {seeded} historical winners per strategy")
+            lines.append(
+                f"- Population seeded with {seeded} historical winners per strategy"
+            )
         lines.append("")
 
     report_text = "\n".join(lines)
@@ -417,6 +466,7 @@ def generate_report(
 if __name__ == "__main__":
     # Quick test: read most recent evolve results and generate a report
     import sys
+
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     if len(sys.argv) > 1:
@@ -428,7 +478,11 @@ if __name__ == "__main__":
             print("No runs directory found")
             sys.exit(1)
         run_dirs = sorted(
-            [d for d in os.listdir(runs_dir) if os.path.isdir(os.path.join(runs_dir, d))],
+            [
+                d
+                for d in os.listdir(runs_dir)
+                if os.path.isdir(os.path.join(runs_dir, d))
+            ],
             key=lambda d: int(d) if d.isdigit() else d,
         )
         if not run_dirs:

@@ -4,7 +4,7 @@
 
 ## Summary
 
-Keep the core Montauk mission unchanged: discover robust long-only TECL signals, validate them at the tier appropriate to how they were selected, and generate Pine for the best PASS winner. Two supporting layers sit around that core:
+Keep the core Montauk mission unchanged: discover robust long-only TECL signals, validate them at the tier appropriate to how they were selected, and emit a `backtest_certified` signal bundle for the best PASS winner. Two supporting layers sit around that core:
 
 - a **marker-aligned discovery north star** — the hand-marked TECL cycles in [TECL-markers.csv](../data/markers/TECL-markers.csv) define the working shape of success, and shape alignment is a validation gate
 - a **post-validation Roth account overlay** that routes ongoing Roth cash into `SGOV` when risk-off and into `TECL` when risk-on
@@ -54,8 +54,8 @@ The core strategy remains a binary TECL in/out engine. The Roth cashflow layer i
   - discover with marker prior
   - validate the core TECL signal
   - simulate the Roth overlay for the validated champion
-  - generate Pine for the validated TECL signal
-  - manually review and deploy
+  - emit the `backtest_certified` signal bundle (five JSON artifacts + native HTML viewer) for the validated champion
+  - manually execute from the daily risk_on / risk_off signal
 - Do not make overlay results a validation gate in v1. Validation stays about signal honesty and robustness; the overlay is a deployment/account analysis layer.
 - Extend `results.json` with:
   - `raw_rankings[*].marker_alignment_score`
@@ -67,10 +67,10 @@ The core strategy remains a binary TECL in/out engine. The Roth cashflow layer i
   - a discovery section showing marker alignment on top raw candidates
   - an overlay section for the validated champion
   - comparison against a baseline `TECL DCA` account
-- Add a standard `risk_state` output to generated Pine artifacts:
+- Add a standard `risk_state` output to the emitted signal bundle:
   - `risk_on` means TECL is allowed
   - `risk_off` means SGOV holding-tank state
-- Do not encode Roth contribution mechanics inside Pine. Pine exposes signal state only; the contribution allocator remains a Python/account-layer concept.
+- Do not encode Roth contribution mechanics inside the signal engine. The signal engine exposes state only (via `signal_series.json`); the contribution allocator remains an account-overlay concept (`scripts/roth_overlay.py`).
 
 ### 4. Data and docs
 
@@ -99,7 +99,7 @@ The core strategy remains a binary TECL in/out engine. The Roth cashflow layer i
   - sweep count
   - average cash deployment lag
   - comparison vs `TECL DCA`
-- Pine generation contract stays strategy-signal-only, but every generated Pine artifact should expose a normalized `risk_state`/alert surface.
+- Signal-bundle contract stays strategy-signal-only — every emitted `signal_series.json` exposes a normalized `risk_state` series.
 
 ## Test Plan
 
@@ -119,7 +119,7 @@ The core strategy remains a binary TECL in/out engine. The Roth cashflow layer i
 - Reporting and artifacts:
   - `results.json` contains discovery and overlay sections
   - `report.md` shows marker-alignment diagnostics and champion overlay metrics
-  - generated Pine exposes `risk_state` without embedding account-specific contribution logic
+  - the emitted `signal_series.json` exposes `risk_state` without embedding account-specific contribution logic
 - Governance:
   - spirit-guide and charter appendix describe the marker prior and Roth overlay consistently
   - validation gates remain about core strategy robustness, not account cashflow

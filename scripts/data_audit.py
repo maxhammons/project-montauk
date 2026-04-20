@@ -14,13 +14,13 @@ import os
 import sys
 import numpy as np
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 # Add scripts dir to path
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, SCRIPT_DIR)
 
-from data import _fetch_ticker_yahoo, fetch_vix, load_csv
+from data import _fetch_ticker_yahoo
 
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 TS_DIR = os.path.join(PROJECT_ROOT, "data")
@@ -49,6 +49,100 @@ def fetch_fred_series(series_id: str, start: str = "1998-01-01") -> pd.DataFrame
     except Exception as e:
         print(f"[FRED] Failed to fetch {series_id}: {e}")
         return pd.DataFrame(columns=["date", "value"])
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Phase 3e — Synthetic formula re-verification (constants)
+# ─────────────────────────────────────────────────────────────────────
+#
+# Every synthetic row in TECL.csv / TQQQ.csv is built as a first-order
+# leveraged-IOPV approximation:
+#
+#     synth_close[i] = synth_close[i-1] * (1 + 3*src_daily_ret - daily_expense)
+#
+# where:
+#     daily_expense = expense_ratio_yr / 252
+#
+# Expense ratios (verified against issuer prospectuses):
+#     TECL: 0.95%/yr  (ProShares 2024 prospectus)  → 0.0095/252
+#     TQQQ: 0.75%/yr  (ProShares prospectus)        → 0.0075/252
+#
+# Underlying sources:
+#     TECL  pre-1998-12-22:  ^SP500-45 (S&P 500 Information Technology Sector index)
+#     TECL  1998-12-22 → 2008-12-16:  XLK (Technology Select Sector SPDR ETF)
+#     TECL  2008-12-17 →:    real Yahoo TECL bars
+#     TQQQ  pre-2010-02-11:  QQQ (Yahoo Finance — pre-1999 backfilled by Yahoo)
+#     TQQQ  2010-02-11 →:    real Yahoo TQQQ bars
+#
+# Leverage decay is modeled IMPLICITLY via daily compounding (a real
+# leveraged ETF rebalances daily; this is the same mechanism). It is not
+# a separate term in the formula. The decay is regime-dependent — shown
+# as a diagnostic in Phase 4 viz, not penalized in fitness.
+#
+# Re-verification: scripts/data_rebuild_synthetic.py rebuilds from these
+# sources deterministically. data_quality.py asserts current CSV matches
+# the rebuild row-by-row.
+
+EXPENSE_RATIO_TECL = 0.0095   # /yr — ProShares 2024 prospectus
+EXPENSE_RATIO_TQQQ = 0.0075   # /yr — ProShares prospectus
+TRADING_DAYS_PER_YEAR = 252
+
+
+def reverify_formula() -> dict:
+    """
+    Phase 3e: re-verify the synthetic formula against the source CSVs.
+    Returns per-ticker {mean_abs_err, max_abs_err, n} on the daily-return
+    residual. This is independent of data_rebuild_synthetic.py — it
+    audits the *returns* row-by-row, while the rebuild audits the *bytes*.
+    """
+    out = {}
+    # TECL — verified per-segment so we audit each underlying source separately.
+    tecl_path = os.path.join(TS_DIR, "TECL.csv")
+    if os.path.exists(tecl_path):
+        tecl = pd.read_csv(tecl_path, parse_dates=["date"])
+        tecl["date"] = tecl["date"].dt.normalize()
+        # Segment 0: ^SP500-45
+        sp_path = os.path.join(TS_DIR, "SP500-45.csv")
+        if os.path.exists(sp_path):
+            src = pd.read_csv(sp_path, parse_dates=["date"])
+            src["date"] = src["date"].dt.normalize()
+            seg = tecl[tecl["date"] < pd.Timestamp("1998-12-22")]
+            m = seg.merge(src[["date", "close"]].rename(columns={"close": "src_close"}), on="date", how="inner")
+            m["src_ret"] = m["src_close"].pct_change()
+            m["tecl_ret"] = m["close"].pct_change()
+            expected = 3 * m["src_ret"] - EXPENSE_RATIO_TECL / TRADING_DAYS_PER_YEAR
+            diff = (m["tecl_ret"] - expected).dropna()
+            out["TECL_seg0_SP500-45"] = {"n": len(diff), "mean_abs_err": float(diff.abs().mean()), "max_abs_err": float(diff.abs().max())}
+        # Segment 1: XLK
+        xlk_path = os.path.join(TS_DIR, "XLK.csv")
+        if os.path.exists(xlk_path):
+            src = pd.read_csv(xlk_path, parse_dates=["date"])
+            src["date"] = src["date"].dt.normalize()
+            seg = tecl[(tecl["date"] >= pd.Timestamp("1998-12-22")) & (tecl["date"] < pd.Timestamp("2008-12-17"))]
+            m = seg.merge(src[["date", "close"]].rename(columns={"close": "src_close"}), on="date", how="inner")
+            m["src_ret"] = m["src_close"].pct_change()
+            m["tecl_ret"] = m["close"].pct_change()
+            expected = 3 * m["src_ret"] - EXPENSE_RATIO_TECL / TRADING_DAYS_PER_YEAR
+            diff = (m["tecl_ret"] - expected).dropna()
+            out["TECL_seg1_XLK"] = {"n": len(diff), "mean_abs_err": float(diff.abs().mean()), "max_abs_err": float(diff.abs().max())}
+
+    # TQQQ — single segment vs QQQ.
+    tqqq_path = os.path.join(TS_DIR, "TQQQ.csv")
+    qqq_path = os.path.join(TS_DIR, "QQQ.csv")
+    if os.path.exists(tqqq_path) and os.path.exists(qqq_path):
+        tqqq = pd.read_csv(tqqq_path, parse_dates=["date"])
+        tqqq["date"] = tqqq["date"].dt.normalize()
+        qqq = pd.read_csv(qqq_path, parse_dates=["date"])
+        qqq["date"] = qqq["date"].dt.normalize()
+        seg = tqqq[tqqq["date"] < pd.Timestamp("2010-02-11")]
+        m = seg.merge(qqq[["date", "close"]].rename(columns={"close": "src_close"}), on="date", how="inner")
+        m["src_ret"] = m["src_close"].pct_change()
+        m["tqqq_ret"] = m["close"].pct_change()
+        expected = 3 * m["src_ret"] - EXPENSE_RATIO_TQQQ / TRADING_DAYS_PER_YEAR
+        diff = (m["tqqq_ret"] - expected).dropna()
+        out["TQQQ_seg0_QQQ"] = {"n": len(diff), "mean_abs_err": float(diff.abs().mean()), "max_abs_err": float(diff.abs().max())}
+
+    return out
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -116,7 +210,7 @@ def audit_synthetic_tecl():
     # Compare (skip first bar which has no return)
     diff = tecl_ret[1:] - expected_ret[1:]
 
-    print(f"\n  --- Return comparison (synthetic TECL vs 3x XLK - expense) ---")
+    print("\n  --- Return comparison (synthetic TECL vs 3x XLK - expense) ---")
     print(f"  Mean absolute error:   {np.mean(np.abs(diff)):.8f}")
     print(f"  Max absolute error:    {np.max(np.abs(diff)):.8f}")
     print(f"  Std of errors:         {np.std(diff):.8f}")
@@ -131,7 +225,7 @@ def audit_synthetic_tecl():
             d = merged.iloc[bar_idx]["date"]
             print(f"    {d.date()}: TECL ret={tecl_ret[bar_idx]:.4f}, expected={expected_ret[bar_idx]:.4f}, diff={diff[idx]:.4f}")
     else:
-        print(f"\n  PASS: No bars with >1% return discrepancy")
+        print("\n  PASS: No bars with >1% return discrepancy")
 
     # Also check the stitch point — does the synthetic end match the real start?
     if len(synth) > 0 and len(real) > 0:
@@ -139,17 +233,17 @@ def audit_synthetic_tecl():
         first_real = real.iloc[0]
         gap_days = (first_real["date"] - last_synth["date"]).days
         price_gap = abs(first_real["close"] - last_synth["close"]) / last_synth["close"] * 100
-        print(f"\n  --- Stitch point ---")
+        print("\n  --- Stitch point ---")
         print(f"  Last synthetic: {last_synth['date'].date()} close=${last_synth['close']:.2f}")
         print(f"  First real:     {first_real['date'].date()} close=${first_real['close']:.2f}")
         print(f"  Gap: {gap_days} calendar days, {price_gap:.2f}% price difference")
         if price_gap > 5:
             print(f"  WARNING: Large price gap at stitch point ({price_gap:.1f}%)")
         else:
-            print(f"  PASS: Stitch point looks clean")
+            print("  PASS: Stitch point looks clean")
 
     # Check for suspicious values
-    print(f"\n  --- Data quality checks ---")
+    print("\n  --- Data quality checks ---")
     zero_close = (synth["close"] <= 0).sum()
     nan_close = synth["close"].isna().sum()
     zero_vol = (synth["volume"] <= 0).sum()
@@ -166,9 +260,9 @@ def audit_synthetic_tecl():
     print(f"  Low > Close:          {bad_lc}")
 
     if zero_close == 0 and nan_close == 0 and bad_hl == 0:
-        print(f"\n  PASS: Synthetic data quality checks all clean")
+        print("\n  PASS: Synthetic data quality checks all clean")
     else:
-        print(f"\n  WARNING: Data quality issues found above")
+        print("\n  WARNING: Data quality issues found above")
 
     return merged
 
@@ -329,7 +423,7 @@ def build_master_csv():
         print(f"  VIX merged: {matched}/{len(master)} dates matched")
     else:
         master["vix_close"] = np.nan
-        print(f"  VIX: file not found, filled NaN")
+        print("  VIX: file not found, filled NaN")
 
     # Merge XLK close
     xlk_path = os.path.join(TS_DIR, "XLK.csv")
@@ -341,7 +435,7 @@ def build_master_csv():
         print(f"  XLK merged: {matched}/{len(master)} dates matched")
     else:
         master["xlk_close"] = np.nan
-        print(f"  XLK: file not found, filled NaN")
+        print("  XLK: file not found, filled NaN")
 
     # Merge yield spread (FRED data is daily but not every trading day)
     spread_path = os.path.join(TS_DIR, "treasury-spread-10y2y.csv")
@@ -354,7 +448,7 @@ def build_master_csv():
         print(f"  Yield spread merged: {matched}/{len(master)} dates (ffill)")
     else:
         master["yield_spread_10y2y"] = np.nan
-        print(f"  Yield spread: file not found, filled NaN")
+        print("  Yield spread: file not found, filled NaN")
 
     # Merge Fed Funds
     ff_path = os.path.join(TS_DIR, "fed-funds-rate.csv")
@@ -366,7 +460,7 @@ def build_master_csv():
         print(f"  Fed Funds merged: {matched}/{len(master)} dates (ffill)")
     else:
         master["fed_funds_rate"] = np.nan
-        print(f"  Fed Funds: file not found, filled NaN")
+        print("  Fed Funds: file not found, filled NaN")
 
     # Add computed columns
     # TECL daily return

@@ -19,8 +19,8 @@ _SCRIPTS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, _SCRIPTS_DIR)
 
 from data import get_tecl_data
-from strategy_engine import Indicators, backtest, BacktestResult
-from strategies import STRATEGY_REGISTRY, STRATEGY_PARAMS
+from strategy_engine import Indicators, backtest
+from strategies import STRATEGY_REGISTRY
 from backtest_engine import score_regime_capture
 
 
@@ -108,7 +108,7 @@ def run_eval(df: pd.DataFrame, strategy_fn, params: dict, name: str) -> dict:
                           cooldown_bars=cooldown, strategy_name=name)
     except Exception as e:
         return {"error": str(e), "regime_score": 0, "mar": 0, "cagr": 0,
-                "max_dd": 0, "trades": 0, "vs_bah": 0}
+                "max_dd": 0, "trades": 0, "share_multiple": 0}
 
     # Regime scoring
     cl = df["close"].values.astype(np.float64)
@@ -131,7 +131,7 @@ def run_eval(df: pd.DataFrame, strategy_fn, params: dict, name: str) -> dict:
         "cagr": round(result.cagr_pct, 1),
         "max_dd": round(result.max_drawdown_pct, 1),
         "trades": result.num_trades,
-        "vs_bah": round(result.vs_bah_multiple, 3),
+        "share_multiple": round(result.share_multiple, 3),
         "win_rate": round(result.win_rate_pct, 1),
     }
 
@@ -236,9 +236,9 @@ def analyze_walk_forward(
         train_regime = float(train_r.get("regime_score", 0.0))
         test_regime = float(test_r.get("regime_score", 0.0))
         regime_ratio = test_regime / train_regime if train_regime > 0 else 0.0
-        train_vs_bah = float(train_r.get("vs_bah", 0.0))
-        test_vs_bah = float(test_r.get("vs_bah", 0.0))
-        vs_bah_ratio = test_vs_bah / train_vs_bah if train_vs_bah > 0 else 0.0
+        train_share = float(train_r.get("share_multiple", 0.0))
+        test_share = float(test_r.get("share_multiple", 0.0))
+        share_multiple_ratio = test_share / train_share if train_share > 0 else 0.0
         windows.append(
             {
                 "label": label,
@@ -246,7 +246,7 @@ def analyze_walk_forward(
                 "test": test_r,
                 "oos_is_ratio": round(regime_ratio, 4),
                 "oos_is_metric": "regime_score",
-                "vs_bah_ratio": round(vs_bah_ratio, 4),
+                "share_multiple_ratio": round(share_multiple_ratio, 4),
             }
         )
         if test_r.get("trades", 0) == 0:
@@ -314,18 +314,18 @@ def analyze_named_windows(
         results.append({"window": window_name, **metrics})
         if metrics.get("error"):
             hard_fail_reasons.append(f"{window_name}: {metrics['error']}")
-        elif metrics.get("vs_bah", 0) <= 0:
-            # vs_bah <= 0 means the backtest itself broke, not just zero trades
+        elif metrics.get("share_multiple", 0) <= 0:
+            # share_multiple <= 0 means the backtest itself broke, not just zero trades
             hard_fail_reasons.append(
-                f"{window_name}: trades={metrics.get('trades', 0)} vs_bah={metrics.get('vs_bah', 0):.3f}"
+                f"{window_name}: trades={metrics.get('trades', 0)} share_multiple={metrics.get('share_multiple', 0):.3f}"
             )
         elif metrics.get("trades", 0) == 0:
             # Strategy chose to sit out — conscious decision, not breakage
             soft_warnings.append(
-                f"{window_name}: zero trades (sat out, vs_bah={metrics.get('vs_bah', 0):.3f})"
+                f"{window_name}: zero trades (sat out, share_multiple={metrics.get('share_multiple', 0):.3f})"
             )
-        elif metrics.get("vs_bah", 0) < 0.6:
-            soft_warnings.append(f"{window_name}: vs_bah={metrics['vs_bah']:.3f}")
+        elif metrics.get("share_multiple", 0) < 0.6:
+            soft_warnings.append(f"{window_name}: share_multiple={metrics['share_multiple']:.3f}")
 
     warnings = soft_warnings + critical_warnings
     verdict = "FAIL" if hard_fail_reasons else "WARN" if warnings else "PASS"
@@ -465,7 +465,7 @@ def check_stability(df: pd.DataFrame, strategy_fn, params: dict, name: str,
 # ─────────────────────────────────────────────────────────────────────────────
 
 def validate(strategy_name: str, params: dict, do_stability: bool = True):
-    print(f"Loading TECL data...")
+    print("Loading TECL data...")
     df = get_tecl_data(use_yfinance=False)
     print(f"  {len(df)} bars, {df['date'].iloc[0]} to {df['date'].iloc[-1]}")
 
@@ -481,7 +481,7 @@ def validate(strategy_name: str, params: dict, do_stability: bool = True):
 
     # ── Walk-forward ──
     print(f"\n{'='*70}")
-    print(f"WALK-FORWARD SPLITS")
+    print("WALK-FORWARD SPLITS")
     print(f"{'='*70}")
     splits = split_walk_forward(df)
     wf_scores = []
@@ -498,29 +498,29 @@ def validate(strategy_name: str, params: dict, do_stability: bool = True):
 
     # ── Named windows ──
     print(f"\n{'='*70}")
-    print(f"NAMED STRESS WINDOWS")
+    print("NAMED STRESS WINDOWS")
     print(f"{'='*70}")
     named = split_named_windows(df)
     for wname, wdf in named:
         r = run_eval(wdf, strategy_fn, params, strategy_name)
         print(f"\n  {wname}:")
-        print(f"    regime={r['regime_score']:.4f}  MAR={r['mar']:.3f}  CAGR={r['cagr']:.1f}%  DD={r['max_dd']:.1f}%  trades={r['trades']}  vs_bah={r['vs_bah']:.3f}")
+        print(f"    regime={r['regime_score']:.4f}  MAR={r['mar']:.3f}  CAGR={r['cagr']:.1f}%  DD={r['max_dd']:.1f}%  trades={r['trades']}  share_multiple={r['share_multiple']:.3f}")
 
     # ── Stability ──
     if do_stability:
         print(f"\n{'='*70}")
-        print(f"PARAMETER STABILITY (±10% perturbation)")
+        print("PARAMETER STABILITY (±10% perturbation)")
         print(f"{'='*70}")
         score, unstable = check_stability(df, strategy_fn, params, strategy_name)
         print(f"  Stability score: {score:.2f} (1.0 = all params stable)")
         if unstable:
             print(f"  Unstable params: {', '.join(unstable)}")
         else:
-            print(f"  All parameters stable ✓")
+            print("  All parameters stable ✓")
 
     # ── Verdict ──
     print(f"\n{'='*70}")
-    print(f"VERDICT")
+    print("VERDICT")
     print(f"{'='*70}")
     avg_wf = np.mean(wf_scores) if wf_scores else 0
     min_wf = min(wf_scores) if wf_scores else 0
@@ -542,11 +542,11 @@ def validate(strategy_name: str, params: dict, do_stability: bool = True):
         issues.append(f"Parameter stability = {score:.2f} → fragile, small changes cause big swings")
 
     if issues:
-        print(f"\n  ❌ CONCERNS:")
+        print("\n  ❌ CONCERNS:")
         for issue in issues:
             print(f"     • {issue}")
     else:
-        print(f"\n  ✅ No major red flags detected")
+        print("\n  ✅ No major red flags detected")
 
 
 if __name__ == "__main__":

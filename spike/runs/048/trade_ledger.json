@@ -1,0 +1,200 @@
+[
+  {
+    "entry_bar": 317,
+    "entry_date": "1994-08-04",
+    "entry_price": 1.194204,
+    "exit_bar": 1861,
+    "exit_date": "2000-09-14",
+    "exit_price": 149.786901,
+    "exit_reason": "D",
+    "pnl_pct": 12442.822429,
+    "bars_held": 1544
+  },
+  {
+    "entry_bar": 2605,
+    "entry_date": "2003-09-04",
+    "entry_price": 1.545268,
+    "exit_bar": 2818,
+    "exit_date": "2004-07-12",
+    "exit_price": 1.479525,
+    "exit_reason": "D",
+    "pnl_pct": -4.254473,
+    "bars_held": 213
+  },
+  {
+    "entry_bar": 2898,
+    "entry_date": "2004-11-02",
+    "entry_price": 1.55686,
+    "exit_bar": 2982,
+    "exit_date": "2005-03-04",
+    "exit_price": 1.515585,
+    "exit_reason": "D",
+    "pnl_pct": -2.651153,
+    "bars_held": 84
+  },
+  {
+    "entry_bar": 3039,
+    "entry_date": "2005-05-25",
+    "entry_price": 1.489451,
+    "exit_bar": 3302,
+    "exit_date": "2006-06-12",
+    "exit_price": 1.292737,
+    "exit_reason": "D",
+    "pnl_pct": -13.207166,
+    "bars_held": 263
+  },
+  {
+    "entry_bar": 3360,
+    "entry_date": "2006-09-01",
+    "entry_price": 1.630895,
+    "exit_bar": 3712,
+    "exit_date": "2008-01-29",
+    "exit_price": 1.848463,
+    "exit_reason": "D",
+    "pnl_pct": 13.340364,
+    "bars_held": 352
+  },
+  {
+    "entry_bar": 3789,
+    "entry_date": "2008-05-19",
+    "entry_price": 2.343084,
+    "exit_bar": 3805,
+    "exit_date": "2008-06-11",
+    "exit_price": 1.912756,
+    "exit_reason": "D",
+    "pnl_pct": -18.36586,
+    "bars_held": 16
+  },
+  {
+    "entry_bar": 4084,
+    "entry_date": "2009-07-21",
+    "entry_price": 0.68034,
+    "exit_bar": 4324,
+    "exit_date": "2010-07-02",
+    "exit_price": 0.609695,
+    "exit_reason": "D",
+    "pnl_pct": -10.383779,
+    "bars_held": 240
+  },
+  {
+    "entry_bar": 4381,
+    "entry_date": "2010-09-23",
+    "entry_price": 0.810405,
+    "exit_bar": 4608,
+    "exit_date": "2011-08-17",
+    "exit_price": 0.85957,
+    "exit_reason": "D",
+    "pnl_pct": 6.06672,
+    "bars_held": 227
+  },
+  {
+    "entry_bar": 4651,
+    "entry_date": "2011-10-18",
+    "entry_price": 1.030515,
+    "exit_bar": 4674,
+    "exit_date": "2011-11-18",
+    "exit_price": 0.929535,
+    "exit_reason": "D",
+    "pnl_pct": -9.798984,
+    "bars_held": 23
+  },
+  {
+    "entry_bar": 4709,
+    "entry_date": "2012-01-11",
+    "entry_price": 1.010505,
+    "exit_bar": 4943,
+    "exit_date": "2012-12-17",
+    "exit_price": 1.209395,
+    "exit_reason": "D",
+    "pnl_pct": 19.682238,
+    "bars_held": 234
+  },
+  {
+    "entry_bar": 4956,
+    "entry_date": "2013-01-07",
+    "entry_price": 1.28064,
+    "exit_bar": 4962,
+    "exit_date": "2013-01-15",
+    "exit_price": 1.249375,
+    "exit_reason": "D",
+    "pnl_pct": -2.441357,
+    "bars_held": 6
+  },
+  {
+    "entry_bar": 4978,
+    "entry_date": "2013-02-07",
+    "entry_price": 1.30065,
+    "exit_bar": 5635,
+    "exit_date": "2015-09-17",
+    "exit_price": 3.13843,
+    "exit_reason": "D",
+    "pnl_pct": 141.297044,
+    "bars_held": 657
+  },
+  {
+    "entry_bar": 5658,
+    "entry_date": "2015-10-20",
+    "entry_price": 3.46173,
+    "exit_bar": 5722,
+    "exit_date": "2016-01-22",
+    "exit_price": 2.9985,
+    "exit_reason": "D",
+    "pnl_pct": -13.38146,
+    "bars_held": 64
+  },
+  {
+    "entry_bar": 5752,
+    "entry_date": "2016-03-07",
+    "entry_price": 3.34167,
+    "exit_bar": 6448,
+    "exit_date": "2018-12-10",
+    "exit_price": 10.144925,
+    "exit_reason": "D",
+    "pnl_pct": 203.588475,
+    "bars_held": 696
+  },
+  {
+    "entry_bar": 6500,
+    "entry_date": "2019-02-26",
+    "entry_price": 12.396195,
+    "exit_bar": 6786,
+    "exit_date": "2020-04-15",
+    "exit_price": 14.21289,
+    "exit_reason": "D",
+    "pnl_pct": 14.655263,
+    "bars_held": 286
+  },
+  {
+    "entry_bar": 6813,
+    "entry_date": "2020-05-22",
+    "entry_price": 18.679335,
+    "exit_bar": 7291,
+    "exit_date": "2022-04-14",
+    "exit_price": 47.566205,
+    "exit_reason": "D",
+    "pnl_pct": 154.646137,
+    "bars_held": 478
+  },
+  {
+    "entry_bar": 7525,
+    "entry_date": "2023-03-22",
+    "entry_price": 31.95597,
+    "exit_bar": 8026,
+    "exit_date": "2025-03-21",
+    "exit_price": 65.3673,
+    "exit_reason": "D",
+    "pnl_pct": 104.554266,
+    "bars_held": 501
+  },
+  {
+    "entry_bar": 8066,
+    "entry_date": "2025-05-19",
+    "entry_price": 75.687825,
+    "exit_bar": 8293,
+    "exit_date": "2026-04-15",
+    "exit_price": 123.599998,
+    "exit_reason": "End of Data",
+    "pnl_pct": 63.302352,
+    "bars_held": 227
+  }
+]

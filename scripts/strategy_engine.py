@@ -18,7 +18,9 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
+from typing import Optional
+import warnings
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -504,7 +506,9 @@ class Indicators:
 
 def _adx(hi, lo, cl, period):
     di_p, di_m = _dmi(hi, lo, cl, period)
-    dx = np.where((di_p + di_m) > 0, 100.0 * np.abs(di_p - di_m) / (di_p + di_m), np.nan)
+    den = di_p + di_m
+    dx = np.full_like(den, np.nan, dtype=np.float64)
+    np.divide(100.0 * np.abs(di_p - di_m), den, out=dx, where=den > 0)
     return _rma(np.nan_to_num(dx, nan=0.0), period)
 
 def _dmi(hi, lo, cl, period):
@@ -557,27 +561,92 @@ class BacktestResult:
     trades_per_year: float = 0.0
     avg_bars_held: float = 0.0
     win_rate_pct: float = 0.0
-    # share_multiple = terminal strategy equity / terminal B&H equity.
-    # Math identity: this equals (strategy_shares_equiv / bah_shares) when
-    # strategy equity is marked-to-market to TECL shares. So it IS the
-    # share-count multiplier vs B&H, which is the charter's primary metric.
-    # `vs_bah_multiple` is kept as a legacy alias.
-    vs_bah_multiple: float = 0.0
+    # Charter primary metric: share-count multiplier vs B&H.
+    # Math identity: terminal strategy equity / terminal B&H equity equals
+    # strategy_shares_equiv / bah_shares when equity is marked-to-market to
+    # TECL shares — i.e., the share-count multiplier itself.
+    share_multiple: float = 0.0
     bah_start_date: str = ""
     exit_reasons: dict = field(default_factory=dict)
     strategy_name: str = ""
-    regime_score: object = None  # RegimeScore from backtest_engine, attached by evolve.py
-    params: dict = field(default_factory=dict)  # strategy params, attached by evolve.py
+    regime_score: object = None  # RegimeScore (from backtest_engine), attached by evolve.py / run_montauk_821
+    params: dict = field(default_factory=dict)  # strategy params, attached by evolve.py / run_montauk_821
+    # ── Fields populated by `run_montauk_821` (canonical 8.2.1 path) ──
+    # `backtest()` (the entries/exits-array path) leaves these at their defaults.
+    false_signal_rate_pct: float = 0.0   # % of trades held < 10 bars (noise trades)
+    worst_10_bar_loss_pct: float = 0.0
+    bah_return_pct: float = 0.0          # passive return over the same window
+    bah_final_equity: float = 0.0        # $initial_capital just holding the asset
+    # Provenance: how many trades opened on synthetic vs real bars.
+    # Populated when the input df has the `is_synthetic` column (see data/manifest.json).
+    # If the column is absent (e.g. raw OHLCV with no provenance), both stay at 0.
+    synthetic_trades: int = 0
+    real_trades: int = 0
 
     @property
-    def share_multiple(self) -> float:
-        """Primary metric per charter: share-count multiplier vs B&H.
+    def vs_bah_multiple(self) -> float:
+        """Deprecated compatibility alias for pre-Phase-7 callers."""
+        warnings.warn(
+            "BacktestResult.vs_bah_multiple is deprecated; use share_multiple.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.share_multiple
 
-        Mathematically equal to `vs_bah_multiple` — see field comment.
-        Prefer this name going forward; `vs_bah_multiple` remains for
-        back-compat with cached data and older call sites.
-        """
-        return self.vs_bah_multiple
+    def summary_str(self) -> str:
+        lines = [
+            f"Total Return:    {self.total_return_pct:>8.1f}%",
+            f"CAGR:            {self.cagr_pct:>8.2f}%",
+            f"Max Drawdown:    {self.max_drawdown_pct:>8.1f}%",
+            f"MAR Ratio:       {self.mar_ratio:>8.2f}",
+            f"Exposure:        {self.exposure_pct:>8.1f}%",
+            f"Trades:          {self.num_trades:>8d}",
+            f"Trades/Year:     {self.trades_per_year:>8.1f}",
+            f"Avg Bars Held:   {self.avg_bars_held:>8.1f}",
+            f"Win Rate:        {self.win_rate_pct:>8.1f}%",
+            f"False Signals:   {self.false_signal_rate_pct:>8.1f}%",
+            f"Worst 10-Bar:    {self.worst_10_bar_loss_pct:>8.1f}%",
+            f"Exit Reasons:    {self.exit_reasons}",
+        ]
+        if self.bah_start_date and self.bah_final_equity:
+            sign = "+" if self.share_multiple >= 1.0 else ""
+            alpha = (self.share_multiple - 1.0) * 100
+            initial = self.params.get("initial_capital", 1000.0) if self.params else 1000.0
+            lines.append(
+                f"vs Buy & Hold:   {sign}{alpha:.1f}%  "
+                f"(Strategy ${initial * (1 + self.total_return_pct/100):.0f}  "
+                f"B&H ${self.bah_final_equity:.0f}  from {self.bah_start_date})"
+            )
+        if self.synthetic_trades or self.real_trades:
+            lines.append(
+                f"Trade provenance: synthetic={self.synthetic_trades}  real={self.real_trades}"
+            )
+        if self.regime_score:
+            lines.append(self.regime_score.summary_str())
+        return "\n".join(lines)
+
+
+def _count_synthetic_real_trades(df: pd.DataFrame, trades: list) -> tuple[int, int]:
+    """Count trades that opened on synthetic vs real bars.
+
+    Uses the `is_synthetic` provenance column added by `data_rebuild_synthetic.py`
+    (see data/manifest.json). If the column is missing — e.g. raw OHLCV with no
+    provenance, or a downstream caller passing a stripped df — returns (0, 0)
+    so callers can detect the absence and fall back to "unknown".
+    """
+    if "is_synthetic" not in df.columns or not trades:
+        return (0, 0)
+    syn_col = df["is_synthetic"].values
+    n_syn = 0
+    n_real = 0
+    for t in trades:
+        bar = t.entry_bar
+        if 0 <= bar < len(syn_col):
+            if bool(syn_col[bar]):
+                n_syn += 1
+            else:
+                n_real += 1
+    return (n_syn, n_real)
 
 
 def backtest(df: pd.DataFrame,
@@ -689,15 +758,17 @@ def backtest(df: pd.DataFrame,
     wins = sum(1 for t in trades if t.pnl_pct > 0)
     win_rate = wins / len(trades) * 100 if trades else 0
 
-    # vs B&H
+    # Share-count multiplier vs buy-and-hold.
     bah_start = cl[0]
     bah_end = cl[-1]
     bah_equity = initial_capital * (bah_end / bah_start) if bah_start > 0 else initial_capital
-    vs_bah = equity_curve[-1] / bah_equity if bah_equity > 0 else 1.0
+    share_multiple = equity_curve[-1] / bah_equity if bah_equity > 0 else 1.0
 
     exit_reasons = {}
     for t in trades:
         exit_reasons[t.exit_reason] = exit_reasons.get(t.exit_reason, 0) + 1
+
+    n_syn, n_real = _count_synthetic_real_trades(df, trades)
 
     return BacktestResult(
         trades=trades, equity_curve=equity_curve,
@@ -710,8 +781,528 @@ def backtest(df: pd.DataFrame,
         trades_per_year=round(tpy, 1),
         avg_bars_held=round(avg_held, 0),
         win_rate_pct=round(win_rate, 1),
-        vs_bah_multiple=round(vs_bah, 4),
+        share_multiple=round(share_multiple, 4),
         bah_start_date=str(dates[0])[:10],
         exit_reasons=exit_reasons,
         strategy_name=strategy_name,
+        synthetic_trades=n_syn,
+        real_trades=n_real,
+    )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Canonical Montauk 8.2.1 execution path (Phase 7 consolidation)
+#
+# Ported from the retired `backtest_engine.run_backtest()` monolithic loop.
+# Uses this module's bug-fixed `_ema` / `_tema` / `_atr` / `_adx` so the chained
+# TEMA inside `enable_slope_filter` / `enable_below_filter` actually computes
+# (the old `backtest_engine.tema` returned all-NaN due to an SMA-seed-meets-NaN
+# bug — see the Phase 7 note in `Montauk 2.0 - Master Plan.md`).
+#
+# The 8.2.1 default param set keeps the TEMA filters OFF, so the regression
+# ledger (`tests/golden_trades_821.json`) is untouched by this port.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+@dataclass
+class StrategyParams:
+    """Canonical Montauk 8.2.1 strategy parameters.
+
+    Defaults match the production 8.2.1 strategy: EMA(15)/EMA(30) cross with
+    a 70-bar trend filter, ATR(40)×3 stop, Quick-EMA(15) momentum exit, and
+    a 2-bar EMA-cross sell-confirmation window.
+
+    All optional filter groups (TEMA gates, ATR-ratio, ADX, ROC, bear-guard,
+    asymmetric ATR, volume-spike) default to OFF — turn them on per-config.
+    """
+    # Group 1 — EMAs
+    short_ema_len: int = 15
+    med_ema_len: int = 30
+    long_ema_len: int = 500
+
+    # Group 2 — Trend Filter
+    enable_trend: bool = True
+    trend_ema_len: int = 70
+    slope_lookback: int = 10
+    min_trend_slope: float = 0.0
+
+    # Group 3 — TEMA Filters (entry gates)
+    enable_slope_filter: bool = False
+    enable_below_filter: bool = False
+    triple_ema_len: int = 200
+    triple_slope_lookback: int = 1
+
+    # Group 4 — Sideways Filter
+    enable_sideways_filter: bool = True
+    range_len: int = 60
+    max_range_pct: float = 30.0
+
+    # Group 5 — Sell Confirmation
+    enable_sell_confirm: bool = True
+    sell_confirm_bars: int = 2
+    sell_buffer_pct: float = 0.2
+
+    # Group 6 — Sell Cooldown
+    enable_sell_cooldown: bool = True
+    sell_cooldown_bars: int = 2
+
+    # Group 7 — ATR Exit
+    enable_atr_exit: bool = True
+    atr_period: int = 40
+    atr_multiplier: float = 3.0
+
+    # Group 8 — Quick EMA Exit
+    enable_quick_exit: bool = True
+    quick_ema_len: int = 15
+    quick_lookback_bars: int = 5
+    quick_delta_pct_thresh: float = -8.2
+
+    # Group 10 — Trailing Peak Stop (default OFF)
+    enable_trail_stop: bool = False
+    trail_drop_pct: float = 25.0
+
+    # Group 11 — TEMA Slope Exit (default OFF)
+    enable_tema_exit: bool = False
+    tema_exit_lookback: int = 5
+
+    # Group 12 — ATR Ratio Volatility Filter (default OFF)
+    enable_atr_ratio_filter: bool = False
+    atr_ratio_len: int = 100
+    atr_ratio_max: float = 2.0
+
+    # Group 13 — ADX Trend Strength Filter (default OFF)
+    enable_adx_filter: bool = False
+    adx_len: int = 14
+    adx_min: float = 20.0
+
+    # Group 14 — ROC Momentum Entry Filter (default OFF)
+    enable_roc_filter: bool = False
+    roc_len: int = 20
+
+    # Group 15 — Bear Depth Guard (default OFF)
+    # Block re-entry if equity is >X% below its recent peak
+    enable_bear_guard: bool = False
+    bear_guard_pct: float = 20.0
+    bear_guard_lookback: int = 60
+
+    # Group 16 — Asymmetric ATR Exit (default OFF)
+    # In high-vol environments, tighten exit multiplier
+    enable_asymmetric_exit: bool = False
+    asym_atr_ratio_threshold: float = 1.5  # trigger when atr_ratio > this
+    asym_exit_multiplier: float = 1.5       # tighter multiplier during high-vol
+
+    # Group 17 — Volume Spike Exit (default OFF)
+    enable_vol_exit: bool = False
+    vol_spike_len: int = 20    # EMA length for average volume
+    vol_spike_mult: float = 2.5  # exit if volume > mult × avg AND price down
+
+    # Capital
+    initial_capital: float = 1000.0
+    # Per-fill slippage, applied on BOTH entry and exit.
+    # 0.05 = 5 bps per fill (Phase 1c unification with `backtest()`).
+    slippage_pct: float = 0.05
+    # Deprecated: legacy `commission_pct × equity × 2` model was non-standard.
+    # Execution costs are modeled entirely via `slippage_pct`. Retained only
+    # for back-compat with older StrategyParams dicts; has no effect on fills.
+    commission_pct: float = 0.0
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "StrategyParams":
+        valid = {f.name for f in cls.__dataclass_fields__.values()}
+        return cls(**{k: v for k, v in d.items() if k in valid})
+
+
+def run_montauk_821(df: pd.DataFrame, params: StrategyParams | None = None,
+                    score_regimes: bool = True) -> BacktestResult:
+    """Run a full backtest of the canonical Montauk 8.2.1 strategy on OHLCV data.
+
+    This is the canonical execution path the regression ledger and the
+    integrity gate run against. It is a faithful bar-by-bar replica of the
+    8.2.1 logic, with `process_orders_on_close=True` semantics (signals and
+    fills happen on the same bar's close).
+
+    Parameters
+    ----------
+    df : DataFrame with columns: date, open, high, low, close, volume
+    params : StrategyParams (uses canonical 8.2.1 defaults if None)
+    score_regimes : if True, compute regime capture score (adds ~5ms)
+
+    Returns
+    -------
+    BacktestResult with trades, equity curve, summary metrics, regime_score,
+    and the `params` dict attached so reports can introspect the config.
+    """
+    # Local import — `backtest_engine` is a sibling module that retains only
+    # the regime-scoring helpers post-Phase-7. Importing at call time avoids
+    # a circular import if anything else in this module ever needs to be
+    # imported by `backtest_engine`.
+    from backtest_engine import score_regime_capture
+
+    if params is None:
+        params = StrategyParams()
+
+    dates = df["date"].values
+    op = df["open"].values.astype(np.float64)  # noqa: F841 — kept for symmetry / future use
+    hi = df["high"].values.astype(np.float64)
+    lo = df["low"].values.astype(np.float64)
+    cl = df["close"].values.astype(np.float64)
+    vol = df["volume"].values.astype(np.float64) if "volume" in df.columns else np.ones(len(cl))
+    n = len(cl)
+
+    # ── Pre-compute all indicators (using strategy_engine's NaN-safe variants) ──
+    ema_short = _ema(cl, params.short_ema_len)
+    ema_med = _ema(cl, params.med_ema_len)
+    ema_long = _ema(cl, params.long_ema_len)
+    ema_trend = _ema(cl, params.trend_ema_len)
+    quick_ema_arr = _ema(cl, params.quick_ema_len)
+    tema_vals = _tema(cl, params.triple_ema_len)
+    atr_vals = _atr(hi, lo, cl, params.atr_period)
+    atr_ema_vals = _ema(atr_vals, params.atr_ratio_len)  # long-term ATR average
+    adx_vals = _adx(hi, lo, cl, params.adx_len)
+    vol_ema_vals = _ema(vol, params.vol_spike_len)
+    high_vals = _highest(hi, params.range_len)
+    low_vals = _lowest(lo, params.range_len)
+    sma_vals = _sma(cl, params.range_len)
+
+    # ── Bar-by-bar simulation ──
+    equity = params.initial_capital
+    equity_curve = np.zeros(n)
+    position_size = 0  # 0 = flat, 1 = long
+    shares = 0.0
+    entry_price = 0.0
+    last_sell_bar = -9999
+    peak_since_entry = np.nan
+    trades: list[Trade] = []
+    current_trade: Optional[Trade] = None
+    bars_in_position = np.zeros(n)
+
+    # Minimum warmup: only the indicators required for the basic entry signal.
+    # Optional filters guard themselves with np.isnan() checks, so they don't
+    # need to hold back the whole engine. Matches the historical baseline.
+    warmup = max(params.short_ema_len, params.med_ema_len,
+                 params.trend_ema_len if params.enable_trend else 0,
+                 params.atr_period if params.enable_atr_exit else 0) + 5
+
+    for i in range(n):
+        equity_curve[i] = equity + (shares * cl[i] - shares * entry_price if position_size > 0 else 0)
+
+        if i < warmup:
+            continue
+
+        # Check for NaN indicators
+        if np.isnan(ema_short[i]) or np.isnan(ema_med[i]) or np.isnan(ema_long[i]):
+            continue
+
+        # ── Trend filter ──
+        slope_lb = params.slope_lookback
+        if i >= slope_lb and not np.isnan(ema_trend[i]) and not np.isnan(ema_trend[i - slope_lb]):
+            trend_slope = (ema_trend[i] - ema_trend[i - slope_lb]) / slope_lb
+        else:
+            trend_slope = 0.0
+        trend_ok = (not params.enable_trend) or (trend_slope > params.min_trend_slope)
+
+        # ── TEMA entry filters ──
+        t_lb = params.triple_slope_lookback
+        if i >= t_lb and not np.isnan(tema_vals[i]) and not np.isnan(tema_vals[i - t_lb]):
+            tema_slope = (tema_vals[i] - tema_vals[i - t_lb]) / t_lb
+        else:
+            tema_slope = 0.0
+        slope_ok = (not params.enable_slope_filter) or (tema_slope > 0)
+        above_ok = (not params.enable_below_filter) or (cl[i] > tema_vals[i] if not np.isnan(tema_vals[i]) else True)
+
+        # ── Sideways filter ──
+        if not np.isnan(high_vals[i]) and not np.isnan(low_vals[i]) and not np.isnan(sma_vals[i]) and sma_vals[i] > 0:
+            rng = high_vals[i] - low_vals[i]
+            rng_pct = rng / sma_vals[i] * 100
+        else:
+            rng_pct = 100.0  # Assume not sideways if data unavailable
+        sideways = rng_pct < params.max_range_pct
+        sideways_ok = (not params.enable_sideways_filter) or (not sideways)
+
+        # ── ATR ratio volatility filter ──
+        if (params.enable_atr_ratio_filter and
+                not np.isnan(atr_vals[i]) and not np.isnan(atr_ema_vals[i]) and
+                atr_ema_vals[i] > 0):
+            atr_ratio_ok = (atr_vals[i] / atr_ema_vals[i]) <= params.atr_ratio_max
+        else:
+            atr_ratio_ok = True
+
+        # ── ADX trend strength filter ──
+        if params.enable_adx_filter and not np.isnan(adx_vals[i]):
+            adx_ok = adx_vals[i] >= params.adx_min
+        else:
+            adx_ok = True
+
+        # ── ROC momentum entry filter ──
+        if params.enable_roc_filter and i >= params.roc_len and cl[i - params.roc_len] > 0:
+            roc_ok = cl[i] > cl[i - params.roc_len]
+        else:
+            roc_ok = True
+
+        # ── Bear depth guard ──
+        current_equity = equity + (shares * (cl[i] - entry_price) if position_size > 0 else 0)
+        equity_curve[i] = current_equity  # update for rolling peak
+        if params.enable_bear_guard:
+            lookback_start = max(0, i - params.bear_guard_lookback)
+            rolling_peak = np.max(equity_curve[lookback_start:i + 1])
+            bear_guard_ok = rolling_peak <= 0 or current_equity >= rolling_peak * (1 - params.bear_guard_pct / 100)
+        else:
+            bear_guard_ok = True
+
+        # ── Entry conditions ──
+        buy_zone = ema_short[i] > ema_med[i]
+        buy_ok = buy_zone and trend_ok and slope_ok and above_ok and sideways_ok and atr_ratio_ok and adx_ok and roc_ok and bear_guard_ok
+
+        # ── Exit 1: EMA Cross (8.2.1 logic: barssince(crossunder) < confirmBars) ──
+        recent_cross = False
+        if params.enable_sell_confirm:
+            for j in range(params.sell_confirm_bars):
+                idx = i - j
+                idx_prev = idx - 1
+                if idx_prev < 0:
+                    break
+                if (not np.isnan(ema_short[idx_prev]) and not np.isnan(ema_long[idx_prev]) and
+                        not np.isnan(ema_short[idx]) and not np.isnan(ema_long[idx])):
+                    if ema_short[idx_prev] >= ema_long[idx_prev] and ema_short[idx] < ema_long[idx]:
+                        recent_cross = True
+                        break
+        else:
+            # No confirmation window: require exact cross bar
+            if i >= 1 and not np.isnan(ema_short[i-1]) and not np.isnan(ema_long[i-1]):
+                recent_cross = (ema_short[i-1] >= ema_long[i-1]) and (ema_short[i] < ema_long[i])
+
+        buffer_ok = ema_short[i] < ema_long[i] * (1 - params.sell_buffer_pct / 100)
+        # Match Pine's allBelow: ta.lowest(emaShort < emaLong ? 1 : 0, sellConfirmBars) == 1
+        all_below = True
+        for j in range(params.sell_confirm_bars):
+            idx = i - j
+            if idx < 0 or np.isnan(ema_short[idx]) or np.isnan(ema_long[idx]):
+                all_below = False
+                break
+            if ema_short[idx] >= ema_long[idx]:
+                all_below = False
+                break
+        is_cross_exit = recent_cross and buffer_ok and all_below
+
+        # ── Exit 2: ATR Shock ──
+        is_atr_exit = False
+        if params.enable_atr_exit and i >= 1 and not np.isnan(atr_vals[i]):
+            eff_multiplier = params.atr_multiplier
+            if (params.enable_asymmetric_exit and
+                    not np.isnan(atr_ema_vals[i]) and atr_ema_vals[i] > 0 and
+                    atr_vals[i] / atr_ema_vals[i] > params.asym_atr_ratio_threshold):
+                eff_multiplier = params.asym_exit_multiplier
+            is_atr_exit = cl[i] < cl[i - 1] - atr_vals[i] * eff_multiplier
+
+        # ── Exit 3: Quick EMA ──
+        is_quick_exit = False
+        if params.enable_quick_exit and i >= params.quick_lookback_bars:
+            qe_now = quick_ema_arr[i]
+            qe_past = quick_ema_arr[i - params.quick_lookback_bars]
+            if not np.isnan(qe_now) and not np.isnan(qe_past) and qe_past != 0:
+                quick_delta_pct = 100.0 * (qe_now - qe_past) / qe_past
+                is_quick_exit = quick_delta_pct <= params.quick_delta_pct_thresh
+
+        # ── Exit 4: Trailing Peak Stop ──
+        is_trail_exit = False
+        if position_size > 0:
+            if np.isnan(peak_since_entry):
+                peak_since_entry = cl[i]
+            else:
+                peak_since_entry = max(peak_since_entry, cl[i])
+            if params.enable_trail_stop and not np.isnan(peak_since_entry):
+                is_trail_exit = cl[i] < peak_since_entry * (1 - params.trail_drop_pct / 100)
+
+        # ── Exit 5: TEMA Slope Exit ──
+        is_tema_exit = False
+        if params.enable_tema_exit and position_size > 0:
+            te_lb = params.tema_exit_lookback
+            if i >= te_lb and not np.isnan(tema_vals[i]) and not np.isnan(tema_vals[i - te_lb]):
+                tema_exit_slope = (tema_vals[i] - tema_vals[i - te_lb]) / te_lb
+                is_tema_exit = tema_exit_slope < 0
+
+        # ── Exit 6: Volume Spike Exit ──
+        is_vol_exit = False
+        if (params.enable_vol_exit and position_size > 0 and i >= 1 and
+                not np.isnan(vol_ema_vals[i]) and vol_ema_vals[i] > 0):
+            vol_spike = vol[i] > vol_ema_vals[i] * params.vol_spike_mult
+            price_down = cl[i] < cl[i - 1]
+            is_vol_exit = vol_spike and price_down
+
+        # ── Unified exit (sideways suppresses exits) ──
+        allow_exit = not (params.enable_sideways_filter and sideways)
+
+        if position_size > 0 and allow_exit:
+            exit_reason = ""
+            if is_cross_exit:
+                exit_reason = "EMA Cross"
+            elif is_atr_exit:
+                exit_reason = "ATR Exit"
+            elif is_quick_exit:
+                exit_reason = "Quick EMA"
+            elif is_trail_exit:
+                exit_reason = "Trail Stop"
+            elif is_tema_exit:
+                exit_reason = "TEMA Slope"
+            elif is_vol_exit:
+                exit_reason = "Vol Spike"
+
+            if exit_reason:
+                # process_orders_on_close=true: fill at this bar's close.
+                # Slippage: selling fills slightly below close (per-fill model).
+                exit_price = cl[i] * (1 - params.slippage_pct / 100)
+                pnl = shares * (exit_price - entry_price)
+                equity += pnl
+                position_size = 0
+                last_sell_bar = i
+                peak_since_entry = np.nan
+                shares = 0.0
+                if current_trade:
+                    current_trade.exit_bar = i
+                    current_trade.exit_date = str(dates[i])[:10]
+                    current_trade.exit_price = exit_price
+                    current_trade.exit_reason = exit_reason
+                    current_trade.pnl_pct = (exit_price / entry_price - 1) * 100
+                    current_trade.bars_held = i - current_trade.entry_bar
+                    trades.append(current_trade)
+                    current_trade = None
+                entry_price = 0.0
+
+        # ── Entry with cooldown ──
+        if position_size == 0:
+            can_enter = True
+            if params.enable_sell_cooldown:
+                if (i - last_sell_bar) <= params.sell_cooldown_bars:
+                    can_enter = False
+
+            if buy_ok and can_enter:
+                # process_orders_on_close=true: fill at this bar's close.
+                # Slippage: buying fills slightly above close (per-fill model).
+                entry_price = cl[i] * (1 + params.slippage_pct / 100)
+                shares = equity / entry_price
+                position_size = 1
+                peak_since_entry = np.nan
+                current_trade = Trade(
+                    entry_bar=i,
+                    entry_date=str(dates[i])[:10],
+                    entry_price=entry_price,
+                )
+
+        if position_size > 0:
+            bars_in_position[i] = 1
+
+        equity_curve[i] = equity + (shares * (cl[i] - entry_price) if position_size > 0 else 0)
+
+    # Close any open position at end
+    if position_size > 0 and current_trade:
+        exit_price = cl[-1]
+        pnl = shares * (exit_price - entry_price)
+        equity += pnl
+        current_trade.exit_bar = n - 1
+        current_trade.exit_date = str(dates[-1])[:10]
+        current_trade.exit_price = exit_price
+        current_trade.exit_reason = "End of Data"
+        current_trade.pnl_pct = (exit_price / entry_price - 1) * 100
+        current_trade.bars_held = (n - 1) - current_trade.entry_bar
+        trades.append(current_trade)
+        equity_curve[-1] = equity
+
+    # ── Compute summary metrics ──
+    trading_bars = n - warmup
+    total_return_pct = (equity_curve[-1] / params.initial_capital - 1) * 100
+
+    # CAGR — use actual date span, not truncated trading_bars
+    first_date = pd.Timestamp(dates[0])
+    last_date = pd.Timestamp(dates[-1])
+    years = (last_date - first_date).days / 365.25
+    if years > 0 and equity_curve[-1] > 0:
+        cagr = (equity_curve[-1] / params.initial_capital) ** (1 / years) - 1
+    else:
+        cagr = 0.0
+
+    # Max drawdown (post-warmup)
+    peak = np.maximum.accumulate(equity_curve[warmup:])
+    dd = (equity_curve[warmup:] - peak) / peak * 100
+    max_dd = abs(dd.min()) if len(dd) > 0 else 0.0
+
+    # MAR ratio
+    mar = (cagr * 100) / max_dd if max_dd > 0 else 0.0
+
+    # Exposure
+    exposure = np.sum(bars_in_position[warmup:]) / trading_bars * 100 if trading_bars > 0 else 0.0
+
+    # Trades per year
+    trades_per_year = len(trades) / years if years > 0 else 0.0
+
+    # Average bars held
+    avg_held = float(np.mean([t.bars_held for t in trades])) if trades else 0.0
+
+    # Win rate
+    wins = sum(1 for t in trades if t.pnl_pct > 0)
+    win_rate = wins / len(trades) * 100 if trades else 0.0
+
+    # False signal rate (trades held < 10 bars — noise, not regime)
+    false_signals = sum(1 for t in trades if t.bars_held < 10)
+    false_signal_rate = false_signals / len(trades) * 100 if trades else 0.0
+
+    # Worst 10-bar loss
+    worst_10 = 0.0
+    eq = equity_curve[warmup:]
+    if len(eq) > 10:
+        for i in range(10, len(eq)):
+            change = (eq[i] / eq[i - 10] - 1) * 100 if eq[i - 10] > 0 else 0.0
+            worst_10 = min(worst_10, change)
+
+    # Exit reason breakdown
+    exit_reasons: dict = {}
+    for t in trades:
+        exit_reasons[t.exit_reason] = exit_reasons.get(t.exit_reason, 0) + 1
+
+    # ── Regime scoring ──
+    regime_score = None
+    if score_regimes:
+        regime_score = score_regime_capture(trades, cl, dates)
+
+    # ── Buy-and-hold comparison (from start of data, matching the historical baseline) ──
+    bah_return_pct = 0.0
+    bah_final_equity = params.initial_capital
+    share_multiple = 1.0
+    bah_start_date = str(dates[0])[:10]
+    bah_start_price = cl[0]
+    bah_end_price = cl[-1]
+    if bah_start_price > 0:
+        bah_return_pct = (bah_end_price / bah_start_price - 1) * 100
+        bah_final_equity = params.initial_capital * (bah_end_price / bah_start_price)
+        if bah_final_equity > 0:
+            share_multiple = equity_curve[-1] / bah_final_equity
+
+    n_syn, n_real = _count_synthetic_real_trades(df, trades)
+
+    return BacktestResult(
+        trades=trades,
+        equity_curve=equity_curve,
+        total_return_pct=total_return_pct,
+        cagr_pct=cagr * 100,
+        max_drawdown_pct=max_dd,
+        mar_ratio=mar,
+        exposure_pct=exposure,
+        num_trades=len(trades),
+        trades_per_year=trades_per_year,
+        avg_bars_held=avg_held,
+        win_rate_pct=win_rate,
+        share_multiple=round(share_multiple, 3),
+        bah_start_date=bah_start_date,
+        exit_reasons=exit_reasons,
+        strategy_name="montauk_821",
+        regime_score=regime_score,
+        params=params.to_dict(),
+        false_signal_rate_pct=round(false_signal_rate, 1),
+        worst_10_bar_loss_pct=worst_10,
+        bah_return_pct=round(bah_return_pct, 2),
+        bah_final_equity=round(bah_final_equity, 2),
+        synthetic_trades=n_syn,
+        real_trades=n_real,
     )

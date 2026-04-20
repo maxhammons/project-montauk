@@ -17,12 +17,11 @@ import os
 import sys
 import numpy as np
 import pandas as pd
-from dataclasses import asdict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from strategy_engine import Indicators, backtest, Trade, BacktestResult
-from strategies import STRATEGY_REGISTRY, STRATEGY_PARAMS
+from strategy_engine import Indicators, backtest
+from strategies import STRATEGY_REGISTRY
 from regime_map import build_regime_map
 
 
@@ -50,7 +49,9 @@ def diagnose_strategy(
     strategy_fn = STRATEGY_REGISTRY[strategy_name]
     cooldown = params.get("cooldown", 0)
     entries, exits, labels = strategy_fn(ind, params)
-    result = backtest(df, entries, exits, labels, cooldown_bars=cooldown, strategy_name=strategy_name)
+    result = backtest(
+        df, entries, exits, labels, cooldown_bars=cooldown, strategy_name=strategy_name
+    )
 
     dates = df["date"].values
     close = df["close"].values.astype(np.float64)
@@ -60,38 +61,48 @@ def diagnose_strategy(
     bull_analysis = []
     for bi, bull in enumerate(regime_map["bulls"]):
         cycle_trades = _trades_in_range(trades, bull["start_idx"], bull["end_idx"])
-        gaps = _find_gaps(cycle_trades, bull["start_idx"], bull["end_idx"], dates, close)
+        gaps = _find_gaps(
+            cycle_trades, bull["start_idx"], bull["end_idx"], dates, close
+        )
 
         # How much of the bull move was captured
         bull_move = bull["move_pct"]
-        captured_pct = _compute_capture(cycle_trades, close, bull["start_idx"], bull["end_idx"])
+        captured_pct = _compute_capture(
+            cycle_trades, close, bull["start_idx"], bull["end_idx"]
+        )
 
-        bull_analysis.append({
-            "cycle": bull,
-            "cycle_num": bi + 1,
-            "trades": _serialize_trades(cycle_trades, dates, close),
-            "num_trades": len(cycle_trades),
-            "captured_pct": round(captured_pct, 1),
-            "bull_move_pct": round(bull_move, 1),
-            "gaps": gaps,
-            "total_gap_bars": sum(g["bars"] for g in gaps),
-        })
+        bull_analysis.append(
+            {
+                "cycle": bull,
+                "cycle_num": bi + 1,
+                "trades": _serialize_trades(cycle_trades, dates, close),
+                "num_trades": len(cycle_trades),
+                "captured_pct": round(captured_pct, 1),
+                "bull_move_pct": round(bull_move, 1),
+                "gaps": gaps,
+                "total_gap_bars": sum(g["bars"] for g in gaps),
+            }
+        )
 
     bear_analysis = []
     for bi, bear in enumerate(regime_map["bears"]):
         cycle_trades = _trades_in_range(trades, bear["start_idx"], bear["end_idx"])
 
         # How much of the bear was avoided
-        avoided_pct = _compute_avoidance(cycle_trades, close, bear["start_idx"], bear["end_idx"])
+        avoided_pct = _compute_avoidance(
+            cycle_trades, close, bear["start_idx"], bear["end_idx"]
+        )
 
-        bear_analysis.append({
-            "cycle": bear,
-            "cycle_num": bi + 1,
-            "trades": _serialize_trades(cycle_trades, dates, close),
-            "num_trades": len(cycle_trades),
-            "avoided_pct": round(avoided_pct, 1),
-            "bear_move_pct": round(bear["move_pct"], 1),
-        })
+        bear_analysis.append(
+            {
+                "cycle": bear,
+                "cycle_num": bi + 1,
+                "trades": _serialize_trades(cycle_trades, dates, close),
+                "num_trades": len(cycle_trades),
+                "avoided_pct": round(avoided_pct, 1),
+                "bear_move_pct": round(bear["move_pct"], 1),
+            }
+        )
 
     # Exit reason analysis: which exits fire in bulls vs bears
     exit_in_bulls = {}
@@ -109,14 +120,18 @@ def diagnose_strategy(
                 break
 
     # Identify bottleneck
-    avg_bull_capture = np.mean([b["captured_pct"] for b in bull_analysis]) if bull_analysis else 0
-    avg_bear_avoidance = np.mean([b["avoided_pct"] for b in bear_analysis]) if bear_analysis else 0
+    avg_bull_capture = (
+        np.mean([b["captured_pct"] for b in bull_analysis]) if bull_analysis else 0
+    )
+    avg_bear_avoidance = (
+        np.mean([b["avoided_pct"] for b in bear_analysis]) if bear_analysis else 0
+    )
 
     return {
         "strategy": strategy_name,
         "params": params,
         "summary": {
-            "vs_bah": round(result.vs_bah_multiple, 4),
+            "share_multiple": round(result.share_multiple, 4),
             "cagr": round(result.cagr_pct, 1),
             "max_dd": round(result.max_drawdown_pct, 1),
             "trades": result.num_trades,
@@ -130,7 +145,9 @@ def diagnose_strategy(
         "exit_in_bears": exit_in_bears,
         "avg_bull_capture": round(avg_bull_capture, 1),
         "avg_bear_avoidance": round(avg_bear_avoidance, 1),
-        "bottleneck": "bull_capture" if avg_bull_capture < avg_bear_avoidance else "bear_avoidance",
+        "bottleneck": "bull_capture"
+        if avg_bull_capture < avg_bear_avoidance
+        else "bear_avoidance",
     }
 
 
@@ -138,22 +155,28 @@ def format_diagnostics(diag: dict, top_n_cycles: int = 5) -> str:
     """Format cycle diagnostics as a readable string for Claude."""
     lines = []
     s = diag["summary"]
-    lines.append(f"CYCLE DIAGNOSTICS: {diag['strategy']} (vs B&H: {s['vs_bah']:.4f}x)")
+    lines.append(f"CYCLE DIAGNOSTICS: {diag['strategy']} (share_multiple: {s['share_multiple']:.4f}x)")
     lines.append("=" * 65)
-    lines.append(f"CAGR: {s['cagr']}% | MaxDD: {s['max_dd']}% | Trades: {s['trades']} ({s['trades_yr']}/yr)")
-    lines.append(f"Avg Bull Capture: {diag['avg_bull_capture']}% | Avg Bear Avoidance: {diag['avg_bear_avoidance']}%")
+    lines.append(
+        f"CAGR: {s['cagr']}% | MaxDD: {s['max_dd']}% | Trades: {s['trades']} ({s['trades_yr']}/yr)"
+    )
+    lines.append(
+        f"Avg Bull Capture: {diag['avg_bull_capture']}% | Avg Bear Avoidance: {diag['avg_bear_avoidance']}%"
+    )
     lines.append(f"Bottleneck: {diag['bottleneck'].upper()}\n")
 
     # Show worst bull cycles (lowest capture = biggest missed opportunities)
     bulls_sorted = sorted(diag["bull_cycles"], key=lambda x: x["captured_pct"])
-    lines.append(f"WORST BULL CYCLES (lowest capture):")
+    lines.append("WORST BULL CYCLES (lowest capture):")
     for b in bulls_sorted[:top_n_cycles]:
         c = b["cycle"]
         lines.append(
             f"  Bull #{b['cycle_num']}: {c['start_date']} → {c['end_date']}  "
             f"({c['move_pct']:+.0f}% move)"
         )
-        lines.append(f"    Captured: {b['captured_pct']}% | Trades: {b['num_trades']} | Gap bars: {b['total_gap_bars']}")
+        lines.append(
+            f"    Captured: {b['captured_pct']}% | Trades: {b['num_trades']} | Gap bars: {b['total_gap_bars']}"
+        )
 
         # Show gaps (periods out of market)
         for g in b["gaps"][:3]:
@@ -170,7 +193,7 @@ def format_diagnostics(diag: dict, top_n_cycles: int = 5) -> str:
 
     # Show best bear cycles (highest avoidance)
     bears_sorted = sorted(diag["bear_cycles"], key=lambda x: -x["avoided_pct"])
-    lines.append(f"\nBEST BEAR AVOIDANCE:")
+    lines.append("\nBEST BEAR AVOIDANCE:")
     for b in bears_sorted[:3]:
         c = b["cycle"]
         lines.append(
@@ -180,7 +203,7 @@ def format_diagnostics(diag: dict, top_n_cycles: int = 5) -> str:
 
     # Show worst bear cycles (lowest avoidance = got caught)
     bears_worst = sorted(diag["bear_cycles"], key=lambda x: x["avoided_pct"])
-    lines.append(f"\nWORST BEAR AVOIDANCE (got caught):")
+    lines.append("\nWORST BEAR AVOIDANCE (got caught):")
     for b in bears_worst[:3]:
         c = b["cycle"]
         lines.append(
@@ -189,8 +212,10 @@ def format_diagnostics(diag: dict, top_n_cycles: int = 5) -> str:
         )
 
     # Exit reason breakdown: bulls vs bears
-    lines.append(f"\nEXIT REASONS IN BULL vs BEAR CYCLES:")
-    all_reasons = set(list(diag["exit_in_bulls"].keys()) + list(diag["exit_in_bears"].keys()))
+    lines.append("\nEXIT REASONS IN BULL vs BEAR CYCLES:")
+    all_reasons = set(
+        list(diag["exit_in_bulls"].keys()) + list(diag["exit_in_bears"].keys())
+    )
     for reason in sorted(all_reasons):
         bull_count = diag["exit_in_bulls"].get(reason, 0)
         bear_count = diag["exit_in_bears"].get(reason, 0)
@@ -202,12 +227,15 @@ def format_diagnostics(diag: dict, top_n_cycles: int = 5) -> str:
                 f"({bull_pct:.0f}% during bulls)"
             )
             if bull_pct > 70:
-                lines.append(f"    ^ THIS EXIT FIRES MOSTLY DURING BULLS — likely hurting bull capture")
+                lines.append(
+                    "    ^ THIS EXIT FIRES MOSTLY DURING BULLS — likely hurting bull capture"
+                )
 
     return "\n".join(lines)
 
 
 # ─── Helpers ─────────────────────────────────────────────────────────
+
 
 def _trades_in_range(trades: list, start_idx: int, end_idx: int) -> list:
     """Find trades that overlap with a cycle [start_idx, end_idx]."""
@@ -219,15 +247,16 @@ def _trades_in_range(trades: list, start_idx: int, end_idx: int) -> list:
     return result
 
 
-def _find_gaps(trades: list, start_idx: int, end_idx: int,
-               dates: np.ndarray, close: np.ndarray) -> list[dict]:
+def _find_gaps(
+    trades: list, start_idx: int, end_idx: int, dates: np.ndarray, close: np.ndarray
+) -> list[dict]:
     """Find periods within [start_idx, end_idx] where no trade is active."""
     # Build a coverage array
     covered = np.zeros(end_idx - start_idx + 1, dtype=bool)
     for t in trades:
         t_start = max(t.entry_bar, start_idx) - start_idx
         t_end = min(t.exit_bar, end_idx) - start_idx
-        covered[t_start:t_end + 1] = True
+        covered[t_start : t_end + 1] = True
 
     gaps = []
     i = 0
@@ -247,21 +276,25 @@ def _find_gaps(trades: list, start_idx: int, end_idx: int,
                 end_price = float(close[abs_end])
                 missed = (end_price / start_price - 1) * 100 if start_price > 0 else 0
 
-                gaps.append({
-                    "start_idx": abs_start,
-                    "end_idx": abs_end,
-                    "start_date": str(dates[abs_start])[:10],
-                    "end_date": str(dates[abs_end])[:10],
-                    "bars": gap_bars,
-                    "missed_move_pct": round(missed, 1),
-                })
+                gaps.append(
+                    {
+                        "start_idx": abs_start,
+                        "end_idx": abs_end,
+                        "start_date": str(dates[abs_start])[:10],
+                        "end_date": str(dates[abs_end])[:10],
+                        "bars": gap_bars,
+                        "missed_move_pct": round(missed, 1),
+                    }
+                )
         else:
             i += 1
 
     return gaps
 
 
-def _compute_capture(trades: list, close: np.ndarray, start_idx: int, end_idx: int) -> float:
+def _compute_capture(
+    trades: list, close: np.ndarray, start_idx: int, end_idx: int
+) -> float:
     """Compute what % of a bull cycle's gains were captured by active trades."""
     if end_idx <= start_idx:
         return 0.0
@@ -280,7 +313,9 @@ def _compute_capture(trades: list, close: np.ndarray, start_idx: int, end_idx: i
     return (captured_move / total_bull_move) * 100
 
 
-def _compute_avoidance(trades: list, close: np.ndarray, start_idx: int, end_idx: int) -> float:
+def _compute_avoidance(
+    trades: list, close: np.ndarray, start_idx: int, end_idx: int
+) -> float:
     """Compute what % of a bear cycle's losses were avoided."""
     if end_idx <= start_idx:
         return 100.0
@@ -306,15 +341,17 @@ def _serialize_trades(trades: list, dates: np.ndarray, close: np.ndarray) -> lis
     """Convert Trade objects to serializable dicts."""
     result = []
     for t in trades:
-        result.append({
-            "entry_date": t.entry_date,
-            "exit_date": t.exit_date,
-            "entry_bar": t.entry_bar,
-            "exit_bar": t.exit_bar,
-            "pnl_pct": round(t.pnl_pct, 1),
-            "exit_reason": t.exit_reason,
-            "bars_held": t.bars_held,
-        })
+        result.append(
+            {
+                "entry_date": t.entry_date,
+                "exit_date": t.exit_date,
+                "entry_bar": t.entry_bar,
+                "exit_bar": t.exit_bar,
+                "pnl_pct": round(t.pnl_pct, 1),
+                "exit_reason": t.exit_reason,
+                "bars_held": t.bars_held,
+            }
+        )
     return result
 
 
@@ -326,8 +363,12 @@ if __name__ == "__main__":
 
     # Diagnose top leaderboard strategy
     import json
-    lb_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                           "spike", "leaderboard.json")
+
+    lb_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "spike",
+        "leaderboard.json",
+    )
     with open(lb_path) as f:
         lb = json.load(f)
 

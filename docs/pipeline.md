@@ -1,6 +1,6 @@
 # Project Montauk — Pipeline
 
-**Canonical flow**: discover or hypothesize long-only TECL strategies, route them to the validation tier appropriate to how they were selected, promote only PASS winners, and generate Pine for the best validated winner.
+**Canonical flow**: discover or hypothesize long-only TECL strategies, route them to the validation tier appropriate to how they were selected, promote only PASS winners, and emit a `backtest_certified` signal bundle + native HTML visualization for the best validated winner.
 
 This document defines the intended operating model of the project under the charter. If this document ever conflicts with `Montauk Charter.md`, the charter wins.
 
@@ -8,10 +8,10 @@ This document defines the intended operating model of the project under the char
 
 ## 1. Naming
 
-The skill is **Spike**. Spike launches and runs the **Montauk Engine** — the optimizer + validator + Pine generator pipeline.
+The skill is **Spike**. Spike launches and runs the **Montauk Engine** — the optimizer + tier-routed validator + run-artifact emitter.
 
 - "Spike" = the entrypoint / command surface (`/spike`, `/spike-focus`, `/spike-results`)
-- "Montauk Engine" = the underlying machinery (search + tier-routed validation + Pine emission)
+- "Montauk Engine" = the underlying machinery (search + tier-routed validation + artifact emission)
 
 This is a semantic split, not a code rename.
 
@@ -21,16 +21,16 @@ This is a semantic split, not a code rename.
 
 The authoritative full-run path is:
 
-1. **Refresh data**
-   Update TECL and validation datasets.
+1. **Refresh data + verify integrity**
+   Update TECL and validation datasets. Rebuild `data/manifest.json`. Run `scripts/data_quality.py` (13-test PASS/WARN/FAIL audit including Yahoo-vs-Stooq divergence, synthetic-rebuild residual, seam continuity, OHLC sanity) as a pre-check before any backtest.
 
 2. **Hypothesize and / or Discover**
    - Hand-author T0 hypothesis strategies (registered with committed params before any backtest)
    - Or: run the optimizer for T1 / T2 candidates across registered strategy families
    - Marker shape alignment is recorded for every candidate
 
-3. **Save raw results**
-   Preserve raw output for research and audit. Each candidate carries its tier tag.
+3. **Save raw results + standardized artifacts**
+   Each candidate emits the five standardized run artifacts (`trade_ledger.json`, `signal_series.json`, `equity_curve.json`, `validation_summary.json`, `dashboard_data.json`) under `spike/runs/NNN/`. Raw output preserved for research and audit. Each candidate carries its tier tag.
 
 4. **Validate at the candidate's tier**
    - T0 candidates clear the light pipeline
@@ -38,17 +38,17 @@ The authoritative full-run path is:
    - T2 candidates clear the full statistical stack
    See `VALIDATION-PHILOSOPHY.md` for what each tier tests.
 
-5. **Promote**
-   Only final **PASS** entries make the validated leaderboard. Each entry is tagged `T0-PASS`, `T1-PASS`, or `T2-PASS`.
+5. **Certify + Promote**
+   Gate 7 synthesis computes `backtest_certified` (engine integrity + golden regression + shadow-comparator agreement + data-quality pre-check + artifact completeness) and `promotion_ready` (`backtest_certified` AND tier-appropriate PASS). Only final **PASS** + `promotion_ready` entries make the validated leaderboard. Each entry is tagged `T0-PASS`, `T1-PASS`, or `T2-PASS`.
 
 6. **Simulate deployment overlay**
    Run the approved Roth account overlay for the validated champion.
 
-7. **Generate Pine**
-   Emit a Pine candidate for the best PASS winner regardless of tier.
+7. **Build native HTML viewer**
+   `python viz/build_viz.py` reads `spike/leaderboard.json` + each top-20 strategy's `spike/runs/NNN/dashboard_data.json`, assembles the bundle, and writes a self-contained `viz/montauk-viz.html`. Non-blocking; a missing/stale run dir gets flagged with a "stale artifact" badge rather than aborting.
 
-8. **Manually review in TradingView**
-   Compile, inspect, and decide whether to promote the candidate.
+8. **Manually execute from the daily signal**
+   The champion's `signal_series.json` emits daily risk_on / risk_off state. Execution happens manually in a brokerage account — no broker API, no auto-deploy.
 
 That is the Montauk Engine. Everything else is support work.
 
@@ -69,7 +69,8 @@ It is responsible for:
 - updating the validated leaderboard
 - simulating the approved Roth overlay for the validated champion
 - generating human-readable reporting
-- emitting Pine artifacts for the validated champion
+- emitting the five standardized JSON artifacts per run (trade ledger, signal series, equity curve, validation summary, dashboard bundle)
+- triggering `viz/build_viz.py` at end-of-run (non-blocking) to rebuild the native HTML viewer
 
 ### Raw optimization
 
@@ -104,11 +105,14 @@ Each full run leaves behind a complete audit trail under `spike/runs/NNN/`:
 | `results.json` | Validated run output with verdicts, tier tags, and champion state |
 | `report.md` | Human-readable summary of raw vs validated outcomes, tier-by-tier |
 | `log.txt` | Full execution log |
-| `candidate_strategy.txt` | Pine candidate for the best PASS winner |
-| `patched_strategy.txt` | Convenience Montauk patch output when the winner is `montauk_821` |
+| `trade_ledger.json` | Full trade list — entry/exit date, price, reason, pnl_pct |
+| `signal_series.json` | Daily risk_on / risk_off signal series (the execution-surface contract) |
+| `equity_curve.json` | Bar-by-bar equity + drawdown series |
+| `validation_summary.json` | Per-gate PASS / WARN / FAIL details including `backtest_certified` and `promotion_ready` flags |
+| `dashboard_data.json` | Precomputed bundle the HTML viz reads directly (no viz-time backtest re-runs) |
 | `overlay_report.json` | Roth overlay simulation for the validated champion |
 
-Raw output is for research. Validated output is for memory and promotion.
+Raw output is for research. Validated output is for memory and promotion. The `dashboard_data.json` bundle is what `viz/build_viz.py` embeds into the self-contained `viz/montauk-viz.html`.
 
 ---
 
@@ -124,7 +128,7 @@ Operationally:
 - only PASS entries belong on `leaderboard.json`, each carrying its tier tag
 - WARN and FAIL entries remain in run artifacts only
 - if no strategy passes, the run still matters, but the leaderboard does not change
-- if a strategy cannot be expressed as a valid Pine candidate, it is not deployment-ready
+- if a strategy does not emit the five standardized artifacts completely, it is not `backtest_certified` and therefore not promotable
 - the champion is the highest-share-count PASS entry across all tiers
 
 A T0-PASS strategy and a T2-PASS strategy are both promotable. The tier tag tells the user what level of statistical scrutiny backs the result. Both are real winners.
@@ -147,36 +151,36 @@ This document defines the sequence and promotion logic. Exact thresholds, formul
 
 ---
 
-## 7. Pine Generation In The Pipeline
+## 7. Signal Certification And Visualization
 
-The end product of the factory is not just a params dict. It is a Pine artifact.
+The end product of the factory is a `backtest_certified` signal bundle: the five standardized JSON run artifacts plus the native HTML viewer rebuilt from `dashboard_data.json`.
 
 Rules:
 
-- the best validated PASS winner gets a Pine candidate, regardless of tier
-- `montauk_821` may also get a parameter-patched Montauk file for convenience
-- the active TradingView script is not overwritten automatically
-- final promotion to live use remains manual
+- the best validated PASS winner becomes the champion regardless of tier
+- `montauk_821` is the canonical 8.2.1 baseline; its params live in `scripts/backtest_engine.py :: StrategyParams`
+- final execution remains manual — the daily `signal_series.json` is the contract with the user's brokerage
+- there is no longer any auto-generated external script or platform compile step
 
-Python is the research and validation layer. Pine is the execution layer.
+Python is the research, validation, and execution-signal layer. The HTML viewer is the visualization layer.
 
 The Roth overlay sits after validation and before manual deployment review. It is an account-analysis layer, not a change to the signal definition.
 
-### Python-vs-Pine Parity
+### Gate 7 — `backtest_certified` and `promotion_ready`
 
-Gate 7 runs automated **structural parity checks** (`scripts/parity.py`) before setting `pine_eligible`. These verify that the generated Pine Script matches the Python source on:
+Gate 7 synthesis determines certification. A strategy is `backtest_certified` when **all** of the following hold:
 
-- **Param defaults** — every Python param appears as a Pine `input.*()` with the correct default value
-- **Strategy settings** — `process_orders_on_close=true`, `commission_value=0.05`, `pyramiding=0`, etc.
-- **Indicator coverage** — every Python indicator has a corresponding `ta.*()` call
-- **Condition structure** — entry/exit counts, cooldown logic, exit-priority order
+- **Engine integrity** — bar-close signals, single-position, no lookahead; passes `scripts/validation/integrity.py`
+- **Golden regression pass** — `tests/test_regression.py` matches `tests/golden_trades_821.json` within ±0.001% PnL per trade on the 8.2.1 default config
+- **Shadow-comparator agreement** — dev-only check (`tests/test_shadow_comparator.py`) against `backtesting.py` / `vectorbt` within 0.5% per trade
+- **Data-quality pre-check pass** — `scripts/data_quality.py` all PASS (including Yahoo-vs-Stooq divergence < 0.01% on real data, manifest checksum match, synthetic-rebuild residual)
+- **Artifact completeness** — all five standardized JSON artifacts emitted for the run
 
-If structural parity fails, the strategy is not Pine-eligible and cannot be promoted.
+`promotion_ready = backtest_certified AND tier-appropriate PASS`. Only `promotion_ready` entries reach the validated leaderboard.
 
-For deeper trust, two additional tiers are available via CLI:
+### Visualization (`viz/montauk-viz.html`)
 
-- **Signal replay** (`parity.py replay`): generates a diagnostic Pine with extra plots + a reference CSV for visual comparison in TradingView
-- **Trade-list comparison** (`parity.py trade-compare`): parses a TradingView export and compares trade-by-trade against the Python backtest
+Built by `viz/build_viz.py` from `dashboard_data.json` + `spike/leaderboard.json`. Library: TradingView Lightweight Charts v4 (OSS, MIT-style, vendored to `viz/lightweight-charts.js`). The output is a single self-contained HTML file — `open viz/montauk-viz.html`, no server, no install. MVP feature set: price candles with synthetic-period shading, trade markers, equity + drawdown panes, drawdown underwater pane, strategy sidebar (20 strategies, click-to-swap), metrics + gate-by-gate validation summary, 1Y / 3Y / 5Y recent-period scorecards, manifest-verified provenance badge, north-star marker toggle, 1Y/5Y/ALL time range controls, crosshair + tooltip.
 
 ---
 
@@ -204,7 +208,7 @@ What it is **not** allowed to do is drift outside the charter:
 - no shorting
 - no intraday logic
 - no multi-position system
-- no "research winner" that skips Pine generation and still counts as complete
+- no "research winner" that skips `backtest_certified` and still counts as complete
 - no strategy that punishes low trade frequency
 
 The project is a TECL share-accumulation factory, not a generic quant sandbox.

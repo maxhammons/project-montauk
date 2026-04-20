@@ -38,6 +38,85 @@ _LEGACY_CSV = os.path.join(TS_DIR, "TECL Price History (2-23-26).csv")
 
 
 # ─────────────────────────────────────────────────────────────────────
+# Provenance schema (Phase 3b)
+# ─────────────────────────────────────────────────────────────────────
+#
+# Every leveraged-ETF row carries five columns describing where it came
+# from and how it was constructed. Stitch segments are ordered chronologically.
+
+PROVENANCE_COLUMNS = (
+    "is_synthetic",
+    "source_symbol",
+    "source_kind",            # "synthetic-leveraged" | "yahoo-real"
+    "synthetic_model_version",
+    "stitch_segment",         # int — 0 is earliest segment
+)
+
+# Per-ticker stitch plan: (segment_id, source_symbol, kind, model_version, end_date_exclusive)
+# end_date_exclusive=None means "open-ended" (last segment).
+_TECL_STITCH_PLAN = [
+    (0, "^SP500-45", "synthetic-leveraged", "v2-3xTechIdx-0.95%ER-daily", "1998-12-22"),
+    (1, "XLK",       "synthetic-leveraged", "v2-3xTechIdx-0.95%ER-daily", "2008-12-17"),
+    (2, "TECL",      "yahoo-real",          "",                             None),
+]
+_TQQQ_STITCH_PLAN = [
+    (0, "QQQ",  "synthetic-leveraged", "v1-3xQQQ-0.75%ER-daily", "2010-02-11"),
+    (1, "TQQQ", "yahoo-real",          "",                         None),
+]
+
+
+def _apply_stitch_plan(df: pd.DataFrame, plan: list) -> pd.DataFrame:
+    """Annotate df rows with provenance based on chronological stitch plan."""
+    df = df.copy()
+    seg_id = pd.Series(index=df.index, dtype="int64")
+    src_sym = pd.Series(index=df.index, dtype=object)
+    src_kind = pd.Series(index=df.index, dtype=object)
+    model_v = pd.Series(index=df.index, dtype=object)
+
+    prev_end = pd.Timestamp("1900-01-01")
+    for sid, sym, kind, mv, end in plan:
+        end_ts = pd.Timestamp(end) if end else pd.Timestamp("2999-12-31")
+        mask = (df["date"] >= prev_end) & (df["date"] < end_ts)
+        seg_id[mask] = sid
+        src_sym[mask] = sym
+        src_kind[mask] = kind
+        model_v[mask] = mv
+        prev_end = end_ts
+
+    df["is_synthetic"] = (src_kind == "synthetic-leveraged").astype(bool)
+    df["source_symbol"] = src_sym
+    df["source_kind"] = src_kind
+    df["synthetic_model_version"] = model_v
+    df["stitch_segment"] = seg_id.astype("Int64")
+    return df
+
+
+def _ensure_provenance_columns(csv_path: str, plan: list) -> bool:
+    """
+    Idempotently add Phase 3b provenance columns to a ticker CSV.
+    Returns True if file was modified.
+    """
+    if not os.path.exists(csv_path):
+        return False
+    df = pd.read_csv(csv_path, parse_dates=["date"])
+    df.columns = [c.lower().strip() for c in df.columns]
+    df = _normalize_date_column(df)
+
+    needs_write = any(c not in df.columns for c in PROVENANCE_COLUMNS)
+    df = _apply_stitch_plan(df, plan)
+    df.to_csv(csv_path, index=False)
+    return needs_write
+
+
+def migrate_provenance() -> dict:
+    """Add provenance columns to TECL.csv and TQQQ.csv. Idempotent."""
+    out = {}
+    out["TECL"] = _ensure_provenance_columns(TECL_CSV, _TECL_STITCH_PLAN)
+    out["TQQQ"] = _ensure_provenance_columns(TQQQ_CSV, _TQQQ_STITCH_PLAN)
+    return out
+
+
+# ─────────────────────────────────────────────────────────────────────
 # Date normalization
 # ─────────────────────────────────────────────────────────────────────
 
