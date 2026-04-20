@@ -23,7 +23,8 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Paths (this file lives at scripts/data/loader.py — 3 levels down from project root)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 TS_DIR = os.path.join(PROJECT_ROOT, "data")
 TECL_CSV = os.path.join(TS_DIR, "TECL.csv")
 VIX_CSV = os.path.join(TS_DIR, "VIX.csv")

@@ -16,14 +16,14 @@ import numpy as np
 import pandas as pd
 from datetime import timedelta
 
-# Add scripts dir to path
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, SCRIPT_DIR)
+# Paths (this file lives at scripts/data/audit.py)
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))              # scripts/data/
+SCRIPTS_DIR = os.path.dirname(_THIS_DIR)                              # scripts/
+PROJECT_ROOT = os.path.dirname(SCRIPTS_DIR)                           # project root
+TS_DIR = os.path.join(PROJECT_ROOT, "data")                           # project/data/
+sys.path.insert(0, SCRIPTS_DIR)
 
-from data import _fetch_ticker_yahoo
-
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-TS_DIR = os.path.join(PROJECT_ROOT, "data")
+from data.loader import _fetch_ticker_yahoo
 
 
 def fetch_fred_series(series_id: str, start: str = "1998-01-01") -> pd.DataFrame:

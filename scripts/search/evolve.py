@@ -26,14 +26,14 @@ from datetime import datetime
 
 import numpy as np
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from data import get_tecl_data
-from strategy_engine import Indicators, backtest, BacktestResult
-from backtest_engine import score_regime_capture
-from discovery_markers import NEUTRAL_MARKER_SCORE, score_marker_alignment
-from strategies import STRATEGY_TIERS
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from data.loader import get_tecl_data
+from engine.strategy_engine import Indicators, backtest, BacktestResult
+from engine.regime_helpers import score_regime_capture
+from strategies.markers import NEUTRAL_MARKER_SCORE, score_marker_alignment
+from strategies.library import STRATEGY_TIERS
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 HISTORY_DIR = os.path.join(PROJECT_ROOT, "spike")
 HISTORY_FILE = os.path.join(HISTORY_DIR, "tested-configs.jsonl")  # legacy, no longer written
 HASH_INDEX_FILE = os.path.join(HISTORY_DIR, "hash-index.json")   # compact raw-metrics cache
@@ -49,13 +49,18 @@ class _Enc(json.JSONEncoder):
 
 
 def _compute_engine_hash() -> str:
-    """Hash core optimizer files so engine fixes invalidate stale cache keys."""
-    scripts_dir = os.path.dirname(os.path.abspath(__file__))
+    """Hash core optimizer files so engine fixes invalidate stale cache keys.
+    Files moved to subfolders by the 2026-04-20 restructure."""
+    scripts_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # scripts/
     digest = hashlib.sha256()
-    for filename in ("strategy_engine.py", "evolve.py", "strategies.py"):
-        path = os.path.join(scripts_dir, filename)
+    for rel_path in (
+        os.path.join("engine", "strategy_engine.py"),
+        os.path.join("search", "evolve.py"),
+        os.path.join("strategies", "library.py"),
+    ):
+        path = os.path.join(scripts_dir, rel_path)
         with open(path, "rb") as f:
-            digest.update(filename.encode("utf-8"))
+            digest.update(rel_path.encode("utf-8"))
             digest.update(b"\0")
             digest.update(f.read())
             digest.update(b"\0")
@@ -183,6 +188,47 @@ CONVERGE_RUNS = 3  # auto-flag as converged after this many runs with no improve
 PRUNE_RUNS = 2     # skip strategies below baseline after this many runs
 BASELINE_FLOOR = 0.05  # minimum fitness to survive pruning (approx montauk_821 default)
 
+# Engine-level certification checks that must pass for a strategy to be admitted
+# to the leaderboard. Excludes `artifact_completeness` (a deployment-only check
+# that is champion-specific; fixed up by spike_runner._finalize_champion_certification).
+# Per the charter (see docs/charter.md and project-status.md): the leaderboard is a
+# statement of "not overfit, will generalize into the future" — it requires the
+# full 7-gate validation pipeline (promotion_ready) AND the engine-level integrity
+# checks (engine_integrity, golden_regression, shadow_comparator, data_quality).
+REQUIRED_CERTIFICATION_CHECKS = (
+    "engine_integrity",
+    "golden_regression",
+    "shadow_comparator",
+    "data_quality_precheck",
+)
+
+
+def _is_leaderboard_eligible(entry: dict) -> tuple[bool, str]:
+    """Return (eligible, reason) — whether an entry may be admitted to the leaderboard.
+
+    An entry is eligible iff:
+      1. Validation verdict is PASS (promotion_ready)
+      2. All REQUIRED_CERTIFICATION_CHECKS passed
+
+    Legacy leaderboard entries without a `validation` block are grandfathered in
+    (they predate the guard); fresh entries must satisfy both criteria.
+    """
+    validation = entry.get("validation") or {}
+    if not validation:
+        # Legacy entry loaded from leaderboard — grandfather in, don't re-gate
+        return True, "legacy_entry"
+    if not validation.get("promotion_ready", False):
+        verdict = validation.get("verdict", "?")
+        return False, f"not promotion_ready (verdict={verdict})"
+    checks = validation.get("certification_checks") or {}
+    failing = [
+        name for name in REQUIRED_CERTIFICATION_CHECKS
+        if not (checks.get(name) or {}).get("passed", False)
+    ]
+    if failing:
+        return False, f"certification checks failing: {', '.join(failing)}"
+    return True, "ok"
+
 
 def update_leaderboard(results: dict, leaderboard_path: str) -> list:
     """
@@ -196,11 +242,18 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
     Convergence is per-strategy-name (not per-config). Once a strategy is converged,
     Claude should skip optimizing it and focus effort elsewhere.
 
+    **Leaderboard guard (2026-04-20):** entries are only admitted if they are
+    promotion_ready AND pass every required engine-level certification check
+    (see REQUIRED_CERTIFICATION_CHECKS). This enforces the charter rule that a
+    leaderboard entry is a certification of "not overfit, will work into the
+    future" — no candidate that hasn't cleared the full validation + engine
+    integrity stack can be on the board.
+
     Returns the updated leaderboard list.
     """
     # Load strategy descriptions for context
     try:
-        from strategies import STRATEGY_DESCRIPTIONS
+        from strategies.library import STRATEGY_DESCRIPTIONS
     except ImportError:
         STRATEGY_DESCRIPTIONS = {}
 
@@ -232,8 +285,18 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
     # Check this run's results against previous bests
     date = results.get("date", datetime.now().strftime("%Y-%m-%d"))
     strategies_in_run = set()
+    rejected_count = 0
     for entry in results.get("rankings", []):
         if not entry.get("metrics"):
+            continue
+        # Leaderboard guard: admit only promotion_ready + engine-certified entries.
+        eligible, reason = _is_leaderboard_eligible(entry)
+        if not eligible:
+            rejected_count += 1
+            print(
+                f"[leaderboard] rejected {entry.get('strategy')} "
+                f"(fit={entry.get('fitness', 0):.2f}): {reason}"
+            )
             continue
         name = entry["strategy"]
         strategies_in_run.add(name)
@@ -830,7 +893,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     strategies : optional list of strategy names to run (default: all)
     """
     # Late import to pick up any new strategies added between runs
-    from strategies import STRATEGY_REGISTRY, STRATEGY_PARAMS
+    from strategies.library import STRATEGY_REGISTRY, STRATEGY_PARAMS
 
     # Filter to requested strategies if specified
     if strategies:
@@ -1311,7 +1374,7 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     # Generate markdown report
     if write_report:
         try:
-            from report import generate_report
+            from diagnostics.report import generate_report
             prev_best_snapshot = {
                 "strategy": historical_best_name,
                 "fitness": historical_best_fitness,
@@ -1386,7 +1449,7 @@ def evolve_chunk(
       diagnostics: per-strategy boundary hits, diversity, improvement
       best_ever: {strategy, fitness, params}
     """
-    from strategies import STRATEGY_REGISTRY, STRATEGY_PARAMS
+    from strategies.library import STRATEGY_REGISTRY, STRATEGY_PARAMS
 
     # Filter strategies
     if strategies:
@@ -1743,7 +1806,7 @@ def main():
         return
 
     if args.list:
-        from strategies import STRATEGY_REGISTRY, STRATEGY_PARAMS
+        from strategies.library import STRATEGY_REGISTRY, STRATEGY_PARAMS
         for name in STRATEGY_REGISTRY:
             space = STRATEGY_PARAMS.get(name, {})
             print(f"  {name:<22} {len(space)} params")

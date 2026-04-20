@@ -17,7 +17,7 @@ Four signals, four weights, one entry threshold, one exit threshold.
 
 from __future__ import annotations
 import numpy as np
-from strategy_engine import Indicators
+from engine.strategy_engine import Indicators
 
 
 def _tanh_norm(value: float, center: float, scale: float) -> float:

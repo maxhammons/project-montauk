@@ -1,8 +1,15 @@
 # Project Montauk — Pipeline
 
-**Canonical flow**: discover or hypothesize long-only TECL strategies, route them to the validation tier appropriate to how they were selected, promote only PASS winners, and emit a `backtest_certified` signal bundle + native HTML visualization for the best validated winner.
+**Canonical flow (four phases):**
 
-This document defines the intended operating model of the project under the charter. If this document ever conflicts with `Montauk Charter.md`, the charter wins.
+```
+generate ideas   →   backtest + validate / check for overfitting   →   if PASS certify + admit to leaderboard   →   visualize in the UI
+ (scripts/search)         (scripts/validation)                               (scripts/certify → spike/leaderboard.json)                (viz/)
+```
+
+**The leaderboard rule (cement, 2026-04-20):** `spike/leaderboard.json` is a certification. Nothing enters unless it clears the **entire** validation pipeline: all 7 validation gates (`promotion_ready=True`) AND every engine-level certification check (`engine_integrity`, `golden_regression`, `shadow_comparator`, `data_quality_precheck`). A strategy on the leaderboard is a binding statement that it is not overfit and is expected to work into the future under current rules. Enforcement: `scripts/search/evolve.py::_is_leaderboard_eligible` + `REQUIRED_CERTIFICATION_CHECKS`. Also: `spirit-guide/spirit-memory/principles.md#2026-04-20-a`.
+
+This document defines the intended operating model of the project under the charter. If this document ever conflicts with `docs/charter.md`, the charter wins.
 
 ---
 
@@ -22,7 +29,7 @@ This is a semantic split, not a code rename.
 The authoritative full-run path is:
 
 1. **Refresh data + verify integrity**
-   Update TECL and validation datasets. Rebuild `data/manifest.json`. Run `scripts/data_quality.py` (13-test PASS/WARN/FAIL audit including Yahoo-vs-Stooq divergence, synthetic-rebuild residual, seam continuity, OHLC sanity) as a pre-check before any backtest.
+   Update TECL and validation datasets. Rebuild `data/manifest.json`. Run `scripts/data/quality.py` (consolidated `audit_all()` over every data-integrity check including Yahoo-vs-Stooq divergence, synthetic-rebuild residual, seam continuity, OHLC sanity) as a pre-check before any backtest.
 
 2. **Hypothesize and / or Discover**
    - Hand-author T0 hypothesis strategies (registered with committed params before any backtest)
@@ -39,7 +46,7 @@ The authoritative full-run path is:
    See `VALIDATION-PHILOSOPHY.md` for what each tier tests.
 
 5. **Certify + Promote**
-   Gate 7 synthesis computes `backtest_certified` (engine integrity + golden regression + shadow-comparator agreement + data-quality pre-check + artifact completeness) and `promotion_ready` (`backtest_certified` AND tier-appropriate PASS). Only final **PASS** + `promotion_ready` entries make the validated leaderboard. Each entry is tagged `T0-PASS`, `T1-PASS`, or `T2-PASS`.
+   Gate 7 synthesis computes `promotion_ready` (tier-appropriate PASS across all 7 gates). The post-run certification step (`scripts/certify/certify_champion.py`) emits the run's 5 standardized artifacts and flips `artifact_completeness` → `pass`, upgrading `backtest_certified` to True for the champion. The leaderboard admits any entry that is `promotion_ready=True` AND passes the 4 engine-level certification checks (`engine_integrity`, `golden_regression`, `shadow_comparator`, `data_quality_precheck`). `artifact_completeness` is required for the champion only — it is a deployment concern, not a validity concern, so it does not gate non-champion leaderboard admission. Each entry is tagged `T0-PASS`, `T1-PASS`, or `T2-PASS`. To re-validate every existing leaderboard entry under new rules: `scripts/certify/recertify_leaderboard.py`.
 
 6. **Simulate deployment overlay**
    Run the approved Roth account overlay for the validated champion.

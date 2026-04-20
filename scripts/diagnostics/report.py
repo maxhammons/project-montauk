@@ -5,7 +5,7 @@ Auto-generate markdown reports from spike optimization results.
 Called by spike_runner.py at the end of each run. No Claude tokens needed.
 
 Usage:
-    from report import generate_report
+    from diagnostics.report import generate_report
     generate_report(results_dict, run_dir, leaderboard_path)
 """
 
@@ -15,7 +15,7 @@ import json
 import os
 from datetime import datetime
 
-from share_metric import read_share_multiple
+from search.share_metric import read_share_multiple
 
 
 def _fmt_pct(val: float) -> str:

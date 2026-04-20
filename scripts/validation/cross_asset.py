@@ -19,9 +19,9 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from strategy_engine import Indicators, backtest
-from strategies import STRATEGY_REGISTRY
-from data import get_tecl_data, get_tqqq_data, get_qqq_data
+from engine.strategy_engine import Indicators, backtest
+from strategies.library import STRATEGY_REGISTRY
+from data.loader import get_tecl_data, get_tqqq_data, get_qqq_data
 
 
 def cross_asset_validate(
@@ -137,8 +137,8 @@ def cross_asset_reoptimize(
     If the strategy concept finds alpha on TQQQ independently, it's
     more likely to be real signal rather than TECL-specific noise.
     """
-    from evolve import evolve_chunk
-    from data import get_tqqq_data
+    from search.evolve import evolve_chunk
+    from data.loader import get_tqqq_data
 
     print(
         f"[tier3] Re-optimizing {strategy_name} on TQQQ ({minutes:.0f}m, pop={pop_size})..."

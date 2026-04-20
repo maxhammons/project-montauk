@@ -29,10 +29,10 @@ import pandas as pd
 _SCRIPTS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, _SCRIPTS_DIR)
 
-from data import get_tecl_data
-from strategy_engine import Indicators, backtest
-from strategies import STRATEGY_REGISTRY, STRATEGY_PARAMS
-from backtest_engine import score_regime_capture, detect_bear_regimes, detect_bull_regimes
+from data.loader import get_tecl_data
+from engine.strategy_engine import Indicators, backtest
+from strategies.library import STRATEGY_REGISTRY, STRATEGY_PARAMS
+from engine.regime_helpers import score_regime_capture, detect_bear_regimes, detect_bull_regimes
 from validation.deflate import (calibrate_null_distribution, deflate_regime_score,
                                 estimate_n_eff_heuristic, expected_max_beta)
 

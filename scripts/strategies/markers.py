@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 MARKER_CSV = os.path.join(PROJECT_ROOT, "data", "markers", "TECL-markers.csv")
 DEFAULT_TRANSITION_TOLERANCE_BARS = 30
 NEUTRAL_MARKER_SCORE = 0.5

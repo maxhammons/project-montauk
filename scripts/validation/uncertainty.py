@@ -16,7 +16,7 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 
-from strategies import STRATEGY_PARAMS
+from strategies.library import STRATEGY_PARAMS
 from validation.candidate import run_eval
 
 

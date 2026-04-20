@@ -25,9 +25,9 @@ import subprocess
 import sys
 from datetime import datetime
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def _load_json(path: str):
@@ -218,9 +218,9 @@ def _emit_run_artifacts(
     import numpy as np
     import pandas as pd
 
-    from data import get_tecl_data
-    from strategies import STRATEGY_REGISTRY
-    from strategy_engine import Indicators, backtest
+    from data.loader import get_tecl_data
+    from strategies.library import STRATEGY_REGISTRY
+    from engine.strategy_engine import Indicators, backtest
 
     strategy_name = champion["strategy"]
     params = champion["params"]
@@ -457,7 +457,7 @@ def _run_chunk(args, strategy_filter):
     # Create run dir (reuse existing if resuming)
     run_dir = create_run_dir()
 
-    from evolve import evolve_chunk
+    from search.evolve import evolve_chunk
 
     result = evolve_chunk(
         minutes=args.minutes,
@@ -514,15 +514,15 @@ def _run_full(args, strategy_filter):
         print(f"Duration: {args.hours}h | Pop: {args.pop_size} | Run dir: {run_dir}\n")
 
         # Refresh all local CSVs with latest data before optimizing
-        from data import refresh_all
+        from data.loader import refresh_all
 
         refresh_all()
         print()
 
         # Run the optimizer first, then validate before promoting anything.
-        from evolve import _Enc, evolve, update_leaderboard
-        from report import generate_report
-        from roth_overlay import build_champion_overlay
+        from search.evolve import _Enc, evolve, update_leaderboard
+        from diagnostics.report import generate_report
+        from diagnostics.roth_overlay import build_champion_overlay
         from validation.pipeline import run_validation_pipeline
 
         results = evolve(

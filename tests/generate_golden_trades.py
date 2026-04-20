@@ -24,8 +24,8 @@ _ROOT = Path(__file__).resolve().parents[1]
 if str(_ROOT / "scripts") not in sys.path:
     sys.path.insert(0, str(_ROOT / "scripts"))
 
-from strategy_engine import StrategyParams, run_montauk_821  # noqa: E402
-from data import get_tecl_data  # noqa: E402
+from engine.strategy_engine import StrategyParams, run_montauk_821  # noqa: E402
+from data.loader import get_tecl_data  # noqa: E402
 
 
 def main() -> None:

@@ -23,8 +23,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from backtest_engine import ema as be_ema
-from strategy_engine import (
+from engine.regime_helpers import ema as be_ema
+from engine.strategy_engine import (
     _ema as se_ema,
     _rma as se_rma,
     _atr as se_atr,

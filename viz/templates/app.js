@@ -37,7 +37,7 @@
       minBarSpacing: 0.01,
     },
     crosshair: {
-      mode: 1, // Magnet
+      mode: 0, // Normal — free, does not snap to the line
       vertLine: { color: "#3a4458", width: 1, style: 3, labelBackgroundColor: "#1f2532" },
       horzLine: { color: "#3a4458", width: 1, style: 3, labelBackgroundColor: "#1f2532" },
     },
@@ -62,35 +62,108 @@
   pricePaneOverlay.style.zIndex = "4";
   elPrice.appendChild(pricePaneOverlay);
 
-  // Sync timescales
-  function syncTimeScale(source, others) {
-    source.timeScale().subscribeVisibleLogicalRangeChange((range) => {
-      if (!range) return;
-      others.forEach((c) => c.timeScale().setVisibleLogicalRange(range));
+  // Bidirectional time-scale sync across all three charts.
+  // A simple mutex prevents feedback loops: when one chart broadcasts a range
+  // change, the listeners on the others won't re-broadcast.
+  const allCharts = [priceChart, equityChart, ddChart];
+  let syncing = false;
+  allCharts.forEach((src) => {
+    src.timeScale().subscribeVisibleLogicalRangeChange((range) => {
+      if (!range || syncing) return;
+      syncing = true;
+      try {
+        allCharts.forEach((c) => { if (c !== src) c.timeScale().setVisibleLogicalRange(range); });
+      } finally {
+        syncing = false;
+      }
     });
+  });
+
+  // Cross-chart crosshair sync is set up below, after all series are created.
+
+  /* ---- Indexed-to-viewport state + series populator ----
+     When enabled, the lower two charts renormalize: equity lines divide by
+     the value at the first visible bar (so viewport-start = 1.0x), and
+     drawdown is recomputed against a running peak starting at the viewport. */
+  const indexedToggle = document.getElementById("toggle-indexed");
+  let indexedStartIdx = 0;
+
+  function currentViewportStartIdx() {
+    const r = equityChart.timeScale().getVisibleLogicalRange();
+    if (!r || r.from == null) return 0;
+    return Math.max(0, Math.min(Math.floor(r.from), (activeStrategy?.equity_curve?.length || 1) - 1));
   }
-  syncTimeScale(priceChart, [equityChart, ddChart]);
+
+  function applyEquityDrawdownSeries() {
+    const strat = activeStrategy;
+    if (!strat || !strat.equity_curve) return;
+    const curve = strat.equity_curve;
+    const indexed = indexedToggle.checked;
+    const startIdx = indexed ? currentViewportStartIdx() : 0;
+
+    // Indexed mode: divide everything by values at start. Absolute mode: raw values.
+    const stratBase = indexed ? (curve[startIdx]?.equity || 1) : 1;
+    const bahBase = indexed ? (curve[startIdx]?.bah_equity || 1) : 1;
+
+    const eqStrat = curve.map((p) => ({ time: dateToTime(p.date), value: (p.equity || 0) / stratBase }));
+    const eqBah = curve.map((p) => ({ time: dateToTime(p.date), value: (p.bah_equity || 0) / bahBase }));
+    stratEquitySeries.setData(eqStrat);
+    bahEquitySeries.setData(eqBah);
+
+    // Drawdown: absolute mode uses the stored drawdown_pct (peak from ATH).
+    // Indexed mode recomputes the running peak starting at viewport-start.
+    let dd;
+    if (!indexed) {
+      dd = curve.map((p) => ({ time: dateToTime(p.date), value: -Math.abs(p.drawdown_pct || 0) }));
+    } else {
+      let peak = -Infinity;
+      dd = curve.map((p, i) => {
+        if (i < startIdx) return { time: dateToTime(p.date), value: 0 };
+        if ((p.equity || 0) > peak) peak = p.equity || 0;
+        const ddPct = peak > 0 ? ((p.equity || 0) / peak - 1) * 100 : 0;
+        return { time: dateToTime(p.date), value: ddPct < 0 ? ddPct : 0 };
+      });
+    }
+    ddSeries.setData(dd);
+  }
+
+  // Recompute on toggle change
+  indexedToggle.addEventListener("change", () => applyEquityDrawdownSeries());
+
+  // Recompute on viewport change (only when indexed mode is active — otherwise it's a no-op)
+  // Uses a small debounce via requestAnimationFrame to avoid recomputing on every mousemove frame.
+  let reindexRaf = null;
+  allCharts.forEach((c) => {
+    c.timeScale().subscribeVisibleLogicalRangeChange(() => {
+      if (!indexedToggle.checked) return;
+      if (reindexRaf) return;
+      reindexRaf = requestAnimationFrame(() => {
+        reindexRaf = null;
+        const newIdx = currentViewportStartIdx();
+        if (newIdx !== indexedStartIdx) {
+          indexedStartIdx = newIdx;
+          applyEquityDrawdownSeries();
+        }
+      });
+    });
+  });
 
   /* ---- Synthetic-period tint (price pane) ----
      Lightweight Charts has no native shading region, so we use a histogram
      series at full height with low-opacity fill over the synthetic bars. */
-  const candleSeries = priceChart.addCandlestickSeries({
-    upColor: "#26a69a",
-    downColor: "#ef5350",
-    borderUpColor: "#26a69a",
-    borderDownColor: "#ef5350",
-    wickUpColor: "#26a69a",
-    wickDownColor: "#ef5350",
+  const candleSeries = priceChart.addLineSeries({
+    color: "#e6e9ef",
+    lineWidth: 1,
     priceLineVisible: false,
+    crosshairMarkerRadius: 3,
+    crosshairMarkerBorderColor: "#e6e9ef",
+    crosshairMarkerBackgroundColor: "#0b0d12",
   });
 
   const tecl = D.tecl;
   const candleData = tecl.dates.map((d, i) => ({
     time: dateToTime(d),
-    open: tecl.open[i],
-    high: tecl.high[i],
-    low: tecl.low[i],
-    close: tecl.close[i],
+    value: tecl.close[i],
   }));
   candleSeries.setData(candleData);
 
@@ -177,6 +250,33 @@
     title: "DD %",
   });
 
+  // Cross-chart crosshair sync: when the cursor hovers over one chart, the
+  // other two get a vertical line at the same time. We pass -Infinity as price
+  // so the horizontal crosshair line falls off-screen on the target chart
+  // (leaving just the vertical line, which is the shared-time indicator).
+  const chartPrimarySeries = [
+    [priceChart, candleSeries],
+    [equityChart, stratEquitySeries],
+    [ddChart, ddSeries],
+  ];
+  let crosshairSyncing = false;
+  chartPrimarySeries.forEach(([srcChart]) => {
+    srcChart.subscribeCrosshairMove((param) => {
+      if (crosshairSyncing) return;
+      crosshairSyncing = true;
+      try {
+        if (!param || !param.time) {
+          chartPrimarySeries.forEach(([c]) => { if (c !== srcChart) c.clearCrosshairPosition(); });
+          return;
+        }
+        chartPrimarySeries.forEach(([chart, series]) => {
+          if (chart === srcChart) return;
+          chart.setCrosshairPosition(Number.NEGATIVE_INFINITY, param.time, series);
+        });
+      } finally { crosshairSyncing = false; }
+    });
+  });
+
   /* ---- North-star markers (always on candle series; toggled by visibility) ---- */
   const northStarToggle = document.getElementById("toggle-northstar");
   function buildAllMarkers(strat, includeNorthStar) {
@@ -206,13 +306,17 @@
           });
         }
         if (t.exit_date) {
+          // "End of Data" means the backtest force-closed an open position at
+          // the last bar to compute a final PnL — NOT a real sell signal. Show
+          // it as a neutral "still holding" circle rather than a red sell arrow.
+          const isOpen = t.exit_reason === "End of Data";
           m.push({
             time: dateToTime(t.exit_date),
             position: "aboveBar",
-            color: "#ef5350",
-            shape: "arrowDown",
-            text: "▼",
-            size: 1,
+            color: isOpen ? "#f0b429" : "#ef5350",
+            shape: isOpen ? "circle" : "arrowDown",
+            text: isOpen ? "● open" : "▼",
+            size: isOpen ? 0.8 : 1,
           });
         }
       });
@@ -245,18 +349,8 @@
     activeStrategy = strat;
     activeTradeIndex = buildTradeIndex(strat);
 
-    // Update equity curves
-    const eqStrat = (strat.equity_curve || []).map((p) => ({ time: dateToTime(p.date), value: p.equity }));
-    const eqBah = (strat.equity_curve || []).map((p) => ({ time: dateToTime(p.date), value: p.bah_equity }));
-    stratEquitySeries.setData(eqStrat);
-    bahEquitySeries.setData(eqBah);
-
-    // Drawdown — make values negative so they live below zero
-    const dd = (strat.equity_curve || []).map((p) => ({
-      time: dateToTime(p.date),
-      value: -Math.abs(p.drawdown_pct || 0),
-    }));
-    ddSeries.setData(dd);
+    // Populate equity + drawdown series, respecting the current indexed-to-viewport toggle.
+    applyEquityDrawdownSeries();
 
     // Trade markers
     candleSeries.setMarkers(buildAllMarkers(strat, northStarToggle.checked));
@@ -325,9 +419,11 @@
     const meta = document.getElementById("r-meta");
     meta.innerHTML = "";
     meta.appendChild(makeBadge(`#${s.rank}`, ""));
-    meta.appendChild(makeBadge(s.tier || "T0", ""));
+    const tierBadge = makeBadge(s.tier || "T0", "");
+    tierBadge.classList.add("has-tip");
+    tierBadge.dataset.tip = "Validation tier. T0 = hand-authored canonical params (light pipeline). T1 = hand-authored + canonical grid (medium). T2 = GA-tuned or optimizer-discovered (full statistical stack).";
+    meta.appendChild(tierBadge);
     meta.appendChild(makeBadge(s.backtest_certified ? "certified ✓" : "not certified", s.backtest_certified ? "ok" : "warn"));
-    meta.appendChild(makeBadge(s.promotion_ready ? "promo-ready" : "not promo-ready", s.promotion_ready ? "ok" : ""));
     if (s.stale) meta.appendChild(makeBadge("stale artifact", "warn"));
 
     const m = s.metrics || {};
@@ -339,40 +435,65 @@
     addMetric(metricsEl, "MAR (CAGR/DD)", fmtNum(m.mar, 3));
     addMetric(metricsEl, "Trades", `${m.trades || 0} (${fmtNum(m.trades_yr, 2)}/yr)`);
     addMetric(metricsEl, "Win rate", fmtPct(m.win_rate));
-    addMetric(metricsEl, "Regime score", fmtNum(m.regime_score, 3));
+    addMetric(metricsEl, "Regime score", fmtNum(m.regime_score, 3), "", "0-1 composite. 1 = perfect bull capture + bear avoidance. Combines cycle-level bull_capture, bear_avoidance, and concentration.");
     addMetric(metricsEl, "Bull capture", fmtPct(m.bull_capture * 100));
     addMetric(metricsEl, "Bear avoidance", fmtPct(m.bear_avoidance * 100));
-    addMetric(metricsEl, "Marker alignment", fmtNum(m.marker_alignment, 3));
-    addMetric(metricsEl, "HHI (concentration)", fmtNum(m.hhi, 3));
+    addMetric(metricsEl, "Marker alignment", fmtNum(m.marker_alignment, 3), "", "State-agreement % vs the hand-marked buy/sell cycle file (north-star). 1 = perfectly mirrors Max's hindsight-perfect timing.");
+    addMetric(metricsEl, "HHI (concentration)", fmtNum(m.hhi, 3), "", "Herfindahl index of per-trade PnL contribution. Low (0.05-0.15) = diversified across many trades. High (>0.3) = one lucky trade carries the result. Lower is better.");
 
-    // Scorecards
+    // Scorecard (5Y only — 1Y/3Y are too noisy for low-tpy strategies)
     const sc = s.recent_scorecards || {};
     const scEl = document.getElementById("r-scorecards");
     scEl.innerHTML = "";
-    ["1y", "3y", "5y"].forEach((p) => {
-      const v = sc[p] || {};
-      const sm = v.share_multiple;
-      const cls = sm == null ? "" : sm >= 1 ? "good" : "bad";
-      scEl.innerHTML += `
-        <div class="scorecard">
-          <div class="period">${p.toUpperCase()}</div>
-          <div class="mult ${cls}">${fmtMult(sm)}</div>
-          <div class="sub">DD ${fmtPct(v.max_dd)}</div>
-          <div class="sub">${v.trades || 0} trades</div>
-        </div>`;
-    });
+    const v5 = sc["5y"] || {};
+    const sm5 = v5.share_multiple;
+    const cls5 = sm5 == null ? "" : sm5 >= 1 ? "good" : "bad";
+    scEl.innerHTML = `
+      <div class="scorecard">
+        <div class="period">5Y</div>
+        <div class="mult ${cls5}">${fmtMult(sm5)}</div>
+        <div class="sub">DD ${fmtPct(v5.max_dd)}</div>
+        <div class="sub">${v5.trades || 0} trades</div>
+      </div>`;
 
-    // Gates
+    // Validation — collapsed summary + expandable detail
     const gatesEl = document.getElementById("r-gates");
-    gatesEl.innerHTML = "";
+    const summaryEl = document.getElementById("r-val-summary");
     const vsum = s.validation_summary || {};
-    Object.entries(vsum).forEach(([k, v]) => {
+    const entries = Object.entries(vsum);
+    let pass = 0, skip = 0, warn = 0, fail = 0;
+    entries.forEach(([, v]) => {
+      const verdict = (typeof v === "object" ? v.verdict : v) || "—";
+      if (verdict === "PASS") pass++;
+      else if (verdict === "SKIPPED") skip++;
+      else if (verdict === "WARN") warn++;
+      else if (verdict === "FAIL") fail++;
+    });
+    // Build summary text
+    const parts = [`<span class="vs-pass">${pass} PASS</span>`];
+    if (skip) parts.push(`<span class="vs-skip">${skip} skipped (tier)</span>`);
+    if (warn) parts.push(`<span class="vs-warn">${warn} WARN</span>`);
+    if (fail) parts.push(`<span class="vs-fail">${fail} FAIL</span>`);
+    summaryEl.innerHTML = `<span><span class="vs-caret">▸</span>Validation</span><span>${parts.join(" · ")}</span>`;
+
+    // Populate detail
+    gatesEl.innerHTML = "";
+    entries.forEach(([k, v]) => {
       const verdict = (typeof v === "object" ? v.verdict : v) || "—";
       gatesEl.innerHTML += `<div class="gate-row"><span>${k}</span><span class="gv ${verdict}">${verdict}</span></div>`;
     });
-    if (Object.keys(vsum).length === 0) {
+    if (entries.length === 0) {
       gatesEl.innerHTML = '<div style="color:var(--text-3);font-size:11px;">No gate data</div>';
     }
+    // Auto-expand if any non-PASS (not counting SKIPPED, which is expected for tier-skipped gates)
+    const autoExpand = warn > 0 || fail > 0;
+    const expanded = autoExpand;
+    gatesEl.classList.toggle("collapsed", !expanded);
+    summaryEl.classList.toggle("expanded", expanded);
+    summaryEl.onclick = () => {
+      const nowExpanded = gatesEl.classList.toggle("collapsed");
+      summaryEl.classList.toggle("expanded", !nowExpanded);
+    };
 
     // Params
     const paramsEl = document.getElementById("r-params");
@@ -384,10 +505,13 @@
     if (Object.keys(params).length === 0) paramsEl.textContent = "—";
   }
 
-  function addMetric(parent, k, v, cls = "") {
+  function addMetric(parent, k, v, cls = "", tip = "") {
     const row = document.createElement("div");
     row.className = "metric-row";
-    row.innerHTML = `<span class="k">${k}</span><span class="v ${cls}">${v}</span>`;
+    const kHtml = tip
+      ? `<span class="k has-tip" data-tip="${escapeHtml(tip)}">${k}</span>`
+      : `<span class="k">${k}</span>`;
+    row.innerHTML = `${kHtml}<span class="v ${cls}">${v}</span>`;
     parent.appendChild(row);
   }
   function makeBadge(text, cls) {
@@ -498,6 +622,9 @@
           const tr = te.trade;
           if (te.kind === "entry") {
             html += `<div class="t-trade">▲ ENTRY @ ${fmtNum(tr.entry_price, 2)}</div>`;
+          } else if (tr.exit_reason === "End of Data") {
+            // Position is still open — backtest force-closed at last bar for PnL accounting only
+            html += `<div class="t-trade" style="color:var(--amber)">● STILL OPEN · unrealized ${fmtPct(tr.pnl_pct)} (as of last bar)</div>`;
           } else {
             html += `<div class="t-trade">▼ EXIT @ ${fmtNum(tr.exit_price, 2)} · ${fmtPct(tr.pnl_pct)} · ${tr.exit_reason || "—"}</div>`;
           }

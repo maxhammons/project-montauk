@@ -371,7 +371,7 @@ def score_regime_capture(
     )
 
 
-from strategy_engine import (  # noqa: E402
+from engine.strategy_engine import (  # noqa: E402
     BacktestResult,
     StrategyParams,
     Trade,
@@ -400,8 +400,8 @@ if __name__ == "__main__":
     import sys
     from pathlib import Path
     sys.path.insert(0, str(Path(__file__).resolve().parent))
-    from data import get_tecl_data
-    from strategy_engine import run_montauk_821
+    from data.loader import get_tecl_data
+    from engine.strategy_engine import run_montauk_821
 
     df = get_tecl_data(use_yfinance=False)
     result = run_montauk_821(df)

@@ -48,7 +48,7 @@ import numpy as np
 import pandas as pd
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))  # scripts/data/ -> scripts/ -> project root
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 
 DIVERGENCE_FLAG_PCT = 0.005  # 0.5% per-day flag (Master Plan)

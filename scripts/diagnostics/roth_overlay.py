@@ -13,7 +13,7 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
-from data import get_sgov_data, get_tecl_data
+from data.loader import get_sgov_data, get_tecl_data
 from validation.sprint1 import get_strategy_trades
 
 

@@ -15,7 +15,7 @@ The optimizer will test all registered strategies and all parameter combos.
 
 from __future__ import annotations
 import numpy as np
-from strategy_engine import Indicators, _ema, _sma
+from engine.strategy_engine import Indicators, _ema, _sma
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -3704,6 +3704,1297 @@ def consecutive_strength(ind, p):
     return entries, exits, labels
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# GC Enhancement Matrix (2026-04-20) — systematic addon testing on the
+# gc_strict_vix base. Each addon adds ONE filter to the proven champion.
+# See docs/*NEXT/gc-enhancement-matrix.md for the full rationale.
+# Base: gc_strict_vix entry (strict pre-cross + VIX panic exit).
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def _gc_strict_signals(ind, p):
+    """Compute the base gc_strict_vix signal arrays.
+    Returns (entries, death, vix_panic, fast, slow) — addons compose from here."""
+    n = ind.n
+    fast = ind.ema(int(p.get("fast_ema", 100)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    slope_w = int(p.get("slope_window", 3))
+    entry_bars = int(p.get("entry_bars", 2))
+    vix = ind.vix
+    entries = np.zeros(n, dtype=bool)
+    death = np.zeros(n, dtype=bool)
+    vix_panic = np.zeros(n, dtype=bool)
+    narrow_count = 0
+    fast_slope_count = 0
+    for i in range(max(slope_w + 1, 6), n):
+        if (np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(fast[i - 1]) or np.isnan(slow[i - 1])
+                or np.isnan(fast[i - slope_w]) or np.isnan(slow[i - slope_w])):
+            narrow_count = 0
+            fast_slope_count = 0
+            continue
+        gap = fast[i] - slow[i]
+        prev_gap = fast[i - 1] - slow[i - 1]
+        fast_rising = fast[i] > fast[i - slope_w]
+        slow_rising = slow[i] > slow[i - slope_w]
+        if gap < 0 and gap > prev_gap:
+            narrow_count += 1
+        else:
+            narrow_count = 0
+        if fast_rising:
+            fast_slope_count += 1
+        else:
+            fast_slope_count = 0
+        if narrow_count >= entry_bars and fast_slope_count >= 2 * entry_bars and slow_rising:
+            entries[i] = True
+        if fast[i] < slow[i] and gap < prev_gap:
+            death[i] = True
+        if vix is not None and not np.isnan(vix[i]) and i >= 5 and not np.isnan(vix[i - 5]):
+            if vix[i] > 30 and vix[i - 5] > 0 and (vix[i] - vix[i - 5]) / vix[i - 5] > 0.75:
+                vix_panic[i] = True
+    return entries, death, vix_panic, fast, slow
+
+
+# ── E1-E6: Exit addons targeting D-exit-in-bull leak (58%) ──
+
+
+def gc_e1(ind, p):
+    """T1 addon E1: gc_strict_vix + XLK trend confirmation on death cross.
+    Hypothesis: 3x leverage death crosses are noise when XLK underlying still trends."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    slope_w = int(p.get("slope_window", 3))
+    xlk_ema = ind.xlk_ema(int(p.get("xlk_ema_len", 100)))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(slope_w + 1, n):
+        if death[i]:
+            if xlk_ema is None or np.isnan(xlk_ema[i]) or np.isnan(xlk_ema[i - slope_w]):
+                exits[i] = True
+                labels[i] = "D"
+            elif xlk_ema[i] < xlk_ema[i - slope_w]:
+                exits[i] = True
+                labels[i] = "D"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def gc_e2(ind, p):
+    """T1 addon E2: gc_strict_vix + RSI exit gate.
+    Death cross only honored if RSI < threshold (real momentum loss vs bull pullback)."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    rsi = ind.rsi(int(p.get("rsi_len", 14)))
+    threshold = float(p.get("rsi_exit_threshold", 45))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(n):
+        if death[i] and not np.isnan(rsi[i]) and rsi[i] < threshold:
+            exits[i] = True
+            labels[i] = "D"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def gc_e3(ind, p):
+    """T1 addon E3: gc_strict_vix + volume-confirmed death cross.
+    Death cross only honored if volume > vol_mult * vol_ema (real selling conviction)."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    vol_mult = float(p.get("vol_mult", 2.0))
+    vol_ema = ind.vol_ema(int(p.get("vol_ema_len", 50)))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(n):
+        if death[i] and not np.isnan(vol_ema[i]) and vol_ema[i] > 0:
+            if ind.volume[i] > vol_mult * vol_ema[i]:
+                exits[i] = True
+                labels[i] = "D"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def gc_e4(ind, p):
+    """T1 addon E4: gc_strict_vix + ATR-scaled buffer on death cross.
+    Requires fast to drop > atr_buffer_mult * ATR/close below slow before exit fires."""
+    entries, _, vix_panic, fast, slow = _gc_strict_signals(ind, p)
+    n = ind.n
+    cl = ind.close
+    atr = ind.atr(int(p.get("atr_period", 20)))
+    atr_buffer_mult = float(p.get("atr_buffer_mult", 1.0))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(1, n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(atr[i]) or cl[i] <= 0:
+            continue
+        buffer_pct = atr_buffer_mult * atr[i] / cl[i]
+        gap = fast[i] - slow[i]
+        prev_gap = fast[i - 1] - slow[i - 1]
+        if fast[i] < slow[i] * (1 - buffer_pct) and gap < prev_gap:
+            exits[i] = True
+            labels[i] = "D"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def gc_e5(ind, p):
+    """T1 addon E5: gc_strict_vix + gap acceleration filter.
+    Death cross fires only when gap-widening rate accelerates (real trend break)."""
+    entries, _, vix_panic, fast, slow = _gc_strict_signals(ind, p)
+    n = ind.n
+    accel_threshold = float(p.get("accel_threshold", 0.5))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(2, n):
+        if (np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(fast[i - 1]) or np.isnan(slow[i - 1])
+                or np.isnan(fast[i - 2]) or np.isnan(slow[i - 2])):
+            continue
+        gap = fast[i] - slow[i]
+        prev_gap = fast[i - 1] - slow[i - 1]
+        prev_prev_gap = fast[i - 2] - slow[i - 2]
+        gap_delta = gap - prev_gap
+        prev_gap_delta = prev_gap - prev_prev_gap
+        if fast[i] < slow[i] and gap < prev_gap:
+            if gap_delta - prev_gap_delta < -accel_threshold:
+                exits[i] = True
+                labels[i] = "D"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def gc_e6(ind, p):
+    """T1 addon E6: gc_strict_vix entry + ATR trailing stop replaces death cross.
+    Pure ATR stop adapts to volatility — bull pullbacks won't trigger N×ATR from peak."""
+    entries, _, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    cl = ind.close
+    atr = ind.atr(int(p.get("atr_period", 14)))
+    atr_mult = float(p.get("atr_mult", 2.5))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    in_trade = False
+    peak = 0.0
+    for i in range(n):
+        if entries[i] and not in_trade:
+            in_trade = True
+            peak = cl[i]
+        if in_trade and cl[i] > peak:
+            peak = cl[i]
+        if in_trade and not np.isnan(atr[i]) and atr[i] > 0:
+            if cl[i] < peak - atr_mult * atr[i]:
+                exits[i] = True
+                labels[i] = "ATR"
+                in_trade = False
+                peak = 0.0
+        if vix_panic[i] and in_trade:
+            exits[i] = True
+            labels[i] = "V"
+            in_trade = False
+            peak = 0.0
+    return entries, exits, labels
+
+
+# ── E7-E11: Exit addons targeting short-bear avoidance (37% bottleneck) ──
+
+
+def gc_e7(ind, p):
+    """T1 addon E7: gc_strict_vix + treasury yield curve modes.
+    Mode A: exit on death cross within last `lookback` bars when spread<0.
+    Mode B: exit immediately on plain fast<slow when spread<0 (no gap-widening req)."""
+    entries, death, vix_panic, fast, slow = _gc_strict_signals(ind, p)
+    n = ind.n
+    spread = ind.treasury_spread
+    mode = str(p.get("curve_mode", "A"))
+    lookback = int(p.get("lookback", 10))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    death_recent = 0
+    for i in range(1, n):
+        if death[i]:
+            death_recent = lookback
+        elif death_recent > 0:
+            death_recent -= 1
+        # Always honor base death cross
+        if death[i]:
+            exits[i] = True
+            labels[i] = "D"
+        # Curve modes — extra exit triggers when spread inverted
+        if spread is not None and not np.isnan(spread[i]) and spread[i] < 0:
+            if mode == "A" and death_recent > 0 and not exits[i]:
+                exits[i] = True
+                labels[i] = "T"
+            elif mode == "B":
+                if not np.isnan(fast[i]) and not np.isnan(slow[i]) and fast[i] < slow[i] and not exits[i]:
+                    exits[i] = True
+                    labels[i] = "T"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def gc_e8(ind, p):
+    """T1 addon E8: gc_strict_vix + fed funds rate direction modulator.
+    During hiking cycles (fed_funds rising over `rate_lookback`), tighten exit:
+    plain fast<slow triggers exit (skip gap-widening requirement)."""
+    entries, death, vix_panic, fast, slow = _gc_strict_signals(ind, p)
+    n = ind.n
+    ff = ind.fed_funds_rate
+    rate_lookback = int(p.get("rate_lookback", 50))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(rate_lookback, n):
+        if death[i]:
+            exits[i] = True
+            labels[i] = "D"
+        # Hiking cycle: looser death cross criteria (any fast<slow exits)
+        if ff is not None and not np.isnan(ff[i]) and not np.isnan(ff[i - rate_lookback]):
+            if ff[i] > ff[i - rate_lookback]:
+                if not np.isnan(fast[i]) and not np.isnan(slow[i]) and fast[i] < slow[i] and not exits[i]:
+                    exits[i] = True
+                    labels[i] = "F"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def gc_e9(ind, p):
+    """T1 addon E9: gc_strict_vix + SGOV relative flow exit.
+    If TECL/SGOV ratio EMA declining for `sgov_lookback` bars AND gap is negative,
+    exit early. SGOV data only available post-2020 — pre-2020 falls back to base."""
+    entries, death, vix_panic, fast, slow = _gc_strict_signals(ind, p)
+    n = ind.n
+    cl = ind.close
+    sgov = ind.sgov_close
+    sgov_lookback = int(p.get("sgov_lookback", 20))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    # Compute TECL/SGOV ratio EMA
+    if sgov is not None:
+        ratio = np.full(n, np.nan)
+        for i in range(n):
+            if not np.isnan(sgov[i]) and sgov[i] > 0:
+                ratio[i] = cl[i] / sgov[i]
+        ratio_ema = ind.ema_of("tecl_sgov_ratio", ratio, 20)
+    else:
+        ratio_ema = None
+    for i in range(sgov_lookback, n):
+        if death[i]:
+            exits[i] = True
+            labels[i] = "D"
+        if (ratio_ema is not None and not np.isnan(ratio_ema[i]) and not np.isnan(ratio_ema[i - sgov_lookback])
+                and not np.isnan(fast[i]) and not np.isnan(slow[i])):
+            if ratio_ema[i] < ratio_ema[i - sgov_lookback] and (fast[i] - slow[i]) < 0:
+                if not exits[i]:
+                    exits[i] = True
+                    labels[i] = "S"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def gc_e10(ind, p):
+    """T1 addon E10: gc_strict_vix + realized vol expansion exit.
+    Exit when ATR(short)/ATR(long) > vol_ratio_threshold (vol regime change)."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    atr_s = ind.atr(int(p.get("atr_short", 14)))
+    atr_l = ind.atr(int(p.get("atr_long", 100)))
+    threshold = float(p.get("vol_ratio_threshold", 2.0))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(n):
+        if death[i]:
+            exits[i] = True
+            labels[i] = "D"
+        if not np.isnan(atr_s[i]) and not np.isnan(atr_l[i]) and atr_l[i] > 0:
+            if atr_s[i] / atr_l[i] > threshold and not exits[i]:
+                exits[i] = True
+                labels[i] = "R"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def gc_e11(ind, p):
+    """T1 addon E11: gc_strict_vix + drawdown percentage exit.
+    Exit when close < peak_over_lookback * (1 - dd_pct/100).
+    Different from ATR trailing: percentage-based, doesn't adapt to vol."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    cl = ind.close
+    dd_pct = float(p.get("dd_pct", 20.0))
+    dd_lookback = int(p.get("dd_lookback", 100))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(dd_lookback, n):
+        if death[i]:
+            exits[i] = True
+            labels[i] = "D"
+        peak = np.nanmax(cl[i - dd_lookback:i + 1])
+        if peak > 0 and cl[i] < peak * (1 - dd_pct / 100) and not exits[i]:
+            exits[i] = True
+            labels[i] = "P"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+# ── E12-E19: Additional exit signals ──
+
+
+def gc_e12(ind, p):
+    """T1 addon E12: gc_strict_vix + MACD histogram divergence exit.
+    Exit when MACD histogram negative for `macd_exit_bars` consecutive bars + gap narrowing."""
+    entries, death, vix_panic, fast, slow = _gc_strict_signals(ind, p)
+    n = ind.n
+    macd_hist = ind.macd_hist(12, 26, 9)
+    bars_required = int(p.get("macd_exit_bars", 3))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    neg_count = 0
+    for i in range(1, n):
+        if death[i]:
+            exits[i] = True
+            labels[i] = "D"
+        if not np.isnan(macd_hist[i]):
+            if macd_hist[i] < 0:
+                neg_count += 1
+            else:
+                neg_count = 0
+        if neg_count >= bars_required and not exits[i]:
+            if not np.isnan(fast[i]) and not np.isnan(slow[i]) and not np.isnan(fast[i - 1]) and not np.isnan(slow[i - 1]):
+                gap = fast[i] - slow[i]
+                prev_gap = fast[i - 1] - slow[i - 1]
+                if gap < prev_gap:
+                    exits[i] = True
+                    labels[i] = "M"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def gc_e13(ind, p):
+    """T1 addon E13: gc_strict_vix + slow EMA slope flattening exit.
+    Replace death cross with slope-based exit: slow EMA slope < threshold over window."""
+    entries, _, vix_panic, _, slow = _gc_strict_signals(ind, p)
+    n = ind.n
+    window = int(p.get("slope_exit_window", 10))
+    threshold = float(p.get("slope_threshold", 0.0))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(window, n):
+        if not np.isnan(slow[i]) and not np.isnan(slow[i - window]):
+            slope = (slow[i] - slow[i - window]) / window
+            if slope <= threshold:
+                exits[i] = True
+                labels[i] = "L"
+        if vix_panic[i] and not exits[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def gc_e14(ind, p):
+    """T1 addon E14: gc_strict_vix + N consecutive bearish bars exit.
+    Exit when close<open for `bear_bars` consecutive bars (real-time price action)."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    bears_required = int(p.get("bear_bars", 5))
+    cl = ind.close
+    op = ind.open
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bear_count = 0
+    for i in range(n):
+        if death[i]:
+            exits[i] = True
+            labels[i] = "D"
+        if cl[i] < op[i]:
+            bear_count += 1
+        else:
+            bear_count = 0
+        if bear_count >= bears_required and not exits[i]:
+            exits[i] = True
+            labels[i] = "B"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def gc_e15(ind, p):
+    """T1 addon E15: gc_strict_vix + gap-down exit.
+    Exit when open < prev_close * (1 - gap_down_pct/100) — overnight shock detector."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    gap_pct = float(p.get("gap_down_pct", 5.0))
+    cl = ind.close
+    op = ind.open
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(1, n):
+        if death[i]:
+            exits[i] = True
+            labels[i] = "D"
+        if cl[i - 1] > 0 and op[i] < cl[i - 1] * (1 - gap_pct / 100) and not exits[i]:
+            exits[i] = True
+            labels[i] = "G"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def gc_e16(ind, p):
+    """T1 addon E16: gc_strict_vix + relative-strength deterioration exit.
+    NOTE: matrix specifies QQQ but no qqq_close in dataframe — substituting XLK
+    (the underlying TECL tracks). Exit when TECL/XLK ratio EMA declining."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    cl = ind.close
+    xlk = ind.xlk_close
+    ratio_lookback = int(p.get("ratio_lookback", 20))
+    ratio_ema_len = int(p.get("ratio_ema", 50))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    if xlk is not None:
+        ratio = np.full(n, np.nan)
+        for i in range(n):
+            if not np.isnan(xlk[i]) and xlk[i] > 0:
+                ratio[i] = cl[i] / xlk[i]
+        ratio_ema = ind.ema_of("tecl_xlk_ratio", ratio, ratio_ema_len)
+    else:
+        ratio_ema = None
+    for i in range(ratio_lookback, n):
+        if death[i]:
+            exits[i] = True
+            labels[i] = "D"
+        if ratio_ema is not None and not np.isnan(ratio_ema[i]) and not np.isnan(ratio_ema[i - ratio_lookback]):
+            if ratio_ema[i] < ratio_ema[i - ratio_lookback] and not exits[i]:
+                exits[i] = True
+                labels[i] = "X"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def gc_e17(ind, p):
+    """T1 addon E17: gc_strict_vix entry + profit-lock trailing tightener.
+    Replaces death cross with ATR trailing stop. After profit > profit_lock_pct,
+    tighten the multiplier from 3.0 to tight_atr_mult. Locks gains on big winners."""
+    entries, _, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    cl = ind.close
+    atr = ind.atr(int(p.get("atr_period", 14)))
+    base_mult = float(p.get("base_atr_mult", 3.0))
+    tight_mult = float(p.get("tight_atr_mult", 1.5))
+    profit_pct = float(p.get("profit_lock_pct", 100.0))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    in_trade = False
+    entry_price = 0.0
+    peak = 0.0
+    for i in range(n):
+        if entries[i] and not in_trade:
+            in_trade = True
+            entry_price = cl[i]
+            peak = cl[i]
+        if in_trade and cl[i] > peak:
+            peak = cl[i]
+        if in_trade and not np.isnan(atr[i]) and atr[i] > 0 and entry_price > 0:
+            pnl = (cl[i] / entry_price - 1) * 100
+            mult = tight_mult if pnl > profit_pct else base_mult
+            if cl[i] < peak - mult * atr[i]:
+                exits[i] = True
+                labels[i] = "PL"
+                in_trade = False
+                entry_price = 0.0
+                peak = 0.0
+        if vix_panic[i] and in_trade:
+            exits[i] = True
+            labels[i] = "V"
+            in_trade = False
+            entry_price = 0.0
+            peak = 0.0
+    return entries, exits, labels
+
+
+def gc_e18(ind, p):
+    """T1 addon E18: gc_strict_vix + time-in-trade max with slope check.
+    After max_bars in trade AND slow EMA slope <= 0, exit (catches topping patterns)."""
+    entries, death, vix_panic, _, slow = _gc_strict_signals(ind, p)
+    n = ind.n
+    max_bars = int(p.get("max_bars", 300))
+    slope_w = int(p.get("slope_window", 3))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    in_trade = False
+    entry_bar = 0
+    for i in range(n):
+        if entries[i] and not in_trade:
+            in_trade = True
+            entry_bar = i
+        if death[i]:
+            exits[i] = True
+            labels[i] = "D"
+            in_trade = False
+        if in_trade and (i - entry_bar) > max_bars and not exits[i]:
+            if i >= slope_w and not np.isnan(slow[i]) and not np.isnan(slow[i - slope_w]):
+                if slow[i] - slow[i - slope_w] <= 0:
+                    exits[i] = True
+                    labels[i] = "T"
+                    in_trade = False
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+            in_trade = False
+    return entries, exits, labels
+
+
+def gc_e19(ind, p):
+    """T1 addon E19: gc_strict_vix + VIX term structure proxy on death cross.
+    Death cross only honored if VIX > VIX EMA * (1 + vix_above_pct/100)."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    vix = ind.vix
+    vix_ema = ind.vix_ema(int(p.get("vix_ema_len", 50)))
+    pct = float(p.get("vix_above_pct", 10.0))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(n):
+        if death[i]:
+            if vix is None or vix_ema is None or np.isnan(vix[i]) or np.isnan(vix_ema[i]):
+                exits[i] = True
+                labels[i] = "D"
+            elif vix[i] > vix_ema[i] * (1 + pct / 100):
+                exits[i] = True
+                labels[i] = "D"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+# ── N1-N14: Entry addons (gate base entries with extra filters) ──
+
+
+def _compose_base_exits(n, death, vix_panic):
+    """Helper: combine death + vix_panic into (exits, labels) arrays."""
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(n):
+        if death[i]:
+            exits[i] = True
+            labels[i] = "D"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return exits, labels
+
+
+def gc_n1(ind, p):
+    """T1 addon N1: gc_strict_vix entry gated by VIX < entry_vix_max."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    vix = ind.vix
+    threshold = float(p.get("entry_vix_max", 25.0))
+    new_entries = np.zeros(n, dtype=bool)
+    for i in range(n):
+        if entries[i] and vix is not None and not np.isnan(vix[i]) and vix[i] < threshold:
+            new_entries[i] = True
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    return new_entries, exits, labels
+
+
+def gc_n2(ind, p):
+    """T1 addon N2: gc_strict_vix entry gated by ADX > adx_threshold (trend strength)."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    adx = ind.adx(int(p.get("adx_len", 14)))
+    threshold = float(p.get("adx_threshold", 20.0))
+    new_entries = np.zeros(n, dtype=bool)
+    for i in range(n):
+        if entries[i] and not np.isnan(adx[i]) and adx[i] > threshold:
+            new_entries[i] = True
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    return new_entries, exits, labels
+
+
+def gc_n3(ind, p):
+    """T1 addon N3: gc_strict_vix entry gated by XLK EMA rising (underlying trend)."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    slope_w = int(p.get("slope_window", 3))
+    xlk_ema = ind.xlk_ema(int(p.get("xlk_ema_len", 100)))
+    new_entries = np.zeros(n, dtype=bool)
+    for i in range(slope_w, n):
+        if not entries[i]:
+            continue
+        if xlk_ema is None or np.isnan(xlk_ema[i]) or np.isnan(xlk_ema[i - slope_w]):
+            continue
+        if xlk_ema[i] > xlk_ema[i - slope_w]:
+            new_entries[i] = True
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    return new_entries, exits, labels
+
+
+def gc_n4(ind, p):
+    """T1 addon N4: gc_strict_vix entry suppressed during post-crash recovery.
+    After drawdown >crash_threshold% from ATH, require close > trough * (1+min_recovery%)."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    cl = ind.close
+    crash_thresh = float(p.get("crash_threshold", 40.0))
+    min_recovery = float(p.get("min_recovery_pct", 20.0))
+    new_entries = np.zeros(n, dtype=bool)
+    ath = -np.inf
+    in_crash = False
+    trough = np.inf
+    for i in range(n):
+        if cl[i] > ath:
+            ath = cl[i]
+            in_crash = False
+            trough = np.inf
+        if ath > 0 and (ath - cl[i]) / ath * 100 > crash_thresh:
+            in_crash = True
+        if in_crash:
+            if cl[i] < trough:
+                trough = cl[i]
+            if trough > 0 and cl[i] > trough * (1 + min_recovery / 100):
+                in_crash = False
+                trough = np.inf
+        if entries[i] and not in_crash:
+            new_entries[i] = True
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    return new_entries, exits, labels
+
+
+def gc_n5(ind, p):
+    """T1 addon N5: gc_strict_vix entry strengthened — gap narrowing rate must increase.
+    Replaces simple narrowing condition with second-derivative confirmation."""
+    n = ind.n
+    fast = ind.ema(int(p.get("fast_ema", 100)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    slope_w = int(p.get("slope_window", 3))
+    entry_bars = int(p.get("entry_bars", 2))
+    vix = ind.vix
+    entries = np.zeros(n, dtype=bool)
+    death = np.zeros(n, dtype=bool)
+    vix_panic = np.zeros(n, dtype=bool)
+    narrow_count = 0
+    fast_slope_count = 0
+    for i in range(max(slope_w + 1, 6), n):
+        if (np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(fast[i - 1]) or np.isnan(slow[i - 1])
+                or np.isnan(fast[i - 2]) or np.isnan(slow[i - 2])
+                or np.isnan(fast[i - slope_w]) or np.isnan(slow[i - slope_w])):
+            narrow_count = 0
+            fast_slope_count = 0
+            continue
+        gap = fast[i] - slow[i]
+        prev_gap = fast[i - 1] - slow[i - 1]
+        prev_prev_gap = fast[i - 2] - slow[i - 2]
+        narrow_rate = gap - prev_gap
+        prev_narrow_rate = prev_gap - prev_prev_gap
+        fast_rising = fast[i] > fast[i - slope_w]
+        slow_rising = slow[i] > slow[i - slope_w]
+        # Stronger condition: narrowing rate accelerating (narrow_rate > prev_narrow_rate)
+        if gap < 0 and narrow_rate > 0 and narrow_rate > prev_narrow_rate:
+            narrow_count += 1
+        else:
+            narrow_count = 0
+        if fast_rising:
+            fast_slope_count += 1
+        else:
+            fast_slope_count = 0
+        if narrow_count >= entry_bars and fast_slope_count >= 2 * entry_bars and slow_rising:
+            entries[i] = True
+        if fast[i] < slow[i] and gap < prev_gap:
+            death[i] = True
+        if vix is not None and not np.isnan(vix[i]) and i >= 5 and not np.isnan(vix[i - 5]):
+            if vix[i] > 30 and vix[i - 5] > 0 and (vix[i] - vix[i - 5]) / vix[i - 5] > 0.75:
+                vix_panic[i] = True
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    return entries, exits, labels
+
+
+def gc_n6(ind, p):
+    """T1 addon N6: gc_strict_vix entry suppressed during May-Sep (or Jun-Sep) — seasonality."""
+    import pandas as pd
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    months_off = str(p.get("seasonal_months_off", "May-Sep"))
+    if months_off == "May-Sep":
+        skip_months = {5, 6, 7, 8, 9}
+    else:  # Jun-Sep
+        skip_months = {6, 7, 8, 9}
+    months = pd.DatetimeIndex(ind.dates).month
+    new_entries = np.zeros(n, dtype=bool)
+    for i in range(n):
+        if entries[i] and months[i] not in skip_months:
+            new_entries[i] = True
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    return new_entries, exits, labels
+
+
+def gc_n7(ind, p):
+    """T1 addon N7: gc_strict_vix entry gated by volume > vol_entry_mult * vol_ema."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    vol_mult = float(p.get("vol_entry_mult", 1.5))
+    vol_ema = ind.vol_ema(int(p.get("vol_ema_len", 50)))
+    new_entries = np.zeros(n, dtype=bool)
+    for i in range(n):
+        if entries[i] and not np.isnan(vol_ema[i]) and vol_ema[i] > 0:
+            if ind.volume[i] > vol_mult * vol_ema[i]:
+                new_entries[i] = True
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    return new_entries, exits, labels
+
+
+def gc_n8(ind, p):
+    """T1 addon N8: gc_strict_vix entry gated by MACD > 0 (12,26,9)."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    macd = ind.macd_line(12, 26)
+    new_entries = np.zeros(n, dtype=bool)
+    for i in range(n):
+        if entries[i] and not np.isnan(macd[i]) and macd[i] > 0:
+            new_entries[i] = True
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    return new_entries, exits, labels
+
+
+def gc_n9(ind, p):
+    """T1 addon N9: gc_strict_vix entry gated by Bollinger Band squeeze.
+    Entry only when bb_width is at its squeeze_lookback minimum (coiling)."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    bb_len = int(p.get("bb_len", 20))
+    squeeze_lookback = int(p.get("squeeze_lookback", 100))
+    bb_width = ind.bb_width(bb_len)
+    new_entries = np.zeros(n, dtype=bool)
+    for i in range(squeeze_lookback, n):
+        if not entries[i] or np.isnan(bb_width[i]):
+            continue
+        window = bb_width[i - squeeze_lookback:i + 1]
+        if not np.all(np.isnan(window)):
+            min_width = np.nanmin(window)
+            if bb_width[i] <= min_width * 1.0001:  # at or near floor
+                new_entries[i] = True
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    return new_entries, exits, labels
+
+
+def gc_n10(ind, p):
+    """T1 addon N10: gc_strict_vix entry gated by bullish bar (close > open)."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    new_entries = np.zeros(n, dtype=bool)
+    for i in range(n):
+        if entries[i] and ind.close[i] > ind.open[i]:
+            new_entries[i] = True
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    return new_entries, exits, labels
+
+
+def gc_n11(ind, p):
+    """T1 addon N11: gc_strict_vix entry gated by VIX declining over vix_slope_window."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    vix = ind.vix
+    window = int(p.get("vix_slope_window", 5))
+    new_entries = np.zeros(n, dtype=bool)
+    for i in range(window, n):
+        if not entries[i] or vix is None:
+            continue
+        if not np.isnan(vix[i]) and not np.isnan(vix[i - window]) and vix[i] < vix[i - window]:
+            new_entries[i] = True
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    return new_entries, exits, labels
+
+
+def gc_n12(ind, p):
+    """T1 addon N12: gc_strict_vix entry gated by treasury_spread > 0 (no recession signal)."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    spread = ind.treasury_spread
+    new_entries = np.zeros(n, dtype=bool)
+    for i in range(n):
+        if entries[i] and spread is not None and not np.isnan(spread[i]) and spread[i] > 0:
+            new_entries[i] = True
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    return new_entries, exits, labels
+
+
+def gc_n13(ind, p):
+    """T1 addon N13: gc_strict_vix entry gated by short AND medium horizon positive returns."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    cl = ind.close
+    short_lb = int(p.get("short_ret_lb", 20))
+    med_lb = int(p.get("med_ret_lb", 50))
+    new_entries = np.zeros(n, dtype=bool)
+    for i in range(med_lb, n):
+        if entries[i] and cl[i - short_lb] > 0 and cl[i - med_lb] > 0:
+            if cl[i] > cl[i - short_lb] and cl[i] > cl[i - med_lb]:
+                new_entries[i] = True
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    return new_entries, exits, labels
+
+
+def gc_n14(ind, p):
+    """T1 addon N14: gc_strict_vix entry gated by close > high_lookback high * proximity%."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    cl = ind.close
+    proximity = float(p.get("high_proximity_pct", 90.0))
+    high_lb = int(p.get("high_lookback", 50))
+    high_arr = ind.highest(high_lb)
+    new_entries = np.zeros(n, dtype=bool)
+    for i in range(high_lb, n):
+        if entries[i] and not np.isnan(high_arr[i]) and high_arr[i] > 0:
+            if cl[i] > high_arr[i] * proximity / 100:
+                new_entries[i] = True
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    return new_entries, exits, labels
+
+
+# ── S1-S3: Structural addons (modify trade lifecycle / cooldown / re-entry) ──
+
+
+def gc_s1(ind, p):
+    """T1 addon S1: gc_strict_vix + adaptive cooldown.
+    Suppress entries for `base_cooldown * max(1, atr_short/atr_long * vol_cooldown_mult)`
+    bars after each exit. Implements cooldown internally rather than via backtest()."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    base_cooldown = int(p.get("base_cooldown", 5))
+    vol_mult = float(p.get("vol_cooldown_mult", 2.0))
+    atr_s = ind.atr(14)
+    atr_l = ind.atr(100)
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    new_entries = np.zeros(n, dtype=bool)
+    cooldown_until = -1
+    for i in range(n):
+        if exits[i]:
+            ratio = 1.0
+            if not np.isnan(atr_s[i]) and not np.isnan(atr_l[i]) and atr_l[i] > 0:
+                ratio = atr_s[i] / atr_l[i]
+            cd = base_cooldown * max(1, int(ratio * vol_mult))
+            cooldown_until = i + cd
+        if entries[i] and i > cooldown_until:
+            new_entries[i] = True
+    return new_entries, exits, labels
+
+
+def gc_s2(ind, p):
+    """T1 addon S2: gc_strict_vix + bear regime memory.
+    After drawdown >bear_threshold% from ATH, require 2x entry confirmation
+    (i.e. require an additional confirmed entry signal in next bar) for next
+    bear_memory_bars bars."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    cl = ind.close
+    bear_thresh = float(p.get("bear_threshold_pct", 50.0))
+    memory_bars = int(p.get("bear_memory_bars", 100))
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    new_entries = np.zeros(n, dtype=bool)
+    ath = -np.inf
+    bear_memory_until = -1
+    for i in range(n):
+        if cl[i] > ath:
+            ath = cl[i]
+        if ath > 0 and (ath - cl[i]) / ath * 100 > bear_thresh:
+            bear_memory_until = i + memory_bars
+        if entries[i]:
+            if i <= bear_memory_until:
+                # Require 2x confirmation: previous bar also had entry signal
+                if i > 0 and entries[i - 1]:
+                    new_entries[i] = True
+            else:
+                new_entries[i] = True
+    return new_entries, exits, labels
+
+
+def gc_s3(ind, p):
+    """T1 addon S3: gc_strict_vix + asymmetric VIX re-entry.
+    After a V exit, suppress new entries until VIX drops below vix_reentry_below."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    vix = ind.vix
+    reentry_threshold = float(p.get("vix_reentry_below", 25.0))
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    new_entries = np.zeros(n, dtype=bool)
+    awaiting_vix_drop = False
+    for i in range(n):
+        if vix_panic[i]:
+            awaiting_vix_drop = True
+        if awaiting_vix_drop:
+            if vix is not None and not np.isnan(vix[i]) and vix[i] < reentry_threshold:
+                awaiting_vix_drop = False
+        if entries[i] and not awaiting_vix_drop:
+            new_entries[i] = True
+    return new_entries, exits, labels
+
+
+# ── C1-C8: Combo addons stacking top individual performers (per matrix) ──
+
+
+def gc_c1(ind, p):
+    """T1 combo C1: VIX entry gate (N1) + XLK exit confirmation (E1).
+    Entry: gc_strict_vix + VIX < entry_vix_max.
+    Exit: (death AND xlk_ema declining) OR vix_panic."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    vix = ind.vix
+    slope_w = int(p.get("slope_window", 3))
+    vix_max = float(p.get("entry_vix_max", 25.0))
+    xlk_ema = ind.xlk_ema(int(p.get("xlk_ema_len", 100)))
+    new_entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(slope_w + 1, n):
+        if entries[i] and vix is not None and not np.isnan(vix[i]) and vix[i] < vix_max:
+            new_entries[i] = True
+        if death[i]:
+            if xlk_ema is None or np.isnan(xlk_ema[i]) or np.isnan(xlk_ema[i - slope_w]):
+                exits[i] = True
+                labels[i] = "D"
+            elif xlk_ema[i] < xlk_ema[i - slope_w]:
+                exits[i] = True
+                labels[i] = "D"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return new_entries, exits, labels
+
+
+def gc_c2(ind, p):
+    """T1 combo C2: RSI exit gate (E2) + treasury curve mode B (E7).
+    Death cross requires RSI < threshold; spread<0 forces tighter exit."""
+    entries, death, vix_panic, fast, slow = _gc_strict_signals(ind, p)
+    n = ind.n
+    rsi = ind.rsi(int(p.get("rsi_len", 14)))
+    rsi_thresh = float(p.get("rsi_exit_threshold", 45))
+    spread = ind.treasury_spread
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(1, n):
+        if death[i] and not np.isnan(rsi[i]) and rsi[i] < rsi_thresh:
+            exits[i] = True
+            labels[i] = "D"
+        # Treasury mode B: when spread<0, fast<slow alone exits
+        if spread is not None and not np.isnan(spread[i]) and spread[i] < 0:
+            if not np.isnan(fast[i]) and not np.isnan(slow[i]) and fast[i] < slow[i] and not exits[i]:
+                exits[i] = True
+                labels[i] = "T"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def gc_c3(ind, p):
+    """T1 combo C3: XLK exit (E1) + realized vol expansion exit (E10).
+    Triple exit: (death AND xlk declining) OR (atr_short/atr_long > thresh) OR vix_panic."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    slope_w = int(p.get("slope_window", 3))
+    xlk_ema = ind.xlk_ema(int(p.get("xlk_ema_len", 100)))
+    atr_s = ind.atr(int(p.get("atr_short", 14)))
+    atr_l = ind.atr(int(p.get("atr_long", 100)))
+    vol_thresh = float(p.get("vol_ratio_threshold", 2.0))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(slope_w + 1, n):
+        if death[i]:
+            if xlk_ema is None or np.isnan(xlk_ema[i]) or np.isnan(xlk_ema[i - slope_w]):
+                exits[i] = True
+                labels[i] = "D"
+            elif xlk_ema[i] < xlk_ema[i - slope_w]:
+                exits[i] = True
+                labels[i] = "D"
+        if not np.isnan(atr_s[i]) and not np.isnan(atr_l[i]) and atr_l[i] > 0:
+            if atr_s[i] / atr_l[i] > vol_thresh and not exits[i]:
+                exits[i] = True
+                labels[i] = "R"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def gc_c4(ind, p):
+    """T1 combo C4: best entry (RSI exit gate E2) + best exit (treasury curve A E7).
+    Note: matrix says 'top entry + top exit'. Top entry-side individual = N1 (VIX gate)
+    or N4 (post-crash), but the strongest standalone *fitness* came from the exit side.
+    We pair N1 (top entry filter) with E7 (top exit filter)."""
+    entries, death, vix_panic, fast, slow = _gc_strict_signals(ind, p)
+    n = ind.n
+    vix = ind.vix
+    spread = ind.treasury_spread
+    vix_max = float(p.get("entry_vix_max", 25.0))
+    lookback = int(p.get("lookback", 20))
+    new_entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    death_recent = 0
+    for i in range(1, n):
+        if entries[i] and vix is not None and not np.isnan(vix[i]) and vix[i] < vix_max:
+            new_entries[i] = True
+        if death[i]:
+            death_recent = lookback
+            exits[i] = True
+            labels[i] = "D"
+        elif death_recent > 0:
+            death_recent -= 1
+        if spread is not None and not np.isnan(spread[i]) and spread[i] < 0:
+            if death_recent > 0 and not exits[i]:
+                exits[i] = True
+                labels[i] = "T"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return new_entries, exits, labels
+
+
+def gc_c5(ind, p):
+    """T1 combo C5: XLK exit (E1) + profit-lock trailing tightener (E17).
+    Address D-in-bull AND giving-back-gains. Replaces death cross with XLK-gated
+    death cross + ATR trailing stop that tightens after profit_lock_pct."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    cl = ind.close
+    slope_w = int(p.get("slope_window", 3))
+    xlk_ema = ind.xlk_ema(int(p.get("xlk_ema_len", 100)))
+    atr = ind.atr(int(p.get("atr_period", 14)))
+    base_mult = float(p.get("base_atr_mult", 3.0))
+    tight_mult = float(p.get("tight_atr_mult", 1.5))
+    profit_pct = float(p.get("profit_lock_pct", 100.0))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    in_trade = False
+    entry_price = 0.0
+    peak = 0.0
+    for i in range(slope_w + 1, n):
+        if entries[i] and not in_trade:
+            in_trade = True
+            entry_price = cl[i]
+            peak = cl[i]
+        if in_trade and cl[i] > peak:
+            peak = cl[i]
+        # XLK-gated death cross
+        if in_trade and death[i]:
+            if xlk_ema is None or np.isnan(xlk_ema[i]) or np.isnan(xlk_ema[i - slope_w]):
+                exits[i] = True
+                labels[i] = "D"
+                in_trade = False
+                entry_price = peak = 0.0
+            elif xlk_ema[i] < xlk_ema[i - slope_w]:
+                exits[i] = True
+                labels[i] = "D"
+                in_trade = False
+                entry_price = peak = 0.0
+        # Profit-lock trailing stop
+        if in_trade and not np.isnan(atr[i]) and atr[i] > 0 and entry_price > 0 and not exits[i]:
+            pnl = (cl[i] / entry_price - 1) * 100
+            mult = tight_mult if pnl > profit_pct else base_mult
+            if cl[i] < peak - mult * atr[i]:
+                exits[i] = True
+                labels[i] = "PL"
+                in_trade = False
+                entry_price = peak = 0.0
+        if vix_panic[i] and in_trade:
+            exits[i] = True
+            labels[i] = "V"
+            in_trade = False
+            entry_price = peak = 0.0
+    return entries, exits, labels
+
+
+def gc_c6(ind, p):
+    """T1 combo C6: RSI exit gate (E2) + VIX term structure proxy (E19).
+    Death cross requires both RSI < threshold AND VIX > VIX_EMA*(1+pct)."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    rsi = ind.rsi(int(p.get("rsi_len", 14)))
+    rsi_thresh = float(p.get("rsi_exit_threshold", 45))
+    vix = ind.vix
+    vix_ema = ind.vix_ema(int(p.get("vix_ema_len", 50)))
+    vix_pct = float(p.get("vix_above_pct", 10.0))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(n):
+        if death[i] and not np.isnan(rsi[i]) and rsi[i] < rsi_thresh:
+            ok_vix = (vix is None or vix_ema is None or np.isnan(vix[i]) or np.isnan(vix_ema[i])
+                      or vix[i] > vix_ema[i] * (1 + vix_pct / 100))
+            if ok_vix:
+                exits[i] = True
+                labels[i] = "D"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def gc_c7(ind, p):
+    """T1 combo C7: treasury curve A (E7) + bear regime memory (S2) + adaptive cooldown (S1).
+    Best exit filter combined with smarter re-entry timing."""
+    entries, death, vix_panic, _, _ = _gc_strict_signals(ind, p)
+    n = ind.n
+    cl = ind.close
+    spread = ind.treasury_spread
+    lookback = int(p.get("lookback", 20))
+    bear_thresh = float(p.get("bear_threshold_pct", 50.0))
+    memory_bars = int(p.get("bear_memory_bars", 100))
+    base_cooldown = int(p.get("base_cooldown", 5))
+    vol_mult = float(p.get("vol_cooldown_mult", 2.0))
+    atr_s = ind.atr(14)
+    atr_l = ind.atr(100)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    death_recent = 0
+    for i in range(1, n):
+        if death[i]:
+            death_recent = lookback
+            exits[i] = True
+            labels[i] = "D"
+        elif death_recent > 0:
+            death_recent -= 1
+        if spread is not None and not np.isnan(spread[i]) and spread[i] < 0:
+            if death_recent > 0 and not exits[i]:
+                exits[i] = True
+                labels[i] = "T"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    new_entries = np.zeros(n, dtype=bool)
+    ath = -np.inf
+    bear_memory_until = -1
+    cooldown_until = -1
+    for i in range(n):
+        if cl[i] > ath:
+            ath = cl[i]
+        if ath > 0 and (ath - cl[i]) / ath * 100 > bear_thresh:
+            bear_memory_until = i + memory_bars
+        if exits[i]:
+            ratio = 1.0
+            if not np.isnan(atr_s[i]) and not np.isnan(atr_l[i]) and atr_l[i] > 0:
+                ratio = atr_s[i] / atr_l[i]
+            cd = base_cooldown * max(1, int(ratio * vol_mult))
+            cooldown_until = i + cd
+        if entries[i] and i > cooldown_until:
+            if i <= bear_memory_until:
+                if i > 0 and entries[i - 1]:
+                    new_entries[i] = True
+            else:
+                new_entries[i] = True
+    return new_entries, exits, labels
+
+
+def gc_c8(ind, p):
+    """T1 combo C8: full defense stack — treasury A exit + RSI exit gate + profit-lock trail
+    + VIX entry gate + post-crash recovery gate. Maximum filtering."""
+    entries, death, vix_panic, fast, slow = _gc_strict_signals(ind, p)
+    n = ind.n
+    cl = ind.close
+    spread = ind.treasury_spread
+    rsi = ind.rsi(int(p.get("rsi_len", 14)))
+    rsi_thresh = float(p.get("rsi_exit_threshold", 45))
+    lookback = int(p.get("lookback", 20))
+    vix = ind.vix
+    vix_max = float(p.get("entry_vix_max", 25.0))
+    crash_thresh = float(p.get("crash_threshold", 40.0))
+    min_recovery = float(p.get("min_recovery_pct", 20.0))
+    atr = ind.atr(int(p.get("atr_period", 14)))
+    base_mult = float(p.get("base_atr_mult", 3.0))
+    tight_mult = float(p.get("tight_atr_mult", 1.5))
+    profit_pct = float(p.get("profit_lock_pct", 100.0))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    new_entries = np.zeros(n, dtype=bool)
+    in_trade = False
+    entry_price = 0.0
+    peak = 0.0
+    death_recent = 0
+    ath = -np.inf
+    in_crash = False
+    trough = np.inf
+    for i in range(1, n):
+        # Track ATH and crash recovery state
+        if cl[i] > ath:
+            ath = cl[i]
+            in_crash = False
+            trough = np.inf
+        if ath > 0 and (ath - cl[i]) / ath * 100 > crash_thresh:
+            in_crash = True
+        if in_crash:
+            if cl[i] < trough:
+                trough = cl[i]
+            if trough > 0 and cl[i] > trough * (1 + min_recovery / 100):
+                in_crash = False
+                trough = np.inf
+        # Entry gates: VIX + post-crash
+        entry_ok = (entries[i]
+                    and not in_crash
+                    and vix is not None and not np.isnan(vix[i]) and vix[i] < vix_max)
+        if entry_ok and not in_trade:
+            new_entries[i] = True
+            in_trade = True
+            entry_price = cl[i]
+            peak = cl[i]
+        if in_trade and cl[i] > peak:
+            peak = cl[i]
+        # Exit: RSI-gated death cross
+        if in_trade and death[i] and not np.isnan(rsi[i]) and rsi[i] < rsi_thresh:
+            exits[i] = True
+            labels[i] = "D"
+            in_trade = False
+            entry_price = peak = 0.0
+        # Track death cross window for treasury exit
+        if death[i]:
+            death_recent = lookback
+        elif death_recent > 0:
+            death_recent -= 1
+        if in_trade and spread is not None and not np.isnan(spread[i]) and spread[i] < 0:
+            if death_recent > 0 and not exits[i]:
+                exits[i] = True
+                labels[i] = "T"
+                in_trade = False
+                entry_price = peak = 0.0
+        # Profit-lock trail
+        if in_trade and not np.isnan(atr[i]) and atr[i] > 0 and entry_price > 0 and not exits[i]:
+            pnl = (cl[i] / entry_price - 1) * 100
+            mult = tight_mult if pnl > profit_pct else base_mult
+            if cl[i] < peak - mult * atr[i]:
+                exits[i] = True
+                labels[i] = "PL"
+                in_trade = False
+                entry_price = peak = 0.0
+        if vix_panic[i] and in_trade:
+            exits[i] = True
+            labels[i] = "V"
+            in_trade = False
+            entry_price = peak = 0.0
+    return new_entries, exits, labels
+
+
 STRATEGY_REGISTRY = {
     # Grid-searchable T1 concepts (logic functions that accept any canonical param combo).
     # Grid search evaluates these exhaustively over canonical param grids.
@@ -3799,6 +5090,54 @@ STRATEGY_REGISTRY = {
     "rsi_bull_regime":          rsi_bull_regime,
     "donchian_vix":             donchian_vix,
     "gc_slope_no_death":        gc_slope_no_death,
+    # ── GC Enhancement Matrix 2026-04-20: Exit addons E1-E19 ──
+    "gc_e1":  gc_e1,   # XLK trend confirmation on death cross
+    "gc_e2":  gc_e2,   # RSI exit gate
+    "gc_e3":  gc_e3,   # Volume-confirmed death cross
+    "gc_e4":  gc_e4,   # ATR-scaled death cross buffer
+    "gc_e5":  gc_e5,   # Gap acceleration filter
+    "gc_e6":  gc_e6,   # ATR trailing stop replaces death cross
+    "gc_e7":  gc_e7,   # Treasury yield curve mode A/B
+    "gc_e8":  gc_e8,   # Fed funds direction modulator
+    "gc_e9":  gc_e9,   # SGOV relative flow exit
+    "gc_e10": gc_e10,  # Realized vol expansion exit
+    "gc_e11": gc_e11,  # Drawdown percentage exit
+    "gc_e12": gc_e12,  # MACD histogram divergence exit
+    "gc_e13": gc_e13,  # Slow EMA slope flattening exit
+    "gc_e14": gc_e14,  # Consecutive bearish bars exit
+    "gc_e15": gc_e15,  # Gap-down exit
+    "gc_e16": gc_e16,  # TECL/XLK relative-strength deterioration
+    "gc_e17": gc_e17,  # Profit-lock trailing tightener
+    "gc_e18": gc_e18,  # Time-in-trade max + slope check
+    "gc_e19": gc_e19,  # VIX term structure proxy on death cross
+    # ── GC Enhancement Matrix: Entry addons N1-N14 ──
+    "gc_n1":  gc_n1,   # VIX entry gate
+    "gc_n2":  gc_n2,   # ADX trend strength gate
+    "gc_n3":  gc_n3,   # XLK rising entry gate
+    "gc_n4":  gc_n4,   # Post-crash recovery gate
+    "gc_n5":  gc_n5,   # Momentum acceleration entry
+    "gc_n6":  gc_n6,   # Seasonality filter
+    "gc_n7":  gc_n7,   # Volume surge entry
+    "gc_n8":  gc_n8,   # MACD > 0 entry gate
+    "gc_n9":  gc_n9,   # Bollinger Band squeeze entry
+    "gc_n10": gc_n10,  # Bullish bar entry gate
+    "gc_n11": gc_n11,  # VIX slope declining entry gate
+    "gc_n12": gc_n12,  # Treasury spread > 0 entry gate
+    "gc_n13": gc_n13,  # Multi-horizon return entry gate
+    "gc_n14": gc_n14,  # Near 50d-high entry gate
+    # ── GC Enhancement Matrix: Structural addons S1-S3 ──
+    "gc_s1":  gc_s1,   # Adaptive cooldown
+    "gc_s2":  gc_s2,   # Bear regime memory
+    "gc_s3":  gc_s3,   # Asymmetric VIX re-entry
+    # ── GC Enhancement Matrix: Combo addons C1-C8 ──
+    "gc_c1":  gc_c1,   # VIX entry + XLK exit confirmation
+    "gc_c2":  gc_c2,   # RSI exit gate + treasury curve mode B
+    "gc_c3":  gc_c3,   # XLK exit + realized vol expansion exit + VIX panic
+    "gc_c4":  gc_c4,   # VIX entry gate + treasury curve A exit
+    "gc_c5":  gc_c5,   # XLK exit + profit-lock trailing tightener
+    "gc_c6":  gc_c6,   # RSI exit gate + VIX term structure
+    "gc_c7":  gc_c7,   # treasury A + bear regime memory + adaptive cooldown
+    "gc_c8":  gc_c8,   # full defense stack
 }
 
 # Declared validation tier for each strategy family.
@@ -3883,6 +5222,19 @@ STRATEGY_TIERS = {
     "gc_pre_vix":               "T1",
     "gc_strict_vix":            "T1",
     "atr_ratio_vix":            "T1",
+    # ── GC Enhancement Matrix 2026-04-20 addons (E1-E19, N1-N14, S1-S3) ──
+    "gc_e1":  "T1", "gc_e2":  "T1", "gc_e3":  "T1", "gc_e4":  "T1",
+    "gc_e5":  "T1", "gc_e6":  "T1", "gc_e7":  "T1", "gc_e8":  "T1",
+    "gc_e9":  "T1", "gc_e10": "T1", "gc_e11": "T1", "gc_e12": "T1",
+    "gc_e13": "T1", "gc_e14": "T1", "gc_e15": "T1", "gc_e16": "T1",
+    "gc_e17": "T1", "gc_e18": "T1", "gc_e19": "T1",
+    "gc_n1":  "T1", "gc_n2":  "T1", "gc_n3":  "T1", "gc_n4":  "T1",
+    "gc_n5":  "T1", "gc_n6":  "T1", "gc_n7":  "T1", "gc_n8":  "T1",
+    "gc_n9":  "T1", "gc_n10": "T1", "gc_n11": "T1", "gc_n12": "T1",
+    "gc_n13": "T1", "gc_n14": "T1",
+    "gc_s1":  "T1", "gc_s2":  "T1", "gc_s3":  "T1",
+    "gc_c1":  "T1", "gc_c2":  "T1", "gc_c3":  "T1", "gc_c4":  "T1",
+    "gc_c5":  "T1", "gc_c6":  "T1", "gc_c7":  "T1", "gc_c8":  "T1",
 }
 
 # Parameter spaces for each strategy: {param: (min, max, step, type)}

@@ -34,7 +34,7 @@ SCRIPTS_DIR = os.path.join(PROJECT_ROOT, "scripts")
 if SCRIPTS_DIR not in sys.path:
     sys.path.insert(0, SCRIPTS_DIR)
 
-from share_metric import read_share_multiple
+from search.share_metric import read_share_multiple
 
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 SPIKE_DIR = os.path.join(PROJECT_ROOT, "spike")

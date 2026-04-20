@@ -27,8 +27,8 @@ backtesting = pytest.importorskip(
 )
 from backtesting import Backtest, Strategy  # noqa: E402 — after importorskip
 
-from strategy_engine import StrategyParams, run_montauk_821  # noqa: E402
-from data import get_tecl_data  # noqa: E402
+from engine.strategy_engine import StrategyParams, run_montauk_821  # noqa: E402
+from data.loader import get_tecl_data  # noqa: E402
 
 PER_TRADE_TOLERANCE_PCT = 0.5  # plan specifies ±0.5% per-trade PnL agreement
 

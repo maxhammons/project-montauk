@@ -53,7 +53,7 @@ import numpy as np
 import pandas as pd
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))  # scripts/data/ -> scripts/ -> project root
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 
 SYNTHETIC_MODEL_VERSION_TECL = "v2-3xTechIdx-0.95%ER-daily"

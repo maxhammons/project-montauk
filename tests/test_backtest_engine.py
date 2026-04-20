@@ -17,8 +17,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from strategy_engine import StrategyParams, run_montauk_821, _ema as ema
-from data import get_tecl_data
+from engine.strategy_engine import StrategyParams, run_montauk_821, _ema as ema
+from data.loader import get_tecl_data
 
 
 # ─────────────────────────────────────────────────────────────────────────────

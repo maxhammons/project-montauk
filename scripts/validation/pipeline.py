@@ -33,11 +33,11 @@ import numpy as np
 _SCRIPTS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, _SCRIPTS_DIR)
 
-from backtest_engine import detect_bear_regimes, detect_bull_regimes, score_regime_capture
-from canonical_params import effective_tier as compute_effective_tier
-from data import get_tecl_data
-from discovery_markers import score_marker_alignment
-from strategies import STRATEGY_REGISTRY, STRATEGY_TIERS
+from engine.regime_helpers import detect_bear_regimes, detect_bull_regimes, score_regime_capture
+from engine.canonical_params import effective_tier as compute_effective_tier
+from data.loader import get_tecl_data
+from strategies.markers import score_marker_alignment
+from strategies.library import STRATEGY_REGISTRY, STRATEGY_TIERS
 from validation.candidate import (
     analyze_four_year_degeneracy,
     analyze_named_windows,
@@ -385,7 +385,7 @@ def _gate2_search_bias(strategy_name: str, params: dict, ctx: ValidationContext)
     # is the inherent return profile — a few huge bull runs dominate.  That's
     # how regime strategies work, not a sign of overfit.  Downgrade to soft
     # warning for simple strategies.
-    from canonical_params import count_tunable_params as _count_tunable
+    from engine.canonical_params import count_tunable_params as _count_tunable
     _n_signal = _count_tunable(params)
     conc_msg = (
         f"concentration: bull_hhi={concentration['bull_hhi']:.3f} "
@@ -534,7 +534,7 @@ def _gate5_uncertainty(strategy_name: str, params: dict, ctx: ValidationContext)
         # For simple strategies (≤ 4 signal params), bootstrap uncertainty
         # reflects the inherent variance of trend-following, not overfitting.
         # Only critical-warn above the hard-fail threshold.
-        from canonical_params import count_tunable_params as _count_tunable_g5
+        from engine.canonical_params import count_tunable_params as _count_tunable_g5
         _n_sig = _count_tunable_g5(params)
         crit_floor = 0.50 if _n_sig <= 4 else 0.40
         boot_msg = (
@@ -841,7 +841,7 @@ def _gate7_synthesis(
     # performance, concentration) plus the statistical gates — they need a
     # higher cap to avoid penalising simplicity.  Complex strategies (5+
     # params) keep the strict cap since accumulated warnings signal overfit.
-    from canonical_params import count_tunable_params as _cnt
+    from engine.canonical_params import count_tunable_params as _cnt
     _n_sig_params = _cnt(params)
     if tier == "T0" or _n_sig_params <= 4:
         soft_warning_cap = 10

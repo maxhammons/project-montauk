@@ -21,9 +21,9 @@ import pandas as pd
 _SCRIPTS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, _SCRIPTS_DIR)
 
-from data import get_tecl_data
-from strategy_engine import Indicators, backtest
-from strategies import STRATEGY_REGISTRY
+from data.loader import get_tecl_data
+from engine.strategy_engine import Indicators, backtest
+from strategies.library import STRATEGY_REGISTRY
 
 PROJECT_ROOT = os.path.dirname(_SCRIPTS_DIR)
 LEADERBOARD_FILE = os.path.join(PROJECT_ROOT, "spike", "leaderboard.json")

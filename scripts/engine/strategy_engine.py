@@ -7,7 +7,7 @@ equity tracking, metrics). Any strategy that implements entry/exit signals
 as numpy arrays can be tested.
 
 Usage:
-    from strategy_engine import backtest, Indicators, metrics_from_trades
+    from engine.strategy_engine import backtest, Indicators, metrics_from_trades
 
     ind = Indicators(df)  # pre-compute all common indicators
     entries, exits, exit_labels = my_strategy(ind, params)
@@ -939,7 +939,7 @@ def run_montauk_821(df: pd.DataFrame, params: StrategyParams | None = None,
     # the regime-scoring helpers post-Phase-7. Importing at call time avoids
     # a circular import if anything else in this module ever needs to be
     # imported by `backtest_engine`.
-    from backtest_engine import score_regime_capture
+    from engine.regime_helpers import score_regime_capture
 
     if params is None:
         params = StrategyParams()

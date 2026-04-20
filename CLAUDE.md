@@ -38,35 +38,47 @@ Project Montauk/
 │       ├── checklist.md
 │       ├── sources.csv
 │       └── reports/
-├── scripts/                   # Python backtesting, validation & data tooling
-│   ├── data.py                # TECL data fetcher (Yahoo Finance API + CSV merge)
-│   ├── data_audit.py          # Synthetic formula re-verification + leverage/expense checks
-│   ├── data_crosscheck.py     # Yahoo vs Stooq divergence cross-check (per ticker, per bar)
-│   ├── data_manifest.py       # Build/verify data/manifest.json (checksums, seam dates, source URLs)
-│   ├── data_quality.py        # Consolidated PASS/WARN/FAIL data-quality runner (audit_all)
-│   ├── data_rebuild_synthetic.py  # Deterministic synthetic TECL/TQQQ rebuild from underlying
-│   ├── strategies.py          # Strategy library — all strategy functions + registry
-│   ├── strategy_engine.py     # Single backtest engine: indicators + `backtest()` (entries/exits arrays) + `run_montauk_821()` (canonical 8.2.1)
-│   ├── backtest_engine.py     # Regime-scoring helpers only (Regime, RegimeScore, detect_*, score_regime_capture) — execution loop retired in Phase 7
-│   ├── evolve.py              # Multi-strategy evolutionary optimizer (with history/dedup)
-│   ├── spike_runner.py        # Main /spike entry point — wraps everything, emits run artifacts
-│   ├── grid_search.py         # Exhaustive canonical grid search + validate
-│   ├── report.py              # Auto-generates markdown reports from results
-│   ├── canonical_params.py    # Strict canonical parameter sets for T0
-│   ├── cycle_diagnostics.py   # Per-cycle trade breakdown for a winner
-│   ├── regime_map.py          # Bull/bear regime segmentation
-│   ├── discovery_markers.py   # Marker-series construction + alignment scoring
-│   ├── roth_overlay.py        # Post-validation Roth cashflow simulator
-│   ├── requirements.txt       # Python deps: pandas, numpy, requests
-│   └── validation/            # Tier-routed validation framework
-│       ├── pipeline.py        # Main validation funnel (gates 1..7, marker diagnostic)
-│       ├── sprint1.py         # Zero-backtest validation suite
-│       ├── candidate.py       # Walk-forward validation
-│       ├── cross_asset.py     # Cross-asset validation (TQQQ, QQQ)
-│       ├── deflate.py         # Monte Carlo null distribution
-│       ├── integrity.py       # Data integrity checks (slippage guard, etc.)
-│       ├── uncertainty.py     # Morris fragility + bootstrap
-│       └── walk_forward.py    # Walk-forward test harness
+├── scripts/                   # Python code — grouped by pipeline phase (see scripts/README.md)
+│   ├── README.md              # Authoritative folder-by-folder purpose map
+│   ├── data/                  # Load + verify market data
+│   │   ├── loader.py          # TECL/TQQQ/QQQ/XLK/SGOV/VIX loader (was data.py)
+│   │   ├── audit.py           # Synthetic formula re-verification (was data_audit.py)
+│   │   ├── crosscheck.py      # Yahoo vs Stooq divergence (was data_crosscheck.py)
+│   │   ├── manifest.py        # data/manifest.json build + verify (was data_manifest.py)
+│   │   ├── quality.py         # Consolidated PASS/WARN/FAIL audit_all() (was data_quality.py)
+│   │   └── rebuild_synthetic.py   # Deterministic synthetic rebuild (was data_rebuild_synthetic.py)
+│   ├── engine/                # Backtest machinery
+│   │   ├── strategy_engine.py # The engine: Indicators class + backtest() + run_montauk_821()
+│   │   ├── regime_helpers.py  # Regime-scoring helpers (was backtest_engine.py post-Phase-7)
+│   │   └── canonical_params.py# Canonical-parameter rules + tier auto-promotion
+│   ├── strategies/            # Strategy library + ranking helpers
+│   │   ├── library.py         # All registered strategies + REGISTRY (was strategies.py)
+│   │   ├── markers.py         # Marker-alignment scoring (was discovery_markers.py)
+│   │   └── regime_map.py      # Bull/bear cycle segmentation
+│   ├── search/                # Discovery + optimization (pipeline phase 1)
+│   │   ├── grid_search.py     # Exhaustive canonical-grid backtest + validate
+│   │   ├── evolve.py          # GA optimizer + leaderboard updater (with REQUIRED_CERTIFICATION_CHECKS guard)
+│   │   ├── spike_runner.py    # Main /spike entry point
+│   │   └── share_metric.py    # Legacy share_multiple JSON schema compat
+│   ├── validation/            # 7-gate validation pipeline (pipeline phase 2)
+│   │   ├── pipeline.py        # Orchestrator: gates 1..7 + composite confidence
+│   │   ├── integrity.py       # Gate 0: engine integrity + golden regression + shadow comparator + data_quality precheck
+│   │   ├── candidate.py       # Gate 1: result-quality metrics
+│   │   ├── sprint1.py         # Gate 2: search-bias diagnostics (T2)
+│   │   ├── walk_forward.py    # Gate 4: time-window generalization
+│   │   ├── cross_asset.py     # Gate 6: TQQQ + QQQ portability + re-opt
+│   │   ├── deflate.py         # Monte Carlo null distribution
+│   │   └── uncertainty.py     # Gate 5: Morris fragility + stationary bootstrap
+│   ├── certify/               # Post-validation certification + leaderboard sealing (pipeline phase 3)
+│   │   ├── certify_champion.py      # Emit 5 artifacts + finalize backtest_certified for one strategy
+│   │   ├── recertify_leaderboard.py # Re-validate every leaderboard entry under current rules
+│   │   └── backfill_artifacts.py    # Materialize artifacts for older runs
+│   ├── diagnostics/           # Post-run analysis (no verdict impact)
+│   │   ├── cycle_diagnostics.py  # Per-cycle trade breakdown
+│   │   ├── report.py             # Markdown report generator
+│   │   └── roth_overlay.py       # Roth IRA cashflow simulator
+│   ├── experimental/          # WIP / scratch — not in main pipeline
+│   └── requirements.txt       # Python deps: pandas, numpy, requests
 ├── spike/                     # All /spike optimization output
 │   ├── runs/NNN/              # Per-session: report.md, results.json, log.txt + five standardized artifacts
 │   ├── leaderboard.json       # All-time top 20 strategies

@@ -71,11 +71,11 @@ def calibrate_null_distribution(samples_per_family: int = 40,
         if cached.get("samples_per_family", 0) >= samples_per_family:
             return cached
 
-    from data import get_tecl_data
-    from strategy_engine import Indicators, backtest
-    from strategies import STRATEGY_REGISTRY, STRATEGY_PARAMS
-    from backtest_engine import score_regime_capture
-    from evolve import random_params
+    from data.loader import get_tecl_data
+    from engine.strategy_engine import Indicators, backtest
+    from strategies.library import STRATEGY_REGISTRY, STRATEGY_PARAMS
+    from engine.regime_helpers import score_regime_capture
+    from search.evolve import random_params
 
     df = get_tecl_data(use_yfinance=False)
     ind = Indicators(df)

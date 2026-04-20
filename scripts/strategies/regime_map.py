@@ -19,7 +19,7 @@ import sys
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def _detect_drawdowns(
@@ -271,7 +271,7 @@ def format_regime_map(regime_map: dict) -> str:
 
 
 if __name__ == "__main__":
-    from data import get_tecl_data
+    from data.loader import get_tecl_data
     df = get_tecl_data()
     regime_map = build_regime_map(df)
     print(format_regime_map(regime_map))

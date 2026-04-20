@@ -18,11 +18,11 @@ import sys
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from strategy_engine import Indicators, backtest
-from strategies import STRATEGY_REGISTRY
-from regime_map import build_regime_map
+from engine.strategy_engine import Indicators, backtest
+from strategies.library import STRATEGY_REGISTRY
+from strategies.regime_map import build_regime_map
 
 
 def diagnose_strategy(
@@ -356,7 +356,7 @@ def _serialize_trades(trades: list, dates: np.ndarray, close: np.ndarray) -> lis
 
 
 if __name__ == "__main__":
-    from data import get_tecl_data
+    from data.loader import get_tecl_data
 
     df = get_tecl_data()
     regime_map = build_regime_map(df)

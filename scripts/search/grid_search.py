@@ -25,17 +25,17 @@ from datetime import datetime
 
 import numpy as np
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from backtest_engine import score_regime_capture
-from data import get_tecl_data
-from discovery_markers import score_marker_alignment
-from evolve import fitness as compute_fitness, _count_tunable_params, update_leaderboard
-from strategies import STRATEGY_REGISTRY, STRATEGY_TIERS
-from strategy_engine import Indicators, backtest
+from engine.regime_helpers import score_regime_capture
+from data.loader import get_tecl_data
+from strategies.markers import score_marker_alignment
+from search.evolve import fitness as compute_fitness, _count_tunable_params, update_leaderboard
+from strategies.library import STRATEGY_REGISTRY, STRATEGY_TIERS
+from engine.strategy_engine import Indicators, backtest
 from validation.pipeline import run_validation_pipeline
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -492,6 +492,313 @@ GRIDS = {
         "slope_window": [3, 5],
         "confirm_bars": [2, 3],
         "atr_mult": [2.0, 2.5, 3.0],
+    },
+    # ── GC Enhancement Matrix 2026-04-20 — addons on top of champion gc_strict_vix base ──
+    # Base fixed at canonical-near-champion: fast=100, slow=200, slope=3, entry_bars=2, cooldown=2.
+    # Addon param sweeps as defined in docs/*NEXT/gc-enhancement-matrix.md.
+    "gc_e1": {  # 3 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "xlk_ema_len": [50, 100, 200],
+    },
+    "gc_e2": {  # 3 × 3 = 9 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "rsi_len": [7, 14, 21],
+        "rsi_exit_threshold": [40, 45, 50],
+    },
+    "gc_e3": {  # 3 × 2 = 6 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "vol_mult": [1.5, 2.0, 2.5],
+        "vol_ema_len": [20, 50],
+    },
+    "gc_e4": {  # 3 × 2 = 6 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "atr_buffer_mult": [0.5, 1.0, 1.5],
+        "atr_period": [14, 20],
+    },
+    "gc_e5": {  # 3 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "accel_threshold": [0.1, 0.5, 1.0],
+    },
+    "gc_e6": {  # 3 × 3 = 9 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "atr_period": [7, 14, 20],
+        "atr_mult": [2.0, 2.5, 3.0],
+    },
+    "gc_e7": {  # 2 × 3 = 6 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "curve_mode": ["A", "B"],
+        "lookback": [5, 10, 20],
+    },
+    "gc_e8": {  # 3 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "rate_lookback": [20, 50, 100],
+    },
+    "gc_e9": {  # 2 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "sgov_lookback": [20, 50],
+    },
+    "gc_e10": {  # 2 × 2 × 3 = 12 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "atr_short": [7, 14],
+        "atr_long": [50, 100],
+        "vol_ratio_threshold": [1.5, 2.0, 2.5],
+    },
+    "gc_e11": {  # 4 × 3 = 12 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "dd_pct": [15.0, 20.0, 25.0, 30.0],
+        "dd_lookback": [50, 100, 200],
+    },
+    "gc_e12": {  # 3 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "macd_exit_bars": [2, 3, 5],
+    },
+    "gc_e13": {  # 3 × 2 = 6 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "slope_exit_window": [5, 10, 20],
+        "slope_threshold": [0.0, -0.001],
+    },
+    "gc_e14": {  # 3 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "bear_bars": [3, 5, 7],
+    },
+    "gc_e15": {  # 3 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "gap_down_pct": [3.0, 5.0, 8.0],
+    },
+    "gc_e16": {  # 3 × 2 = 6 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "ratio_lookback": [10, 20, 50],
+        "ratio_ema": [20, 50],
+    },
+    "gc_e17": {  # 3 × 3 = 9 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "profit_lock_pct": [50.0, 100.0, 200.0],
+        "tight_atr_mult": [1.0, 1.5, 2.0],
+    },
+    "gc_e18": {  # 3 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "max_bars": [200, 300, 500],
+    },
+    "gc_e19": {  # 3 × 2 = 6 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "vix_ema_len": [20, 50, 100],
+        "vix_above_pct": [10.0, 20.0],
+    },
+    "gc_n1": {  # 3 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "entry_vix_max": [20.0, 25.0, 30.0],
+    },
+    "gc_n2": {  # 3 × 3 = 9 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "adx_len": [7, 14, 20],
+        "adx_threshold": [15.0, 20.0, 25.0],
+    },
+    "gc_n3": {  # 3 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "xlk_ema_len": [50, 100, 200],
+    },
+    "gc_n4": {  # 3 × 3 = 9 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "min_recovery_pct": [15.0, 20.0, 30.0],
+        "crash_threshold": [30.0, 40.0, 50.0],
+    },
+    "gc_n5": {  # 1 combo (no new params)
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+    },
+    "gc_n6": {  # 2 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "seasonal_months_off": ["May-Sep", "Jun-Sep"],
+    },
+    "gc_n7": {  # 3 × 2 = 6 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "vol_entry_mult": [1.2, 1.5, 2.0],
+        "vol_ema_len": [20, 50],
+    },
+    "gc_n8": {  # 1 combo (no new params)
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+    },
+    "gc_n9": {  # 3 × 2 = 6 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "bb_len": [14, 20, 50],
+        "squeeze_lookback": [50, 100],
+    },
+    "gc_n10": {  # 1 combo
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+    },
+    "gc_n11": {  # 3 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "vix_slope_window": [3, 5, 10],
+    },
+    "gc_n12": {  # 1 combo
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+    },
+    "gc_n13": {  # 2 × 2 = 4 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "short_ret_lb": [10, 20],
+        "med_ret_lb": [50, 100],
+    },
+    "gc_n14": {  # 3 × 2 = 6 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "high_proximity_pct": [85.0, 90.0, 95.0],
+        "high_lookback": [50, 100],
+    },
+    "gc_s1": {  # 2 × 3 = 6 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "base_cooldown": [2, 5],
+        "vol_cooldown_mult": [1.0, 2.0, 3.0],
+    },
+    "gc_s2": {  # 3 × 2 = 6 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "bear_memory_bars": [50, 100, 200],
+        "bear_threshold_pct": [40.0, 50.0],
+    },
+    "gc_s3": {  # 3 combos
+        "fast_ema": [100],
+        "slow_ema": [200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "vix_reentry_below": [20.0, 25.0, 30.0],
     },
 }
 

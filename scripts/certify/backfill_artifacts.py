@@ -15,10 +15,10 @@ import os
 import sys
 from typing import Any
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from share_metric import read_share_multiple
-from spike_runner import (
+from search.share_metric import read_share_multiple
+from search.spike_runner import (
     PROJECT_ROOT,
     _emit_run_artifacts,
     _finalize_champion_certification,

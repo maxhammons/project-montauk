@@ -38,22 +38,24 @@ import sys
 
 import pandas as pd
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-DATA_DIR = os.path.join(PROJECT_ROOT, "data")
+# Paths (this file lives at scripts/data/quality.py)
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))    # scripts/data/
+SCRIPTS_DIR = os.path.dirname(_THIS_DIR)                   # scripts/
+PROJECT_ROOT = os.path.dirname(SCRIPTS_DIR)                # project root
+DATA_DIR = os.path.join(PROJECT_ROOT, "data")              # project/data/
 
-sys.path.insert(0, SCRIPT_DIR)
-from data import (  # noqa: E402
+sys.path.insert(0, SCRIPTS_DIR)
+from data.loader import (  # noqa: E402
     PROVENANCE_COLUMNS,
     _TECL_STITCH_PLAN,
     _TQQQ_STITCH_PLAN,
 )
-from data_audit import reverify_formula  # noqa: E402
-from data_manifest import (  # noqa: E402
+from data.audit import reverify_formula  # noqa: E402
+from data.manifest import (  # noqa: E402
     MANIFEST_PATH,
     verify_against_disk,
 )
-from data_rebuild_synthetic import (  # noqa: E402
+from data.rebuild_synthetic import (  # noqa: E402
     SPECS as REBUILD_SPECS,
     _verify as _rebuild_verify,
 )
@@ -369,7 +371,7 @@ def test_provenance_columns() -> list[dict]:
 
 def test_crosscheck_divergence() -> list[dict]:
     """Phase 3a — Yahoo vs Tiingo (preferred) / Stooq (fallback). SKIP if no API key."""
-    cmd = [sys.executable, os.path.join(SCRIPT_DIR, "data_crosscheck.py"), "--json"]
+    cmd = [sys.executable, os.path.join(_THIS_DIR, "crosscheck.py"), "--json"]
     try:
         proc = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
     except subprocess.TimeoutExpired:

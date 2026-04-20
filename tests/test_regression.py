@@ -22,10 +22,10 @@ from pathlib import Path
 
 import pytest
 
-from backtest_engine import run_backtest
-from strategy_engine import StrategyParams, run_montauk_821
-from data import get_tecl_data
-from share_metric import LEGACY_SHARE_MULTIPLE_KEY
+from engine.regime_helpers import run_backtest
+from engine.strategy_engine import StrategyParams, run_montauk_821
+from data.loader import get_tecl_data
+from search.share_metric import LEGACY_SHARE_MULTIPLE_KEY
 
 GOLDEN_PATH = Path(__file__).resolve().parent / "golden_trades_821.json"
 PNL_TOLERANCE_PCT = 0.001  # ±0.001 percentage points on pnl_pct per trade
@@ -149,7 +149,7 @@ def test_legacy_leaderboard_entries_still_readable():
     `spike/leaderboard.json` entries still need to load. This test pins the
     JSON-side back-compat shim in `report.py::_share_mult`.
     """
-    from report import _share_mult  # noqa: WPS433 — test-local import is intentional
+    from diagnostics.report import _share_mult  # noqa: WPS433 — test-local import is intentional
 
     # New format (Phase 1d onward)
     assert _share_mult({"share_multiple": 2.5}) == 2.5

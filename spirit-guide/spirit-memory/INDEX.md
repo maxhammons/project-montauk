@@ -1,15 +1,17 @@
 # SPIRIT-MEMORY INDEX
-[meta] updated:2026-04-14 entries:0 active:0 superseded:0 important:0 inbox:0 conflicts:0
+[meta] updated:2026-04-20 entries:2 active:2 superseded:0 important:2 inbox:0 conflicts:0
 
 [files]
 ns=northstar st=sentiment pr=principles de=decisions gl=glossary
 
 [by-tag]
-# Entries will be listed here as `#tag: ns/YYYY-MM-DD-x, st/YYYY-MM-DD-y, ...`
-# Auto-updated by prompt-submit hook. Full rebuild via spirit-audit.
+#process: pr/2026-04-20-a, pr/2026-04-20-b
+#tech: pr/2026-04-20-a, pr/2026-04-20-b
+#data: pr/2026-04-20-a
 
 [important]
-# `Important: true` entries — load-bearing, never archived.
+pr/2026-04-20-a — Leaderboard = certification. Strategy admitted iff full validation pipeline + engine cert checks pass.
+pr/2026-04-20-b — Canonical pipeline has exactly 4 phases. scripts/ uses 7 named subfolders. No orphan scripts in /tmp or root.
 
 [conflicts]
 # Contradictions flagged by spirit-audit, e.g. `ns/2026-01-15-a ↔ st/2026-04-10-b`
