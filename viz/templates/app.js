@@ -384,25 +384,89 @@
     return fmtNum(v, dp) + "×";
   }
 
+  /* ---- Sort keys for the sidebar ---- */
+  // Each entry: extractor returns a number (or null); formatter renders the
+  // primary value displayed on the row. `label` feeds the tooltip.
+  const SORT_KEYS = {
+    fitness: {
+      label: "All-time fitness",
+      extract: (s) => (s.fitness != null ? s.fitness : null),
+      format:  (v) => fmtNum(v, 2),
+    },
+    modern_share: {
+      label: "Modern-era (post-2015) share vs B&H",
+      extract: (s) => s.multi_era?.eras?.modern?.share_multiple ?? null,
+      format:  (v) => fmtMult(v),
+    },
+    real_share: {
+      label: "Real-only (post-2008-12-17) share vs B&H",
+      extract: (s) => s.multi_era?.eras?.real?.share_multiple ?? null,
+      format:  (v) => fmtMult(v),
+    },
+    decayed_fitness: {
+      label: "Time-decayed fitness (λ=0.07, ~10y half-life)",
+      extract: (s) => s.multi_era?.decayed?.fitness_decayed ?? null,
+      format:  (v) => fmtNum(v, 2),
+    },
+    composite: {
+      label: "Composite confidence (0–1; validation robustness)",
+      extract: (s) => {
+        // Composite confidence lives inside validation payloads; surface via entry.
+        // Fall back to validation_summary aggregate if not top-level.
+        return s.composite_confidence ?? null;
+      },
+      format: (v) => fmtNum(v, 3),
+    },
+  };
+  let _currentSort = "fitness";
+
   /* ---- Sidebar render ---- */
   function renderSidebar() {
     const list = document.getElementById("strat-list");
     list.innerHTML = "";
-    D.strategies.forEach((s) => {
+    const sortKey = _currentSort;
+    const sortDef = SORT_KEYS[sortKey] || SORT_KEYS.fitness;
+    // Sort a shallow copy — do not mutate D.strategies order.
+    const sorted = D.strategies.slice().sort((a, b) => {
+      const av = sortDef.extract(a);
+      const bv = sortDef.extract(b);
+      // null sorts to the bottom
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      return bv - av; // descending
+    });
+    sorted.forEach((s, idx) => {
       const div = document.createElement("div");
       div.className = "strat" + (s.stale ? " stale" : "");
       div.dataset.id = s.id;
       const sm = s.metrics?.share_multiple;
+      const modernShare = s.multi_era?.eras?.modern?.share_multiple;
       const cert = s.backtest_certified ? "✓" : "·";
+      const manual = s.manually_admitted ? '<span class="manual-flag" title="manually admitted — see spirit-memory/decisions.md 2026-04-20-a">★</span>' : "";
+      const modernStr = modernShare != null
+        ? `<span class="mod-mult ${modernShare < 1 ? "bad" : "ok"}" title="post-2015 share vs B&H">${fmtMult(modernShare)}m</span>`
+        : "";
+      // Primary display value on row1 reflects the current sort key so the number
+      // under the strategy name always matches why you see it where you see it.
+      const primaryValRaw = sortDef.extract(s);
+      const primaryVal = primaryValRaw == null ? "—" : sortDef.format(primaryValRaw);
+      // Show both the display-order position and the canonical all-time rank
+      // (from the JSON). Helps cross-reference when sort is not default.
+      const displayRank = idx + 1;
+      const rankLabel = sortKey === "fitness"
+        ? `#${s.rank}`
+        : `#${displayRank}<span class="orig-rank">(orig #${s.rank})</span>`;
       div.innerHTML = `
         <div class="row1">
-          <span class="rank">#${s.rank}</span>
+          <span class="rank" title="${sortDef.label}">${rankLabel}${manual}</span>
           <span class="name">${escapeHtml(s.name)}</span>
-          <span class="fitness">${fmtNum(s.fitness, 2)}</span>
+          <span class="fitness" title="${sortDef.label}">${primaryVal}</span>
         </div>
         <div class="row2">
           <span class="tier ${s.tier || "T0"}">${s.tier || "T0"}</span>
           <span class="mult ${sm < 1 ? "bad" : ""}">${fmtMult(sm)}</span>
+          ${modernStr}
           <span class="cert ${s.backtest_certified ? "" : "no"}" title="${s.backtest_certified ? "backtest certified" : "not certified"}">${cert}</span>
           ${s.stale ? '<span style="color:var(--amber);font-size:10px;">stale</span>' : ""}
         </div>
@@ -410,11 +474,23 @@
       div.addEventListener("click", () => loadStrategy(s));
       list.appendChild(div);
     });
+    initBadges(); // re-attach tooltip handlers on freshly-rendered nodes
+  }
+
+  function initSortToolbar() {
+    const sel = document.getElementById("sort-select");
+    if (!sel) return;
+    sel.addEventListener("change", () => {
+      _currentSort = sel.value;
+      renderSidebar();
+    });
   }
 
   /* ---- Right panel render ---- */
   function renderRightPanel(s) {
     document.getElementById("r-name").textContent = s.name;
+    const cn = document.getElementById("r-codename");
+    if (cn) cn.textContent = s.codename && s.codename !== s.name ? s.codename : "";
 
     const meta = document.getElementById("r-meta");
     meta.innerHTML = "";
@@ -440,6 +516,10 @@
     addMetric(metricsEl, "Bear avoidance", fmtPct(m.bear_avoidance * 100));
     addMetric(metricsEl, "Marker alignment", fmtNum(m.marker_alignment, 3), "", "State-agreement % vs the hand-marked buy/sell cycle file (north-star). 1 = perfectly mirrors Max's hindsight-perfect timing.");
     addMetric(metricsEl, "HHI (concentration)", fmtNum(m.hhi, 3), "", "Herfindahl index of per-trade PnL contribution. Low (0.05-0.15) = diversified across many trades. High (>0.3) = one lucky trade carries the result. Lower is better.");
+
+    // Era breakdown — dual view for "crash insurance vs modern participation"
+    // See spirit-memory/decisions.md 2026-04-20 for why this exists.
+    renderEraBreakdown(s);
 
     // Scorecard (5Y only — 1Y/3Y are too noisy for low-tpy strategies)
     const sc = s.recent_scorecards || {};
@@ -503,6 +583,57 @@
       .map(([k, v]) => `<span class="pk">${escapeHtml(k)}</span>=<span class="pv">${escapeHtml(String(v))}</span>`)
       .join("  ");
     if (Object.keys(params).length === 0) paramsEl.textContent = "—";
+  }
+
+  function renderEraBreakdown(s) {
+    const header = document.getElementById("r-era-header");
+    const el = document.getElementById("r-era-breakdown");
+    if (!el || !header) return;
+    const me = s.multi_era;
+    if (!me || !me.eras) {
+      header.style.display = "none";
+      el.style.display = "none";
+      el.innerHTML = "";
+      return;
+    }
+    header.style.display = "";
+    el.style.display = "";
+    const eras = me.eras;
+    const decayed = me.decayed || {};
+    const full = eras.full || {};
+    const real = eras.real || {};
+    const modern = eras.modern || {};
+
+    function shareCls(v) { return v == null ? "" : v >= 1 ? "pos" : "neg"; }
+    function fmtShare(v) { return v == null ? "—" : fmtMult(v); }
+    function fmtFit(v) { return v == null ? "—" : fmtNum(v, 2); }
+
+    const rows = [
+      ["Full history (1993–now)", full, "Includes synthetic pre-2008 dotcom era. This is the optimizer's training window and the current leaderboard fitness."],
+      ["Real-only (2008-12-17 →)", real, "TECL's actual trading history. Strategies that only look good on full history got their advantage from the synthetic dotcom crash."],
+      ["Modern (2015 →)", modern, "Post-QE era. Most representative of likely future regimes. Share near 1.0 means 'matches B&H in normal markets'."],
+    ];
+    let html = '<table class="era-table"><thead><tr><th></th><th>Share</th><th>CAGR</th><th>Max DD</th><th>Trades</th><th>Fit</th></tr></thead><tbody>';
+    for (const [label, data, tip] of rows) {
+      const sm = data.share_multiple;
+      html += `<tr>
+        <td class="era-label has-tip" data-tip="${escapeHtml(tip)}">${label}</td>
+        <td class="era-val ${shareCls(sm)}">${fmtShare(sm)}</td>
+        <td class="era-val">${data.cagr_pct != null ? fmtPct(data.cagr_pct) : "—"}</td>
+        <td class="era-val neg">${data.max_dd_pct != null ? fmtPct(data.max_dd_pct) : "—"}</td>
+        <td class="era-val">${data.trades || 0}</td>
+        <td class="era-val">${fmtFit(data.fitness)}</td>
+      </tr>`;
+    }
+    html += "</tbody></table>";
+    const halfLife = decayed.half_life_years;
+    const decayTip = `Time-decayed fitness on full history. Each trade's PnL is weighted by exp(-λ × years_ago) with λ=${decayed.lambda || "—"} (half-life ≈ ${halfLife ? halfLife.toFixed(1) : "—"}y). Recent trades dominate; dotcom-era trades count 1/4×.`;
+    html += `<div class="era-decayed has-tip" data-tip="${escapeHtml(decayTip)}">
+      <span>Time-decayed fitness (λ=${decayed.lambda || "—"}, half-life ≈ ${halfLife ? halfLife.toFixed(1) : "—"}y)</span>
+      <span class="v">${fmtFit(decayed.fitness_decayed)}</span>
+    </div>`;
+    el.innerHTML = html;
+    initBadges(); // re-bind tooltips on the new elements
   }
 
   function addMetric(parent, k, v, cls = "", tip = "") {
@@ -669,6 +800,7 @@
 
   /* ---- Boot ---- */
   initBadges();
+  initSortToolbar();
   renderSidebar();
   initRangeButtons();
   setupHover();

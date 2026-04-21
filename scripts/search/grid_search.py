@@ -30,12 +30,18 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from engine.regime_helpers import score_regime_capture
 from data.loader import get_tecl_data
 from strategies.markers import score_marker_alignment
-from search.evolve import fitness as compute_fitness, _count_tunable_params, update_leaderboard
+from search.evolve import (
+    fitness as compute_fitness,
+    _count_tunable_params,
+    update_leaderboard,
+)
 from strategies.library import STRATEGY_REGISTRY, STRATEGY_TIERS
 from engine.strategy_engine import Indicators, backtest
 from validation.pipeline import run_validation_pipeline
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -189,10 +195,10 @@ GRIDS = {
         "entry_bars": [2, 3],
         "cooldown": [5],
     },
-    "obv_slope_trend": {  # 3 × 2 × 2 × 2 × 2 = 48 combos
+    "obv_slope_trend": {  # N7 extended 2026-04-20: added 120/150 VJ-pair
         "obv_ema_len": [20, 50, 100],
-        "fast_ema": [30, 50],
-        "slow_ema": [100, 200],
+        "fast_ema": [30, 50, 100, 120],
+        "slow_ema": [100, 150, 200],
         "slope_window": [3, 5],
         "entry_bars": [2, 3],
         "cooldown": [5],
@@ -799,6 +805,311 @@ GRIDS = {
         "entry_bars": [2],
         "cooldown": [2],
         "vix_reentry_below": [20.0, 25.0, 30.0],
+    },
+    # ── Velvet Jaguar Overlays 2026-04-20 (Round 1): addons on VJ (gc_n8) base ──
+    # Base sweeps BOTH canonical 100/200 AND the 120/150 champion pair so each
+    # overlay is tested against (a) strict-canonical VJ and (b) actual Velvet
+    # Jaguar. _is_valid_combo keeps fast_ema < slow_ema; all 4 cross pairs valid.
+    "gc_vjx": {  # 4 × 3 × 3 × 2 = 72 combos
+        "fast_ema": [100, 120],
+        "slow_ema": [150, 200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "shock_look": [5, 10, 20],
+        "shock_vix_roc": [1.3, 1.5, 2.0],
+        "shock_price_drop": [5.0, 8.0],
+    },
+    "gc_vjxr": {  # 4 × 2 × 2 × 2 × 2 = 64 combos
+        "fast_ema": [100, 120],
+        "slow_ema": [150, 200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "shock_look": [5, 10],
+        "shock_drop": [10.0, 15.0],
+        "rsi_bounce": [30.0, 35.0],
+        "watch_bars": [20, 50],
+        "rsi_len": [14],
+        "bounce_ema": [50],
+    },
+    "gc_vjv": {  # 4 × 2 × 2 × 3 = 48 combos
+        "fast_ema": [100, 120],
+        "slow_ema": [150, 200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "vol_short": [10, 20],
+        "vol_long": [50, 100],
+        "vol_entry_ratio": [0.8, 0.9, 1.0],
+    },
+    "gc_vjatr": {  # 4 × 3 × 2 × 3 × 2 = 144 combos
+        "fast_ema": [100, 120],
+        "slow_ema": [150, 200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "atr_period": [7, 14, 20],
+        "atr_look": [20, 50],
+        "atr_expand": [1.5, 2.0, 2.5],
+        "atr_confirm": [3, 5],
+    },
+    # ── Velvet Jaguar Overlays 2026-04-20 (Round 2) ──
+    "gc_vjrsi": {  # 4 × 2 × 2 × 3 = 48 combos
+        "fast_ema": [100, 120],
+        "slow_ema": [150, 200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "rsi_len": [7, 14],
+        "rsi_oversold": [25.0, 30.0],
+        "rsi_bounce": [30.0, 35.0, 40.0],
+        "rsi_trend_ema": [100],
+    },
+    "gc_vjsgov": {  # 4 × 3 × 2 = 24 combos
+        "fast_ema": [100, 120],
+        "slow_ema": [150, 200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "rs_lookback": [20, 50, 100],
+        "rs_persistence": [10, 20],
+    },
+    "gc_vjtimer": {  # 4 × 2 × 2 × 2 = 32 combos
+        "fast_ema": [100, 120],
+        "slow_ema": [150, 200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "time_stop_bars": [100, 150],
+        "below_ema": [100, 150],
+        "below_persist": [5, 10],
+    },
+    "pullback_in_trend": {  # 3 × 2 × 3 × 2 × 2 = 72 combos (trend_len, pullback_look, pullback_pct, exit_ema, exit_persist)
+        "trend_len": [100, 150, 200],
+        "pullback_look": [20, 50],
+        "pullback_pct": [10.0, 15.0, 20.0],
+        "exit_ema": [30, 50],
+        "exit_persist": [3, 5],
+        "cooldown": [10],
+    },
+    # ── Velvet Jaguar Overlays 2026-04-20 (Round 3) ──
+    "rsi_regime_canonical": {  # 2 × 3 × 3 × 2 × 1 = 36 combos
+        "rsi_len": [7, 14],
+        "trend_len": [50, 100, 200],
+        "entry_rsi": [30.0, 35.0, 40.0],
+        "exit_rsi": [70.0, 75.0],
+        "panic_rsi": [15.0],
+        "cooldown": [10],
+    },
+    "dual_tf_gc": {  # 2 × 2 × 2 × 2 × 2 = 32 combos (filtered fast<slow, outer_fast<outer_slow)
+        "fast_ema": [30, 50],
+        "slow_ema": [150, 200],
+        "outer_fast": [100, 150],
+        "outer_slow": [200, 300],
+        "slope_window": [2, 3],
+        "entry_bars": [2],
+        "cooldown": [5],
+    },
+    "tecl_sgov_rs": {  # 3 × 2 × 2 × 2 = 24 combos
+        "rs_look": [20, 50, 100],
+        "rs_exit": [-5.0, -10.0],
+        "trend_ema": [100, 200],
+        "exit_ema": [30, 50],
+        "cooldown": [5],
+    },
+    # ── Circuit breakers on VJ (Round 4, Bucket C) ──
+    # Base fixed at actual VJ params (fast=120, slow=150).
+    "gc_n8_ddbreaker": {  # 4 × 3 = 12 combos
+        "fast_ema": [120],
+        "slow_ema": [150],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "pause_dd_pct": [20.0, 25.0, 30.0, 40.0],
+        "resume_dd_pct": [10.0, 15.0, 20.0],
+    },
+    "gc_n8_timelimit": {  # 3 × 3 = 9 combos
+        "fast_ema": [120],
+        "slow_ema": [150],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "max_hold": [300, 500, 750],
+        "tl_ema": [100, 150, 200],
+    },
+    "gc_n8_panic_flat": {  # 3 × 2 × 3 = 18 combos
+        "fast_ema": [120],
+        "slow_ema": [150],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "panic_vix": [35.0, 40.0, 50.0],
+        "panic_roc": [1.3, 1.5],
+        "flat_bars": [5, 10, 20],
+    },
+    # ── Final batch 2026-04-20 (deferred A5/A7/A9 + B2/B3/B5/B6/B8/B10/B11/B12/B13/B16) ──
+    "gc_vjmac": {  # 4 × 3 = 12 combos
+        "fast_ema": [100, 120],
+        "slow_ema": [150, 200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "ff_lookback": [100, 150, 200],
+    },
+    "gc_vjbb": {  # 4 × 2 × 2 × 3 = 48 combos
+        "fast_ema": [100, 120],
+        "slow_ema": [150, 200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "bb_len": [20, 50],
+        "bb_mult": [2.0],
+        "bb_width_look": [50, 100],
+        "bb_pct": [20.0, 30.0, 40.0],
+    },
+    "gc_vjdd": {  # 4 × 3 = 12 combos
+        "fast_ema": [100, 120],
+        "slow_ema": [150, 200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "dd_pct": [15.0, 20.0, 25.0],
+    },
+    "vol_regime_canonical": {  # 2 × 2 × 2 × 3 × 2 = 48 combos
+        "vol_short": [10, 20],
+        "vol_long": [50, 100],
+        "trend_len": [100, 200],
+        "vol_entry_ratio": [0.8, 0.9, 1.0],
+        "vol_exit_ratio": [1.3, 1.5],
+        "cooldown": [5],
+    },
+    "composite_osc_canonical": {  # 3 × 2 × 2 = 12 combos
+        "tema_len": [100, 150, 200],
+        "quick_len": [7, 14],
+        "adx_len": [14, 20],
+        "cooldown": [5],
+    },
+    "bounce_breakout": {  # 3 × 2 × 2 × 2 × 2 = 48 combos
+        "entry_len": [50, 100, 150],
+        "exit_len": [20, 50],
+        "trend_len": [100, 200],
+        "reclaim_ema": [30, 50],
+        "watch_bars": [20, 50],
+        "cooldown": [5],
+    },
+    "tri_filter_macd": {  # 2 × 2 × 2 × 2 × 2 = 32 combos
+        "trend_len": [100, 200],
+        "rsi_len": [7, 14],
+        "rsi_entry_floor": [40.0, 45.0],
+        "rsi_panic": [25.0, 30.0],
+        "exit_confirm": [2, 3],
+        "cooldown": [3],
+    },
+    "momentum_roc_canonical": {  # 3 × 2 × 2 × 2 = 24 combos
+        "roc_len": [20, 50, 100],
+        "trend_ema": [100, 200],
+        "exit_ema": [30, 50],
+        "panic_roc": [-5.0, -8.0],
+        "cooldown": [5],
+    },
+    "adaptive_ema_vol": {  # 2 × 2 × 2 × 2 = 16 combos (vol bands fixed; slope-side fixed)
+        "vix_low": [20.0],
+        "vix_high": [30.0],
+        "fast1": [50],
+        "slow1": [200],
+        "fast2": [30, 50],
+        "slow2": [100, 150],
+        "fast3": [20],
+        "slow3": [50, 100],
+        "dwell": [5, 10],
+        "entry_bars": [2],
+        "cooldown": [3],
+    },
+    "regime_state_machine": {  # 1 combo (structural — no tunables)
+        "cooldown": [5],
+    },
+    "ensemble_vote_3of5": {  # 2 × 3 × 3 = 18 combos
+        "trend_len": [100, 150, 200],
+        "entry_vote": [2, 3, 4],
+        "exit_vote": [-1, 0],
+        "cooldown": [5],
+    },
+    "fed_macro_primary": {  # 3 × 2 × 2 × 2 = 24 combos
+        "ff_long": [100, 150, 200],
+        "ff_short": [20, 50],
+        "ff_exit": [50, 100],
+        "spread_floor": [-0.3, 0.0],
+        "cooldown": [0],
+    },
+    "slope_only_200": {  # 2 × 2 = 4 combos
+        "ema_len": [150, 200],
+        "slope_look": [10, 20],
+        "cooldown": [5],
+    },
+    # ── Next-Frontier 2026-04-20 (Lane 2: VJ cross-asset rescue) ──
+    "gc_vj_decay_gate": {  # 4 × 2 × 3 = 24 combos
+        "fast_ema": [100, 120],
+        "slow_ema": [150, 200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "decay_look": [20, 50],
+        "decay_threshold": [-0.10, -0.05, 0.0],
+    },
+    "gc_vj_xlk_relative_trend": {  # 4 × 2 × 2 × 2 = 32 combos
+        "fast_ema": [100, 120],
+        "slow_ema": [150, 200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "xlk_fast": [30, 50],
+        "xlk_slow": [150, 200],
+        "xlk_slope": [2, 3],
+    },
+    "gc_vj_dual_regime": {  # 4 × 2 × 2 = 16 combos
+        "fast_ema": [100, 120],
+        "slow_ema": [150, 200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "reg_fast": [30, 50],
+        "reg_slow": [150, 200],
+    },
+    # ── Next-Frontier 2026-04-20 (Lane 1: generalization-first) ──
+    "rank_slope_regime": {  # 2 × 2 × 2 × 3 × 2 = 48 combos
+        "trend_len": [100, 200],
+        "slope_look": [10, 20],
+        "rank_window": [100, 200],
+        "entry_pct": [40.0, 50.0, 60.0],
+        "exit_pct": [20.0, 30.0],
+        "cooldown": [5],
+    },
+    "zscore_return_reversion": {  # 2 × 2 × 3 × 2 × 2 = 48 combos
+        "ret_n": [10, 20],
+        "window": [100, 200],
+        "entry_z": [-2.0, -1.5, -1.0],
+        "exit_z": [0.5, 1.0],
+        "trend_len": [100, 200],
+        "cooldown": [5],
+    },
+    # ── Next-Frontier 2026-04-20 (Lane 3: unused data) ──
+    "breadth_decay_composite": {  # 2 × 2 × 3 × 3 = 36 combos
+        "trend_len": [100, 200],
+        "exit_ema": [30, 50],
+        "breadth_look": [10, 20, 50],
+        "narrow_threshold": [0.95, 1.00, 1.05],
+        "cooldown": [5],
+    },
+    # ── Next-Frontier 2026-04-20 (Lane 4: meta + infrastructure) ──
+    "vj_or_slope_meta": {  # 4 × 2 × 2 = 16 combos
+        "fast_ema": [100, 120],
+        "slow_ema": [150, 200],
+        "slope_window": [3],
+        "entry_bars": [2],
+        "cooldown": [2],
+        "slope_ema_len": [150, 200],
+        "slope_look": [10, 20],
     },
 }
 

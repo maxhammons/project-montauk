@@ -1,0 +1,112 @@
+//@version=6
+strategy("Project Montauk 7.8",
+         overlay=true,
+         shorttitle="Montauk 7.8",
+         calc_on_every_tick=false,
+         process_orders_on_close=true)
+
+// 1. Inputs
+shortEmaLen         = input.int(15,  title="Short EMA Length",   minval=1)
+medEmaLen           = input.int(30,  title="Medium EMA Length",  minval=1)
+longEmaLen          = input.int(500, title="Long EMA Length",    minval=1)
+
+// Trend-filter
+enableTrend         = input.bool(true, title="Enable Trend Filter")
+trendEmaLen         = input.int(70,   title="Trend EMA Length",   minval=1)
+slopeLookback       = input.int(10,   title="Slope Lookback Bars",minval=1)
+minTrendSlope       = input.float(0.0, title="Min Trend EMA Slope", step=0.0001)
+
+// Sell confirmation
+enableSellConfirm   = input.bool(true,  title="Enable Sell Confirmation")
+sellConfirmBars     = input.int(2,      title="Sell Confirm Bars",  minval=1)
+sellBufferPct       = input.float(0.2,  title="Sell Buffer (%)",    step=0.01)
+
+// Sell-cooldown
+enableSellCooldown  = input.bool(true,  title="Enable Sell Cooldown")
+sellCooldownBars    = input.int(2,      title="Sell Cooldown (bars)", minval=0)
+
+// ATR exit
+enableATRExit       = input.bool(true,  title="Enable ATR Exit")
+atrPeriod           = input.int(40,     title="ATR Period",        minval=1)
+atrMultiplier       = input.float(3.0,  title="ATR Multiplier",    step=0.1)
+
+// EMA Quick Exit
+enableQuickExit     = input.bool(true,  title="Enable Quick EMA Exit")
+quickEmaLen         = input.int(15,     title="Quick EMA Length",  minval=1)
+quickLookbackBars   = input.int(5,      title="Quick Exit Lookback Bars", minval=1)
+quickSlopeThreshold = input.float(-1.34,title="Quick EMA Slope Threshold", step=0.01)
+
+// 2. EMAs
+emaShort  = ta.ema(close, shortEmaLen)
+emaMed    = ta.ema(close, medEmaLen)
+emaLong   = ta.ema(close, longEmaLen)
+emaTrend  = ta.ema(close, trendEmaLen)
+
+// 3. Trend filter
+trendSlope = (emaTrend - emaTrend[slopeLookback]) / slopeLookback
+trendOk    = not enableTrend or (trendSlope > minTrendSlope)
+
+// 4. Buy zone
+buyZone = emaShort > emaMed
+
+// 5. EMA cross exit
+rawSell  = ta.crossunder(emaShort, emaLong)
+
+// 6. Sell confirmation
+bufferOk    = emaShort < emaLong * (1 - sellBufferPct/100)
+allBelow    = ta.lowest(emaShort < emaLong ? 1 : 0, sellConfirmBars) == 1
+confirmSell = not enableSellConfirm or allBelow
+
+// 7. ATR exit
+atr      = ta.atr(atrPeriod)
+atrExit  = enableATRExit and close < close[1] - atr * atrMultiplier
+
+// 8. Quick EMA exit
+quickEma   = ta.ema(close, quickEmaLen)
+quickSlope = (quickEma - quickEma[quickLookbackBars]) / quickLookbackBars
+quickExit  = enableQuickExit and quickSlope < quickSlopeThreshold
+
+// 9. Cooldown tracking
+var int lastSellBar = na
+
+// 10a. Compute individual exit flags
+isCrossExit  = rawSell and bufferOk and confirmSell
+isAtrExit    = atrExit
+isQuickExit  = quickExit
+
+// 10b. Determine exit reason
+var string exitReason = na
+if strategy.position_size > 0
+    if isCrossExit
+        exitReason := "EMA Cross"
+    else if isAtrExit
+        exitReason := "ATR Exit"
+    else if isQuickExit
+        exitReason := "Quick EMA"
+    else
+        exitReason := "Other"
+
+// 10c. Unified exit with debug annotation
+exitCond = strategy.position_size > 0 and (isCrossExit or isAtrExit or isQuickExit)
+
+if exitCond
+    strategy.close("Long")
+    lastSellBar := bar_index
+    // Debug label: indicate which rule triggered
+    label.new(bar_index, high, exitReason, yloc=yloc.abovebar, style=label.style_label_down, color=color.red, textcolor=color.white, size=size.tiny)
+
+// 11. Entry (with optional cooldown)
+canEnter = strategy.position_size == 0 and (
+      not enableSellCooldown
+   or na(lastSellBar)
+   or (bar_index - lastSellBar) > sellCooldownBars )
+
+if buyZone and trendOk and canEnter
+    strategy.entry("Long", strategy.long)
+
+// 12. Plots
+plot(emaShort, title="Short EMA",  color=color.new(color.orange, 0))
+plot(emaMed,   title="Medium EMA", color=color.new(color.teal,   0))
+plot(emaLong,  title="Long EMA",   color=color.new(color.purple, 0))
+plot(emaTrend, title="Trend EMA",  color=color.new(#ffffff,      80))
+plot(quickEma, title="Quick EMA",  color=color.new(#ff0000, 60))

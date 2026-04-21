@@ -283,7 +283,8 @@ def build_strategy_entry(rank: int,
                          entry: dict[str, Any],
                          run: dict[str, Any] | None) -> dict[str, Any]:
     """Build one strategy bundle entry from a leaderboard row + matching run."""
-    name = entry.get("strategy", "?")
+    codename = entry.get("strategy", "?")
+    name = entry.get("display_name") or codename
     params = entry.get("params") or {}
     base_metrics = entry.get("metrics") or {}
 
@@ -316,12 +317,17 @@ def build_strategy_entry(rank: int,
         "id": f"s{rank:02d}",
         "rank": rank,
         "name": name,
+        "codename": codename,
         "fitness": entry.get("fitness"),
+        "composite_confidence": validation.get("composite_confidence"),
         "tier": tier,
         "backtest_certified": backtest_certified,
         "promotion_ready": promotion_ready,
         "params": params,
         "metrics": metrics,
+        "multi_era": entry.get("multi_era"),
+        "manually_admitted": bool(entry.get("manually_admitted")),
+        "manual_admission": entry.get("manual_admission"),
         "validation_summary": flatten_gates(validation),
         "trades": [],
         "equity_curve": [],

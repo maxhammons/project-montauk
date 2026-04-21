@@ -132,6 +132,30 @@
     border-bottom: 1px solid var(--line-soft);
   }
   .strat-list { padding: 4px 0; }
+  .sort-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 0 8px 0;
+    font-size: 11px;
+    color: var(--text-3);
+    border-bottom: 1px solid var(--bg-2);
+    margin-bottom: 4px;
+  }
+  .sort-toolbar label { text-transform: uppercase; letter-spacing: 0.05em; }
+  .sort-toolbar select {
+    flex: 1;
+    background: var(--bg-2);
+    color: var(--text-0);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 3px 6px;
+    font-size: 11px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .sort-toolbar select:hover { border-color: var(--text-3); }
+  .sort-toolbar select:focus { outline: none; border-color: var(--tier-t1); }
   .strat {
     padding: 8px 14px;
     border-left: 3px solid transparent;
@@ -270,7 +294,14 @@
     color: var(--text-0);
     font-size: 14px;
     font-weight: 600;
-    margin: 4px 0 6px;
+    margin: 4px 0 2px;
+  }
+  .right .strat-codename {
+    color: var(--text-2);
+    font-size: 10px;
+    font-family: var(--mono, monospace);
+    letter-spacing: 0.02em;
+    margin: 0 0 6px;
   }
   .right .strat-meta {
     color: var(--text-2);
@@ -295,6 +326,67 @@
   }
   .metric-row .v.pos { color: var(--green); }
   .metric-row .v.neg { color: var(--red); }
+
+  /* ── Multi-era breakdown (dual-view: crash insurance vs modern participation) ── */
+  .era-section { padding-top: 4px; padding-bottom: 6px; }
+  .era-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
+  .era-table thead th {
+    text-align: right;
+    color: var(--text-3);
+    font-weight: 400;
+    padding: 2px 6px 4px 6px;
+    border-bottom: 1px solid var(--line);
+  }
+  .era-table thead th:first-child { text-align: left; }
+  .era-table tbody td { padding: 4px 6px; text-align: right; border-bottom: 1px solid var(--bg-2); }
+  .era-table tbody td.era-label { text-align: left; color: var(--text-2); cursor: help; }
+  .era-table tbody tr:last-child td { border-bottom: none; }
+  .era-table .era-val { color: var(--text-0); font-weight: 500; }
+  .era-table .era-val.pos { color: var(--green); }
+  .era-table .era-val.neg { color: var(--red); }
+  .era-decayed {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 8px;
+    padding: 6px 6px 4px 6px;
+    border-top: 1px dashed var(--line);
+    font-size: 11px;
+    color: var(--text-2);
+    cursor: help;
+  }
+  .era-decayed .v {
+    color: var(--text-0);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Sidebar additions: modern-era share and manual-admission flag */
+  .strat .mod-mult {
+    font-size: 10px;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    margin-left: 4px;
+  }
+  .strat .mod-mult.ok { color: var(--green); opacity: 0.7; }
+  .strat .mod-mult.bad { color: var(--amber); opacity: 0.75; }
+  .strat .manual-flag {
+    color: var(--amber);
+    font-size: 10px;
+    margin-left: 3px;
+    cursor: help;
+  }
+  .strat .orig-rank {
+    color: var(--text-3);
+    font-size: 9px;
+    font-weight: 400;
+    margin-left: 3px;
+  }
 
   .scorecards {
     display: flex;
@@ -468,6 +560,16 @@
 
   <div class="sidebar">
     <h3>Leaderboard</h3>
+    <div class="sort-toolbar">
+      <label for="sort-select">Sort by</label>
+      <select id="sort-select">
+        <option value="fitness" selected>All-time fitness</option>
+        <option value="modern_share">Modern share (post-2015)</option>
+        <option value="real_share">Real-only share (post-2008)</option>
+        <option value="decayed_fitness">Decayed fitness (λ=0.07)</option>
+        <option value="composite">Composite confidence</option>
+      </select>
+    </div>
     <div class="strat-list" id="strat-list"></div>
   </div>
 
@@ -497,6 +599,7 @@
   <div class="right" id="right-panel">
     <div class="section">
       <div class="strat-name" id="r-name">—</div>
+      <div class="strat-codename" id="r-codename"></div>
       <div class="strat-meta" id="r-meta"></div>
     </div>
 
@@ -508,6 +611,9 @@
 
     <h3>Primary metrics</h3>
     <div class="section" id="r-metrics"></div>
+
+    <h3 id="r-era-header" style="display:none;">Era breakdown <span style="font-weight:400;color:var(--text-3);font-size:11px;">crash insurance vs modern market</span></h3>
+    <div class="section era-section" id="r-era-breakdown" style="display:none;"></div>
 
     <h3>Validation</h3>
     <div class="section">

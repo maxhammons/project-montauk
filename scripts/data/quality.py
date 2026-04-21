@@ -2,15 +2,16 @@
 """
 Consolidated data-quality runner (Phase 3f).
 
-Single audit_all() that exercises every data-integrity check in the
-Phase 3 charter and prints PASS / WARN / FAIL per test. Used as:
+Two scopes:
 
-  - Pre-check before validation pipeline gate 0
-  - Component of the backtest_certified flag (Phase 2b gate 7 rename)
-  - Standalone CLI: `python scripts/data_quality.py`
+  LOCAL — audit_all() default. No external network. Cheap + deterministic.
+          Safe as a per-validation precondition.
+  AUDIT — audit_all(include_crosscheck=True), or CLI `--full`. Adds external
+          cross-source verification (Tiingo/Stooq). Run as a periodic audit,
+          NOT on every validation pass (rate limits → spurious FAILs).
 
-Tests
------
+Local tests (always run)
+------------------------
   formula_residual           Row-by-row synthetic residual vs deterministic rebuild
   seam_continuity            Synthetic→real boundary continuity (anchor exact)
   manifest_checksum          data/manifest.json sha256 vs disk
@@ -22,8 +23,12 @@ Tests
   split_detection            >50% close change without 5x volume spike
   date_monotonicity          Sort order
   volume_sanity              Zero volume on real ETF dates
-  crosscheck_divergence      Yahoo (local) vs Tiingo/Stooq cross-check
+  provenance_columns         Synthetic / real provenance fields present
   formula_reverification     Per-segment 3× leverage residual vs source
+
+Audit-only tests (opt-in)
+-------------------------
+  crosscheck_divergence      Yahoo (local) vs Tiingo/Stooq cross-check
 
 Each check returns: {test, status, scope, summary, details}
 """
@@ -415,7 +420,8 @@ def test_formula_reverification() -> list[dict]:
 # Runner
 # ─────────────────────────────────────────────────────────────────────
 
-ALL_TESTS = [
+# Local tests (no external network calls) — safe to run on every validation pass.
+LOCAL_TESTS = [
     ("formula_residual_vs_rebuild", test_formula_residual_vs_rebuild),
     ("seam_continuity",             test_seam_continuity),
     ("manifest_checksum",           test_manifest_checksum),
@@ -428,15 +434,39 @@ ALL_TESTS = [
     ("date_monotonicity",           test_date_monotonicity),
     ("volume_sanity",               test_volume_sanity),
     ("provenance_columns",          test_provenance_columns),
-    ("crosscheck_divergence",       test_crosscheck_divergence),
     ("formula_reverification",      test_formula_reverification),
 ]
 
+# Audit-only tests — external API calls, run explicitly during periodic audits,
+# not on every validation pipeline pass. Keeps validation cheap + deterministic
+# and avoids spurious FAILs when external sources rate-limit.
+AUDIT_TESTS = [
+    ("crosscheck_divergence",       test_crosscheck_divergence),
+]
 
-def audit_all() -> list[dict]:
-    """Run every test and return a flat list of result dicts."""
+# Backward-compat alias. Equivalent to LOCAL_TESTS + AUDIT_TESTS in declaration
+# order. Callers that reference ALL_TESTS still work; prefer LOCAL_TESTS or
+# AUDIT_TESTS in new code to make scope explicit.
+ALL_TESTS = (
+    LOCAL_TESTS[:12]
+    + AUDIT_TESTS
+    + LOCAL_TESTS[12:]
+)
+
+
+def audit_all(include_crosscheck: bool = False) -> list[dict]:
+    """Run data-quality tests and return a flat list of result dicts.
+
+    By default runs only LOCAL_TESTS — no network calls. Pass
+    `include_crosscheck=True` to also run AUDIT_TESTS (cross-source verification
+    via Tiingo/Stooq). Cross-source audit is a periodic integrity check, not
+    a per-validation precondition.
+    """
     flat: list[dict] = []
-    for _name, fn in ALL_TESTS:
+    tests = list(LOCAL_TESTS)
+    if include_crosscheck:
+        tests = tests + list(AUDIT_TESTS)
+    for _name, fn in tests:
         try:
             flat.extend(fn())
         except Exception as e:
@@ -483,9 +513,16 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--json", action="store_true", help="Output JSON")
     ap.add_argument("--no-color", action="store_true", help="Disable color")
+    ap.add_argument(
+        "--full",
+        action="store_true",
+        help="Run the full audit including external cross-source checks "
+             "(Tiingo/Stooq). Off by default — cross-source verification is a "
+             "periodic audit, not a per-validation precondition.",
+    )
     args = ap.parse_args(argv)
 
-    results = audit_all()
+    results = audit_all(include_crosscheck=args.full)
     summary = summarize(results)
 
     if args.json:

@@ -1,0 +1,622 @@
+{
+  "generated_utc": "2026-04-21T05:35:31Z",
+  "run_id": "069",
+  "summary": {},
+  "champion_validation": {
+    "verdict": "PASS",
+    "promotion_ready": true,
+    "backtest_certified": true,
+    "clean_pass": true,
+    "composite_confidence": 0.8358,
+    "tier": "T1",
+    "tier_reasons": [],
+    "certification_checks": {
+      "engine_integrity": {
+        "passed": true,
+        "status": "pass",
+        "checks": {
+          "slippage_pct_default": 0.05,
+          "slippage_active": true,
+          "bar_close_execution": true,
+          "lookahead_safe": true,
+          "repaint_safe": true
+        },
+        "errors": []
+      },
+      "golden_regression": {
+        "passed": true,
+        "status": "pass",
+        "fixture_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/tests/golden_trades_821.json",
+        "trade_count": 51,
+        "mismatches": []
+      },
+      "shadow_comparator": {
+        "passed": true,
+        "status": "pass",
+        "trade_count_ours": 21,
+        "trade_count_shadow": 21,
+        "issues": []
+      },
+      "data_quality_precheck": {
+        "passed": true,
+        "status": "pass",
+        "summary": {
+          "total": 46,
+          "pass": 45,
+          "warn": 0,
+          "fail": 0,
+          "skip": 1
+        },
+        "failing_checks": []
+      },
+      "artifact_completeness": {
+        "passed": true,
+        "status": "pass",
+        "paths": {
+          "validation_summary": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/069/validation_summary.json",
+          "trade_ledger": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/069/trade_ledger.json",
+          "signal_series": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/069/signal_series.json",
+          "equity_curve": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/069/equity_curve.json",
+          "dashboard_data": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/069/dashboard_data.json"
+        }
+      }
+    },
+    "sub_scores": {
+      "marker_shape": 0.7625,
+      "walk_forward": 1.0,
+      "fragility": 0.7503,
+      "selection_bias": null,
+      "cross_asset": 1.0,
+      "bootstrap": null,
+      "regime_consistency": null,
+      "trade_sufficiency": 0.6333
+    },
+    "advisories": [
+      "artifact completeness pending"
+    ],
+    "soft_warnings": [
+      "[T1] missed_marker_cycles=13 > 3 (informational)",
+      "[T1] transition_timing=0.057 < 0.40 (informational)",
+      "2020_meltup: share_multiple=0.301",
+      "2023_rebound: share_multiple=0.373"
+    ],
+    "critical_warnings": [],
+    "warnings": [
+      "[T1] missed_marker_cycles=13 > 3 (informational)",
+      "[T1] transition_timing=0.057 < 0.40 (informational)",
+      "2020_meltup: share_multiple=0.301",
+      "2023_rebound: share_multiple=0.373"
+    ],
+    "hard_fail_reasons": [],
+    "gates": {
+      "gate1": {
+        "verdict": "PASS",
+        "tier": "T1",
+        "trade_count": 29,
+        "trades_per_year": 0.9,
+        "n_params": 2,
+        "trades_per_param": 14.5,
+        "regime_transitions": 19,
+        "degeneracy": {
+          "verdict": "PASS",
+          "windows": [
+            {
+              "window": "1993-1996",
+              "exposure": 0.6315
+            },
+            {
+              "window": "1997-2000",
+              "exposure": 0.7538
+            },
+            {
+              "window": "2001-2004",
+              "exposure": 0.2007
+            },
+            {
+              "window": "2005-2008",
+              "exposure": 0.5668
+            },
+            {
+              "window": "2009-2012",
+              "exposure": 0.5486
+            },
+            {
+              "window": "2013-2016",
+              "exposure": 0.8842
+            },
+            {
+              "window": "2017-2020",
+              "exposure": 0.8574
+            },
+            {
+              "window": "2021-2024",
+              "exposure": 0.7147
+            },
+            {
+              "window": "2025-2026",
+              "exposure": 0.6887
+            }
+          ],
+          "warnings": [],
+          "hard_fail_reasons": []
+        },
+        "advisories": [],
+        "soft_warnings": [],
+        "critical_warnings": [],
+        "warnings": [],
+        "hard_fail_reasons": []
+      },
+      "gate_marker": {
+        "verdict": "PASS",
+        "tier": "T1",
+        "marker_score": 0.5179,
+        "state_agreement": 0.7625,
+        "transition_timing": 0.0571,
+        "target_buy_count": 14,
+        "candidate_buy_count": 22,
+        "missed_cycles": 13,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "advisories": [],
+        "soft_warnings": [
+          "[T1] missed_marker_cycles=13 > 3 (informational)",
+          "[T1] transition_timing=0.057 < 0.40 (informational)"
+        ],
+        "critical_warnings": [],
+        "warnings": [
+          "[T1] missed_marker_cycles=13 > 3 (informational)",
+          "[T1] transition_timing=0.057 < 0.40 (informational)"
+        ],
+        "hard_fail_reasons": []
+      },
+      "gate2": {
+        "verdict": "SKIPPED",
+        "reason": "skipped for T1 \u2014 gate2 is T2-only (TODO: split result-quality checks out)",
+        "advisories": [],
+        "soft_warnings": [],
+        "critical_warnings": [],
+        "warnings": [],
+        "hard_fail_reasons": []
+      },
+      "gate3": {
+        "verdict": "PASS",
+        "evaluations": 13,
+        "baseline_score": 0.4656,
+        "max_swing_10": 0.0999,
+        "max_swing_20": 0.0994,
+        "score": 0.7503,
+        "hard_fail_params": [],
+        "warn_params": [],
+        "details": [
+          {
+            "name": "ema_len",
+            "perturbations": {
+              "-0.2": {
+                "score": 0.4772,
+                "swing": 0.0249
+              },
+              "-0.1": {
+                "score": 0.4492,
+                "swing": 0.0352
+              },
+              "0.1": {
+                "score": 0.5121,
+                "swing": 0.0999
+              },
+              "0.2": {
+                "score": 0.5119,
+                "swing": 0.0994
+              }
+            }
+          },
+          {
+            "name": "slope_look",
+            "perturbations": {
+              "-0.2": {
+                "score": 0.4535,
+                "swing": 0.026
+              },
+              "-0.1": {
+                "score": 0.4407,
+                "swing": 0.0535
+              },
+              "0.1": {
+                "score": 0.4567,
+                "swing": 0.0191
+              },
+              "0.2": {
+                "score": 0.455,
+                "swing": 0.0228
+              }
+            }
+          },
+          {
+            "name": "cooldown",
+            "perturbations": {
+              "-0.2": {
+                "score": 0.4656,
+                "swing": 0.0
+              },
+              "-0.1": {
+                "score": 0.4656,
+                "swing": 0.0
+              },
+              "0.1": {
+                "score": 0.4656,
+                "swing": 0.0
+              },
+              "0.2": {
+                "score": 0.4656,
+                "swing": 0.0
+              }
+            }
+          }
+        ],
+        "soft_warnings": [],
+        "critical_warnings": [],
+        "warnings": [],
+        "hard_fail_reasons": []
+      },
+      "gate4": {
+        "verdict": "PASS",
+        "tier": "T1",
+        "walk_forward": {
+          "verdict": "PASS",
+          "windows": [
+            {
+              "label": "WF 2015-2017",
+              "train": {
+                "regime_score": 0.463,
+                "bull_capture": 0.686,
+                "bear_avoidance": 0.2401,
+                "mar": 0.198,
+                "cagr": 16.8,
+                "max_dd": 84.9,
+                "trades": 22,
+                "share_multiple": 8.161,
+                "win_rate": 40.9
+              },
+              "test": {
+                "regime_score": 0.6425,
+                "bull_capture": 0.546,
+                "bear_avoidance": 0.7391,
+                "mar": 0.629,
+                "cagr": 28.6,
+                "max_dd": 45.4,
+                "trades": 3,
+                "share_multiple": 0.656,
+                "win_rate": 33.3
+              },
+              "oos_is_ratio": 1.3877,
+              "oos_is_metric": "regime_score",
+              "share_multiple_ratio": 0.0804
+            },
+            {
+              "label": "WF 2018-2020",
+              "train": {
+                "regime_score": 0.4659,
+                "bull_capture": 0.6918,
+                "bear_avoidance": 0.2401,
+                "mar": 0.195,
+                "cagr": 16.6,
+                "max_dd": 84.9,
+                "trades": 25,
+                "share_multiple": 3.865,
+                "win_rate": 40.0
+              },
+              "test": {
+                "regime_score": 0.4782,
+                "bull_capture": 0.594,
+                "bear_avoidance": 0.3623,
+                "mar": 0.239,
+                "cagr": 17.1,
+                "max_dd": 71.5,
+                "trades": 2,
+                "share_multiple": 0.459,
+                "win_rate": 50.0
+              },
+              "oos_is_ratio": 1.0264,
+              "oos_is_metric": "regime_score",
+              "share_multiple_ratio": 0.1188
+            },
+            {
+              "label": "WF 2021-2023",
+              "train": {
+                "regime_score": 0.4666,
+                "bull_capture": 0.6931,
+                "bear_avoidance": 0.2401,
+                "mar": 0.198,
+                "cagr": 16.8,
+                "max_dd": 84.9,
+                "trades": 27,
+                "share_multiple": 1.783,
+                "win_rate": 40.7
+              },
+              "test": {
+                "regime_score": 0.5918,
+                "bull_capture": 0.3586,
+                "bear_avoidance": 0.825,
+                "mar": 0.225,
+                "cagr": 9.9,
+                "max_dd": 43.9,
+                "trades": 2,
+                "share_multiple": 0.766,
+                "win_rate": 50.0
+              },
+              "oos_is_ratio": 1.2683,
+              "oos_is_metric": "regime_score",
+              "share_multiple_ratio": 0.4296
+            },
+            {
+              "label": "WF 2024-2025",
+              "train": {
+                "regime_score": 0.4675,
+                "bull_capture": 0.6948,
+                "bear_avoidance": 0.2401,
+                "mar": 0.221,
+                "cagr": 18.8,
+                "max_dd": 84.9,
+                "trades": 28,
+                "share_multiple": 2.888,
+                "win_rate": 42.9
+              },
+              "test": {
+                "regime_score": 0.475,
+                "bull_capture": 0.3404,
+                "bear_avoidance": 0.6096,
+                "mar": 0.292,
+                "cagr": 9.0,
+                "max_dd": 30.9,
+                "trades": 2,
+                "share_multiple": 0.623,
+                "win_rate": 50.0
+              },
+              "oos_is_ratio": 1.016,
+              "oos_is_metric": "regime_score",
+              "share_multiple_ratio": 0.2157
+            }
+          ],
+          "avg_oos_is_ratio": 1.1746,
+          "min_oos_is_ratio": 1.016,
+          "max_oos_is_ratio": 1.3877,
+          "spread": 0.3717,
+          "score": 1.0,
+          "soft_warnings": [],
+          "critical_warnings": [],
+          "warnings": [],
+          "hard_fail_reasons": []
+        },
+        "named_windows": {
+          "verdict": "WARN",
+          "results": [
+            {
+              "window": "2020_meltup",
+              "regime_score": 0.492,
+              "bull_capture": 0.7408,
+              "bear_avoidance": 0.2433,
+              "mar": 0.351,
+              "cagr": 25.1,
+              "max_dd": 71.5,
+              "trades": 3,
+              "share_multiple": 0.301,
+              "win_rate": 66.7
+            },
+            {
+              "window": "2021_2022_bear",
+              "regime_score": 0.4748,
+              "bull_capture": 0.4704,
+              "bear_avoidance": 0.4792,
+              "mar": 0.242,
+              "cagr": 17.3,
+              "max_dd": 71.5,
+              "trades": 2,
+              "share_multiple": 1.064,
+              "win_rate": 50.0
+            },
+            {
+              "window": "2023_rebound",
+              "regime_score": 0.7036,
+              "bull_capture": 0.4922,
+              "bear_avoidance": 0.915,
+              "mar": 0.638,
+              "cagr": 27.4,
+              "max_dd": 43.0,
+              "trades": 2,
+              "share_multiple": 0.373,
+              "win_rate": 100.0
+            },
+            {
+              "window": "2024_onward",
+              "regime_score": 0.3995,
+              "bull_capture": 0.352,
+              "bear_avoidance": 0.447,
+              "mar": 0.475,
+              "cagr": 21.6,
+              "max_dd": 45.3,
+              "trades": 2,
+              "share_multiple": 1.248,
+              "win_rate": 100.0
+            }
+          ],
+          "soft_warnings": [
+            "2020_meltup: share_multiple=0.301",
+            "2023_rebound: share_multiple=0.373"
+          ],
+          "critical_warnings": [],
+          "warnings": [
+            "2020_meltup: share_multiple=0.301",
+            "2023_rebound: share_multiple=0.373"
+          ],
+          "hard_fail_reasons": []
+        },
+        "walk_forward_score": 1.0,
+        "soft_warnings": [
+          "2020_meltup: share_multiple=0.301",
+          "2023_rebound: share_multiple=0.373"
+        ],
+        "critical_warnings": [],
+        "warnings": [
+          "2020_meltup: share_multiple=0.301",
+          "2023_rebound: share_multiple=0.373"
+        ],
+        "hard_fail_reasons": []
+      },
+      "gate5": {
+        "verdict": "SKIPPED",
+        "reason": "skipped for T1 \u2014 uncertainty stack is T2-only",
+        "advisories": [],
+        "soft_warnings": [],
+        "critical_warnings": [],
+        "warnings": [],
+        "hard_fail_reasons": []
+      },
+      "gate6": {
+        "verdict": "PASS",
+        "same_params": {
+          "strategy": "slope_only_200",
+          "params": {
+            "ema_len": 200,
+            "slope_look": 20,
+            "cooldown": 5
+          },
+          "results": {
+            "TECL": {
+              "share_multiple": 2.063,
+              "cagr": 18.4,
+              "max_dd": 84.9,
+              "trades": 29,
+              "trades_yr": 0.9,
+              "win_rate": 44.8,
+              "exit_reasons": {
+                "S": 29
+              }
+            },
+            "TQQQ": {
+              "share_multiple": 2.8408,
+              "cagr": 21.1,
+              "max_dd": 73.9,
+              "trades": 29,
+              "trades_yr": 0.9,
+              "win_rate": 55.2,
+              "exit_reasons": {
+                "S": 29
+              }
+            },
+            "QQQ": {
+              "share_multiple": 0.8165,
+              "cagr": 13.2,
+              "max_dd": 36.5,
+              "trades": 19,
+              "trades_yr": 0.6,
+              "win_rate": 68.4,
+              "exit_reasons": {
+                "S": 18,
+                "End of Data": 1
+              }
+            }
+          }
+        },
+        "tier3_reopt": {
+          "strategy": "slope_only_200",
+          "asset": "TQQQ",
+          "best_fitness": 0.4815,
+          "best_params": {},
+          "share_multiple": 1.5402,
+          "cagr": 18.8,
+          "trades": 34,
+          "verdict": "PASS",
+          "reason": "TQQQ share_multiple=1.5402 (beats buy-and-hold)"
+        },
+        "soft_warnings": [],
+        "critical_warnings": [],
+        "warnings": [],
+        "hard_fail_reasons": []
+      },
+      "gate7": {
+        "verdict": "PASS",
+        "tier": "T1",
+        "promotion_ready": true,
+        "clean_pass": true,
+        "backtest_certified": true,
+        "certification_checks": {
+          "engine_integrity": {
+            "passed": true,
+            "status": "pass",
+            "checks": {
+              "slippage_pct_default": 0.05,
+              "slippage_active": true,
+              "bar_close_execution": true,
+              "lookahead_safe": true,
+              "repaint_safe": true
+            },
+            "errors": []
+          },
+          "golden_regression": {
+            "passed": true,
+            "status": "pass",
+            "fixture_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/tests/golden_trades_821.json",
+            "trade_count": 51,
+            "mismatches": []
+          },
+          "shadow_comparator": {
+            "passed": true,
+            "status": "pass",
+            "trade_count_ours": 21,
+            "trade_count_shadow": 21,
+            "issues": []
+          },
+          "data_quality_precheck": {
+            "passed": true,
+            "status": "pass",
+            "summary": {
+              "total": 46,
+              "pass": 45,
+              "warn": 0,
+              "fail": 0,
+              "skip": 1
+            },
+            "failing_checks": []
+          },
+          "artifact_completeness": {
+            "passed": true,
+            "status": "pass",
+            "paths": {
+              "validation_summary": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/069/validation_summary.json",
+              "trade_ledger": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/069/trade_ledger.json",
+              "signal_series": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/069/signal_series.json",
+              "equity_curve": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/069/equity_curve.json",
+              "dashboard_data": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/069/dashboard_data.json"
+            }
+          }
+        },
+        "sub_scores": {
+          "marker_shape": 0.7625,
+          "walk_forward": 1.0,
+          "fragility": 0.7503,
+          "selection_bias": null,
+          "cross_asset": 1.0,
+          "bootstrap": null,
+          "regime_consistency": null,
+          "trade_sufficiency": 0.6333
+        },
+        "composite_confidence": 0.8358,
+        "advisories": [],
+        "soft_warnings": [
+          "[T1] missed_marker_cycles=13 > 3 (informational)",
+          "[T1] transition_timing=0.057 < 0.40 (informational)",
+          "2020_meltup: share_multiple=0.301",
+          "2023_rebound: share_multiple=0.373"
+        ],
+        "critical_warnings": [],
+        "warnings": [
+          "[T1] missed_marker_cycles=13 > 3 (informational)",
+          "[T1] transition_timing=0.057 < 0.40 (informational)",
+          "2020_meltup: share_multiple=0.301",
+          "2023_rebound: share_multiple=0.373"
+        ],
+        "hard_fail_reasons": []
+      }
+    }
+  }
+}

@@ -257,6 +257,12 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
     except ImportError:
         STRATEGY_DESCRIPTIONS = {}
 
+    # Display-name registry sits next to the leaderboard: spike/name_registry.json
+
+    name_registry_path = os.path.join(
+        os.path.dirname(leaderboard_path) or ".", "name_registry.json"
+    )
+
     # Load existing
     leaderboard = []
     if os.path.exists(leaderboard_path):
@@ -265,6 +271,14 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
                 leaderboard = json.load(f)
         except Exception:
             pass
+
+    # Backfill display_name on legacy entries that predate the naming rule.
+    from strategies.naming import assign_display_name as _assign_name
+    for _e in leaderboard:
+        if not _e.get("display_name") and _e.get("strategy"):
+            _e["display_name"] = _assign_name(
+                _e["strategy"], _e.get("params", {}), name_registry_path
+            )
 
     # Build per-strategy convergence state from existing leaderboard
     # Track the best entry per strategy name (highest fitness)
@@ -286,6 +300,23 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
     date = results.get("date", datetime.now().strftime("%Y-%m-%d"))
     strategies_in_run = set()
     rejected_count = 0
+    # Lazy multi-era enrichment: load TECL once on first admitted entry so the
+    # backfill cost stays scoped to promotions. See certify/backfill_multi_era_metrics.py.
+    _multi_era_df = None
+    _multi_era_fn = None
+    def _enrich_multi_era(lb_entry_obj):
+        nonlocal _multi_era_df, _multi_era_fn
+        try:
+            if _multi_era_fn is None:
+                from certify.backfill_multi_era_metrics import enrich_entry_with_multi_era
+                _multi_era_fn = enrich_entry_with_multi_era
+            if _multi_era_df is None:
+                from data.loader import get_tecl_data
+                _multi_era_df = get_tecl_data()
+            lb_entry_obj["multi_era"] = _multi_era_fn(lb_entry_obj, _multi_era_df)
+        except Exception as _exc:
+            # Enrichment must never block promotion — log and move on.
+            print(f"[leaderboard] multi_era enrichment skipped for {lb_entry_obj.get('strategy')}: {_exc}")
     for entry in results.get("rankings", []):
         if not entry.get("metrics"):
             continue
@@ -326,8 +357,13 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
                 print(f"[leaderboard] {name} auto-converged after {rwi} runs with no improvement")
 
         # Build leaderboard entry
+        from strategies.naming import assign_display_name
+
         lb_entry = {
             "strategy": name,
+            "display_name": assign_display_name(
+                name, entry.get("params", {}), name_registry_path
+            ),
             "fitness": new_fitness,
             "params": entry.get("params", {}),
             "metrics": entry["metrics"],
@@ -350,6 +386,7 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
         desc = STRATEGY_DESCRIPTIONS.get(name)
         if desc:
             lb_entry["description"] = desc
+        _enrich_multi_era(lb_entry)
         leaderboard.append(lb_entry)
 
     # Increment runs_without_improvement for strategies NOT in this run

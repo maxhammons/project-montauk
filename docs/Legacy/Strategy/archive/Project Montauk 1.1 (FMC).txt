@@ -1,0 +1,106 @@
+//@version=5
+strategy("FMC 1.1", overlay=true)
+
+// === INPUTS ===
+// MACD settings
+fast_length        = input.int(29,  "MACD Fast Length",   minval=1)
+slow_length        = input.int(89,  "MACD Slow Length",   minval=1)
+signal_length      = input.int(10,  "MACD Signal Length", minval=1)
+// MACD buffer as % of price
+buffer_pct         = input.float(0.001, "MACD Buffer (% of price)", step=0.0001)
+
+// ATR stop settings
+atr_period         = input.int(14,  "ATR Period",         minval=1)
+atr_mult           = input.float(3,   "ATR Mult (Stop)",    step=0.1)
+
+// Cooldown (bars) after any exit
+cooldown_period    = input.int(3,   "Cooldown (Bars)",     minval=0)
+
+// Trend SMA for filtering
+trend_sma_length   = input.int(200, "SMA Length (Bars)",   minval=1)
+
+// Slope-based no-trade zone (percent)
+slope_lookback     = input.int(10,  "Slope Lookback (Bars)", minval=1)
+rolling_slope_len  = input.int(10,  "Rolling Slope Length",   minval=1)
+slope_threshold    = input.float(0.001, "Slope Threshold (% change)", step=0.0001)
+
+// Order size
+order_size         = input.int(100, "Position Size",     minval=1)
+
+
+// === CALCULATIONS ===
+// 1) MACD lines and dynamic buffer
+[macd_line, signal_line, _] = ta.macd(close, fast_length, slow_length, signal_length)
+macd_diff     = macd_line - signal_line
+dynamic_buf   = buffer_pct * close
+
+// Bullish/bearish when crossing plus/minus buffer
+bullish_macd  = ta.crossover(macd_line, signal_line) and (macd_diff >  dynamic_buf)
+bearish_macd  = ta.crossunder(macd_line, signal_line) and (macd_diff < -dynamic_buf)
+
+// 2) ATR-based trailing stop
+atr_value     = ta.atr(atr_period)
+var float high_since_entry = na
+if strategy.position_size > 0
+    high_since_entry := na(high_since_entry) ? close : math.max(high_since_entry, close)
+else
+    high_since_entry := na
+atr_stop_lvl  = high_since_entry - (atr_mult * atr_value)
+
+// 3) Trend filter (200-bar SMA)
+trend_sma     = ta.sma(close, trend_sma_length)
+above_sma     = close > trend_sma
+
+// 4) Percent-based slope no-trade zone
+slope_pct     = (trend_sma - trend_sma[slope_lookback]) / trend_sma[slope_lookback]
+avg_slope_pct = ta.sma(slope_pct, rolling_slope_len)
+no_trade_zone = math.abs(avg_slope_pct) < slope_threshold
+
+// 5) Cooldown logic
+var int last_exit_bar = na
+in_cooldown   = not na(last_exit_bar) and (bar_index - last_exit_bar <= cooldown_period)
+
+// Mark exits to start cooldown
+vol_stop      = (strategy.position_size > 0) and (close < atr_stop_lvl)
+macd_exit     = bearish_macd and not no_trade_zone
+if vol_stop or macd_exit
+    last_exit_bar := bar_index
+
+
+// === TRADING LOGIC ===
+// 1) ATR stop always overrides
+if vol_stop
+    strategy.close("Buy")
+
+// 2) MACD-based exit
+else if macd_exit
+    strategy.close("Buy")
+
+// 3) MACD-based entry
+if bullish_macd and above_sma and not no_trade_zone and not in_cooldown and strategy.position_size == 0
+    strategy.entry("Buy", strategy.long, qty=order_size)
+
+
+
+// === PLOTTING ===
+// Price coloured by position
+plot(close, color = strategy.position_size > 0 ? color.green : color.red, linewidth=2, title="Price")
+
+// Trend SMA
+plot(trend_sma, color=color.blue, linewidth=2, title="200-bar SMA")
+
+// MACD & Signal
+plot(macd_line,   color=color.green, linewidth=1, title="MACD")
+plot(signal_line, color=color.red,   linewidth=1, title="Signal")
+
+// ATR stop level when long
+plot(strategy.position_size > 0 ? atr_stop_lvl : na, 
+     color=color.purple, style=plot.style_linebr, title="ATR Stop")
+
+// Slope % and thresholds
+plot(avg_slope_pct, color=color.orange, linewidth=1, title="Avg Slope %")
+hline( slope_threshold,    "Slope + Threshold", linestyle=hline.style_dotted)
+hline(-slope_threshold,    "Slope - Threshold", linestyle=hline.style_dotted)
+
+// No-trade zone shading
+bgcolor(no_trade_zone ? color.new(color.red, 90) : na, title="No-Trade Zone")

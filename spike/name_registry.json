@@ -1,0 +1,84 @@
+{
+  "families": {
+    "gc_n8": {
+      "adjectives_used": [
+        "Velvet"
+      ],
+      "animal": "Jaguar",
+      "assignments": {
+        "0a9b11b633a9": "Velvet Jaguar"
+      }
+    },
+    "gc_precross_roc": {
+      "adjectives_used": [
+        "Slate"
+      ],
+      "animal": "Fox",
+      "assignments": {
+        "36d5f84745f1": "Slate Fox"
+      }
+    },
+    "gc_precross_strict": {
+      "adjectives_used": [
+        "Copper"
+      ],
+      "animal": "Heron",
+      "assignments": {
+        "2a3d4b8247db": "Copper Heron"
+      }
+    },
+    "gc_vjbb": {
+      "adjectives_used": [
+        "Velvet"
+      ],
+      "animal": "Falcon",
+      "assignments": {
+        "50ebe9c4660b": "Velvet Falcon"
+      }
+    },
+    "slope_only_200": {
+      "adjectives_used": [
+        "Marbled"
+      ],
+      "animal": "Hare",
+      "assignments": {
+        "9f4230c0a927": "Marbled Hare"
+      }
+    },
+    "vj_or_slope_meta": {
+      "adjectives_used": [
+        "Ember",
+        "Dusky",
+        "Ivory",
+        "Velvet",
+        "Pewter",
+        "Silver",
+        "Copper",
+        "Brindled",
+        "Marbled",
+        "Bronze"
+      ],
+      "animal": "Gecko",
+      "assignments": {
+        "0040dbfc14d6": "Ivory Gecko",
+        "00dd93314926": "Bronze Gecko",
+        "3260084b9d62": "Silver Gecko",
+        "4a13d5cf0b0f": "Pewter Gecko",
+        "7262659b7a5f": "Ember Gecko",
+        "7f38276cc836": "Marbled Gecko",
+        "8b1421ae2e04": "Copper Gecko",
+        "8c83ee6a0083": "Brindled Gecko",
+        "e7ec32af3fb4": "Dusky Gecko",
+        "f84610f67cf6": "Velvet Gecko"
+      }
+    }
+  },
+  "used_animals": [
+    "Falcon",
+    "Fox",
+    "Gecko",
+    "Hare",
+    "Heron",
+    "Jaguar"
+  ]
+}

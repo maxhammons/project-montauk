@@ -1,0 +1,178 @@
+[
+  {
+    "entry_bar": 318,
+    "entry_date": "1994-08-05",
+    "entry_price": 1.19834,
+    "exit_bar": 1858,
+    "exit_date": "2000-09-11",
+    "exit_price": 149.686169,
+    "exit_reason": "D",
+    "pnl_pct": 12391.129283,
+    "bars_held": 1540
+  },
+  {
+    "entry_bar": 2558,
+    "entry_date": "2003-06-27",
+    "entry_price": 1.122703,
+    "exit_bar": 2825,
+    "exit_date": "2004-07-21",
+    "exit_price": 1.339425,
+    "exit_reason": "D",
+    "pnl_pct": 19.303525,
+    "bars_held": 267
+  },
+  {
+    "entry_bar": 2881,
+    "entry_date": "2004-10-08",
+    "entry_price": 1.426723,
+    "exit_bar": 2988,
+    "exit_date": "2005-03-14",
+    "exit_price": 1.480098,
+    "exit_reason": "D",
+    "pnl_pct": 3.7411,
+    "bars_held": 107
+  },
+  {
+    "entry_bar": 3067,
+    "entry_date": "2005-07-06",
+    "entry_price": 1.46937,
+    "exit_bar": 3302,
+    "exit_date": "2006-06-12",
+    "exit_price": 1.292737,
+    "exit_reason": "D",
+    "pnl_pct": -12.021057,
+    "bars_held": 235
+  },
+  {
+    "entry_bar": 4051,
+    "entry_date": "2009-06-03",
+    "entry_price": 0.530265,
+    "exit_bar": 4284,
+    "exit_date": "2010-05-06",
+    "exit_price": 0.85957,
+    "exit_reason": "V",
+    "pnl_pct": 62.101968,
+    "bars_held": 233
+  },
+  {
+    "entry_bar": 4652,
+    "entry_date": "2011-10-19",
+    "entry_price": 0.96048,
+    "exit_bar": 4674,
+    "exit_date": "2011-11-18",
+    "exit_price": 0.929535,
+    "exit_reason": "D",
+    "pnl_pct": -3.221827,
+    "bars_held": 22
+  },
+  {
+    "entry_bar": 4687,
+    "entry_date": "2011-12-08",
+    "entry_price": 0.96048,
+    "exit_bar": 4690,
+    "exit_date": "2011-12-13",
+    "exit_price": 0.929535,
+    "exit_reason": "D",
+    "pnl_pct": -3.221827,
+    "bars_held": 3
+  },
+  {
+    "entry_bar": 4708,
+    "entry_date": "2012-01-10",
+    "entry_price": 1.0005,
+    "exit_bar": 4942,
+    "exit_date": "2012-12-14",
+    "exit_price": 1.169415,
+    "exit_reason": "D",
+    "pnl_pct": 16.883058,
+    "bars_held": 234
+  },
+  {
+    "entry_bar": 4957,
+    "entry_date": "2013-01-08",
+    "entry_price": 1.270635,
+    "exit_bar": 4962,
+    "exit_date": "2013-01-15",
+    "exit_price": 1.249375,
+    "exit_reason": "D",
+    "pnl_pct": -1.673179,
+    "bars_held": 5
+  },
+  {
+    "entry_bar": 4977,
+    "entry_date": "2013-02-06",
+    "entry_price": 1.30065,
+    "exit_bar": 5618,
+    "exit_date": "2015-08-24",
+    "exit_price": 2.628685,
+    "exit_reason": "V",
+    "pnl_pct": 102.105486,
+    "bars_held": 641
+  },
+  {
+    "entry_bar": 5659,
+    "entry_date": "2015-10-21",
+    "entry_price": 3.38169,
+    "exit_bar": 5721,
+    "exit_date": "2016-01-21",
+    "exit_price": 2.77861,
+    "exit_reason": "D",
+    "pnl_pct": -17.833687,
+    "bars_held": 62
+  },
+  {
+    "entry_bar": 5756,
+    "entry_date": "2016-03-11",
+    "entry_price": 3.511755,
+    "exit_bar": 6235,
+    "exit_date": "2018-02-05",
+    "exit_price": 10.944525,
+    "exit_reason": "V",
+    "pnl_pct": 211.654002,
+    "bars_held": 479
+  },
+  {
+    "entry_bar": 6497,
+    "entry_date": "2019-02-21",
+    "entry_price": 11.70585,
+    "exit_bar": 6753,
+    "exit_date": "2020-02-27",
+    "exit_price": 20.199895,
+    "exit_reason": "V",
+    "pnl_pct": 72.562394,
+    "bars_held": 256
+  },
+  {
+    "entry_bar": 6814,
+    "entry_date": "2020-05-26",
+    "entry_price": 18.679335,
+    "exit_bar": 7290,
+    "exit_date": "2022-04-13",
+    "exit_price": 51.25436,
+    "exit_reason": "D",
+    "pnl_pct": 174.39071,
+    "bars_held": 476
+  },
+  {
+    "entry_bar": 7523,
+    "entry_date": "2023-03-20",
+    "entry_price": 32.266125,
+    "exit_bar": 7869,
+    "exit_date": "2024-08-05",
+    "exit_price": 62.26885,
+    "exit_reason": "V",
+    "pnl_pct": 92.985213,
+    "bars_held": 346
+  },
+  {
+    "entry_bar": 8090,
+    "entry_date": "2025-06-24",
+    "entry_price": 87.333645,
+    "exit_bar": 8293,
+    "exit_date": "2026-04-15",
+    "exit_price": 123.599998,
+    "exit_reason": "End of Data",
+    "pnl_pct": 41.526211,
+    "bars_held": 203
+  }
+]

@@ -4995,6 +4995,1297 @@ def gc_c8(ind, p):
     return new_entries, exits, labels
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Velvet Jaguar Overlays 2026-04-20 (Round 1) — VJ = gc_n8 base, one overlay.
+# See docs/*NEXT/brainstorm-2026-04-20-velvet-jaguar-gaps.md for rationale.
+# VJ entry = _gc_strict_signals + MACD(12,26) > 0. Exits keep D and V.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def _vj_base(ind, p):
+    """Returns VJ (gc_n8) base signals: entries with MACD>0 filter, death, vix_panic."""
+    strict_entries, death, vix_panic, fast, slow = _gc_strict_signals(ind, p)
+    n = ind.n
+    macd = ind.macd_line(12, 26)
+    entries = np.zeros(n, dtype=bool)
+    for i in range(n):
+        if strict_entries[i] and not np.isnan(macd[i]) and macd[i] > 0:
+            entries[i] = True
+    return entries, death, vix_panic, fast, slow
+
+
+def gc_vjx(ind, p):
+    """T1 addon A1: VJ + dual-confirmed VIX shock exit.
+    Exit when VIX/VIX[-look] > vix_roc AND close drops > price_drop% over same window."""
+    entries, death, vix_panic, _, _ = _vj_base(ind, p)
+    n = ind.n
+    cl = ind.close
+    vix = ind.vix
+    look = int(p.get("shock_look", 5))
+    vix_roc = float(p.get("shock_vix_roc", 1.5))
+    price_drop = float(p.get("shock_price_drop", 5.0)) / 100.0
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(look, n):
+        if death[i]:
+            exits[i] = True
+            labels[i] = "D"
+        if (vix is not None and not np.isnan(vix[i]) and not np.isnan(vix[i - look])
+                and vix[i - look] > 0 and cl[i - look] > 0):
+            vix_ratio = vix[i] / vix[i - look]
+            price_ret = cl[i] / cl[i - look] - 1
+            if vix_ratio > vix_roc and price_ret < -price_drop:
+                exits[i] = True
+                labels[i] = "S"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def gc_vjxr(ind, p):
+    """T1 addon A2: VJ + price-velocity shock exit + RSI-bounce re-entry watch.
+    Exit on close dropping > shock_drop% over shock_look bars. After shock exit,
+    arm a watch_bars window; during watch, emit a re-entry when RSI crosses up
+    through rsi_bounce AND close > EMA(bounce_ema)."""
+    entries_vj, death, vix_panic, _, _ = _vj_base(ind, p)
+    n = ind.n
+    cl = ind.close
+    rsi = ind.rsi(int(p.get("rsi_len", 14)))
+    bounce_ema = ind.ema(int(p.get("bounce_ema", 50)))
+    look = int(p.get("shock_look", 5))
+    price_drop = float(p.get("shock_drop", 10.0)) / 100.0
+    rsi_bounce = float(p.get("rsi_bounce", 35.0))
+    watch_bars = int(p.get("watch_bars", 20))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    watch_remaining = 0
+    for i in range(max(look, 2), n):
+        if entries_vj[i]:
+            entries[i] = True
+        if watch_remaining > 0:
+            if (not np.isnan(rsi[i - 1]) and not np.isnan(rsi[i])
+                    and not np.isnan(bounce_ema[i])
+                    and rsi[i - 1] < rsi_bounce and rsi[i] >= rsi_bounce
+                    and cl[i] > bounce_ema[i]):
+                entries[i] = True
+                watch_remaining = 0
+        if death[i]:
+            exits[i] = True
+            labels[i] = "D"
+        if cl[i - look] > 0:
+            price_ret = cl[i] / cl[i - look] - 1
+            if price_ret < -price_drop:
+                exits[i] = True
+                labels[i] = "S"
+                watch_remaining = watch_bars
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+        if watch_remaining > 0:
+            watch_remaining -= 1
+    return entries, exits, labels
+
+
+def gc_vjv(ind, p):
+    """T1 addon A3: VJ entries gated by realized-vol calm (rv_short/rv_long < ratio)."""
+    entries, death, vix_panic, _, _ = _vj_base(ind, p)
+    n = ind.n
+    vol_short = int(p.get("vol_short", 20))
+    vol_long = int(p.get("vol_long", 50))
+    vol_entry_ratio = float(p.get("vol_entry_ratio", 0.9))
+    rv_short = ind.realized_vol(vol_short)
+    rv_long = ind.realized_vol(vol_long)
+    new_entries = np.zeros(n, dtype=bool)
+    for i in range(vol_long, n):
+        if not entries[i]:
+            continue
+        if np.isnan(rv_short[i]) or np.isnan(rv_long[i]) or rv_long[i] <= 0:
+            continue
+        if rv_short[i] / rv_long[i] < vol_entry_ratio:
+            new_entries[i] = True
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    return new_entries, exits, labels
+
+
+def gc_vjatr(ind, p):
+    """T1 addon A10: VJ + directional ATR-expansion shock exit (VIX-independent).
+    Exit when ATR(atr_period)/ATR[-atr_look] > atr_expand AND close[i] < close[-atr_confirm]."""
+    entries, death, vix_panic, _, _ = _vj_base(ind, p)
+    n = ind.n
+    cl = ind.close
+    atr_len = int(p.get("atr_period", 14))
+    atr_look = int(p.get("atr_look", 20))
+    atr_expand = float(p.get("atr_expand", 2.0))
+    atr_confirm = int(p.get("atr_confirm", 5))
+    atr_vals = ind.atr(atr_len)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(max(atr_look, atr_confirm), n):
+        if death[i]:
+            exits[i] = True
+            labels[i] = "D"
+        if (not np.isnan(atr_vals[i]) and not np.isnan(atr_vals[i - atr_look])
+                and atr_vals[i - atr_look] > 0):
+            atr_ratio = atr_vals[i] / atr_vals[i - atr_look]
+            if atr_ratio > atr_expand and cl[i] < cl[i - atr_confirm]:
+                exits[i] = True
+                labels[i] = "A"
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Velvet Jaguar Overlays 2026-04-20 (Round 2)
+# See docs/*NEXT/brainstorm-2026-04-20-velvet-jaguar-gaps.md.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def gc_vjrsi(ind, p):
+    """T1 addon A4: VJ primary entry OR RSI-bounce secondary entry.
+    Secondary: RSI crosses up through rsi_bounce from below rsi_oversold AND
+    close > EMA(rsi_trend_ema) AND MACD line rising over 5 bars."""
+    entries_vj, death, vix_panic, _, _ = _vj_base(ind, p)
+    n = ind.n
+    cl = ind.close
+    rsi_len = int(p.get("rsi_len", 14))
+    rsi_oversold = float(p.get("rsi_oversold", 30.0))
+    rsi_bounce = float(p.get("rsi_bounce", 35.0))
+    trend_len = int(p.get("rsi_trend_ema", 100))
+    rsi = ind.rsi(rsi_len)
+    trend_ema = ind.ema(trend_len)
+    macd = ind.macd_line(12, 26)
+    entries = np.zeros(n, dtype=bool)
+    for i in range(max(5, trend_len), n):
+        if entries_vj[i]:
+            entries[i] = True
+            continue
+        if (not np.isnan(rsi[i - 1]) and not np.isnan(rsi[i])
+                and rsi[i - 1] < rsi_oversold and rsi[i] >= rsi_bounce
+                and not np.isnan(trend_ema[i]) and cl[i] > trend_ema[i]
+                and not np.isnan(macd[i]) and not np.isnan(macd[i - 5])
+                and macd[i] > macd[i - 5]):
+            entries[i] = True
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    return entries, exits, labels
+
+
+def gc_vjsgov(ind, p):
+    """T1 addon A6: VJ + SGOV relative-strength rotation exit.
+    Exit when SGOV_ret(rs_lookback) > TECL_ret(rs_lookback) for rs_persistence bars."""
+    entries, death, vix_panic, _, _ = _vj_base(ind, p)
+    n = ind.n
+    cl = ind.close
+    sgov = ind.sgov_close
+    rs_lookback = int(p.get("rs_lookback", 50))
+    rs_persistence = int(p.get("rs_persistence", 20))
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    rs_count = 0
+    for i in range(rs_lookback, n):
+        if death[i]:
+            exits[i] = True
+            labels[i] = "D"
+        # SGOV RS exit (only active when SGOV data available)
+        if (sgov is not None and not np.isnan(sgov[i]) and not np.isnan(sgov[i - rs_lookback])
+                and sgov[i - rs_lookback] > 0 and cl[i - rs_lookback] > 0):
+            sgov_ret = sgov[i] / sgov[i - rs_lookback] - 1
+            tecl_ret = cl[i] / cl[i - rs_lookback] - 1
+            if sgov_ret > tecl_ret:
+                rs_count += 1
+            else:
+                rs_count = 0
+            if rs_count >= rs_persistence:
+                exits[i] = True
+                labels[i] = "R"
+        else:
+            rs_count = 0
+        if vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def gc_vjtimer(ind, p):
+    """T1 addon A8: VJ + time-based escape hatch.
+    Exit when position held >= time_stop_bars AND close < EMA(below_ema) for below_persist bars."""
+    entries, death, vix_panic, _, _ = _vj_base(ind, p)
+    n = ind.n
+    cl = ind.close
+    time_stop_bars = int(p.get("time_stop_bars", 150))
+    below_ema_len = int(p.get("below_ema", 150))
+    below_persist = int(p.get("below_persist", 10))
+    ema_long = ind.ema(below_ema_len)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    in_trade = False
+    entry_bar = 0
+    below_count = 0
+    for i in range(n):
+        if entries[i] and not in_trade:
+            in_trade = True
+            entry_bar = i
+            below_count = 0
+        if in_trade:
+            if not np.isnan(ema_long[i]) and cl[i] < ema_long[i]:
+                below_count += 1
+            else:
+                below_count = 0
+            if death[i]:
+                exits[i] = True
+                labels[i] = "D"
+                in_trade = False
+                below_count = 0
+            if (i - entry_bar) >= time_stop_bars and below_count >= below_persist:
+                exits[i] = True
+                labels[i] = "T"
+                in_trade = False
+                below_count = 0
+            if vix_panic[i]:
+                exits[i] = True
+                labels[i] = "V"
+                in_trade = False
+                below_count = 0
+    return entries, exits, labels
+
+
+def rsi_regime_canonical(ind, p):
+    """T1 standalone (B1): canonical-only RSI regime revive.
+    Entry: RSI(rsi_len) crosses up through entry_rsi AND close > EMA(trend_len).
+    Exit: RSI >= exit_rsi ("RSI Overbought") OR RSI < panic_rsi ("RSI Panic")."""
+    n = ind.n
+    cl = ind.close
+    rsi_len = int(p.get("rsi_len", 14))
+    trend_len = int(p.get("trend_len", 100))
+    entry_rsi = float(p.get("entry_rsi", 35.0))
+    exit_rsi = float(p.get("exit_rsi", 75.0))
+    panic_rsi = float(p.get("panic_rsi", 15.0))
+    rsi = ind.rsi(rsi_len)
+    trend = ind.ema(trend_len)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(1, n):
+        if np.isnan(rsi[i]) or np.isnan(rsi[i - 1]) or np.isnan(trend[i]):
+            continue
+        if rsi[i - 1] < entry_rsi and rsi[i] >= entry_rsi and cl[i] > trend[i]:
+            entries[i] = True
+        if rsi[i] >= exit_rsi:
+            exits[i] = True
+            labels[i] = "OB"
+        elif rsi[i] < panic_rsi:
+            exits[i] = True
+            labels[i] = "P"
+    return entries, exits, labels
+
+
+def dual_tf_gc(ind, p):
+    """T1 standalone (B4): nested EMA pair-ups as daily+'weekly' proxy.
+    Entry: EMA(fast_ema) > EMA(slow_ema) AND EMA(outer_fast) > EMA(outer_slow)
+           AND EMA(fast_ema) rising over slope_window for entry_bars bars.
+    Exit: EMA(outer_fast) < EMA(outer_slow)  (outer pair death cross)."""
+    n = ind.n
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    outer_fast = ind.ema(int(p.get("outer_fast", 100)))
+    outer_slow = ind.ema(int(p.get("outer_slow", 300)))
+    slope_window = int(p.get("slope_window", 2))
+    entry_bars = int(p.get("entry_bars", 2))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    bull_count = 0
+    for i in range(slope_window + 1, n):
+        if (np.isnan(fast[i]) or np.isnan(slow[i])
+                or np.isnan(outer_fast[i]) or np.isnan(outer_slow[i])
+                or np.isnan(fast[i - slope_window])):
+            bull_count = 0
+            continue
+        fast_rising = fast[i] > fast[i - slope_window]
+        daily_bull = fast[i] > slow[i]
+        outer_bull = outer_fast[i] > outer_slow[i]
+        if daily_bull and outer_bull and fast_rising:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if outer_fast[i] < outer_slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def tecl_sgov_rs(ind, p):
+    """T1 standalone (B14): TECL vs SGOV relative-strength rotation.
+    Entry: rs = TECL_ret(rs_look) - SGOV_ret(rs_look) crosses up through 0
+           AND close > EMA(trend_ema).
+    Exit: rs < rs_exit AND close < EMA(exit_ema).
+    Pre-2020 bars have no SGOV signal (data-blocked)."""
+    n = ind.n
+    cl = ind.close
+    sgov = ind.sgov_close
+    rs_look = int(p.get("rs_look", 50))
+    rs_exit = float(p.get("rs_exit", -5.0)) / 100.0
+    trend_len = int(p.get("trend_ema", 200))
+    exit_ema_len = int(p.get("exit_ema", 50))
+    trend = ind.ema(trend_len)
+    exit_ema = ind.ema(exit_ema_len)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    if sgov is None:
+        return entries, exits, labels
+    for i in range(rs_look + 1, n):
+        if (np.isnan(sgov[i]) or np.isnan(sgov[i - rs_look])
+                or sgov[i - rs_look] <= 0 or cl[i - rs_look] <= 0
+                or np.isnan(trend[i]) or np.isnan(exit_ema[i])):
+            continue
+        sgov_ret_now = sgov[i] / sgov[i - rs_look] - 1
+        tecl_ret_now = cl[i] / cl[i - rs_look] - 1
+        rs_now = tecl_ret_now - sgov_ret_now
+        if np.isnan(sgov[i - 1]) or np.isnan(sgov[i - rs_look - 1]) or sgov[i - rs_look - 1] <= 0 or cl[i - rs_look - 1] <= 0:
+            continue
+        sgov_ret_prev = sgov[i - 1] / sgov[i - rs_look - 1] - 1
+        tecl_ret_prev = cl[i - 1] / cl[i - rs_look - 1] - 1
+        rs_prev = tecl_ret_prev - sgov_ret_prev
+        if rs_prev < 0 and rs_now >= 0 and cl[i] > trend[i]:
+            entries[i] = True
+        if rs_now < rs_exit and cl[i] < exit_ema[i]:
+            exits[i] = True
+            labels[i] = "R"
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Circuit breakers on VJ (Round 4 of brainstorm) — wrappers, not standalone
+# strategies. Each layers on top of gc_n8 (VJ) as a robustness guard.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Final batch 2026-04-20 — remaining A/B candidates run in one sweep.
+# See docs/*NEXT/brainstorm-2026-04-20-velvet-jaguar-gaps.md.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def gc_vjmac(ind, p):
+    """T1 addon A5: VJ + macro regime gate.
+    Entry requires (treasury_spread > 0) OR (fed_funds cutting over ff_lookback)."""
+    entries, death, vix_panic, _, _ = _vj_base(ind, p)
+    n = ind.n
+    spread = ind.treasury_spread
+    ff = ind.fed_funds_rate
+    ff_lookback = int(p.get("ff_lookback", 150))
+    new_entries = np.zeros(n, dtype=bool)
+    for i in range(ff_lookback, n):
+        if not entries[i]:
+            continue
+        spread_ok = spread is not None and not np.isnan(spread[i]) and spread[i] > 0
+        ff_ok = (ff is not None and not np.isnan(ff[i]) and not np.isnan(ff[i - ff_lookback])
+                 and ff[i] < ff[i - ff_lookback])
+        if spread_ok or ff_ok:
+            new_entries[i] = True
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    return new_entries, exits, labels
+
+
+def gc_vjbb(ind, p):
+    """T1 addon A7: VJ + Bollinger-Band squeeze entry gate.
+    Entry requires BB-width at or below bb_pct percentile of trailing bb_width_look window."""
+    entries, death, vix_panic, _, _ = _vj_base(ind, p)
+    n = ind.n
+    bb_len = int(p.get("bb_len", 20))
+    bb_mult = float(p.get("bb_mult", 2.0))
+    bb_width_look = int(p.get("bb_width_look", 50))
+    bb_pct = float(p.get("bb_pct", 30.0))
+    bb_w = ind.bb_width(bb_len, bb_mult)
+    new_entries = np.zeros(n, dtype=bool)
+    for i in range(bb_width_look, n):
+        if not entries[i] or np.isnan(bb_w[i]):
+            continue
+        window = bb_w[i - bb_width_look + 1:i + 1]
+        valid = window[~np.isnan(window)]
+        if len(valid) < bb_width_look // 2:
+            continue
+        pct_rank = (np.sum(valid <= bb_w[i]) / len(valid)) * 100
+        if pct_rank <= bb_pct:
+            new_entries[i] = True
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    return new_entries, exits, labels
+
+
+def gc_vjdd(ind, p):
+    """T1 addon A9: VJ + intra-trade peak drawdown exit (uses close as equity proxy)."""
+    entries, death, vix_panic, _, _ = _vj_base(ind, p)
+    n = ind.n
+    cl = ind.close
+    dd_pct = float(p.get("dd_pct", 20.0)) / 100.0
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    in_trade = False
+    peak = 0.0
+    for i in range(n):
+        if entries[i] and not in_trade:
+            in_trade = True
+            peak = cl[i]
+        if in_trade and cl[i] > peak:
+            peak = cl[i]
+        if in_trade:
+            if peak > 0 and cl[i] < peak * (1 - dd_pct):
+                exits[i] = True
+                labels[i] = "X"
+                in_trade = False
+                peak = 0.0
+            if death[i] and not exits[i]:
+                exits[i] = True
+                labels[i] = "D"
+                in_trade = False
+                peak = 0.0
+            if vix_panic[i] and not exits[i]:
+                exits[i] = True
+                labels[i] = "V"
+                in_trade = False
+                peak = 0.0
+    return entries, exits, labels
+
+
+def vol_regime_canonical(ind, p):
+    """T1 standalone (B2): realized-vol contraction entry + vol-spike exit."""
+    n = ind.n
+    cl = ind.close
+    vol_short = int(p.get("vol_short", 20))
+    vol_long = int(p.get("vol_long", 50))
+    trend_len = int(p.get("trend_len", 100))
+    vol_entry_ratio = float(p.get("vol_entry_ratio", 0.9))
+    vol_exit_ratio = float(p.get("vol_exit_ratio", 1.5))
+    rv_s = ind.realized_vol(vol_short)
+    rv_l = ind.realized_vol(vol_long)
+    trend = ind.ema(trend_len)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(max(vol_long, trend_len) + 1, n):
+        if np.isnan(rv_s[i]) or np.isnan(rv_l[i]) or rv_l[i] <= 0:
+            continue
+        if np.isnan(rv_s[i - 1]) or np.isnan(rv_l[i - 1]) or rv_l[i - 1] <= 0:
+            continue
+        ratio_now = rv_s[i] / rv_l[i]
+        ratio_prev = rv_s[i - 1] / rv_l[i - 1]
+        if ratio_prev >= vol_entry_ratio and ratio_now < vol_entry_ratio and cl[i] > trend[i]:
+            entries[i] = True
+        if ratio_now > vol_exit_ratio:
+            exits[i] = True
+            labels[i] = "VS"
+        elif not np.isnan(trend[i]) and cl[i] < trend[i] * 0.98:
+            exits[i] = True
+            labels[i] = "BT"
+    return entries, exits, labels
+
+
+def composite_osc_canonical(ind, p):
+    """T2 standalone (B3): weighted composite regime score on canonical lengths.
+    Composite = 0.5*tema_slope + 0.2*quick_slope + 0.2*macd_hist + 0.2*dmi_bull (tanh-normed).
+    Entry: composite crosses up through 0.33. Exit: composite crosses below 0."""
+    n = ind.n
+    tema_len = int(p.get("tema_len", 200))
+    quick_len = int(p.get("quick_len", 7))
+    adx_len = int(p.get("adx_len", 14))
+    tema = ind.tema(tema_len)
+    quick = ind.ema(quick_len)
+    macd_hist = ind.macd_hist(12, 26, 9)
+    di_plus = ind.di_plus(adx_len)
+    di_minus = ind.di_minus(adx_len)
+    composite = np.full(n, np.nan)
+    for i in range(max(tema_len, adx_len) + 5, n):
+        if np.isnan(tema[i]) or np.isnan(tema[i - 2]) or tema[i] <= 0:
+            continue
+        if np.isnan(quick[i]) or np.isnan(quick[i - 5]):
+            continue
+        if np.isnan(macd_hist[i]) or np.isnan(di_plus[i]) or np.isnan(di_minus[i]):
+            continue
+        tema_slope = (tema[i] - tema[i - 2]) / tema[i]
+        quick_slope = (quick[i] - quick[i - 5]) / 5.0
+        denom_dmi = di_plus[i] + di_minus[i]
+        dmi_bull = (di_plus[i] - di_minus[i]) / denom_dmi if denom_dmi > 0 else 0.0
+        comp = (0.5 * np.tanh(tema_slope / 0.003)
+                + 0.2 * np.tanh(quick_slope / 0.0015)
+                + 0.2 * np.tanh(macd_hist[i] / 0.03)
+                + 0.2 * np.tanh(dmi_bull / 0.18))
+        composite[i] = comp / 1.1
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(1, n):
+        if np.isnan(composite[i]) or np.isnan(composite[i - 1]):
+            continue
+        if composite[i - 1] < 0.33 and composite[i] >= 0.33:
+            entries[i] = True
+        if composite[i - 1] >= 0.0 and composite[i] < 0.0:
+            exits[i] = True
+            labels[i] = "C"
+    return entries, exits, labels
+
+
+def bounce_breakout(ind, p):
+    """T1 standalone (B5): Donchian breakout with EMA-reclaim secondary entry."""
+    n = ind.n
+    cl = ind.close
+    hi = ind.high
+    lo = ind.low
+    entry_len = int(p.get("entry_len", 100))
+    exit_len = int(p.get("exit_len", 50))
+    trend_len = int(p.get("trend_len", 200))
+    reclaim_ema_len = int(p.get("reclaim_ema", 50))
+    watch_bars = int(p.get("watch_bars", 50))
+    trend = ind.ema(trend_len)
+    reclaim = ind.ema(reclaim_ema_len)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    watch = 0
+    in_trade = False
+    for i in range(max(entry_len, trend_len) + 1, n):
+        if np.isnan(trend[i]) or np.isnan(reclaim[i]) or np.isnan(reclaim[i - 1]):
+            continue
+        recent_high = np.nanmax(hi[i - entry_len:i])
+        recent_low = np.nanmin(lo[i - exit_len:i])
+        # Primary entry
+        if cl[i] > recent_high and cl[i] > trend[i] and not in_trade:
+            entries[i] = True
+            in_trade = True
+            watch = 0
+        # Secondary entry during watch window
+        if not in_trade and watch > 0:
+            if cl[i - 1] < reclaim[i - 1] and cl[i] >= reclaim[i] and cl[i] > trend[i]:
+                entries[i] = True
+                in_trade = True
+                watch = 0
+        # Exit on lower Donchian
+        if in_trade and cl[i] < recent_low:
+            exits[i] = True
+            labels[i] = "D"
+            in_trade = False
+            watch = watch_bars
+        if watch > 0:
+            watch -= 1
+    return entries, exits, labels
+
+
+def tri_filter_macd(ind, p):
+    """T1 standalone (B6): MACD zero-cross entry with RSI + trend filter, multi-exit."""
+    n = ind.n
+    cl = ind.close
+    trend_len = int(p.get("trend_len", 200))
+    rsi_len = int(p.get("rsi_len", 14))
+    rsi_entry_floor = float(p.get("rsi_entry_floor", 40.0))
+    rsi_panic = float(p.get("rsi_panic", 30.0))
+    exit_confirm = int(p.get("exit_confirm", 3))
+    macd_line = ind.macd_line(12, 26)
+    macd_sig = ind.macd_signal(12, 26, 9)
+    trend = ind.ema(trend_len)
+    rsi = ind.rsi(rsi_len)
+    vix = ind.vix
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    below_count = 0
+    for i in range(max(trend_len, 30), n):
+        if (np.isnan(macd_line[i]) or np.isnan(macd_line[i - 1])
+                or np.isnan(macd_sig[i]) or np.isnan(trend[i]) or np.isnan(rsi[i])):
+            continue
+        if (macd_line[i - 1] < 0 and macd_line[i] >= 0
+                and cl[i] > trend[i] and rsi[i] > rsi_entry_floor):
+            entries[i] = True
+        if macd_line[i] < macd_sig[i]:
+            below_count += 1
+        else:
+            below_count = 0
+        if below_count >= exit_confirm:
+            exits[i] = True
+            labels[i] = "M"
+            below_count = 0
+        if rsi[i] < rsi_panic:
+            exits[i] = True
+            labels[i] = "RP"
+        if vix is not None and not np.isnan(vix[i]) and i >= 5 and not np.isnan(vix[i - 5]):
+            if vix[i] > 30 and vix[i - 5] > 0 and (vix[i] - vix[i - 5]) / vix[i - 5] > 0.75:
+                exits[i] = True
+                labels[i] = "V"
+    return entries, exits, labels
+
+
+def momentum_roc_canonical(ind, p):
+    """T1 standalone (B8): ROC zero-cross entry with trend filter + ROC/EMA panic exit."""
+    n = ind.n
+    cl = ind.close
+    roc_len = int(p.get("roc_len", 50))
+    trend_ema_len = int(p.get("trend_ema", 200))
+    exit_ema_len = int(p.get("exit_ema", 50))
+    panic_roc = float(p.get("panic_roc", -5.0))
+    roc = ind.roc(roc_len)
+    trend = ind.ema(trend_ema_len)
+    exit_ema = ind.ema(exit_ema_len)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(max(roc_len, trend_ema_len) + 1, n):
+        if (np.isnan(roc[i]) or np.isnan(roc[i - 1])
+                or np.isnan(trend[i]) or np.isnan(exit_ema[i])):
+            continue
+        if roc[i - 1] < 0 and roc[i] >= 0 and cl[i] > trend[i]:
+            entries[i] = True
+        if roc[i] < panic_roc and cl[i] < exit_ema[i]:
+            exits[i] = True
+            labels[i] = "P"
+    return entries, exits, labels
+
+
+def adaptive_ema_vol(ind, p):
+    """T1 standalone (B10): vol-adaptive EMA pair — faster in shocks, slower in calm.
+    VIX < vix_low → (fast1,slow1); VIX in [vix_low,vix_high) → (fast2,slow2); VIX ≥ vix_high → (fast3,slow3)."""
+    n = ind.n
+    cl = ind.close
+    vix = ind.vix
+    vix_low = float(p.get("vix_low", 20.0))
+    vix_high = float(p.get("vix_high", 30.0))
+    fast1 = ind.ema(int(p.get("fast1", 50)))
+    slow1 = ind.ema(int(p.get("slow1", 200)))
+    fast2 = ind.ema(int(p.get("fast2", 30)))
+    slow2 = ind.ema(int(p.get("slow2", 100)))
+    fast3 = ind.ema(int(p.get("fast3", 20)))
+    slow3 = ind.ema(int(p.get("slow3", 50)))
+    dwell = int(p.get("dwell", 10))
+    entry_bars = int(p.get("entry_bars", 2))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    regime = 0
+    last_regime = 0
+    dwell_count = 0
+    bull_count = 0
+    for i in range(50, n):
+        vi = vix[i] if (vix is not None and not np.isnan(vix[i])) else 0.0
+        proposed = 0 if vi < vix_low else (1 if vi < vix_high else 2)
+        if proposed == last_regime:
+            dwell_count += 1
+        else:
+            last_regime = proposed
+            dwell_count = 1
+        if dwell_count >= dwell:
+            regime = last_regime
+        if regime == 0:
+            f, s = fast1[i], slow1[i]
+            f_prev = fast1[i - 2] if i >= 2 else np.nan
+        elif regime == 1:
+            f, s = fast2[i], slow2[i]
+            f_prev = fast2[i - 2] if i >= 2 else np.nan
+        else:
+            f, s = fast3[i], slow3[i]
+            f_prev = fast3[i - 2] if i >= 2 else np.nan
+        if np.isnan(f) or np.isnan(s) or np.isnan(f_prev):
+            bull_count = 0
+            continue
+        if f > s and f > f_prev and cl[i] > s:
+            bull_count += 1
+        else:
+            bull_count = 0
+        if bull_count == entry_bars:
+            entries[i] = True
+        if f < s:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def regime_state_machine(ind, p):
+    """T2 standalone (B11): explicit 5-state classifier (BULL/RECOVERY/CHOP/BEAR/SHOCK).
+    Long in BULL + RECOVERY; flat elsewhere."""
+    n = ind.n
+    cl = ind.close
+    vix = ind.vix
+    rv_s = ind.realized_vol(20)
+    rv_l = ind.realized_vol(60)
+    ema50 = ind.ema(50)
+    ema200 = ind.ema(200)
+    rsi = ind.rsi(14)
+    state = "CHOP"
+    bull_cross_count = 0
+    chop_count = 0
+    long_states = {"BULL", "RECOVERY"}
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    prev_long = False
+    for i in range(200, n):
+        if (np.isnan(ema50[i]) or np.isnan(ema200[i])
+                or np.isnan(rv_s[i]) or np.isnan(rv_l[i]) or rv_l[i] <= 0
+                or np.isnan(rsi[i])):
+            continue
+        vix_now = vix[i] if (vix is not None and not np.isnan(vix[i])) else 0.0
+        vix_prev3 = vix[i - 3] if (vix is not None and i >= 3 and not np.isnan(vix[i - 3])) else 0.0
+        rv_ratio = rv_s[i] / rv_l[i]
+        bull_ma = ema50[i] > ema200[i]
+        if bull_ma:
+            bull_cross_count += 1
+        else:
+            bull_cross_count = 0
+        # Transition rules
+        if state == "BULL":
+            if rv_ratio > 1.3:
+                chop_count += 1
+                if chop_count >= 5:
+                    state = "CHOP"
+                    chop_count = 0
+            else:
+                chop_count = 0
+            if vix_prev3 > 0 and (vix_now / vix_prev3) > 1.5 and cl[i] < cl[i - 3] * 0.95:
+                state = "SHOCK"
+            if not bull_ma:
+                state = "BEAR"
+        elif state == "CHOP":
+            if bull_ma and ema50[i] > ema50[i - 10]:
+                state = "BULL"
+            if vix_prev3 > 0 and (vix_now / vix_prev3) > 1.5 and cl[i] < cl[i - 3] * 0.95:
+                state = "SHOCK"
+        elif state == "SHOCK":
+            if vix_now < 25 and i >= 10 and cl[i] > cl[i - 10]:
+                state = "RECOVERY"
+        elif state == "RECOVERY":
+            if bull_cross_count >= 10:
+                state = "BULL"
+        elif state == "BEAR":
+            if i >= 1 and rsi[i - 1] < 40 and rsi[i] >= 40 and cl[i] > ema50[i]:
+                state = "RECOVERY"
+        now_long = state in long_states
+        if now_long and not prev_long:
+            entries[i] = True
+        if not now_long and prev_long:
+            exits[i] = True
+            labels[i] = state[0]
+        prev_long = now_long
+    return entries, exits, labels
+
+
+def ensemble_vote_3of5(ind, p):
+    """T1 standalone (B12): 5 signals vote; enter on score>=entry_vote, exit on score<=exit_vote."""
+    n = ind.n
+    cl = ind.close
+    entry_vote = int(p.get("entry_vote", 3))
+    exit_vote = int(p.get("exit_vote", -1))
+    trend_len = int(p.get("trend_len", 200))
+    ema50 = ind.ema(50)
+    ema200 = ind.ema(200)
+    ema100 = ind.ema(100)
+    trend = ind.ema(trend_len)
+    macd_h = ind.macd_hist(12, 26, 9)
+    rsi = ind.rsi(14)
+    roc50 = ind.roc(50)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(max(200, trend_len) + 10, n):
+        if (np.isnan(ema50[i]) or np.isnan(ema200[i]) or np.isnan(ema100[i])
+                or np.isnan(ema100[i - 10]) or np.isnan(macd_h[i]) or np.isnan(macd_h[i - 1])
+                or np.isnan(rsi[i]) or np.isnan(roc50[i]) or np.isnan(trend[i])):
+            continue
+        s1 = 1 if ema50[i] > ema200[i] else -1
+        if macd_h[i] > 0 and macd_h[i] > macd_h[i - 1]:
+            s2 = 1
+        elif macd_h[i] < 0 and macd_h[i] < macd_h[i - 1]:
+            s2 = -1
+        else:
+            s2 = 0
+        if rsi[i] > 55:
+            s3 = 1
+        elif rsi[i] < 45:
+            s3 = -1
+        else:
+            s3 = 0
+        s4 = 1 if roc50[i] > 0 else -1
+        s5 = 1 if ema100[i] > ema100[i - 10] else -1
+        score = s1 + s2 + s3 + s4 + s5
+        if score >= entry_vote and cl[i] > trend[i]:
+            entries[i] = True
+        if score <= exit_vote:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def fed_macro_primary(ind, p):
+    """T1 standalone (B13): Fed-funds direction as primary signal."""
+    n = ind.n
+    ff = ind.fed_funds_rate
+    spread = ind.treasury_spread
+    ff_long = int(p.get("ff_long", 150))
+    ff_short = int(p.get("ff_short", 20))
+    ff_exit = int(p.get("ff_exit", 50))
+    spread_floor = float(p.get("spread_floor", -0.3))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    if ff is None:
+        return entries, exits, labels
+    for i in range(ff_long, n):
+        if np.isnan(ff[i]) or np.isnan(ff[i - ff_long]) or np.isnan(ff[i - ff_short]):
+            continue
+        cutting_long = ff[i] < ff[i - ff_long]
+        cutting_short = ff[i] < ff[i - ff_short]
+        spread_ok = spread is None or np.isnan(spread[i]) or spread[i] > spread_floor
+        if cutting_long and cutting_short and spread_ok:
+            entries[i] = True
+        if i >= ff_exit and not np.isnan(ff[i - ff_exit]) and ff[i] > ff[i - ff_exit]:
+            exits[i] = True
+            labels[i] = "H"
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Next-Frontier brainstorm 2026-04-20 — Lane 2 (VJ cross-asset rescue)
+# See docs/*NEXT/brainstorm-2026-04-20-next-frontier.md.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def gc_vj_decay_gate(ind, p):
+    """T1 addon N6: VJ + leverage-decay entry gate.
+    Entry requires TECL_ret(decay_look) - 3*XLK_ret(decay_look) > decay_threshold.
+    Filters out periods when TECL underperforms its 3× target (daily-reset decay)."""
+    entries, death, vix_panic, _, _ = _vj_base(ind, p)
+    n = ind.n
+    cl = ind.close
+    xlk = ind.xlk_close
+    decay_look = int(p.get("decay_look", 20))
+    decay_threshold = float(p.get("decay_threshold", -0.05))
+    new_entries = np.zeros(n, dtype=bool)
+    if xlk is None:
+        exits, labels = _compose_base_exits(n, death, vix_panic)
+        return new_entries, exits, labels
+    for i in range(decay_look, n):
+        if not entries[i]:
+            continue
+        if np.isnan(xlk[i]) or np.isnan(xlk[i - decay_look]) or xlk[i - decay_look] <= 0:
+            continue
+        if cl[i - decay_look] <= 0:
+            continue
+        tecl_ret = cl[i] / cl[i - decay_look] - 1
+        xlk_ret = xlk[i] / xlk[i - decay_look] - 1
+        gap = tecl_ret - 3.0 * xlk_ret
+        if gap > decay_threshold:
+            new_entries[i] = True
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    return new_entries, exits, labels
+
+
+def gc_vj_xlk_relative_trend(ind, p):
+    """T1 addon N5: VJ + XLK trend confirmation gate.
+    Entry requires XLK_EMA(xlk_fast) > XLK_EMA(xlk_slow) AND XLK_fast rising."""
+    entries, death, vix_panic, _, _ = _vj_base(ind, p)
+    n = ind.n
+    xlk_fast_len = int(p.get("xlk_fast", 50))
+    xlk_slow_len = int(p.get("xlk_slow", 200))
+    xlk_slope = int(p.get("xlk_slope", 2))
+    xlk_fast = ind.xlk_ema(xlk_fast_len)
+    xlk_slow = ind.xlk_ema(xlk_slow_len)
+    new_entries = np.zeros(n, dtype=bool)
+    if xlk_fast is None or xlk_slow is None:
+        exits, labels = _compose_base_exits(n, death, vix_panic)
+        return new_entries, exits, labels
+    for i in range(xlk_slow_len + xlk_slope, n):
+        if not entries[i]:
+            continue
+        if (np.isnan(xlk_fast[i]) or np.isnan(xlk_slow[i])
+                or np.isnan(xlk_fast[i - xlk_slope])):
+            continue
+        if xlk_fast[i] > xlk_slow[i] and xlk_fast[i] > xlk_fast[i - xlk_slope]:
+            new_entries[i] = True
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    return new_entries, exits, labels
+
+
+def gc_vj_dual_regime(ind, p):
+    """T1 addon N9: VJ + dual-asset regime classifier.
+    Entry requires TECL in BULL (EMA50>EMA200) AND XLK in BULL (EMA50>EMA200).
+    Additionally exits when either asset's regime flips to BEAR."""
+    entries, death, vix_panic, _, _ = _vj_base(ind, p)
+    n = ind.n
+    reg_fast = int(p.get("reg_fast", 50))
+    reg_slow = int(p.get("reg_slow", 200))
+    tecl_fast = ind.ema(reg_fast)
+    tecl_slow = ind.ema(reg_slow)
+    xlk_fast = ind.xlk_ema(reg_fast)
+    xlk_slow = ind.xlk_ema(reg_slow)
+    new_entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    if xlk_fast is None or xlk_slow is None:
+        exits, labels = _compose_base_exits(n, death, vix_panic)
+        return new_entries, exits, labels
+    for i in range(reg_slow, n):
+        if np.isnan(tecl_fast[i]) or np.isnan(tecl_slow[i]) or np.isnan(xlk_fast[i]) or np.isnan(xlk_slow[i]):
+            continue
+        tecl_bull = tecl_fast[i] > tecl_slow[i]
+        xlk_bull = xlk_fast[i] > xlk_slow[i]
+        dual_bull = tecl_bull and xlk_bull
+        if entries[i] and dual_bull:
+            new_entries[i] = True
+        if death[i]:
+            exits[i] = True
+            labels[i] = "D"
+        elif not dual_bull and (not tecl_bull or not xlk_bull):
+            # Regime flip exit
+            exits[i] = True
+            labels[i] = "R"
+        if vix_panic[i] and not exits[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return new_entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Next-Frontier brainstorm 2026-04-20 — Lane 4 (meta + infrastructure)
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def vj_or_slope_meta(ind, p):
+    """T1 standalone (N10): OR-composite of VJ entries with slope_only_200 entries.
+    Hypothesis: VJ compounds on TECL; slope_only_200 generalizes on QQQ. A union of
+    their entry signals may combine TECL performance with QQQ robustness.
+    Exits take whichever fires first from either parent."""
+    # VJ base
+    vj_entries, vj_death, vj_vix_panic, _, _ = _vj_base(ind, p)
+    n = ind.n
+    cl = ind.close
+    # Slope-only(200) signal
+    slope_ema_len = int(p.get("slope_ema_len", 200))
+    slope_look = int(p.get("slope_look", 20))
+    ema = ind.ema(slope_ema_len)
+    slope_entries = np.zeros(n, dtype=bool)
+    slope_exits = np.zeros(n, dtype=bool)
+    prev_slope_pos = False
+    for i in range(slope_ema_len + slope_look + 1, n):
+        if np.isnan(ema[i]) or np.isnan(ema[i - slope_look]) or ema[i - slope_look] <= 0:
+            continue
+        slope = (ema[i] - ema[i - slope_look]) / ema[i - slope_look]
+        slope_pos = slope >= 0
+        if not prev_slope_pos and slope_pos and cl[i] > ema[i]:
+            slope_entries[i] = True
+        if prev_slope_pos and not slope_pos:
+            slope_exits[i] = True
+        prev_slope_pos = slope_pos
+    # Compose: entries = vj OR slope; exits = vj_death OR vj_vix_panic OR slope_exits (whichever fires)
+    entries = vj_entries | slope_entries
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(n):
+        if vj_death[i]:
+            exits[i] = True
+            labels[i] = "D"
+        if vj_vix_panic[i]:
+            exits[i] = True
+            labels[i] = "V"
+        if slope_exits[i]:
+            exits[i] = True
+            labels[i] = "S" if not labels[i] else labels[i]
+    return entries, exits, labels
+
+
+def breadth_decay_composite(ind, p):
+    """T1 standalone (N8): breadth-proxy via TECL/3×XLK ratio as entry gate.
+    When breadth_proxy = (1+tecl_ret_n)/(1+3*xlk_ret_n) is BELOW narrow_threshold,
+    rally is broad-based (healthy). When ABOVE, rally is concentrated (fragile).
+    Entry: close > EMA(trend_len) AND breadth_proxy < narrow_threshold
+           AND tecl_ret_n > 0 (we're actually rising).
+    Exit:  close < EMA(exit_ema) (trend break)."""
+    n = ind.n
+    cl = ind.close
+    xlk = ind.xlk_close
+    trend_len = int(p.get("trend_len", 200))
+    exit_ema_len = int(p.get("exit_ema", 50))
+    breadth_look = int(p.get("breadth_look", 20))
+    narrow_threshold = float(p.get("narrow_threshold", 1.05))
+    trend = ind.ema(trend_len)
+    exit_ema = ind.ema(exit_ema_len)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    if xlk is None:
+        return entries, exits, labels
+    for i in range(max(trend_len, breadth_look) + 1, n):
+        if (np.isnan(trend[i]) or np.isnan(exit_ema[i])
+                or np.isnan(xlk[i]) or np.isnan(xlk[i - breadth_look])
+                or xlk[i - breadth_look] <= 0 or cl[i - breadth_look] <= 0):
+            continue
+        tecl_ret = cl[i] / cl[i - breadth_look] - 1
+        xlk_ret = xlk[i] / xlk[i - breadth_look] - 1
+        denom = 1.0 + 3.0 * xlk_ret
+        if denom <= 0:
+            continue
+        breadth_proxy = (1.0 + tecl_ret) / denom
+        if (cl[i] > trend[i] and breadth_proxy < narrow_threshold and tecl_ret > 0):
+            entries[i] = True
+        if cl[i] < exit_ema[i]:
+            exits[i] = True
+            labels[i] = "T"
+    return entries, exits, labels
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Next-Frontier brainstorm 2026-04-20 — Lane 1 (generalization-first)
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def rank_slope_regime(ind, p):
+    """T1 standalone (N1): percentile-rank slope — amplitude-invariant by design.
+    slope[i] = (EMA(trend_len) - EMA(trend_len)[-slope_look]) / EMA(trend_len)[-slope_look]
+    rank[i] = percentile rank of slope[i] within trailing rank_window.
+    Entry: rank crosses up through entry_pct AND close > EMA(trend_len).
+    Exit:  rank crosses down through exit_pct."""
+    n = ind.n
+    cl = ind.close
+    trend_len = int(p.get("trend_len", 100))
+    slope_look = int(p.get("slope_look", 20))
+    rank_window = int(p.get("rank_window", 200))
+    entry_pct = float(p.get("entry_pct", 50.0))
+    exit_pct = float(p.get("exit_pct", 30.0))
+    ema = ind.ema(trend_len)
+    slope = np.full(n, np.nan)
+    for i in range(slope_look, n):
+        if not np.isnan(ema[i]) and not np.isnan(ema[i - slope_look]) and ema[i - slope_look] > 0:
+            slope[i] = (ema[i] - ema[i - slope_look]) / ema[i - slope_look]
+    rank = np.full(n, np.nan)
+    for i in range(rank_window + slope_look, n):
+        w = slope[i - rank_window + 1:i + 1]
+        valid = w[~np.isnan(w)]
+        if len(valid) < rank_window // 2 or np.isnan(slope[i]):
+            continue
+        rank[i] = (np.sum(valid <= slope[i]) / len(valid)) * 100
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(rank_window + slope_look + 1, n):
+        if np.isnan(rank[i]) or np.isnan(rank[i - 1]) or np.isnan(ema[i]):
+            continue
+        if rank[i - 1] < entry_pct and rank[i] >= entry_pct and cl[i] > ema[i]:
+            entries[i] = True
+        if rank[i - 1] >= exit_pct and rank[i] < exit_pct:
+            exits[i] = True
+            labels[i] = "R"
+    return entries, exits, labels
+
+
+def zscore_return_reversion(ind, p):
+    """T1 standalone (N3): z-score of N-day return — scale-invariant.
+    z[i] = (ret_n[i] - mean(ret_n, window)) / std(ret_n, window).
+    Entry: z crosses up through entry_z from below + close > EMA(trend_len).
+    Exit:  z > exit_z  (mean-reverted)."""
+    n = ind.n
+    cl = ind.close
+    ret_n = int(p.get("ret_n", 20))
+    window = int(p.get("window", 100))
+    entry_z = float(p.get("entry_z", -1.5))
+    exit_z = float(p.get("exit_z", 1.0))
+    trend_len = int(p.get("trend_len", 200))
+    ema = ind.ema(trend_len)
+    returns = np.full(n, np.nan)
+    for i in range(ret_n, n):
+        if cl[i - ret_n] > 0:
+            returns[i] = cl[i] / cl[i - ret_n] - 1
+    z = np.full(n, np.nan)
+    for i in range(ret_n + window, n):
+        w = returns[i - window + 1:i + 1]
+        valid = w[~np.isnan(w)]
+        if len(valid) < window // 2 or np.isnan(returns[i]):
+            continue
+        mu = np.mean(valid)
+        sd = np.std(valid)
+        if sd > 0:
+            z[i] = (returns[i] - mu) / sd
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    for i in range(ret_n + window + 1, n):
+        if np.isnan(z[i]) or np.isnan(z[i - 1]) or np.isnan(ema[i]):
+            continue
+        if z[i - 1] < entry_z and z[i] >= entry_z and cl[i] > ema[i]:
+            entries[i] = True
+        if z[i] > exit_z:
+            exits[i] = True
+            labels[i] = "M"
+    return entries, exits, labels
+
+
+def slope_only_200(ind, p):
+    """T1 standalone (B16): pure 200-EMA slope signal."""
+    n = ind.n
+    cl = ind.close
+    ema_len = int(p.get("ema_len", 200))
+    slope_look = int(p.get("slope_look", 20))
+    ema = ind.ema(ema_len)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    prev_slope_pos = False
+    for i in range(ema_len + slope_look + 1, n):
+        if np.isnan(ema[i]) or np.isnan(ema[i - slope_look]) or ema[i - slope_look] <= 0:
+            continue
+        slope = (ema[i] - ema[i - slope_look]) / ema[i - slope_look]
+        slope_pos = slope >= 0
+        if not prev_slope_pos and slope_pos and cl[i] > ema[i]:
+            entries[i] = True
+        if prev_slope_pos and not slope_pos:
+            exits[i] = True
+            labels[i] = "S"
+        prev_slope_pos = slope_pos
+    return entries, exits, labels
+
+
+def gc_n8_ddbreaker(ind, p):
+    """T1 circuit-breaker C1 on VJ: pause entries after severe price drawdown.
+    Approximates equity drawdown with price-drawdown-from-ATH — valid because
+    VJ is 100%-invested-or-flat, so equity tracks close when in a trade.
+    Pause when DD > pause_dd_pct; resume when DD < resume_dd_pct."""
+    entries_vj, death, vix_panic, _, _ = _vj_base(ind, p)
+    n = ind.n
+    cl = ind.close
+    pause_pct = float(p.get("pause_dd_pct", 30.0)) / 100.0
+    resume_pct = float(p.get("resume_dd_pct", 15.0)) / 100.0
+    entries = np.zeros(n, dtype=bool)
+    paused = False
+    ath = -np.inf
+    for i in range(n):
+        if cl[i] > ath:
+            ath = cl[i]
+        dd = (ath - cl[i]) / ath if ath > 0 else 0.0
+        if not paused and dd > pause_pct:
+            paused = True
+        elif paused and dd < resume_pct:
+            paused = False
+        if entries_vj[i] and not paused:
+            entries[i] = True
+    exits, labels = _compose_base_exits(n, death, vix_panic)
+    return entries, exits, labels
+
+
+def gc_n8_timelimit(ind, p):
+    """T1 circuit-breaker C2 on VJ: force-exit long-held positions when trend fades.
+    If bars held >= max_hold AND close < EMA(tl_ema), exit. Then VJ re-entry resumes."""
+    entries, death, vix_panic, _, _ = _vj_base(ind, p)
+    n = ind.n
+    cl = ind.close
+    max_hold = int(p.get("max_hold", 500))
+    tl_ema_len = int(p.get("tl_ema", 150))
+    ema_long = ind.ema(tl_ema_len)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    in_trade = False
+    entry_bar = 0
+    for i in range(n):
+        if entries[i] and not in_trade:
+            in_trade = True
+            entry_bar = i
+        if in_trade:
+            if death[i]:
+                exits[i] = True
+                labels[i] = "D"
+                in_trade = False
+            if ((i - entry_bar) >= max_hold
+                    and not np.isnan(ema_long[i]) and cl[i] < ema_long[i]):
+                exits[i] = True
+                labels[i] = "TL"
+                in_trade = False
+            if vix_panic[i]:
+                exits[i] = True
+                labels[i] = "V"
+                in_trade = False
+    return entries, exits, labels
+
+
+def gc_n8_panic_flat(ind, p):
+    """T1 circuit-breaker C3 on VJ: extreme-VIX hard override.
+    When VIX > panic_vix AND VIX 5-bar ROC > panic_roc, force exit and
+    suppress entries for flat_bars. Distinct from VJ's existing >30 VIX panic."""
+    entries_vj, death, vix_panic, _, _ = _vj_base(ind, p)
+    n = ind.n
+    vix = ind.vix
+    panic_vix = float(p.get("panic_vix", 40.0))
+    panic_roc = float(p.get("panic_roc", 1.5))
+    flat_bars = int(p.get("flat_bars", 10))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    suppress_remaining = 0
+    for i in range(5, n):
+        # Detect panic
+        panic_now = False
+        if (vix is not None and not np.isnan(vix[i]) and not np.isnan(vix[i - 5])
+                and vix[i - 5] > 0
+                and vix[i] > panic_vix and vix[i] / vix[i - 5] > panic_roc):
+            panic_now = True
+        # Suppression window management
+        if panic_now:
+            suppress_remaining = flat_bars
+            exits[i] = True
+            labels[i] = "PF"
+        elif suppress_remaining > 0:
+            suppress_remaining -= 1
+        # Entries: VJ signal, unless suppressed
+        if entries_vj[i] and suppress_remaining <= 0:
+            entries[i] = True
+        # Base exits
+        if death[i] and not exits[i]:
+            exits[i] = True
+            labels[i] = "D"
+        if vix_panic[i] and not exits[i]:
+            exits[i] = True
+            labels[i] = "V"
+    return entries, exits, labels
+
+
+def pullback_in_trend(ind, p):
+    """T1 standalone (B9): mean reversion inside an uptrend.
+    Entry: close > EMA(trend_len) AND close/max(high[-pullback_look..-1]) < 1-pullback_pct%
+           AND two-bar reversal (close[-1]<close[-2] AND close>close[-1]).
+    Exit: close < EMA(exit_ema) for exit_persist consecutive bars."""
+    n = ind.n
+    cl = ind.close
+    hi = ind.high
+    trend_len = int(p.get("trend_len", 200))
+    pullback_look = int(p.get("pullback_look", 50))
+    pullback_pct = float(p.get("pullback_pct", 15.0)) / 100.0
+    exit_ema_len = int(p.get("exit_ema", 50))
+    exit_persist = int(p.get("exit_persist", 3))
+    trend_ema = ind.ema(trend_len)
+    exit_ema = ind.ema(exit_ema_len)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    below_count = 0
+    for i in range(max(trend_len, pullback_look) + 2, n):
+        if np.isnan(trend_ema[i]) or np.isnan(exit_ema[i]):
+            below_count = 0
+            continue
+        # Entry
+        recent_high = np.nanmax(hi[i - pullback_look:i])
+        if (cl[i] > trend_ema[i]
+                and recent_high > 0 and cl[i] / recent_high < 1.0 - pullback_pct
+                and cl[i - 1] < cl[i - 2] and cl[i] > cl[i - 1]):
+            entries[i] = True
+        # Exit: below exit_ema for exit_persist bars
+        if cl[i] < exit_ema[i]:
+            below_count += 1
+        else:
+            below_count = 0
+        if below_count >= exit_persist:
+            exits[i] = True
+            labels[i] = "EX"
+            below_count = 0
+    return entries, exits, labels
+
+
 STRATEGY_REGISTRY = {
     # Grid-searchable T1 concepts (logic functions that accept any canonical param combo).
     # Grid search evaluates these exhaustively over canonical param grids.
@@ -5138,6 +6429,49 @@ STRATEGY_REGISTRY = {
     "gc_c6":  gc_c6,   # RSI exit gate + VIX term structure
     "gc_c7":  gc_c7,   # treasury A + bear regime memory + adaptive cooldown
     "gc_c8":  gc_c8,   # full defense stack
+    # ── Velvet Jaguar Overlays 2026-04-20 (Round 1) ──
+    "gc_vjx":   gc_vjx,    # A1: VJ + dual-confirmed VIX shock exit
+    "gc_vjxr":  gc_vjxr,   # A2: VJ + price-velocity shock exit + RSI-bounce re-entry
+    "gc_vjv":   gc_vjv,    # A3: VJ + realized-vol calm entry gate
+    "gc_vjatr": gc_vjatr,  # A10: VJ + ATR-expansion directional shock exit
+    # ── Velvet Jaguar Overlays 2026-04-20 (Round 2) ──
+    "gc_vjrsi":         gc_vjrsi,          # A4: VJ + RSI-bounce secondary entry
+    "gc_vjsgov":        gc_vjsgov,         # A6: VJ + SGOV relative-strength rotation exit
+    "gc_vjtimer":       gc_vjtimer,        # A8: VJ + time-based escape hatch
+    "pullback_in_trend": pullback_in_trend, # B9: standalone buy-the-dip
+    # ── Velvet Jaguar Overlays 2026-04-20 (Round 3) ──
+    "rsi_regime_canonical": rsi_regime_canonical,  # B1: canonical-only RSI regime revive
+    "dual_tf_gc":           dual_tf_gc,            # B4: nested EMA pair-ups
+    "tecl_sgov_rs":         tecl_sgov_rs,          # B14: TECL/SGOV relative-strength rotation
+    # ── Circuit breakers on VJ (Round 4, Bucket C) ──
+    "gc_n8_ddbreaker":  gc_n8_ddbreaker,   # C1: drawdown circuit breaker (pause/resume)
+    "gc_n8_timelimit":  gc_n8_timelimit,   # C2: max-hold escape hatch
+    "gc_n8_panic_flat": gc_n8_panic_flat,  # C3: extreme-VIX hard override
+    # ── Final batch 2026-04-20 (deferred A + remaining B) ──
+    "gc_vjmac":                 gc_vjmac,                   # A5
+    "gc_vjbb":                  gc_vjbb,                    # A7
+    "gc_vjdd":                  gc_vjdd,                    # A9
+    "vol_regime_canonical":     vol_regime_canonical,       # B2
+    "composite_osc_canonical":  composite_osc_canonical,    # B3
+    "bounce_breakout":          bounce_breakout,            # B5
+    "tri_filter_macd":          tri_filter_macd,            # B6
+    "momentum_roc_canonical":   momentum_roc_canonical,     # B8
+    "adaptive_ema_vol":         adaptive_ema_vol,           # B10
+    "regime_state_machine":     regime_state_machine,       # B11
+    "ensemble_vote_3of5":       ensemble_vote_3of5,         # B12
+    "fed_macro_primary":        fed_macro_primary,          # B13
+    "slope_only_200":           slope_only_200,             # B16
+    # ── Next-Frontier 2026-04-20 (Lane 2: VJ cross-asset rescue) ──
+    "gc_vj_decay_gate":        gc_vj_decay_gate,        # N6
+    "gc_vj_xlk_relative_trend": gc_vj_xlk_relative_trend, # N5
+    "gc_vj_dual_regime":       gc_vj_dual_regime,       # N9
+    # ── Next-Frontier 2026-04-20 (Lane 1: generalization-first) ──
+    "rank_slope_regime":       rank_slope_regime,       # N1
+    "zscore_return_reversion": zscore_return_reversion, # N3
+    # ── Next-Frontier 2026-04-20 (Lane 3: unused data) ──
+    "breadth_decay_composite": breadth_decay_composite, # N8
+    # ── Next-Frontier 2026-04-20 (Lane 4: meta + infrastructure) ──
+    "vj_or_slope_meta":        vj_or_slope_meta,        # N10
 }
 
 # Declared validation tier for each strategy family.
@@ -5235,6 +6569,46 @@ STRATEGY_TIERS = {
     "gc_s1":  "T1", "gc_s2":  "T1", "gc_s3":  "T1",
     "gc_c1":  "T1", "gc_c2":  "T1", "gc_c3":  "T1", "gc_c4":  "T1",
     "gc_c5":  "T1", "gc_c6":  "T1", "gc_c7":  "T1", "gc_c8":  "T1",
+    # ── Velvet Jaguar Overlays 2026-04-20 (Round 1) ──
+    "gc_vjx":   "T1", "gc_vjxr":  "T1", "gc_vjv":   "T1", "gc_vjatr": "T1",
+    # ── Velvet Jaguar Overlays 2026-04-20 (Round 2) ──
+    "gc_vjrsi":         "T1",
+    "gc_vjsgov":        "T1",
+    "gc_vjtimer":       "T1",
+    "pullback_in_trend": "T1",
+    # ── Velvet Jaguar Overlays 2026-04-20 (Round 3) ──
+    "rsi_regime_canonical": "T1",
+    "dual_tf_gc":           "T1",
+    "tecl_sgov_rs":         "T1",
+    # ── Circuit breakers on VJ (Round 4, Bucket C) ──
+    "gc_n8_ddbreaker":  "T1",
+    "gc_n8_timelimit":  "T1",
+    "gc_n8_panic_flat": "T1",
+    # ── Final batch 2026-04-20 (deferred A + remaining B) ──
+    "gc_vjmac":                 "T1",
+    "gc_vjbb":                  "T1",
+    "gc_vjdd":                  "T1",
+    "vol_regime_canonical":     "T1",
+    "composite_osc_canonical":  "T2",  # ≥8 tunable
+    "bounce_breakout":          "T1",
+    "tri_filter_macd":          "T1",
+    "momentum_roc_canonical":   "T1",
+    "adaptive_ema_vol":         "T1",
+    "regime_state_machine":     "T2",  # brainstorm explicit: exploratory, not promotion-track
+    "ensemble_vote_3of5":       "T1",
+    "fed_macro_primary":        "T1",
+    "slope_only_200":           "T1",
+    # ── Next-Frontier 2026-04-20 (Lane 2) ──
+    "gc_vj_decay_gate":        "T1",
+    "gc_vj_xlk_relative_trend": "T1",
+    "gc_vj_dual_regime":       "T1",
+    # ── Next-Frontier 2026-04-20 (Lane 1) ──
+    "rank_slope_regime":       "T1",
+    "zscore_return_reversion": "T1",
+    # ── Next-Frontier 2026-04-20 (Lane 3) ──
+    "breadth_decay_composite": "T1",
+    # ── Next-Frontier 2026-04-20 (Lane 4) ──
+    "vj_or_slope_meta":        "T1",
 }
 
 # Parameter spaces for each strategy: {param: (min, max, step, type)}
