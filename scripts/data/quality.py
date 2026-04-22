@@ -298,7 +298,12 @@ def test_split_detection() -> list[dict]:
         df = _load(name)
         df["close_pct"] = df["close"].pct_change().abs()
         df["vol_ratio"] = df["volume"] / df["volume"].rolling(20).median()
-        real_mask = ~df["is_synthetic"] if "is_synthetic" in df.columns else pd.Series(True, index=df.index)
+        if "is_synthetic" in df.columns:
+            # Coerce to bool — stored values may be True/False, 0/1, or "True"/"False"
+            is_syn = df["is_synthetic"].astype(str).str.lower().isin(("true", "1"))
+            real_mask = ~is_syn
+        else:
+            real_mask = pd.Series(True, index=df.index)
         suspect = df[(df["close_pct"] > SPLIT_PCT) & (df["vol_ratio"] < SPLIT_VOL_MULT) & real_mask]
         if len(suspect) == 0:
             out.append(_result("split_detection", "PASS", name,

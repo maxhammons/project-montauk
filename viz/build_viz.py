@@ -331,7 +331,6 @@ def build_strategy_entry(rank: int,
         "validation_summary": flatten_gates(validation),
         "trades": [],
         "equity_curve": [],
-        "drawdown_curve": [],
         "recent_scorecards": {},
         "stale": run is None,
     }
@@ -343,19 +342,15 @@ def build_strategy_entry(rank: int,
     out["run_path"] = os.path.relpath(run["path"], PROJECT_ROOT)
     out["trades"] = payload.get("trade_ledger") or []
 
-    # Equity curve — minimize payload by stripping un-used fields
+    # Equity curve — strip drawdown_pct + drawdown_curve (panel removed 2026-04-21)
     eq = []
-    dd = []
     for p in payload.get("equity_curve") or []:
         eq.append({
             "date": p["date"],
             "equity": p.get("equity"),
             "bah_equity": p.get("bah_equity"),
-            "drawdown_pct": p.get("drawdown_pct") or 0.0,
         })
-        dd.append({"date": p["date"], "drawdown_pct": p.get("drawdown_pct") or 0.0})
     out["equity_curve"] = eq
-    out["drawdown_curve"] = dd
 
     # Recent scorecards (1Y/3Y/5Y)
     out["recent_scorecards"] = compute_recent_scorecards(eq, out["trades"])

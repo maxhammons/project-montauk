@@ -1,6 +1,6 @@
 # Project Montauk — Validation Philosophy
 
-> Validation difficulty must match selection bias. Same backtest result, different selection process, different statistical meaning.
+> No real strategy is ever 100% certain. The market will move in ways we can't predict. What we can do is *be honest about how confident we are* in each candidate, and use that confidence — not a binary stamp — to decide which strategy to trade right now.
 
 ---
 
@@ -8,182 +8,176 @@
 
 Project Montauk is trying to discover robust long-only TECL strategies. Overfitting is the default failure mode whenever a search is involved.
 
-Validation exists to answer:
+Validation exists to answer **two** questions:
 
-> Is this strategy probably real, or is it just the luckiest thing we found given how it was selected?
+1. Is this strategy *correct* — no lookahead, not cheating, respects the charter, beats B&H on shares?
+2. *How confident* are we that the strategy will survive out-of-sample?
 
-If the project cannot answer that question honestly, the rest of the factory does not matter.
+Question 1 is binary. Question 2 is a continuum.
+
+The old pipeline tried to answer both with binary gates. That produced two failure modes: (a) real strategies with one marginal gate got rejected outright; (b) nothing T2 ever passed. This revision separates the two questions.
 
 ---
 
-## 2. The Core Insight
+## 2. The Core Insight (unchanged)
 
 **Overfitting risk is a property of how the strategy was selected, not the strategy itself.**
 
-A 2-parameter strategy hand-authored from a hypothesis lives in a different statistical universe than the same 2-parameter strategy pulled from the top of a 50,000-config GA population. The first was selected from a search space of size ~1 (a human's hypothesis). The second was selected from a search space of size 50,000.
-
-Applying the same validation gates to both is incoherent. The honest move is to scale validation difficulty with selection bias.
-
-This is why Project Montauk uses three validation tiers.
+A 2-parameter strategy hand-authored from a hypothesis lives in a different statistical universe than the same 2-parameter strategy pulled from a 50,000-config GA population. The tier system still applies: T0/T1/T2 route candidates to the scrutiny their selection process deserves. What changes is *what the scrutiny produces*: a confidence score, not a verdict.
 
 ---
 
-## 3. The Three Tiers
+## 3. The Three Tiers (unchanged structure, new output)
 
-Each candidate is registered under a tier that reflects how it was selected. The tier determines which validation pipeline runs.
+Each candidate is registered under a tier that reflects how it was selected. The tier determines **which sub-scores apply** to its confidence composite.
 
 ### Tier 0 — Hypothesis
 
-Hand-authored from an external prior (the marker chart, charter principles, the math of leverage decay, a published rule).
+Hand-authored from an external prior (marker chart, charter, leverage-decay math, a published rule).
 
-Requirements:
+- ≤ 5 free parameters, all from the strict canonical set
+- Pre-registered before first backtest
 
-- ≤ 5 free parameters
-- All parameter values from the **strict canonical set** (see Section 5)
-- Strategy registered with name, description, and committed parameter values **before** any backtest is run
-- Conceptually motivated, not laundered from observed GA outputs
-
-T0 candidates clear a **light pipeline**. The selection bias is small, so the gates can be small.
+T0 composite uses: marker_shape, marker_timing, walk_forward, named_windows, era_consistency, cross_asset, trade_sufficiency.
 
 ### Tier 1 — Tuned
 
-Hand-authored logic, but parameter values come from a small declared grid search or use non-canonical values.
-
-Requirements:
+Hand-authored logic with a small declared grid sweep or non-canonical values.
 
 - ≤ 8 free parameters
-- Either: (a) param values are non-canonical but committed up front, or (b) values come from a declared grid sweep with size committed up front
-- The grid size is recorded and factored into the validation gates
+- Grid size committed up front
 
-T1 candidates clear a **medium pipeline** that adds parameter-plateau and small-basin checks.
+T1 adds parameter fragility (Gate 3) on top of T0's sub-scores.
 
 ### Tier 2 — Discovered
 
 Pulled from optimizer top-N, GA population, or any large search.
 
-Requirements:
+- Any param count, any values
 
-- Any param count
-- Any param values
-- Selected from any search budget
+T2 adds Morris fragility + bootstrap + selection-bias deflation + concentration/jackknife on top of T1.
 
-T2 candidates clear the **full statistical stack**: deflation, regime boundary perturbation, fragility, jackknife, HHI, mutation survival, the works.
+Selection bias scales validation scrutiny. It does not scale *whether* we pass — it scales *what evidence* we require before we'd be confident.
 
 ---
 
-## 4. Tier Routing Rules
+## 4. The Two-Layer Model
 
-These rules prevent T0 from becoming a backdoor for hidden search bias.
+### Layer 1 — Correctness (hard-fail, no negotiation)
 
-1. **Pre-registration is mandatory for T0.** The strategy file, parameter values, and a one-line hypothesis are committed to the registry before the first backtest. No exceptions.
-2. **Optimizer-tuning auto-promotes the tier.** If the GA touches a strategy, it becomes T2. If a small declared grid search touches it, it becomes T1.
-3. **Provenance honesty.** A T0 strategy that came from staring at GA outputs ("the GA winner used EMA-37 so let me try EMA-50 by hand") is laundered selection bias and should be registered as T2. T0 means *conceptually motivated from outside the search*.
-4. **Cross-asset is mandatory at every tier.** It is the highest-power honesty check available and costs almost nothing.
-5. **Same data, different gates.** All tiers see the full TECL history. The split is about what additional scrutiny is warranted, not what data is shown.
+Strategies that fail any of these are disqualified regardless of everything else. These aren't about overfitting — they're about "is this even a valid strategy?":
 
----
+- Engine integrity (bar-close signals, no lookahead, single position)
+- Golden regression pass (`tests/test_regression.py` matches frozen ledger within ±0.001%)
+- Shadow-comparator agreement (dev-only)
+- Data-quality pre-check pass (all sources agree, manifest checksum valid, OHLC sane)
+- Artifact completeness (all five standardized JSON artifacts emitted)
+- Charter guardrails: TECL-only, long-only, single-position, ≤ 5 trades/year
+- `share_multiple ≥ 1.0` (below B&H = charter mission violation)
+- Strategy in registry + charter-compatible family
+- No degenerate exposure (always-in or always-out across every 4-year window)
 
-## 5. Strict Canonical Parameter Set (T0)
+A correctness failure means the strategy *isn't a strategy*. No confidence score can rescue it.
 
-T0 strategies may only use parameter values drawn from this fixed list:
+### Layer 2 — Confidence (weighted, scored 0–100)
 
-| Parameter family | Allowed values |
-|------------------|---------------|
-| EMA / SMA / TEMA period | 7, 9, 14, 20, 21, 30, 50, 100, 150, 200, 300 |
-| RSI period | 7, 14, 21 |
-| ATR period | 7, 14, 20, 40 |
-| ATR multiplier | 0.5, 1.0, 1.5, 2.0, 2.5, 3.0 |
-| Lookback / Donchian / Highest-Lowest period | 5, 10, 20, 50, 100, 150, 200 |
-| Slope / confirmation bars | 1, 2, 3, 5 |
-| Cooldown bars | 0, 1, 2, 3, 5, 10 |
-| Percent thresholds (drawdown, drop, etc.) | 5%, 8%, 10%, 15%, 20%, 25% |
-| MACD fast / slow / signal | (12, 26, 9), (8, 17, 9) |
+Everything else feeds a single `composite_confidence` score on [0, 1], displayed ×100 on the leaderboard. It is a weighted geometric mean of tier-applicable sub-scores (see `validation-thresholds.md` for weights).
 
-Anything outside this list lifts the strategy to T1.
-
-The reason for the strict list: it forces hypotheses to be argued from first principles, not param-fiddled into existence. "200-day moving average" is a thing in the world. "EMA-187" is a search result.
+Each sub-score is a smooth [0, 1] value: hard-fail threshold → 0.0, soft-warn threshold → 0.5, full pass → 1.0, with smooth interpolation between. A close miss costs a little. A far miss costs a lot. Nothing is binary.
 
 ---
 
-## 6. The Core Rule
+## 5. Admission Tiers
 
-A raw optimizer winner is **not** a winner.
+| Confidence | Label | Leaderboard |
+|:-:|---|---|
+| **0–39** | Reject | Hidden |
+| **40–59** | Research only | Archived |
+| **60–69** | Watchlist | Visible, flagged low-confidence |
+| **70–89** | Admitted | On leaderboard |
+| **90–100** | High confidence | Highlighted |
 
-A strategy only becomes real when it receives a final **PASS** verdict from the validation pipeline **at its tier**.
+**70 is the admission threshold.** At 70+, a strategy is admitted to the leaderboard and eligible for manual brokerage deployment consideration. Below 70, the strategy is research output — interesting, maybe, but not trusted.
 
-Operational consequences:
-
-- **PASS**: eligible for leaderboard promotion, champion selection, and `backtest_certified` signal-bundle emission. Tagged as `T0-PASS`, `T1-PASS`, or `T2-PASS`.
-- **WARN**: useful research output, but not promotable
-- **FAIL**: archive only, keep searching
-
-The leaderboard is a memory of validated PASS results across all tiers. The tier tag is honest disclosure of what level of evidence backs the strategy.
+`backtest_certified` remains the correctness flag (all of Layer 1 passed). `promotion_ready = backtest_certified AND confidence ≥ 0.70`.
 
 ---
 
-## 7. What Each Tier's Pipeline Tests
+## 6. What "Confidence" Actually Means
 
-### T0 Pipeline (Hypothesis)
+A 78 is not a promise the strategy will beat B&H in 2027. It's a claim that across the checks we care about — time generalization, cycle timing vs markers, cross-asset sanity, parameter fragility, statistical search-bias correction — the candidate held up in **78% of the evidence we asked it to stand on**, with more weight on the checks that matter most for overfit detection.
 
-Failure modes being defended against:
+A 92 is not "certainty." It's "across every bucket of evidence we had, this candidate was strong." That's the honest frame. The market will still do what the market does. The confidence score tells us *which strategy is the least-shaky bet we currently have*, not *which strategy will work*.
 
-- coding bug (lookahead, repaint, off-by-one)
-- TECL-only cosplay (works on TECL, fails on TQQQ / UPRO)
-- regime-period dependence (worked one half of the data, failed the other)
-- doesn't actually trade the marker shape
+Operational consequence: run multiple strategies over time, watch their confidence scores drift, swap to higher-confidence candidates as regimes shift. The leaderboard isn't a hall of fame — it's a watchlist of candidates with their current confidence levels.
 
-Pipeline:
+---
 
-1. Code integrity checks (no lookahead, bar-close exits, single position)
-2. Cross-asset on TQQQ + UPRO + QQQ — must beat B&H share count on at least 2 of 3
-3. Walk-forward split at the midpoint — both halves beat B&H share count
-4. Marker shape alignment — diagnostic only. `state_agreement < 0.30` is a critical warning (essentially uncorrelated with markers), `< 0.50` is a soft warning (barely above random alignment). No hard fail at any tier. The marker is a north star for hypothesis design (see T0-DESIGN-GUIDE.md), not a gate that decides what passes.
+## 7. What Changed From The Previous Framework
 
-### T1 Pipeline (Tuned)
+| Before | After |
+|---|---|
+| 7 gates, each with hard-fail power | 1 correctness whitelist (hard-fail) + weighted confidence score |
+| Verdict: PASS / WARN / FAIL | Verdict: correctness check (binary) + confidence score (0–100) |
+| Cross-asset TQQQ re-opt = hard fail | Cross-asset = weighted input (0.05) |
+| Walk-forward OOS/IS < 0.65 = hard fail | Walk-forward = smooth score input |
+| Named-window share_multiple ≤ 0 = hard fail | Named-window = smooth score input |
+| Morris fragility max_swing > threshold = hard fail | Morris = smooth score input |
+| Marker shape folded into one number | Marker shape AND per-cycle timing both weighted separately |
+| Soft-warning cap as verdict mechanic | Removed — warnings are advisory only |
+| composite_confidence as advisory number | composite_confidence IS the verdict |
 
-T0 pipeline plus:
-
-5. Parameter plateau — strategy survives ±30% wiggle on each tuned parameter without losing share-count edge
-6. Concentric shell on the tuned region — small basin (high fitness only on a knife-edge config) is a fail
-
-### T2 Pipeline (Discovered)
-
-T1 pipeline plus the full statistical stack from the research synthesis:
-
-7. Deflated regime score (selection-bias correction)
-8. Regime boundary perturbation
-9. Delete-one-cycle jackknife
-10. HHI on per-cycle contributions
-11. Morris fragility / interaction effects
-12. Mutation survival rate
-13. Stationary bootstrap CIs
-14. Cross-asset re-optimization
-
-The full stack is the price of using the search machine. It is not punishment — it is what a 50,000-config selection process actually requires to be honest.
+The old mechanics are still computed internally (the thresholds still inform where the 0.5 and 1.0 anchors sit). They just no longer have veto power individually.
 
 ---
 
 ## 8. Principles
 
-1. **Validation is mandatory at every tier.** Light is not the same as absent.
-2. **PASS at the appropriate tier gets promoted.** Raw scores never outrank a failed validation.
-3. **Pre-registration prevents laundering.** A T0 strategy is identified by its registration timestamp, not by its final params.
-4. **Honesty beats excitement.** A strategy that looks great but fails its tier's gates is not "almost ready." It is rejected.
-5. **The output must be deployable.** The end product is a `backtest_certified` signal bundle — five standardized JSON artifacts plus the native HTML viewer — driving manual brokerage execution.
-6. **Deployment overlays are downstream.** The Roth overlay sits after PASS, not before.
-7. **Low-frequency strategies are not punished.** A year of holding through new highs is a successful year.
+1. **Correctness is binary, confidence is a continuum.** Don't conflate them.
+2. **Confidence ≠ certainty.** A 95 is not a promise. It's a claim that across every bucket of evidence, this candidate held up best.
+3. **Selection bias still determines scrutiny.** T2 candidates face more sub-scores than T0. That's honest.
+4. **Pre-registration still prevents laundering.** A T0 strategy is identified by its registration timestamp, not its final params.
+5. **Low-frequency strategies are not punished.** A year of holding through new highs is a successful year.
+6. **The leaderboard is a watchlist.** Confidence drifts over time. Strategies that were 88 last year may be 72 this year as new data arrives. The system is designed to re-validate.
+7. **Multiple strategies can run simultaneously** — this is the future state. The oscillator vision ("7 of 25 strategies are calling sell") requires a pool of high-confidence candidates, not a single PASS/FAIL anointed winner.
 
 ---
 
-## 9. Current Direction
+## 9. What Each Tier's Composite Looks Like
 
-The project has the right validation culture (integrity checks, cross-asset work, statistical governor, fragility). What changes with this philosophy revision:
+See `validation-thresholds.md` for exact weights. Summary:
 
-- introduce explicit T0 / T1 / T2 routing
-- formalize the strict canonical parameter set for T0
-- formalize marker-shape alignment as a first-class gate (not a soft prior)
-- formalize `share_multiple` as the sole metric name (replacing the dollar-based vs-B&H multiple; the deprecated `vs_bah_multiple` alias was retired in Phase 7)
-- remove trade-frequency punishment for low-trade strategies
-- keep the existing T2 stack intact — it is not wrong, it is just being scoped to its actual job
+- **T0 composite** is dominated by marker_shape + marker_timing + walk_forward + named_windows (together ~70% of weight). Cross-asset and trade-sufficiency fill the rest. No statistical overfit penalties because T0 cannot overfit.
+- **T1 composite** adds parameter fragility (Gate 3) at ~15%. Marker and time sub-scores dilute slightly.
+- **T2 composite** adds Morris fragility + bootstrap + selection-bias + regime consistency (~35% combined). The full statistical stack earns weight because the search process earns it.
 
-Threshold values, formulas, and implementation details belong in the validation scripts. This document defines the framework.
+Weights renormalize when sub-scores are skipped — T0 doesn't pay a penalty for not having a Morris score; its remaining weights scale up.
+
+---
+
+## 10. Per-Cycle Marker Timing
+
+Previously, marker alignment was reported as a single `state_agreement` number that averaged timing-accuracy across the entire history. A strategy that was 60 bars late on COVID but early on 2018 could still score reasonably.
+
+The new framework splits this into two sub-scores:
+
+- **`marker_shape`** (state agreement): are the strategy's risk-on / risk-off periods in the same place as the markers, overall?
+- **`marker_timing`** (per-cycle, magnitude-weighted): for each marker cycle transition, how close was the nearest strategy transition? Weighted by cycle magnitude (bigger drawdowns and bigger rallies carry more weight).
+
+This is the change that directly penalizes strategies that fire late on COVID, late on 2022, or miss 2025. It is *the* structural answer to "why does my passing strategy make obviously dumb mistakes?"
+
+---
+
+## 11. Cross-Asset, Demoted
+
+The cross-asset gate (Gate 6) previously hard-failed any strategy whose TQQQ same-param share_multiple fell below 0.50, and required a successful TQQQ re-optimization. The demotion:
+
+- Cross-asset becomes a weighted sub-score (0.05, lowest of all)
+- TQQQ re-opt hard-fail removed; it becomes a scored input
+- The rationale: TECL is 3× leveraged and uniquely volatile. A strategy that works on TECL but struggles on QQQ is not automatically overfit — it may be exploiting leverage-regime dynamics that only exist at TECL's volatility. Cross-asset remains a useful check (it catches pure TECL cosplay) but it does not deserve veto power.
+
+This directly addresses the manual-admission override of gc_vjbb that the team performed in 2026-04-20. Under the new framework, gc_vjbb would clear the 70 threshold without needing a manual exception.
+
+---
+
+*Last updated: 2026-04-21*

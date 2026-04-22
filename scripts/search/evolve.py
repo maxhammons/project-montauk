@@ -203,23 +203,28 @@ REQUIRED_CERTIFICATION_CHECKS = (
 )
 
 
+LEADERBOARD_WATCHLIST_CONFIDENCE = 0.60
+LEADERBOARD_ADMIT_CONFIDENCE = 0.70
+
+
 def _is_leaderboard_eligible(entry: dict) -> tuple[bool, str]:
     """Return (eligible, reason) — whether an entry may be admitted to the leaderboard.
 
-    An entry is eligible iff:
-      1. Validation verdict is PASS (promotion_ready)
-      2. All REQUIRED_CERTIFICATION_CHECKS passed
+    Under the 2026-04-21 confidence-score framework:
+      - Entries with `composite_confidence >= 0.70` are admitted (PASS verdict).
+      - Entries with 0.60 <= composite < 0.70 are visible as "watchlist" (WARN).
+      - Entries below 0.60 are hidden (FAIL or research-only).
+      - All admitted/watchlist entries must still pass REQUIRED_CERTIFICATION_CHECKS
+        (engine integrity, golden regression, shadow comparator, data quality).
 
-    Legacy leaderboard entries without a `validation` block are grandfathered in
-    (they predate the guard); fresh entries must satisfy both criteria.
+    Legacy leaderboard entries without a `validation` block are grandfathered in.
     """
     validation = entry.get("validation") or {}
     if not validation:
-        # Legacy entry loaded from leaderboard — grandfather in, don't re-gate
         return True, "legacy_entry"
-    if not validation.get("promotion_ready", False):
-        verdict = validation.get("verdict", "?")
-        return False, f"not promotion_ready (verdict={verdict})"
+    composite = float(validation.get("composite_confidence") or 0.0)
+    if composite < LEADERBOARD_WATCHLIST_CONFIDENCE:
+        return False, f"composite_confidence={composite:.3f} < {LEADERBOARD_WATCHLIST_CONFIDENCE:.2f}"
     checks = validation.get("certification_checks") or {}
     failing = [
         name for name in REQUIRED_CERTIFICATION_CHECKS
@@ -404,13 +409,22 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
             entry["converged"] = strategy_state[name]["converged"]
             entry["runs_without_improvement"] = strategy_state[name]["runs_without_improvement"]
 
-    # Deduplicate: keep best per config hash
+    # Deduplicate: keep highest-confidence entry per config hash.
+    def _entry_confidence(entry: dict) -> float:
+        return float((entry.get("validation") or {}).get("composite_confidence") or 0.0)
+
     seen = {}
     for entry in leaderboard:
         h = config_hash(entry["strategy"], entry.get("params", {}))
-        if h not in seen or entry["fitness"] > seen[h]["fitness"]:
+        if h not in seen or _entry_confidence(entry) > _entry_confidence(seen[h]):
             seen[h] = entry
-    leaderboard = sorted(seen.values(), key=lambda x: x["fitness"], reverse=True)[:20]
+    # Leaderboard order is confidence-first (primary metric under the 2026-04-21
+    # framework), fitness as tie-breaker.
+    leaderboard = sorted(
+        seen.values(),
+        key=lambda x: (_entry_confidence(x), x.get("fitness", 0)),
+        reverse=True,
+    )[:20]
 
     # Save
     os.makedirs(os.path.dirname(leaderboard_path), exist_ok=True)
@@ -534,28 +548,29 @@ def discovery_score_from_cache(entry: dict, *, tier: str = "T2") -> float:
 
 def fitness(result: BacktestResult, *, tier: str = "T2") -> float:
     """
-    Share-count accumulation fitness — primary metric is share_multiple vs B&H.
+    Weighted-era share-count fitness (2026-04-21 revision).
 
-    Primary: share_multiple — ratio of strategy terminal share-equivalent
-        to B&H terminal shares. > 1.0 means the strategy accumulated more
-        TECL units than passive holding.
-    Guards: drawdown, cycle concentration (HHI), parameter complexity, trade count floor.
-    Charter boundary: `trades_per_year <= MAX_TRADES_PER_YEAR` (regime, not scalper).
-    Regime score used as a quality multiplier (not primary driver).
+    PRIMARY: `weighted_era_fitness` = full^0.15 × real^0.25 × modern^0.60
+       — a weighted geometric mean of era-sliced share multipliers. See
+       `scripts/search/fitness.py` for the full rationale. Previously primary
+       was raw `share_multiple` on full 1993-now history; that was dominated
+       by the synthetic 1993-2008 dotcom crash, producing strategies that
+       crushed full-history but failed on real post-2008 data.
 
-    Tier handling:
-      T0: skip the trades-per-param (tpp) gate. Canonical param pre-registration
-          is the structural defense against underdetermined fits — there is no
-          search bias to punish. Still apply drawdown, HHI, charter gates.
-      T1/T2: full gates as before.
-
-    Deliberately no soft ramp for low trade counts — see module docstring.
+    Guards: drawdown, cycle concentration (HHI), trade count floor, charter
+       trade-frequency limit. Regime score still used as a quality multiplier.
     """
-    if result is None or result.num_trades < 5:
-        return 0.0  # structural: did the strategy actually engage?
+    from search.fitness import weighted_era_fitness
 
-    # ── Primary: share-count multiplier vs B&H (marked-to-market identity) ──
-    share_mult = result.share_multiple  # 1.0 = matched B&H shares, > 1.0 = more shares
+    if result is None or result.num_trades < 5:
+        return 0.0
+
+    # ── Primary: weighted geometric mean over era share multipliers ──
+    share_mult = weighted_era_fitness(
+        full_share=result.share_multiple,
+        real_share=result.real_share_multiple,
+        modern_share=result.modern_share_multiple,
+    )
 
     # ── Charter boundary: regime strategy, not scalper ──
     if result.trades_per_year > MAX_TRADES_PER_YEAR:
@@ -1345,6 +1360,8 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
                 "params": params,
                 "metrics": {
                     "share_multiple": round(result.share_multiple, 4),
+                    "real_share_multiple": round(result.real_share_multiple, 4),
+                    "modern_share_multiple": round(result.modern_share_multiple, 4),
                     "cagr": round(result.cagr_pct, 2),
                     "max_dd": round(result.max_drawdown_pct, 1),
                     "mar": round(result.mar_ratio, 3),
@@ -1766,6 +1783,8 @@ def evolve_chunk(
             "params": params,
             "metrics": {
                 "share_multiple": round(result.share_multiple, 4) if result else 0,
+                "real_share_multiple": round(result.real_share_multiple, 4) if result else 0,
+                "modern_share_multiple": round(result.modern_share_multiple, 4) if result else 0,
                 "cagr": round(result.cagr_pct, 1) if result else 0,
                 "max_dd": round(result.max_drawdown_pct, 1) if result else 0,
                 "trades": result.num_trades if result else 0,

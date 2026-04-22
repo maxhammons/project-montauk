@@ -1,0 +1,11 @@
+{
+  "sweep_start_ts": 1776801242.4260569,
+  "grid_done": true,
+  "grid_result": {
+    "phase": "grid",
+    "elapsed_seconds": 386.2,
+    "total_combos": 4434,
+    "charter_pass": 76,
+    "leaderboard_entries": 6
+  }
+}

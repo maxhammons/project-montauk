@@ -1,6 +1,6 @@
 # Project Montauk — Project Status
 
-> As of 2026-04-15
+> As of 2026-04-21
 
 ---
 
@@ -43,7 +43,43 @@ The Roth overlay model can sit on top of a validated binary TECL signal without 
 
 ---
 
-## 3. What Just Changed (2026-04-13 charter revision)
+## 3. What Just Changed (2026-04-21 validation overhaul)
+
+The previous 7-gate pass/fail framework was replaced with a two-layer confidence
+model after the "nothing gets through except strategies I don't trust" problem
+became persistent. See `docs/validation-philosophy.md` for the full framework.
+
+Summary of the shift:
+
+- **Layer 1 (correctness, binary hard-fail)**: engine integrity, golden regression,
+  data quality, charter guardrails, `share_multiple ≥ 1.0`, registry membership,
+  degeneracy.
+- **Layer 2 (confidence, weighted geometric mean ∈ [0, 1])**: every non-correctness
+  gate emits a smooth sub-score that contributes weighted partial credit. The
+  composite drives the verdict.
+- **Admission tiers**: 0–39 Reject · 40–59 Research · 60–69 Watchlist · 70–89
+  Admitted · 90+ High confidence. Leaderboard shows watchlist + admitted.
+- **Per-cycle magnitude-weighted marker timing** is a new first-class sub-score
+  (0.15 T2 weight). This is what penalizes strategies that are late on COVID,
+  late on 2022, or missed the 2025 tariff — previously averaged away in
+  state_agreement. See `scripts/strategies/markers.py::_magnitude_weighted_timing_score`.
+- **Named-window performance** split out from walk-forward as its own sub-score
+  (0.10 T2 weight).
+- **Cross-asset demoted** from hard-fail to 0.05 weighted input. Rationale:
+  TECL is 3× leveraged and uniquely volatile; cross-asset is a useful but
+  non-definitive signal, not a bouncer.
+- **Trade sufficiency anchors relaxed** (0/10/20 instead of 0/25/40) to honor
+  charter's "low-frequency strategies are not punished" principle.
+- **Leaderboard ranking** is now confidence-first (fitness is a tie-breaker).
+  Viz UI collapsed 5 sort options to a single "Ranked by confidence" display.
+- **15/15 existing entries rescored**; 5 Admitted, 10 Watchlist, 0 Rejected.
+  `gc_vjbb`'s manual admission is no longer needed — it scores 65.6 (watchlist)
+  organically. The ranking inverts from fitness-dominant (raw shares) to
+  quality-dominant (per-cycle timing + named-window robustness).
+
+---
+
+## 3b. What Changed Earlier (2026-04-13 charter revision)
 
 The spirit-guide was revised to address a structural mismatch: the validation framework was calibrated for high-DOF GA winners and was being applied uniformly to all candidates, including simple human-authored hypotheses. This punished the wrong thing and effectively closed the door on small, conceptually motivated strategies.
 
@@ -93,7 +129,7 @@ Acceptable, by design. The factory ends at validated champion → `backtest_cert
 
 ### Validation gates that don't fit the candidate
 
-Until tier routing lands in code, the project will continue to over-validate simple hypotheses and under-validate large-search winners. The new spirit-guide defines the right structure; the scripts don't yet enforce it.
+~~Until tier routing lands in code, the project will continue to over-validate simple hypotheses and under-validate large-search winners.~~ Closed 2026-04-13 (tier routing) and 2026-04-21 (confidence-score framework). Validation is now tier-routed and weighted; no single gate has veto power outside Layer 1 correctness.
 
 ### Strategy-family concentration is still a real risk
 

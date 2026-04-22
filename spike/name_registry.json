@@ -1,39 +1,1376 @@
 {
   "families": {
-    "gc_n8": {
+    "adaptive_ema_vol": {
       "adjectives_used": [
-        "Velvet"
+        "Russet"
+      ],
+      "animal": "Serval",
+      "assignments": {
+        "4e091ba2c732": "Russet Serval"
+      }
+    },
+    "atr_ratio_trend": {
+      "adjectives_used": [
+        "Scarlet"
+      ],
+      "animal": "Stag",
+      "assignments": {
+        "aebc4ec9e079": "Scarlet Stag"
+      }
+    },
+    "atr_ratio_vix": {
+      "adjectives_used": [
+        "Obsidian"
+      ],
+      "animal": "Tanager",
+      "assignments": {
+        "aebc4ec9e079": "Obsidian Tanager"
+      }
+    },
+    "bb_cci_combo": {
+      "adjectives_used": [
+        "Gilded"
       ],
       "animal": "Jaguar",
       "assignments": {
-        "0a9b11b633a9": "Velvet Jaguar"
+        "85d3fecc08f7": "Gilded Jaguar"
+      }
+    },
+    "bb_width_regime": {
+      "adjectives_used": [
+        "Verdant"
+      ],
+      "animal": "Gecko",
+      "assignments": {
+        "b8f2b6e5a299": "Verdant Gecko"
+      }
+    },
+    "breakout": {
+      "adjectives_used": [
+        "Midnight"
+      ],
+      "animal": "Jaguar",
+      "assignments": {
+        "992713396ecf": "Midnight Jaguar"
+      }
+    },
+    "cci_regime_trend": {
+      "adjectives_used": [
+        "Pewter"
+      ],
+      "animal": "Okapi",
+      "assignments": {
+        "260a40a0c761": "Pewter Okapi"
+      }
+    },
+    "cci_willr_combo": {
+      "adjectives_used": [
+        "Copper"
+      ],
+      "animal": "Fox",
+      "assignments": {
+        "54022f05a1a3": "Copper Fox"
+      }
+    },
+    "donchian_turtle": {
+      "adjectives_used": [
+        "Ivory"
+      ],
+      "animal": "Falcon",
+      "assignments": {
+        "39c9a1dd4aed": "Ivory Falcon"
+      }
+    },
+    "double_ema_slope": {
+      "adjectives_used": [
+        "Cerulean"
+      ],
+      "animal": "Stag",
+      "assignments": {
+        "42a4787244e7": "Cerulean Stag"
+      }
+    },
+    "drawdown_recovery": {
+      "adjectives_used": [
+        "Russet"
+      ],
+      "animal": "Marten",
+      "assignments": {
+        "fcbf28201531": "Russet Marten"
+      }
+    },
+    "dual_momentum": {
+      "adjectives_used": [
+        "Umber"
+      ],
+      "animal": "Gannet",
+      "assignments": {
+        "f89c82cc0fd1": "Umber Gannet"
+      }
+    },
+    "dual_tema_breakout": {
+      "adjectives_used": [
+        "Amber"
+      ],
+      "animal": "Gecko",
+      "assignments": {
+        "b5fe326addc2": "Amber Gecko"
+      }
+    },
+    "ema_pure_slope": {
+      "adjectives_used": [
+        "Midnight"
+      ],
+      "animal": "Otter",
+      "assignments": {
+        "9711cd035047": "Midnight Otter"
+      }
+    },
+    "ema_regime": {
+      "adjectives_used": [
+        "Pewter"
+      ],
+      "animal": "Stag",
+      "assignments": {
+        "9043256659b4": "Pewter Stag"
+      }
+    },
+    "gc_asym_fast_entry": {
+      "adjectives_used": [
+        "Ember"
+      ],
+      "animal": "Caracal",
+      "assignments": {
+        "7d5626f2b35f": "Ember Caracal"
+      }
+    },
+    "gc_asym_slope": {
+      "adjectives_used": [
+        "Gilded"
+      ],
+      "animal": "Gannet",
+      "assignments": {
+        "f51edde785eb": "Gilded Gannet"
+      }
+    },
+    "gc_asym_triple": {
+      "adjectives_used": [
+        "Hazel"
+      ],
+      "animal": "Lynx",
+      "assignments": {
+        "d685fd4f21dd": "Hazel Lynx"
+      }
+    },
+    "gc_c1": {
+      "adjectives_used": [
+        "Verdant"
+      ],
+      "animal": "Ibex",
+      "assignments": {
+        "99914b932bd3": "Verdant Ibex"
+      }
+    },
+    "gc_c2": {
+      "adjectives_used": [
+        "Bronze"
+      ],
+      "animal": "Civet",
+      "assignments": {
+        "99914b932bd3": "Bronze Civet"
+      }
+    },
+    "gc_c4": {
+      "adjectives_used": [
+        "Copper"
+      ],
+      "animal": "Kestrel",
+      "assignments": {
+        "99914b932bd3": "Copper Kestrel"
+      }
+    },
+    "gc_c7": {
+      "adjectives_used": [
+        "Tawny"
+      ],
+      "animal": "Bonobo",
+      "assignments": {
+        "99914b932bd3": "Tawny Bonobo"
+      }
+    },
+    "gc_e1": {
+      "adjectives_used": [
+        "Hazel"
+      ],
+      "animal": "Osprey",
+      "assignments": {
+        "590840cee549": "Hazel Osprey"
+      }
+    },
+    "gc_e10": {
+      "adjectives_used": [
+        "Slate",
+        "Onyx"
+      ],
+      "animal": "Osprey",
+      "assignments": {
+        "7b0f1cca9353": "Onyx Osprey",
+        "a7f70df62118": "Slate Osprey"
+      }
+    },
+    "gc_e18": {
+      "adjectives_used": [
+        "Bronze"
+      ],
+      "animal": "Hare",
+      "assignments": {
+        "dc9e75a129f4": "Bronze Hare"
+      }
+    },
+    "gc_e2": {
+      "adjectives_used": [
+        "Brindled",
+        "Hazel",
+        "Jade"
+      ],
+      "animal": "Shrike",
+      "assignments": {
+        "502fa9a85826": "Hazel Shrike",
+        "79bf0e0cd4bb": "Jade Shrike",
+        "80a45a2aede8": "Brindled Shrike"
+      }
+    },
+    "gc_e4": {
+      "adjectives_used": [
+        "Tawny",
+        "Silver"
+      ],
+      "animal": "Pangolin",
+      "assignments": {
+        "4a80fc2ef63d": "Silver Pangolin",
+        "cc42cc7ae7b2": "Tawny Pangolin"
+      }
+    },
+    "gc_e7": {
+      "adjectives_used": [
+        "Umber",
+        "Hazel"
+      ],
+      "animal": "Serval",
+      "assignments": {
+        "81d382b40dff": "Umber Serval",
+        "d55c1dd80745": "Hazel Serval"
+      }
+    },
+    "gc_e9": {
+      "adjectives_used": [
+        "Hazel"
+      ],
+      "animal": "Tapir",
+      "assignments": {
+        "be4d2f25eeea": "Hazel Tapir"
+      }
+    },
+    "gc_n1": {
+      "adjectives_used": [
+        "Amber"
+      ],
+      "animal": "Caracal",
+      "assignments": {
+        "d7239fe6b70a": "Amber Caracal"
+      }
+    },
+    "gc_n11": {
+      "adjectives_used": [
+        "Sable"
+      ],
+      "animal": "Hare",
+      "assignments": {
+        "ed8dccb291b5": "Sable Hare"
+      }
+    },
+    "gc_n13": {
+      "adjectives_used": [
+        "Copper"
+      ],
+      "animal": "Stag",
+      "assignments": {
+        "d2ece423fa03": "Copper Stag"
+      }
+    },
+    "gc_n14": {
+      "adjectives_used": [
+        "Marbled",
+        "Ashen"
+      ],
+      "animal": "Tanager",
+      "assignments": {
+        "2deab10bc394": "Marbled Tanager",
+        "888989f6718a": "Ashen Tanager"
+      }
+    },
+    "gc_n2": {
+      "adjectives_used": [
+        "Tawny",
+        "Cerulean"
+      ],
+      "animal": "Civet",
+      "assignments": {
+        "6bd0076d2b53": "Tawny Civet",
+        "7d2767572749": "Cerulean Civet"
+      }
+    },
+    "gc_n5": {
+      "adjectives_used": [
+        "Cerulean"
+      ],
+      "animal": "Okapi",
+      "assignments": {
+        "56c26625feff": "Cerulean Okapi"
+      }
+    },
+    "gc_n8": {
+      "adjectives_used": [
+        "Velvet",
+        "Midnight"
+      ],
+      "animal": "Jaguar",
+      "assignments": {
+        "0a9b11b633a9": "Velvet Jaguar",
+        "56c26625feff": "Midnight Jaguar"
+      }
+    },
+    "gc_n8_panic_flat": {
+      "adjectives_used": [
+        "Ember",
+        "Crimson",
+        "Ivory",
+        "Pewter",
+        "Slate",
+        "Onyx",
+        "Brindled",
+        "Saffron",
+        "Scarlet"
+      ],
+      "animal": "Gannet",
+      "assignments": {
+        "179bf794bbfa": "Pewter Gannet",
+        "1d42b1821d69": "Ember Gannet",
+        "21818041f96f": "Ivory Gannet",
+        "44c8e3f7d1d6": "Slate Gannet",
+        "4ac08473b191": "Scarlet Gannet",
+        "4c13dc5bdcc3": "Onyx Gannet",
+        "5f6d426f4f35": "Saffron Gannet",
+        "808265499a3f": "Crimson Gannet",
+        "f5a3af5194c0": "Brindled Gannet"
+      }
+    },
+    "gc_n8_timelimit": {
+      "adjectives_used": [
+        "Verdant",
+        "Indigo"
+      ],
+      "animal": "Hare",
+      "assignments": {
+        "09179f02e9e1": "Verdant Hare",
+        "852960848592": "Indigo Hare"
+      }
+    },
+    "gc_pre_vix": {
+      "adjectives_used": [
+        "Onyx",
+        "Copper",
+        "Indigo",
+        "Bronze",
+        "Umber"
+      ],
+      "animal": "Stag",
+      "assignments": {
+        "1f8665b80c0b": "Onyx Stag",
+        "44754f8c647f": "Bronze Stag",
+        "6c727e9c2292": "Umber Stag",
+        "b6d28894e2c3": "Copper Stag",
+        "cbd81696e911": "Indigo Stag"
+      }
+    },
+    "gc_precross": {
+      "adjectives_used": [
+        "Umber"
+      ],
+      "animal": "Bonobo",
+      "assignments": {
+        "1f8665b80c0b": "Umber Bonobo"
       }
     },
     "gc_precross_roc": {
       "adjectives_used": [
-        "Slate"
+        "Slate",
+        "Copper"
       ],
       "animal": "Fox",
       "assignments": {
-        "36d5f84745f1": "Slate Fox"
+        "36d5f84745f1": "Slate Fox",
+        "b74e979b4464": "Copper Fox"
       }
     },
     "gc_precross_strict": {
       "adjectives_used": [
-        "Copper"
+        "Copper",
+        "Bronze"
       ],
       "animal": "Heron",
       "assignments": {
-        "2a3d4b8247db": "Copper Heron"
+        "2a3d4b8247db": "Copper Heron",
+        "cbd81696e911": "Bronze Heron"
+      }
+    },
+    "gc_s1": {
+      "adjectives_used": [
+        "Russet",
+        "Saffron",
+        "Obsidian"
+      ],
+      "animal": "Badger",
+      "assignments": {
+        "16a63bf5eadb": "Saffron Badger",
+        "b774b2b1a26c": "Russet Badger",
+        "f47778b73abf": "Obsidian Badger"
+      }
+    },
+    "gc_s2": {
+      "adjectives_used": [
+        "Russet",
+        "Midnight",
+        "Silver",
+        "Ivory",
+        "Crimson",
+        "Gilded"
+      ],
+      "animal": "Okapi",
+      "assignments": {
+        "4389f4ec8ed9": "Silver Okapi",
+        "5626edaa3c5c": "Ivory Okapi",
+        "610580b6056f": "Gilded Okapi",
+        "d1a0d2acc3b7": "Midnight Okapi",
+        "eb2a43a8a930": "Russet Okapi",
+        "f027b059c263": "Crimson Okapi"
+      }
+    },
+    "gc_s3": {
+      "adjectives_used": [
+        "Jade"
+      ],
+      "animal": "Tapir",
+      "assignments": {
+        "889520c181cb": "Jade Tapir"
+      }
+    },
+    "gc_spread_momentum": {
+      "adjectives_used": [
+        "Dusky"
+      ],
+      "animal": "Bonobo",
+      "assignments": {
+        "aab2160cc07a": "Dusky Bonobo"
+      }
+    },
+    "gc_strict_vix": {
+      "adjectives_used": [
+        "Brindled",
+        "Dusky",
+        "Onyx"
+      ],
+      "animal": "Marten",
+      "assignments": {
+        "1f8665b80c0b": "Dusky Marten",
+        "44754f8c647f": "Onyx Marten",
+        "cbd81696e911": "Brindled Marten"
+      }
+    },
+    "gc_tema_asym": {
+      "adjectives_used": [
+        "Verdant"
+      ],
+      "animal": "Hare",
+      "assignments": {
+        "664d70a2db64": "Verdant Hare"
+      }
+    },
+    "gc_vjatr": {
+      "adjectives_used": [
+        "Brindled",
+        "Slate",
+        "Cerulean",
+        "Tawny",
+        "Silver",
+        "Onyx",
+        "Pewter",
+        "Cobalt",
+        "Obsidian",
+        "Scarlet",
+        "Dusky",
+        "Verdant",
+        "Ember",
+        "Copper",
+        "Velvet",
+        "Indigo",
+        "Gilded",
+        "Jade",
+        "Midnight",
+        "Bronze",
+        "Hazel",
+        "Amber",
+        "Marbled",
+        "Sable",
+        "Ivory",
+        "Russet",
+        "Umber",
+        "Crimson",
+        "Saffron",
+        "Ashen",
+        "Jade",
+        "Tawny",
+        "Ashen",
+        "Sable",
+        "Jade",
+        "Brindled",
+        "Slate",
+        "Verdant",
+        "Midnight",
+        "Verdant",
+        "Ashen",
+        "Amber",
+        "Ashen",
+        "Silver",
+        "Pewter",
+        "Saffron",
+        "Dusky",
+        "Pewter",
+        "Umber",
+        "Obsidian",
+        "Scarlet",
+        "Indigo",
+        "Scarlet",
+        "Midnight",
+        "Russet",
+        "Dusky",
+        "Tawny",
+        "Tawny",
+        "Pewter",
+        "Sable",
+        "Indigo",
+        "Tawny",
+        "Pewter",
+        "Cerulean",
+        "Velvet",
+        "Dusky",
+        "Pewter",
+        "Midnight",
+        "Pewter",
+        "Saffron",
+        "Saffron",
+        "Scarlet",
+        "Umber",
+        "Silver",
+        "Sable",
+        "Brindled",
+        "Brindled",
+        "Copper",
+        "Crimson",
+        "Pewter",
+        "Cerulean",
+        "Ashen",
+        "Sable",
+        "Ember",
+        "Velvet",
+        "Bronze",
+        "Silver",
+        "Russet",
+        "Silver",
+        "Gilded",
+        "Cerulean",
+        "Indigo",
+        "Scarlet",
+        "Gilded",
+        "Ivory",
+        "Verdant",
+        "Ember",
+        "Cobalt",
+        "Jade",
+        "Onyx",
+        "Bronze",
+        "Amber",
+        "Bronze",
+        "Hazel",
+        "Scarlet",
+        "Velvet",
+        "Cerulean",
+        "Indigo",
+        "Pewter",
+        "Gilded",
+        "Copper",
+        "Slate",
+        "Umber",
+        "Umber",
+        "Saffron",
+        "Amber",
+        "Cerulean",
+        "Velvet",
+        "Brindled",
+        "Ashen",
+        "Amber",
+        "Ivory",
+        "Velvet",
+        "Amber",
+        "Slate",
+        "Bronze",
+        "Umber",
+        "Umber",
+        "Bronze",
+        "Slate",
+        "Umber",
+        "Cerulean",
+        "Saffron",
+        "Dusky",
+        "Cobalt",
+        "Brindled",
+        "Silver",
+        "Indigo",
+        "Sable",
+        "Brindled",
+        "Copper",
+        "Russet",
+        "Cerulean",
+        "Gilded",
+        "Ember",
+        "Cerulean",
+        "Obsidian",
+        "Copper",
+        "Ivory",
+        "Velvet",
+        "Crimson",
+        "Hazel",
+        "Ember",
+        "Hazel",
+        "Ember",
+        "Ashen",
+        "Tawny",
+        "Amber",
+        "Umber",
+        "Cerulean",
+        "Velvet",
+        "Amber",
+        "Midnight",
+        "Marbled",
+        "Silver",
+        "Onyx",
+        "Crimson",
+        "Pewter",
+        "Ivory",
+        "Russet",
+        "Slate",
+        "Dusky",
+        "Scarlet",
+        "Bronze",
+        "Copper",
+        "Cobalt",
+        "Copper",
+        "Sable",
+        "Amber",
+        "Ashen",
+        "Onyx",
+        "Copper",
+        "Sable",
+        "Silver",
+        "Crimson",
+        "Umber",
+        "Ivory",
+        "Ashen",
+        "Bronze",
+        "Scarlet",
+        "Pewter",
+        "Ivory",
+        "Hazel",
+        "Cerulean",
+        "Saffron",
+        "Indigo",
+        "Hazel",
+        "Midnight",
+        "Cobalt",
+        "Obsidian",
+        "Scarlet",
+        "Amber",
+        "Slate",
+        "Velvet",
+        "Amber",
+        "Bronze",
+        "Ember",
+        "Marbled",
+        "Bronze",
+        "Obsidian",
+        "Ember",
+        "Cobalt",
+        "Tawny",
+        "Brindled",
+        "Marbled",
+        "Onyx",
+        "Ember",
+        "Marbled",
+        "Obsidian",
+        "Midnight",
+        "Russet",
+        "Crimson",
+        "Bronze",
+        "Scarlet",
+        "Silver",
+        "Cerulean",
+        "Pewter",
+        "Copper",
+        "Cerulean",
+        "Silver",
+        "Russet",
+        "Russet",
+        "Brindled",
+        "Bronze",
+        "Marbled",
+        "Saffron",
+        "Marbled",
+        "Cerulean",
+        "Obsidian",
+        "Gilded",
+        "Amber",
+        "Scarlet",
+        "Tawny",
+        "Midnight",
+        "Cobalt",
+        "Jade",
+        "Indigo",
+        "Silver",
+        "Copper",
+        "Onyx",
+        "Pewter",
+        "Amber",
+        "Verdant",
+        "Scarlet",
+        "Sable",
+        "Crimson",
+        "Slate",
+        "Velvet",
+        "Velvet",
+        "Midnight",
+        "Saffron",
+        "Slate",
+        "Jade",
+        "Jade",
+        "Cobalt",
+        "Scarlet",
+        "Verdant",
+        "Hazel",
+        "Crimson",
+        "Velvet",
+        "Gilded",
+        "Ember",
+        "Gilded",
+        "Sable",
+        "Tawny",
+        "Cobalt",
+        "Cobalt",
+        "Gilded",
+        "Midnight",
+        "Hazel",
+        "Ember",
+        "Gilded",
+        "Ashen",
+        "Pewter",
+        "Bronze",
+        "Saffron",
+        "Marbled",
+        "Sable",
+        "Scarlet",
+        "Tawny",
+        "Bronze",
+        "Dusky",
+        "Scarlet",
+        "Velvet"
+      ],
+      "animal": "Bonobo",
+      "assignments": {
+        "00475490cf24": "Pewter Bonobo",
+        "00b504707e11": "Velvet Bonobo",
+        "01f7e6f401fd": "Russet Bonobo",
+        "0245b9106e4b": "Midnight Bonobo",
+        "02569530faff": "Crimson Bonobo",
+        "03bc37d32282": "Pewter Bonobo",
+        "03e788097de4": "Ember Bonobo",
+        "04ff1689bde2": "Saffron Bonobo",
+        "07efb83e29a9": "Tawny Bonobo",
+        "07efc8452702": "Verdant Bonobo",
+        "0a869414dec8": "Cerulean Bonobo",
+        "0b7ce19767fe": "Velvet Bonobo",
+        "0c2d26214d0d": "Hazel Bonobo",
+        "0c53e9a3c410": "Umber Bonobo",
+        "0c9c6817695e": "Sable Bonobo",
+        "0d82f8a3b0bc": "Onyx Bonobo",
+        "0f448d951cff": "Bronze Bonobo",
+        "0fce5f686154": "Indigo Bonobo",
+        "10cdf99ecc24": "Midnight Bonobo",
+        "11292d265ac2": "Ashen Bonobo",
+        "134a57c89d59": "Umber Bonobo",
+        "13f2a7edcd5b": "Gilded Bonobo",
+        "15dfcd03f62f": "Cerulean Bonobo",
+        "17fe9f40c1f1": "Umber Bonobo",
+        "18ab2fa92852": "Ember Bonobo",
+        "19f1d558499e": "Ember Bonobo",
+        "1a11a04ca68c": "Obsidian Bonobo",
+        "1b53354f8191": "Verdant Bonobo",
+        "1b55d39d51aa": "Amber Bonobo",
+        "1bd9e687341d": "Silver Bonobo",
+        "1c113b93b3c7": "Bronze Bonobo",
+        "1c3541b1a454": "Hazel Bonobo",
+        "1d62dfaefc2a": "Ivory Bonobo",
+        "1d68f4957e30": "Tawny Bonobo",
+        "1d8f9ab9962d": "Marbled Bonobo",
+        "20c357da45b8": "Obsidian Bonobo",
+        "21d823f39dcc": "Slate Bonobo",
+        "234195550359": "Ashen Bonobo",
+        "244d38bfbf9b": "Ashen Bonobo",
+        "2558a98fae0c": "Crimson Bonobo",
+        "25b2968ee5c4": "Copper Bonobo",
+        "25c283fe2306": "Sable Bonobo",
+        "264aa1a16c7c": "Russet Bonobo",
+        "276191f59570": "Umber Bonobo",
+        "277435145845": "Ivory Bonobo",
+        "29ba6a6b4ef3": "Silver Bonobo",
+        "2b9a4bdcc50d": "Pewter Bonobo",
+        "2d0be025e273": "Ivory Bonobo",
+        "2d45526fd4bb": "Russet Bonobo",
+        "2d4b2afe4998": "Copper Bonobo",
+        "2e1c2faa89e5": "Bronze Bonobo",
+        "2e7317ffd875": "Tawny Bonobo",
+        "2eccff770386": "Tawny Bonobo",
+        "3205a33cb0a5": "Gilded Bonobo",
+        "32130d705904": "Ember Bonobo",
+        "327b5a30407e": "Sable Bonobo",
+        "327c89f89f75": "Tawny Bonobo",
+        "346f1959d8ad": "Saffron Bonobo",
+        "391ec87f2565": "Sable Bonobo",
+        "3935e13d93b1": "Jade Bonobo",
+        "3982997bf5b5": "Bronze Bonobo",
+        "398ad58c69aa": "Midnight Bonobo",
+        "3a410f3fc6b6": "Copper Bonobo",
+        "3b504df5d926": "Umber Bonobo",
+        "3c42de6b8c96": "Cerulean Bonobo",
+        "3f0b40f37a40": "Crimson Bonobo",
+        "3f7dabb130e4": "Silver Bonobo",
+        "44fb558c2817": "Pewter Bonobo",
+        "4711cd6c351c": "Cobalt Bonobo",
+        "482c9627a109": "Russet Bonobo",
+        "494d2862ded8": "Amber Bonobo",
+        "4a12c07fd4a8": "Obsidian Bonobo",
+        "4a3b8510f423": "Silver Bonobo",
+        "4bbe4c1396c7": "Scarlet Bonobo",
+        "4c5e5bfb5657": "Scarlet Bonobo",
+        "4d112e0c9ba5": "Cerulean Bonobo",
+        "4d25e37ae282": "Tawny Bonobo",
+        "4defd1a775b4": "Obsidian Bonobo",
+        "4fbe5606c680": "Cerulean Bonobo",
+        "507536e2bb6a": "Amber Bonobo",
+        "5149d3910c25": "Scarlet Bonobo",
+        "54c00e757ffa": "Velvet Bonobo",
+        "54e8645d3405": "Cerulean Bonobo",
+        "561505b38bd0": "Amber Bonobo",
+        "5aa5a12f20bf": "Saffron Bonobo",
+        "5aef38186258": "Gilded Bonobo",
+        "5b0dee439ba5": "Dusky Bonobo",
+        "5c286ce786cd": "Gilded Bonobo",
+        "5ce540ed7555": "Cobalt Bonobo",
+        "5d830d312bba": "Indigo Bonobo",
+        "5d8b12e8b8fa": "Scarlet Bonobo",
+        "5e95696f5f7f": "Scarlet Bonobo",
+        "603aa29a2a39": "Ivory Bonobo",
+        "6116269b6abf": "Dusky Bonobo",
+        "61311cb432b6": "Slate Bonobo",
+        "61b28d3647d8": "Ashen Bonobo",
+        "61d9af870946": "Midnight Bonobo",
+        "61e990cc1a9f": "Scarlet Bonobo",
+        "61eef6977477": "Marbled Bonobo",
+        "645a678713c9": "Saffron Bonobo",
+        "647ad616d69a": "Cobalt Bonobo",
+        "6a057e786a65": "Cobalt Bonobo",
+        "6a28741e7898": "Saffron Bonobo",
+        "6a3d411bf35e": "Marbled Bonobo",
+        "6ade7c2d4e46": "Midnight Bonobo",
+        "6c5a99058c53": "Copper Bonobo",
+        "6d6306bbe127": "Cobalt Bonobo",
+        "6d9fd7902592": "Pewter Bonobo",
+        "6ee21ed22c8d": "Midnight Bonobo",
+        "70353b97ba5d": "Brindled Bonobo",
+        "70e2f2b50987": "Jade Bonobo",
+        "71626b1ad469": "Crimson Bonobo",
+        "7170d735197e": "Ember Bonobo",
+        "71c5cad829c8": "Bronze Bonobo",
+        "7243373a69c0": "Midnight Bonobo",
+        "72571310ac76": "Cobalt Bonobo",
+        "728e4586840e": "Midnight Bonobo",
+        "74130290b636": "Sable Bonobo",
+        "741f17150765": "Ashen Bonobo",
+        "753103979bc3": "Indigo Bonobo",
+        "75ed8a958581": "Onyx Bonobo",
+        "765ce80bac8b": "Obsidian Bonobo",
+        "76ca48327edb": "Marbled Bonobo",
+        "76fae860d04b": "Amber Bonobo",
+        "78fa5fc410d7": "Ashen Bonobo",
+        "79155f4437cd": "Silver Bonobo",
+        "798084814b0d": "Slate Bonobo",
+        "7a4f7077df2c": "Bronze Bonobo",
+        "7ad4e8af3670": "Dusky Bonobo",
+        "7c7388fcd625": "Amber Bonobo",
+        "7e366ec96ece": "Ember Bonobo",
+        "7f7fbd010e56": "Brindled Bonobo",
+        "803d96def080": "Ember Bonobo",
+        "8102561b41ec": "Pewter Bonobo",
+        "8169c437fe98": "Brindled Bonobo",
+        "819e18187d5f": "Obsidian Bonobo",
+        "8219f38b20c7": "Gilded Bonobo",
+        "8268128bc8e0": "Silver Bonobo",
+        "82b3755b4926": "Velvet Bonobo",
+        "85cd5113c9b0": "Ivory Bonobo",
+        "88d29a9bf1d4": "Brindled Bonobo",
+        "89f7653c1084": "Amber Bonobo",
+        "8a49faa7eeb9": "Cerulean Bonobo",
+        "8d18c8a4822d": "Scarlet Bonobo",
+        "8d3b78534c1b": "Jade Bonobo",
+        "8e8724a05c9d": "Scarlet Bonobo",
+        "8e9eff9ed054": "Bronze Bonobo",
+        "8ebc49d386f3": "Gilded Bonobo",
+        "8f448fface57": "Silver Bonobo",
+        "8f6e28b48159": "Dusky Bonobo",
+        "8fc94dda86b1": "Velvet Bonobo",
+        "8fcc89faa037": "Pewter Bonobo",
+        "9157d345294d": "Cerulean Bonobo",
+        "92f65bf6d2b6": "Ember Bonobo",
+        "933603e1916b": "Verdant Bonobo",
+        "93e09a720ec8": "Ember Bonobo",
+        "94d8d60e6b92": "Cerulean Bonobo",
+        "957b40e7bbdc": "Marbled Bonobo",
+        "95a8b0964a72": "Verdant Bonobo",
+        "95d740f3d95a": "Tawny Bonobo",
+        "9605df1ffc2a": "Bronze Bonobo",
+        "96ba0fb86c44": "Umber Bonobo",
+        "97b9ff5f61e0": "Scarlet Bonobo",
+        "97f2c71f6962": "Silver Bonobo",
+        "98dc0644034c": "Russet Bonobo",
+        "993061cda5aa": "Copper Bonobo",
+        "9a75901862a2": "Verdant Bonobo",
+        "9ae8ab3a00ee": "Jade Bonobo",
+        "9bc180d93f17": "Pewter Bonobo",
+        "9c468c0ac58c": "Ashen Bonobo",
+        "9d63865f57bf": "Indigo Bonobo",
+        "9f49a3d894ad": "Cerulean Bonobo",
+        "a06db14b1889": "Bronze Bonobo",
+        "a07c3eca93ef": "Russet Bonobo",
+        "a083f8d40bb8": "Gilded Bonobo",
+        "a171e01b3455": "Velvet Bonobo",
+        "a210e7d75bd4": "Ember Bonobo",
+        "a30d7e31e8e6": "Verdant Bonobo",
+        "a314c1241b00": "Bronze Bonobo",
+        "a339856731fc": "Amber Bonobo",
+        "a36465870bfa": "Scarlet Bonobo",
+        "a57777eb2ebb": "Pewter Bonobo",
+        "a598520baba8": "Jade Bonobo",
+        "a6b39ff79134": "Hazel Bonobo",
+        "a7228902fde7": "Copper Bonobo",
+        "a8b6ce117c72": "Indigo Bonobo",
+        "a97b0e2ce75c": "Russet Bonobo",
+        "aa7fa2e858c6": "Ivory Bonobo",
+        "aae76fd945ec": "Cobalt Bonobo",
+        "ac03e7b26154": "Sable Bonobo",
+        "ad3db5b1e9e1": "Copper Bonobo",
+        "adbce92ce3ec": "Ashen Bonobo",
+        "ade026bf7866": "Ember Bonobo",
+        "ade4e8d58664": "Gilded Bonobo",
+        "af78e284680e": "Tawny Bonobo",
+        "af7de034f0bb": "Tawny Bonobo",
+        "b087414290af": "Saffron Bonobo",
+        "b0ed2a756efe": "Crimson Bonobo",
+        "b2ce3867e0a4": "Sable Bonobo",
+        "b47e24e9137e": "Gilded Bonobo",
+        "b576fe615eb2": "Gilded Bonobo",
+        "b5f2ab5d1d1c": "Hazel Bonobo",
+        "b63126c9fbd6": "Pewter Bonobo",
+        "b6cdb35d4944": "Amber Bonobo",
+        "b87afb5fc192": "Marbled Bonobo",
+        "b9fb6e4d1e72": "Midnight Bonobo",
+        "baf5f7142ae2": "Crimson Bonobo",
+        "bd522b0d0f02": "Pewter Bonobo",
+        "bdac11f50808": "Crimson Bonobo",
+        "be8df95599cb": "Scarlet Bonobo",
+        "bfdd51bba0e7": "Pewter Bonobo",
+        "c0fae91ac335": "Midnight Bonobo",
+        "c1b63db12459": "Indigo Bonobo",
+        "c1bd9019c6cd": "Cerulean Bonobo",
+        "c1fea4c51261": "Ivory Bonobo",
+        "c3451b2d0060": "Cobalt Bonobo",
+        "c47fb0d3c2df": "Cobalt Bonobo",
+        "c4920bdfc860": "Obsidian Bonobo",
+        "c540bb5a8b60": "Tawny Bonobo",
+        "c5d5cbcbf27a": "Scarlet Bonobo",
+        "c65fc8eed059": "Umber Bonobo",
+        "c773da48b0fe": "Silver Bonobo",
+        "c7af3ae79f9d": "Dusky Bonobo",
+        "c7c754a2cdfe": "Brindled Bonobo",
+        "c8727878da25": "Saffron Bonobo",
+        "c8a41a87e7ab": "Slate Bonobo",
+        "c93a8a275bdd": "Dusky Bonobo",
+        "cc7ce3a1720e": "Russet Bonobo",
+        "ccd261c84e30": "Hazel Bonobo",
+        "ccda4bafae38": "Marbled Bonobo",
+        "cd6beea7ae2d": "Amber Bonobo",
+        "cd929fa16ae1": "Crimson Bonobo",
+        "d03232edbdb3": "Onyx Bonobo",
+        "d03f20340d4e": "Saffron Bonobo",
+        "d07665e6f389": "Hazel Bonobo",
+        "d17c8f6d1574": "Cerulean Bonobo",
+        "d2153892ff55": "Sable Bonobo",
+        "d247eb46aa1a": "Dusky Bonobo",
+        "d2afdd8a672a": "Bronze Bonobo",
+        "d406d3fd76e1": "Jade Bonobo",
+        "d4b67d032848": "Bronze Bonobo",
+        "d55dbba0a741": "Brindled Bonobo",
+        "d5d4e9f2f82d": "Scarlet Bonobo",
+        "d5dccb004df2": "Brindled Bonobo",
+        "d6c8fe64ced3": "Amber Bonobo",
+        "d7be61c1c7a3": "Velvet Bonobo",
+        "d7d53b63fa58": "Velvet Bonobo",
+        "d7f7f19279ec": "Silver Bonobo",
+        "d88bebebb008": "Amber Bonobo",
+        "d9efe0a04f0a": "Umber Bonobo",
+        "db76c6f0305e": "Velvet Bonobo",
+        "dc2e92184241": "Hazel Bonobo",
+        "dd0115be33de": "Bronze Bonobo",
+        "e06795988983": "Saffron Bonobo",
+        "e0db230b8fc2": "Silver Bonobo",
+        "e1ecf4c9bc5b": "Brindled Bonobo",
+        "e29617089e67": "Sable Bonobo",
+        "e4a4f541bcb5": "Copper Bonobo",
+        "e51bd52de98b": "Slate Bonobo",
+        "e7bb8808920c": "Copper Bonobo",
+        "e7d912ce6b0f": "Velvet Bonobo",
+        "e7dac7eef275": "Pewter Bonobo",
+        "e807e59ab966": "Cobalt Bonobo",
+        "e82f108f7b37": "Umber Bonobo",
+        "e8cd861aebef": "Ashen Bonobo",
+        "e976fe290e9d": "Velvet Bonobo",
+        "e9f57bc3fd89": "Slate Bonobo",
+        "eb004e52bab2": "Ashen Bonobo",
+        "eb1024859a5c": "Onyx Bonobo",
+        "ec58fb6a36fc": "Copper Bonobo",
+        "ecaf6e502046": "Sable Bonobo",
+        "ed4deed10b62": "Onyx Bonobo",
+        "ee55442ee766": "Jade Bonobo",
+        "ee6d4872d65a": "Hazel Bonobo",
+        "efd9cca8cbb3": "Indigo Bonobo",
+        "f0dc801b5b31": "Slate Bonobo",
+        "f0f01c715381": "Slate Bonobo",
+        "f153bebe620c": "Sable Bonobo",
+        "f23a3dceb719": "Scarlet Bonobo",
+        "f45f7bdc6b16": "Indigo Bonobo",
+        "f70bb3761064": "Marbled Bonobo",
+        "f7c5b596bd32": "Bronze Bonobo",
+        "f8cf7f6f1d1a": "Cerulean Bonobo",
+        "fa9900de0057": "Saffron Bonobo",
+        "faf7244cde97": "Slate Bonobo",
+        "fbcf81f9a039": "Cerulean Bonobo",
+        "fbe221ec5ab7": "Scarlet Bonobo",
+        "fce8ed2ca0ca": "Onyx Bonobo",
+        "fd70d2537706": "Brindled Bonobo",
+        "fe07af939bef": "Amber Bonobo",
+        "fe7a94b2ba93": "Pewter Bonobo",
+        "febdc7dd25d7": "Velvet Bonobo",
+        "ff7af1b3fab6": "Velvet Bonobo",
+        "ff80b435b405": "Umber Bonobo"
       }
     },
     "gc_vjbb": {
       "adjectives_used": [
-        "Velvet"
+        "Velvet",
+        "Obsidian",
+        "Jade"
       ],
       "animal": "Falcon",
       "assignments": {
-        "50ebe9c4660b": "Velvet Falcon"
+        "50ebe9c4660b": "Velvet Falcon",
+        "60ceec42729c": "Jade Falcon",
+        "d88714c5aa78": "Obsidian Falcon"
+      }
+    },
+    "gc_vjrsi": {
+      "adjectives_used": [
+        "Saffron",
+        "Ember",
+        "Onyx",
+        "Verdant",
+        "Obsidian",
+        "Dusky",
+        "Cobalt",
+        "Copper",
+        "Brindled",
+        "Gilded",
+        "Bronze",
+        "Silver",
+        "Pewter",
+        "Ashen",
+        "Amber",
+        "Hazel",
+        "Crimson",
+        "Indigo",
+        "Marbled",
+        "Umber",
+        "Jade",
+        "Russet",
+        "Scarlet",
+        "Tawny",
+        "Cerulean",
+        "Sable",
+        "Velvet",
+        "Slate",
+        "Midnight",
+        "Ivory",
+        "Velvet",
+        "Obsidian",
+        "Gilded",
+        "Amber",
+        "Marbled",
+        "Copper"
+      ],
+      "animal": "Ibex",
+      "assignments": {
+        "014893eaa834": "Obsidian Ibex",
+        "05ad724fcaf9": "Copper Ibex",
+        "065c1073b0e4": "Gilded Ibex",
+        "1cd647b02c56": "Slate Ibex",
+        "1cfb0c0a8635": "Silver Ibex",
+        "25446c87d5a4": "Velvet Ibex",
+        "26204a2bfa8f": "Cobalt Ibex",
+        "30469609da20": "Obsidian Ibex",
+        "32353bedff86": "Tawny Ibex",
+        "3eb1f37ca5bf": "Indigo Ibex",
+        "451819d7a34e": "Dusky Ibex",
+        "56e879a45451": "Amber Ibex",
+        "618c9c8bb6ba": "Brindled Ibex",
+        "685bf37b488d": "Bronze Ibex",
+        "6c1fcff2855f": "Umber Ibex",
+        "77114d0fab1a": "Jade Ibex",
+        "7deaf1e1510e": "Velvet Ibex",
+        "7e06060a706c": "Crimson Ibex",
+        "8013f8c90145": "Amber Ibex",
+        "8541cbd04ed7": "Gilded Ibex",
+        "8fb7a61c20ee": "Scarlet Ibex",
+        "9bfc052107b8": "Cerulean Ibex",
+        "af73976c3970": "Saffron Ibex",
+        "b14dd36982e1": "Russet Ibex",
+        "bc7abcd63c43": "Marbled Ibex",
+        "c485a5ae12ee": "Sable Ibex",
+        "c818ec3084ce": "Ashen Ibex",
+        "cff7e3160fd8": "Hazel Ibex",
+        "d3f3e86cbfd7": "Verdant Ibex",
+        "d7bf968160e8": "Ember Ibex",
+        "d8b636c971f7": "Copper Ibex",
+        "daf25c228109": "Ivory Ibex",
+        "def7cc0e78d5": "Pewter Ibex",
+        "e80c16231944": "Onyx Ibex",
+        "f0899bef35a1": "Marbled Ibex",
+        "f1d2a2b0525f": "Midnight Ibex"
+      }
+    },
+    "gc_vjsgov": {
+      "adjectives_used": [
+        "Midnight",
+        "Scarlet",
+        "Indigo",
+        "Marbled",
+        "Tawny",
+        "Saffron",
+        "Onyx",
+        "Umber"
+      ],
+      "animal": "Lynx",
+      "assignments": {
+        "0ac0e4a50c2d": "Midnight Lynx",
+        "1d868f19e7bb": "Umber Lynx",
+        "3befeba93c5a": "Scarlet Lynx",
+        "4a01082ddafe": "Tawny Lynx",
+        "67bba4520a3c": "Indigo Lynx",
+        "68a5db340671": "Onyx Lynx",
+        "7f0b9e064d88": "Marbled Lynx",
+        "f8dc12dfcb57": "Saffron Lynx"
+      }
+    },
+    "gc_vjtimer": {
+      "adjectives_used": [
+        "Ashen"
+      ],
+      "animal": "Otter",
+      "assignments": {
+        "c96ca858d4ed": "Ashen Otter"
+      }
+    },
+    "gc_vjv": {
+      "adjectives_used": [
+        "Brindled",
+        "Tawny",
+        "Pewter",
+        "Russet",
+        "Ivory",
+        "Copper",
+        "Obsidian",
+        "Scarlet",
+        "Hazel",
+        "Umber",
+        "Saffron",
+        "Amber",
+        "Silver",
+        "Dusky",
+        "Gilded",
+        "Cerulean",
+        "Slate"
+      ],
+      "animal": "Wolverine",
+      "assignments": {
+        "002b30120e3b": "Copper Wolverine",
+        "041f174dc770": "Saffron Wolverine",
+        "175c492c93b3": "Scarlet Wolverine",
+        "1ee98eee5ad1": "Hazel Wolverine",
+        "489b6ecca995": "Umber Wolverine",
+        "52c2febe4ed4": "Gilded Wolverine",
+        "58b011a2242a": "Obsidian Wolverine",
+        "601c81023a67": "Slate Wolverine",
+        "6778e02c2f8b": "Amber Wolverine",
+        "82bd3f9c730b": "Dusky Wolverine",
+        "a89390d78f58": "Ivory Wolverine",
+        "afb7ac92bdd8": "Silver Wolverine",
+        "cfa0de414885": "Cerulean Wolverine",
+        "daa31a044772": "Russet Wolverine",
+        "f2d42c8c4387": "Brindled Wolverine",
+        "fdf9f65bad99": "Tawny Wolverine",
+        "fe7e6a6b462a": "Pewter Wolverine"
+      }
+    },
+    "gc_vjx": {
+      "adjectives_used": [
+        "Verdant",
+        "Slate",
+        "Crimson",
+        "Ashen",
+        "Dusky",
+        "Indigo",
+        "Bronze",
+        "Sable",
+        "Saffron",
+        "Scarlet"
+      ],
+      "animal": "Kestrel",
+      "assignments": {
+        "60d48c87d889": "Ashen Kestrel",
+        "62df309299bf": "Verdant Kestrel",
+        "66d782cdc44e": "Saffron Kestrel",
+        "68471132a723": "Crimson Kestrel",
+        "8f162ccc703b": "Dusky Kestrel",
+        "abace7714c3e": "Scarlet Kestrel",
+        "c5fd24276aeb": "Sable Kestrel",
+        "c97c4a132a02": "Indigo Kestrel",
+        "ea1e6f11c94c": "Bronze Kestrel",
+        "ed8fc69a7895": "Slate Kestrel"
+      }
+    },
+    "golden_cross_slope": {
+      "adjectives_used": [
+        "Bronze"
+      ],
+      "animal": "Falcon",
+      "assignments": {
+        "a77f872a0489": "Bronze Falcon"
+      }
+    },
+    "mfi_above_trend": {
+      "adjectives_used": [
+        "Verdant"
+      ],
+      "animal": "Marten",
+      "assignments": {
+        "badc8aca0186": "Verdant Marten"
+      }
+    },
+    "mfi_obv_trend": {
+      "adjectives_used": [
+        "Cerulean"
+      ],
+      "animal": "Okapi",
+      "assignments": {
+        "9f70f9f64b44": "Cerulean Okapi"
+      }
+    },
+    "momentum_stayer": {
+      "adjectives_used": [
+        "Verdant"
+      ],
+      "animal": "Wolverine",
+      "assignments": {
+        "9e878c7955bd": "Verdant Wolverine"
+      }
+    },
+    "montauk_821": {
+      "adjectives_used": [
+        "Gilded"
+      ],
+      "animal": "Pangolin",
+      "assignments": {
+        "cf087ea20706": "Gilded Pangolin"
+      }
+    },
+    "obv_slope_trend": {
+      "adjectives_used": [
+        "Dusky"
+      ],
+      "animal": "Hare",
+      "assignments": {
+        "7dfcb7c910a5": "Dusky Hare"
+      }
+    },
+    "price_position_regime": {
+      "adjectives_used": [
+        "Tawny"
+      ],
+      "animal": "Hare",
+      "assignments": {
+        "411a39fdae4b": "Tawny Hare"
+      }
+    },
+    "roc_above_trend": {
+      "adjectives_used": [
+        "Ivory"
+      ],
+      "animal": "Wolverine",
+      "assignments": {
+        "06ba407abc65": "Ivory Wolverine"
+      }
+    },
+    "roc_ema_slope": {
+      "adjectives_used": [
+        "Sable"
+      ],
+      "animal": "Tapir",
+      "assignments": {
+        "f1ae9df55090": "Sable Tapir"
+      }
+    },
+    "rsi_bull_regime": {
+      "adjectives_used": [
+        "Cobalt"
+      ],
+      "animal": "Marten",
+      "assignments": {
+        "417bc389d2a3": "Cobalt Marten"
       }
     },
     "slope_only_200": {
@@ -43,6 +1380,69 @@
       "animal": "Hare",
       "assignments": {
         "9f4230c0a927": "Marbled Hare"
+      }
+    },
+    "slope_persistence": {
+      "adjectives_used": [
+        "Midnight"
+      ],
+      "animal": "Jaguar",
+      "assignments": {
+        "7156928e9311": "Midnight Jaguar"
+      }
+    },
+    "steady_trend": {
+      "adjectives_used": [
+        "Indigo"
+      ],
+      "animal": "Tanager",
+      "assignments": {
+        "8db0500d31f5": "Indigo Tanager"
+      }
+    },
+    "tema_short_slope": {
+      "adjectives_used": [
+        "Copper"
+      ],
+      "animal": "Hare",
+      "assignments": {
+        "664d70a2db64": "Copper Hare"
+      }
+    },
+    "treasury_curve_trend": {
+      "adjectives_used": [
+        "Silver"
+      ],
+      "animal": "Heron",
+      "assignments": {
+        "6908defe5bf9": "Silver Heron"
+      }
+    },
+    "vix_gc_filter": {
+      "adjectives_used": [
+        "Ashen"
+      ],
+      "animal": "Caracal",
+      "assignments": {
+        "316d560fd4da": "Ashen Caracal"
+      }
+    },
+    "vix_regime_entry": {
+      "adjectives_used": [
+        "Gilded"
+      ],
+      "animal": "Civet",
+      "assignments": {
+        "eb8ce6cdfe01": "Gilded Civet"
+      }
+    },
+    "vix_trend_regime": {
+      "adjectives_used": [
+        "Dusky"
+      ],
+      "animal": "Ibex",
+      "assignments": {
+        "b558c3318745": "Dusky Ibex"
       }
     },
     "vj_or_slope_meta": {
@@ -71,14 +1471,51 @@
         "e7ec32af3fb4": "Dusky Gecko",
         "f84610f67cf6": "Velvet Gecko"
       }
+    },
+    "vol_calm_regime": {
+      "adjectives_used": [
+        "Onyx"
+      ],
+      "animal": "Ibex",
+      "assignments": {
+        "f9e54c141db2": "Onyx Ibex"
+      }
+    },
+    "willr_recovery_trend": {
+      "adjectives_used": [
+        "Umber"
+      ],
+      "animal": "Civet",
+      "assignments": {
+        "c431b9214a22": "Umber Civet"
+      }
     }
   },
   "used_animals": [
+    "Badger",
+    "Bonobo",
+    "Caracal",
+    "Civet",
     "Falcon",
     "Fox",
+    "Gannet",
     "Gecko",
     "Hare",
     "Heron",
-    "Jaguar"
+    "Ibex",
+    "Jaguar",
+    "Kestrel",
+    "Lynx",
+    "Marten",
+    "Okapi",
+    "Osprey",
+    "Otter",
+    "Pangolin",
+    "Serval",
+    "Shrike",
+    "Stag",
+    "Tanager",
+    "Tapir",
+    "Wolverine"
   ]
 }

@@ -5,354 +5,261 @@
 
 ---
 
-## Tier Routing Overview
+## Two-Layer Model
 
-The pipeline runs seven gates plus a marker-shape diagnostic. Which gates run and how strict they are depends on the strategy's **effective tier** (computed by `canonical_params.effective_tier()` from the declared tier + actual params):
+Validation has two layers (see `validation-philosophy.md` §4):
 
-| Gate | T0 | T1 | T2 | What it checks |
-|------|:--:|:--:|:--:|----------------|
-| **Gate 1** — Eligibility | RUN (floor=5) | RUN (floor=10) | RUN (floor=15) | Charter gates, trade count, degeneracy |
-| **Marker** — Shape diagnostic | RUN (cap=2, floor=0.50) | RUN (cap=3, floor=0.40) | RUN (cap=5, floor=0.30) | Cycle alignment vs TECL-markers.csv |
-| **Gate 2** — Search bias | SKIP | SKIP | RUN | HHI, exit proximity, jackknife, meta robustness, clustering |
-| **Gate 3** — Param fragility | SKIP | RUN | RUN | +/-10%/20% param perturbation swing |
-| **Gate 4** — Time generalization | RUN (WF hard→soft) | RUN | RUN | Walk-forward OOS/IS, named windows |
-| **Gate 5** — Uncertainty | SKIP | SKIP | RUN | Morris elementary effects, stationary bootstrap |
-| **Gate 6** — Cross-asset | RUN | RUN | RUN | TQQQ/QQQ same-param, TQQQ re-optimization |
-| **Gate 7** — Synthesis | RUN | RUN | RUN | Composite confidence, verdict, `backtest_certified`, `promotion_ready` |
+- **Layer 1 — Correctness**: binary, hard-fail, no weights. A strategy that fails any Layer 1 check is disqualified regardless of confidence.
+- **Layer 2 — Confidence**: `composite_confidence` score on [0, 1], displayed ×100 on the leaderboard. Weighted geometric mean of tier-applicable sub-scores.
 
-**Skipped gates** return `verdict: "SKIPPED"` and contribute `None` sub-scores to the composite, which renormalizes over applicable gates only (no penalty for skipped gates).
-
-### Tier auto-promotion
-
-A strategy declared as T0 is auto-promoted to T1 if it has > 5 tunable params (excluding cooldown) or any non-canonical param value. A T1 is auto-promoted to T2 if it has > 8 tunable params. The declared tier is an upper bound on leniency.
+No gate in Layer 2 has veto power on its own. Every sub-score contributes weighted partial credit.
 
 ---
 
-## Param-Count Scaling Principle
+## Layer 1 — Correctness Checklist
 
-> Added 2026-04-14. Applies across gates 2, 5, and 7.
+Any failure here → verdict = FAIL, `promotion_ready = False`, `backtest_certified = False`.
 
-Validation gates must distinguish between **overfitting signals** (parameter sensitivity from large searches) and **strategy characteristics** (inherent properties of trend-following). The proxy is **signal-param count** (tunable params excluding cooldown, via `canonical_params.count_tunable_params()`):
-
-- **≤ 4 signal params ("simple")**: Relaxed thresholds on Morris fragility, concentration, bootstrap, and soft-warning cap. Limited search space = limited overfitting risk.
-- **5+ signal params ("complex")**: Original strict thresholds. Large search spaces can find lucky combos.
+| Check | Source | Hard-fail condition |
+|---|---|---|
+| Engine integrity | `scripts/validation/integrity.py` | Any lookahead / repaint / multi-position violation |
+| Golden regression | `tests/test_regression.py` | Trade-by-trade PnL divergence > ±0.001% on 8.2.1 defaults |
+| Shadow comparator (dev) | `tests/test_shadow_comparator.py` | Per-trade divergence > 0.5% vs `backtesting.py` / `vectorbt` |
+| Data-quality pre-check | `scripts/data/quality.py` | Yahoo-vs-Stooq divergence, seam discontinuity, manifest checksum mismatch, OHLC insanity |
+| Artifact completeness | run dir | Any of the five standardized JSON artifacts missing/malformed |
+| Strategy registered | `strategies/library.py` | Strategy name not in `STRATEGY_REGISTRY` |
+| Charter-compatible family | `strategies/library.py` | Registry flag set to `False` |
+| Share multiplier | Gate 1 (eligibility) | `share_multiple < 1.0` (charter mission: must beat B&H shares) |
+| Trades per year | Gate 1 | `trades_per_year > 5.0` (charter guardrail) |
+| Trade count floor | Gate 1 | `trade_count < 5` (T0) / `< 10` (T1) / `< 15` (T2) |
+| Degeneracy | Gate 1 | Always-in OR always-out across every 4-year window |
 
 ---
 
-## Verdict Logic (Gate 7 Synthesis)
+## Layer 2 — Confidence Composite
 
-### `backtest_certified` pre-check (runs before verdict)
-
-Gate 7 computes `backtest_certified` before the final verdict. A strategy is certified when **all** of the following hold; any failure propagates hard-fail reasons into the gate 7 verdict:
-
-| Check | Hard Fail | Pass |
-|-------|-----------|------|
-| Engine integrity (`scripts/validation/integrity.py`) | any failure | all checks pass |
-| Golden regression (`tests/test_regression.py`) | trade-by-trade PnL divergence > ±0.001% on 8.2.1 defaults | match |
-| Shadow comparator (dev-only) | per-trade divergence > 0.5% vs `backtesting.py` / `vectorbt` | within tolerance |
-| Data-quality pre-check (`scripts/data_quality.py`) | any PASS/WARN/FAIL failure (Yahoo-vs-Stooq, seam continuity, manifest checksum, OHLC sanity, etc.) | all PASS |
-| Artifact completeness | any of the five standardized JSON artifacts missing or malformed | all present |
-
-Both engines now apply 0.05% slippage on each fill (unified in Phase 1c of Montauk 2.0), so the two engines produce identical trades on 8.2.1 defaults. `promotion_ready = backtest_certified AND tier-appropriate PASS`.
-
-### Verdict rules
+### Verdict rules (2-tier)
 
 ```
-FAIL:   hard_fail_reasons present OR composite_confidence < 0.45
-WARN:   critical_warnings present OR composite_confidence < 0.70 OR soft_warnings >= cap
-PASS:   only soft_warnings (< cap) and/or advisories
+FAIL:  any Layer 1 hard fail  OR  composite_confidence < 0.40
+WARN:  composite_confidence >= 0.40 AND composite_confidence < 0.70
+PASS:  composite_confidence >= 0.70  (admitted to leaderboard)
 ```
 
-**Soft-warning cap** (param-count aware):
+### Admission tiers (for UI / workflow display)
 
-| Condition | Cap | Rationale |
-|-----------|:---:|-----------|
-| Any tier with ≤ 4 signal params | 10 | Simple strategies emit many descriptive (non-overfit) warnings |
-| 5+ signal params | 5 | Accumulated warnings signal real overfit risk |
-
-`clean_pass = True` when verdict is PASS and zero soft warnings.
-
----
-
-## Gate 1 — Candidate Eligibility
-
-Source: `pipeline.py :: _gate1_candidate()`
-
-**Tier-specific trade count floor:**
-
-| Tier | Trade Floor | Rationale |
-|------|:----------:|-----------|
-| T0 | 5 | Hypothesis — just needs to engage |
-| T1 | 10 | Tuned — more evidence required |
-| T2 | 15 | Discovered — must prove not degenerate |
-
-**All-tier hard gates (no tier variation):**
-
-| Check | Hard Fail | Soft Warning | Pass |
-|-------|-----------|--------------|------|
-| Share multiplier (charter) | < 1.0 | — | >= 1.0 |
-| Trade count | < tier floor | — | >= floor |
-| Trades/year (charter) | > 5.0 | — | <= 5.0 |
-| Degeneracy (4yr windows) | always-in or always-out across ALL windows | sparse/saturated in some windows | normal exposure |
-| In strategy registry | not in registry | — | in registry |
-| Charter-compatible | fails charter | — | passes |
-| n_params vs regime_transitions | — | n_params > transitions | n_params <= transitions |
+| Confidence | Label | Leaderboard |
+|:-:|---|---|
+| 0–39 | Reject | Hidden |
+| 40–59 | Research only | Archived |
+| 60–69 | Watchlist | Visible, flagged |
+| 70–89 | Admitted | On leaderboard |
+| 90–100 | High confidence | Highlighted |
 
 ---
 
-## Marker — Shape Diagnostic
+## Composite Weights (T2 baseline)
 
-Source: `pipeline.py :: _gate_marker_shape()`
+`composite_confidence` is a weighted geometric mean over present sub-scores. Skipped gates return `None` and renormalize out — no penalty for gates that didn't apply to the tier.
 
-**No hard fails at any tier.** Marker alignment is a design north star, not a bouncer.
+| Sub-score | T2 weight | Source gate | T0 applies | T1 applies | T2 applies |
+|---|:-:|---|:-:|:-:|:-:|
+| `walk_forward` | 0.10 | Gate 4 WF | Y | Y | Y |
+| `marker_shape` | 0.10 | Marker (state_agreement) | Y | Y | Y |
+| `marker_timing` | 0.15 | Marker (per-cycle, magnitude-weighted) | Y | Y | Y |
+| `named_windows` | 0.05 | Gate 4 named windows (split-out) | Y | Y | Y |
+| `era_consistency` | 0.20 | min(real, modern) share multipliers | Y | Y | Y |
+| `fragility` | 0.15 | Gate 5 Morris (fallback: Gate 3 perturbation) | — | Y (Gate 3) | Y (Gate 5) |
+| `selection_bias` | 0.10 | Gate 2 deflation | — | — | Y |
+| `bootstrap` | 0.05 | Gate 5 stationary bootstrap | — | — | Y |
+| `regime_consistency` | 0.05 | Gate 2 HHI + meta + clustering | — | — | Y |
+| `trade_sufficiency` | 0.05 | Gate 1 trade count | Y | Y | Y |
+| **Total (T2)** | **1.00** | | | | |
 
-**Universal thresholds (all tiers):**
+**Note:** `cross_asset` was removed from the composite in 2026-04-21 after the gc_vjatr finding. It was penalizing TECL-specific era winners for non-portability to TQQQ, which contradicts the charter's TECL-only design intent. The sub-score is still computed in Gate 6 and surfaced in the validation output for diagnostic purposes but does not factor into `composite_confidence`.
 
-| Check | Critical Warning | Soft Warning | Pass |
-|-------|-----------------|--------------|------|
-| state_agreement | < 0.30 (uncorrelated) | < 0.50 (barely above random) | >= 0.50 |
-
-**Tier-specific informational thresholds (soft warnings only):**
-
-| Tier | Missed cycles cap | Timing floor |
-|------|:-----------------:|:------------:|
-| T0 | > 2 | < 0.50 |
-| T1 | > 3 | < 0.40 |
-| T2 | > 5 | < 0.30 |
-
----
-
-## Gate 2 — Search Bias & Regime Memorization
-
-Source: `pipeline.py :: _gate2_search_bias()`
-
-**Runs at T2 only.** T0 and T1 skip this gate entirely. (TODO: split result-quality checks from search-bias checks so result-quality can run at T1.)
-
-| Check | Hard Fail | Critical Warning | Soft Warning | Pass |
-|-------|-----------|-----------------|--------------|------|
-| Exit-boundary proximity | enrichment > 3.0x | — | — | <= 3.0x |
-| Jackknife | max_impact_ratio > 2.0x | — | — | <= 2.0x |
-| Meta robustness (28 defs) | — | < 50% within 20% of baseline | 50% - 75% | >= 75% |
-| Trade clustering | — | max_share > 0.60 | — | <= 0.60 |
-| Selection bias | — | — | advisory only | — |
-
-**Concentration (HHI) — param-count aware:**
-
-| Condition | Critical Warning | Soft Warning |
-|-----------|-----------------|--------------|
-| **≤ 4 signal params** | dominance > 3.0 only | bull_flag OR bear_flag OR dom > 2.0 |
-| **5+ signal params** | bull_flag OR bear_flag OR dom > 3.0 | dom > 2.0 |
-
-HHI thresholds: `bull_thresh = 1.5 / n_bull`, `bear_thresh = 1.5 / n_bear`. Bull/bear flags fire when HHI exceeds the per-cycle threshold.
-
-> **Why softer for simple strategies:** Trend-following inherently has concentrated returns — a few huge bull runs dominate. With ≤ 4 signal params, this is the strategy type's return profile, not overfitting.
-
----
-
-## Gate 3 — Parameter Fragility
-
-Source: `candidate.py :: check_parameter_fragility()`, wrapped by `pipeline.py :: _gate3_fragility()`
-
-**Runs at T1 and T2 only.** T0 skips (canonical params are pre-registered, perturbation testing is moot).
-
-| Check | Hard Fail | Soft Warning | Pass |
-|-------|-----------|--------------|------|
-| Any param +/-10% swing | > 30% | > 20% | <= 20% |
-
-Perturbation levels tested: +/-10%, +/-20%.
-
----
-
-## Gate 4 — Time Generalization
-
-Source: `pipeline.py :: _gate4_time_generalization()`
-
-**Runs at all tiers** with tier-aware strictness.
-
-### Walk-Forward
-
-Windows: WF 2015-2017, WF 2018-2020, WF 2021-2023, WF 2024-present (dynamic).
-
-| Check | Hard Fail | Critical Warning | Soft Warning | Pass |
-|-------|-----------|-----------------|--------------|------|
-| Per-window OOS/IS regime ratio | < 0.65 | — | — | >= 0.65 |
-| Zero OOS trades (expected >= 1.5) | yes | — | — | has trades |
-| Zero OOS trades (expected < 1.5) | — | — | yes | has trades |
-| Avg OOS/IS ratio | < 0.50 | < 0.65 | — | >= 0.65 |
-| Dispersion (max - min) | — | > 0.75 | > 0.65 | <= 0.65 |
-
-**T0 demotion:** At T0, all walk-forward `hard_fail_reasons` are demoted to `soft_warnings` (prefixed with `[T0 demoted]`). Rationale: a WF drop at T2 means the GA fit the IS period and OOS degraded (classic overfit). At T0, it means the committed canonical hypothesis performed inconsistently across time — informative but not overfit.
-
-Named-window hard fails still apply at all tiers.
-
-### Named Windows
-
-Windows: 2020_meltup, 2021_2022_bear, 2023_rebound, 2024_onward.
-
-| Check | Hard Fail | Soft Warning | Pass |
-|-------|-----------|--------------|------|
-| Error | yes | — | — |
-| share_multiple <= 0 | yes | — | — |
-| Zero trades (sat out, share_multiple > 0) | — | yes | — |
-| share_multiple | — | < 0.60 | >= 0.60 |
-
----
-
-## Gate 5 — Uncertainty
-
-Source: `pipeline.py :: _gate5_uncertainty()`, `uncertainty.py`
-
-**Runs at T2 only.** T0 and T1 skip this gate entirely.
-
-### Morris Elementary Effects
-
-30 trajectories, +/-20% delta. Signal-param count excludes cooldown.
-
-**Thresholds scale by signal-param count:**
-
-| Signal params | Interaction (Hard Fail) | Warning (Critical) | Rationale |
-|:------------:|------------------------|-------------------|-----------|
-| **≤ 2** | max_swing > 0.50 | max_swing > 0.35 | Each param is ~50% of variance; sigma_ratio naturally inflated |
-| **3-4** | swing > 0.40 OR (sigma_ratio > 2.0 AND swing > 0.25) | swing > 0.25 OR sigma_ratio > 1.5 | Limited overfit potential |
-| **5+** | swing > 0.30 OR (sigma_ratio > 1.5 AND swing > 0.20) | swing > 0.20 OR sigma_ratio > 1.0 | Original thresholds for complex strategies |
-
-Warning flags with `max_swing < 0.10` are dropped as noise (no warning emitted).
-
-`s_frag = clamp(1.0 - max_swing / 0.40)`.
-
-### Stationary Bootstrap
-
-200 resamples, expected block length 20.
-
-**Thresholds scale by signal-param count:**
-
-| Check | Hard Fail | Critical (5+ params) | Critical (≤ 4 params) | Soft Warning | Pass |
-|-------|-----------|---------------------|----------------------|--------------|------|
-| Downside prob | > 0.50 | > 0.40 | > 0.50 (matches hard-fail) | > 0.25 or s_boot < 0.20 | <= 0.25 and s_boot >= 0.20 |
-
-`s_boot = clamp(1.0 - ci_width / observed_rs)`.
-
-> **Why softer for simple strategies:** Bootstrap variance for trend-following reflects inherent uncertainty of catching a few big moves, not parameter overfitting. The hard-fail line (> 0.50) is the meaningful threshold for simple strategies.
-
----
-
-## Gate 6 — Cross-Asset
-
-Source: `pipeline.py :: _gate6_cross_asset()`
-
-**Runs at all tiers.** No tier-specific variation in thresholds.
-
-| Check | Hard Fail | Soft Warning | Pass |
-|-------|-----------|--------------|------|
-| TQQQ same-param share_multiple | < 0.50 (or error) | 0.50 - 1.00 | >= 1.00 |
-| QQQ same-param share_multiple | — | < 0.50 (or error) | >= 0.50 |
-| TQQQ re-optimization (tier3) | share_multiple < 1.0 | — | >= 1.0 |
-
-Tier3 re-opt budget scales with run hours: 0.5m/pop12 (quick), up to 2.0m/pop24 (long).
-
----
-
-## Composite Confidence (Gate 7)
-
-Source: `pipeline.py :: _geometric_composite()`
-
-Weighted geometric mean of sub-scores. Skipped gates contribute `None` and are excluded (weights renormalize).
-
-| Sub-score | Weight | Source gate | T0 | T1 | T2 |
-|-----------|:------:|:----------:|:--:|:--:|:--:|
-| marker_shape | 0.20 | Marker | Y | Y | Y |
-| walk_forward | 0.20 | Gate 4 | Y | Y | Y |
-| fragility | 0.20 | Gate 5 Morris (fallback: Gate 3) | — | Y (G3) | Y (G5) |
-| selection_bias | 0.15 | Gate 2 | — | — | Y |
-| cross_asset | 0.10 | Gate 6 | Y | Y | Y |
-| bootstrap | 0.05 | Gate 5 | — | — | Y |
-| regime_consistency | 0.05 | Gate 2 | — | — | Y |
-| trade_sufficiency | 0.05 | Gate 1 (trade count) | Y | Y | Y |
-
-**Effective composite weights per tier** (after renormalization of applicable gates):
+### Effective weights per tier (after renormalization)
 
 | Sub-score | T0 effective | T1 effective | T2 effective |
-|-----------|:-----------:|:-----------:|:-----------:|
-| marker_shape | 0.364 | 0.267 | 0.200 |
-| walk_forward | 0.364 | 0.267 | 0.200 |
-| fragility | — | 0.267 | 0.200 |
-| selection_bias | — | — | 0.150 |
-| cross_asset | 0.182 | 0.133 | 0.100 |
-| bootstrap | — | — | 0.050 |
-| regime_consistency | — | — | 0.050 |
-| trade_sufficiency | 0.091 | 0.067 | 0.050 |
+|---|:-:|:-:|:-:|
+| `walk_forward` | 0.308 | 0.235 | 0.200 |
+| `marker_shape` | 0.154 | 0.118 | 0.100 |
+| `marker_timing` | 0.231 | 0.177 | 0.150 |
+| `named_windows` | 0.154 | 0.118 | 0.100 |
+| `fragility` | — | 0.177 | 0.150 |
+| `selection_bias` | — | — | 0.100 |
+| `cross_asset` | 0.077 | 0.059 | 0.050 |
+| `bootstrap` | — | — | 0.050 |
+| `regime_consistency` | — | — | 0.050 |
+| `trade_sufficiency` | 0.077 | 0.059 | 0.050 |
 
-T0 composite is dominated by marker_shape + walk_forward (73%). T1 is evenly split across marker/WF/fragility (80%). T2 distributes across all 8 sub-scores.
-
----
-
-## Per-Tier Summary
-
-### T0 — Hypothesis (pre-registered canonical params)
-
-**Gates that run:** 1, Marker, 4, 6, 7
-**Gates skipped:** 2 (search bias), 3 (param fragility), 5 (uncertainty)
-**Special behavior:**
-- Gate 1 trade floor: 5
-- Gate 4 walk-forward hard fails demoted to soft warnings
-- Marker missed-cycle cap: 2, timing floor: 0.50
-- Soft-warning cap: 10
-
-**Design intent:** T0 cannot overfit (canonical pre-registered params, no tuning). Validation confirms the hypothesis engages cycles, generalizes across time and assets, and emits a complete `backtest_certified` signal bundle. Statistical overfitting tests are irrelevant.
-
-### T1 — Tuned (hand-authored logic, canonical grid search)
-
-**Gates that run:** 1, Marker, 3, 4, 6, 7
-**Gates skipped:** 2 (search bias — calibrated for 50K+ GA configs), 5 (uncertainty — T2 only)
-**Special behavior:**
-- Gate 1 trade floor: 10
-- Gate 3 param fragility runs (params were grid-searched, perturbation matters)
-- Marker missed-cycle cap: 3, timing floor: 0.40
-- Soft-warning cap: 10 if ≤ 4 signal params, else 5
-
-**Design intent:** T1 strategies have been searched over a small canonical grid (~50 combos). Fragility testing catches lucky combos. Search-bias and bootstrap aren't calibrated for small grids so they're skipped.
-
-### T2 — Discovered (GA-searched, complex param spaces)
-
-**Gates that run:** All (1, Marker, 2, 3, 4, 5, 6, 7)
-**Gates skipped:** None
-**Special behavior:**
-- Gate 1 trade floor: 15
-- Gate 2 runs full search-bias stack (exit proximity, jackknife, HHI, meta robustness, clustering)
-- Gate 5 runs full uncertainty stack (Morris elementary effects, stationary bootstrap)
-- Marker missed-cycle cap: 5, timing floor: 0.30
-- Concentration, Morris, and bootstrap thresholds scale by signal-param count (≤ 4 vs 5+)
-- Soft-warning cap: 10 if ≤ 4 signal params, else 5
-
-**Design intent:** T2 strategies emerged from large search spaces (50K+ GA evaluations). Every statistical test fires to detect overfitting, data snooping, and parameter fragility. The full gauntlet.
+T0 composite is dominated by time/marker sub-scores (~85% across WF + marker_shape + marker_timing + named_windows). T2 spreads across the full statistical stack.
 
 ---
 
-## Warning Taxonomy
+## Sub-Score Anchors (Smooth Interpolation)
 
-| Level | Effect on verdict | When to use |
-|-------|-------------------|-------------|
-| **Advisory** | None | FYI only — informational context |
-| **Soft Warning** | WARN if count >= cap | Marginal concerns, descriptive observations |
-| **Critical Warning** | Always WARN (blocks PASS) | Structural concern that isn't disqualifying but prevents promotion |
-| **Hard Fail** | Always FAIL | Disqualifying — strategy cannot be promoted or deployed |
+Each sub-score is [0, 1] via smooth interpolation between these anchors:
+
+- **hard-fail threshold** → 0.0
+- **soft-warn threshold** → 0.5
+- **pass threshold** → 1.0
+- **fully clean** → 1.0 (capped)
+
+Linear interpolation between anchors. Clamp at [0, 1].
+
+### `walk_forward`
+Anchor on `avg_oos_is_ratio` across WF windows (currently 3–4 windows: 2015-2017, 2018-2020, 2021-2023, 2024-present).
+
+| Anchor | Value |
+|---|:-:|
+| 0.0 (hard-fail) | avg ratio < 0.50 |
+| 0.5 (soft-warn) | avg ratio = 0.65 |
+| 1.0 (pass) | avg ratio >= 0.80 |
+
+Per-window contributions still flag as advisories in the gate report; they no longer veto.
+
+### `marker_shape` (state agreement)
+Anchor on `state_agreement` over the marker overlap window.
+
+| Anchor | Value |
+|---|:-:|
+| 0.0 | state_agreement < 0.30 (essentially uncorrelated) |
+| 0.5 | state_agreement = 0.50 (barely above random) |
+| 1.0 | state_agreement >= 0.80 |
+
+### `marker_timing` (per-cycle, magnitude-weighted)
+
+**New sub-score.** For each marker cycle transition (buy and sell markers), compute distance in bars from nearest strategy transition. Per-cycle score = `max(0, 1 - distance / tolerance_bars)`. Aggregate as magnitude-weighted mean where each cycle's weight is its subsequent price move magnitude (bigger drawdowns / rallies carry more weight).
+
+| Tier | Tolerance |
+|---|:-:|
+| T0 | 20 bars |
+| T1 | 30 bars |
+| T2 | 40 bars |
+
+A strategy that is 40 bars late on the COVID crash (a ~70% drawdown cycle) pays a much bigger penalty than one that is 40 bars late on a 10% wobble.
+
+### `named_windows`
+
+**Split out from gate 4.** Anchor on the minimum `share_multiple` across the four named stress windows (`2020_meltup`, `2021_2022_bear`, `2023_rebound`, `2024_onward`).
+
+| Anchor | Value |
+|---|:-:|
+| 0.0 | any window share_multiple <= 0 OR errored |
+| 0.5 | min share_multiple = 0.60 |
+| 1.0 | min share_multiple >= 1.00 |
+
+### `era_consistency`
+
+**New sub-score (2026-04-21)** — guards against strategies that pass the weighted-era fitness gate by having one era compensate for another. Takes the minimum of (real_share_multiple, modern_share_multiple) and applies smooth anchors.
+
+| Anchor | Value |
+|---|:-:|
+| 0.0 | min(real, modern) = 0.0x (one era totally failed) |
+| 0.5 | min(real, modern) = 0.6x (modest in worst era) |
+| 1.0 | min(real, modern) >= 1.2x (clearly beats B&H in both eras) |
+
+Anchors tuned to grade the 0–1.2+ range smoothly rather than hard-zeroing everything below 0.5 — the latter would annihilate composite_confidence via geometric mean for any strategy with real<0.5, which is most of the current candidate pool.
+
+Uses `real_share_multiple` (post-2008-12-17) and `modern_share_multiple` (post-2015) computed by `engine/strategy_engine.py::backtest()`.
+
+### `fragility`
+- T2: uses Morris `s_frag = clamp(1.0 - max_swing / 0.40)` (already smooth).
+- T1: fallback to Gate 3 perturbation `score = 1.0 - max_swing / 0.40`.
+
+### `selection_bias`
+Gate 2 `selection_bias_score` — ramped from observed_rs / expected_max ratio (already smooth).
+
+### `cross_asset`
+Anchor on TQQQ same-param `share_multiple`.
+
+| Anchor | Value |
+|---|:-:|
+| 0.0 | TQQQ errored OR share_multiple < 0.20 |
+| 0.5 | TQQQ share_multiple = 0.50 |
+| 1.0 | TQQQ share_multiple >= 1.00 |
+
+TQQQ re-optimization result is reported as advisory only — no longer feeds a hard-fail.
+
+### `bootstrap`
+`s_boot = clamp(1.0 - ci_width / observed_rs)` (T2 only).
+
+### `regime_consistency`
+Mean of: bull HHI margin, bear HHI margin, dominance margin, meta robustness, trade-clustering margin. Already smooth [0, 1] (T2 only).
+
+### `trade_sufficiency`
+`(trade_count - 10) / 30` clamped to [0, 1]. Encourages enough trades to draw signal from noise without punishing low-frequency candidates.
+
+---
+
+## Tier Routing Overview
+
+| Gate | T0 | T1 | T2 | Role in new framework |
+|---|:-:|:-:|:-:|---|
+| Gate 1 (Eligibility) | RUN | RUN | RUN | Layer 1 correctness + `trade_sufficiency` sub-score |
+| Marker (shape + timing) | RUN | RUN | RUN | `marker_shape` + `marker_timing` sub-scores |
+| Gate 2 (Search bias) | SKIP | SKIP | RUN | `selection_bias` + `regime_consistency` sub-scores |
+| Gate 3 (Param fragility) | SKIP | RUN | RUN | `fragility` fallback (T1) |
+| Gate 4 (Time generalization) | RUN | RUN | RUN | `walk_forward` + `named_windows` sub-scores |
+| Gate 5 (Uncertainty) | SKIP | SKIP | RUN | `fragility` (Morris) + `bootstrap` sub-scores |
+| Gate 6 (Cross-asset) | RUN | RUN | RUN | `cross_asset` sub-score (weight reduced to 0.05) |
+| Gate 7 (Synthesis) | RUN | RUN | RUN | Composite + verdict |
+
+### Tier auto-promotion (unchanged)
+
+A strategy declared T0 auto-promotes to T1 if it has > 5 tunable params (excluding cooldown) or any non-canonical param value. T1 auto-promotes to T2 if > 8 tunable params. Declared tier is an upper bound on leniency.
+
+---
+
+## Strict Canonical Parameter Set (T0, unchanged)
+
+| Parameter family | Allowed values |
+|---|---|
+| EMA / SMA / TEMA period | 7, 9, 14, 20, 21, 30, 50, 100, 150, 200, 300 |
+| RSI period | 7, 14, 21 |
+| ATR period | 7, 14, 20, 40 |
+| ATR multiplier | 0.5, 1.0, 1.5, 2.0, 2.5, 3.0 |
+| Lookback / Donchian / Highest-Lowest | 5, 10, 20, 50, 100, 150, 200 |
+| Slope / confirmation bars | 1, 2, 3, 5 |
+| Cooldown bars | 0, 1, 2, 3, 5, 10 |
+| Percent thresholds | 5%, 8%, 10%, 15%, 20%, 25% |
+| MACD fast / slow / signal | (12, 26, 9), (8, 17, 9) |
+
+Anything outside this list lifts the strategy to T1.
+
+---
+
+## Warnings Taxonomy (post-revision)
+
+| Level | Effect on verdict | Purpose |
+|---|---|---|
+| **Advisory** | None | Reported on the leaderboard row for context |
+| **Soft warning** | None — no cap, no downgrade | Descriptive observations; kept for diagnostic reading |
+| **Critical warning** | None — informational | Flagged on the UI as "watch this" but does not change verdict |
+| **Hard fail** | FAIL (Layer 1 only) | Correctness violation; irrecoverable |
+
+Warnings still accumulate in the gate output for diagnostic value. They no longer drive the verdict. If a strategy is stacking up critical warnings across multiple gates, its sub-scores will reflect that and its confidence will land in the 40–60 band organically.
 
 ---
 
 ## Design Principle: Overfitting vs Strategy Characteristics
 
-The validation pipeline exists to catch overfitting. Not every "bad-looking" metric is an overfitting signal:
+The pipeline catches overfitting via the sub-score weighting, not via verdict triggers:
 
-| Metric | Overfitting signal (penalize) | Strategy characteristic (don't penalize) |
-|--------|------------------------------|----------------------------------------|
-| High param sensitivity | Result depends on a lucky combo from 50K GA evaluations | Each param in a 2-param strategy naturally accounts for 50% of variance |
-| Concentrated returns (HHI) | One lucky trade in one lucky window drives the whole result | Trend-following inherently captures a few big moves |
-| Bootstrap uncertainty | Resampled performance collapses — the "edge" was noise | Trend-following has wide confidence intervals by nature |
-| Soft warning accumulation | Many marginal signals compound into overfit suspicion | Simple strategies emit descriptive warnings (marker timing, window performance) that are informational |
+| Metric | Reflected in |
+|---|---|
+| High param sensitivity | `fragility` sub-score (low = high sensitivity) |
+| Concentrated returns (HHI) | `regime_consistency` sub-score (low = heavy concentration) |
+| Bootstrap uncertainty | `bootstrap` sub-score (low = wide CI) |
+| Search-bias inflation | `selection_bias` sub-score (low = observed vs expected max problematic) |
+| Time-window inconsistency | `walk_forward` + `named_windows` sub-scores |
+| Cross-asset fragility | `cross_asset` sub-score |
+| Missing cycles | `marker_timing` sub-score (magnitude-weighted) |
 
-**Current proxy:** signal-param count (≤ 4 = simple, 5+ = complex). **Better future proxy:** actual search space size (canonical grid combos or GA evaluations). A hand-authored 6-param strategy with canonical params has the same overfitting risk as a 2-param one — near zero. The risk comes from the search process, not the parameter count.
+A strategy that scores weakly across multiple overfit-sensitive sub-scores will land below 0.70 automatically. A strategy that scores strongly on some and weakly on one will still land above 0.70 — which matches the user intent: "close misses cost a little, far misses cost a lot."
 
 ---
 
-*Last updated: 2026-04-14*
-*Source of truth: `scripts/validation/pipeline.py`, `scripts/validation/candidate.py`, `scripts/validation/uncertainty.py`*
+*Last updated: 2026-04-21*
+*Source of truth: `scripts/validation/pipeline.py`, `scripts/validation/candidate.py`, `scripts/validation/uncertainty.py`, `scripts/strategies/markers.py`*

@@ -1220,8 +1220,17 @@ def _worker_backtest(job: tuple[str, dict]) -> dict | None:
     except Exception:
         return None
 
-    # Charter pre-filter
-    if result.share_multiple < 1.0:
+    # Charter pre-filter — uses weighted-era fitness (2026-04-21 revision).
+    # Previously required full share_multiple >= 1.0, which rewarded synthetic
+    # dotcom sidestepping and produced strategies that failed on real data.
+    # The new gate is `weighted_era_fitness >= 1.0` which requires combined
+    # era performance to beat B&H. See scripts/search/fitness.py.
+    from search.fitness import weighted_era_fitness as _wef
+
+    _w = _wef(
+        result.share_multiple, result.real_share_multiple, result.modern_share_multiple
+    )
+    if _w < 1.0:
         return {"_rejected": True}
     if result.num_trades < 5:
         return {"_rejected": True}
@@ -1249,6 +1258,8 @@ def _worker_backtest(job: tuple[str, dict]) -> dict | None:
             "trades_yr": result.trades_per_year,
             "n_params": _count_tunable_params(params),
             "share_multiple": result.share_multiple,
+            "real_share_multiple": result.real_share_multiple,
+            "modern_share_multiple": result.modern_share_multiple,
             "cagr": result.cagr_pct,
             "max_dd": result.max_drawdown_pct,
             "mar": result.mar_ratio,
@@ -1298,7 +1309,13 @@ def _backtest_single(concept, params, ind, df, close, dates):
         result.params = params
     except Exception:
         return None
-    if result.share_multiple < 1.0:
+    # Charter pre-filter — weighted-era fitness (2026-04-21 revision).
+    from search.fitness import weighted_era_fitness as _wef
+
+    _w = _wef(
+        result.share_multiple, result.real_share_multiple, result.modern_share_multiple
+    )
+    if _w < 1.0:
         return {"_rejected": True}
     if result.num_trades < 5:
         return {"_rejected": True}
@@ -1321,6 +1338,8 @@ def _backtest_single(concept, params, ind, df, close, dates):
             "trades_yr": result.trades_per_year,
             "n_params": _count_tunable_params(params),
             "share_multiple": result.share_multiple,
+            "real_share_multiple": result.real_share_multiple,
+            "modern_share_multiple": result.modern_share_multiple,
             "cagr": result.cagr_pct,
             "max_dd": result.max_drawdown_pct,
             "mar": result.mar_ratio,
@@ -1426,22 +1445,27 @@ def run_grid_search(
                 continue
             all_results.append(result)
 
-    # Per-concept summary
-    concept_stats: dict[str, tuple[int, float]] = {}
+    # Per-concept summary (fitness = weighted-era; share = full-history for context)
+    concept_stats: dict[str, tuple[int, float, float]] = {}
     for e in all_results:
         c = e["strategy"]
-        prev_count, prev_best = concept_stats.get(c, (0, 0.0))
+        prev_count, prev_best_fit, prev_best_share = concept_stats.get(c, (0, 0.0, 0.0))
         concept_stats[c] = (
             prev_count + 1,
-            max(prev_best, e["metrics"]["share_multiple"]),
+            max(prev_best_fit, e.get("fitness", 0)),
+            max(prev_best_share, e["metrics"]["share_multiple"]),
         )
     for concept in concepts:
-        count, best = concept_stats.get(concept, (0, 0.0))
-        print(f"  {concept:<28} {count:>3} pass charter  best_share={best:.2f}x")
+        count, best_fit, best_share = concept_stats.get(concept, (0, 0.0, 0.0))
+        print(
+            f"  {concept:<28} {count:>3} pass charter  best_fit={best_fit:.2f}  best_share={best_share:.2f}x"
+        )
 
     elapsed_search = time.time() - start
-    # Rank by share_multiple (primary metric)
-    all_results.sort(key=lambda e: e["metrics"]["share_multiple"], reverse=True)
+    # Rank by fitness (weighted-era geometric mean of share multipliers —
+    # 2026-04-21 revision). Previously ranked by raw full-history share_multiple,
+    # which was dominated by the synthetic pre-2008 dotcom sidestep.
+    all_results.sort(key=lambda e: e.get("fitness", 0), reverse=True)
     for i, e in enumerate(all_results, 1):
         e["rank"] = i
 
@@ -1455,13 +1479,14 @@ def run_grid_search(
         return {"total_combos": total_combos, "charter_pass": 0}
 
     # Show top 10 raw
-    print("\n[grid] Top 10 raw (by share_multiple):")
+    print("\n[grid] Top 10 raw (by weighted-era fitness):")
     for e in all_results[:10]:
         m = e["metrics"]
         print(
-            f"  {e['strategy']:<28} share={m['share_multiple']:.2f}x  trades={m['trades']}  "
-            f"tpy={m['trades_yr']:.2f}  marker={e['marker_alignment_score']:.3f}  "
-            f"params={e['params']}"
+            f"  {e['strategy']:<28} fit={e.get('fitness', 0):.2f}  "
+            f"full={m['share_multiple']:.2f}x  real={m.get('real_share_multiple', 0):.2f}x  "
+            f"modern={m.get('modern_share_multiple', 0):.2f}x  trades={m['trades']}  "
+            f"marker={e['marker_alignment_score']:.3f}"
         )
 
     if not validate:
@@ -1473,7 +1498,7 @@ def run_grid_search(
 
     # ── Phase 2: Validate top-N through the pipeline ──
     # Ensure per-concept representation: best combo from each concept first,
-    # then fill remaining slots with global best (by share_multiple).
+    # then fill remaining slots with global best (by weighted-era fitness).
     seen_concepts = set()
     per_concept_best = []
     remaining = []
@@ -1502,13 +1527,20 @@ def run_grid_search(
     )
 
     # ── Phase 3: Update leaderboard ──
-    validated = validation["validated_rankings"]
+    # Admit PASS (composite >= 0.70) AND WARN (watchlist, 0.60 - 0.70).
+    # _is_leaderboard_eligible enforces the 0.60 floor, but update_leaderboard
+    # only evaluates entries we hand it — so feed all enriched rankings and let
+    # eligibility decide.
     lb_path = os.path.join(PROJECT_ROOT, "spike", "leaderboard.json")
-    if validated:
-        # Merge with existing leaderboard (update_leaderboard handles dedup + top-20)
+    admit_candidates = [
+        e
+        for e in validation.get("raw_rankings", [])
+        if float((e.get("validation") or {}).get("composite_confidence") or 0.0) >= 0.60
+    ]
+    if admit_candidates:
         lb = update_leaderboard(
             {
-                "rankings": validated,
+                "rankings": admit_candidates,
                 "date": datetime.now().strftime("%Y-%m-%d"),
                 "total_evaluations": total_combos,
                 "elapsed_hours": elapsed_search / 3600,
@@ -1518,20 +1550,25 @@ def run_grid_search(
         print(f"\n[grid] Leaderboard updated: {len(lb)} entries")
         for i, e in enumerate(lb[:20], 1):
             m = e.get("metrics", {})
-            t = (e.get("validation") or {}).get("tier") or e.get("tier") or "?"
+            v = e.get("validation") or {}
+            t = v.get("tier") or e.get("tier") or "?"
+            c = float(v.get("composite_confidence") or 0.0) * 100.0
+            label = "ADMIT" if c >= 70 else "WATCH" if c >= 60 else "—"
             print(
-                f"  #{i} {e['strategy']:<28} [{t}]  share={m.get('share_multiple', 0):.2f}x  "
-                f"fitness={e.get('fitness', 0):.4f}  params={e.get('params', {})}"
+                f"  #{i} {e['strategy']:<28} [{t}] conf={c:5.1f}[{label}] "
+                f"share={m.get('share_multiple', 0):.2f}x  params={e.get('params', {})}"
             )
     else:
-        print("[grid] No strategies passed validation. Leaderboard unchanged.")
+        print(
+            "[grid] No strategies reached watchlist confidence. Leaderboard unchanged."
+        )
 
     return {
         "total_combos": total_combos,
         "charter_pass": len(all_results),
         "raw_rankings": all_results[:top_n],
         "validation": validation,
-        "leaderboard_entries": len(validated),
+        "leaderboard_entries": len(admit_candidates),
     }
 
 

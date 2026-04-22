@@ -45,6 +45,23 @@ def main():
     # Minimal candidate format for the validation pipeline. We deliberately do
     # NOT forward the old `validation` block — the pipeline must recompute
     # certification_checks from scratch with the current rules.
+    # Backfill real_share_multiple / modern_share_multiple into legacy metrics
+    # from multi_era.eras if present (2026-04-21 addition). Without this,
+    # era_consistency sub-score returns None for legacy entries and they skip
+    # the era-balance penalty that new entries receive.
+    def _augment_metrics(entry: dict) -> dict:
+        m = dict(entry.get("metrics") or {})
+        eras = (entry.get("multi_era") or {}).get("eras") or {}
+        if "real_share_multiple" not in m:
+            real_v = (eras.get("real") or {}).get("share_multiple")
+            if real_v is not None:
+                m["real_share_multiple"] = float(real_v)
+        if "modern_share_multiple" not in m:
+            modern_v = (eras.get("modern") or {}).get("share_multiple")
+            if modern_v is not None:
+                m["modern_share_multiple"] = float(modern_v)
+        return m
+
     raw_rankings = [
         {
             "strategy": e["strategy"],
@@ -52,7 +69,7 @@ def main():
             "fitness": e.get("fitness", 0),
             "tier": e.get("tier", "T1"),
             "params": e.get("params", {}),
-            "metrics": e.get("metrics", {}),
+            "metrics": _augment_metrics(e),
             "marker_alignment_score": e.get("marker_alignment_score"),
             "marker_alignment_detail": e.get("marker_alignment_detail"),
         }
@@ -67,7 +84,6 @@ def main():
         top_n=len(raw_rankings),
     )
 
-    validated = results["validated_rankings"]
     summary = results["validation_summary"]
     print(
         f"[recert] Pipeline done: "
@@ -76,25 +92,27 @@ def main():
         f"FAIL={summary['validated_fail']}"
     )
 
+    # Under the 2026-04-21 framework, leaderboard admission includes watchlist
+    # tier (composite_confidence 0.60-0.69, verdict=WARN) alongside PASS (>=0.70).
+    # Iterate over all evaluated entries; _is_leaderboard_eligible enforces the
+    # 0.60 floor and certification checks.
     admitted = []
     rejected = []
-    for e in validated:
+    for e in results.get("raw_rankings", []):
+        if not e.get("validation"):
+            continue
         eligible, reason = _is_leaderboard_eligible(e)
         if eligible:
             admitted.append(e)
         else:
             rejected.append((e.get("strategy"), e.get("params"), reason))
 
-    for e in results.get("raw_rankings", []):
-        v = e.get("validation") or {}
-        if v.get("verdict") != "PASS":
-            rejected.append(
-                (
-                    e.get("strategy"),
-                    e.get("params"),
-                    f"verdict={v.get('verdict', '?')}",
-                )
-            )
+    # Sort admitted by composite_confidence descending (leaderboard is ranked by
+    # confidence under the new framework, not raw fitness).
+    admitted.sort(
+        key=lambda e: (e.get("validation") or {}).get("composite_confidence", 0.0),
+        reverse=True,
+    )
 
     print(f"[recert] Admitted {len(admitted)}, rejected {len(rejected)}")
     if rejected:
@@ -125,7 +143,7 @@ def main():
 
     with open(lb_path) as f:
         final = json.load(f)
-    print(f"\n[recert] Final leaderboard: {len(final)} entries")
+    print(f"\n[recert] Final leaderboard: {len(final)} entries (ranked by confidence)")
     for i, e in enumerate(final, 1):
         v = e.get("validation", {})
         cc = v.get("certification_checks", {})
@@ -140,11 +158,20 @@ def main():
         )
         m = e.get("metrics", {})
         share = m.get("share_multiple", 0)
+        confidence = float(v.get("composite_confidence", 0.0)) * 100.0
+        verdict = v.get("verdict", "?")
+        label = (
+            "ADMITTED"
+            if verdict == "PASS"
+            else "WATCHLIST"
+            if verdict == "WARN"
+            else verdict
+        )
         print(
             f"  #{i:2d}  {e['strategy']:22s}  "
-            f"fit={e.get('fitness', 0):6.2f}  "
+            f"conf={confidence:5.1f}/100 [{label:9s}]  "
             f"share={share:6.2f}x  "
-            f"verdict={v.get('verdict', '?'):4s}  "
+            f"fit={e.get('fitness', 0):6.2f}  "
             f"certified={required_ok}  "
             f"{e.get('params')}"
         )

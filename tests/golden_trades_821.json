@@ -1,17 +1,17 @@
 {
   "metadata": {
     "generator": "tests/generate_golden_trades.py",
-    "generated_utc": "2026-04-16T00:12:28Z",
+    "generated_utc": "2026-04-21T21:43:14Z",
     "data_file": "data/TECL.csv",
-    "data_rows": 8294,
+    "data_rows": 8298,
     "data_first_date": "1993-05-04",
-    "data_last_date": "2026-04-15",
+    "data_last_date": "2026-04-21",
     "slippage_pct": 0.05,
     "commission_pct": 0.0,
-    "num_trades": 51,
-    "share_multiple": 8.783,
-    "total_return_pct": 109932.3606,
-    "cagr_pct": 23.6843,
+    "num_trades": 52,
+    "share_multiple": 8.481,
+    "total_return_pct": 115481.975,
+    "cagr_pct": 23.856,
     "max_drawdown_pct": 85.78
   },
   "params": {
@@ -525,6 +525,15 @@
       "exit_reason": "EMA Cross",
       "pnl_pct": -31.18703,
       "bars_held": 114
+    },
+    {
+      "entry_date": "2026-04-16",
+      "entry_price": 128.003972,
+      "exit_date": "2026-04-21",
+      "exit_price": 134.460007,
+      "exit_reason": "End of Data",
+      "pnl_pct": 5.04362,
+      "bars_held": 3
     }
   ]
 }

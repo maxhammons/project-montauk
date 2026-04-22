@@ -566,6 +566,14 @@ class BacktestResult:
     # strategy_shares_equiv / bah_shares when equity is marked-to-market to
     # TECL shares — i.e., the share-count multiplier itself.
     share_multiple: float = 0.0
+    # Era-sliced share multiples (2026-04-21). Computed from the equity curve
+    # starting at each era boundary. Used by the weighted-era fitness function
+    # (search/fitness.py) to prevent optimization from being dominated by the
+    # synthetic 1993-2008 dotcom-crash sidestep.
+    #   real_share_multiple    — share multiplier on post-2008-12-17 data only
+    #   modern_share_multiple  — share multiplier on post-2015-01-01 data only
+    real_share_multiple: float = 0.0
+    modern_share_multiple: float = 0.0
     bah_start_date: str = ""
     exit_reasons: dict = field(default_factory=dict)
     strategy_name: str = ""
@@ -624,6 +632,47 @@ class BacktestResult:
         if self.regime_score:
             lines.append(self.regime_score.summary_str())
         return "\n".join(lines)
+
+
+REAL_DATA_START = pd.Timestamp("2008-12-17")  # first real TECL trading day
+MODERN_ERA_START = pd.Timestamp("2015-01-01")  # modern-era cutoff (post-GFC/QE normalization)
+
+
+def _era_share_multiple(
+    dates: np.ndarray,
+    equity_curve: np.ndarray,
+    close: np.ndarray,
+    era_start: pd.Timestamp,
+) -> float:
+    """Share-count multiplier computed from `era_start` forward.
+
+    Slices equity + close at the first bar with date >= era_start, then:
+      era_share_multiple = (equity[-1] / equity[slice]) / (close[-1] / close[slice])
+
+    Interpretation identical to the full-history share_multiple — strategy shares
+    accumulated since the era boundary vs B&H shares over the same window.
+
+    Returns 0.0 if the era start is beyond the data or the slice can't be formed
+    (caller treats 0.0 as "not available").
+    """
+    ds = pd.to_datetime(dates)
+    mask = ds >= era_start
+    if not mask.any():
+        return 0.0
+    idx = int(np.argmax(mask.values if hasattr(mask, "values") else mask))
+    if idx >= len(equity_curve) - 1:
+        return 0.0
+    eq0 = float(equity_curve[idx])
+    eq1 = float(equity_curve[-1])
+    p0 = float(close[idx])
+    p1 = float(close[-1])
+    if eq0 <= 0 or p0 <= 0:
+        return 0.0
+    strat_growth = eq1 / eq0
+    bah_growth = p1 / p0
+    if bah_growth <= 0:
+        return 0.0
+    return float(strat_growth / bah_growth)
 
 
 def _count_synthetic_real_trades(df: pd.DataFrame, trades: list) -> tuple[int, int]:
@@ -764,6 +813,10 @@ def backtest(df: pd.DataFrame,
     bah_equity = initial_capital * (bah_end / bah_start) if bah_start > 0 else initial_capital
     share_multiple = equity_curve[-1] / bah_equity if bah_equity > 0 else 1.0
 
+    # Era-sliced share multipliers (2026-04-21) — used by weighted-era fitness.
+    real_sm = _era_share_multiple(dates, equity_curve, cl, REAL_DATA_START)
+    modern_sm = _era_share_multiple(dates, equity_curve, cl, MODERN_ERA_START)
+
     exit_reasons = {}
     for t in trades:
         exit_reasons[t.exit_reason] = exit_reasons.get(t.exit_reason, 0) + 1
@@ -782,6 +835,8 @@ def backtest(df: pd.DataFrame,
         avg_bars_held=round(avg_held, 0),
         win_rate_pct=round(win_rate, 1),
         share_multiple=round(share_multiple, 4),
+        real_share_multiple=round(real_sm, 4),
+        modern_share_multiple=round(modern_sm, 4),
         bah_start_date=str(dates[0])[:10],
         exit_reasons=exit_reasons,
         strategy_name=strategy_name,
@@ -1279,6 +1334,10 @@ def run_montauk_821(df: pd.DataFrame, params: StrategyParams | None = None,
         if bah_final_equity > 0:
             share_multiple = equity_curve[-1] / bah_final_equity
 
+    # Era-sliced share multipliers (2026-04-21)
+    real_sm = _era_share_multiple(dates, equity_curve, cl, REAL_DATA_START)
+    modern_sm = _era_share_multiple(dates, equity_curve, cl, MODERN_ERA_START)
+
     n_syn, n_real = _count_synthetic_real_trades(df, trades)
 
     return BacktestResult(
@@ -1294,6 +1353,8 @@ def run_montauk_821(df: pd.DataFrame, params: StrategyParams | None = None,
         avg_bars_held=avg_held,
         win_rate_pct=win_rate,
         share_multiple=round(share_multiple, 3),
+        real_share_multiple=round(real_sm, 4),
+        modern_share_multiple=round(modern_sm, 4),
         bah_start_date=bah_start_date,
         exit_reasons=exit_reasons,
         strategy_name="montauk_821",

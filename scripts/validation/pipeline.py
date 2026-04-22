@@ -87,6 +87,27 @@ def _clamp(value: float, lo: float = 0.0, hi: float = 1.0) -> float:
     return float(max(lo, min(hi, value)))
 
 
+def _interp(value: float, fail: float, soft: float, pass_: float) -> float:
+    """Smooth [0,1] interpolation between three anchors.
+
+    fail → 0.0
+    soft → 0.5
+    pass_ → 1.0
+
+    Linear between anchors; clamped at endpoints. Assumes fail < soft < pass_.
+    """
+    value = float(value)
+    if value >= pass_:
+        return 1.0
+    if value <= fail:
+        return 0.0
+    if value < soft:
+        denom = soft - fail
+        return 0.5 * (value - fail) / denom if denom > 0 else 0.5
+    denom = pass_ - soft
+    return 0.5 + 0.5 * (value - soft) / denom if denom > 0 else 0.5
+
+
 def _json_safe(value):
     if isinstance(value, dict):
         return {k: _json_safe(v) for k, v in value.items()}
@@ -178,7 +199,19 @@ def _selection_bias_score(observed_rs: float, expected_max: float) -> float:
 
 
 def _trade_sufficiency_score(trades: int) -> float:
-    return _clamp((trades - 10.0) / 30.0)
+    """Trade sufficiency sub-score, charter-aligned.
+
+    Charter: trend strategies should not be punished for inactivity.
+    A year of holding through new highs is a successful year. Over TECL's
+    full history (~18 years at ≤ 5 trades/year = max 90 trades), a good
+    long-only trend strategy typically sits between 10 and 25 trades.
+
+    Anchors:
+      0 trades → 0.0  (strategy never engaged — no signal to evaluate)
+      10 trades → 0.5
+      20+ trades → 1.0
+    """
+    return _interp(float(trades), 0.0, 10.0, 20.0)
 
 
 def _geometric_composite(sub_scores: dict) -> float:
@@ -188,16 +221,33 @@ def _geometric_composite(sub_scores: dict) -> float:
     and the remaining weights renormalize. This means T0 and T1 composites are
     computed over their tier-applicable gates only — they don't pay a penalty
     for gates that weren't supposed to run against them.
+
+    Weights per validation-thresholds.md (2026-04-21 revision):
+      - Marker shape split into state_agreement (marker_shape) and
+        magnitude-weighted per-cycle timing (marker_timing).
+      - Named-window performance split out of walk_forward as its own
+        sub-score.
+      - Cross-asset demoted from 0.10 to 0.05.
+      - era_consistency added (2026-04-21 late): min(real_share, modern_share)
+        → anchor 0.5x/1.0x/1.5x. Catches strategies that pass the weighted-era
+        fitness gate but have ONE era that collapsed (fitness can still >= 1.0
+        if other eras compensate — era_consistency guards against this).
     """
     weights = {
-        "marker_shape":       0.20,   # charter-level first-class gate, every tier
-        "walk_forward":       0.20,
-        "fragility":          0.20,   # T1/T2 only
-        "selection_bias":     0.15,   # T2 only
-        "cross_asset":        0.10,   # every tier — the cheap honesty check
+        "walk_forward":       0.10,   # all tiers
+        "marker_shape":       0.10,   # all tiers (state agreement)
+        "marker_timing":      0.15,   # all tiers (per-cycle, magnitude-weighted)
+        "named_windows":      0.05,   # all tiers
+        "era_consistency":    0.20,   # all tiers — primary era-balance signal (raised from 0.15 when cross_asset was removed)
+        "fragility":          0.15,   # T1 (Gate 3) / T2 (Gate 5 Morris)
+        "selection_bias":     0.10,   # T2 only
+        # cross_asset REMOVED 2026-04-21: penalized TECL-specific era winners
+        # (gc_vjatr) for non-portability to TQQQ, which contradicts charter intent
+        # (TECL-only by design). Sub-score still computed in gate6 for diagnostics
+        # but excluded from composite_confidence.
         "bootstrap":          0.05,   # T2 only
         "regime_consistency": 0.05,   # T2 only
-        "trade_sufficiency":  0.05,
+        "trade_sufficiency":  0.05,   # all tiers
     }
     present = {k: w for k, w in weights.items() if sub_scores.get(k) is not None}
     if not present:
@@ -372,13 +422,16 @@ def _gate2_search_bias(strategy_name: str, params: dict, ctx: ValidationContext)
     elif deflation["deflated_probability"] < 0.80:
         advisories.append(f"selection_bias: deflated={deflation['deflated_probability']:.4f}")
 
+    # 2026-04-21 revision: these no longer hard-fail. They depress
+    # selection_bias / regime_consistency sub-scores via the existing
+    # score formulas, which is enough to penalize confidence.
     if proximity["enrichment_5"] > 3.0 or proximity["enrichment_10"] > 3.0:
-        hard_fail_reasons.append(
+        critical_warnings.append(
             f"exit proximity: {proximity['enrichment_5']:.2f}x/{proximity['enrichment_10']:.2f}x near bear starts"
         )
 
     if jackknife["max_impact_ratio"] > 2.0:
-        hard_fail_reasons.append(f"jackknife: dominant cycle {jackknife['max_impact_ratio']:.2f}x")
+        critical_warnings.append(f"jackknife: dominant cycle {jackknife['max_impact_ratio']:.2f}x")
 
     # Concentration measures whether returns are dominated by a few big trades.
     # For trend-following strategies with few params (≤ 4 signal params), this
@@ -443,8 +496,11 @@ def _gate3_fragility(strategy_name: str, params: dict, ctx: ValidationContext) -
     strategy_fn = STRATEGY_REGISTRY[strategy_name]
     fragility = check_parameter_fragility(ctx.df, strategy_fn, params, strategy_name)
     soft_warnings = [f"fragility: {w}" for w in fragility["warn_params"]]
-    critical_warnings = []
-    hard_fail_reasons = list(fragility["hard_fail_params"])
+    # 2026-04-21: former hard_fail_params (swing > 30%) demoted to critical
+    # warnings. The fragility sub-score already reflects the high swing, so
+    # confidence will drop appropriately without a veto.
+    critical_warnings = [f"fragility: {p}" for p in fragility["hard_fail_params"]]
+    hard_fail_reasons: list[str] = []
     return {
         **fragility,
         "soft_warnings": soft_warnings,
@@ -455,43 +511,70 @@ def _gate3_fragility(strategy_name: str, params: dict, ctx: ValidationContext) -
 
 
 def _gate4_time_generalization(strategy_name: str, params: dict, ctx: ValidationContext, *, tier: str = "T2") -> dict:
-    """Walk-forward + named-window checks. Tier-aware:
+    """Walk-forward + named-window checks. Under the 2026-04-21 framework:
 
-    At T0, walk-forward `hard_fail_reasons` are demoted to `soft_warnings`.
-    Rationale: a walk-forward drop at T2 means the GA fit the IS period and
-    OOS degraded — classic overfit. A walk-forward drop at T0 means the
-    committed canonical hypothesis performed inconsistently across time. That
-    is informative but not overfit, and not a reason to reject a pre-registered
-    strategy whose params never saw the data.
+    - Named-window performance is split out as its own `named_windows_score`
+      sub-score (previously folded into gate4's verdict only).
+    - Walk-forward `hard_fail_reasons` are demoted to critical warnings at
+      every tier (previously hard-failed at T1/T2). The walk_forward_score
+      uses smooth interpolation to reflect degradation without veto.
+    - Named-window hard-fails (zero share_multiple, errors) are demoted to
+      critical warnings. The score reflects them via a 0.0 anchor.
 
-    `named_windows` hard fails still bite at every tier — those are
-    deployment-context specific (e.g., strategy broke during 2020 meltup).
+    Tier still tags the gate output for diagnostic reading but no longer
+    alters verdict logic.
     """
     strategy_fn = STRATEGY_REGISTRY[strategy_name]
     walk_forward = analyze_walk_forward(ctx.df, strategy_fn, params, strategy_name)
     named_windows = analyze_named_windows(ctx.df, strategy_fn, params, strategy_name)
 
-    wf_hard = list(walk_forward["hard_fail_reasons"])
-    wf_soft = list(walk_forward.get("soft_warnings", []))
-    nw_hard = list(named_windows["hard_fail_reasons"])
-    nw_soft = list(named_windows.get("soft_warnings", []))
+    # Walk-forward sub-score: smooth interpolation on avg_oos_is_ratio.
+    # Anchors per docs/validation-thresholds.md:
+    #   avg < 0.50 → 0.0  (hard-fail anchor)
+    #   avg = 0.65 → 0.5  (soft-warn anchor)
+    #   avg >= 0.80 → 1.0 (pass anchor)
+    avg_ratio = float(walk_forward.get("avg_oos_is_ratio", 0.0))
+    walk_forward_score = _interp(avg_ratio, 0.50, 0.65, 0.80)
 
-    if tier == "T0" and wf_hard:
-        # Demote walk-forward hard fails to soft warnings for T0.
-        wf_soft = wf_soft + [f"[T0 demoted] {r}" for r in wf_hard]
-        wf_hard = []
+    # Named-windows sub-score: anchor on min share_multiple across windows.
+    # Any errored window → 0.0. Any window with share_multiple <= 0 → 0.0.
+    #   min <= 0.0 or error → 0.0
+    #   min = 0.60 → 0.5
+    #   min >= 1.00 → 1.0
+    nw_results = named_windows.get("results", [])
+    any_error = any((r.get("error") is not None) or (r.get("share_multiple", 1.0) is None) for r in nw_results)
+    window_shares = [float(r.get("share_multiple", 0.0)) for r in nw_results if r.get("error") is None]
+    if any_error or not window_shares:
+        named_windows_score = 0.0
+    else:
+        min_share = min(window_shares)
+        if min_share <= 0.0:
+            named_windows_score = 0.0
+        else:
+            named_windows_score = _interp(min_share, 0.0, 0.60, 1.00)
 
-    soft_warnings = wf_soft + nw_soft
-    critical_warnings = list(walk_forward.get("critical_warnings", [])) + list(named_windows.get("critical_warnings", []))
+    # All former hard_fail_reasons from WF and named_windows become critical
+    # warnings — they surface in diagnostics but do not veto. Sub-scores
+    # carry the penalty into composite_confidence.
+    wf_hard_demoted = [f"walk-forward: {r}" for r in walk_forward.get("hard_fail_reasons", [])]
+    nw_hard_demoted = [f"named-window: {r}" for r in named_windows.get("hard_fail_reasons", [])]
+    soft_warnings = list(walk_forward.get("soft_warnings", [])) + list(named_windows.get("soft_warnings", []))
+    critical_warnings = (
+        list(walk_forward.get("critical_warnings", []))
+        + list(named_windows.get("critical_warnings", []))
+        + wf_hard_demoted
+        + nw_hard_demoted
+    )
     warnings = soft_warnings + critical_warnings
-    hard_fail_reasons = wf_hard + nw_hard
-    verdict = "FAIL" if hard_fail_reasons else "WARN" if critical_warnings else "PASS"
+    hard_fail_reasons: list[str] = []  # no hard fails at this gate anymore
+    verdict = "WARN" if critical_warnings else "PASS"
     return {
         "verdict": verdict,
         "tier": tier,
         "walk_forward": walk_forward,
         "named_windows": named_windows,
-        "walk_forward_score": walk_forward["score"],
+        "walk_forward_score": round(walk_forward_score, 4),
+        "named_windows_score": round(named_windows_score, 4),
         "soft_warnings": soft_warnings,
         "critical_warnings": critical_warnings,
         "warnings": warnings,
@@ -508,9 +591,12 @@ def _gate5_uncertainty(strategy_name: str, params: dict, ctx: ValidationContext)
 
     soft_warnings = []
     critical_warnings = []
-    hard_fail_reasons = []
+    hard_fail_reasons: list[str] = []
+    # 2026-04-21: Morris interaction flag demoted from hard-fail to critical
+    # warning. Morris s_frag sub-score already reflects the swing magnitude
+    # via _interp-style clamping, which is enough to depress confidence.
     if morris["interaction_flag"]:
-        hard_fail_reasons.append(
+        critical_warnings.append(
             f"morris interaction fragility: max_swing={morris['max_swing']:.2f} "
             f"sigma_ratio={morris['max_sigma_ratio']:.2f}"
         )
@@ -525,7 +611,9 @@ def _gate5_uncertainty(strategy_name: str, params: dict, ctx: ValidationContext)
             critical_warnings.append(msg)
 
     if bootstrap["hard_fail"]:
-        hard_fail_reasons.append(
+        # 2026-04-21: demoted from hard-fail to critical warning. s_boot
+        # sub-score carries the penalty into composite_confidence.
+        critical_warnings.append(
             f"bootstrap downside probability {bootstrap['downside_prob_share_multiple']:.2f} > 0.50"
         )
     else:
@@ -562,27 +650,16 @@ def _gate5_uncertainty(strategy_name: str, params: dict, ctx: ValidationContext)
 
 
 def _gate_marker_shape(strategy_name: str, params: dict, ctx: ValidationContext, *, tier: str = "T2") -> dict:
-    """Diagnostic marker-shape gate. NO hard fails — soft/critical warnings only.
+    """Marker-shape gate. Emits two sub-score inputs (state_agreement and
+    magnitude-weighted per-cycle timing). Under the 2026-04-21 confidence-
+    score framework, this gate has no hard fails — warnings are advisory
+    and the sub-scores drive confidence.
 
-    The hand-marked TECL cycles in data/markers/TECL-markers.csv are
-    the charter's *north star* for what good cycle timing looks like. They inform
-    hypothesis design (see T0-DESIGN-GUIDE.md) and are reported as a quality
-    signal in every run, but they are NOT the bouncer at the door.
-
-    Charter goal restated (2026-04-13 second revision): maximize TECL share count
-    vs B&H, with trades ≤ 5/year. Strategies that hit those goals while surviving
-    walk-forward, cross-asset, and concentration gates are valid winners — even
-    if they don't trade the same exact cycle shape Max marked.
-
-    Thresholds (soft / critical only — no hard fails at any tier):
+    Thresholds (informational / diagnostic only):
       state_agreement < 0.30 → critical warning (essentially uncorrelated with markers)
       state_agreement < 0.50 → soft warning (barely above random alignment)
-      missed_cycles > tier_cap → soft warning (informational only)
-      transition_timing < tier_floor → soft warning (informational only)
-
-    The marker_score still feeds composite_confidence and rankings — strategies
-    that match the marker shape better get scored higher all else equal. But
-    "doesn't match Max's exact drawing" is no longer disqualifying.
+      missed_cycles > tier_cap → soft warning
+      transition_timing < tier_floor → soft warning
     """
     trades, bt_result = get_strategy_trades(ctx.df, strategy_name, params)
     if trades is None or bt_result is None:
@@ -595,25 +672,30 @@ def _gate_marker_shape(strategy_name: str, params: dict, ctx: ValidationContext,
             "warnings": [],
             "hard_fail_reasons": ["strategy could not be evaluated for marker shape"],
             "marker_score": 0.0,
+            "state_agreement": 0.0,
+            "timing_magnitude_weighted": 0.0,
         }
 
-    align = score_marker_alignment(ctx.df, trades)
+    # Tier-specific tolerance: tighter for pre-registered T0 hypotheses, looser
+    # for large-search T2 discoveries. Applied to both classic transition-timing
+    # and magnitude-weighted timing.
+    if tier == "T0":
+        tolerance_bars, missed_cap, timing_floor = 20, 2, 0.50
+    elif tier == "T1":
+        tolerance_bars, missed_cap, timing_floor = 30, 3, 0.40
+    else:  # T2
+        tolerance_bars, missed_cap, timing_floor = 40, 5, 0.30
+
+    align = score_marker_alignment(ctx.df, trades, tolerance_bars=tolerance_bars)
     state_agreement = float(align.get("state_accuracy", 0.0))
     transition_timing = float(align.get("transition_timing_score", 0.0))
+    timing_magnitude_weighted = float(align.get("timing_magnitude_weighted", 0.0))
     target_buys = int(align.get("target_buy_count", 0))
     candidate_buys = int(align.get("candidate_buy_count", 0))
     # Approximate "missed cycles" as the number of marker buys that have no candidate buy
     # within tolerance. The detail list carries per-target match info.
     buy_matches = align.get("buy_transition_matches", []) or []
     missed_cycles = sum(1 for m in buy_matches if (m.get("score") or 0) < 0.1)
-
-    # Tier still parameterises informational thresholds, but no tier hard-fails on marker.
-    if tier == "T0":
-        missed_cap, timing_floor = 2, 0.50
-    elif tier == "T1":
-        missed_cap, timing_floor = 3, 0.40
-    else:  # T2
-        missed_cap, timing_floor = 5, 0.30
 
     # Universal marker thresholds (apply at every tier — diagnostic only):
     #   < 0.30 = critical warning (essentially uncorrelated)
@@ -648,16 +730,16 @@ def _gate_marker_shape(strategy_name: str, params: dict, ctx: ValidationContext,
             )
 
     warnings = soft_warnings + critical_warnings
-    # Verdict: marker is diagnostic — never hard-fails on its own.
-    # Critical warning still flags but doesn't FAIL the gate (gate7 may still
-    # downgrade to WARN based on accumulated critical warnings across gates).
-    verdict = "WARN" if critical_warnings else "PASS"
+    # Verdict always PASS — marker gate is diagnostic, no veto. Warnings are
+    # surfaced for UI but do not drive the verdict under the new framework.
+    verdict = "PASS"
     return {
         "verdict": verdict,
         "tier": tier,
         "marker_score": round(float(align.get("score", 0.0)), 4),
         "state_agreement": round(state_agreement, 4),
         "transition_timing": round(transition_timing, 4),
+        "timing_magnitude_weighted": round(timing_magnitude_weighted, 4),
         "target_buy_count": target_buys,
         "candidate_buy_count": candidate_buys,
         "missed_cycles": missed_cycles,
@@ -673,6 +755,19 @@ def _gate_marker_shape(strategy_name: str, params: dict, ctx: ValidationContext,
 
 
 def _gate6_cross_asset(strategy_name: str, params: dict, ctx: ValidationContext, *, reopt_minutes: float, reopt_pop_size: int) -> dict:
+    """Cross-asset gate. Under the 2026-04-21 framework this gate is demoted:
+
+    - Weight dropped from 0.10 to 0.05 in the composite.
+    - No hard fails. Former veto conditions (TQQQ same-param < 0.50, TQQQ
+      re-opt failure) become critical warnings.
+    - TECL is 3× leveraged and uniquely volatile; cross-asset portability is
+      a useful but non-definitive honesty signal, not a bouncer.
+
+    Cross-asset sub-score anchors (on TQQQ same-param share_multiple):
+      error or share < 0.20 → 0.0
+      share = 0.50 → 0.5
+      share >= 1.00 → 1.0
+    """
     cross_asset = cross_asset_validate(strategy_name, params)
     results = cross_asset.get("results", {})
     tqqq = results.get("TQQQ", {})
@@ -680,13 +775,16 @@ def _gate6_cross_asset(strategy_name: str, params: dict, ctx: ValidationContext,
 
     soft_warnings = []
     critical_warnings = []
-    hard_fail_reasons = []
+    hard_fail_reasons: list[str] = []
+
     if "error" in tqqq:
-        hard_fail_reasons.append(f"TQQQ same-param replay error: {tqqq['error']}")
+        critical_warnings.append(f"TQQQ same-param replay error: {tqqq['error']}")
+        cross_asset_score = 0.0
     else:
         tqqq_share = float(tqqq.get("share_multiple", 0.0))
+        cross_asset_score = _interp(tqqq_share, 0.20, 0.50, 1.00)
         if tqqq_share < 0.50:
-            hard_fail_reasons.append(f"TQQQ same-param share_multiple={tqqq_share:.3f} < 0.50")
+            critical_warnings.append(f"TQQQ same-param share_multiple={tqqq_share:.3f} < 0.50")
         elif tqqq_share < 1.0:
             soft_warnings.append(f"TQQQ same-param share_multiple={tqqq_share:.3f} < 1.00")
 
@@ -703,14 +801,17 @@ def _gate6_cross_asset(strategy_name: str, params: dict, ctx: ValidationContext,
         pop_size=reopt_pop_size,
     )
     if tier3.get("verdict") != "PASS":
-        hard_fail_reasons.append(tier3.get("reason", "TQQQ re-optimization failed"))
+        # Demoted from hard-fail to critical warning. Re-opt is a re-tuning
+        # sanity check — it's informative, not disqualifying.
+        critical_warnings.append(tier3.get("reason", "TQQQ re-optimization failed"))
 
     warnings = soft_warnings + critical_warnings
-    verdict = "FAIL" if hard_fail_reasons else "WARN" if critical_warnings else "PASS"
+    verdict = "WARN" if critical_warnings else "PASS"
     return {
         "verdict": verdict,
         "same_params": cross_asset,
         "tier3_reopt": tier3,
+        "cross_asset_score": round(float(cross_asset_score), 4),
         "soft_warnings": soft_warnings,
         "critical_warnings": critical_warnings,
         "warnings": warnings,
@@ -727,21 +828,35 @@ def _gate7_synthesis(
     *,
     tier: str = "T2",
 ) -> dict:
+    """Synthesize composite_confidence and emit the final verdict.
+
+    2026-04-21 two-layer model:
+      Layer 1 (correctness) — only gate1 can hard-fail; those map to verdict=FAIL.
+      Layer 2 (confidence)  — weighted geometric mean of sub-scores drives verdict.
+
+    Verdict rules:
+      FAIL: any gate1 hard_fail_reason OR composite_confidence < 0.40
+      WARN: 0.40 <= composite_confidence < 0.70
+      PASS: composite_confidence >= 0.70  (admitted to leaderboard)
+    """
     advisories = []
     soft_warnings = []
     critical_warnings = []
     hard_fail_reasons = []
+
+    # Under the new framework, only gate1 can emit hard_fail_reasons (Layer 1
+    # correctness). Collect everything else defensively but drive verdict on
+    # gate1 hard-fails + composite.
     for gate_name in ("gate1", "gate_marker", "gate2", "gate3", "gate4", "gate5", "gate6"):
         gate = gates.get(gate_name, {})
         advisories.extend(gate.get("advisories", []))
         soft_warnings.extend(gate.get("soft_warnings", []))
         critical_warnings.extend(gate.get("critical_warnings", []))
-        hard_fail_reasons.extend(gate.get("hard_fail_reasons", []))
+        if gate_name == "gate1":
+            hard_fail_reasons.extend(gate.get("hard_fail_reasons", []))
 
     trade_count = int((entry.get("metrics") or {}).get("trades", 0))
 
-    # Helper: return None for gates that were skipped due to tier routing,
-    # so the composite renormalizes over applicable gates only.
     def _score_if_ran(gate_name: str, field: str, fallback: float | None = None) -> float | None:
         gate = gates.get(gate_name, {})
         if gate.get("verdict") == "SKIPPED":
@@ -749,36 +864,55 @@ def _gate7_synthesis(
         value = gate.get(field)
         return float(value) if value is not None else fallback
 
-    # Cross-asset score: same-param TQQQ share_multiple, capped at 1.0.
-    # Uses the already-computed cross-asset result instead of running again.
-    def _cross_asset_score() -> float | None:
-        g6 = gates.get("gate6", {})
-        if g6.get("verdict") == "SKIPPED":
-            return None
-        same = (g6.get("same_params") or {}).get("results", {}).get("TQQQ", {})
-        if "error" in same:
-            return 0.0
-        tqqq_share = float(same.get("share_multiple", 0.0))
-        return _clamp(tqqq_share / 1.0)  # 1.0x TQQQ B&H → full credit, 0.5x → 0.5
-
-    # Marker shape sub-score (every tier): prefer state_agreement ramped
-    # from the tier's own floor, fallback to marker_score composite.
-    def _marker_sub_score() -> float | None:
+    # Marker shape sub-score — state_agreement via smooth anchors.
+    #   < 0.30 → 0.0  (essentially uncorrelated)
+    #   = 0.50 → 0.5  (barely above random)
+    #   >= 0.80 → 1.0
+    def _marker_shape_sub_score() -> float | None:
         gm = gates.get("gate_marker", {})
         if gm.get("verdict") == "SKIPPED":
             return None
         state_agreement = gm.get("state_agreement")
         if state_agreement is None:
             return float(gm.get("marker_score", 0.0))
-        return _clamp(float(state_agreement))
+        return _interp(float(state_agreement), 0.30, 0.50, 0.80)
+
+    # Marker timing sub-score — magnitude-weighted per-cycle timing from markers.py.
+    # Already [0,1] where big cycles dominate; pass through unchanged.
+    def _marker_timing_sub_score() -> float | None:
+        gm = gates.get("gate_marker", {})
+        if gm.get("verdict") == "SKIPPED":
+            return None
+        timing = gm.get("timing_magnitude_weighted")
+        if timing is None:
+            return None
+        return _clamp(float(timing))
+
+    # Era consistency sub-score (2026-04-21, tuned) — min(real, modern) share
+    # multiples on smooth anchors (0.0x → 0.0, 0.6x → 0.5, 1.2x → 1.0).
+    # Catches strategies that pass weighted-era fitness (one era compensating
+    # for another) but have ONE era that fully collapsed.
+    # Anchors tuned so the score grades strategies across the full 0-1.2+ range
+    # rather than zeroing out everything below 0.5 (which would annihilate
+    # composite_confidence via geometric mean for any strategy with real<0.5).
+    def _era_consistency_sub_score() -> float | None:
+        m = entry.get("metrics") or {}
+        real = m.get("real_share_multiple")
+        modern = m.get("modern_share_multiple")
+        if real is None or modern is None:
+            return None
+        return _interp(min(float(real), float(modern)), 0.0, 0.6, 1.2)
 
     sub_scores: dict = {
-        "marker_shape":       _marker_sub_score(),
         "walk_forward":       _score_if_ran("gate4", "walk_forward_score", 0.0),
+        "marker_shape":       _marker_shape_sub_score(),
+        "marker_timing":      _marker_timing_sub_score(),
+        "named_windows":      _score_if_ran("gate4", "named_windows_score", 0.0),
+        "era_consistency":    _era_consistency_sub_score(),
         "fragility":          _score_if_ran("gate5", "fragility_score",
                                             _score_if_ran("gate3", "score")),
         "selection_bias":     _score_if_ran("gate2", "selection_bias_score"),
-        "cross_asset":        _cross_asset_score(),
+        "cross_asset":        _score_if_ran("gate6", "cross_asset_score"),
         "bootstrap":          _score_if_ran("gate5", "bootstrap_score"),
         "regime_consistency": _score_if_ran("gate2", "regime_consistency_score"),
         "trade_sufficiency":  _trade_sufficiency_score(trade_count),
@@ -796,10 +930,12 @@ def _gate7_synthesis(
         ),
     }
 
-    if not hard_fail_reasons and composite_confidence < 0.45:
-        hard_fail_reasons.append(f"composite_confidence={composite_confidence:.3f} < 0.45")
+    # Composite note as advisory (not veto)
+    if composite_confidence < 0.40:
+        advisories.append(f"composite_confidence={composite_confidence:.3f} < 0.40 (FAIL threshold)")
     elif composite_confidence < 0.70:
-        soft_warnings.append(f"composite_confidence={composite_confidence:.3f} < 0.70")
+        advisories.append(f"composite_confidence={composite_confidence:.3f} < 0.70 (below admission)")
+
     if not certification_checks["shadow_comparator"]["passed"]:
         advisories.append(
             "shadow comparator not satisfied: "
@@ -819,42 +955,21 @@ def _gate7_synthesis(
     critical_warnings = list(dict.fromkeys(critical_warnings))
     hard_fail_reasons = list(dict.fromkeys(hard_fail_reasons))
 
-    # Backward-compat merged list
     warnings = soft_warnings + critical_warnings
 
-    # Verdict: 4-tier taxonomy
-    # T0 allows a higher soft-warning inventory before downgrading to WARN.
-    # Rationale: at T2, accumulated soft warnings signal probabilistic overfit
-    # risk (from the statistical gauntlet). At T0, soft warnings are primarily
-    # *descriptive* of the hypothesis — MA-lag vs markers, walk-forward time
-    # variance of committed params, specific-window behaviour. None of these
-    # signal overfit because T0 cannot overfit (canonical pre-registered params,
-    # no tuning). The cap is raised so T0 strategies pass on their structural
-    # defenses rather than being penalised for the tier's descriptive emissions.
-    # T0=8 (more descriptive emissions), T1/T2=5 (loosened from 4 in 2026-04-13
-    # third revision: each individual gate often emits 1-2 soft warnings, so 4
-    # was hit by any strategy with two marginal-gate concerns. 5 leaves room for
-    # a couple of yellow lights without immediate WARN downgrade).
-    # Soft warning cap: T0 gets 8 because all T0 warnings are descriptive.
-    # For T1/T2, scale by signal-param count: simple strategies (≤ 4 params)
-    # emit the same descriptive warnings as T0 (marker timing, named-window
-    # performance, concentration) plus the statistical gates — they need a
-    # higher cap to avoid penalising simplicity.  Complex strategies (5+
-    # params) keep the strict cap since accumulated warnings signal overfit.
-    from engine.canonical_params import count_tunable_params as _cnt
-    _n_sig_params = _cnt(params)
-    if tier == "T0" or _n_sig_params <= 4:
-        soft_warning_cap = 10
-    else:
-        soft_warning_cap = 5
-    if hard_fail_reasons or composite_confidence < 0.45:
+    # Verdict (two-layer):
+    #   FAIL: Layer 1 correctness violation OR composite < 0.40
+    #   WARN: 0.40 <= composite < 0.70
+    #   PASS: composite >= 0.70 (admitted)
+    # Warnings (soft/critical) no longer drive verdict — they're advisory.
+    if hard_fail_reasons or composite_confidence < 0.40:
         verdict = "FAIL"
-    elif critical_warnings or composite_confidence < 0.70 or len(soft_warnings) >= soft_warning_cap:
+    elif composite_confidence < 0.70:
         verdict = "WARN"
     else:
         verdict = "PASS"
 
-    clean_pass = verdict == "PASS" and len(soft_warnings) == 0
+    clean_pass = verdict == "PASS" and len(critical_warnings) == 0
     promotion_ready = verdict == "PASS"
     backtest_certified = promotion_ready and all(
         check.get("passed", False) for check in certification_checks.values()

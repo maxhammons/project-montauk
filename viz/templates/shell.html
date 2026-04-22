@@ -189,10 +189,18 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  .strat .metric-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0;
+  }
   .strat .fitness {
-    color: var(--text-1);
+    color: var(--text-0);
     font-variant-numeric: tabular-nums;
-    font-size: 11px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.1;
   }
   .strat .row2 {
     display: flex;
@@ -217,6 +225,66 @@
   .strat .tier.T3 { color: var(--tier-t3); }
   .strat .cert { font-size: 10px; color: var(--green); }
   .strat .cert.no { color: var(--text-3); }
+  .strat .admission {
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+  }
+  .strat .admission.admitted { background: rgba(34, 197, 94, 0.15); color: var(--green); }
+  .strat .admission.watchlist { background: rgba(234, 179, 8, 0.15); color: var(--amber); }
+  .strat .admission.research { background: rgba(148, 163, 184, 0.12); color: var(--text-3); }
+  .strat .admission.unknown { background: var(--bg-3); color: var(--text-3); }
+  .sort-toolbar .sort-label {
+    font-size: 11px;
+    color: var(--text-3);
+    letter-spacing: 0.3px;
+  }
+  .secondary-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 0 8px 0;
+    font-size: 10px;
+    color: var(--text-3);
+  }
+  .secondary-toolbar .secondary-label {
+    letter-spacing: 0.3px;
+  }
+  .toggle-group {
+    display: inline-flex;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .toggle-btn {
+    background: transparent;
+    color: var(--text-2);
+    border: none;
+    padding: 2px 8px;
+    font-size: 10px;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+  }
+  .toggle-btn:hover { background: var(--bg-3); color: var(--text-0); }
+  .toggle-btn.active {
+    background: var(--tier-t1);
+    color: var(--bg-0);
+    font-weight: 600;
+  }
+  .strat .secondary-mult {
+    display: block;
+    font-size: 10px;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+    margin-top: 1px;
+    text-align: right;
+    cursor: help;
+  }
+  .strat .secondary-mult.bad { color: var(--red); }
+  .strat .secondary-mult.missing { color: var(--text-3); opacity: 0.5; }
 
   /* ---- Center (chart) ---- */
   .center {
@@ -245,7 +313,7 @@
   .chart-area {
     flex: 1;
     display: grid;
-    grid-template-rows: 1.5fr 1fr 0.7fr;
+    grid-template-rows: 1.5fr 1fr;
     min-height: 0;
   }
   .pane {
@@ -561,14 +629,14 @@
   <div class="sidebar">
     <h3>Leaderboard</h3>
     <div class="sort-toolbar">
-      <label for="sort-select">Sort by</label>
-      <select id="sort-select">
-        <option value="fitness" selected>All-time fitness</option>
-        <option value="modern_share">Modern share (post-2015)</option>
-        <option value="real_share">Real-only share (post-2008)</option>
-        <option value="decayed_fitness">Decayed fitness (λ=0.07)</option>
-        <option value="composite">Composite confidence</option>
-      </select>
+      <span class="sort-label">Ranked by confidence</span>
+    </div>
+    <div class="secondary-toolbar">
+      <span class="secondary-label">Share multiple:</span>
+      <div class="toggle-group" id="secondary-toggle">
+        <button class="toggle-btn active" data-source="real" title="Share multiplier on real TECL data only (post-2008-12-17). Matches the Real-only row in the right-panel era breakdown.">Real</button>
+        <button class="toggle-btn" data-source="modern" title="Share multiplier on the modern era (post-2015). Matches the Modern (2015→) row in the right-panel era breakdown.">Modern</button>
+      </div>
     </div>
     <div class="strat-list" id="strat-list"></div>
   </div>
@@ -588,10 +656,6 @@
       <div class="pane" id="pane-equity">
         <div class="pane-label">Equity — strategy vs B&amp;H</div>
         <div class="pane-chart" id="chart-equity"></div>
-      </div>
-      <div class="pane" id="pane-dd">
-        <div class="pane-label">Drawdown — underwater</div>
-        <div class="pane-chart" id="chart-dd"></div>
       </div>
     </div>
   </div>

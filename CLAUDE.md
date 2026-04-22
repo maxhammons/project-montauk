@@ -224,17 +224,52 @@ Marker shape alignment (state agreement % vs `TECL-markers.csv`, plus median tra
 
 > **Note (2026-04-13, updated 2026-04-15 by Phase 7):** `share_multiple` is the only Python attribute name. The deprecated `vs_bah_multiple` alias was retired in Phase 7 (engine consolidation). Older `spike/leaderboard.json` entries persisted under the JSON key `vs_bah` are still readable via `report.py::_share_mult`.
 
-## Certification (`backtest_certified`)
+## Certification & Confidence Score (2026-04-21 framework)
 
-A strategy is `backtest_certified` when the validation pipeline verifies:
+Validation is two-layer. See `docs/validation-philosophy.md` for the full framework.
 
+**Layer 1 — Correctness (hard-fail, binary):**
 - engine integrity (bar-close signals, single position, no lookahead)
 - golden regression pass (`tests/test_regression.py` matches `golden_trades_821.json` within ±0.001% PnL)
 - shadow-comparator agreement (dev-only second opinion against `backtesting.py` / `vectorbt`)
-- data-quality pre-check pass (`scripts/data_quality.py` → all PASS, Stooq divergence <0.01% on real data)
+- data-quality pre-check pass (all sources agree, manifest checksum, OHLC sane)
 - artifact completeness (all five standardized JSON artifacts emitted)
+- charter guardrails: TECL-only, long-only, single-position, ≤ 5 trades/year
+- `share_multiple ≥ 1.0` (must beat B&H shares — charter mission)
+- registry membership + charter-compatible family
+- not degenerate (always-in or always-out across every 4-year window)
 
-Certified strategies additionally become `promotion_ready` when they clear their tier-appropriate validation stack (see `docs/validation-philosophy.md`).
+**Layer 2 — Confidence (weighted composite, [0, 1]):**
+Weighted geometric mean of tier-applicable sub-scores. Each sub-score uses
+smooth interpolation: hard-fail threshold → 0.0, soft-warn → 0.5, pass → 1.0.
+Weights (T2 baseline) per `docs/validation-thresholds.md`:
+
+| Sub-score | Weight | Tiers |
+|---|:-:|---|
+| walk_forward | 0.20 | all |
+| marker_shape (state agreement) | 0.10 | all |
+| **marker_timing (per-cycle, magnitude-weighted)** | **0.15** | all |
+| named_windows (split from gate 4) | 0.10 | all |
+| fragility | 0.15 | T1 (Gate 3) / T2 (Gate 5 Morris) |
+| selection_bias | 0.10 | T2 only |
+| cross_asset (demoted) | 0.05 | all |
+| bootstrap | 0.05 | T2 only |
+| regime_consistency | 0.05 | T2 only |
+| trade_sufficiency | 0.05 | all |
+
+Skipped gates drop out and remaining weights renormalize.
+
+**Verdict rules:**
+- FAIL: any Layer 1 violation OR composite < 0.40
+- WARN: 0.40 ≤ composite < 0.70 (watchlist 60–69 displayed on leaderboard)
+- PASS: composite ≥ 0.70 (admitted to leaderboard)
+
+`backtest_certified` = all Layer 1 engine checks pass (regardless of Layer 2).
+`promotion_ready` = PASS verdict (composite ≥ 0.70 AND Layer 1 all pass).
+
+**Leaderboard ranking is confidence-first.** Fitness is only a tie-breaker.
+The viz UI (`viz/montauk-viz.html`) collapsed the multi-column sort to a
+single "Ranked by confidence" column.
 
 ## Reference Files
 

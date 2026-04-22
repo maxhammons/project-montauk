@@ -16,7 +16,9 @@ import numpy as np
 import pandas as pd
 
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
 MARKER_CSV = os.path.join(PROJECT_ROOT, "data", "markers", "TECL-markers.csv")
 DEFAULT_TRANSITION_TOLERANCE_BARS = 30
 NEUTRAL_MARKER_SCORE = 0.5
@@ -42,7 +44,9 @@ def load_marker_cycles(path: str = MARKER_CSV) -> list[MarkerCycle]:
 
     required = {"date", "type"}
     if not required.issubset(df.columns):
-        raise ValueError(f"Marker CSV missing required columns: {required - set(df.columns)}")
+        raise ValueError(
+            f"Marker CSV missing required columns: {required - set(df.columns)}"
+        )
     if df.empty:
         return []
 
@@ -87,13 +91,17 @@ def candidate_risk_state_from_trades(n_bars: int, trades: list) -> np.ndarray:
     state = np.zeros(n_bars, dtype=bool)
     for trade in trades or []:
         entry_bar = max(0, int(trade.entry_bar))
-        exit_bar = int(trade.exit_bar) if getattr(trade, "exit_bar", -1) >= 0 else (n_bars - 1)
+        exit_bar = (
+            int(trade.exit_bar) if getattr(trade, "exit_bar", -1) >= 0 else (n_bars - 1)
+        )
         exit_bar = min(n_bars - 1, max(entry_bar, exit_bar))
-        state[entry_bar:exit_bar + 1] = True
+        state[entry_bar : exit_bar + 1] = True
     return state
 
 
-def marker_target_from_df(df: pd.DataFrame, cycles: list[MarkerCycle] | None = None) -> dict:
+def marker_target_from_df(
+    df: pd.DataFrame, cycles: list[MarkerCycle] | None = None
+) -> dict:
     cycles = cycles if cycles is not None else load_marker_cycles()
     if not cycles:
         return {
@@ -157,7 +165,9 @@ def _transition_bars_from_state(state: np.ndarray) -> tuple[list[int], list[int]
     return buys, sells
 
 
-def _precision_recall_f1(target_state: np.ndarray, candidate_state: np.ndarray) -> tuple[float, float, float]:
+def _precision_recall_f1(
+    target_state: np.ndarray, candidate_state: np.ndarray
+) -> tuple[float, float, float]:
     tp = int(np.sum(target_state & candidate_state))
     candidate_on = int(np.sum(candidate_state))
     target_on = int(np.sum(target_state))
@@ -171,11 +181,21 @@ def _precision_recall_f1(target_state: np.ndarray, candidate_state: np.ndarray) 
     return precision, recall, f1
 
 
-def _transition_timing_score(target_bars: list[int], candidate_bars: list[int], tolerance_bars: int) -> tuple[float, list[dict]]:
+def _transition_timing_score(
+    target_bars: list[int], candidate_bars: list[int], tolerance_bars: int
+) -> tuple[float, list[dict]]:
     if not target_bars:
         return 1.0, []
     if not candidate_bars:
-        return 0.0, [{"target_bar": int(target), "nearest_bar": None, "distance_bars": None, "score": 0.0} for target in target_bars]
+        return 0.0, [
+            {
+                "target_bar": int(target),
+                "nearest_bar": None,
+                "distance_bars": None,
+                "score": 0.0,
+            }
+            for target in target_bars
+        ]
 
     details = []
     scores = []
@@ -183,14 +203,84 @@ def _transition_timing_score(target_bars: list[int], candidate_bars: list[int], 
         nearest = min(candidate_bars, key=lambda bar: abs(bar - target))
         distance = abs(nearest - target)
         score = max(0.0, 1.0 - distance / max(tolerance_bars, 1))
-        details.append({
-            "target_bar": int(target),
-            "nearest_bar": int(nearest),
-            "distance_bars": int(distance),
-            "score": round(score, 4),
-        })
+        details.append(
+            {
+                "target_bar": int(target),
+                "nearest_bar": int(nearest),
+                "distance_bars": int(distance),
+                "score": round(score, 4),
+            }
+        )
         scores.append(score)
     return float(np.mean(scores)), details
+
+
+def _magnitude_weighted_timing_score(
+    target_bars_ordered: list[int],
+    candidate_bars: list[int],
+    close: np.ndarray,
+    tolerance_bars: int,
+) -> tuple[float, list[dict]]:
+    """Per-cycle timing score weighted by subsequent price-move magnitude.
+
+    Each marker transition at bar B owns the price move from close[B] to
+    close[next_marker]. Cycles with bigger moves (COVID crash, 2022 bear,
+    large bull rallies) carry proportionally more weight. A strategy that
+    is late on a 70% move pays a much bigger penalty than one that is
+    late on a 5% wobble.
+
+    `target_bars_ordered` should be ALL markers (buys + sells interleaved)
+    sorted by bar, so consecutive pairs define cycle magnitudes.
+    """
+    if not target_bars_ordered:
+        return 1.0, []
+    if not candidate_bars:
+        details = []
+        for tgt in target_bars_ordered:
+            details.append(
+                {
+                    "target_bar": int(tgt),
+                    "nearest_bar": None,
+                    "distance_bars": None,
+                    "magnitude": 0.0,
+                    "score": 0.0,
+                }
+            )
+        return 0.0, details
+
+    details = []
+    weighted_scores = []
+    weights = []
+    for i, target in enumerate(target_bars_ordered):
+        # Magnitude = |pct move from this marker to next| (or to end-of-data for last marker)
+        if i + 1 < len(target_bars_ordered):
+            nxt = target_bars_ordered[i + 1]
+        else:
+            nxt = len(close) - 1
+        p0 = float(close[target]) if 0 <= target < len(close) else 0.0
+        p1 = float(close[nxt]) if 0 <= nxt < len(close) else p0
+        magnitude = abs(p1 - p0) / p0 if p0 > 0 else 0.0
+
+        nearest = min(candidate_bars, key=lambda bar: abs(bar - target))
+        distance = abs(nearest - target)
+        score = max(0.0, 1.0 - distance / max(tolerance_bars, 1))
+        details.append(
+            {
+                "target_bar": int(target),
+                "nearest_bar": int(nearest),
+                "distance_bars": int(distance),
+                "magnitude": round(magnitude, 4),
+                "score": round(score, 4),
+            }
+        )
+        weighted_scores.append(score * magnitude)
+        weights.append(magnitude)
+
+    total_weight = sum(weights)
+    if total_weight <= 0:
+        # No price-move weight (edge case) — fall back to unweighted mean
+        return float(np.mean([d["score"] for d in details])), details
+    return float(sum(weighted_scores) / total_weight), details
 
 
 def score_marker_alignment(
@@ -210,6 +300,7 @@ def score_marker_alignment(
             "recall": NEUTRAL_MARKER_SCORE,
             "f1": NEUTRAL_MARKER_SCORE,
             "transition_timing_score": NEUTRAL_MARKER_SCORE,
+            "timing_magnitude_weighted": NEUTRAL_MARKER_SCORE,
             "transition_count_score": NEUTRAL_MARKER_SCORE,
             "tolerance_bars": tolerance_bars,
             "overlap_start": None,
@@ -220,30 +311,63 @@ def score_marker_alignment(
             "candidate_sell_count": 0,
             "buy_transition_matches": [],
             "sell_transition_matches": [],
+            "magnitude_weighted_matches": [],
         }
 
     candidate_state = candidate_risk_state_from_trades(len(df), trades)
-    target_window = target["state"][overlap_start:overlap_end + 1]
-    candidate_window = candidate_state[overlap_start:overlap_end + 1]
+    target_window = target["state"][overlap_start : overlap_end + 1]
+    candidate_window = candidate_state[overlap_start : overlap_end + 1]
 
     state_accuracy = float(np.mean(target_window == candidate_window))
     precision, recall, f1 = _precision_recall_f1(target_window, candidate_window)
 
     candidate_buys, candidate_sells = _transition_bars_from_state(candidate_state)
-    target_buys = [bar for bar in target["buy_bars"] if overlap_start <= bar <= overlap_end]
-    target_sells = [bar for bar in target["sell_bars"] if overlap_start <= bar <= overlap_end]
-    candidate_buys = [bar for bar in candidate_buys if overlap_start <= bar <= overlap_end]
-    candidate_sells = [bar for bar in candidate_sells if overlap_start <= bar <= overlap_end]
+    target_buys = [
+        bar for bar in target["buy_bars"] if overlap_start <= bar <= overlap_end
+    ]
+    target_sells = [
+        bar for bar in target["sell_bars"] if overlap_start <= bar <= overlap_end
+    ]
+    candidate_buys = [
+        bar for bar in candidate_buys if overlap_start <= bar <= overlap_end
+    ]
+    candidate_sells = [
+        bar for bar in candidate_sells if overlap_start <= bar <= overlap_end
+    ]
 
-    buy_timing, buy_matches = _transition_timing_score(target_buys, candidate_buys, tolerance_bars)
-    sell_timing, sell_matches = _transition_timing_score(target_sells, candidate_sells, tolerance_bars)
+    buy_timing, buy_matches = _transition_timing_score(
+        target_buys, candidate_buys, tolerance_bars
+    )
+    sell_timing, sell_matches = _transition_timing_score(
+        target_sells, candidate_sells, tolerance_bars
+    )
     transition_timing_score = float(np.mean([buy_timing, sell_timing]))
 
-    buy_count_score = max(0.0, 1.0 - abs(len(candidate_buys) - len(target_buys)) / max(len(target_buys), 1))
-    sell_count_score = max(0.0, 1.0 - abs(len(candidate_sells) - len(target_sells)) / max(len(target_sells), 1))
+    # Magnitude-weighted per-cycle timing: interleave all markers in order and
+    # weight each cycle's timing score by |pct price move| to the next marker.
+    # Big cycles (COVID, 2022 bear, large rallies) dominate the score; small
+    # wobbles contribute little. This is the sub-score that penalizes late-on-
+    # COVID / late-on-2022 / missed-2025-tariff behavior.
+    all_target_bars = sorted(target_buys + target_sells)
+    all_candidate_bars = sorted(candidate_buys + candidate_sells)
+    close_arr = df["close"].values.astype(np.float64)
+    timing_magnitude_weighted, mag_matches = _magnitude_weighted_timing_score(
+        all_target_bars, all_candidate_bars, close_arr, tolerance_bars
+    )
+
+    buy_count_score = max(
+        0.0,
+        1.0 - abs(len(candidate_buys) - len(target_buys)) / max(len(target_buys), 1),
+    )
+    sell_count_score = max(
+        0.0,
+        1.0 - abs(len(candidate_sells) - len(target_sells)) / max(len(target_sells), 1),
+    )
     transition_count_score = float(np.mean([buy_count_score, sell_count_score]))
 
-    score = float(np.mean([state_accuracy, f1, transition_timing_score, transition_count_score]))
+    score = float(
+        np.mean([state_accuracy, f1, transition_timing_score, transition_count_score])
+    )
     dates = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
 
     return {
@@ -253,6 +377,7 @@ def score_marker_alignment(
         "recall": round(float(recall), 4),
         "f1": round(float(f1), 4),
         "transition_timing_score": round(transition_timing_score, 4),
+        "timing_magnitude_weighted": round(float(timing_magnitude_weighted), 4),
         "transition_count_score": round(transition_count_score, 4),
         "tolerance_bars": int(tolerance_bars),
         "overlap_start": dates.iloc[overlap_start],
@@ -263,4 +388,5 @@ def score_marker_alignment(
         "candidate_sell_count": len(candidate_sells),
         "buy_transition_matches": buy_matches,
         "sell_transition_matches": sell_matches,
+        "magnitude_weighted_matches": mag_matches,
     }

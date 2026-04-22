@@ -1,0 +1,113 @@
+{
+  "generated_utc": "2026-04-21T20:50:59Z",
+  "run_id": "101",
+  "champion": null,
+  "validation_summary": {
+    "raw_candidates": 1,
+    "evaluated": 1,
+    "pre_tier3_pass": 1,
+    "validated_pass": 0,
+    "validated_warn": 1,
+    "validated_fail": 0,
+    "tier3_minutes": 1.5,
+    "tier3_pop_size": 20,
+    "elapsed_seconds": 94.5,
+    "run_integrity": {
+      "verdict": "PASS",
+      "datasets": {
+        "TECL": {
+          "bars": 8298,
+          "start": "1993-05-04",
+          "end": "2026-04-21"
+        },
+        "TQQQ": {
+          "bars": 8298,
+          "start": "1993-05-04",
+          "end": "2026-04-21"
+        },
+        "QQQ": {
+          "bars": 8298,
+          "start": "1993-05-04",
+          "end": "2026-04-21"
+        }
+      },
+      "engine": {
+        "slippage_pct_default": 0.05,
+        "slippage_active": true,
+        "bar_close_execution": true,
+        "lookahead_safe": true,
+        "repaint_safe": true
+      },
+      "engine_integrity": {
+        "passed": true,
+        "status": "pass",
+        "checks": {
+          "slippage_pct_default": 0.05,
+          "slippage_active": true,
+          "bar_close_execution": true,
+          "lookahead_safe": true,
+          "repaint_safe": true
+        },
+        "errors": []
+      },
+      "golden_regression": {
+        "passed": false,
+        "status": "fail",
+        "fixture_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/tests/golden_trades_821.json",
+        "trade_count": 52,
+        "mismatches": [
+          "trade_count actual=52 expected=51",
+          "share_multiple actual=8.481 expected=8.783",
+          "cagr_pct actual=23.855984125302143 expected=23.6843"
+        ]
+      },
+      "shadow_comparator": {
+        "passed": false,
+        "status": "error",
+        "reason": "[Errno 32] Broken pipe"
+      },
+      "data_quality": {
+        "passed": false,
+        "status": "fail",
+        "summary": {
+          "total": 40,
+          "pass": 37,
+          "warn": 0,
+          "fail": 3,
+          "skip": 0
+        },
+        "failing_checks": [
+          {
+            "test": "manifest_checksum",
+            "scope": "all",
+            "summary": "9 files drifted from manifest"
+          },
+          {
+            "test": "split_detection",
+            "scope": "<runner>",
+            "summary": "test errored: bad operand type for unary ~: 'float'"
+          },
+          {
+            "test": "provenance_columns",
+            "scope": "TQQQ.csv",
+            "summary": "missing columns: ['is_synthetic', 'source_symbol', 'source_kind', 'synthetic_model_version', 'stitch_segment']"
+          }
+        ]
+      },
+      "strategies": {
+        "gc_vjatr": {
+          "in_registry": true,
+          "charter_compatible": true
+        }
+      },
+      "errors": []
+    },
+    "null": {
+      "beta_alpha": 17.23,
+      "beta_beta": 14.79,
+      "expected_max_regime_score": 0.7607,
+      "n_eff": 300
+    }
+  },
+  "validation": {}
+}

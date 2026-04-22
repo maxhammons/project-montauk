@@ -1,0 +1,624 @@
+{
+  "date": "2026-04-21",
+  "elapsed_hours": 0.54,
+  "total_evaluations": 16,
+  "generations": 4268038,
+  "constraint": "<=5.0 trades/yr",
+  "history_stats": {
+    "cached_configs": 341443024,
+    "new_configs": 16,
+    "seeded_per_strategy": 5,
+    "total_history": 19660
+  },
+  "rankings": [
+    {
+      "rank": 1,
+      "strategy": "gc_vjatr",
+      "fitness": 0.5044,
+      "params": {
+        "entry_bars": 2,
+        "atr_period": 20,
+        "atr_confirm": 3,
+        "fast_ema": 100,
+        "slope_window": 3,
+        "slow_ema": 150,
+        "cooldown": 2,
+        "atr_look": 50,
+        "atr_expand": 2.0
+      },
+      "metrics": {
+        "share_multiple": 15.9595,
+        "real_share_multiple": 0.3711,
+        "modern_share_multiple": 0.954,
+        "cagr": 26.25,
+        "max_dd": 61.0,
+        "mar": 0.43,
+        "trades": 24,
+        "trades_yr": 0.7,
+        "win_rate": 54.2,
+        "exit_reasons": {
+          "A": 7,
+          "D": 12,
+          "V": 4,
+          "End of Data": 1
+        },
+        "regime_score": 0.5744,
+        "bull_capture": 0.3058,
+        "bear_avoidance": 0.843,
+        "hhi": 0.0857,
+        "n_params": 8
+      },
+      "discovery_score": 0.5044,
+      "marker_alignment_score": 0.5592,
+      "marker_alignment_detail": {
+        "score": 0.5592,
+        "state_accuracy": 0.7526,
+        "precision": 0.8851,
+        "recall": 0.7535,
+        "f1": 0.814,
+        "transition_timing_score": 0.1345,
+        "timing_magnitude_weighted": 0.395,
+        "transition_count_score": 0.5357,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 21,
+        "candidate_sell_count": 20,
+        "buy_transition_matches": [
+          {
+            "target_bar": 1638,
+            "nearest_bar": 1850,
+            "distance_bars": 212,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2001,
+            "nearest_bar": 1850,
+            "distance_bars": 151,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2376,
+            "nearest_bar": 2537,
+            "distance_bars": 161,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2841,
+            "nearest_bar": 2880,
+            "distance_bars": 39,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3333,
+            "nearest_bar": 3357,
+            "distance_bars": 24,
+            "score": 0.2
+          },
+          {
+            "target_bar": 3986,
+            "nearest_bar": 4051,
+            "distance_bars": 65,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4695,
+            "nearest_bar": 4686,
+            "distance_bars": 9,
+            "score": 0.7
+          },
+          {
+            "target_bar": 6461,
+            "nearest_bar": 6496,
+            "distance_bars": 35,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6772,
+            "nearest_bar": 6814,
+            "distance_bars": 42,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7158,
+            "nearest_bar": 7375,
+            "distance_bars": 217,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7478,
+            "nearest_bar": 7492,
+            "distance_bars": 14,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 7798,
+            "nearest_bar": 8066,
+            "distance_bars": 268,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7869,
+            "nearest_bar": 8066,
+            "distance_bars": 197,
+            "score": 0.0
+          },
+          {
+            "target_bar": 8049,
+            "nearest_bar": 8066,
+            "distance_bars": 17,
+            "score": 0.4333
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 1740,
+            "nearest_bar": 1856,
+            "distance_bars": 116,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2033,
+            "nearest_bar": 1856,
+            "distance_bars": 177,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2700,
+            "nearest_bar": 2823,
+            "distance_bars": 123,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3256,
+            "nearest_bar": 3301,
+            "distance_bars": 45,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3650,
+            "nearest_bar": 3597,
+            "distance_bars": 53,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4477,
+            "nearest_bar": 4602,
+            "distance_bars": 125,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6402,
+            "nearest_bar": 6236,
+            "distance_bars": 166,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6749,
+            "nearest_bar": 6750,
+            "distance_bars": 1,
+            "score": 0.9667
+          },
+          {
+            "target_bar": 7131,
+            "nearest_bar": 7235,
+            "distance_bars": 104,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7218,
+            "nearest_bar": 7235,
+            "distance_bars": 17,
+            "score": 0.4333
+          },
+          {
+            "target_bar": 7763,
+            "nearest_bar": 7869,
+            "distance_bars": 106,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7854,
+            "nearest_bar": 7869,
+            "distance_bars": 15,
+            "score": 0.5
+          },
+          {
+            "target_bar": 8004,
+            "nearest_bar": 7869,
+            "distance_bars": 135,
+            "score": 0.0
+          },
+          {
+            "target_bar": 8180,
+            "nearest_bar": 7869,
+            "distance_bars": 311,
+            "score": 0.0
+          }
+        ],
+        "magnitude_weighted_matches": [
+          {
+            "target_bar": 1638,
+            "nearest_bar": 1850,
+            "distance_bars": 212,
+            "magnitude": 2.5699,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1740,
+            "nearest_bar": 1850,
+            "distance_bars": 110,
+            "magnitude": 0.9742,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2001,
+            "nearest_bar": 1856,
+            "distance_bars": 145,
+            "magnitude": 0.8051,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2033,
+            "nearest_bar": 1856,
+            "distance_bars": 177,
+            "magnitude": 0.9716,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2376,
+            "nearest_bar": 2537,
+            "distance_bars": 161,
+            "magnitude": 3.7379,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2700,
+            "nearest_bar": 2823,
+            "distance_bars": 123,
+            "magnitude": 0.4864,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2841,
+            "nearest_bar": 2823,
+            "distance_bars": 18,
+            "magnitude": 0.7907,
+            "score": 0.4
+          },
+          {
+            "target_bar": 3256,
+            "nearest_bar": 3301,
+            "distance_bars": 45,
+            "magnitude": 0.3657,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3333,
+            "nearest_bar": 3357,
+            "distance_bars": 24,
+            "magnitude": 1.709,
+            "score": 0.2
+          },
+          {
+            "target_bar": 3650,
+            "nearest_bar": 3597,
+            "distance_bars": 53,
+            "magnitude": 0.9333,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3986,
+            "nearest_bar": 4051,
+            "distance_bars": 65,
+            "magnitude": 5.1304,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4477,
+            "nearest_bar": 4379,
+            "distance_bars": 98,
+            "magnitude": 0.3475,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4695,
+            "nearest_bar": 4691,
+            "distance_bars": 4,
+            "magnitude": 17.5978,
+            "score": 0.8667
+          },
+          {
+            "target_bar": 6402,
+            "nearest_bar": 6496,
+            "distance_bars": 94,
+            "magnitude": 0.5167,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6461,
+            "nearest_bar": 6496,
+            "distance_bars": 35,
+            "magnitude": 2.6505,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6749,
+            "nearest_bar": 6750,
+            "distance_bars": 1,
+            "magnitude": 0.6476,
+            "score": 0.9667
+          },
+          {
+            "target_bar": 6772,
+            "nearest_bar": 6750,
+            "distance_bars": 22,
+            "magnitude": 5.1541,
+            "score": 0.2667
+          },
+          {
+            "target_bar": 7131,
+            "nearest_bar": 7235,
+            "distance_bars": 104,
+            "magnitude": 0.1242,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7158,
+            "nearest_bar": 7235,
+            "distance_bars": 77,
+            "magnitude": 0.5266,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7218,
+            "nearest_bar": 7235,
+            "distance_bars": 17,
+            "magnitude": 0.714,
+            "score": 0.4333
+          },
+          {
+            "target_bar": 7478,
+            "nearest_bar": 7492,
+            "distance_bars": 14,
+            "magnitude": 2.3582,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 7763,
+            "nearest_bar": 7869,
+            "distance_bars": 106,
+            "magnitude": 0.2069,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7798,
+            "nearest_bar": 7869,
+            "distance_bars": 71,
+            "magnitude": 0.6035,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7854,
+            "nearest_bar": 7869,
+            "distance_bars": 15,
+            "magnitude": 0.4174,
+            "score": 0.5
+          },
+          {
+            "target_bar": 7869,
+            "nearest_bar": 7869,
+            "distance_bars": 0,
+            "magnitude": 0.5807,
+            "score": 1.0
+          },
+          {
+            "target_bar": 8004,
+            "nearest_bar": 8066,
+            "distance_bars": 62,
+            "magnitude": 0.4745,
+            "score": 0.0
+          },
+          {
+            "target_bar": 8049,
+            "nearest_bar": 8066,
+            "distance_bars": 17,
+            "magnitude": 1.8473,
+            "score": 0.4333
+          },
+          {
+            "target_bar": 8180,
+            "nearest_bar": 8066,
+            "distance_bars": 114,
+            "magnitude": 0.0875,
+            "score": 0.0
+          }
+        ]
+      },
+      "trades": [
+        {
+          "entry_date": "1994-08-05",
+          "exit_date": "1995-05-26",
+          "pnl_pct": 232.3,
+          "exit_reason": "A",
+          "bars_held": 204
+        },
+        {
+          "entry_date": "1998-02-04",
+          "exit_date": "1999-01-13",
+          "pnl_pct": 232.8,
+          "exit_reason": "A",
+          "bars_held": 237
+        },
+        {
+          "entry_date": "2000-08-29",
+          "exit_date": "2000-09-06",
+          "pnl_pct": -10.6,
+          "exit_reason": "D",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2003-05-29",
+          "exit_date": "2004-07-16",
+          "pnl_pct": 25.5,
+          "exit_reason": "D",
+          "bars_held": 285
+        },
+        {
+          "entry_date": "2004-10-07",
+          "exit_date": "2005-03-11",
+          "pnl_pct": -1.8,
+          "exit_reason": "D",
+          "bars_held": 107
+        },
+        {
+          "entry_date": "2005-05-24",
+          "exit_date": "2006-06-08",
+          "pnl_pct": -8.2,
+          "exit_reason": "D",
+          "bars_held": 262
+        },
+        {
+          "entry_date": "2006-08-29",
+          "exit_date": "2007-08-13",
+          "pnl_pct": 67.7,
+          "exit_reason": "A",
+          "bars_held": 239
+        },
+        {
+          "entry_date": "2008-05-06",
+          "exit_date": "2008-06-11",
+          "pnl_pct": -13.4,
+          "exit_reason": "D",
+          "bars_held": 25
+        },
+        {
+          "entry_date": "2009-06-03",
+          "exit_date": "2010-05-06",
+          "pnl_pct": 62.1,
+          "exit_reason": "V",
+          "bars_held": 233
+        },
+        {
+          "entry_date": "2010-09-21",
+          "exit_date": "2011-08-08",
+          "pnl_pct": -7.4,
+          "exit_reason": "V",
+          "bars_held": 222
+        },
+        {
+          "entry_date": "2011-10-18",
+          "exit_date": "2011-11-18",
+          "pnl_pct": -9.8,
+          "exit_reason": "D",
+          "bars_held": 23
+        },
+        {
+          "entry_date": "2011-12-07",
+          "exit_date": "2011-12-13",
+          "pnl_pct": -8.0,
+          "exit_reason": "D",
+          "bars_held": 4
+        },
+        {
+          "entry_date": "2012-01-10",
+          "exit_date": "2012-12-04",
+          "pnl_pct": 20.9,
+          "exit_reason": "D",
+          "bars_held": 226
+        },
+        {
+          "entry_date": "2013-01-08",
+          "exit_date": "2013-01-15",
+          "pnl_pct": -1.7,
+          "exit_reason": "D",
+          "bars_held": 5
+        },
+        {
+          "entry_date": "2013-02-06",
+          "exit_date": "2013-02-21",
+          "pnl_pct": -3.9,
+          "exit_reason": "D",
+          "bars_held": 10
+        },
+        {
+          "entry_date": "2013-03-05",
+          "exit_date": "2015-08-24",
+          "pnl_pct": 93.2,
+          "exit_reason": "V",
+          "bars_held": 623
+        },
+        {
+          "entry_date": "2015-10-20",
+          "exit_date": "2016-01-20",
+          "pnl_pct": -21.2,
+          "exit_reason": "D",
+          "bars_held": 62
+        },
+        {
+          "entry_date": "2016-03-11",
+          "exit_date": "2018-02-05",
+          "pnl_pct": 211.7,
+          "exit_reason": "V",
+          "bars_held": 479
+        },
+        {
+          "entry_date": "2019-02-20",
+          "exit_date": "2020-02-21",
+          "pnl_pct": 158.4,
+          "exit_reason": "A",
+          "bars_held": 253
+        },
+        {
+          "entry_date": "2020-05-26",
+          "exit_date": "2022-01-24",
+          "pnl_pct": 223.7,
+          "exit_reason": "A",
+          "bars_held": 420
+        },
+        {
+          "entry_date": "2022-08-16",
+          "exit_date": "2022-08-29",
+          "pnl_pct": -24.9,
+          "exit_reason": "D",
+          "bars_held": 9
+        },
+        {
+          "entry_date": "2023-02-02",
+          "exit_date": "2024-08-02",
+          "pnl_pct": 110.3,
+          "exit_reason": "A",
+          "bars_held": 376
+        },
+        {
+          "entry_date": "2025-05-19",
+          "exit_date": "2025-11-21",
+          "pnl_pct": 43.2,
+          "exit_reason": "A",
+          "bars_held": 130
+        },
+        {
+          "entry_date": "2026-04-16",
+          "exit_date": "2026-04-21",
+          "pnl_pct": 5.0,
+          "exit_reason": "End of Data",
+          "bars_held": 3
+        }
+      ]
+    }
+  ],
+  "best_ever": {
+    "strategy": "breakout",
+    "fitness": 63.7344,
+    "params": {
+      "atr_mult": 2.0,
+      "cooldown": 0,
+      "trail_pct": 30,
+      "atr_period": 20,
+      "lookback": 40,
+      "breakout_pct": 0.85
+    }
+  }
+}

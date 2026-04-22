@@ -45,16 +45,14 @@
     handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: false },
   };
 
-  /* ---- Build the three charts ---- */
+  /* ---- Build the two charts (drawdown pane removed 2026-04-21) ---- */
   const elPrice = document.getElementById("chart-price");
   const elEquity = document.getElementById("chart-equity");
-  const elDd = document.getElementById("chart-dd");
   const tooltipEl = document.getElementById("tooltip");
   const hoverReadout = document.getElementById("hover-readout");
 
   const priceChart = LightweightCharts.createChart(elPrice, { ...baseChartOpts });
   const equityChart = LightweightCharts.createChart(elEquity, { ...baseChartOpts });
-  const ddChart = LightweightCharts.createChart(elDd, { ...baseChartOpts });
   const pricePaneOverlay = document.createElement("div");
   pricePaneOverlay.style.position = "absolute";
   pricePaneOverlay.style.inset = "0";
@@ -62,10 +60,8 @@
   pricePaneOverlay.style.zIndex = "4";
   elPrice.appendChild(pricePaneOverlay);
 
-  // Bidirectional time-scale sync across all three charts.
-  // A simple mutex prevents feedback loops: when one chart broadcasts a range
-  // change, the listeners on the others won't re-broadcast.
-  const allCharts = [priceChart, equityChart, ddChart];
+  // Bidirectional time-scale sync across both charts.
+  const allCharts = [priceChart, equityChart];
   let syncing = false;
   allCharts.forEach((src) => {
     src.timeScale().subscribeVisibleLogicalRangeChange((range) => {
@@ -82,9 +78,8 @@
   // Cross-chart crosshair sync is set up below, after all series are created.
 
   /* ---- Indexed-to-viewport state + series populator ----
-     When enabled, the lower two charts renormalize: equity lines divide by
-     the value at the first visible bar (so viewport-start = 1.0x), and
-     drawdown is recomputed against a running peak starting at the viewport. */
+     When enabled, the equity lines renormalize: divide by the value at the
+     first visible bar (so viewport-start = 1.0x). */
   const indexedToggle = document.getElementById("toggle-indexed");
   let indexedStartIdx = 0;
 
@@ -101,7 +96,6 @@
     const indexed = indexedToggle.checked;
     const startIdx = indexed ? currentViewportStartIdx() : 0;
 
-    // Indexed mode: divide everything by values at start. Absolute mode: raw values.
     const stratBase = indexed ? (curve[startIdx]?.equity || 1) : 1;
     const bahBase = indexed ? (curve[startIdx]?.bah_equity || 1) : 1;
 
@@ -109,29 +103,12 @@
     const eqBah = curve.map((p) => ({ time: dateToTime(p.date), value: (p.bah_equity || 0) / bahBase }));
     stratEquitySeries.setData(eqStrat);
     bahEquitySeries.setData(eqBah);
-
-    // Drawdown: absolute mode uses the stored drawdown_pct (peak from ATH).
-    // Indexed mode recomputes the running peak starting at viewport-start.
-    let dd;
-    if (!indexed) {
-      dd = curve.map((p) => ({ time: dateToTime(p.date), value: -Math.abs(p.drawdown_pct || 0) }));
-    } else {
-      let peak = -Infinity;
-      dd = curve.map((p, i) => {
-        if (i < startIdx) return { time: dateToTime(p.date), value: 0 };
-        if ((p.equity || 0) > peak) peak = p.equity || 0;
-        const ddPct = peak > 0 ? ((p.equity || 0) / peak - 1) * 100 : 0;
-        return { time: dateToTime(p.date), value: ddPct < 0 ? ddPct : 0 };
-      });
-    }
-    ddSeries.setData(dd);
   }
 
   // Recompute on toggle change
   indexedToggle.addEventListener("change", () => applyEquityDrawdownSeries());
 
   // Recompute on viewport change (only when indexed mode is active — otherwise it's a no-op)
-  // Uses a small debounce via requestAnimationFrame to avoid recomputing on every mousemove frame.
   let reindexRaf = null;
   allCharts.forEach((c) => {
     c.timeScale().subscribeVisibleLogicalRangeChange(() => {
@@ -240,24 +217,13 @@
     title: "B&H",
   });
 
-  /* ---- Drawdown pane (red area below zero) ---- */
-  const ddSeries = ddChart.addAreaSeries({
-    topColor: "rgba(239, 83, 80, 0.4)",
-    bottomColor: "rgba(239, 83, 80, 0.05)",
-    lineColor: "#ef5350",
-    lineWidth: 1,
-    priceLineVisible: false,
-    title: "DD %",
-  });
-
   // Cross-chart crosshair sync: when the cursor hovers over one chart, the
-  // other two get a vertical line at the same time. We pass -Infinity as price
+  // other gets a vertical line at the same time. We pass -Infinity as price
   // so the horizontal crosshair line falls off-screen on the target chart
   // (leaving just the vertical line, which is the shared-time indicator).
   const chartPrimarySeries = [
     [priceChart, candleSeries],
     [equityChart, stratEquitySeries],
-    [ddChart, ddSeries],
   ];
   let crosshairSyncing = false;
   chartPrimarySeries.forEach(([srcChart]) => {
@@ -384,89 +350,87 @@
     return fmtNum(v, dp) + "×";
   }
 
-  /* ---- Sort keys for the sidebar ---- */
-  // Each entry: extractor returns a number (or null); formatter renders the
-  // primary value displayed on the row. `label` feeds the tooltip.
-  const SORT_KEYS = {
-    fitness: {
-      label: "All-time fitness",
-      extract: (s) => (s.fitness != null ? s.fitness : null),
-      format:  (v) => fmtNum(v, 2),
-    },
-    modern_share: {
-      label: "Modern-era (post-2015) share vs B&H",
-      extract: (s) => s.multi_era?.eras?.modern?.share_multiple ?? null,
-      format:  (v) => fmtMult(v),
-    },
-    real_share: {
-      label: "Real-only (post-2008-12-17) share vs B&H",
+  /* ---- Leaderboard ranking ---- */
+  // Under the 2026-04-21 confidence-score framework the leaderboard is always
+  // ranked by composite_confidence. The legacy multi-column sort selector was
+  // collapsed into this single metric. Admission thresholds:
+  //   >= 0.70 ADMITTED
+  //   >= 0.60 WATCHLIST
+  //   <  0.60 not on leaderboard
+  const CONFIDENCE_KEY = {
+    label: "Composite confidence (0–100; validation robustness)",
+    extract: (s) => (s.composite_confidence != null ? s.composite_confidence : null),
+    format: (v) => (v == null ? "—" : `${(v * 100).toFixed(1)}`),
+  };
+  function admissionLabel(confidence) {
+    if (confidence == null) return { tag: "—", cls: "unknown" };
+    if (confidence >= 0.70) return { tag: "ADMITTED", cls: "admitted" };
+    if (confidence >= 0.60) return { tag: "WATCHLIST", cls: "watchlist" };
+    return { tag: "RESEARCH", cls: "research" };
+  }
+
+  /* ---- Secondary share-multiple sources ---- */
+  // Uses the same multi_era era breakdown the right panel shows, so the two
+  // views always agree.
+  const SECONDARY_SOURCES = {
+    real: {
+      label: "real",
+      tooltip: "Share multiplier on real TECL data only (post-2008-12-17, excludes synthetic pre-2008 dotcom era). Matches the \"Real-only\" row in the right-panel era breakdown.",
       extract: (s) => s.multi_era?.eras?.real?.share_multiple ?? null,
-      format:  (v) => fmtMult(v),
     },
-    decayed_fitness: {
-      label: "Time-decayed fitness (λ=0.07, ~10y half-life)",
-      extract: (s) => s.multi_era?.decayed?.fitness_decayed ?? null,
-      format:  (v) => fmtNum(v, 2),
-    },
-    composite: {
-      label: "Composite confidence (0–1; validation robustness)",
-      extract: (s) => {
-        // Composite confidence lives inside validation payloads; surface via entry.
-        // Fall back to validation_summary aggregate if not top-level.
-        return s.composite_confidence ?? null;
-      },
-      format: (v) => fmtNum(v, 3),
+    modern: {
+      label: "modern",
+      tooltip: "Share multiplier on the modern era (post-2015). Post-dotcom, post-GFC tech-market regime. Matches the \"Modern (2015→)\" row in the right-panel era breakdown.",
+      extract: (s) => s.multi_era?.eras?.modern?.share_multiple ?? null,
     },
   };
-  let _currentSort = "fitness";
+  let _secondarySource = "real";
 
   /* ---- Sidebar render ---- */
   function renderSidebar() {
     const list = document.getElementById("strat-list");
     list.innerHTML = "";
-    const sortKey = _currentSort;
-    const sortDef = SORT_KEYS[sortKey] || SORT_KEYS.fitness;
-    // Sort a shallow copy — do not mutate D.strategies order.
+    // Rank by composite confidence, descending. null confidences sort to bottom.
     const sorted = D.strategies.slice().sort((a, b) => {
-      const av = sortDef.extract(a);
-      const bv = sortDef.extract(b);
-      // null sorts to the bottom
+      const av = CONFIDENCE_KEY.extract(a);
+      const bv = CONFIDENCE_KEY.extract(b);
       if (av == null && bv == null) return 0;
       if (av == null) return 1;
       if (bv == null) return -1;
-      return bv - av; // descending
+      return bv - av;
     });
+    const secondaryDef = SECONDARY_SOURCES[_secondarySource] || SECONDARY_SOURCES.real;
     sorted.forEach((s, idx) => {
       const div = document.createElement("div");
       div.className = "strat" + (s.stale ? " stale" : "");
       div.dataset.id = s.id;
       const sm = s.metrics?.share_multiple;
-      const modernShare = s.multi_era?.eras?.modern?.share_multiple;
+      const confidence = CONFIDENCE_KEY.extract(s);
+      const confStr = CONFIDENCE_KEY.format(confidence);
+      const admission = admissionLabel(confidence);
       const cert = s.backtest_certified ? "✓" : "·";
       const manual = s.manually_admitted ? '<span class="manual-flag" title="manually admitted — see spirit-memory/decisions.md 2026-04-20-a">★</span>' : "";
-      const modernStr = modernShare != null
-        ? `<span class="mod-mult ${modernShare < 1 ? "bad" : "ok"}" title="post-2015 share vs B&H">${fmtMult(modernShare)}m</span>`
-        : "";
-      // Primary display value on row1 reflects the current sort key so the number
-      // under the strategy name always matches why you see it where you see it.
-      const primaryValRaw = sortDef.extract(s);
-      const primaryVal = primaryValRaw == null ? "—" : sortDef.format(primaryValRaw);
-      // Show both the display-order position and the canonical all-time rank
-      // (from the JSON). Helps cross-reference when sort is not default.
       const displayRank = idx + 1;
-      const rankLabel = sortKey === "fitness"
-        ? `#${s.rank}`
-        : `#${displayRank}<span class="orig-rank">(orig #${s.rank})</span>`;
+      const rankLabel = `#${displayRank}`;
+      const secondaryVal = secondaryDef.extract(s);
+      const secondaryCls = secondaryVal == null
+        ? "secondary-mult missing"
+        : `secondary-mult ${secondaryVal < 1 ? "bad" : ""}`;
+      const secondaryStr = secondaryVal == null ? "— " + secondaryDef.label : `${fmtMult(secondaryVal)} ${secondaryDef.label}`;
+      const secondaryTip = `${secondaryDef.tooltip} Value shown: ${secondaryVal == null ? "not available for this strategy" : fmtMult(secondaryVal)}.`;
       div.innerHTML = `
         <div class="row1">
-          <span class="rank" title="${sortDef.label}">${rankLabel}${manual}</span>
+          <span class="rank" title="${CONFIDENCE_KEY.label}">${rankLabel}${manual}</span>
           <span class="name">${escapeHtml(s.name)}</span>
-          <span class="fitness" title="${sortDef.label}">${primaryVal}</span>
+          <span class="metric-col">
+            <span class="fitness" title="${CONFIDENCE_KEY.label}">${confStr}</span>
+            <span class="${secondaryCls}" title="${escapeHtml(secondaryTip)}">${secondaryStr}</span>
+          </span>
         </div>
         <div class="row2">
           <span class="tier ${s.tier || "T0"}">${s.tier || "T0"}</span>
-          <span class="mult ${sm < 1 ? "bad" : ""}">${fmtMult(sm)}</span>
-          ${modernStr}
+          <span class="admission ${admission.cls}" title="Confidence tier: ${admission.tag}">${admission.tag}</span>
+          <span class="mult ${sm < 1 ? "bad" : ""}" title="share multiple vs B&H (full history — includes synthetic pre-2008)">${fmtMult(sm)}</span>
           <span class="cert ${s.backtest_certified ? "" : "no"}" title="${s.backtest_certified ? "backtest certified" : "not certified"}">${cert}</span>
           ${s.stale ? '<span style="color:var(--amber);font-size:10px;">stale</span>' : ""}
         </div>
@@ -474,14 +438,21 @@
       div.addEventListener("click", () => loadStrategy(s));
       list.appendChild(div);
     });
-    initBadges(); // re-attach tooltip handlers on freshly-rendered nodes
+    initBadges();
   }
 
-  function initSortToolbar() {
-    const sel = document.getElementById("sort-select");
-    if (!sel) return;
-    sel.addEventListener("change", () => {
-      _currentSort = sel.value;
+  function initSecondaryToggle() {
+    const group = document.getElementById("secondary-toggle");
+    if (!group) return;
+    group.addEventListener("click", (e) => {
+      const btn = e.target.closest(".toggle-btn");
+      if (!btn) return;
+      const source = btn.dataset.source;
+      if (!source || source === _secondarySource) return;
+      _secondarySource = source;
+      group.querySelectorAll(".toggle-btn").forEach((b) => {
+        b.classList.toggle("active", b.dataset.source === source);
+      });
       renderSidebar();
     });
   }
@@ -689,7 +660,7 @@
     if (!dates.length) return;
     const lastDate = new Date(dates[dates.length - 1]);
     const setAllVisibleRange = (from, to) => {
-      [priceChart, equityChart, ddChart].forEach((chart) => {
+      [priceChart, equityChart].forEach((chart) => {
         chart.timeScale().setVisibleRange({ from, to });
       });
     };
@@ -790,7 +761,6 @@
     [
       [priceChart, elPrice],
       [equityChart, elEquity],
-      [ddChart, elDd],
     ].forEach(([chart, el]) => {
       chart.applyOptions({ width: el.clientWidth, height: el.clientHeight });
     });
@@ -800,7 +770,7 @@
 
   /* ---- Boot ---- */
   initBadges();
-  initSortToolbar();
+  initSecondaryToggle();
   renderSidebar();
   initRangeButtons();
   setupHover();
