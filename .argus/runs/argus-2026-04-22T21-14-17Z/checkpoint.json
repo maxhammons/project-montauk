@@ -1,0 +1,120 @@
+{
+  "version": "7.0",
+  "runId": "argus-2026-04-22T21-14-17Z",
+  "runDir": ".argus/runs/argus-2026-04-22T21-14-17Z/",
+  "project": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk",
+  "mode": "deep",
+  "status": "completed",
+  "timestamp": "2026-04-22T21:14:17Z",
+  "gitHash": "63cea34b0707a2836945ccb46ba813bac7769082",
+  "scout": {
+    "complete": true,
+    "manifestFileCount": 1009,
+    "classification": {
+      "type": "Python trading strategy system",
+      "primaryLanguage": "Python",
+      "framework": "Custom backtesting engine + native HTML chart viewer",
+      "domain": "Quantitative finance / TECL share-accumulation strategy"
+    },
+    "contextDocPath": ".argus/runs/argus-2026-04-22T21-14-17Z/scout-context.md"
+  },
+  "specialists": {
+    "launched": [
+      "Pragmatist",
+      "Futurist",
+      "Craftsman",
+      "Accelerator",
+      "Exploiter"
+    ],
+    "completed": [
+      "Pragmatist",
+      "Futurist",
+      "Craftsman",
+      "Accelerator",
+      "Exploiter"
+    ],
+    "failed": [],
+    "qualityGatePassed": [
+      "Pragmatist",
+      "Futurist",
+      "Craftsman",
+      "Accelerator",
+      "Exploiter"
+    ],
+    "qualityGateFailed": [],
+    "artifactPaths": {
+      "Pragmatist": [
+        ".argus/runs/argus-2026-04-22T21-14-17Z/scratchpad-Pragmatist.md",
+        ".argus/runs/argus-2026-04-22T21-14-17Z/investigation-Pragmatist.md",
+        ".argus/runs/argus-2026-04-22T21-14-17Z/position-Pragmatist.md",
+        ".argus/runs/argus-2026-04-22T21-14-17Z/engagement-Pragmatist.md",
+        ".argus/runs/argus-2026-04-22T21-14-17Z/convergence-Pragmatist.md"
+      ],
+      "Futurist": [
+        ".argus/runs/argus-2026-04-22T21-14-17Z/scratchpad-Futurist.md",
+        ".argus/runs/argus-2026-04-22T21-14-17Z/investigation-Futurist.md",
+        ".argus/runs/argus-2026-04-22T21-14-17Z/position-Futurist.md",
+        ".argus/runs/argus-2026-04-22T21-14-17Z/engagement-Futurist.md",
+        ".argus/runs/argus-2026-04-22T21-14-17Z/convergence-Futurist.md"
+      ],
+      "Craftsman": [
+        ".argus/runs/argus-2026-04-22T21-14-17Z/scratchpad-Craftsman.md",
+        ".argus/runs/argus-2026-04-22T21-14-17Z/investigation-Craftsman.md",
+        ".argus/runs/argus-2026-04-22T21-14-17Z/position-Craftsman.md",
+        ".argus/runs/argus-2026-04-22T21-14-17Z/engagement-Craftsman.md",
+        ".argus/runs/argus-2026-04-22T21-14-17Z/convergence-Craftsman.md"
+      ],
+      "Accelerator": [
+        ".argus/runs/argus-2026-04-22T21-14-17Z/scratchpad-Accelerator.md",
+        ".argus/runs/argus-2026-04-22T21-14-17Z/investigation-Accelerator.md",
+        ".argus/runs/argus-2026-04-22T21-14-17Z/position-Accelerator.md",
+        ".argus/runs/argus-2026-04-22T21-14-17Z/engagement-Accelerator.md",
+        ".argus/runs/argus-2026-04-22T21-14-17Z/convergence-Accelerator.md"
+      ],
+      "Exploiter": [
+        ".argus/runs/argus-2026-04-22T21-14-17Z/scratchpad-Exploiter.md",
+        ".argus/runs/argus-2026-04-22T21-14-17Z/investigation-Exploiter.md",
+        ".argus/runs/argus-2026-04-22T21-14-17Z/position-Exploiter.md",
+        ".argus/runs/argus-2026-04-22T21-14-17Z/engagement-Exploiter.md",
+        ".argus/runs/argus-2026-04-22T21-14-17Z/convergence-Exploiter.md"
+      ]
+    }
+  },
+  "witness": {
+    "active": true,
+    "patrols": 3,
+    "interventions": [],
+    "lastPatrolTimestamp": "2026-04-22T21:14:17Z"
+  },
+  "metaAnalysis": {
+    "complete": true,
+    "artifactPath": ".argus/runs/argus-2026-04-22T21-14-17Z/convergence-map.md"
+  },
+  "adversarial": {
+    "prosecutorComplete": true,
+    "fixAuditorComplete": true
+  },
+  "synthesis": {
+    "complete": true,
+    "reportPath": ".argus/runs/argus-2026-04-22T21-14-17Z/argus-letter.md"
+  },
+  "remediation": {
+    "taskStubsGenerated": 4,
+    "taskStubsPath": ".argus/runs/argus-2026-04-22T21-14-17Z/remediation/"
+  },
+  "patrol": {
+    "isPatrol": false,
+    "patrolCount": 0,
+    "lastPatrolHash": null,
+    "interval": null
+  },
+  "previousRuns": {
+    "lastRunDate": "2026-04-22T21:14:17Z",
+    "lastRunReportPath": ".argus/runs/argus-2026-04-22T21-14-17Z/argus-letter.md",
+    "recurringFindings": [
+      "broken trust contract around leaderboard admission and certification",
+      "duplicate authority-writing paths around leaderboard state",
+      "fused memory and authority in spike/leaderboard.json"
+    ]
+  }
+}

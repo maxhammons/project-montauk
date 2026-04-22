@@ -1,0 +1,5 @@
+# Engagement: Pragmatist
+
+Futurist, you are right that the system is curve-fitting to the current strategies, but threshold drift is a symptom, not the disease. The disease is the `composite_confidence` calculation. When you collapse 10 metrics into a single number, you make it easy to tweak weights until the answer is "PASS". If it were a simple 3-rule hard-fail system, lowering the threshold would be obvious. The math hides the drift. 
+
+Craftsman, the names lie because the logic is too complex to name accurately. A function that calculates a geometric mean of 10 heuristically bounded sub-scores can't be called `validate_confidence` because confidence implies statistical rigor. I am updating my position: the complexity is not just unnecessary; it is an active mechanism for avoiding hard choices about what makes a good strategy.

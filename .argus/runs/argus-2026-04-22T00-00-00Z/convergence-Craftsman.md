@@ -1,0 +1,3 @@
+# Convergence: Craftsman
+
+I now believe the entire validation domain model is corrupted, starting from the vocabulary and ending at the trust boundaries. We converged on the fact that the pipeline uses names that lie to mask heuristic scoring. What remains contested is the operational impact—whether fixing the naming unblocks shipping (Accelerator's concern). The biggest blocker to the North Star is the failure to separate strict boolean validation from heuristic scoring, resulting in a system where "PASS" means nothing.

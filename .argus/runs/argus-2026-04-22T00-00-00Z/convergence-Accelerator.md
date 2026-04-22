@@ -1,0 +1,3 @@
+# Convergence: Accelerator
+
+I now believe that the 2-hour feedback loop is actually a symptom of the broader lack of conviction in the validation math. We converged on the fact that the pipeline's complexity makes changes dangerous. What remains contested is whether Gate 6 must be preserved to prevent overfitting. The biggest blocker to the North Star is the lack of a fast, deterministic validation path that engineers can run locally and actually trust.
