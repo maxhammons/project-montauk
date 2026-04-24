@@ -17,6 +17,7 @@ from typing import Any
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from certify.contract import is_leaderboard_eligible, sync_entry_contract
 from search.share_metric import read_share_multiple
 from search.spike_runner import (
     PROJECT_ROOT,
@@ -84,7 +85,7 @@ def _normalize_leaderboard_entry(entry: dict[str, Any], rank: int) -> dict[str, 
     if "tier" not in validation and normalized.get("tier"):
         validation["tier"] = normalized["tier"]
     normalized["validation"] = validation
-    return normalized
+    return sync_entry_contract(normalized)
 
 
 def backfill_leaderboard_dashboard_artifacts(*, top_n: int = 20) -> tuple[int, int]:
@@ -108,6 +109,13 @@ def backfill_leaderboard_dashboard_artifacts(*, top_n: int = 20) -> tuple[int, i
             continue
 
         champion = _normalize_leaderboard_entry(entry, rank)
+        eligible, reason = is_leaderboard_eligible(champion)
+        if not eligible:
+            skipped += 1
+            print(
+                f"[backfill] skipped #{rank} {strategy}: not promotable ({reason})"
+            )
+            continue
         run_dir = create_run_dir()
         results = {
             "champion": champion,

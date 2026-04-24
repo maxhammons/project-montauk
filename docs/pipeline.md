@@ -7,7 +7,7 @@ generate ideas   →   backtest + validate / check for overfitting   →   if PA
  (scripts/search)         (scripts/validation)                               (scripts/certify → spike/leaderboard.json)                (viz/)
 ```
 
-**The leaderboard rule (2026-04-21 revision):** `spike/leaderboard.json` is a confidence-ranked watchlist. Entries are admitted if `composite_confidence ≥ 0.60` (watchlist tier) AND every engine-level certification check passes (`engine_integrity`, `golden_regression`, `shadow_comparator`, `data_quality_precheck`). Entries at 0.70+ are tagged ADMITTED; 0.60–0.69 are WATCHLIST. The previous "7-gate PASS" rule was replaced with the two-layer confidence framework (see `docs/validation-philosophy.md`) because the old pass/fail pipeline rejected every T2 discovery and produced a leaderboard dominated by two strategy concepts. Enforcement: `scripts/search/evolve.py::_is_leaderboard_eligible` + `REQUIRED_CERTIFICATION_CHECKS`. Ranking is confidence-first, fitness as tie-breaker.
+**The leaderboard rule:** `spike/leaderboard.json` is the authority surface, not a mixed-trust watchlist. Entries are admitted only if they are `certified_not_overfit=True`, meaning `promotion_ready=True` and every required engine-level certification check passes (`engine_integrity`, `golden_regression`, `shadow_comparator`, `data_quality_precheck`). This contract is defined in `scripts/certify/contract.py` and reused by promotion, recertification, artifact backfill, and champion finalization. Performance does not affect eligibility; it only ranks already-certified rows and trims the surface to the top 20. That ranking should reflect balanced all-era performance, not just the modern regime.
 
 This document defines the intended operating model of the project under the charter. If this document ever conflicts with `docs/charter.md`, the charter wins.
 
@@ -46,7 +46,7 @@ The authoritative full-run path is:
    See `VALIDATION-PHILOSOPHY.md` for what each tier tests.
 
 5. **Certify + Promote**
-   Gate 7 synthesis computes `promotion_ready` (tier-appropriate PASS across all 7 gates). The post-run certification step (`scripts/certify/certify_champion.py`) emits the run's 5 standardized artifacts and flips `artifact_completeness` → `pass`, upgrading `backtest_certified` to True for the champion. The leaderboard admits any entry that is `promotion_ready=True` AND passes the 4 engine-level certification checks (`engine_integrity`, `golden_regression`, `shadow_comparator`, `data_quality_precheck`). `artifact_completeness` is required for the champion only — it is a deployment concern, not a validity concern, so it does not gate non-champion leaderboard admission. Each entry is tagged `T0-PASS`, `T1-PASS`, or `T2-PASS`. To re-validate every existing leaderboard entry under new rules: `scripts/certify/recertify_leaderboard.py`.
+   Gate 7 synthesis computes `promotion_ready` (tier-appropriate PASS across all 7 gates) and `certified_not_overfit` (promotion-ready plus required anti-overfit certification checks). The post-run certification step (`scripts/certify/certify_champion.py`) emits the run's 5 standardized artifacts and flips `artifact_completeness` → `pass`, upgrading `backtest_certified` to True for the champion only if that row was already `certified_not_overfit=True`. The leaderboard admits entries that satisfy the canonical contract in `scripts/certify/contract.py`. `artifact_completeness` is a champion-only deployment concern, not part of non-champion leaderboard admission. Each entry is tagged `T0-PASS`, `T1-PASS`, or `T2-PASS`. To re-validate every existing leaderboard entry under new rules: `scripts/certify/recertify_leaderboard.py`.
 
 6. **Simulate deployment overlay**
    Run the approved Roth account overlay for the validated champion.
@@ -132,11 +132,11 @@ The pipeline has a simple rule:
 
 Operationally:
 
-- only PASS entries belong on `leaderboard.json`, each carrying its tier tag
+- only `certified_not_overfit` entries belong on `leaderboard.json`, each carrying its tier tag
 - WARN and FAIL entries remain in run artifacts only
 - if no strategy passes, the run still matters, but the leaderboard does not change
-- if a strategy does not emit the five standardized artifacts completely, it is not `backtest_certified` and therefore not promotable
-- the champion is the highest-share-count PASS entry across all tiers
+- if a strategy does not emit the five standardized artifacts completely, it cannot become the run's `backtest_certified` champion
+- the leaderboard keeps the top 20 performing certified strategies
 
 A T0-PASS strategy and a T2-PASS strategy are both promotable. The tier tag tells the user what level of statistical scrutiny backs the result. Both are real winners.
 
@@ -173,9 +173,9 @@ Python is the research, validation, and execution-signal layer. The HTML viewer 
 
 The Roth overlay sits after validation and before manual deployment review. It is an account-analysis layer, not a change to the signal definition.
 
-### Gate 7 — `backtest_certified` and `promotion_ready`
+### Gate 7 — `certified_not_overfit`, `backtest_certified`, and `promotion_ready`
 
-Gate 7 synthesis determines certification. A strategy is `backtest_certified` when **all** of the following hold:
+Gate 7 synthesis determines promotion readiness and anti-overfit certification. A strategy is `promotion_ready` when it is a tier-appropriate PASS. A strategy is `certified_not_overfit` when `promotion_ready=True` and the anti-overfit certification checks below all pass. A strategy becomes `backtest_certified` only when **all** of the following hold:
 
 - **Engine integrity** — bar-close signals, single-position, no lookahead; passes `scripts/validation/integrity.py`
 - **Golden regression pass** — `tests/test_regression.py` matches `tests/golden_trades_821.json` within ±0.001% PnL per trade on the 8.2.1 default config
@@ -183,7 +183,11 @@ Gate 7 synthesis determines certification. A strategy is `backtest_certified` wh
 - **Data-quality pre-check pass** — `scripts/data_quality.py` all PASS (including Yahoo-vs-Stooq divergence < 0.01% on real data, manifest checksum match, synthetic-rebuild residual)
 - **Artifact completeness** — all five standardized JSON artifacts emitted for the run
 
-`promotion_ready = backtest_certified AND tier-appropriate PASS`. Only `promotion_ready` entries reach the validated leaderboard.
+`certified_not_overfit = promotion_ready AND required certification checks`
+
+`backtest_certified = certified_not_overfit AND artifact completeness`
+
+Only `certified_not_overfit` entries reach the leaderboard; `backtest_certified` is the stricter champion finalization state.
 
 ### Visualization (`viz/montauk-viz.html`)
 

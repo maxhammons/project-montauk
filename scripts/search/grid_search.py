@@ -1527,16 +1527,10 @@ def run_grid_search(
     )
 
     # ── Phase 3: Update leaderboard ──
-    # Admit PASS (composite >= 0.70) AND WARN (watchlist, 0.60 - 0.70).
-    # _is_leaderboard_eligible enforces the 0.60 floor, but update_leaderboard
-    # only evaluates entries we hand it — so feed all enriched rankings and let
-    # eligibility decide.
+    # Feed all validated rankings into the canonical admission path. It alone
+    # decides whether a row is authoritative enough for leaderboard persistence.
     lb_path = os.path.join(PROJECT_ROOT, "spike", "leaderboard.json")
-    admit_candidates = [
-        e
-        for e in validation.get("raw_rankings", [])
-        if float((e.get("validation") or {}).get("composite_confidence") or 0.0) >= 0.60
-    ]
+    admit_candidates = validation.get("raw_rankings", [])
     if admit_candidates:
         lb = update_leaderboard(
             {
@@ -1559,9 +1553,7 @@ def run_grid_search(
                 f"share={m.get('share_multiple', 0):.2f}x  params={e.get('params', {})}"
             )
     else:
-        print(
-            "[grid] No strategies reached watchlist confidence. Leaderboard unchanged."
-        )
+        print("[grid] No validated candidates produced authority-eligible rows.")
 
     return {
         "total_combos": total_combos,

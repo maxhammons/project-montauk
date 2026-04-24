@@ -238,12 +238,8 @@ def run_fixed_param_phase() -> dict:
         f"PASS={summary['validated_pass']} WARN={summary['validated_warn']} FAIL={summary['validated_fail']}"
     )
 
-    # Admit everything eligible (composite >= 0.60) to the leaderboard.
-    validated = [
-        e
-        for e in results.get("raw_rankings", [])
-        if (e.get("validation") or {}).get("composite_confidence", 0.0) >= 0.60
-    ]
+    # Feed every validated row through the canonical leaderboard authority path.
+    validated = results.get("raw_rankings", [])
     if validated:
         update_leaderboard(
             {
@@ -254,7 +250,7 @@ def run_fixed_param_phase() -> dict:
             },
             LEADERBOARD_PATH,
         )
-        print(f"[sweep] Admitted {len(validated)} fixed-param entries to leaderboard")
+        print("[sweep] Submitted fixed-param validation rows to leaderboard authority")
 
     # Persist ALL fixed-param validation results (admitted or not) so Phase 3
     # can pull from the full new-rubric set without re-running validation.

@@ -29,6 +29,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from certify.contract import sync_entry_contract
+
 
 def _load_json(path: str):
     if not os.path.exists(path):
@@ -98,22 +100,6 @@ def _finalize_champion_certification(results: dict, artifacts: dict):
     if not champion:
         return
 
-    artifact_paths = {
-        name: path
-        for name, path in artifacts.items()
-        if name
-        in {
-            "trade_ledger",
-            "signal_series",
-            "equity_curve",
-            "validation_summary",
-            "dashboard_data",
-        }
-    }
-    artifact_ok = len(artifact_paths) == 5 and all(
-        os.path.exists(path) for path in artifact_paths.values()
-    )
-
     targets = [champion]
     if results.get("validated_rankings"):
         targets.append(results["validated_rankings"][0])
@@ -121,42 +107,7 @@ def _finalize_champion_certification(results: dict, artifacts: dict):
         targets.append(results["rankings"][0])
 
     for target in targets:
-        validation = target.get("validation") or {}
-        checks = dict(validation.get("certification_checks") or {})
-        checks["artifact_completeness"] = {
-            "passed": artifact_ok,
-            "status": "pass" if artifact_ok else "fail",
-            "paths": artifact_paths,
-        }
-        validation["certification_checks"] = checks
-        validation["backtest_certified"] = all(
-            check.get("passed", False) for check in checks.values()
-        )
-        validation["promotion_ready"] = validation.get(
-            "promotion_ready",
-            validation.get("promotion_eligible", False),
-        )
-        validation["clean_pass"] = (
-            validation["promotion_ready"] and validation["backtest_certified"]
-        )
-        gates = dict(validation.get("gates") or {})
-        gate7 = dict(gates.get("gate7") or {})
-        if gate7:
-            gate7["promotion_ready"] = validation["promotion_ready"]
-            gate7["backtest_certified"] = validation["backtest_certified"]
-            gate7["clean_pass"] = validation["clean_pass"]
-            gate7["certification_checks"] = checks
-            gate7["advisories"] = [
-                item
-                for item in gate7.get("advisories", [])
-                if item != "artifact completeness pending"
-            ]
-            gates["gate7"] = gate7
-            validation["gates"] = gates
-        target["promotion_ready"] = validation["promotion_ready"]
-        target["backtest_certified"] = validation["backtest_certified"]
-        target["certification_checks"] = checks
-        target["validation"] = validation
+        sync_entry_contract(target, artifact_paths=artifacts)
 
     summary = results.get("validation_summary") or {}
     if summary.get("champion"):

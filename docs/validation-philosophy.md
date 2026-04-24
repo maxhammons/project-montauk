@@ -93,13 +93,13 @@ Each sub-score is a smooth [0, 1] value: hard-fail threshold → 0.0, soft-warn 
 |:-:|---|---|
 | **0–39** | Reject | Hidden |
 | **40–59** | Research only | Archived |
-| **60–69** | Watchlist | Visible, flagged low-confidence |
-| **70–89** | Admitted | On leaderboard |
-| **90–100** | High confidence | Highlighted |
+| **60–69** | Low-confidence PASS/WARN evidence | Archived |
+| **70–89** | Certifiable confidence range | Eligible if anti-overfit certification also passes |
+| **90–100** | High confidence | Highlighted if certified |
 
-**70 is the admission threshold.** At 70+, a strategy is admitted to the leaderboard and eligible for manual brokerage deployment consideration. Below 70, the strategy is research output — interesting, maybe, but not trusted.
+**70 is the validation PASS threshold.** It is necessary but not sufficient for the leaderboard. Leaderboard admission also requires the required anti-overfit certification checks to pass, producing `certified_not_overfit=True`. Below 70, the strategy is research output.
 
-`backtest_certified` remains the correctness flag (all of Layer 1 passed). `promotion_ready = backtest_certified AND confidence ≥ 0.70`.
+`promotion_ready` is the tier-appropriate PASS verdict. `certified_not_overfit = promotion_ready AND required anti-overfit certification checks`. `backtest_certified = certified_not_overfit AND artifact completeness`.
 
 ---
 
@@ -109,7 +109,7 @@ A 78 is not a promise the strategy will beat B&H in 2027. It's a claim that acro
 
 A 92 is not "certainty." It's "across every bucket of evidence we had, this candidate was strong." That's the honest frame. The market will still do what the market does. The confidence score tells us *which strategy is the least-shaky bet we currently have*, not *which strategy will work*.
 
-Operational consequence: run multiple strategies over time, watch their confidence scores drift, swap to higher-confidence candidates as regimes shift. The leaderboard isn't a hall of fame — it's a watchlist of candidates with their current confidence levels.
+Operational consequence: confidence still matters, but it is not itself a permission slip. The leaderboard is the certified set, and confidence helps compare already-certified strategies rather than decide whether uncertified ones belong there.
 
 ---
 
@@ -138,7 +138,7 @@ The old mechanics are still computed internally (the thresholds still inform whe
 3. **Selection bias still determines scrutiny.** T2 candidates face more sub-scores than T0. That's honest.
 4. **Pre-registration still prevents laundering.** A T0 strategy is identified by its registration timestamp, not its final params.
 5. **Low-frequency strategies are not punished.** A year of holding through new highs is a successful year.
-6. **The leaderboard is a watchlist.** Confidence drifts over time. Strategies that were 88 last year may be 72 this year as new data arrives. The system is designed to re-validate.
+6. **The leaderboard is a certified set.** Confidence drifts over time, so certification should be re-run as new data arrives. A strategy that falls out of certification should leave the leaderboard.
 7. **Multiple strategies can run simultaneously** — this is the future state. The oscillator vision ("7 of 25 strategies are calling sell") requires a pool of high-confidence candidates, not a single PASS/FAIL anointed winner.
 
 ---

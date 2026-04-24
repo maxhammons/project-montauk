@@ -72,14 +72,17 @@ A strategy is only considered real when it completes this full chain:
 
 1. It is registered in the appropriate validation tier (T0 / T1 / T2 — see `VALIDATION-PHILOSOPHY.md`).
 2. It passes the validation pipeline for its tier with a final **PASS** verdict.
-3. It is allowed onto the validated leaderboard, tagged with its tier.
-4. It is emitted as a `backtest_certified` signal bundle (standardized run artifacts + native HTML visualization) ready for manual brokerage execution review.
+3. It becomes **certified not overfit**: passed the tier-appropriate validation verdict and every required anti-overfit certification check.
+4. Only then may it appear on the validated leaderboard, tagged with its tier.
+5. If chosen as the operational champion, it is emitted as a `backtest_certified` signal bundle (standardized run artifacts + native HTML visualization) ready for manual brokerage execution review.
 
 Anything short of that is research output, not a winner.
 
 The system-level success condition is:
 
 > hypothesize / discover -> validate at the right tier -> certify signal bundle -> manually execute in brokerage
+
+The leaderboard is a trust surface, not a research watchlist. All-era performance determines rank only after certification. If fewer than 20 strategies are certified not overfit, the leaderboard should contain fewer than 20 rows.
 
 ---
 
@@ -132,6 +135,8 @@ The project optimizes for **share accumulation**, not impressive equity curves.
 
 Validation quality matters as much as performance. A high-share-count strategy that fails validation is out of scope for promotion.
 
+Performance and share multiple do **not** determine leaderboard eligibility. They only decide ordering among strategies that are already certified not overfit, and that ordering should reflect overall performance across full / real / modern eras rather than a single favored regime.
+
 ---
 
 ## 7. Coding Rules
@@ -140,7 +145,7 @@ Validation quality matters as much as performance. A high-share-count strategy t
 - Bar-close confirmation only: no lookahead, no repainting, `process_orders_on_close=true` semantics
 - One strategy block per registered candidate. One long entry, one long exit, no pyramiding
 - Preserve stable parameter names unless there is a strong migration reason
-- Every promotable winner ships with the standardized run artifacts (trade ledger, signal series, equity curve, drawdown curve, validation summary, dashboard bundle) — see `docs/pipeline.md`
+- Every operational champion ships with the standardized run artifacts (trade ledger, signal series, equity curve, drawdown curve, validation summary, dashboard bundle) — see `docs/pipeline.md`
 
 ---
 
@@ -153,6 +158,10 @@ If asked to add work that breaks the charter, call it out clearly:
 If asked whether a raw optimizer winner should be treated as real, the answer is:
 
 > "Not until it passes the validation tier appropriate to how it was selected, and emits a complete `backtest_certified` signal bundle."
+
+If asked what belongs on the leaderboard, the answer is:
+
+> "Only strategies certified not to be overfit to the backtest history. Ranking comes after certification, never before it."
 
 ---
 

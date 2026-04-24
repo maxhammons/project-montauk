@@ -90,6 +90,7 @@ def _load_champion_from_leaderboard(
 def main():
     # Ensure scripts/ is on sys.path so `from search.spike_runner import ...` works
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from certify.contract import is_leaderboard_eligible, sync_entry_contract
 
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
@@ -128,6 +129,15 @@ def main():
 
     if champion is None:
         print("[certify] No matching champion found. Aborting.", file=sys.stderr)
+        sys.exit(1)
+
+    sync_entry_contract(champion)
+    eligible, reason = is_leaderboard_eligible(champion)
+    if not eligible:
+        print(
+            f"[certify] Refusing to certify non-promotable row: {reason}",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     print(f"[certify] Source: {source}")

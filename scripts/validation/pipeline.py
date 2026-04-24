@@ -971,7 +971,12 @@ def _gate7_synthesis(
 
     clean_pass = verdict == "PASS" and len(critical_warnings) == 0
     promotion_ready = verdict == "PASS"
-    backtest_certified = promotion_ready and all(
+    certified_not_overfit = promotion_ready and all(
+        check.get("passed", False)
+        for name, check in certification_checks.items()
+        if name != "artifact_completeness"
+    )
+    backtest_certified = certified_not_overfit and all(
         check.get("passed", False) for check in certification_checks.values()
     )
 
@@ -979,6 +984,7 @@ def _gate7_synthesis(
         "verdict": verdict,
         "tier": tier,
         "promotion_ready": promotion_ready,
+        "certified_not_overfit": certified_not_overfit,
         "clean_pass": clean_pass,
         "backtest_certified": backtest_certified,
         "certification_checks": certification_checks,
@@ -1020,6 +1026,7 @@ def _validate_entry(
     validation = {
         "verdict": "FAIL",
         "promotion_ready": False,
+        "certified_not_overfit": False,
         "backtest_certified": False,
         "clean_pass": False,
         "composite_confidence": 0.0,
@@ -1142,6 +1149,7 @@ def _validate_entry(
     validation["gates"]["gate7"] = gate7
     validation["verdict"] = gate7["verdict"]
     validation["promotion_ready"] = gate7["promotion_ready"]
+    validation["certified_not_overfit"] = gate7["certified_not_overfit"]
     validation["backtest_certified"] = gate7["backtest_certified"]
     validation["clean_pass"] = gate7["clean_pass"]
     validation["certification_checks"] = gate7["certification_checks"]

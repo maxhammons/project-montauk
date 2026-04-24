@@ -351,12 +351,9 @@
   }
 
   /* ---- Leaderboard ranking ---- */
-  // Under the 2026-04-21 confidence-score framework the leaderboard is always
-  // ranked by composite_confidence. The legacy multi-column sort selector was
-  // collapsed into this single metric. Admission thresholds:
-  //   >= 0.70 ADMITTED
-  //   >= 0.60 WATCHLIST
-  //   <  0.60 not on leaderboard
+  // The leaderboard is a certified set first. Within that set, rows are
+  // ordered by all-era performance so the top of the board reflects the
+  // strongest certified strategy across full / real / modern history.
   const CONFIDENCE_KEY = {
     label: "Composite confidence (0–100; validation robustness)",
     extract: (s) => (s.composite_confidence != null ? s.composite_confidence : null),
@@ -375,12 +372,12 @@
   const SECONDARY_SOURCES = {
     real: {
       label: "real",
-      tooltip: "Share multiplier on real TECL data only (post-2008-12-17, excludes synthetic pre-2008 dotcom era). Matches the \"Real-only\" row in the right-panel era breakdown.",
+      tooltip: "Canonical real-era share multiplier: standalone rerun on TECL from 2008-12-17 forward with fresh capital.",
       extract: (s) => s.multi_era?.eras?.real?.share_multiple ?? null,
     },
     modern: {
       label: "modern",
-      tooltip: "Share multiplier on the modern era (post-2015). Post-dotcom, post-GFC tech-market regime. Matches the \"Modern (2015→)\" row in the right-panel era breakdown.",
+      tooltip: "Canonical modern-era share multiplier: standalone rerun from 2015 forward with fresh capital.",
       extract: (s) => s.multi_era?.eras?.modern?.share_multiple ?? null,
     },
   };
@@ -390,13 +387,16 @@
   function renderSidebar() {
     const list = document.getElementById("strat-list");
     list.innerHTML = "";
-    // Rank by composite confidence, descending. null confidences sort to bottom.
+    // Rank by balanced all-era performance first among already-certified rows.
     const sorted = D.strategies.slice().sort((a, b) => {
-      const av = CONFIDENCE_KEY.extract(a);
-      const bv = CONFIDENCE_KEY.extract(b);
-      if (av == null && bv == null) return 0;
-      if (av == null) return 1;
-      if (bv == null) return -1;
+      const as = a.overall_performance_score != null ? a.overall_performance_score : -Infinity;
+      const bs = b.overall_performance_score != null ? b.overall_performance_score : -Infinity;
+      if (bs !== as) return bs - as;
+      const af = a.fitness != null ? a.fitness : -Infinity;
+      const bf = b.fitness != null ? b.fitness : -Infinity;
+      if (bf !== af) return bf - af;
+      const av = CONFIDENCE_KEY.extract(a) ?? -Infinity;
+      const bv = CONFIDENCE_KEY.extract(b) ?? -Infinity;
       return bv - av;
     });
     const secondaryDef = SECONDARY_SOURCES[_secondarySource] || SECONDARY_SOURCES.real;
@@ -408,7 +408,7 @@
       const confidence = CONFIDENCE_KEY.extract(s);
       const confStr = CONFIDENCE_KEY.format(confidence);
       const admission = admissionLabel(confidence);
-      const cert = s.backtest_certified ? "✓" : "·";
+      const cert = s.certified_not_overfit ? "✓" : "·";
       const manual = s.manually_admitted ? '<span class="manual-flag" title="manually admitted — see spirit-memory/decisions.md 2026-04-20-a">★</span>' : "";
       const displayRank = idx + 1;
       const rankLabel = `#${displayRank}`;
@@ -431,7 +431,7 @@
           <span class="tier ${s.tier || "T0"}">${s.tier || "T0"}</span>
           <span class="admission ${admission.cls}" title="Confidence tier: ${admission.tag}">${admission.tag}</span>
           <span class="mult ${sm < 1 ? "bad" : ""}" title="share multiple vs B&H (full history — includes synthetic pre-2008)">${fmtMult(sm)}</span>
-          <span class="cert ${s.backtest_certified ? "" : "no"}" title="${s.backtest_certified ? "backtest certified" : "not certified"}">${cert}</span>
+          <span class="cert ${s.certified_not_overfit ? "" : "no"}" title="${s.certified_not_overfit ? "verified not overfit" : "not verified not overfit"}">${cert}</span>
           ${s.stale ? '<span style="color:var(--amber);font-size:10px;">stale</span>' : ""}
         </div>
       `;
@@ -470,7 +470,17 @@
     tierBadge.classList.add("has-tip");
     tierBadge.dataset.tip = "Validation tier. T0 = hand-authored canonical params (light pipeline). T1 = hand-authored + canonical grid (medium). T2 = GA-tuned or optimizer-discovered (full statistical stack).";
     meta.appendChild(tierBadge);
-    meta.appendChild(makeBadge(s.backtest_certified ? "certified ✓" : "not certified", s.backtest_certified ? "ok" : "warn"));
+    meta.appendChild(makeBadge(s.certified_not_overfit ? "verified not overfit ✓" : "not verified not overfit", s.certified_not_overfit ? "ok" : "warn"));
+    meta.appendChild(makeBadge(s.backtest_certified ? "artifact bundle emitted" : "artifact bundle not emitted", s.backtest_certified ? "ok" : "warn"));
+    const regimeSummary = s.multi_era?.regime_summary;
+    if (regimeSummary) {
+      meta.appendChild(
+        makeBadge(
+          regimeSummary.critical_guardrail_passed ? "critical regimes passed" : "critical regime breach",
+          regimeSummary.critical_guardrail_passed ? "ok" : "warn",
+        )
+      );
+    }
     if (s.stale) meta.appendChild(makeBadge("stale artifact", "warn"));
 
     const m = s.metrics || {};
@@ -491,6 +501,7 @@
     // Era breakdown — dual view for "crash insurance vs modern participation"
     // See spirit-memory/decisions.md 2026-04-20 for why this exists.
     renderEraBreakdown(s);
+    renderMarketRegimes(s);
 
     // Scorecard (5Y only — 1Y/3Y are too noisy for low-tpy strategies)
     const sc = s.recent_scorecards || {};
@@ -581,8 +592,8 @@
 
     const rows = [
       ["Full history (1993–now)", full, "Includes synthetic pre-2008 dotcom era. This is the optimizer's training window and the current leaderboard fitness."],
-      ["Real-only (2008-12-17 →)", real, "TECL's actual trading history. Strategies that only look good on full history got their advantage from the synthetic dotcom crash."],
-      ["Modern (2015 →)", modern, "Post-QE era. Most representative of likely future regimes. Share near 1.0 means 'matches B&H in normal markets'."],
+      ["Real era (2008-12-17 →)", real, "Canonical real-era rerun starting at TECL inception with fresh capital and no pre-2008 carried state."],
+      ["Modern era (2015 →)", modern, "Canonical modern-era rerun starting in 2015 with fresh capital and no earlier carried state."],
     ];
     let html = '<table class="era-table"><thead><tr><th></th><th>Share</th><th>CAGR</th><th>Max DD</th><th>Trades</th><th>Fit</th></tr></thead><tbody>';
     for (const [label, data, tip] of rows) {
@@ -605,6 +616,91 @@
     </div>`;
     el.innerHTML = html;
     initBadges(); // re-bind tooltips on the new elements
+  }
+
+  function renderMarketRegimes(s) {
+    const header = document.getElementById("r-regime-header");
+    const el = document.getElementById("r-market-regimes");
+    if (!el || !header) return;
+    const regimes = s.multi_era?.regimes || [];
+    const summary = s.multi_era?.regime_summary || {};
+    if (!regimes.length) {
+      header.style.display = "none";
+      el.style.display = "none";
+      el.innerHTML = "";
+      return;
+    }
+    header.style.display = "";
+    el.style.display = "";
+
+    function shareCls(v) { return v == null ? "" : v >= 1 ? "pos" : "neg"; }
+    function fmtShare(v) { return v == null ? "—" : fmtMult(v); }
+    function fmtAlpha(v) {
+      if (v == null) return "—";
+      return `${v >= 0 ? "+" : ""}${fmtPct(v * 100)}`;
+    }
+    function kindClass(kind) {
+      return kind ? `rg-${kind}` : "";
+    }
+    function kindLabel(kind) {
+      return kind ? String(kind).replace("_", " ") : "—";
+    }
+
+    const overall = summary.overall_score;
+    const components = summary.components || {};
+    const criticalPass = summary.critical_guardrail_passed;
+    const failures = summary.critical_failures || [];
+    const weakest = summary.weakest_regime;
+    let html = '<div class="metric-grid" style="margin-bottom:10px;">';
+    html += `
+      <div class="metric-row">
+        <span class="k has-tip" data-tip="Weighted aggregate of the named regime components below. Emphasizes crash defense and bear survival more than bull capture.">Regime robustness</span>
+        <span class="v ${overall != null && overall >= 0.7 ? "pos" : ""}">${overall != null ? `${Math.round(overall * 100)}/100` : "—"}</span>
+      </div>`;
+    for (const key of ["crash_defense", "bear_survival", "bull_participation", "recovery_capture", "policy_resilience"]) {
+      const component = components[key];
+      if (!component) continue;
+      html += `
+      <div class="metric-row">
+        <span class="k has-tip" data-tip="Aggregate share-multiple score across the named ${escapeHtml(component.label.toLowerCase())} windows.">${escapeHtml(component.label)}</span>
+        <span class="v ${component.score >= 0.7 ? "pos" : component.score < 0.5 ? "neg" : ""}">${Math.round(component.score * 100)}/100</span>
+      </div>`;
+    }
+    const criticalTip = failures.length
+      ? `Critical-regime floor is ${(summary.critical_floor || 0).toFixed(2)}x. Breaches: ${failures.map((f) => `${f.label} ${fmtMult(f.share_multiple)}`).join(", ")}.`
+      : `Critical-regime floor is ${(summary.critical_floor || 0).toFixed(2)}x across dot-com bust, GFC crash, COVID crash, 2018 tightening drawdown, and 2022 inflation/hiking bear.`;
+    html += `
+      <div class="metric-row">
+        <span class="k has-tip" data-tip="${escapeHtml(criticalTip)}">Critical regimes</span>
+        <span class="v ${criticalPass ? "pos" : "neg"}">${criticalPass ? "pass" : `${failures.length} breach${failures.length === 1 ? "" : "es"}`}</span>
+      </div>`;
+    if (weakest && weakest.label) {
+      html += `
+      <div class="metric-row">
+        <span class="k has-tip" data-tip="Weakest named regime by share multiple versus buy-and-hold.">Weakest regime</span>
+        <span class="v ${weakest.share_multiple >= 1 ? "pos" : "neg"}">${escapeHtml(weakest.label)} · ${fmtMult(weakest.share_multiple)}</span>
+      </div>`;
+    }
+    html += "</div>";
+
+    html += '<table class="era-table"><thead><tr><th>Regime</th><th>Type</th><th>Share</th><th>Alpha</th><th>Max DD</th><th>Trades</th></tr></thead><tbody>';
+    for (const regime of regimes) {
+      const share = regime.share_multiple;
+      const alpha = share == null ? null : share - 1.0;
+      const tip = regime.description || "";
+      html += `<tr>
+        <td class="era-label has-tip" data-tip="${escapeHtml(tip)}">${escapeHtml(regime.label || "—")}</td>
+        <td class="era-val"><span class="badge ${kindClass(regime.kind)}">${escapeHtml(kindLabel(regime.kind))}</span></td>
+        <td class="era-val ${shareCls(share)}">${fmtShare(share)}</td>
+        <td class="era-val ${shareCls(share)}">${fmtAlpha(alpha)}</td>
+        <td class="era-val neg">${regime.max_dd_pct != null ? fmtPct(regime.max_dd_pct) : "—"}</td>
+        <td class="era-val">${regime.trades || 0}</td>
+      </tr>`;
+    }
+    html += "</tbody></table>";
+    html += '<div style="color:var(--text-3);font-size:11px;margin-top:8px;">Share is strategy shares vs buy-and-hold over each named window. Alpha is excess share gain/loss versus buy-and-hold.</div>';
+    el.innerHTML = html;
+    initBadges();
   }
 
   function addMetric(parent, k, v, cls = "", tip = "") {

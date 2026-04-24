@@ -33,7 +33,8 @@ def main():
     )
     sys.path.insert(0, os.path.join(project_root, "scripts"))
 
-    from search.evolve import _is_leaderboard_eligible, update_leaderboard
+    from certify.contract import is_leaderboard_eligible
+    from search.evolve import update_leaderboard
     from validation.pipeline import run_validation_pipeline
 
     lb_path = os.path.join(project_root, "spike", "leaderboard.json")
@@ -92,23 +93,21 @@ def main():
         f"FAIL={summary['validated_fail']}"
     )
 
-    # Under the 2026-04-21 framework, leaderboard admission includes watchlist
-    # tier (composite_confidence 0.60-0.69, verdict=WARN) alongside PASS (>=0.70).
-    # Iterate over all evaluated entries; _is_leaderboard_eligible enforces the
-    # 0.60 floor and certification checks.
+    # Rebuild the authority leaderboard from the canonical contract:
+    # promotion_ready + required engine-level certification checks.
     admitted = []
     rejected = []
     for e in results.get("raw_rankings", []):
         if not e.get("validation"):
             continue
-        eligible, reason = _is_leaderboard_eligible(e)
+        eligible, reason = is_leaderboard_eligible(e)
         if eligible:
             admitted.append(e)
         else:
             rejected.append((e.get("strategy"), e.get("params"), reason))
 
     # Sort admitted by composite_confidence descending (leaderboard is ranked by
-    # confidence under the new framework, not raw fitness).
+    # confidence under the new framework, fitness is only a tie-breaker).
     admitted.sort(
         key=lambda e: (e.get("validation") or {}).get("composite_confidence", 0.0),
         reverse=True,

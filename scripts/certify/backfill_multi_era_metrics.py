@@ -35,7 +35,7 @@ import json
 import math
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 
 import numpy as np
 import pandas as pd
@@ -60,13 +60,212 @@ ERAS = (
     ("modern", "2015-01-01", "post-QE retail-algo era → now"),
 )
 
+MARKET_REGIMES = (
+    {
+        "key": "early_tech_bull",
+        "label": "Early tech bull",
+        "kind": "bull",
+        "start": "1993-05-04",
+        "end": "1998-10-07",
+        "description": "Pre-dotcom secular tech expansion before the LTCM washout.",
+    },
+    {
+        "key": "dotcom_meltup",
+        "label": "Dot-com melt-up",
+        "kind": "bull",
+        "start": "1998-10-08",
+        "end": "2000-03-24",
+        "description": "Late-90s internet mania into the Nasdaq blow-off top.",
+    },
+    {
+        "key": "dotcom_bust",
+        "label": "Dot-com bust / Y2K fallout",
+        "kind": "bear",
+        "start": "2000-03-27",
+        "end": "2002-10-09",
+        "description": "Post-Y2K unwind and tech bust from the 2000 peak to the 2002 trough.",
+    },
+    {
+        "key": "credit_bull",
+        "label": "Housing / credit bull",
+        "kind": "bull",
+        "start": "2002-10-10",
+        "end": "2007-10-31",
+        "description": "Expansionary pre-GFC bull market after the dot-com reset.",
+    },
+    {
+        "key": "gfc_crash",
+        "label": "GFC crash",
+        "kind": "crash",
+        "start": "2007-11-01",
+        "end": "2009-03-09",
+        "description": "Global Financial Crisis drawdown from the 2007 peak to the March 2009 low.",
+    },
+    {
+        "key": "qe_recovery",
+        "label": "QE recovery",
+        "kind": "recovery",
+        "start": "2009-03-10",
+        "end": "2011-04-29",
+        "description": "Post-GFC recovery driven by emergency policy and early QE.",
+    },
+    {
+        "key": "euro_crisis_chop",
+        "label": "Euro crisis / downgrade chop",
+        "kind": "chop",
+        "start": "2011-05-02",
+        "end": "2012-11-15",
+        "description": "US downgrade, euro-sovereign stress, and high-volatility range behavior.",
+    },
+    {
+        "key": "secular_tech_bull",
+        "label": "Secular tech bull",
+        "kind": "bull",
+        "start": "2012-11-16",
+        "end": "2018-09-20",
+        "description": "Long low-rate expansion before the 2018 tightening drawdown.",
+    },
+    {
+        "key": "tightening_trade_war",
+        "label": "Tightening / trade-war drawdown",
+        "kind": "bear",
+        "start": "2018-09-21",
+        "end": "2018-12-24",
+        "description": "Q4 2018 selloff under tightening fears and trade-war pressure.",
+    },
+    {
+        "key": "pre_covid_bull",
+        "label": "Pre-COVID melt-up",
+        "kind": "bull",
+        "start": "2018-12-26",
+        "end": "2020-02-19",
+        "description": "Late-cycle rally after the 2018 reset and before the pandemic shock.",
+    },
+    {
+        "key": "covid_crash",
+        "label": "COVID crash",
+        "kind": "crash",
+        "start": "2020-02-20",
+        "end": "2020-03-23",
+        "description": "Pandemic panic drawdown into the March 2020 low.",
+    },
+    {
+        "key": "stimulus_bull",
+        "label": "Stimulus / reopening bull",
+        "kind": "bull",
+        "start": "2020-03-24",
+        "end": "2021-11-19",
+        "description": "Liquidity-driven rebound and reopening bull market.",
+    },
+    {
+        "key": "inflation_hiking_bear",
+        "label": "Inflation / hiking bear",
+        "kind": "bear",
+        "start": "2021-11-22",
+        "end": "2022-10-12",
+        "description": "Inflation shock and aggressive rate hikes driving a deep tech drawdown.",
+    },
+    {
+        "key": "ai_bull",
+        "label": "AI / disinflation bull",
+        "kind": "bull",
+        "start": "2022-10-13",
+        "end": "2024-07-10",
+        "description": "AI-led rebound with easing inflation expectations.",
+    },
+    {
+        "key": "policy_volatility",
+        "label": "Late-cycle policy volatility",
+        "kind": "policy",
+        "start": "2024-07-11",
+        "end": None,
+        "description": "Recent market shaped more by policy shocks and macro-volatility than a clean trend.",
+    },
+)
+
 DEFAULT_DECAY_LAMBDA = 0.07  # half-life ≈ 10 years
+CRITICAL_REGIME_FLOOR = 0.85
+CRITICAL_REGIME_KEYS = {
+    "dotcom_bust",
+    "gfc_crash",
+    "covid_crash",
+    "inflation_hiking_bear",
+    "tightening_trade_war",
+}
+
+REGIME_SCORE_COMPONENTS = {
+    "bull_participation": {
+        "label": "Bull participation",
+        "kinds": {"bull"},
+        "anchors": (0.05, 0.20, 0.60),
+        "weight": 0.20,
+    },
+    "recovery_capture": {
+        "label": "Recovery capture",
+        "kinds": {"recovery"},
+        "anchors": (0.10, 0.30, 0.75),
+        "weight": 0.15,
+    },
+    "bear_survival": {
+        "label": "Bear survival",
+        "kinds": {"bear"},
+        "anchors": (0.90, 1.20, 3.00),
+        "weight": 0.25,
+    },
+    "crash_defense": {
+        "label": "Crash defense",
+        "kinds": {"crash"},
+        "anchors": (1.00, 1.50, 4.00),
+        "weight": 0.30,
+    },
+    "policy_resilience": {
+        "label": "Policy resilience",
+        "kinds": {"policy", "chop"},
+        "anchors": (0.85, 1.0, 1.15),
+        "weight": 0.10,
+    },
+}
+
+
+def _slice_df(
+    df: pd.DataFrame,
+    start: str | None,
+    end: str | None = None,
+) -> pd.DataFrame:
+    if start is None:
+        sliced = df
+    else:
+        sliced = df[df["date"] >= start]
+    if end is not None:
+        sliced = sliced[sliced["date"] <= end]
+    return sliced.reset_index(drop=True)
+
+
+def _interp_score(value: float, low: float, mid: float, high: float) -> float:
+    if value <= low:
+        return 0.0
+    if value >= high:
+        return 1.0
+    if value <= mid:
+        span = max(mid - low, 1e-9)
+        return 0.5 * (value - low) / span
+    span = max(high - mid, 1e-9)
+    return 0.5 + 0.5 * (value - mid) / span
+
+
+def _geo_mean(values: list[float], floor: float = 0.01) -> float:
+    usable = [max(float(v), floor) for v in values if v is not None]
+    if not usable:
+        return 0.0
+    return math.exp(sum(math.log(v) for v in usable) / len(usable))
 
 
 def _era_metrics(
     df: pd.DataFrame, ind: Indicators, name: str, params: dict, tier: str
 ) -> dict:
     """Backtest + fitness on a given data slice. Returns {} on error."""
+    if len(df) < 2:
+        return {"error": "window too short"}
     try:
         fn = STRATEGY_REGISTRY[name]
     except KeyError:
@@ -85,6 +284,7 @@ def _era_metrics(
         return {"error": f"backtest failed: {exc}"[:200]}
     close = df["close"].values.astype(np.float64)
     dates = df["date"].values
+    bah_return_pct = ((close[-1] / close[0]) - 1.0) * 100.0 if close[0] > 0 else 0.0
     try:
         r.regime_score = score_regime_capture(r.trades, close, dates)
     except Exception:
@@ -100,6 +300,7 @@ def _era_metrics(
         "bars": int(len(df)),
         "start_date": str(df["date"].iloc[0])[:10],
         "end_date": str(df["date"].iloc[-1])[:10],
+        "bah_return_pct": float(bah_return_pct),
     }
 
 
@@ -206,16 +407,39 @@ def enrich_entry_with_multi_era(
     params = entry.get("params", {})
     tier = entry.get("tier") or STRATEGY_TIERS.get(name, "T1")
 
-    block: dict = {"computed_at": datetime.utcnow().isoformat() + "Z", "eras": {}}
+    block: dict = {
+        "computed_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "eras": {},
+    }
     for era_key, cutoff, desc in ERAS:
-        if cutoff is None:
-            df_slice = df_full
+        df_slice = _slice_df(df_full, cutoff)
+        if len(df_slice) < 2:
+            era_block = {"error": "window too short"}
         else:
-            df_slice = df_full[df_full["date"] >= cutoff].reset_index(drop=True)
-        ind_slice = Indicators(df_slice)
-        era_block = _era_metrics(df_slice, ind_slice, name, params, tier)
+            ind_slice = Indicators(df_slice)
+            era_block = _era_metrics(df_slice, ind_slice, name, params, tier)
         era_block["description"] = desc
         block["eras"][era_key] = era_block
+
+    block["regimes"] = []
+    for regime in MARKET_REGIMES:
+        df_slice = _slice_df(df_full, regime["start"], regime.get("end"))
+        if len(df_slice) < 2:
+            regime_block = {"error": "window too short"}
+        else:
+            ind_slice = Indicators(df_slice)
+            regime_block = _era_metrics(df_slice, ind_slice, name, params, tier)
+        regime_block.update(
+            {
+                "key": regime["key"],
+                "label": regime["label"],
+                "kind": regime["kind"],
+                "description": regime["description"],
+            }
+        )
+        block["regimes"].append(regime_block)
+
+    block["regime_summary"] = summarize_regime_performance(block["regimes"])
 
     # Decayed fitness on the full history
     ind_full = Indicators(df_full)
@@ -223,6 +447,73 @@ def enrich_entry_with_multi_era(
         df_full, ind_full, name, params, tier, decay_lambda
     )
     return block
+
+
+def summarize_regime_performance(regimes: list[dict]) -> dict:
+    """Aggregate named regime reruns into a compact robustness profile."""
+    components = {}
+    critical_failures = []
+    for regime in regimes:
+        key = regime.get("key")
+        share = regime.get("share_multiple")
+        if key in CRITICAL_REGIME_KEYS and share is not None and float(share) < CRITICAL_REGIME_FLOOR:
+            critical_failures.append(
+                {
+                    "key": key,
+                    "label": regime.get("label"),
+                    "share_multiple": float(share),
+                    "kind": regime.get("kind"),
+                }
+            )
+
+    weighted_sum = 0.0
+    total_weight = 0.0
+    for key, spec in REGIME_SCORE_COMPONENTS.items():
+        members = [
+            regime for regime in regimes
+            if regime.get("kind") in spec["kinds"]
+            and regime.get("share_multiple") is not None
+        ]
+        aggregate_share = _geo_mean([float(regime["share_multiple"]) for regime in members])
+        score = _interp_score(aggregate_share, *spec["anchors"]) if members else 0.0
+        components[key] = {
+            "label": spec["label"],
+            "score": float(score),
+            "aggregate_share_multiple": float(aggregate_share),
+            "count": len(members),
+            "weight": float(spec["weight"]),
+        }
+        if members:
+            weighted_sum += score * spec["weight"]
+            total_weight += spec["weight"]
+
+    overall = 0.0
+    if total_weight > 0:
+        overall = weighted_sum / total_weight
+
+    weakest = min(
+        (
+            {
+                "key": regime.get("key"),
+                "label": regime.get("label"),
+                "share_multiple": float(regime.get("share_multiple")),
+                "kind": regime.get("kind"),
+            }
+            for regime in regimes
+            if regime.get("share_multiple") is not None
+        ),
+        key=lambda item: item["share_multiple"],
+        default=None,
+    )
+
+    return {
+        "overall_score": float(overall),
+        "critical_floor": float(CRITICAL_REGIME_FLOOR),
+        "critical_guardrail_passed": len(critical_failures) == 0,
+        "critical_failures": critical_failures,
+        "components": components,
+        "weakest_regime": weakest,
+    }
 
 
 def main() -> int:

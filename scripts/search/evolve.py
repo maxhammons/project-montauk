@@ -27,9 +27,19 @@ from datetime import datetime
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from certify.contract import (
+    is_leaderboard_eligible as _is_leaderboard_eligible,
+    sync_entry_contract,
+)
 from data.loader import get_tecl_data
 from engine.strategy_engine import Indicators, backtest, BacktestResult
 from engine.regime_helpers import score_regime_capture
+from search.fitness import (
+    all_era_score_from_entry,
+    canonicalize_metrics_with_multi_era,
+    fitness_from_result,
+    weighted_era_fitness,
+)
 from strategies.markers import NEUTRAL_MARKER_SCORE, score_marker_alignment
 from strategies.library import STRATEGY_TIERS
 
@@ -56,6 +66,7 @@ def _compute_engine_hash() -> str:
     for rel_path in (
         os.path.join("engine", "strategy_engine.py"),
         os.path.join("search", "evolve.py"),
+        os.path.join("search", "fitness.py"),
         os.path.join("strategies", "library.py"),
     ):
         path = os.path.join(scripts_dir, rel_path)
@@ -91,12 +102,22 @@ def load_hash_index() -> dict:
     """
     Load the compact hash index.
 
-    Format v3 (current): {config_hash: {"bah": share_multiple, "rs": regime_score, "dd": max_dd, "nt": num_trades, "np": n_params, "hhi": hhi}}
+    Format v4 (current):
+      {config_hash: {
+          "bah": share_multiple,
+          "real_bah": real_share_multiple,
+          "modern_bah": modern_share_multiple,
+          "rs": regime_score,
+          "dd": max_dd,
+          "nt": num_trades,
+          "np": n_params,
+          "hhi": hhi
+      }}
     Format v2 (old): {config_hash: {"f": fitness, "rs": regime_score}}
     Format v1 (old): {config_hash: fitness}
 
-    v1 and v2 entries are stale — they don't store raw metrics, so fitness
-    can't be recomputed. They're migrated with bah=None and will be
+    v1-v3 entries are stale under the era-weighted objective if they don't store
+    all three era share-multipliers. They're migrated with bah=None so they are
     re-evaluated when encountered.
     """
     if os.path.exists(HASH_INDEX_FILE):
@@ -108,14 +129,58 @@ def load_hash_index() -> dict:
                 if isinstance(sample, (int, float)):
                     # v1 → migrate: mark all as stale (bah=None)
                     n = len(raw)
-                    migrated = {h: {"bah": None, "rs": None, "dd": None, "nt": 0, "np": 0, "hhi": None} for h in raw}
-                    print(f"[history] Migrated {n:,} v1 entries to v3 format (bah=None, will re-evaluate)")
+                    migrated = {
+                        h: {
+                            "bah": None,
+                            "real_bah": None,
+                            "modern_bah": None,
+                            "rs": None,
+                            "dd": None,
+                            "nt": 0,
+                            "np": 0,
+                            "hhi": None,
+                        }
+                        for h in raw
+                    }
+                    print(f"[history] Migrated {n:,} v1 entries to v4 format (stale, will re-evaluate)")
                     return migrated
                 # Check for v2 entries (have "f" key but no "bah" key)
                 if isinstance(sample, dict) and "f" in sample and "bah" not in sample:
                     n = len(raw)
-                    migrated = {h: {"bah": None, "rs": v.get("rs"), "dd": None, "nt": 0, "np": 0, "hhi": None} for h, v in raw.items()}
-                    print(f"[history] Migrated {n:,} v2 entries to v3 format (bah=None, will re-evaluate)")
+                    migrated = {
+                        h: {
+                            "bah": None,
+                            "real_bah": None,
+                            "modern_bah": None,
+                            "rs": v.get("rs"),
+                            "dd": None,
+                            "nt": 0,
+                            "np": 0,
+                            "hhi": None,
+                        }
+                        for h, v in raw.items()
+                    }
+                    print(f"[history] Migrated {n:,} v2 entries to v4 format (stale, will re-evaluate)")
+                    return migrated
+                if isinstance(sample, dict) and (
+                    "real_bah" not in sample or "modern_bah" not in sample
+                ):
+                    n = len(raw)
+                    migrated = {
+                        h: {
+                            "bah": None,
+                            "real_bah": None,
+                            "modern_bah": None,
+                            "rs": v.get("rs"),
+                            "dd": v.get("dd"),
+                            "nt": v.get("nt", 0),
+                            "np": v.get("np", 0),
+                            "hhi": v.get("hhi"),
+                            "ma": v.get("ma"),
+                        }
+                        for h, v in raw.items()
+                    }
+                    print(f"[history] Migrated {n:,} v3 entries to v4 format (missing era metrics, will re-evaluate)")
                     return migrated
             return raw
         except Exception as e:
@@ -135,7 +200,16 @@ def load_hash_index() -> dict:
                     entry = json.loads(line)
                     h = entry.get("hash", "")
                     if h and h not in index:
-                        index[h] = {"bah": None, "rs": None, "dd": None, "nt": 0, "np": 0, "hhi": None}
+                        index[h] = {
+                            "bah": None,
+                            "real_bah": None,
+                            "modern_bah": None,
+                            "rs": None,
+                            "dd": None,
+                            "nt": 0,
+                            "np": 0,
+                            "hhi": None,
+                        }
             save_hash_index(index)
             print(f"[history] Migrated {len(index):,} unique configs to hash-index.json")
             return index
@@ -149,13 +223,20 @@ def load_hash_index() -> dict:
 def save_hash_index(index: dict):
     """Save the hash index to disk. Prunes stale/empty entries to control size.
 
-    v3 format: {hash: {"bah": share_multiple, "rs": regime_score, "dd": max_dd, "nt": num_trades, "np": n_params, "hhi": hhi}}
-    Entries with bah=None or bah=0 are pruned (they need re-evaluation anyway).
+    v4 format stores the full/real/modern era share multipliers so the
+    era-weighted objective can be recomputed without rerunning the backtest.
+    Entries missing any era multiplier are pruned because they must be
+    re-evaluated anyway.
     """
     os.makedirs(HISTORY_DIR, exist_ok=True)
     pruned = {}
     for h, v in index.items():
-        if isinstance(v, dict) and v.get("bah"):
+        if (
+            isinstance(v, dict)
+            and v.get("bah")
+            and v.get("real_bah") is not None
+            and v.get("modern_bah") is not None
+        ):
             pruned[h] = v
     dropped = len(index) - len(pruned)
     if dropped > 0:
@@ -188,53 +269,6 @@ CONVERGE_RUNS = 3  # auto-flag as converged after this many runs with no improve
 PRUNE_RUNS = 2     # skip strategies below baseline after this many runs
 BASELINE_FLOOR = 0.05  # minimum fitness to survive pruning (approx montauk_821 default)
 
-# Engine-level certification checks that must pass for a strategy to be admitted
-# to the leaderboard. Excludes `artifact_completeness` (a deployment-only check
-# that is champion-specific; fixed up by spike_runner._finalize_champion_certification).
-# Per the charter (see docs/charter.md and project-status.md): the leaderboard is a
-# statement of "not overfit, will generalize into the future" — it requires the
-# full 7-gate validation pipeline (promotion_ready) AND the engine-level integrity
-# checks (engine_integrity, golden_regression, shadow_comparator, data_quality).
-REQUIRED_CERTIFICATION_CHECKS = (
-    "engine_integrity",
-    "golden_regression",
-    "shadow_comparator",
-    "data_quality_precheck",
-)
-
-
-LEADERBOARD_WATCHLIST_CONFIDENCE = 0.60
-LEADERBOARD_ADMIT_CONFIDENCE = 0.70
-
-
-def _is_leaderboard_eligible(entry: dict) -> tuple[bool, str]:
-    """Return (eligible, reason) — whether an entry may be admitted to the leaderboard.
-
-    Under the 2026-04-21 confidence-score framework:
-      - Entries with `composite_confidence >= 0.70` are admitted (PASS verdict).
-      - Entries with 0.60 <= composite < 0.70 are visible as "watchlist" (WARN).
-      - Entries below 0.60 are hidden (FAIL or research-only).
-      - All admitted/watchlist entries must still pass REQUIRED_CERTIFICATION_CHECKS
-        (engine integrity, golden regression, shadow comparator, data quality).
-
-    Legacy leaderboard entries without a `validation` block are grandfathered in.
-    """
-    validation = entry.get("validation") or {}
-    if not validation:
-        return True, "legacy_entry"
-    composite = float(validation.get("composite_confidence") or 0.0)
-    if composite < LEADERBOARD_WATCHLIST_CONFIDENCE:
-        return False, f"composite_confidence={composite:.3f} < {LEADERBOARD_WATCHLIST_CONFIDENCE:.2f}"
-    checks = validation.get("certification_checks") or {}
-    failing = [
-        name for name in REQUIRED_CERTIFICATION_CHECKS
-        if not (checks.get(name) or {}).get("passed", False)
-    ]
-    if failing:
-        return False, f"certification checks failing: {', '.join(failing)}"
-    return True, "ok"
-
-
 def update_leaderboard(results: dict, leaderboard_path: str) -> list:
     """
     Update the all-time top-20 leaderboard with convergence tracking.
@@ -247,12 +281,13 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
     Convergence is per-strategy-name (not per-config). Once a strategy is converged,
     Claude should skip optimizing it and focus effort elsewhere.
 
-    **Leaderboard guard (2026-04-20):** entries are only admitted if they are
-    promotion_ready AND pass every required engine-level certification check
-    (see REQUIRED_CERTIFICATION_CHECKS). This enforces the charter rule that a
-    leaderboard entry is a certification of "not overfit, will work into the
-    future" — no candidate that hasn't cleared the full validation + engine
-    integrity stack can be on the board.
+    **Leaderboard guard:** entries are only admitted if they are
+    `certified_not_overfit=True`. Performance does not affect eligibility; it
+    only ranks already-certified rows and trims the surface to the top 20.
+    Ranking uses a balanced all-era score so the leaderboard surfaces the
+    strongest certified strategy across full / real / modern history.
+    `backtest_certified` remains champion-only because artifact completeness is
+    a post-validation deployment concern, not an anti-overfit admission rule.
 
     Returns the updated leaderboard list.
     """
@@ -276,6 +311,21 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
                 leaderboard = json.load(f)
         except Exception:
             pass
+
+    normalized_existing = []
+    for entry in leaderboard:
+        if not isinstance(entry, dict):
+            continue
+        sync_entry_contract(entry)
+        eligible, reason = _is_leaderboard_eligible(entry)
+        if eligible:
+            normalized_existing.append(entry)
+        else:
+            print(
+                f"[leaderboard] dropped existing {entry.get('strategy')} "
+                f"from authority view: {reason}"
+            )
+    leaderboard = normalized_existing
 
     # Backfill display_name on legacy entries that predate the naming rule.
     from strategies.naming import assign_display_name as _assign_name
@@ -325,7 +375,8 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
     for entry in results.get("rankings", []):
         if not entry.get("metrics"):
             continue
-        # Leaderboard guard: admit only promotion_ready + engine-certified entries.
+        sync_entry_contract(entry)
+        # Leaderboard guard: admit only anti-overfit-certified rows.
         eligible, reason = _is_leaderboard_eligible(entry)
         if not eligible:
             rejected_count += 1
@@ -392,6 +443,11 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
         if desc:
             lb_entry["description"] = desc
         _enrich_multi_era(lb_entry)
+        lb_entry["metrics"] = canonicalize_metrics_with_multi_era(
+            lb_entry.get("metrics"),
+            lb_entry.get("multi_era"),
+        )
+        lb_entry["overall_performance_score"] = all_era_score_from_entry(lb_entry)
         leaderboard.append(lb_entry)
 
     # Increment runs_without_improvement for strategies NOT in this run
@@ -409,20 +465,34 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
             entry["converged"] = strategy_state[name]["converged"]
             entry["runs_without_improvement"] = strategy_state[name]["runs_without_improvement"]
 
-    # Deduplicate: keep highest-confidence entry per config hash.
+    # Deduplicate: keep strongest all-era-performing certified entry per config hash.
     def _entry_confidence(entry: dict) -> float:
         return float((entry.get("validation") or {}).get("composite_confidence") or 0.0)
+    def _entry_overall_score(entry: dict) -> float:
+        value = entry.get("overall_performance_score")
+        if value is not None:
+            return float(value)
+        return all_era_score_from_entry(entry)
+    def _entry_fitness(entry: dict) -> float:
+        return float(entry.get("fitness") or 0.0)
 
     seen = {}
     for entry in leaderboard:
         h = config_hash(entry["strategy"], entry.get("params", {}))
-        if h not in seen or _entry_confidence(entry) > _entry_confidence(seen[h]):
+        if h not in seen or (
+            _entry_overall_score(entry), _entry_fitness(entry), _entry_confidence(entry)
+        ) > (
+            _entry_overall_score(seen[h]), _entry_fitness(seen[h]), _entry_confidence(seen[h])
+        ):
             seen[h] = entry
-    # Leaderboard order is confidence-first (primary metric under the 2026-04-21
-    # framework), fitness as tie-breaker.
+    # Leaderboard order is all-era-performance-first among already-certified rows.
     leaderboard = sorted(
         seen.values(),
-        key=lambda x: (_entry_confidence(x), x.get("fitness", 0)),
+        key=lambda x: (
+            _entry_overall_score(x),
+            _entry_fitness(x),
+            _entry_confidence(x),
+        ),
         reverse=True,
     )[:20]
 
@@ -481,15 +551,15 @@ def set_converged(leaderboard_path: str, strategy_name: str, converged: bool) ->
 #     use fitness directly, with share_multiple as the primary driver. Marker
 #     shape alignment became a first-class validation gate (not a ±5% nudge).
 #
-# Cache format v3: stores raw backtest metrics {bah, rs, dd, nt, np, hhi, ma}
-# so fitness can be recomputed on the fly when the formula changes,
-# without re-running backtests.
+# Cache format v4 stores raw backtest metrics plus the real/modern era
+# share-multipliers so fitness/objectives can be recomputed on the fly when the
+# formula changes, without re-running backtests.
 
 MAX_TRADES_PER_YEAR = 5.0  # charter boundary: regime strategy, not scalper (was 3.0 pre-2026-04-13)
 
 
 def fitness_from_cache(entry: dict, *, tier: str = "T2") -> float:
-    """Compute fitness from cached raw metrics (v3 cache entry).
+    """Compute fitness from cached raw metrics (v4 cache entry).
 
     Same formula as fitness() but operates on stored metrics dict.
     Returns 0.0 if any required field is None.
@@ -500,7 +570,14 @@ def fitness_from_cache(entry: dict, *, tier: str = "T2") -> float:
     is the structural defense; see fitness() docstring).
     """
     share_mult = entry.get("bah")
-    if share_mult is None or share_mult <= 0:
+    real_share = entry.get("real_bah")
+    modern_share = entry.get("modern_bah")
+    if (
+        share_mult is None
+        or real_share is None
+        or modern_share is None
+        or share_mult <= 0
+    ):
         return 0.0
     num_trades = entry.get("nt") or 0
     if num_trades < 5:
@@ -512,6 +589,12 @@ def fitness_from_cache(entry: dict, *, tier: str = "T2") -> float:
     dd = entry.get("dd")
     if dd is None:
         return 0.0
+
+    share_mult = weighted_era_fitness(
+        full_share=share_mult,
+        real_share=real_share,
+        modern_share=modern_share,
+    )
 
     # HHI penalty
     hhi_penalty = max(0.5, 1.0 - max(0, hhi - 0.15) * 3)
@@ -560,8 +643,6 @@ def fitness(result: BacktestResult, *, tier: str = "T2") -> float:
     Guards: drawdown, cycle concentration (HHI), trade count floor, charter
        trade-frequency limit. Regime score still used as a quality multiplier.
     """
-    from search.fitness import weighted_era_fitness
-
     if result is None or result.num_trades < 5:
         return 0.0
 
@@ -627,6 +708,8 @@ def _cache_entry_from_result(
         hhi = round(regime_score.hhi, 4)
     return {
         "bah": round(result.share_multiple, 4) if result else None,
+        "real_bah": round(result.real_share_multiple, 4) if result else None,
+        "modern_bah": round(result.modern_share_multiple, 4) if result else None,
         "rs": round(regime_score.composite, 4) if regime_score else None,
         "dd": round(result.max_drawdown_pct, 1) if result else None,
         "nt": result.num_trades if result else 0,
@@ -635,6 +718,15 @@ def _cache_entry_from_result(
         "ma": round(float(marker_alignment_score), 4)
         if marker_alignment_score is not None else None,
     }
+
+
+def _cache_entry_ready(entry: dict | None) -> bool:
+    return bool(
+        isinstance(entry, dict)
+        and entry.get("bah") is not None
+        and entry.get("real_bah") is not None
+        and entry.get("modern_bah") is not None
+    )
 
 
 def _dataset_years(df) -> float:
@@ -660,18 +752,28 @@ def _passes_pareto_hard_gates(num_trades: int, trades_per_year: float, n_params:
 
 def _objectives_from_cache(entry: dict, dataset_years: float) -> tuple[float, float, float] | None:
     share_mult = entry.get("bah")
+    real_share = entry.get("real_bah")
+    modern_share = entry.get("modern_bah")
     dd = entry.get("dd")
     num_trades = entry.get("nt") or 0
     n_params = entry.get("np") or 0
     hhi = entry.get("hhi")
     if hhi is None:
         hhi = 0.0
-    if share_mult is None or dd is None:
+    if share_mult is None or real_share is None or modern_share is None or dd is None:
         return None
     trades_per_year = (num_trades / dataset_years) if dataset_years > 0 else 0.0
     if not _passes_pareto_hard_gates(num_trades, trades_per_year, n_params, float(hhi)):
         return None
-    return float(share_mult), float(dd), float(hhi)
+    return (
+        weighted_era_fitness(
+            full_share=float(share_mult),
+            real_share=float(real_share),
+            modern_share=float(modern_share),
+        ),
+        float(dd),
+        float(hhi),
+    )
 
 
 def _objectives_from_result(result: BacktestResult | None) -> tuple[float, float, float] | None:
@@ -683,7 +785,7 @@ def _objectives_from_result(result: BacktestResult | None) -> tuple[float, float
     n_params = _count_tunable_params(result.params)
     if not _passes_pareto_hard_gates(result.num_trades, result.trades_per_year, n_params, hhi):
         return None
-    return float(result.share_multiple), float(result.max_drawdown_pct), hhi
+    return fitness_from_result(result), float(result.max_drawdown_pct), hhi
 
 
 def _require_optuna():
@@ -814,7 +916,7 @@ def evolve_bayesian(ind, df, strategy_name, strategy_fn, space, hours, dedup_cac
         # Check dedup cache
         h = config_hash(strategy_name, params)
         cached = dedup_cache.get(h)
-        if cached and isinstance(cached, dict) and cached.get("bah") is not None:
+        if _cache_entry_ready(cached):
             history_stats["cached_configs"] += 1
             objectives = _objectives_from_cache(cached, dataset_years)
             if objectives is None:
@@ -826,7 +928,7 @@ def evolve_bayesian(ind, df, strategy_name, strategy_fn, space, hours, dedup_cac
         )
         history_stats["new_configs"] += 1
 
-        # Store to cache (v3 format)
+        # Store to cache (v4 format)
         dedup_cache[h] = _cache_entry_from_result(params, result, marker_score)
 
         objectives = _objectives_from_result(result)
@@ -1150,20 +1252,20 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
                 pop = populations[strat_name]
                 strat_tier = STRATEGY_TIERS.get(strat_name, "T2")
 
-                # Evaluate with dedup cache (v3: stores raw metrics, fitness computed on the fly)
+                # Evaluate with dedup cache (v4: stores all era metrics, fitness computed on the fly)
                 scored = []
                 for params in pop:
                     h = config_hash(strat_name, params)
                     cached = dedup_cache.get(h)
-                    if cached and isinstance(cached, dict) and cached.get("bah") is not None:
-                        # v3 cache hit — recompute fitness from raw metrics
+                    if _cache_entry_ready(cached):
+                        # v4 cache hit — recompute fitness from raw metrics
                         fitness_score = fitness_from_cache(cached, tier=strat_tier)
                         marker_score = cached.get("ma", NEUTRAL_MARKER_SCORE)
                         discovery_score = discovery_score_from_cache(cached, tier=strat_tier)
                         scored.append((discovery_score, fitness_score, params, None, marker_score, None))
                         history_stats["cached_configs"] += 1
                     else:
-                        # New config or stale entry (bah=None) — must evaluate
+                        # New config or stale entry (missing era metrics) — must evaluate
                         fitness_score, discovery_score, marker_score, marker_detail, result = evaluate(
                             ind, df, fn, params, strat_name
                         )
@@ -1643,7 +1745,7 @@ def evolve_chunk(
                 for params in pop:
                     h = config_hash(strat_name, params)
                     cached = dedup_cache.get(h)
-                    if cached and isinstance(cached, dict) and cached.get("bah") is not None:
+                    if _cache_entry_ready(cached):
                         fitness_score = fitness_from_cache(cached, tier=strat_tier)
                         marker_score = cached.get("ma", NEUTRAL_MARKER_SCORE)
                         discovery_score = discovery_score_from_cache(cached, tier=strat_tier)

@@ -13,7 +13,8 @@ Usage:
 
 Grid is loaded from `scripts/search/focus_grids.py` keyed by strategy.
 Results:
-  - Admitted to `spike/leaderboard.json` if confidence >= 0.60
+  - Admitted to `spike/leaderboard.json` only if the canonical promotion
+    contract marks the row authority-eligible
   - Checkpoint/recovery files under `spike/focus_spikes/<strategy>_<ts>/`
   - No bulk persistence of raw grid results (only top-K heap survives)
 """
@@ -194,11 +195,8 @@ def main():
     summary = val_results["validation_summary"]
     print(f"Validation: PASS={summary['validated_pass']} WARN={summary['validated_warn']} FAIL={summary['validated_fail']}")
 
-    # Admit to leaderboard
-    admit = [
-        e for e in val_results["raw_rankings"]
-        if (e.get("validation") or {}).get("composite_confidence", 0.0) >= 0.60
-    ]
+    # Admit to leaderboard via the canonical authority path.
+    admit = val_results["raw_rankings"]
     if admit:
         from search.evolve import update_leaderboard
         update_leaderboard(
@@ -210,9 +208,9 @@ def main():
             },
             os.path.join(PROJECT_ROOT, "spike", "leaderboard.json"),
         )
-        print(f"Admitted {len(admit)} entries to leaderboard (top-20 cap applied).")
+        print("Submitted validated rows to leaderboard authority (top-20 cap applied).")
     else:
-        print("No entries reached admission threshold (0.60 confidence).")
+        print("No validated rows were available for leaderboard admission.")
 
 
 def _build_raw_rankings(strategy: str, top_k: list) -> list[dict]:

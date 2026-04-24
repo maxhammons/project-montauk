@@ -21,20 +21,24 @@ generate ideas  →  backtest + validate  →  if PASS → leaderboard  →  vis
 
 ## The pipeline rule (cement)
 
-**A strategy lives on [`spike/leaderboard.json`](../spike/leaderboard.json) if and only if it has cleared the full validation pipeline + every engine-level certification check.** The leaderboard is a binding statement that the listed strategies are **not overfit** and are expected to work into the future under current rules.
+**A strategy lives on [`spike/leaderboard.json`](../spike/leaderboard.json) if and only if it satisfies the canonical authority contract in [`certify/contract.py`](certify/contract.py).** The leaderboard is a binding statement that the listed strategies are **certified not overfit** under current rules.
 
 Concretely, to be admitted to the leaderboard an entry must satisfy both:
 
 1. **`promotion_ready=True`** — passed all 7 validation gates (gate1-7), verdict `PASS`
-2. **All required certification checks pass** (see `search/evolve.py::REQUIRED_CERTIFICATION_CHECKS`):
+2. **All required certification checks pass** (see `certify/contract.py::REQUIRED_CERTIFICATION_CHECKS`):
    - `engine_integrity` — slippage active, bar-close execution, lookahead-safe, repaint-safe
    - `golden_regression` — `montauk_821` trade ledger matches `tests/golden_trades_821.json`
    - `shadow_comparator` — engine agrees with `backtesting.py` on per-trade PnL (majority-agrees rule)
    - `data_quality_precheck` — `scripts/data/quality.py` reports 0 FAIL
 
-The `artifact_completeness` check (5 standardized JSONs in `spike/runs/NNN/`) is required for the run's **champion** only — it's a deployment concern, not a validity concern. For every other leaderboard entry, passing the 4 checks above is sufficient.
+When both conditions hold, the row is marked `certified_not_overfit=True`. That is the leaderboard truth.
 
-This rule is enforced programmatically by `search/evolve.py::update_leaderboard` via the helper `_is_leaderboard_eligible`. The principle is also recorded in [`spirit-guide/spirit-memory/principles.md`](../spirit-guide/spirit-memory/principles.md).
+The `artifact_completeness` check (5 standardized JSONs in `spike/runs/NNN/`) is required for the run's **champion** only — it upgrades that champion from `certified_not_overfit=True` to `backtest_certified=True`. It is not part of non-champion leaderboard admission.
+
+Performance does not affect eligibility. It only ranks already-certified rows and trims the leaderboard to the top 20.
+
+This rule is enforced programmatically by `search/evolve.py::update_leaderboard` via [`certify/contract.py`](certify/contract.py). Final artifact certification uses the same contract, so artifact generation cannot upgrade a WARN / non-`promotion_ready` row into `backtest_certified=True`.
 
 ## One-liner per file
 

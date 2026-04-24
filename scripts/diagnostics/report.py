@@ -149,6 +149,7 @@ def _detail_block(entry: dict) -> str:
         lines.append(
             f"**Validation:** {validation.get('verdict', '?')} | "
             f"**Composite:** {validation.get('composite_confidence', 0):.3f} | "
+            f"**Verified Not Overfit:** {validation.get('certified_not_overfit', False)} | "
             f"**Backtest Certified:** {validation.get('backtest_certified', False)} | "
             f"**Promotion Ready:** "
             f"{validation.get('promotion_ready', validation.get('promotion_eligible', False))}"

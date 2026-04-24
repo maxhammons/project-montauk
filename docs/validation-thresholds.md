@@ -18,7 +18,7 @@ No gate in Layer 2 has veto power on its own. Every sub-score contributes weight
 
 ## Layer 1 — Correctness Checklist
 
-Any failure here → verdict = FAIL, `promotion_ready = False`, `backtest_certified = False`.
+Any failure in the required anti-overfit checks here prevents `certified_not_overfit`. `backtest_certified` remains stricter because it also requires artifact completeness after validation.
 
 | Check | Source | Hard-fail condition |
 |---|---|---|
@@ -26,7 +26,7 @@ Any failure here → verdict = FAIL, `promotion_ready = False`, `backtest_certif
 | Golden regression | `tests/test_regression.py` | Trade-by-trade PnL divergence > ±0.001% on 8.2.1 defaults |
 | Shadow comparator (dev) | `tests/test_shadow_comparator.py` | Per-trade divergence > 0.5% vs `backtesting.py` / `vectorbt` |
 | Data-quality pre-check | `scripts/data/quality.py` | Yahoo-vs-Stooq divergence, seam discontinuity, manifest checksum mismatch, OHLC insanity |
-| Artifact completeness | run dir | Any of the five standardized JSON artifacts missing/malformed |
+| Artifact completeness | run dir | Prevents `backtest_certified` packaging, but does not by itself negate anti-overfit certification |
 | Strategy registered | `strategies/library.py` | Strategy name not in `STRATEGY_REGISTRY` |
 | Charter-compatible family | `strategies/library.py` | Registry flag set to `False` |
 | Share multiplier | Gate 1 (eligibility) | `share_multiple < 1.0` (charter mission: must beat B&H shares) |

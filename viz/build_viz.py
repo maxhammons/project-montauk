@@ -34,6 +34,7 @@ SCRIPTS_DIR = os.path.join(PROJECT_ROOT, "scripts")
 if SCRIPTS_DIR not in sys.path:
     sys.path.insert(0, SCRIPTS_DIR)
 
+from certify.contract import sync_validation_contract
 from search.share_metric import read_share_multiple
 
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
@@ -308,8 +309,12 @@ def build_strategy_entry(rank: int,
         "hhi": base_metrics.get("hhi"),
     }
 
-    validation = entry.get("validation") or {}
+    entry_validation = entry.get("validation")
+    validation = (
+        sync_validation_contract(entry_validation) if entry_validation else {}
+    )
     backtest_certified = bool(validation.get("backtest_certified"))
+    certified_not_overfit = bool(validation.get("certified_not_overfit"))
     promotion_ready = bool(validation.get("promotion_ready"))
     tier = entry.get("tier") or validation.get("tier") or "T0"
 
@@ -319,8 +324,10 @@ def build_strategy_entry(rank: int,
         "name": name,
         "codename": codename,
         "fitness": entry.get("fitness"),
+        "overall_performance_score": entry.get("overall_performance_score"),
         "composite_confidence": validation.get("composite_confidence"),
         "tier": tier,
+        "certified_not_overfit": certified_not_overfit,
         "backtest_certified": backtest_certified,
         "promotion_ready": promotion_ready,
         "params": params,
@@ -364,11 +371,15 @@ def build_strategy_entry(rank: int,
             out["metrics"][k] = v
 
     # If the run carries a richer validation block, fold it in
-    run_validation = payload.get("validation") or {}
+    payload_validation = payload.get("validation")
+    run_validation = (
+        sync_validation_contract(payload_validation) if payload_validation else {}
+    )
     if run_validation:
         run_gates = flatten_gates(run_validation)
         if run_gates:
             out["validation_summary"] = run_gates
+        out["certified_not_overfit"] = bool(run_validation.get("certified_not_overfit"))
         out["backtest_certified"] = bool(run_validation.get("backtest_certified"))
         out["promotion_ready"] = bool(run_validation.get("promotion_ready"))
         if run_validation.get("tier"):
