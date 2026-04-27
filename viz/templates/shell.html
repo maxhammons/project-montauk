@@ -313,12 +313,12 @@
     letter-spacing: 0.6px;
   }
   .chart-toolbar .spacer { flex: 1; }
-  .chart-area {
-    flex: 1;
-    display: grid;
-    grid-template-rows: 1.5fr 1fr;
-    min-height: 0;
-  }
+	  .chart-area {
+	    flex: 1;
+	    display: grid;
+	    grid-template-rows: 1.45fr 0.9fr 0.55fr;
+	    min-height: 0;
+	  }
   .pane {
     position: relative;
     border-bottom: 1px solid var(--line-soft);
@@ -490,13 +490,62 @@
   }
   .scorecard .mult.bad { color: var(--red); }
   .scorecard .mult.good { color: var(--green); }
-  .scorecard .sub {
-    color: var(--text-2);
-    font-size: 10px;
-    font-variant-numeric: tabular-nums;
-  }
+	  .scorecard .sub {
+	    color: var(--text-2);
+	    font-size: 10px;
+	    font-variant-numeric: tabular-nums;
+	  }
 
-  .gates {
+	  .health-snapshot {
+	    display: grid;
+	    grid-template-columns: 1fr;
+	    gap: 8px;
+	  }
+	  .health-main {
+	    display: flex;
+	    align-items: baseline;
+	    justify-content: space-between;
+	    gap: 12px;
+	  }
+	  .health-value {
+	    font-size: 24px;
+	    line-height: 1;
+	    font-weight: 650;
+	    font-variant-numeric: tabular-nums;
+	  }
+	  .health-value.strong { color: var(--green); }
+	  .health-value.positive { color: var(--accent); }
+	  .health-value.neutral { color: var(--amber); }
+	  .health-value.weak { color: var(--red); }
+	  .health-label {
+	    color: var(--text-2);
+	    font-size: 11px;
+	    text-transform: uppercase;
+	    letter-spacing: 0.6px;
+	  }
+	  .health-note {
+	    color: var(--text-3);
+	    font-size: 10px;
+	  }
+	  .health-components {
+	    display: grid;
+	    grid-template-columns: 1fr 1fr;
+	    gap: 5px 10px;
+	  }
+	  .health-component {
+	    display: flex;
+	    justify-content: space-between;
+	    gap: 8px;
+	    color: var(--text-1);
+	    font-size: 11px;
+	    font-variant-numeric: tabular-nums;
+	  }
+	  .health-component .k { color: var(--text-2); }
+	  .health-component .v.pos { color: var(--green); }
+	  .health-component .v.mid { color: var(--amber); }
+	  .health-component .v.neg { color: var(--red); }
+
+	  .gates {
     display: grid;
     grid-template-columns: 1fr;
     gap: 3px;
@@ -656,21 +705,30 @@
         <div class="pane-label">TECL — price + trades</div>
         <div class="pane-chart" id="chart-price"></div>
       </div>
-      <div class="pane" id="pane-equity">
-        <div class="pane-label">Equity — strategy vs B&amp;H</div>
-        <div class="pane-chart" id="chart-equity"></div>
-      </div>
-    </div>
-  </div>
+	      <div class="pane" id="pane-equity">
+	        <div class="pane-label">Equity — strategy vs B&amp;H</div>
+	        <div class="pane-chart" id="chart-equity"></div>
+	      </div>
+	      <div class="pane" id="pane-health">
+	        <div class="pane-label">TECL Health — diagnostic only</div>
+	        <div class="pane-chart" id="chart-health"></div>
+	      </div>
+	    </div>
+	  </div>
 
-  <div class="right" id="right-panel">
+	  <div class="right" id="right-panel">
     <div class="section">
       <div class="strat-name" id="r-name">—</div>
       <div class="strat-codename" id="r-codename"></div>
       <div class="strat-meta" id="r-meta"></div>
-    </div>
+	    </div>
 
-    <h3>Last 5 years</h3>
+	    <h3>TECL Health <span style="font-weight:400;color:var(--text-3);font-size:11px;">diagnostic only</span></h3>
+	    <div class="section">
+	      <div class="health-snapshot" id="r-health"></div>
+	    </div>
+
+	    <h3>Last 5 years</h3>
     <div class="section">
       <div class="scorecards" id="r-scorecards"></div>
       <div style="color: var(--text-3); font-size: 10px; margin-top: 6px;">Diagnostic only · not in fitness</div>

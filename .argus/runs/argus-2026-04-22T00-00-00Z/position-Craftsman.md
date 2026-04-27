@@ -1,3 +1,0 @@
-# Position: Craftsman
-
-The validation pipeline's vocabulary is actively lying about its enforcement mechanisms. `_gate_marker_shape` always returns a PASS verdict; a gate that cannot fail is an observer, not a gate. The system tracks `critical_warnings` but explicitly states they are "advisory." This is a profound conceptual integrity failure: the code uses the language of strict validation (gates, warnings, confidence) to describe a loose, heuristic scoring system.

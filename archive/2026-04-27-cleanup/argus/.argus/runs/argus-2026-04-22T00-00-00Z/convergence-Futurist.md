@@ -1,0 +1,3 @@
+# Convergence: Futurist
+
+I now believe the threshold drift is being masked by the `composite_confidence` calculation. We converged on the understanding that the validation pipeline is lying to itself (demoting hard-fails to warnings). What remains contested is whether we should optimize for velocity by removing the Gate 6 Re-optimization loop. The biggest blocker to the North Star is the explicit curve-fitting of validation rules (e.g., removing `cross_asset` penalties) to allow current strategies to pass.

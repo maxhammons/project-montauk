@@ -1,3 +1,0 @@
-# Position: Pragmatist
-
-The `composite_confidence` equation and the resulting dictionary unpacking in `scripts/validation/pipeline.py` is an abstraction that destroys clarity and hides the actual decision-making process. By collapsing 10 distinct sub-scores into a single geometric mean, the pipeline ensures that no one can look at a strategy's score and know *why* it passed or failed. This is complexity masking a lack of conviction in the rules.

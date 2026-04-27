@@ -1,3 +1,0 @@
-# Position: Futurist
-
-The validation pipeline is undergoing catastrophic "threshold drift." The explicit decision on 2026-04-21 to demote hard-fails in Walk-Forward, Morris Fragility, and Bootstrap checks to mere "warnings" means the system is being curve-fit to allow the current generation of strategies to pass. In 18 months, this trajectory guarantees the validation pipeline will be a rubber stamp for overfit models, because every time a model fails, the threshold is lowered.

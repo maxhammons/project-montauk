@@ -28,6 +28,9 @@ import os
 import sys
 from typing import Any
 
+import numpy as np
+import pandas as pd
+
 VIZ_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(VIZ_DIR)
 SCRIPTS_DIR = os.path.join(PROJECT_ROOT, "scripts")
@@ -35,6 +38,7 @@ if SCRIPTS_DIR not in sys.path:
     sys.path.insert(0, SCRIPTS_DIR)
 
 from certify.contract import sync_validation_contract
+from engine.strategy_engine import Indicators, _sma
 from search.share_metric import read_share_multiple
 
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
@@ -126,6 +130,421 @@ def load_north_star_markers() -> list[dict[str, Any]]:
                 "type": (row.get("type") or "").strip().lower(),
             })
     return out
+
+
+def _json_float(value: Any, ndigits: int = 4) -> float | None:
+    try:
+        v = float(value)
+    except (TypeError, ValueError):
+        return None
+    if not np.isfinite(v):
+        return None
+    return round(v, ndigits)
+
+
+def _shift(arr: np.ndarray, n: int) -> np.ndarray:
+    out = np.full_like(arr, np.nan, dtype=np.float64)
+    if n <= 0:
+        return arr.astype(np.float64)
+    out[n:] = arr[:-n]
+    return out
+
+
+def _rolling_std(arr: np.ndarray, window: int) -> np.ndarray:
+    out = np.full_like(arr, np.nan, dtype=np.float64)
+    for i in range(window - 1, len(arr)):
+        values = arr[i - window + 1:i + 1]
+        values = values[np.isfinite(values)]
+        if len(values) >= max(5, window // 4):
+            out[i] = np.std(values, ddof=0)
+    return out
+
+
+def _rolling_max(arr: np.ndarray, window: int) -> np.ndarray:
+    out = np.full_like(arr, np.nan, dtype=np.float64)
+    for i in range(window - 1, len(arr)):
+        values = arr[i - window + 1:i + 1]
+        values = values[np.isfinite(values)]
+        if len(values):
+            out[i] = np.max(values)
+    return out
+
+
+def _pct_change(arr: np.ndarray, lookback: int) -> np.ndarray:
+    prev = _shift(arr, lookback)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        return np.where(prev > 0, arr / prev - 1.0, np.nan)
+
+
+def _rolling_percentile(arr: np.ndarray, window: int) -> np.ndarray:
+    out = np.full_like(arr, np.nan, dtype=np.float64)
+    for i in range(window - 1, len(arr)):
+        value = arr[i]
+        if not np.isfinite(value):
+            continue
+        values = arr[i - window + 1:i + 1]
+        values = values[np.isfinite(values)]
+        if len(values) < max(20, window // 5):
+            continue
+        out[i] = float(np.mean(values <= value))
+    return out
+
+
+def _efficiency_ratio(arr: np.ndarray, lookback: int) -> np.ndarray:
+    out = np.full_like(arr, np.nan, dtype=np.float64)
+    diffs = np.abs(np.diff(arr, prepend=np.nan))
+    for i in range(lookback, len(arr)):
+        if not np.isfinite(arr[i]) or not np.isfinite(arr[i - lookback]):
+            continue
+        path = diffs[i - lookback + 1:i + 1]
+        path = path[np.isfinite(path)]
+        path_sum = np.sum(path)
+        if path_sum > 0:
+            out[i] = abs(arr[i] - arr[i - lookback]) / path_sum
+    return out
+
+
+def _ewma(arr: np.ndarray, half_life: float) -> np.ndarray:
+    out = np.full_like(arr, np.nan, dtype=np.float64)
+    alpha = 1.0 - np.exp(np.log(0.5) / half_life)
+    last = np.nan
+    for i, value in enumerate(arr):
+        if not np.isfinite(value):
+            if np.isfinite(last):
+                out[i] = last
+            continue
+        last = value if not np.isfinite(last) else alpha * value + (1 - alpha) * last
+        out[i] = last
+    return out
+
+
+def _signed_score(value: np.ndarray, scale: float) -> np.ndarray:
+    return 50.0 + 50.0 * np.tanh(value / scale)
+
+
+def _inverse_percentile_score(percentile: np.ndarray) -> np.ndarray:
+    return 100.0 * (1.0 - np.clip(percentile, 0.0, 1.0))
+
+
+def _weighted_geo_score(items: list[tuple[np.ndarray, float]], n: int) -> np.ndarray:
+    total = np.zeros(n, dtype=np.float64)
+    weights = np.zeros(n, dtype=np.float64)
+    for values, weight in items:
+        mask = np.isfinite(values)
+        clipped = np.clip(values[mask], 1.0, 100.0) / 100.0
+        total[mask] += np.log(clipped) * weight
+        weights[mask] += weight
+    out = np.full(n, np.nan, dtype=np.float64)
+    mask = weights > 0
+    out[mask] = np.exp(total[mask] / weights[mask]) * 100.0
+    return out
+
+
+def _weighted_arith_score(items: list[tuple[np.ndarray, float]], n: int) -> np.ndarray:
+    total = np.zeros(n, dtype=np.float64)
+    weights = np.zeros(n, dtype=np.float64)
+    for values, weight in items:
+        mask = np.isfinite(values)
+        total[mask] += np.clip(values[mask], 0.0, 100.0) * weight
+        weights[mask] += weight
+    out = np.full(n, np.nan, dtype=np.float64)
+    mask = weights > 0
+    out[mask] = total[mask] / weights[mask]
+    return out
+
+
+def _read_close_by_date(filename: str) -> dict[str, float]:
+    path = os.path.join(DATA_DIR, filename)
+    if not os.path.exists(path):
+        return {}
+    out: dict[str, float] = {}
+    with open(path, newline="") as f:
+        for row in csv.DictReader(f):
+            value = _safe_float(row.get("close", ""))
+            if value is not None:
+                out[row["date"]] = value
+    return out
+
+
+def _aligned_close(dates: list[str], filename: str) -> np.ndarray:
+    by_date = _read_close_by_date(filename)
+    return np.asarray([by_date.get(date, np.nan) for date in dates], dtype=np.float64)
+
+
+def compute_tecl_health(tecl: dict[str, Any]) -> dict[str, Any]:
+    """Compute diagnostic-only TECL Health.
+
+    This evolves the legacy composite oscillator into a layered 0-100 health
+    model. It remains deliberately non-authoritative: no buy/sell signals, no
+    certification effect, and no leaderboard ranking effect.
+    """
+
+    settings = {
+        "model": "tecl-health-v3-calibrated-diagnostic",
+        "layer_weights": {"structure": 0.25, "momentum": 0.35, "stress": 0.20, "participation": 0.20},
+        "calibration": {
+            "geometric_core_weight": 0.65,
+            "arithmetic_core_weight": 0.35,
+            "recovery_credit_weight": 0.20,
+            "stress_cap_floor": 55.0,
+            "stress_cap_multiplier": 0.85,
+            "stress_cap_recovery_share": 0.50,
+            "basis": "marker-cycle directional fit, named-regime separation, and crash compression",
+        },
+        "averaging": {"fast_ewma_half_life_days": 5, "slow_ewma_half_life_days": 63},
+        "stress_cap": "final score capped at 55 + 0.85 * stress score + 0.5 * recovery credit",
+        "legacy_inputs": {
+            "tema_length": 300,
+            "tema_slope_lookback": 2,
+            "tema_slope_threshold_pct": 0.30,
+            "quick_ema_length": 7,
+            "quick_ema_slope_lookback": 5,
+            "quick_ema_slope_threshold_pct": -0.15,
+            "macd_fast": 30,
+            "macd_slow": 180,
+            "macd_signal": 20,
+            "macd_hist_threshold": 0.03,
+            "dmi_length": 60,
+            "dmi_scale": 0.18,
+        },
+    }
+
+    dates = tecl.get("dates") or []
+    if not dates:
+        return {"settings": settings, "bands": {}, "series": [], "latest": {}}
+
+    df = pd.DataFrame({
+        "date": pd.to_datetime(dates),
+        "open": tecl.get("open") or [],
+        "high": tecl.get("high") or [],
+        "low": tecl.get("low") or [],
+        "close": tecl.get("close") or [],
+        "volume": tecl.get("volume") or [],
+    })
+    ind = Indicators(df)
+    close = ind.close
+    high = ind.high
+    low = ind.low
+    vix = np.asarray(tecl.get("vix") or [np.nan] * len(dates), dtype=np.float64)
+    n = len(close)
+    legacy = settings["legacy_inputs"]
+
+    tema = ind.tema(legacy["tema_length"])
+    tema_prev = _shift(tema, legacy["tema_slope_lookback"])
+    with np.errstate(divide="ignore", invalid="ignore"):
+        tema_slope_pct = np.where(tema != 0, (tema - tema_prev) / tema, np.nan)
+        norm_tema = np.tanh(tema_slope_pct / (legacy["tema_slope_threshold_pct"] * 0.01))
+
+    quick = ind.ema(legacy["quick_ema_length"])
+    quick_prev = _shift(quick, legacy["quick_ema_slope_lookback"])
+    quick_slope = (quick - quick_prev) / legacy["quick_ema_slope_lookback"]
+    norm_quick = np.tanh(quick_slope / abs(legacy["quick_ema_slope_threshold_pct"] * 0.01))
+
+    macd_hist = ind.macd_hist(
+        legacy["macd_fast"],
+        legacy["macd_slow"],
+        legacy["macd_signal"],
+    )
+    norm_macd = np.tanh(macd_hist / legacy["macd_hist_threshold"])
+
+    plus_di = ind.di_plus(legacy["dmi_length"])
+    minus_di = ind.di_minus(legacy["dmi_length"])
+    with np.errstate(divide="ignore", invalid="ignore"):
+        dmi_raw = (plus_di - minus_di) / np.maximum(plus_di + minus_di, 0.0001)
+        norm_dmi = np.tanh(dmi_raw / legacy["dmi_scale"])
+
+    ma50 = _sma(close, 50)
+    ma100 = _sma(close, 100)
+    ma200 = _sma(close, 200)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        price_vs_200 = np.where(ma200 > 0, close / ma200 - 1.0, np.nan)
+        slope50 = np.where(_shift(ma50, 20) > 0, ma50 / _shift(ma50, 20) - 1.0, np.nan)
+        slope200 = np.where(_shift(ma200, 20) > 0, ma200 / _shift(ma200, 20) - 1.0, np.nan)
+        distance_50 = np.where(ma50 > 0, close / ma50 - 1.0, np.nan)
+
+    er63 = _efficiency_ratio(close, 63)
+    structure_score = _weighted_geo_score([
+        (_signed_score(price_vs_200, 0.12), 0.30),
+        (_signed_score(slope50, 0.035), 0.20),
+        (_signed_score(slope200, 0.025), 0.15),
+        (50.0 + 50.0 * norm_dmi, 0.20),
+        (np.clip(er63, 0.0, 1.0) * 100.0, 0.15),
+    ], n)
+
+    ret21 = _pct_change(close, 21)
+    ret63 = _pct_change(close, 63)
+    ret126 = _pct_change(close, 126)
+    ret252 = _pct_change(close, 252)
+    extension_balance = 100.0 - 40.0 * np.abs(np.tanh(distance_50 / 0.45))
+    momentum_score = _weighted_geo_score([
+        (_signed_score(ret21, 0.12), 0.18),
+        (_signed_score(ret63, 0.25), 0.22),
+        (_signed_score(ret126, 0.45), 0.16),
+        (_signed_score(ret252, 0.70), 0.12),
+        (50.0 + 50.0 * norm_quick, 0.14),
+        (50.0 + 50.0 * norm_macd, 0.14),
+        (extension_balance, 0.04),
+    ], n)
+
+    log_ret = np.diff(np.log(close), prepend=np.nan)
+    rv20 = _rolling_std(log_ret, 20) * np.sqrt(252.0)
+    rv60 = _rolling_std(log_ret, 60) * np.sqrt(252.0)
+    atr20 = ind.atr(20)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        atr_pct = np.where(close > 0, atr20 / close, np.nan)
+        high_252 = _rolling_max(high, 252)
+        drawdown_252 = np.where(high_252 > 0, close / high_252 - 1.0, np.nan)
+        vix_ret10 = _pct_change(vix, 10)
+
+    rv_score = _inverse_percentile_score(_rolling_percentile(rv20, 756))
+    atr_score = _inverse_percentile_score(_rolling_percentile(atr_pct, 756))
+    vix_level_score = _inverse_percentile_score(_rolling_percentile(vix, 756))
+    vix_change_score = _signed_score(-vix_ret10, 0.20)
+    drawdown_score = np.clip(100.0 * (1.0 + drawdown_252 / 0.45), 0.0, 100.0)
+    stress_score = _weighted_geo_score([
+        (rv_score, 0.25),
+        (atr_score, 0.20),
+        (vix_level_score, 0.20),
+        (vix_change_score, 0.15),
+        (drawdown_score, 0.20),
+    ], n)
+
+    qqq = _aligned_close(dates, "QQQ.csv")
+    xlk = _aligned_close(dates, "XLK.csv")
+    qqq_ma200 = _sma(qqq, 200)
+    xlk_ma200 = _sma(xlk, 200)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        qqq_vs_200 = np.where(qqq_ma200 > 0, qqq / qqq_ma200 - 1.0, np.nan)
+        xlk_vs_200 = np.where(xlk_ma200 > 0, xlk / xlk_ma200 - 1.0, np.nan)
+        qqq_ret63 = _pct_change(qqq, 63)
+        xlk_ret63 = _pct_change(xlk, 63)
+        tecl_ret63 = _pct_change(close, 63)
+        xlk_vs_qqq_63 = xlk_ret63 - qqq_ret63
+        tecl_vs_qqq_63 = tecl_ret63 - qqq_ret63
+
+    participation_score = _weighted_geo_score([
+        (_signed_score(qqq_vs_200, 0.10), 0.30),
+        (_signed_score(xlk_vs_200, 0.10), 0.25),
+        (_signed_score(qqq_ret63, 0.18), 0.20),
+        (_signed_score(xlk_vs_qqq_63, 0.08), 0.15),
+        (_signed_score(tecl_vs_qqq_63, 0.20), 0.10),
+    ], n)
+
+    layer_weights = settings["layer_weights"]
+    layer_items = [
+        (structure_score, layer_weights["structure"]),
+        (momentum_score, layer_weights["momentum"]),
+        (stress_score, layer_weights["stress"]),
+        (participation_score, layer_weights["participation"]),
+    ]
+    calibration = settings["calibration"]
+    geo_core = _weighted_geo_score(layer_items, n)
+    arith_core = _weighted_arith_score(layer_items, n)
+    core_score = (
+        calibration["geometric_core_weight"] * geo_core
+        + calibration["arithmetic_core_weight"] * arith_core
+    )
+    recovery_credit = (
+        np.maximum(0.0, np.minimum(momentum_score, participation_score) - stress_score)
+        * calibration["recovery_credit_weight"]
+    )
+    stress_cap = (
+        calibration["stress_cap_floor"]
+        + calibration["stress_cap_multiplier"] * stress_score
+        + calibration["stress_cap_recovery_share"] * recovery_credit
+    )
+    final_score = np.minimum(
+        core_score + recovery_credit,
+        np.where(np.isfinite(stress_cap), stress_cap, 100.0),
+    )
+    final_score = np.clip(final_score, 0.0, 100.0)
+    fast = _ewma(final_score, settings["averaging"]["fast_ewma_half_life_days"])
+    slow = _ewma(final_score, settings["averaging"]["slow_ewma_half_life_days"])
+
+    layer_arrays = [structure_score, momentum_score, stress_score, participation_score]
+    layer_stack = np.vstack(layer_arrays)
+    valid_counts = np.sum(np.isfinite(layer_stack), axis=0)
+    dispersion = np.full(n, np.nan, dtype=np.float64)
+    for i in range(n):
+        values = layer_stack[:, i]
+        values = values[np.isfinite(values)]
+        if len(values):
+            dispersion[i] = np.std(values, ddof=0)
+    coverage = valid_counts / len(layer_arrays)
+    confidence = np.clip((100.0 - 1.7 * dispersion) * coverage, 0.0, 100.0)
+
+    series = []
+    for i, date in enumerate(dates):
+        series.append({
+            "date": date,
+            "composite": _json_float(final_score[i], 2),
+            "smooth": _json_float(fast[i], 2),
+            "cross": _json_float(slow[i], 2),
+            "layers": {
+                "structure": _json_float(structure_score[i], 2),
+                "momentum": _json_float(momentum_score[i], 2),
+                "stress": _json_float(stress_score[i], 2),
+                "participation": _json_float(participation_score[i], 2),
+            },
+            "confidence": _json_float(confidence[i], 2),
+        })
+
+    latest_idx = len(dates) - 1
+    latest_score = final_score[latest_idx]
+    latest_conflict = dispersion[latest_idx]
+    if latest_score >= 75 and latest_conflict < 25:
+        status = "healthy"
+    elif latest_score >= 60:
+        status = "constructive"
+    elif latest_conflict >= 25:
+        status = "mixed"
+    elif latest_score >= 40:
+        status = "fragile"
+    else:
+        status = "stressed"
+    latest = {
+        "date": dates[latest_idx],
+        "close": _json_float(close[latest_idx], 2),
+        "composite": _json_float(final_score[latest_idx], 2),
+        "smooth": _json_float(fast[latest_idx], 2),
+        "cross": _json_float(slow[latest_idx], 2),
+        "status": status,
+        "confidence": _json_float(confidence[latest_idx], 1),
+        "conflict": _json_float(latest_conflict, 1),
+        "layers": {
+            "structure": _json_float(structure_score[latest_idx], 1),
+            "momentum": _json_float(momentum_score[latest_idx], 1),
+            "stress": _json_float(stress_score[latest_idx], 1),
+            "participation": _json_float(participation_score[latest_idx], 1),
+        },
+        "components": {
+            "price_vs_200": _json_float(price_vs_200[latest_idx] * 100.0, 1),
+            "ma50_slope_20d": _json_float(slope50[latest_idx] * 100.0, 1),
+            "trend_efficiency": _json_float(er63[latest_idx] * 100.0, 1),
+            "quick_ema": _json_float(50.0 + 50.0 * norm_quick[latest_idx], 1),
+            "macd_hist": _json_float(50.0 + 50.0 * norm_macd[latest_idx], 1),
+            "realized_vol_pctile": _json_float(_rolling_percentile(rv20, 756)[latest_idx] * 100.0, 1),
+            "vix_pctile": _json_float(_rolling_percentile(vix, 756)[latest_idx] * 100.0, 1),
+            "drawdown_252": _json_float(drawdown_252[latest_idx] * 100.0, 1),
+            "qqq_trend": _json_float(_signed_score(qqq_vs_200, 0.10)[latest_idx], 1),
+            "xlk_vs_qqq_63d": _json_float(xlk_vs_qqq_63[latest_idx] * 100.0, 1),
+            "recovery_credit": _json_float(recovery_credit[latest_idx], 1),
+        },
+    }
+
+    return {
+        "source": "Layered diagnostic evolved from legacy Montauk Composite Oscillator 1.3",
+        "diagnostic_only": True,
+        "settings": settings,
+        "bands": {
+            "healthy": 75,
+            "constructive": 60,
+            "mixed": 40,
+            "stressed": 0,
+        },
+        "series": series,
+        "latest": latest,
+    }
 
 
 def load_leaderboard() -> list[dict[str, Any]]:
@@ -396,6 +815,14 @@ def build_bundle() -> dict[str, Any]:
     print("[build_viz] Loading TECL price data…")
     tecl = load_tecl()
     print(f"[build_viz]   {len(tecl['dates'])} bars; synthetic ends at index {tecl['synthetic_end_index']}")
+    health = compute_tecl_health(tecl)
+    latest_health = health.get("latest") or {}
+    if latest_health:
+        print(
+            "[build_viz] TECL Health: "
+            f"{latest_health.get('composite')} on {latest_health.get('date')} "
+            "(diagnostic only)"
+        )
 
     manifest = load_manifest()
     if manifest:
@@ -428,6 +855,7 @@ def build_bundle() -> dict[str, Any]:
     bundle = {
         "generated": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
         "tecl": tecl_out,
+        "tecl_health": health,
         "markers": {"north_star": markers},
         "strategies": strategies,
     }

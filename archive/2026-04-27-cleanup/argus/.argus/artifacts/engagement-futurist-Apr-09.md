@@ -1,0 +1,5 @@
+# Engagement: The Futurist
+
+The Craftsman is completely correct that we are not optimizing for "Beat Buy & Hold," but they view this as a moral failing ("dishonesty"). I view it as an architectural reality: the multipliers are an attempt to proxy out-of-sample robustness without actually doing out-of-sample testing properly. The complex equation is a symptom of the team trying to mathematically prevent future drawdowns. 
+
+I must engage the Exploiter's point, which is the greatest threat to my view. The Exploiter notes that the hash index cache poisoning makes my concern about "overfitting to penalties" moot, because the optimizer will just overfit to cached bugs instead. I concede this point entirely. An unversioned cache in an evolutionary algorithm is a structural disaster. If the fitness landscape contains cached landmines, trajectory analysis is useless. I maintain my position that the fitness formula is too complex, but I acknowledge it is secondary to the cache poisoning threat.

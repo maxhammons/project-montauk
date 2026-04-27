@@ -1,5 +1,0 @@
-## Pragmatist — Round 1 Position
-**Claim:** We are running a massive optimization engine against the wrong metric and carrying thousands of lines of dead weight and unnecessary validation ceremony that need to be deleted.
-**Evidence:** The engine still optimizes for dollar return (`vs_bah`) and penalizes trade frequency instead of the North Star's "share-count multiplier" goal. `scripts/strategies.py` is a 3,500-line graveyard of failed strategies that `evolve.py` actively skips. `scripts/validation/` has 9 layers of complex statistical checks that likely catch nothing a basic holdout test wouldn't. `strategy_engine.py` and `backtest_engine.py` are two files doing the job of one.
-**Biggest opportunity:** Mass deletion. Delete the dead strategies in `scripts/strategies.py`. Delete the 9-layer validation ceremony in favor of a simple 2-layer out-of-sample test. Merge the two engines into a single entry point.
-**Biggest blocker:** The 3,300-line brittle string formatting in `scripts/pine_generator.py` is a massive translation tax, and the optimization engine is currently validating against deprecated rules.

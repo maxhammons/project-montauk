@@ -1,5 +1,0 @@
-# Engagement: The Craftsman
-
-The Futurist correctly identifies that the algebraic penalties are a proxy for robustness, but they miss the point: by burying these inside a single `fitness` scalar, we lie to the optimizer. The Optuna Bayesian model doesn't know it was penalized for HHI; it just sees a lower score. It can't learn the difference between "bad return" and "good return but concentrated cycle."
-
-The Pragmatist argues the dual engine is the root cause of all evils. This is the greatest threat to my view, because if they are right, my concerns about the fitness formula are just polishing brass on a sinking ship. However, the dual engine is what allows us to model slippage precisely (`backtest` function) and evaluate regime capture across 10 years of synthetic data. Pine Script cannot do this. I defend my position: the Python engine is a necessary tool for craftsmanship. The failure is in how we score the output, not the engine itself.

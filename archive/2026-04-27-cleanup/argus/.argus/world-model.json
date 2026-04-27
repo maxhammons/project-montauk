@@ -1,0 +1,110 @@
+{
+  "version": "1.0",
+  "meta": {
+    "project": "Project Montauk",
+    "last_updated": "2026-04-22T21:53:38Z",
+    "run_count": 3,
+    "schema_version": "1.0"
+  },
+  "runs": 3,
+  "stable_zones": [],
+  "hotspots": [
+    "scripts/validation/pipeline.py",
+    "scripts/search/spike_runner.py",
+    "scripts/search/evolve.py",
+    "scripts/search/grid_search.py",
+    "scripts/certify/full_sweep.py",
+    "scripts/certify/recertify_leaderboard.py",
+    "spike/leaderboard.json"
+  ],
+  "recurring_findings": [
+    "Soft admission below PASS / promotion_ready",
+    "Post-hoc finalization can set backtest_certified=True without preserving Gate 7's invariant",
+    "Maintenance artifact generation can replay leaderboard rows without rerunning the full validation contract"
+  ],
+  "finding_registry": [
+    {
+      "id": "ARG-2026-001",
+      "title": "Soft admission below PASS / promotion_ready",
+      "location": "scripts/search/evolve.py",
+      "first_seen": "2026-04-22T21:53:38Z",
+      "last_seen": "2026-04-22T21:53:38Z",
+      "run_count": 1,
+      "status": "ACTIVE",
+      "severity_trajectory": [
+        "high"
+      ],
+      "specialist_sources": [
+        "Execution Agent",
+        "Convergence Map"
+      ],
+      "proof_of_concept": ".argus/runs/argus-2026-04-22T21-14-17Z/poc-soft-admission.py",
+      "resolution_commit": null
+    },
+    {
+      "id": "ARG-2026-002",
+      "title": "Post-hoc finalization can set backtest_certified=True without preserving Gate 7's invariant",
+      "location": "scripts/search/spike_runner.py",
+      "first_seen": "2026-04-22T21:53:38Z",
+      "last_seen": "2026-04-22T21:53:38Z",
+      "run_count": 1,
+      "status": "ACTIVE",
+      "severity_trajectory": [
+        "high"
+      ],
+      "specialist_sources": [
+        "Execution Agent",
+        "Convergence Map"
+      ],
+      "proof_of_concept": ".argus/runs/argus-2026-04-22T21-14-17Z/poc-broken-invariant.py",
+      "resolution_commit": null
+    },
+    {
+      "id": "ARG-2026-003",
+      "title": "Maintenance artifact generation can replay leaderboard rows without rerunning the full validation contract",
+      "location": "scripts/certify/full_sweep.py",
+      "first_seen": "2026-04-22T21:53:38Z",
+      "last_seen": "2026-04-22T21:53:38Z",
+      "run_count": 1,
+      "status": "ACTIVE",
+      "severity_trajectory": [
+        "high"
+      ],
+      "specialist_sources": [
+        "Execution Agent",
+        "Convergence Map"
+      ],
+      "proof_of_concept": ".argus/runs/argus-2026-04-22T21-14-17Z/poc-maintenance-backfill.py",
+      "resolution_commit": null
+    }
+  ],
+  "file_coverage": {
+    "scripts/validation/pipeline.py": {
+      "depth": "L1",
+      "last_analyzed": "2026-04-22T21:53:38Z",
+      "analyst_lens": "Execution Agent",
+      "grep_signals": [
+        "backtest_certified",
+        "promotion_ready"
+      ]
+    },
+    "scripts/search/spike_runner.py": {
+      "depth": "L1",
+      "last_analyzed": "2026-04-22T21:53:38Z",
+      "analyst_lens": "Execution Agent",
+      "grep_signals": [
+        "_finalize_champion_certification",
+        "Gate 7"
+      ]
+    },
+    "spike/leaderboard.json": {
+      "depth": "L1",
+      "last_analyzed": "2026-04-22T21:53:38Z",
+      "analyst_lens": "Convergence Map",
+      "grep_signals": [
+        "leaderboard_artifact_backfill",
+        "WARN rows"
+      ]
+    }
+  }
+}

@@ -45,14 +45,22 @@
     handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: false },
   };
 
-  /* ---- Build the two charts (drawdown pane removed 2026-04-21) ---- */
+  /* ---- Build the charts (drawdown pane removed 2026-04-21) ---- */
   const elPrice = document.getElementById("chart-price");
   const elEquity = document.getElementById("chart-equity");
+  const elHealth = document.getElementById("chart-health");
   const tooltipEl = document.getElementById("tooltip");
   const hoverReadout = document.getElementById("hover-readout");
 
   const priceChart = LightweightCharts.createChart(elPrice, { ...baseChartOpts });
   const equityChart = LightweightCharts.createChart(elEquity, { ...baseChartOpts });
+  const healthChart = LightweightCharts.createChart(elHealth, {
+    ...baseChartOpts,
+    rightPriceScale: {
+      borderColor: "#232a38",
+      scaleMargins: { top: 0.12, bottom: 0.12 },
+    },
+  });
   const pricePaneOverlay = document.createElement("div");
   pricePaneOverlay.style.position = "absolute";
   pricePaneOverlay.style.inset = "0";
@@ -61,7 +69,7 @@
   elPrice.appendChild(pricePaneOverlay);
 
   // Bidirectional time-scale sync across both charts.
-  const allCharts = [priceChart, equityChart];
+  const allCharts = [priceChart, equityChart, healthChart];
   let syncing = false;
   allCharts.forEach((src) => {
     src.timeScale().subscribeVisibleLogicalRangeChange((range) => {
@@ -217,6 +225,52 @@
     title: "B&H",
   });
 
+  /* ---- TECL Health pane (diagnostic only; no buy/sell authority) ---- */
+  const healthBandSeries = healthChart.addBaselineSeries({
+    baseValue: { type: "price", price: 50 },
+    topLineColor: "rgba(38, 166, 154, 0.9)",
+    bottomLineColor: "rgba(239, 83, 80, 0.9)",
+    topFillColor1: "rgba(38, 166, 154, 0.16)",
+    topFillColor2: "rgba(38, 166, 154, 0.02)",
+    bottomFillColor1: "rgba(239, 83, 80, 0.02)",
+    bottomFillColor2: "rgba(239, 83, 80, 0.14)",
+    lineWidth: 2,
+    priceLineVisible: false,
+    lastValueVisible: true,
+    title: "Health",
+    priceFormat: { type: "price", precision: 2, minMove: 0.01 },
+  });
+  const healthSmoothSeries = healthChart.addLineSeries({
+    color: "#e6e9ef",
+    lineWidth: 1,
+    lineStyle: 2,
+    priceLineVisible: false,
+    lastValueVisible: false,
+    title: "Fast avg",
+    priceFormat: { type: "price", precision: 2, minMove: 0.01 },
+  });
+  const healthCrossSeries = healthChart.addLineSeries({
+    color: "#7c8493",
+    lineWidth: 1,
+    lineStyle: 3,
+    priceLineVisible: false,
+    lastValueVisible: false,
+    title: "Slow avg",
+    priceFormat: { type: "price", precision: 2, minMove: 0.01 },
+  });
+  const health = D.tecl_health || {};
+  const healthSeries = health.series || [];
+  function healthPoint(p, key) {
+    const point = { time: dateToTime(p.date) };
+    if (p[key] != null) point.value = p[key];
+    return point;
+  }
+  // Preserve whitespace rows for null values so the health pane has the same
+  // logical bar index as price and equity. Otherwise pan/zoom sync drifts.
+  healthBandSeries.setData(healthSeries.map((p) => healthPoint(p, "composite")));
+  healthSmoothSeries.setData(healthSeries.map((p) => healthPoint(p, "smooth")));
+  healthCrossSeries.setData(healthSeries.map((p) => healthPoint(p, "cross")));
+
   // Cross-chart crosshair sync: when the cursor hovers over one chart, the
   // other gets a vertical line at the same time. We pass -Infinity as price
   // so the horizontal crosshair line falls off-screen on the target chart
@@ -224,6 +278,7 @@
   const chartPrimarySeries = [
     [priceChart, candleSeries],
     [equityChart, stratEquitySeries],
+    [healthChart, healthBandSeries],
   ];
   let crosshairSyncing = false;
   chartPrimarySeries.forEach(([srcChart]) => {
@@ -499,9 +554,10 @@
     addMetric(metricsEl, "HHI (concentration)", fmtNum(m.hhi, 3), "", "Herfindahl index of per-trade PnL contribution. Low (0.05-0.15) = diversified across many trades. High (>0.3) = one lucky trade carries the result. Lower is better.");
 
     // Era breakdown — dual view for "crash insurance vs modern participation"
-    // See spirit-memory/decisions.md 2026-04-20 for why this exists.
-    renderEraBreakdown(s);
-    renderMarketRegimes(s);
+	    // See spirit-memory/decisions.md 2026-04-20 for why this exists.
+	    renderEraBreakdown(s);
+	    renderMarketRegimes(s);
+	    renderTeclHealth();
 
     // Scorecard (5Y only — 1Y/3Y are too noisy for low-tpy strategies)
     const sc = s.recent_scorecards || {};
@@ -618,7 +674,7 @@
     initBadges(); // re-bind tooltips on the new elements
   }
 
-  function renderMarketRegimes(s) {
+	  function renderMarketRegimes(s) {
     const header = document.getElementById("r-regime-header");
     const el = document.getElementById("r-market-regimes");
     if (!el || !header) return;
@@ -700,10 +756,104 @@
     html += "</tbody></table>";
     html += '<div style="color:var(--text-3);font-size:11px;margin-top:8px;">Share is strategy shares vs buy-and-hold over each named window. Alpha is excess share gain/loss versus buy-and-hold.</div>';
     el.innerHTML = html;
-    initBadges();
-  }
+	    initBadges();
+	  }
 
-  function addMetric(parent, k, v, cls = "", tip = "") {
+	  function healthClass(v) {
+	    if (v == null || isNaN(v)) return "";
+	    if (v >= 75) return "strong";
+	    if (v >= 60) return "positive";
+	    if (v >= 40) return "neutral";
+	    return "weak";
+	  }
+
+	  function componentClass(v) {
+	    if (v == null || isNaN(v)) return "";
+	    if (v >= 60) return "pos";
+	    if (v >= 40) return "mid";
+	    return "neg";
+	  }
+
+	  function fmtSignedPct(v) {
+	    if (v == null || isNaN(v)) return "—";
+	    return `${v >= 0 ? "+" : ""}${fmtNum(v, 1)}%`;
+	  }
+
+	  function renderTeclHealth() {
+	    const el = document.getElementById("r-health");
+	    if (!el) return;
+	    const h = D.tecl_health || {};
+	    const latest = h.latest || {};
+	    const components = latest.components || {};
+	    const layers = latest.layers || {};
+	    const value = latest.composite;
+	    const cls = healthClass(value);
+	    const layerRows = [
+	      ["Structure", layers.structure],
+	      ["Momentum", layers.momentum],
+	      ["Stress", layers.stress],
+	      ["Participation", layers.participation],
+	    ];
+	    const componentRows = [
+	      ["Price vs 200D", components.price_vs_200, fmtSignedPct],
+	      ["50D slope", components.ma50_slope_20d, fmtSignedPct],
+	      ["Trend efficiency", components.trend_efficiency, (v) => fmtNum(v, 1)],
+	      ["Quick EMA", components.quick_ema, (v) => fmtNum(v, 1)],
+	      ["MACD hist", components.macd_hist, (v) => fmtNum(v, 1)],
+	      ["RV pctile", components.realized_vol_pctile, (v) => `${fmtNum(v, 1)}%`],
+	      ["VIX pctile", components.vix_pctile, (v) => `${fmtNum(v, 1)}%`],
+	      ["252D drawdown", components.drawdown_252, fmtSignedPct],
+	      ["QQQ trend", components.qqq_trend, (v) => fmtNum(v, 1)],
+	      ["XLK vs QQQ", components.xlk_vs_qqq_63d, fmtSignedPct],
+	      ["Recovery credit", components.recovery_credit, (v) => fmtNum(v, 1)],
+	    ];
+	    el.innerHTML = `
+	      <div class="health-main">
+	        <div>
+	          <div class="health-label">Composite</div>
+	          <div class="health-note">${escapeHtml(latest.date || "—")} · ${escapeHtml(latest.status || "—")} · close ${fmtNum(latest.close, 2)}</div>
+	        </div>
+	        <div class="health-value ${cls}">${fmtNum(value, 0)}</div>
+	      </div>
+	      <div class="health-components">
+	        ${layerRows.map(([label, component]) => `
+	          <div class="health-component">
+	            <span class="k">${escapeHtml(label)}</span>
+	            <span class="v ${componentClass(component)}">${fmtNum(component, 0)}</span>
+	          </div>
+	        `).join("")}
+	      </div>
+	      <div class="health-components">
+	        <div class="health-component">
+	          <span class="k">Confidence</span>
+	          <span class="v ${componentClass(latest.confidence)}">${fmtNum(latest.confidence, 0)}</span>
+	        </div>
+	        <div class="health-component">
+	          <span class="k">Conflict</span>
+	          <span class="v ${latest.conflict >= 25 ? "neg" : latest.conflict >= 15 ? "mid" : "pos"}">${fmtNum(latest.conflict, 0)}</span>
+	        </div>
+	        <div class="health-component">
+	          <span class="k">Fast avg</span>
+	          <span class="v ${componentClass(latest.smooth)}">${fmtNum(latest.smooth, 0)}</span>
+	        </div>
+	        <div class="health-component">
+	          <span class="k">Slow avg</span>
+	          <span class="v ${componentClass(latest.cross)}">${fmtNum(latest.cross, 0)}</span>
+	        </div>
+	      </div>
+	      <div class="health-components">
+	        ${componentRows.map(([label, component, formatter]) => `
+	          <div class="health-component">
+	            <span class="k">${escapeHtml(label)}</span>
+	            <span class="v">${formatter(component)}</span>
+	          </div>
+	        `).join("")}
+	      </div>
+	      <div class="health-note">Diagnostic market-health model only. It is not used for buy/sell calls, certification, or leaderboard ranking.</div>
+	    `;
+	  }
+
+	  function addMetric(parent, k, v, cls = "", tip = "") {
     const row = document.createElement("div");
     row.className = "metric-row";
     const kHtml = tip
@@ -753,13 +903,13 @@
   }
   function applyRange(range) {
     const dates = D.tecl.dates;
-    if (!dates.length) return;
-    const lastDate = new Date(dates[dates.length - 1]);
-    const setAllVisibleRange = (from, to) => {
-      [priceChart, equityChart].forEach((chart) => {
-        chart.timeScale().setVisibleRange({ from, to });
-      });
-    };
+	    if (!dates.length) return;
+	    const lastDate = new Date(dates[dates.length - 1]);
+	    const setAllVisibleRange = (from, to) => {
+	      allCharts.forEach((chart) => {
+	        chart.timeScale().setVisibleRange({ from, to });
+	      });
+	    };
     let from;
     if (range === "ALL") {
       setAllVisibleRange(dateToTime(dates[0]), dateToTime(dates[dates.length - 1]));
@@ -804,15 +954,19 @@
         return;
       }
       const t = D.tecl;
-      const date = t.dates[idx];
-      const o = t.open[idx], h = t.high[idx], l = t.low[idx], c = t.close[idx], v = t.volume[idx];
-      const synthBadge = idx <= t.synthetic_end_index
-        ? '<span style="color:var(--purple)">[synthetic]</span>' : '';
+	      const date = t.dates[idx];
+	      const o = t.open[idx], h = t.high[idx], l = t.low[idx], c = t.close[idx], v = t.volume[idx];
+	      const healthPoint = (D.tecl_health?.series || [])[idx] || {};
+	      const synthBadge = idx <= t.synthetic_end_index
+	        ? '<span style="color:var(--purple)">[synthetic]</span>' : '';
 
-      let html = `<div class="t-date">${date} ${synthBadge}</div>`;
-      html += `O ${fmtNum(o, 2)} · H ${fmtNum(h, 2)}<br>`;
-      html += `L ${fmtNum(l, 2)} · C ${fmtNum(c, 2)}<br>`;
-      html += `Vol ${(v || 0).toLocaleString()}`;
+	      let html = `<div class="t-date">${date} ${synthBadge}</div>`;
+	      html += `O ${fmtNum(o, 2)} · H ${fmtNum(h, 2)}<br>`;
+	      html += `L ${fmtNum(l, 2)} · C ${fmtNum(c, 2)}<br>`;
+	      html += `Vol ${(v || 0).toLocaleString()}`;
+	      if (healthPoint.composite != null) {
+	        html += `<br>TECL Health ${fmtNum(healthPoint.composite, 0)}/100`;
+	      }
 
       const trades = activeTradeIndex[date];
       if (trades) {
@@ -843,8 +997,9 @@
       tooltipEl.style.left = adjX + "px";
       tooltipEl.style.top = adjY + "px";
 
-      hoverReadout.textContent = `${date}  ·  C ${fmtNum(c, 2)}  ·  Vol ${(v || 0).toLocaleString()}`;
-    });
+	      const healthText = healthPoint.composite == null ? "" : `  ·  Health ${fmtNum(healthPoint.composite, 0)}`;
+	      hoverReadout.textContent = `${date}  ·  C ${fmtNum(c, 2)}${healthText}  ·  Vol ${(v || 0).toLocaleString()}`;
+	    });
 
     elPrice.addEventListener("mouseleave", () => {
       tooltipEl.style.display = "none";
@@ -854,10 +1009,11 @@
 
   /* ---- Resize handling ---- */
   function fitAll() {
-    [
-      [priceChart, elPrice],
-      [equityChart, elEquity],
-    ].forEach(([chart, el]) => {
+	    [
+	      [priceChart, elPrice],
+	      [equityChart, elEquity],
+	      [healthChart, elHealth],
+	    ].forEach(([chart, el]) => {
       chart.applyOptions({ width: el.clientWidth, height: el.clientHeight });
     });
     renderSeamBoundary();

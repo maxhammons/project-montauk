@@ -1,3 +1,0 @@
-# Position: Accelerator
-
-The operational feedback loop for validating a strategy is broken. Gate 6 Re-optimization introduces a 2-hour delay (`tier3_minutes` budget) into the pipeline. An engineer trying to iterate on a strategy cannot safely change code because the cost of verifying that change across the full validation stack is measured in hours, not seconds. This guarantees that changes will be batched, increasing fear and slowing iteration to a crawl.
