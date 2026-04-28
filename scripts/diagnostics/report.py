@@ -146,9 +146,13 @@ def _detail_block(entry: dict) -> str:
 
     validation = entry.get("validation") or {}
     if validation:
+        status_label = validation.get("gold_status_label") or (
+            "Gold Status" if validation.get("gold_status") else "Not Gold"
+        )
         lines.append(
             f"**Validation:** {validation.get('verdict', '?')} | "
             f"**Composite:** {validation.get('composite_confidence', 0):.3f} | "
+            f"**Status:** {status_label} | "
             f"**Verified Not Overfit:** {validation.get('certified_not_overfit', False)} | "
             f"**Backtest Certified:** {validation.get('backtest_certified', False)} | "
             f"**Promotion Ready:** "
@@ -218,9 +222,16 @@ def _leaderboard_table(leaderboard: list) -> str:
 
     for i, entry in enumerate(leaderboard[:20], 1):
         m = entry.get("metrics", {})
+        validation = entry.get("validation") or {}
         converged = entry.get("converged", False)
         rwi = entry.get("runs_without_improvement", 0)
-        if converged:
+        if validation.get("gold_status") or entry.get("gold_status"):
+            status = "Gold Status"
+        elif validation.get("backtest_certified") or entry.get("backtest_certified"):
+            status = "Certified"
+        elif validation.get("certified_not_overfit") or entry.get("certified_not_overfit"):
+            status = "Not-overfit"
+        elif converged:
             status = "CONVERGED"
         elif rwi > 0:
             status = f"{rwi} flat"

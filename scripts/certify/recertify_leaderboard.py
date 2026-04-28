@@ -160,7 +160,9 @@ def main():
         confidence = float(v.get("composite_confidence", 0.0)) * 100.0
         verdict = v.get("verdict", "?")
         label = (
-            "ADMITTED"
+            "Gold Status"
+            if v.get("gold_status") or e.get("gold_status")
+            else "ADMITTED"
             if verdict == "PASS"
             else "WATCHLIST"
             if verdict == "WARN"

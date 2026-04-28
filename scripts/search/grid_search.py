@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import itertools
+import json
 import multiprocessing
 import os
 import sys
@@ -29,7 +30,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from engine.regime_helpers import score_regime_capture
 from data.loader import get_tecl_data
-from strategies.markers import score_marker_alignment
+from strategies.markers import marker_target_from_df, score_marker_alignment
 from search.evolve import (
     fitness as compute_fitness,
     _count_tunable_params,
@@ -1029,6 +1030,106 @@ GRIDS = {
     "regime_state_machine": {  # 1 combo (structural — no tunables)
         "cooldown": [5],
     },
+    # ── Diversity Sprint 2026-04-27: standalone failure-mode hypotheses ──
+    "airbag_vix_atr": {  # 2 × 2 × 2 × 3 × 3 × 3 × 3 × 3 × 3 × 2 = 11664 combos
+        "trend_len": [150, 200],
+        "repair_len": [50, 70],
+        "atr_short": [7, 14],
+        "atr_long": [50, 75, 100],
+        "vix_lookback": [3, 5, 7],
+        "vix_spike_pct": [25.0, 35.0, 45.0],
+        "vix_level": [24.0, 28.0, 32.0],
+        "vix_reset": [20.0, 23.0, 26.0],
+        "atr_ratio_exit": [1.3, 1.6, 1.9],
+        "cooldown": [0, 5],
+    },
+    "reclaimer_vol_rsi": {  # 3 × 3 × 3 × 3 × 3 × 3 × 4 × 3 × 6 × 2 = 104976 combos
+        "rsi_len": [7, 14, 21],
+        "fast_len": [30, 50, 70],
+        "trend_len": [100, 150, 200],
+        "vol_short": [10, 20, 30],
+        "vol_long": [60, 90, 120],
+        "drawdown_lookback": [80, 120, 160],
+        "drawdown_pct": [20.0, 25.0, 30.0, 35.0],
+        "rsi_reclaim": [40.0, 45.0, 50.0],
+        "vol_ratio_max": [0.80, 0.85, 0.90, 0.95, 1.00, 1.05],
+        "cooldown": [0, 5],
+    },
+    "state_machine_crash_recovery": {  # 3 × 3 × 3 × 3 × 3 × 3 × 3 × 3 × 3 × 3 × 2 = 118098 combos
+        "fast_len": [30, 50, 70],
+        "slow_len": [150, 200, 250],
+        "rsi_len": [7, 14, 21],
+        "vol_short": [10, 20, 30],
+        "vol_long": [60, 90, 120],
+        "vix_lookback": [3, 5, 7],
+        "vix_shock_pct": [25.0, 35.0, 45.0],
+        "vix_shock_level": [24.0, 28.0, 32.0],
+        "vix_repair_level": [20.0, 23.0, 26.0],
+        "vol_shock_ratio": [1.25, 1.50, 1.75],
+        "cooldown": [0, 5],
+    },
+    # ── Diversity Sprint 2026-04-27: Bonobo overlays, not replacements ──
+    "gc_vjatr_airbag": {  # fixed-near-champion VJ-ATR plus airbag grid
+        "fast_ema": [140],
+        "slow_ema": [160],
+        "slope_window": [1],
+        "entry_bars": [2],
+        "cooldown": [0],
+        "atr_period": [16],
+        "atr_look": [50],
+        "atr_expand": [2.0],
+        "atr_confirm": [3],
+        "trend_len": [150, 200],
+        "repair_len": [50, 70],
+        "vix_lookback": [3, 5, 7],
+        "vix_spike_pct": [25.0, 35.0, 45.0],
+        "vix_level": [24.0, 28.0, 32.0],
+        "vix_reset": [20.0, 23.0, 26.0],
+        "atr_short": [7, 14],
+        "atr_long": [50, 75, 100],
+        "atr_ratio_exit": [1.3, 1.6, 1.9],
+    },
+    "gc_vjatr_reclaimer": {  # fixed-near-champion VJ-ATR plus re-entry grid
+        "fast_ema": [140],
+        "slow_ema": [160],
+        "slope_window": [1],
+        "entry_bars": [2],
+        "cooldown": [0],
+        "atr_period": [16],
+        "atr_look": [50],
+        "atr_expand": [2.0],
+        "atr_confirm": [3],
+        "rsi_len": [7, 14, 21],
+        "fast_len": [30, 50, 70],
+        "trend_len": [100, 150, 200],
+        "vol_short": [10, 20, 30],
+        "vol_long": [60, 90, 120],
+        "drawdown_lookback": [80, 120, 160],
+        "drawdown_pct": [20.0, 25.0, 30.0, 35.0],
+        "rsi_reclaim": [40.0, 45.0, 50.0],
+        "vol_ratio_max": [0.85, 0.90, 0.95, 1.00],
+    },
+    "gc_vjatr_state_filter": {  # fixed-near-champion VJ-ATR plus state-machine grid
+        "fast_ema": [140],
+        "slow_ema": [160],
+        "slope_window": [1],
+        "entry_bars": [2],
+        "cooldown": [0],
+        "atr_period": [16],
+        "atr_look": [50],
+        "atr_expand": [2.0],
+        "atr_confirm": [3],
+        "fast_len": [30, 50, 70],
+        "slow_len": [150, 200, 250],
+        "rsi_len": [7, 14, 21],
+        "vol_short": [10, 20, 30],
+        "vol_long": [60, 90, 120],
+        "vix_lookback": [3, 5, 7],
+        "vix_shock_pct": [25.0, 35.0, 45.0],
+        "vix_shock_level": [24.0, 28.0, 32.0],
+        "vix_repair_level": [20.0, 23.0, 26.0],
+        "vol_shock_ratio": [1.25, 1.50, 1.75],
+    },
     "ensemble_vote_3of5": {  # 2 × 3 × 3 = 18 combos
         "trend_len": [100, 150, 200],
         "entry_vote": [2, 3, 4],
@@ -1121,6 +1222,16 @@ def _grid_combos(grid: dict) -> list[dict]:
     return [dict(zip(keys, combo)) for combo in itertools.product(*values)]
 
 
+def _rank_value(entry: dict, rank_by: str) -> float:
+    """Ranking key for raw grid candidates."""
+    if rank_by == "marker":
+        return float(entry.get("marker_alignment_score", 0.0))
+    if rank_by == "marker_timing":
+        detail = entry.get("marker_alignment_detail") or {}
+        return float(detail.get("timing_magnitude_weighted", 0.0))
+    return float(entry.get("fitness", 0.0))
+
+
 def _is_valid_combo(concept: str, params: dict) -> bool:
     """Reject obviously invalid combos (e.g., fast_ema >= slow_ema)."""
     fast = params.get("fast_ema") or params.get("short_ema")
@@ -1186,15 +1297,37 @@ _worker_df = None
 _worker_ind = None
 _worker_close = None
 _worker_dates = None
+_worker_marker_target = None
+_worker_include_trades = False
 
 
-def _worker_init():
+def _serialize_trades(trades) -> list[dict]:
+    return [
+        {
+            "entry_bar": t.entry_bar,
+            "exit_bar": t.exit_bar,
+            "entry_date": t.entry_date,
+            "exit_date": t.exit_date,
+            "entry_price": t.entry_price,
+            "exit_price": t.exit_price,
+            "pnl_pct": t.pnl_pct,
+            "bars_held": t.bars_held,
+            "exit_reason": t.exit_reason,
+        }
+        for t in trades
+    ]
+
+
+def _worker_init(include_trades: bool = False):
     """Per-process initializer — loads data once per worker."""
     global _worker_df, _worker_ind, _worker_close, _worker_dates
+    global _worker_marker_target, _worker_include_trades
     _worker_df = get_tecl_data()
     _worker_ind = Indicators(_worker_df)
     _worker_close = _worker_df["close"].values.astype(np.float64)
     _worker_dates = _worker_df["date"].values
+    _worker_marker_target = marker_target_from_df(_worker_df)
+    _worker_include_trades = include_trades
 
 
 def _worker_backtest(job: tuple[str, dict]) -> dict | None:
@@ -1241,11 +1374,15 @@ def _worker_backtest(job: tuple[str, dict]) -> dict | None:
     result.regime_score = score_regime_capture(
         result.trades, _worker_close, _worker_dates
     )
-    align = score_marker_alignment(_worker_df, result.trades)
+    align = score_marker_alignment(
+        _worker_df,
+        result.trades,
+        target=_worker_marker_target,
+    )
     tier = STRATEGY_TIERS.get(concept, "T1")
     fit = compute_fitness(result, tier=tier)
 
-    return {
+    entry = {
         "strategy": concept,
         "rank": 0,
         "fitness": fit,
@@ -1274,24 +1411,22 @@ def _worker_backtest(job: tuple[str, dict]) -> dict | None:
             "win_rate": result.win_rate_pct,
             "exit_reasons": result.exit_reasons,
         },
-        "trades": [
-            {
-                "entry_bar": t.entry_bar,
-                "exit_bar": t.exit_bar,
-                "entry_date": t.entry_date,
-                "exit_date": t.exit_date,
-                "entry_price": t.entry_price,
-                "exit_price": t.exit_price,
-                "pnl_pct": t.pnl_pct,
-                "bars_held": t.bars_held,
-                "exit_reason": t.exit_reason,
-            }
-            for t in result.trades
-        ],
     }
+    if _worker_include_trades:
+        entry["trades"] = _serialize_trades(result.trades)
+    return entry
 
 
-def _backtest_single(concept, params, ind, df, close, dates):
+def _backtest_single(
+    concept,
+    params,
+    ind,
+    df,
+    close,
+    dates,
+    marker_target=None,
+    include_trades: bool = False,
+):
     """Single-thread backtest for small workloads (no pickling overhead)."""
     fn = STRATEGY_REGISTRY.get(concept)
     if fn is None:
@@ -1322,10 +1457,10 @@ def _backtest_single(concept, params, ind, df, close, dates):
     if result.trades_per_year > 5.0:
         return {"_rejected": True}
     result.regime_score = score_regime_capture(result.trades, close, dates)
-    align = score_marker_alignment(df, result.trades)
+    align = score_marker_alignment(df, result.trades, target=marker_target)
     tier = STRATEGY_TIERS.get(concept, "T1")
     fit = compute_fitness(result, tier=tier)
-    return {
+    entry = {
         "strategy": concept,
         "rank": 0,
         "fitness": fit,
@@ -1354,21 +1489,10 @@ def _backtest_single(concept, params, ind, df, close, dates):
             "win_rate": result.win_rate_pct,
             "exit_reasons": result.exit_reasons,
         },
-        "trades": [
-            {
-                "entry_bar": t.entry_bar,
-                "exit_bar": t.exit_bar,
-                "entry_date": t.entry_date,
-                "exit_date": t.exit_date,
-                "entry_price": t.entry_price,
-                "exit_price": t.exit_price,
-                "pnl_pct": t.pnl_pct,
-                "bars_held": t.bars_held,
-                "exit_reason": t.exit_reason,
-            }
-            for t in result.trades
-        ],
     }
+    if include_trades:
+        entry["trades"] = _serialize_trades(result.trades)
+    return entry
 
 
 def run_grid_search(
@@ -1376,6 +1500,10 @@ def run_grid_search(
     dry_run: bool = False,
     top_n: int = 20,
     validate: bool = True,
+    admit: bool = True,
+    rank_by: str = "fitness",
+    progress_every: int = 5000,
+    include_trades: bool = False,
 ) -> dict:
     """Run exhaustive grid search over all (or specified) concepts.
 
@@ -1390,6 +1518,7 @@ def run_grid_search(
     ind = Indicators(df)
     close = df["close"].values.astype(np.float64)
     dates = df["date"].values
+    marker_target = marker_target_from_df(df)
     print(f"[grid] {len(df)} bars, {len(concepts)} concepts")
 
     # Build flat job list: [(concept, params), ...]
@@ -1409,7 +1538,7 @@ def run_grid_search(
 
     if dry_run:
         print("\n[grid] Dry run — no backtests. Exiting.")
-        return {"total_combos": total_combos}
+        return {"total_combos": total_combos, "rank_by": rank_by}
 
     # ── Phase 1: Exhaustive backtest + pre-filter ──
     # For small job counts, single-thread is faster (avoids process spawn overhead).
@@ -1421,29 +1550,67 @@ def run_grid_search(
     if total_combos >= MULTICORE_THRESHOLD:
         n_workers = min(multiprocessing.cpu_count() - 1, total_combos // 10) or 1
         n_workers = max(2, min(n_workers, 12))
+        chunksize = max(8, min(128, total_combos // max(n_workers * 100, 1)))
         print(f"\n[grid] Multicore: {n_workers} workers for {total_combos} combos...")
+        print(f"[grid] Worker chunksize: {chunksize}")
         with multiprocessing.Pool(
-            processes=n_workers, initializer=_worker_init
+            processes=n_workers,
+            initializer=_worker_init,
+            initargs=(include_trades,),
         ) as pool:
-            for result in pool.imap_unordered(_worker_backtest, jobs, chunksize=8):
+            for done, result in enumerate(
+                pool.imap_unordered(_worker_backtest, jobs, chunksize=chunksize),
+                1,
+            ):
                 if result is None:
-                    continue
-                if result.get("_rejected"):
+                    pass
+                elif result.get("_rejected"):
                     charter_rejects += 1
-                    continue
-                all_results.append(result)
+                else:
+                    all_results.append(result)
+                if progress_every > 0 and done % progress_every == 0:
+                    elapsed = time.time() - start
+                    rate = done / elapsed if elapsed > 0 else 0.0
+                    remaining = total_combos - done
+                    eta = remaining / rate if rate > 0 else 0.0
+                    print(
+                        f"[grid] progress {done}/{total_combos} "
+                        f"({done / total_combos:.1%})  pass={len(all_results)} "
+                        f"reject={charter_rejects}  rate={rate:.1f}/s  eta={eta / 60:.1f}m",
+                        flush=True,
+                    )
     else:
         print(
             f"\n[grid] Single-core: {total_combos} combos (below multicore threshold)..."
         )
-        for concept, params in jobs:
-            result = _backtest_single(concept, params, ind, df, close, dates)
+        for done, (concept, params) in enumerate(jobs, 1):
+            result = _backtest_single(
+                concept,
+                params,
+                ind,
+                df,
+                close,
+                dates,
+                marker_target=marker_target,
+                include_trades=include_trades,
+            )
             if result is None:
-                continue
-            if result.get("_rejected"):
+                pass
+            elif result.get("_rejected"):
                 charter_rejects += 1
-                continue
-            all_results.append(result)
+            else:
+                all_results.append(result)
+            if progress_every > 0 and done % progress_every == 0:
+                elapsed = time.time() - start
+                rate = done / elapsed if elapsed > 0 else 0.0
+                remaining = total_combos - done
+                eta = remaining / rate if rate > 0 else 0.0
+                print(
+                    f"[grid] progress {done}/{total_combos} "
+                    f"({done / total_combos:.1%})  pass={len(all_results)} "
+                    f"reject={charter_rejects}  rate={rate:.1f}/s  eta={eta / 60:.1f}m",
+                    flush=True,
+                )
 
     # Per-concept summary (fitness = weighted-era; share = full-history for context)
     concept_stats: dict[str, tuple[int, float, float]] = {}
@@ -1462,10 +1629,9 @@ def run_grid_search(
         )
 
     elapsed_search = time.time() - start
-    # Rank by fitness (weighted-era geometric mean of share multipliers —
-    # 2026-04-21 revision). Previously ranked by raw full-history share_multiple,
-    # which was dominated by the synthetic pre-2008 dotcom sidestep.
-    all_results.sort(key=lambda e: e.get("fitness", 0), reverse=True)
+    # Default ranking is weighted-era fitness. Alternate marker-first modes let
+    # us test timing/shape hypotheses before asking whether economics survive.
+    all_results.sort(key=lambda e: _rank_value(e, rank_by), reverse=True)
     for i, e in enumerate(all_results, 1):
         e["rank"] = i
 
@@ -1479,7 +1645,7 @@ def run_grid_search(
         return {"total_combos": total_combos, "charter_pass": 0}
 
     # Show top 10 raw
-    print("\n[grid] Top 10 raw (by weighted-era fitness):")
+    print(f"\n[grid] Top 10 raw (by {rank_by}):")
     for e in all_results[:10]:
         m = e["metrics"]
         print(
@@ -1493,6 +1659,8 @@ def run_grid_search(
         return {
             "total_combos": total_combos,
             "charter_pass": len(all_results),
+            "rank_by": rank_by,
+            "include_trades": include_trades,
             "raw_rankings": all_results[:top_n],
         }
 
@@ -1531,7 +1699,7 @@ def run_grid_search(
     # decides whether a row is authoritative enough for leaderboard persistence.
     lb_path = os.path.join(PROJECT_ROOT, "spike", "leaderboard.json")
     admit_candidates = validation.get("raw_rankings", [])
-    if admit_candidates:
+    if admit_candidates and admit:
         lb = update_leaderboard(
             {
                 "rankings": admit_candidates,
@@ -1547,20 +1715,36 @@ def run_grid_search(
             v = e.get("validation") or {}
             t = v.get("tier") or e.get("tier") or "?"
             c = float(v.get("composite_confidence") or 0.0) * 100.0
-            label = "ADMIT" if c >= 70 else "WATCH" if c >= 60 else "—"
+            label = (
+                "GOLD"
+                if v.get("gold_status") or e.get("gold_status")
+                else "ADMIT"
+                if c >= 70
+                else "WATCH"
+                if c >= 60
+                else "—"
+            )
             print(
                 f"  #{i} {e['strategy']:<28} [{t}] conf={c:5.1f}[{label}] "
                 f"share={m.get('share_multiple', 0):.2f}x  params={e.get('params', {})}"
             )
+    elif admit_candidates:
+        print(
+            f"\n[grid] Leaderboard update skipped (--no-admit): "
+            f"{len(admit_candidates)} validated candidates available"
+        )
     else:
         print("[grid] No validated candidates produced authority-eligible rows.")
 
     return {
         "total_combos": total_combos,
         "charter_pass": len(all_results),
+        "rank_by": rank_by,
+        "progress_every": progress_every,
+        "include_trades": include_trades,
         "raw_rankings": all_results[:top_n],
         "validation": validation,
-        "leaderboard_entries": len(admit_candidates),
+        "leaderboard_entries": len(admit_candidates) if admit else 0,
     }
 
 
@@ -1583,15 +1767,54 @@ def main():
     parser.add_argument(
         "--no-validate", action="store_true", help="Skip validation (just pre-test)"
     )
+    parser.add_argument(
+        "--no-admit",
+        action="store_true",
+        help="Run validation but skip leaderboard update",
+    )
+    parser.add_argument(
+        "--rank-by",
+        choices=["fitness", "marker", "marker_timing"],
+        default="fitness",
+        help="Raw ranking objective before validation (default: fitness)",
+    )
+    parser.add_argument(
+        "--progress-every",
+        type=int,
+        default=5000,
+        help="Print progress every N completed combos; 0 disables (default: 5000)",
+    )
+    parser.add_argument(
+        "--include-trades",
+        action="store_true",
+        help="Include serialized trade lists in raw grid results; slower for large discovery runs",
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="Write returned search/validation summary JSON to this path",
+    )
     args = parser.parse_args()
 
     concepts = args.concepts.split(",") if args.concepts else None
-    run_grid_search(
+    result = run_grid_search(
         concepts=concepts,
         dry_run=args.dry_run,
         top_n=args.top_n,
         validate=not args.no_validate,
+        admit=not args.no_admit,
+        rank_by=args.rank_by,
+        progress_every=args.progress_every,
+        include_trades=args.include_trades,
     )
+    if args.output:
+        output_dir = os.path.dirname(os.path.abspath(args.output))
+        if output_dir:
+            os.makedirs(output_dir, exist_ok=True)
+        with open(args.output, "w") as f:
+            json.dump(result, f, indent=2, default=str)
+        print(f"[grid] Wrote summary: {args.output}")
 
 
 if __name__ == "__main__":

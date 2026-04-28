@@ -37,7 +37,7 @@ SCRIPTS_DIR = os.path.join(PROJECT_ROOT, "scripts")
 if SCRIPTS_DIR not in sys.path:
     sys.path.insert(0, SCRIPTS_DIR)
 
-from certify.contract import sync_validation_contract
+from certify.contract import compute_gold_status, sync_validation_contract
 from engine.strategy_engine import Indicators, _sma
 from search.share_metric import read_share_multiple
 
@@ -715,6 +715,8 @@ def build_strategy_entry(rank: int,
 
     metrics = {
         "share_multiple": share_multiple,
+        "real_share_multiple": base_metrics.get("real_share_multiple"),
+        "modern_share_multiple": base_metrics.get("modern_share_multiple"),
         "cagr": base_metrics.get("cagr"),
         "max_dd": base_metrics.get("max_dd"),
         "mar": base_metrics.get("mar"),
@@ -735,6 +737,8 @@ def build_strategy_entry(rank: int,
     backtest_certified = bool(validation.get("backtest_certified"))
     certified_not_overfit = bool(validation.get("certified_not_overfit"))
     promotion_ready = bool(validation.get("promotion_ready"))
+    gold = compute_gold_status(validation, base_metrics)
+    gold_status = bool(entry.get("gold_status") or gold.get("gold_status"))
     tier = entry.get("tier") or validation.get("tier") or "T0"
 
     out: dict[str, Any] = {
@@ -749,6 +753,10 @@ def build_strategy_entry(rank: int,
         "certified_not_overfit": certified_not_overfit,
         "backtest_certified": backtest_certified,
         "promotion_ready": promotion_ready,
+        "gold_status": gold_status,
+        "gold_status_label": "Gold Status" if gold_status else "Not Gold",
+        "all_eras_beat_bh": bool(gold.get("all_eras_beat_bh")),
+        "gold_status_blockers": gold.get("gold_status_blockers", []),
         "params": params,
         "metrics": metrics,
         "multi_era": entry.get("multi_era"),
@@ -798,9 +806,6 @@ def build_strategy_entry(rank: int,
         run_gates = flatten_gates(run_validation)
         if run_gates:
             out["validation_summary"] = run_gates
-        out["certified_not_overfit"] = bool(run_validation.get("certified_not_overfit"))
-        out["backtest_certified"] = bool(run_validation.get("backtest_certified"))
-        out["promotion_ready"] = bool(run_validation.get("promotion_ready"))
         if run_validation.get("tier"):
             out["tier"] = run_validation["tier"]
 

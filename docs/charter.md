@@ -73,8 +73,9 @@ A strategy is only considered real when it completes this full chain:
 1. It is registered in the appropriate validation tier (T0 / T1 / T2 — see `VALIDATION-PHILOSOPHY.md`).
 2. It passes the validation pipeline for its tier with a final **PASS** verdict.
 3. It becomes **certified not overfit**: passed the tier-appropriate validation verdict and every required anti-overfit certification check.
-4. Only then may it appear on the validated leaderboard, tagged with its tier.
-5. If chosen as the operational champion, it is emitted as a `backtest_certified` signal bundle (standardized run artifacts + native HTML visualization) ready for manual brokerage execution review.
+4. It is emitted as a `backtest_certified` signal bundle (standardized run artifacts + native HTML visualization) ready for manual brokerage execution review.
+5. It earns **Gold Status**: certified not overfit, artifact-verified / `backtest_certified`, and beating B&H in the full, real, and modern eras.
+6. Only Gold Status strategies may appear on the validated leaderboard, tagged with their tier.
 
 Anything short of that is research output, not a winner.
 

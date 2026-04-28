@@ -20,6 +20,15 @@ No gate in Layer 2 has veto power on its own. Every sub-score contributes weight
 
 Any failure in the required anti-overfit checks here prevents `certified_not_overfit`. `backtest_certified` remains stricter because it also requires artifact completeness after validation.
 
+**Gold Status** is stricter than PASS and `certified_not_overfit`, and is now
+required for authority leaderboard admission.
+A strategy has Gold Status only when it:
+
+- has final validation verdict `PASS`
+- is `certified_not_overfit`
+- is `backtest_certified` / artifact-verified
+- beats B&H in all three canonical eras: full, real, and modern
+
 | Check | Source | Hard-fail condition |
 |---|---|---|
 | Engine integrity | `scripts/validation/integrity.py` | Any lookahead / repaint / multi-position violation |
@@ -53,8 +62,9 @@ PASS:  composite_confidence >= 0.70  (admitted to leaderboard)
 | 0–39 | Reject | Hidden |
 | 40–59 | Research only | Archived |
 | 60–69 | Watchlist | Visible, flagged |
-| 70–89 | Admitted | On leaderboard |
-| 90–100 | High confidence | Highlighted |
+| 70–89 | Certified candidate | Research/certification queue |
+| 90–100 | High confidence candidate | Research/certification queue |
+| Gold Status | Certified + verified + all-era B&H winner | Highest trust display label |
 
 ---
 

@@ -281,9 +281,10 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
     Convergence is per-strategy-name (not per-config). Once a strategy is converged,
     Claude should skip optimizing it and focus effort elsewhere.
 
-    **Leaderboard guard:** entries are only admitted if they are
-    `certified_not_overfit=True`. Performance does not affect eligibility; it
-    only ranks already-certified rows and trims the surface to the top 20.
+    **Leaderboard guard:** entries are only admitted if they have Gold Status:
+    certified not overfit, artifact-backed / backtest-certified, and beating
+    B&H in full, real, and modern eras. Performance does not affect eligibility;
+    it only ranks already-Gold rows and trims the surface to the top 20.
     Ranking uses a balanced all-era score so the leaderboard surfaces the
     strongest certified strategy across full / real / modern history.
     `backtest_certified` remains champion-only because artifact completeness is
@@ -376,7 +377,7 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
         if not entry.get("metrics"):
             continue
         sync_entry_contract(entry)
-        # Leaderboard guard: admit only anti-overfit-certified rows.
+        # Leaderboard guard: admit only Gold Status rows.
         eligible, reason = _is_leaderboard_eligible(entry)
         if not eligible:
             rejected_count += 1

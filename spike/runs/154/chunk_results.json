@@ -1,0 +1,1359 @@
+{
+  "rankings": [
+    {
+      "strategy": "state_machine_crash_recovery",
+      "fitness": 0.2415,
+      "discovery_score": 0.2415,
+      "marker_alignment_score": 0.449,
+      "marker_alignment_detail": {
+        "score": 0.449,
+        "state_accuracy": 0.7463,
+        "precision": 0.8373,
+        "recall": 0.8031,
+        "f1": 0.8198,
+        "transition_timing_score": 0.2298,
+        "timing_magnitude_weighted": 0.147,
+        "transition_count_score": 0.0,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 52,
+        "candidate_sell_count": 52,
+        "buy_transition_matches": [
+          {
+            "target_bar": 1638,
+            "nearest_bar": 1714,
+            "distance_bars": 76,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2001,
+            "nearest_bar": 2032,
+            "distance_bars": 31,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2376,
+            "nearest_bar": 2408,
+            "distance_bars": 32,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2841,
+            "nearest_bar": 2920,
+            "distance_bars": 79,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3333,
+            "nearest_bar": 3384,
+            "distance_bars": 51,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3986,
+            "nearest_bar": 4068,
+            "distance_bars": 82,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4695,
+            "nearest_bar": 4658,
+            "distance_bars": 37,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6461,
+            "nearest_bar": 6479,
+            "distance_bars": 18,
+            "score": 0.4
+          },
+          {
+            "target_bar": 6772,
+            "nearest_bar": 6820,
+            "distance_bars": 48,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7158,
+            "nearest_bar": 7202,
+            "distance_bars": 44,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7478,
+            "nearest_bar": 7356,
+            "distance_bars": 122,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7798,
+            "nearest_bar": 7877,
+            "distance_bars": 79,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7869,
+            "nearest_bar": 7877,
+            "distance_bars": 8,
+            "score": 0.7333
+          },
+          {
+            "target_bar": 8049,
+            "nearest_bar": 8059,
+            "distance_bars": 10,
+            "score": 0.6667
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 1740,
+            "nearest_bar": 1759,
+            "distance_bars": 19,
+            "score": 0.3667
+          },
+          {
+            "target_bar": 2033,
+            "nearest_bar": 2111,
+            "distance_bars": 78,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2700,
+            "nearest_bar": 2727,
+            "distance_bars": 27,
+            "score": 0.1
+          },
+          {
+            "target_bar": 3256,
+            "nearest_bar": 3286,
+            "distance_bars": 30,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3650,
+            "nearest_bar": 3674,
+            "distance_bars": 24,
+            "score": 0.2
+          },
+          {
+            "target_bar": 4477,
+            "nearest_bar": 4502,
+            "distance_bars": 25,
+            "score": 0.1667
+          },
+          {
+            "target_bar": 6402,
+            "nearest_bar": 6410,
+            "distance_bars": 8,
+            "score": 0.7333
+          },
+          {
+            "target_bar": 6749,
+            "nearest_bar": 6749,
+            "distance_bars": 0,
+            "score": 1.0
+          },
+          {
+            "target_bar": 7131,
+            "nearest_bar": 7199,
+            "distance_bars": 68,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7218,
+            "nearest_bar": 7221,
+            "distance_bars": 3,
+            "score": 0.9
+          },
+          {
+            "target_bar": 7763,
+            "nearest_bar": 7680,
+            "distance_bars": 83,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7854,
+            "nearest_bar": 7868,
+            "distance_bars": 14,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 8004,
+            "nearest_bar": 8015,
+            "distance_bars": 11,
+            "score": 0.6333
+          },
+          {
+            "target_bar": 8180,
+            "nearest_bar": 8015,
+            "distance_bars": 165,
+            "score": 0.0
+          }
+        ],
+        "magnitude_weighted_matches": [
+          {
+            "target_bar": 1638,
+            "nearest_bar": 1713,
+            "distance_bars": 75,
+            "magnitude": 2.5699,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1740,
+            "nearest_bar": 1759,
+            "distance_bars": 19,
+            "magnitude": 0.9742,
+            "score": 0.3667
+          },
+          {
+            "target_bar": 2001,
+            "nearest_bar": 2032,
+            "distance_bars": 31,
+            "magnitude": 0.8051,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2033,
+            "nearest_bar": 2032,
+            "distance_bars": 1,
+            "magnitude": 0.9716,
+            "score": 0.9667
+          },
+          {
+            "target_bar": 2376,
+            "nearest_bar": 2408,
+            "distance_bars": 32,
+            "magnitude": 3.7379,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2700,
+            "nearest_bar": 2727,
+            "distance_bars": 27,
+            "magnitude": 0.4864,
+            "score": 0.1
+          },
+          {
+            "target_bar": 2841,
+            "nearest_bar": 2920,
+            "distance_bars": 79,
+            "magnitude": 0.7907,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3256,
+            "nearest_bar": 3286,
+            "distance_bars": 30,
+            "magnitude": 0.3657,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3333,
+            "nearest_bar": 3286,
+            "distance_bars": 47,
+            "magnitude": 1.709,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3650,
+            "nearest_bar": 3674,
+            "distance_bars": 24,
+            "magnitude": 0.9333,
+            "score": 0.2
+          },
+          {
+            "target_bar": 3986,
+            "nearest_bar": 4068,
+            "distance_bars": 82,
+            "magnitude": 5.1304,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4477,
+            "nearest_bar": 4502,
+            "distance_bars": 25,
+            "magnitude": 0.3475,
+            "score": 0.1667
+          },
+          {
+            "target_bar": 4695,
+            "nearest_bar": 4658,
+            "distance_bars": 37,
+            "magnitude": 17.5978,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6402,
+            "nearest_bar": 6410,
+            "distance_bars": 8,
+            "magnitude": 0.5167,
+            "score": 0.7333
+          },
+          {
+            "target_bar": 6461,
+            "nearest_bar": 6479,
+            "distance_bars": 18,
+            "magnitude": 2.6505,
+            "score": 0.4
+          },
+          {
+            "target_bar": 6749,
+            "nearest_bar": 6749,
+            "distance_bars": 0,
+            "magnitude": 0.6476,
+            "score": 1.0
+          },
+          {
+            "target_bar": 6772,
+            "nearest_bar": 6749,
+            "distance_bars": 23,
+            "magnitude": 5.1541,
+            "score": 0.2333
+          },
+          {
+            "target_bar": 7131,
+            "nearest_bar": 7199,
+            "distance_bars": 68,
+            "magnitude": 0.1242,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7158,
+            "nearest_bar": 7199,
+            "distance_bars": 41,
+            "magnitude": 0.5266,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7218,
+            "nearest_bar": 7221,
+            "distance_bars": 3,
+            "magnitude": 0.714,
+            "score": 0.9
+          },
+          {
+            "target_bar": 7478,
+            "nearest_bar": 7356,
+            "distance_bars": 122,
+            "magnitude": 2.3582,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7763,
+            "nearest_bar": 7684,
+            "distance_bars": 79,
+            "magnitude": 0.2069,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7798,
+            "nearest_bar": 7868,
+            "distance_bars": 70,
+            "magnitude": 0.6035,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7854,
+            "nearest_bar": 7868,
+            "distance_bars": 14,
+            "magnitude": 0.4174,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 7869,
+            "nearest_bar": 7868,
+            "distance_bars": 1,
+            "magnitude": 0.5807,
+            "score": 0.9667
+          },
+          {
+            "target_bar": 8004,
+            "nearest_bar": 8015,
+            "distance_bars": 11,
+            "magnitude": 0.4745,
+            "score": 0.6333
+          },
+          {
+            "target_bar": 8049,
+            "nearest_bar": 8059,
+            "distance_bars": 10,
+            "magnitude": 1.8473,
+            "score": 0.6667
+          },
+          {
+            "target_bar": 8180,
+            "nearest_bar": 8059,
+            "distance_bars": 121,
+            "magnitude": 0.0875,
+            "score": 0.0
+          }
+        ]
+      },
+      "params": {
+        "vol_long": 90,
+        "vol_shock_ratio": 1.25,
+        "cooldown": 0,
+        "vol_short": 30,
+        "vix_lookback": 5,
+        "slow_len": 250,
+        "vix_shock_level": 28.0,
+        "fast_len": 50,
+        "vix_shock_pct": 45.0,
+        "vix_repair_level": 26.0,
+        "rsi_len": 7
+      },
+      "metrics": {
+        "share_multiple": 1.7671,
+        "real_share_multiple": 0.4012,
+        "modern_share_multiple": 1.117,
+        "cagr": 18.1,
+        "max_dd": 98.1,
+        "trades": 86,
+        "trades_yr": 2.6
+      }
+    },
+    {
+      "strategy": "airbag_vix_atr",
+      "fitness": 0.1289,
+      "discovery_score": 0.1289,
+      "marker_alignment_score": 0.4306,
+      "marker_alignment_detail": {
+        "score": 0.4306,
+        "state_accuracy": 0.6306,
+        "precision": 0.9433,
+        "recall": 0.517,
+        "f1": 0.6679,
+        "transition_timing_score": 0.4238,
+        "timing_magnitude_weighted": 0.4062,
+        "transition_count_score": 0.0,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 94,
+        "candidate_sell_count": 94,
+        "buy_transition_matches": [
+          {
+            "target_bar": 1638,
+            "nearest_bar": 1642,
+            "distance_bars": 4,
+            "score": 0.8667
+          },
+          {
+            "target_bar": 2001,
+            "nearest_bar": 1847,
+            "distance_bars": 154,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2376,
+            "nearest_bar": 2528,
+            "distance_bars": 152,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2841,
+            "nearest_bar": 2805,
+            "distance_bars": 36,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3333,
+            "nearest_bar": 3356,
+            "distance_bars": 23,
+            "score": 0.2333
+          },
+          {
+            "target_bar": 3986,
+            "nearest_bar": 4068,
+            "distance_bars": 82,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4695,
+            "nearest_bar": 4705,
+            "distance_bars": 10,
+            "score": 0.6667
+          },
+          {
+            "target_bar": 6461,
+            "nearest_bar": 6494,
+            "distance_bars": 33,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6772,
+            "nearest_bar": 6820,
+            "distance_bars": 48,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7158,
+            "nearest_bar": 7167,
+            "distance_bars": 9,
+            "score": 0.7
+          },
+          {
+            "target_bar": 7478,
+            "nearest_bar": 7491,
+            "distance_bars": 13,
+            "score": 0.5667
+          },
+          {
+            "target_bar": 7798,
+            "nearest_bar": 7810,
+            "distance_bars": 12,
+            "score": 0.6
+          },
+          {
+            "target_bar": 7869,
+            "nearest_bar": 7880,
+            "distance_bars": 11,
+            "score": 0.6333
+          },
+          {
+            "target_bar": 8049,
+            "nearest_bar": 8062,
+            "distance_bars": 13,
+            "score": 0.5667
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 1740,
+            "nearest_bar": 1735,
+            "distance_bars": 5,
+            "score": 0.8333
+          },
+          {
+            "target_bar": 2033,
+            "nearest_bar": 1856,
+            "distance_bars": 177,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2700,
+            "nearest_bar": 2750,
+            "distance_bars": 50,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3256,
+            "nearest_bar": 3281,
+            "distance_bars": 25,
+            "score": 0.1667
+          },
+          {
+            "target_bar": 3650,
+            "nearest_bar": 3659,
+            "distance_bars": 9,
+            "score": 0.7
+          },
+          {
+            "target_bar": 4477,
+            "nearest_bar": 4491,
+            "distance_bars": 14,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 6402,
+            "nearest_bar": 6357,
+            "distance_bars": 45,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6749,
+            "nearest_bar": 6736,
+            "distance_bars": 13,
+            "score": 0.5667
+          },
+          {
+            "target_bar": 7131,
+            "nearest_bar": 7148,
+            "distance_bars": 17,
+            "score": 0.4333
+          },
+          {
+            "target_bar": 7218,
+            "nearest_bar": 7210,
+            "distance_bars": 8,
+            "score": 0.7333
+          },
+          {
+            "target_bar": 7763,
+            "nearest_bar": 7755,
+            "distance_bars": 8,
+            "score": 0.7333
+          },
+          {
+            "target_bar": 7854,
+            "nearest_bar": 7857,
+            "distance_bars": 3,
+            "score": 0.9
+          },
+          {
+            "target_bar": 8004,
+            "nearest_bar": 8008,
+            "distance_bars": 4,
+            "score": 0.8667
+          },
+          {
+            "target_bar": 8180,
+            "nearest_bar": 8167,
+            "distance_bars": 13,
+            "score": 0.5667
+          }
+        ],
+        "magnitude_weighted_matches": [
+          {
+            "target_bar": 1638,
+            "nearest_bar": 1642,
+            "distance_bars": 4,
+            "magnitude": 2.5699,
+            "score": 0.8667
+          },
+          {
+            "target_bar": 1740,
+            "nearest_bar": 1735,
+            "distance_bars": 5,
+            "magnitude": 0.9742,
+            "score": 0.8333
+          },
+          {
+            "target_bar": 2001,
+            "nearest_bar": 1856,
+            "distance_bars": 145,
+            "magnitude": 0.8051,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2033,
+            "nearest_bar": 1856,
+            "distance_bars": 177,
+            "magnitude": 0.9716,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2376,
+            "nearest_bar": 2528,
+            "distance_bars": 152,
+            "magnitude": 3.7379,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2700,
+            "nearest_bar": 2747,
+            "distance_bars": 47,
+            "magnitude": 0.4864,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2841,
+            "nearest_bar": 2814,
+            "distance_bars": 27,
+            "magnitude": 0.7907,
+            "score": 0.1
+          },
+          {
+            "target_bar": 3256,
+            "nearest_bar": 3274,
+            "distance_bars": 18,
+            "magnitude": 0.3657,
+            "score": 0.4
+          },
+          {
+            "target_bar": 3333,
+            "nearest_bar": 3356,
+            "distance_bars": 23,
+            "magnitude": 1.709,
+            "score": 0.2333
+          },
+          {
+            "target_bar": 3650,
+            "nearest_bar": 3659,
+            "distance_bars": 9,
+            "magnitude": 0.9333,
+            "score": 0.7
+          },
+          {
+            "target_bar": 3986,
+            "nearest_bar": 4068,
+            "distance_bars": 82,
+            "magnitude": 5.1304,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4477,
+            "nearest_bar": 4491,
+            "distance_bars": 14,
+            "magnitude": 0.3475,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 4695,
+            "nearest_bar": 4705,
+            "distance_bars": 10,
+            "magnitude": 17.5978,
+            "score": 0.6667
+          },
+          {
+            "target_bar": 6402,
+            "nearest_bar": 6357,
+            "distance_bars": 45,
+            "magnitude": 0.5167,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6461,
+            "nearest_bar": 6494,
+            "distance_bars": 33,
+            "magnitude": 2.6505,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6749,
+            "nearest_bar": 6736,
+            "distance_bars": 13,
+            "magnitude": 0.6476,
+            "score": 0.5667
+          },
+          {
+            "target_bar": 6772,
+            "nearest_bar": 6736,
+            "distance_bars": 36,
+            "magnitude": 5.1541,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7131,
+            "nearest_bar": 7148,
+            "distance_bars": 17,
+            "magnitude": 0.1242,
+            "score": 0.4333
+          },
+          {
+            "target_bar": 7158,
+            "nearest_bar": 7167,
+            "distance_bars": 9,
+            "magnitude": 0.5266,
+            "score": 0.7
+          },
+          {
+            "target_bar": 7218,
+            "nearest_bar": 7210,
+            "distance_bars": 8,
+            "magnitude": 0.714,
+            "score": 0.7333
+          },
+          {
+            "target_bar": 7478,
+            "nearest_bar": 7491,
+            "distance_bars": 13,
+            "magnitude": 2.3582,
+            "score": 0.5667
+          },
+          {
+            "target_bar": 7763,
+            "nearest_bar": 7755,
+            "distance_bars": 8,
+            "magnitude": 0.2069,
+            "score": 0.7333
+          },
+          {
+            "target_bar": 7798,
+            "nearest_bar": 7810,
+            "distance_bars": 12,
+            "magnitude": 0.6035,
+            "score": 0.6
+          },
+          {
+            "target_bar": 7854,
+            "nearest_bar": 7857,
+            "distance_bars": 3,
+            "magnitude": 0.4174,
+            "score": 0.9
+          },
+          {
+            "target_bar": 7869,
+            "nearest_bar": 7880,
+            "distance_bars": 11,
+            "magnitude": 0.5807,
+            "score": 0.6333
+          },
+          {
+            "target_bar": 8004,
+            "nearest_bar": 8001,
+            "distance_bars": 3,
+            "magnitude": 0.4745,
+            "score": 0.9
+          },
+          {
+            "target_bar": 8049,
+            "nearest_bar": 8062,
+            "distance_bars": 13,
+            "magnitude": 1.8473,
+            "score": 0.5667
+          },
+          {
+            "target_bar": 8180,
+            "nearest_bar": 8167,
+            "distance_bars": 13,
+            "magnitude": 0.0875,
+            "score": 0.5667
+          }
+        ]
+      },
+      "params": {
+        "cooldown": 5,
+        "repair_len": 70,
+        "vix_level": 24.0,
+        "vix_lookback": 7,
+        "atr_long": 100,
+        "atr_ratio_exit": 1.3,
+        "vix_reset": 26.0,
+        "atr_short": 7,
+        "vix_spike_pct": 35.0,
+        "trend_len": 150
+      },
+      "metrics": {
+        "share_multiple": 0.6177,
+        "real_share_multiple": 0.1329,
+        "modern_share_multiple": 0.3467,
+        "cagr": 14.4,
+        "max_dd": 61.2,
+        "trades": 135,
+        "trades_yr": 4.1
+      }
+    },
+    {
+      "strategy": "reclaimer_vol_rsi",
+      "fitness": 0.0761,
+      "discovery_score": 0.0761,
+      "marker_alignment_score": 0.394,
+      "marker_alignment_detail": {
+        "score": 0.394,
+        "state_accuracy": 0.6283,
+        "precision": 0.8366,
+        "recall": 0.6,
+        "f1": 0.6988,
+        "transition_timing_score": 0.1774,
+        "timing_magnitude_weighted": 0.245,
+        "transition_count_score": 0.0714,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 27,
+        "candidate_sell_count": 27,
+        "buy_transition_matches": [
+          {
+            "target_bar": 1638,
+            "nearest_bar": 1805,
+            "distance_bars": 167,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2001,
+            "nearest_bar": 1856,
+            "distance_bars": 145,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2376,
+            "nearest_bar": 2419,
+            "distance_bars": 43,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2841,
+            "nearest_bar": 2794,
+            "distance_bars": 47,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3333,
+            "nearest_bar": 3472,
+            "distance_bars": 139,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3986,
+            "nearest_bar": 4066,
+            "distance_bars": 80,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4695,
+            "nearest_bar": 4889,
+            "distance_bars": 194,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6461,
+            "nearest_bar": 6482,
+            "distance_bars": 21,
+            "score": 0.3
+          },
+          {
+            "target_bar": 6772,
+            "nearest_bar": 6857,
+            "distance_bars": 85,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7158,
+            "nearest_bar": 7382,
+            "distance_bars": 224,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7478,
+            "nearest_bar": 7483,
+            "distance_bars": 5,
+            "score": 0.8333
+          },
+          {
+            "target_bar": 7798,
+            "nearest_bar": 7825,
+            "distance_bars": 27,
+            "score": 0.1
+          },
+          {
+            "target_bar": 7869,
+            "nearest_bar": 7901,
+            "distance_bars": 32,
+            "score": 0.0
+          },
+          {
+            "target_bar": 8049,
+            "nearest_bar": 7901,
+            "distance_bars": 148,
+            "score": 0.0
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 1740,
+            "nearest_bar": 1807,
+            "distance_bars": 67,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2033,
+            "nearest_bar": 1858,
+            "distance_bars": 175,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2700,
+            "nearest_bar": 2533,
+            "distance_bars": 167,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3256,
+            "nearest_bar": 3133,
+            "distance_bars": 123,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3650,
+            "nearest_bar": 3661,
+            "distance_bars": 11,
+            "score": 0.6333
+          },
+          {
+            "target_bar": 4477,
+            "nearest_bar": 4285,
+            "distance_bars": 192,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6402,
+            "nearest_bar": 6408,
+            "distance_bars": 6,
+            "score": 0.8
+          },
+          {
+            "target_bar": 6749,
+            "nearest_bar": 6754,
+            "distance_bars": 5,
+            "score": 0.8333
+          },
+          {
+            "target_bar": 7131,
+            "nearest_bar": 7234,
+            "distance_bars": 103,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7218,
+            "nearest_bar": 7234,
+            "distance_bars": 16,
+            "score": 0.4667
+          },
+          {
+            "target_bar": 7763,
+            "nearest_bar": 7869,
+            "distance_bars": 106,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7854,
+            "nearest_bar": 7869,
+            "distance_bars": 15,
+            "score": 0.5
+          },
+          {
+            "target_bar": 8004,
+            "nearest_bar": 7989,
+            "distance_bars": 15,
+            "score": 0.5
+          },
+          {
+            "target_bar": 8180,
+            "nearest_bar": 7989,
+            "distance_bars": 191,
+            "score": 0.0
+          }
+        ],
+        "magnitude_weighted_matches": [
+          {
+            "target_bar": 1638,
+            "nearest_bar": 1805,
+            "distance_bars": 167,
+            "magnitude": 2.5699,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1740,
+            "nearest_bar": 1805,
+            "distance_bars": 65,
+            "magnitude": 0.9742,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2001,
+            "nearest_bar": 1858,
+            "distance_bars": 143,
+            "magnitude": 0.8051,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2033,
+            "nearest_bar": 1858,
+            "distance_bars": 175,
+            "magnitude": 0.9716,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2376,
+            "nearest_bar": 2419,
+            "distance_bars": 43,
+            "magnitude": 3.7379,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2700,
+            "nearest_bar": 2794,
+            "distance_bars": 94,
+            "magnitude": 0.4864,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2841,
+            "nearest_bar": 2887,
+            "distance_bars": 46,
+            "magnitude": 0.7907,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3256,
+            "nearest_bar": 3133,
+            "distance_bars": 123,
+            "magnitude": 0.3657,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3333,
+            "nearest_bar": 3472,
+            "distance_bars": 139,
+            "magnitude": 1.709,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3650,
+            "nearest_bar": 3661,
+            "distance_bars": 11,
+            "magnitude": 0.9333,
+            "score": 0.6333
+          },
+          {
+            "target_bar": 3986,
+            "nearest_bar": 4041,
+            "distance_bars": 55,
+            "magnitude": 5.1304,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4477,
+            "nearest_bar": 4344,
+            "distance_bars": 133,
+            "magnitude": 0.3475,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4695,
+            "nearest_bar": 4674,
+            "distance_bars": 21,
+            "magnitude": 17.5978,
+            "score": 0.3
+          },
+          {
+            "target_bar": 6402,
+            "nearest_bar": 6408,
+            "distance_bars": 6,
+            "magnitude": 0.5167,
+            "score": 0.8
+          },
+          {
+            "target_bar": 6461,
+            "nearest_bar": 6482,
+            "distance_bars": 21,
+            "magnitude": 2.6505,
+            "score": 0.3
+          },
+          {
+            "target_bar": 6749,
+            "nearest_bar": 6754,
+            "distance_bars": 5,
+            "magnitude": 0.6476,
+            "score": 0.8333
+          },
+          {
+            "target_bar": 6772,
+            "nearest_bar": 6754,
+            "distance_bars": 18,
+            "magnitude": 5.1541,
+            "score": 0.4
+          },
+          {
+            "target_bar": 7131,
+            "nearest_bar": 7234,
+            "distance_bars": 103,
+            "magnitude": 0.1242,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7158,
+            "nearest_bar": 7234,
+            "distance_bars": 76,
+            "magnitude": 0.5266,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7218,
+            "nearest_bar": 7234,
+            "distance_bars": 16,
+            "magnitude": 0.714,
+            "score": 0.4667
+          },
+          {
+            "target_bar": 7478,
+            "nearest_bar": 7483,
+            "distance_bars": 5,
+            "magnitude": 2.3582,
+            "score": 0.8333
+          },
+          {
+            "target_bar": 7763,
+            "nearest_bar": 7825,
+            "distance_bars": 62,
+            "magnitude": 0.2069,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7798,
+            "nearest_bar": 7825,
+            "distance_bars": 27,
+            "magnitude": 0.6035,
+            "score": 0.1
+          },
+          {
+            "target_bar": 7854,
+            "nearest_bar": 7869,
+            "distance_bars": 15,
+            "magnitude": 0.4174,
+            "score": 0.5
+          },
+          {
+            "target_bar": 7869,
+            "nearest_bar": 7869,
+            "distance_bars": 0,
+            "magnitude": 0.5807,
+            "score": 1.0
+          },
+          {
+            "target_bar": 8004,
+            "nearest_bar": 7989,
+            "distance_bars": 15,
+            "magnitude": 0.4745,
+            "score": 0.5
+          },
+          {
+            "target_bar": 8049,
+            "nearest_bar": 7989,
+            "distance_bars": 60,
+            "magnitude": 1.8473,
+            "score": 0.0
+          },
+          {
+            "target_bar": 8180,
+            "nearest_bar": 7989,
+            "distance_bars": 191,
+            "magnitude": 0.0875,
+            "score": 0.0
+          }
+        ]
+      },
+      "params": {
+        "vol_long": 60,
+        "cooldown": 10,
+        "vol_short": 10,
+        "rsi_reclaim": 50.0,
+        "fast_len": 30,
+        "drawdown_lookback": 80,
+        "rsi_len": 14,
+        "drawdown_pct": 30.0,
+        "vol_ratio_max": 0.95,
+        "trend_len": 200
+      },
+      "metrics": {
+        "share_multiple": 0.4481,
+        "real_share_multiple": 0.1678,
+        "modern_share_multiple": 0.3286,
+        "cagr": 13.3,
+        "max_dd": 95.1,
+        "trades": 33,
+        "trades_yr": 1.0
+      }
+    }
+  ],
+  "diagnostics": {
+    "airbag_vix_atr": {
+      "best_discovery_score": 0.1289,
+      "best_fitness_score": 0.1289,
+      "best_marker_alignment_score": 0.4306,
+      "best_params": {
+        "cooldown": 5,
+        "repair_len": 70,
+        "vix_level": 24.0,
+        "vix_lookback": 7,
+        "atr_long": 100,
+        "atr_ratio_exit": 1.3,
+        "vix_reset": 26.0,
+        "atr_short": 7,
+        "vix_spike_pct": 35.0,
+        "trend_len": 150
+      },
+      "boundary_hits": {
+        "trend_len": "low",
+        "repair_len": "high",
+        "atr_short": "low",
+        "atr_long": "high",
+        "vix_lookback": "high",
+        "vix_spike_pct": null,
+        "vix_level": "low",
+        "vix_reset": "high",
+        "atr_ratio_exit": "low",
+        "cooldown": null
+      },
+      "diversity": 0.3851
+    },
+    "reclaimer_vol_rsi": {
+      "best_discovery_score": 0.0761,
+      "best_fitness_score": 0.0761,
+      "best_marker_alignment_score": 0.394,
+      "best_params": {
+        "vol_long": 60,
+        "cooldown": 10,
+        "vol_short": 10,
+        "rsi_reclaim": 50.0,
+        "fast_len": 30,
+        "drawdown_lookback": 80,
+        "rsi_len": 14,
+        "drawdown_pct": 30.0,
+        "vol_ratio_max": 0.95,
+        "trend_len": 200
+      },
+      "boundary_hits": {
+        "rsi_len": null,
+        "fast_len": "low",
+        "trend_len": "high",
+        "vol_short": "low",
+        "vol_long": "low",
+        "drawdown_lookback": "low",
+        "drawdown_pct": null,
+        "rsi_reclaim": "high",
+        "vol_ratio_max": null,
+        "cooldown": "high"
+      },
+      "diversity": 0.3803
+    },
+    "state_machine_crash_recovery": {
+      "best_discovery_score": 0.2415,
+      "best_fitness_score": 0.2415,
+      "best_marker_alignment_score": 0.449,
+      "best_params": {
+        "vol_long": 90,
+        "vol_shock_ratio": 1.25,
+        "cooldown": 0,
+        "vol_short": 30,
+        "vix_lookback": 5,
+        "slow_len": 250,
+        "vix_shock_level": 28.0,
+        "fast_len": 50,
+        "vix_shock_pct": 45.0,
+        "vix_repair_level": 26.0,
+        "rsi_len": 7
+      },
+      "boundary_hits": {
+        "fast_len": null,
+        "slow_len": "high",
+        "rsi_len": "low",
+        "vol_short": "high",
+        "vol_long": null,
+        "vix_lookback": null,
+        "vix_shock_pct": "high",
+        "vix_shock_level": null,
+        "vix_repair_level": "high",
+        "vol_shock_ratio": "low",
+        "cooldown": "low"
+      },
+      "diversity": 0.3898
+    }
+  },
+  "best_ever": {
+    "strategy": "gc_vjatr",
+    "fitness": 2.5714,
+    "params": {
+      "fast_ema": 140,
+      "slow_ema": 160,
+      "slope_window": 1,
+      "entry_bars": 2,
+      "cooldown": 0,
+      "atr_period": 16,
+      "atr_look": 50,
+      "atr_expand": 2.0,
+      "atr_confirm": 3
+    }
+  },
+  "elapsed_minutes": 2.0,
+  "generations": 311,
+  "total_evals": 2946
+}

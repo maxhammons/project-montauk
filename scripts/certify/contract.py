@@ -12,9 +12,11 @@ Contract:
   - `certified_not_overfit=True` means the strategy passed the tier-appropriate
     validation verdict (`promotion_ready=True`) and every required anti-overfit
     certification check passed.
-  - Leaderboard eligibility is exactly `certified_not_overfit=True`.
   - `backtest_certified=True` is stricter: it additionally requires the
     champion's artifact bundle to exist.
+  - `gold_status=True` means the row is certified, artifact-backed, and beats
+    B&H in the full, real, and modern eras.
+  - Leaderboard eligibility is exactly `gold_status=True`.
   - Artifact generation must never upgrade a WARN / non-promotion-ready row to
     `backtest_certified=True`.
 """
@@ -42,6 +44,7 @@ REQUIRED_RUN_ARTIFACTS = (
 
 ARTIFACT_PENDING_ADVISORY = "artifact completeness pending"
 ARTIFACT_FAILED_ADVISORY = "artifact completeness failed"
+GOLD_STATUS_LABEL = "Gold Status"
 
 
 def _dedupe(items: list[str]) -> list[str]:
@@ -68,6 +71,48 @@ def required_certification_failures(validation: dict[str, Any] | None) -> list[s
         for name in REQUIRED_CERTIFICATION_CHECKS
         if not bool((checks.get(name) or {}).get("passed", False))
     ]
+
+
+def all_eras_beat_bh(metrics: dict[str, Any] | None) -> bool:
+    """Return True when full, real, and modern share multipliers all beat B&H."""
+
+    metrics = metrics or {}
+    required = ("share_multiple", "real_share_multiple", "modern_share_multiple")
+    try:
+        return all(float(metrics.get(key, 0.0)) >= 1.0 for key in required)
+    except (TypeError, ValueError):
+        return False
+
+
+def compute_gold_status(
+    validation: dict[str, Any] | None,
+    metrics: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Strict display status for fully certified, artifact-backed all-era winners."""
+
+    validation = validation or {}
+    era_ok = all_eras_beat_bh(metrics)
+    status = bool(
+        validation.get("verdict") == "PASS"
+        and validation.get("certified_not_overfit", False)
+        and validation.get("backtest_certified", False)
+        and era_ok
+    )
+    blockers = []
+    if validation.get("verdict") != "PASS":
+        blockers.append("validation verdict is not PASS")
+    if not validation.get("certified_not_overfit", False):
+        blockers.append("not certified_not_overfit")
+    if not validation.get("backtest_certified", False):
+        blockers.append("not backtest_certified / artifact-verified")
+    if not era_ok:
+        blockers.append("does not beat B&H in every era")
+    return {
+        "gold_status": status,
+        "gold_status_label": GOLD_STATUS_LABEL if status else "Not Gold",
+        "all_eras_beat_bh": era_ok,
+        "gold_status_blockers": blockers,
+    }
 
 
 def sync_validation_contract(
@@ -186,6 +231,15 @@ def sync_entry_contract(
     entry["certified_not_overfit"] = validation["certified_not_overfit"]
     entry["backtest_certified"] = validation["backtest_certified"]
     entry["certification_checks"] = validation["certification_checks"]
+    gold = compute_gold_status(validation, entry.get("metrics"))
+    validation.update(gold)
+    gates = dict(validation.get("gates") or {})
+    gate7 = dict(gates.get("gate7") or {})
+    gate7.update(gold)
+    gates["gate7"] = gate7
+    validation["gates"] = gates
+    entry["validation"] = validation
+    entry.update(gold)
     return entry
 
 
@@ -195,6 +249,10 @@ def is_leaderboard_eligible(entry: dict[str, Any]) -> tuple[bool, str]:
     validation = sync_validation_contract(entry.get("validation"))
     if not validation:
         return False, "missing validation"
+    gold = compute_gold_status(validation, entry.get("metrics"))
+    if not bool(gold.get("gold_status", False)):
+        blockers = gold.get("gold_status_blockers") or ["gold_status=False"]
+        return False, f"gold_status=False ({'; '.join(blockers)})"
     if not bool(validation.get("certified_not_overfit", False)):
         verdict = validation.get("verdict", "?")
         if not bool(validation.get("promotion_ready", False)):

@@ -102,6 +102,8 @@ def candidate_risk_state_from_trades(n_bars: int, trades: list) -> np.ndarray:
 def marker_target_from_df(
     df: pd.DataFrame, cycles: list[MarkerCycle] | None = None
 ) -> dict:
+    date_labels = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
+    close_arr = df["close"].values.astype(np.float64)
     cycles = cycles if cycles is not None else load_marker_cycles()
     if not cycles:
         return {
@@ -110,6 +112,8 @@ def marker_target_from_df(
             "sell_bars": [],
             "overlap_start": None,
             "overlap_end": None,
+            "date_labels": date_labels,
+            "close": close_arr,
         }
 
     dates = _normalize_dates(df["date"])
@@ -148,6 +152,8 @@ def marker_target_from_df(
         "sell_bars": sorted(sell_bars),
         "overlap_start": overlap_start,
         "overlap_end": overlap_end,
+        "date_labels": date_labels,
+        "close": close_arr,
     }
 
 
@@ -288,8 +294,9 @@ def score_marker_alignment(
     trades: list,
     *,
     tolerance_bars: int = DEFAULT_TRANSITION_TOLERANCE_BARS,
+    target: dict | None = None,
 ) -> dict:
-    target = marker_target_from_df(df)
+    target = target if target is not None else marker_target_from_df(df)
     overlap_start = target["overlap_start"]
     overlap_end = target["overlap_end"]
     if overlap_start is None or overlap_end is None or overlap_end <= overlap_start:
@@ -350,7 +357,9 @@ def score_marker_alignment(
     # COVID / late-on-2022 / missed-2025-tariff behavior.
     all_target_bars = sorted(target_buys + target_sells)
     all_candidate_bars = sorted(candidate_buys + candidate_sells)
-    close_arr = df["close"].values.astype(np.float64)
+    close_arr = target.get("close")
+    if close_arr is None:
+        close_arr = df["close"].values.astype(np.float64)
     timing_magnitude_weighted, mag_matches = _magnitude_weighted_timing_score(
         all_target_bars, all_candidate_bars, close_arr, tolerance_bars
     )
@@ -368,7 +377,9 @@ def score_marker_alignment(
     score = float(
         np.mean([state_accuracy, f1, transition_timing_score, transition_count_score])
     )
-    dates = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
+    dates = target.get("date_labels")
+    if dates is None:
+        dates = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
 
     return {
         "score": round(score, 4),

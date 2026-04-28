@@ -463,7 +463,12 @@
       const confidence = CONFIDENCE_KEY.extract(s);
       const confStr = CONFIDENCE_KEY.format(confidence);
       const admission = admissionLabel(confidence);
-      const cert = s.certified_not_overfit ? "✓" : "·";
+      const cert = s.gold_status ? "G" : s.certified_not_overfit ? "✓" : "·";
+      const certTitle = s.gold_status
+        ? "Gold Status: certified, artifact-backed, and beats B&H in all eras"
+        : s.certified_not_overfit
+          ? "verified not overfit"
+          : "not verified not overfit";
       const manual = s.manually_admitted ? '<span class="manual-flag" title="manually admitted — see spirit-memory/decisions.md 2026-04-20-a">★</span>' : "";
       const displayRank = idx + 1;
       const rankLabel = `#${displayRank}`;
@@ -486,7 +491,7 @@
           <span class="tier ${s.tier || "T0"}">${s.tier || "T0"}</span>
           <span class="admission ${admission.cls}" title="Confidence tier: ${admission.tag}">${admission.tag}</span>
           <span class="mult ${sm < 1 ? "bad" : ""}" title="share multiple vs B&H (full history — includes synthetic pre-2008)">${fmtMult(sm)}</span>
-          <span class="cert ${s.certified_not_overfit ? "" : "no"}" title="${s.certified_not_overfit ? "verified not overfit" : "not verified not overfit"}">${cert}</span>
+          <span class="cert ${s.gold_status ? "gold" : s.certified_not_overfit ? "" : "no"}" title="${certTitle}">${cert}</span>
           ${s.stale ? '<span style="color:var(--amber);font-size:10px;">stale</span>' : ""}
         </div>
       `;
@@ -525,6 +530,7 @@
     tierBadge.classList.add("has-tip");
     tierBadge.dataset.tip = "Validation tier. T0 = hand-authored canonical params (light pipeline). T1 = hand-authored + canonical grid (medium). T2 = GA-tuned or optimizer-discovered (full statistical stack).";
     meta.appendChild(tierBadge);
+    meta.appendChild(makeBadge(s.gold_status ? "Gold Status" : "Not Gold", s.gold_status ? "ok gold" : "warn"));
     meta.appendChild(makeBadge(s.certified_not_overfit ? "verified not overfit ✓" : "not verified not overfit", s.certified_not_overfit ? "ok" : "warn"));
     meta.appendChild(makeBadge(s.backtest_certified ? "artifact bundle emitted" : "artifact bundle not emitted", s.backtest_certified ? "ok" : "warn"));
     const regimeSummary = s.multi_era?.regime_summary;

@@ -238,7 +238,11 @@ def test_warn_row_is_not_leaderboard_eligible():
         "strategy": "gc_precross",
         "fitness": 1.2,
         "params": {"cooldown": 2},
-        "metrics": {"share_multiple": 1.1},
+        "metrics": {
+            "share_multiple": 1.1,
+            "real_share_multiple": 1.1,
+            "modern_share_multiple": 1.1,
+        },
         "validation": {
             "verdict": "WARN",
             "promotion_ready": False,
@@ -255,7 +259,8 @@ def test_warn_row_is_not_leaderboard_eligible():
 
     eligible, reason = is_leaderboard_eligible(entry)
     assert eligible is False
-    assert "promotion_ready=False" in reason
+    assert "gold_status=False" in reason
+    assert "validation verdict is not PASS" in reason
     assert sync_validation_contract(entry["validation"])["certified_not_overfit"] is False
 
     with tempfile.TemporaryDirectory() as td:
@@ -266,12 +271,16 @@ def test_warn_row_is_not_leaderboard_eligible():
     assert leaderboard == []
 
 
-def test_promotion_ready_row_can_be_admitted_before_artifact_completion():
+def test_promotion_ready_row_is_not_gold_before_artifact_completion():
     entry = {
         "strategy": "gc_precross",
         "fitness": 1.2,
         "params": {"cooldown": 2},
-        "metrics": {"share_multiple": 1.1},
+        "metrics": {
+            "share_multiple": 1.1,
+            "real_share_multiple": 1.1,
+            "modern_share_multiple": 1.1,
+        },
         "validation": {
             "verdict": "PASS",
             "promotion_ready": True,
@@ -287,8 +296,8 @@ def test_promotion_ready_row_can_be_admitted_before_artifact_completion():
     }
 
     eligible, reason = is_leaderboard_eligible(entry)
-    assert eligible is True
-    assert reason == "ok"
+    assert eligible is False
+    assert "not backtest_certified" in reason
     normalized = sync_validation_contract(entry["validation"])
     assert normalized["certified_not_overfit"] is True
     assert normalized["backtest_certified"] is False
@@ -316,14 +325,14 @@ def test_leaderboard_ranks_by_all_era_score_after_certification():
             "validation": {
                 "verdict": "PASS",
                 "promotion_ready": True,
-                "backtest_certified": False,
+                "backtest_certified": True,
                 "composite_confidence": confidence,
                 "certification_checks": {
                     "engine_integrity": {"passed": True},
                     "golden_regression": {"passed": True},
                     "shadow_comparator": {"passed": True},
                     "data_quality_precheck": {"passed": True},
-                    "artifact_completeness": {"passed": False, "status": "pending"},
+                    "artifact_completeness": {"passed": True, "status": "pass"},
                 },
             },
         }

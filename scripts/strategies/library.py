@@ -5770,6 +5770,280 @@ def regime_state_machine(ind, p):
     return entries, exits, labels
 
 
+def airbag_vix_atr(ind, p):
+    """T1 diversity lane: simple trend participation with fast VIX/ATR crash airbag.
+
+    Purposefully exit-led. The entry side is conservative and generic; the
+    hypothesis under test is whether a volatility shock detector improves
+    marker sell timing without becoming another golden-cross variant.
+    """
+    n = ind.n
+    cl = ind.close
+    vix = ind.vix_close()
+    trend = ind.ema(int(p.get("trend_len", 200)))
+    repair = ind.ema(int(p.get("repair_len", 50)))
+    atr_s = ind.atr(int(p.get("atr_short", 14)))
+    atr_l = ind.atr(int(p.get("atr_long", 60)))
+    xlk = ind.xlk_close
+    vix_lookback = int(p.get("vix_lookback", 5))
+    repair_slope = int(p.get("repair_slope", 5))
+    vix_spike_pct = float(p.get("vix_spike_pct", 35.0))
+    vix_level = float(p.get("vix_level", 28.0))
+    vix_reset = float(p.get("vix_reset", 24.0))
+    atr_ratio_exit = float(p.get("atr_ratio_exit", 1.6))
+    price_drop_pct = float(p.get("price_drop_pct", -7.0))
+    xlk_drop_pct = float(p.get("xlk_drop_pct", -3.0))
+    trend_buffer_pct = float(p.get("trend_buffer_pct", 0.0))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    risk_off = False
+    prev_allowed = False
+    start = max(200, vix_lookback + 1, repair_slope + 1)
+
+    for i in range(start, n):
+        if np.isnan(trend[i]) or np.isnan(repair[i]) or np.isnan(repair[i - repair_slope]):
+            continue
+        vix_prev = vix[i - vix_lookback]
+        vix_spike = vix_prev > 0 and (vix[i] / vix_prev - 1.0) * 100 >= vix_spike_pct
+        atr_ratio = atr_s[i] / atr_l[i] if atr_l[i] > 0 and not np.isnan(atr_l[i]) else 0.0
+        price_drop = (cl[i] / cl[i - vix_lookback] - 1.0) * 100
+        xlk_drop = 0.0
+        if xlk is not None and xlk[i - vix_lookback] > 0:
+            xlk_drop = (xlk[i] / xlk[i - vix_lookback] - 1.0) * 100
+
+        volatility_shock = (
+            (vix[i] >= vix_level and vix_spike)
+            or (atr_ratio >= atr_ratio_exit and price_drop <= price_drop_pct)
+            or (vix[i] >= vix_level and xlk_drop <= xlk_drop_pct)
+        )
+        repaired = (
+            vix[i] <= vix_reset
+            and cl[i] > repair[i]
+            and repair[i] > repair[i - repair_slope]
+        )
+
+        if risk_off:
+            if repaired:
+                risk_off = False
+        elif volatility_shock:
+            risk_off = True
+
+        trend_ok = cl[i] > trend[i] * (1.0 + trend_buffer_pct / 100.0)
+        allowed = (not risk_off) and trend_ok
+        if allowed and not prev_allowed:
+            entries[i] = True
+        if (not allowed) and prev_allowed:
+            exits[i] = True
+            labels[i] = "AIR"
+        prev_allowed = allowed
+
+    return entries, exits, labels
+
+
+def reclaimer_vol_rsi(ind, p):
+    """T1 diversity lane: buy-only recovery detector after panic/high volatility."""
+    n = ind.n
+    cl = ind.close
+    vix = ind.vix_close()
+    rsi = ind.rsi(int(p.get("rsi_len", 14)))
+    fast = ind.ema(int(p.get("fast_len", 50)))
+    trend = ind.ema(int(p.get("trend_len", 150)))
+    rv_s = ind.realized_vol(int(p.get("vol_short", 20)))
+    rv_l = ind.realized_vol(int(p.get("vol_long", 80)))
+    atr = ind.atr(int(p.get("atr_period", 20)))
+    lookback = int(p.get("drawdown_lookback", 120))
+    drawdown_pct = float(p.get("drawdown_pct", 25.0))
+    rsi_reclaim = float(p.get("rsi_reclaim", 45.0))
+    vol_ratio_max = float(p.get("vol_ratio_max", 0.95))
+    vix_floor = float(p.get("vix_floor", 24.0))
+    exit_trend_buffer = float(p.get("exit_trend_buffer", 3.0))
+    panic_atr_mult = float(p.get("panic_atr_mult", 3.0))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    armed = False
+    prev_long = False
+    start = max(lookback, int(p.get("trend_len", 150)), int(p.get("vol_long", 80))) + 1
+
+    for i in range(start, n):
+        if (
+            np.isnan(rsi[i]) or np.isnan(rsi[i - 1])
+            or np.isnan(fast[i]) or np.isnan(fast[i - 5])
+            or np.isnan(trend[i]) or np.isnan(rv_s[i]) or np.isnan(rv_l[i])
+            or rv_l[i] <= 0
+        ):
+            continue
+
+        recent_high = np.max(cl[i - lookback + 1:i + 1])
+        drawdown = (cl[i] / recent_high - 1.0) * 100 if recent_high > 0 else 0.0
+        if drawdown <= -drawdown_pct or vix[i] >= vix_floor:
+            armed = True
+
+        vol_calm = rv_s[i] / rv_l[i] <= vol_ratio_max
+        rsi_cross = rsi[i - 1] < rsi_reclaim <= rsi[i]
+        repair_slope = fast[i] > fast[i - 5]
+        reclaim = armed and vol_calm and rsi_cross and repair_slope and cl[i] > fast[i]
+
+        if reclaim:
+            entries[i] = True
+            armed = False
+            prev_long = True
+
+        trend_exit = cl[i] < trend[i] * (1.0 - exit_trend_buffer / 100.0)
+        atr_panic = not np.isnan(atr[i]) and cl[i] < cl[i - 1] - panic_atr_mult * atr[i]
+        if prev_long and (trend_exit or atr_panic):
+            exits[i] = True
+            labels[i] = "REC"
+            prev_long = False
+            if atr_panic:
+                armed = True
+
+    return entries, exits, labels
+
+
+def state_machine_crash_recovery(ind, p):
+    """T1 diversity lane: explicit crash, repair, bull, and chop states."""
+    n = ind.n
+    cl = ind.close
+    vix = ind.vix_close()
+    ema_fast = ind.ema(int(p.get("fast_len", 50)))
+    ema_slow = ind.ema(int(p.get("slow_len", 200)))
+    rsi = ind.rsi(int(p.get("rsi_len", 14)))
+    rv_s = ind.realized_vol(int(p.get("vol_short", 20)))
+    rv_l = ind.realized_vol(int(p.get("vol_long", 80)))
+    vix_lookback = int(p.get("vix_lookback", 5))
+    vix_shock_pct = float(p.get("vix_shock_pct", 35.0))
+    vix_shock_level = float(p.get("vix_shock_level", 28.0))
+    vix_repair_level = float(p.get("vix_repair_level", 24.0))
+    vol_shock_ratio = float(p.get("vol_shock_ratio", 1.45))
+    rsi_repair = float(p.get("rsi_repair", 42.0))
+    bull_confirm = int(p.get("bull_confirm", 5))
+    chop_exit_bars = int(p.get("chop_exit_bars", 5))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    state = "CHOP"
+    prev_long = False
+    bull_count = 0
+    chop_count = 0
+    start = max(200, int(p.get("vol_long", 80)), vix_lookback + 1, bull_confirm + 1)
+
+    for i in range(start, n):
+        if (
+            np.isnan(ema_fast[i]) or np.isnan(ema_slow[i])
+            or np.isnan(rsi[i]) or np.isnan(rv_s[i]) or np.isnan(rv_l[i])
+            or rv_l[i] <= 0
+        ):
+            continue
+
+        vix_prev = vix[i - vix_lookback]
+        vix_spike = vix_prev > 0 and (vix[i] / vix_prev - 1.0) * 100 >= vix_shock_pct
+        vol_ratio = rv_s[i] / rv_l[i]
+        crash = (
+            (vix[i] >= vix_shock_level and vix_spike)
+            or (vol_ratio >= vol_shock_ratio and cl[i] < cl[i - vix_lookback])
+        )
+        bull_raw = ema_fast[i] > ema_slow[i] and cl[i] > ema_slow[i]
+        bull_count = bull_count + 1 if bull_raw else 0
+
+        if crash:
+            state = "CRASH"
+            chop_count = 0
+        elif state == "CRASH":
+            if vix[i] <= vix_repair_level and rsi[i] >= rsi_repair and cl[i] > ema_fast[i]:
+                state = "REPAIR"
+        elif state == "REPAIR":
+            if bull_count >= bull_confirm:
+                state = "BULL"
+            elif crash:
+                state = "CRASH"
+        elif state == "BULL":
+            if not bull_raw or vol_ratio > 1.25:
+                chop_count += 1
+                if chop_count >= chop_exit_bars:
+                    state = "CHOP"
+                    chop_count = 0
+            else:
+                chop_count = 0
+        else:
+            if bull_count >= bull_confirm:
+                state = "BULL"
+
+        now_long = state in {"REPAIR", "BULL"}
+        if now_long and not prev_long:
+            entries[i] = True
+        if (not now_long) and prev_long:
+            exits[i] = True
+            labels[i] = state[:3]
+        prev_long = now_long
+
+    return entries, exits, labels
+
+
+def _state_from_events(entries: np.ndarray, exits: np.ndarray) -> np.ndarray:
+    """Convert entry/exit event arrays into a bar-level long-state mask."""
+    state = np.zeros(len(entries), dtype=bool)
+    long = False
+    for i in range(len(entries)):
+        if exits[i]:
+            long = False
+        if entries[i]:
+            long = True
+        state[i] = long
+    return state
+
+
+def _merge_exit_overlay(
+    base_exits: np.ndarray,
+    base_labels: np.ndarray,
+    overlay_exits: np.ndarray,
+    overlay_label: str,
+) -> tuple[np.ndarray, np.ndarray]:
+    exits = base_exits.copy()
+    labels = base_labels.copy()
+    for i in range(len(exits)):
+        if overlay_exits[i]:
+            exits[i] = True
+            if not labels[i]:
+                labels[i] = overlay_label
+    return exits, labels
+
+
+def gc_vjatr_airbag(ind, p):
+    """T1 overlay test: Bonobo/VJ-ATR base plus independent VIX/ATR airbag exits."""
+    entries, base_exits, base_labels = gc_vjatr(ind, p)
+    _, airbag_exits, _airbag_labels = airbag_vix_atr(ind, p)
+    exits, labels = _merge_exit_overlay(base_exits, base_labels, airbag_exits, "AIR")
+    return entries, exits, labels
+
+
+def gc_vjatr_reclaimer(ind, p):
+    """T1 overlay test: Bonobo/VJ-ATR base plus post-panic reclaimer entries.
+
+    The reclaimer contributes entry events only. Base exits remain authoritative
+    so this tests whether recovery timing improves without adding a second exit
+    doctrine.
+    """
+    base_entries, exits, labels = gc_vjatr(ind, p)
+    reclaim_entries, _reclaim_exits, _reclaim_labels = reclaimer_vol_rsi(ind, p)
+    entries = base_entries | reclaim_entries
+    return entries, exits, labels
+
+
+def gc_vjatr_state_filter(ind, p):
+    """T1 overlay test: Bonobo/VJ-ATR gated by crash/recovery state machine."""
+    base_entries, base_exits, base_labels = gc_vjatr(ind, p)
+    state_entries, state_exits, _state_labels = state_machine_crash_recovery(ind, p)
+    allowed_state = _state_from_events(state_entries, state_exits)
+    entries = base_entries & allowed_state
+    exits, labels = _merge_exit_overlay(base_exits, base_labels, state_exits, "STM")
+    return entries, exits, labels
+
+
 def ensemble_vote_3of5(ind, p):
     """T1 standalone (B12): 5 signals vote; enter on score>=entry_vote, exit on score<=exit_vote."""
     n = ind.n
@@ -6458,6 +6732,13 @@ STRATEGY_REGISTRY = {
     "momentum_roc_canonical":   momentum_roc_canonical,     # B8
     "adaptive_ema_vol":         adaptive_ema_vol,           # B10
     "regime_state_machine":     regime_state_machine,       # B11
+    # ── Diversity Sprint 2026-04-27: orthogonal marker-failure hypotheses ──
+    "airbag_vix_atr":           airbag_vix_atr,             # D1: fast crash airbag
+    "reclaimer_vol_rsi":        reclaimer_vol_rsi,          # D2: post-panic re-entry
+    "state_machine_crash_recovery": state_machine_crash_recovery, # D3: explicit states
+    "gc_vjatr_airbag":          gc_vjatr_airbag,            # D4: Bonobo + airbag exits
+    "gc_vjatr_reclaimer":       gc_vjatr_reclaimer,         # D5: Bonobo + recovery entries
+    "gc_vjatr_state_filter":    gc_vjatr_state_filter,      # D6: Bonobo + state filter exits
     "ensemble_vote_3of5":       ensemble_vote_3of5,         # B12
     "fed_macro_primary":        fed_macro_primary,          # B13
     "slope_only_200":           slope_only_200,             # B16
@@ -6595,6 +6876,12 @@ STRATEGY_TIERS = {
     "momentum_roc_canonical":   "T1",
     "adaptive_ema_vol":         "T1",
     "regime_state_machine":     "T2",  # brainstorm explicit: exploratory, not promotion-track
+    "airbag_vix_atr":           "T1",
+    "reclaimer_vol_rsi":        "T1",
+    "state_machine_crash_recovery": "T1",
+    "gc_vjatr_airbag":          "T1",
+    "gc_vjatr_reclaimer":       "T1",
+    "gc_vjatr_state_filter":    "T1",
     "ensemble_vote_3of5":       "T1",
     "fed_macro_primary":        "T1",
     "slope_only_200":           "T1",
@@ -7108,6 +7395,105 @@ STRATEGY_PARAMS = {
         "exit_streak":    (2, 5, 1, int),
         "atr_mult":       (2.0, 3.0, 0.5, float),
         "cooldown":       (2, 10, 3, int),
+    },
+    # ── T1: Diversity Sprint 2026-04-27 (marker-failure hypotheses) ──
+    "airbag_vix_atr": {
+        "trend_len":        (150, 200, 50, int),
+        "repair_len":       (30, 70, 20, int),
+        "atr_short":        (7, 21, 7, int),
+        "atr_long":         (50, 100, 25, int),
+        "vix_lookback":     (3, 7, 2, int),
+        "vix_spike_pct":    (25.0, 45.0, 10.0, float),
+        "vix_level":        (24.0, 32.0, 4.0, float),
+        "vix_reset":        (20.0, 26.0, 3.0, float),
+        "atr_ratio_exit":   (1.3, 1.9, 0.3, float),
+        "cooldown":         (0, 10, 5, int),
+    },
+    "reclaimer_vol_rsi": {
+        "rsi_len":          (7, 21, 7, int),
+        "fast_len":         (30, 70, 20, int),
+        "trend_len":        (100, 200, 50, int),
+        "vol_short":        (10, 30, 10, int),
+        "vol_long":         (60, 120, 30, int),
+        "drawdown_lookback": (80, 160, 40, int),
+        "drawdown_pct":     (20.0, 35.0, 5.0, float),
+        "rsi_reclaim":      (40.0, 50.0, 5.0, float),
+        "vol_ratio_max":    (0.80, 1.05, 0.05, float),
+        "cooldown":         (0, 10, 5, int),
+    },
+    "state_machine_crash_recovery": {
+        "fast_len":         (30, 70, 20, int),
+        "slow_len":         (150, 250, 50, int),
+        "rsi_len":          (7, 21, 7, int),
+        "vol_short":        (10, 30, 10, int),
+        "vol_long":         (60, 120, 30, int),
+        "vix_lookback":     (3, 7, 2, int),
+        "vix_shock_pct":    (25.0, 45.0, 10.0, float),
+        "vix_shock_level":  (24.0, 32.0, 4.0, float),
+        "vix_repair_level": (20.0, 26.0, 3.0, float),
+        "vol_shock_ratio":  (1.25, 1.75, 0.25, float),
+        "cooldown":         (0, 10, 5, int),
+    },
+    "gc_vjatr_airbag": {
+        "fast_ema":         (100, 140, 20, int),
+        "slow_ema":         (150, 200, 10, int),
+        "slope_window":     (1, 3, 1, int),
+        "entry_bars":       (2, 3, 1, int),
+        "cooldown":         (0, 5, 5, int),
+        "atr_period":       (14, 20, 2, int),
+        "atr_look":         (20, 60, 10, int),
+        "atr_expand":       (1.5, 2.5, 0.5, float),
+        "atr_confirm":      (3, 5, 1, int),
+        "trend_len":        (150, 200, 50, int),
+        "repair_len":       (50, 70, 20, int),
+        "vix_lookback":     (3, 7, 2, int),
+        "vix_spike_pct":    (25.0, 45.0, 10.0, float),
+        "vix_level":        (24.0, 32.0, 4.0, float),
+        "vix_reset":        (20.0, 26.0, 3.0, float),
+        "atr_short":        (7, 14, 7, int),
+        "atr_long":         (50, 100, 25, int),
+        "atr_ratio_exit":   (1.3, 1.9, 0.3, float),
+    },
+    "gc_vjatr_reclaimer": {
+        "fast_ema":         (100, 140, 20, int),
+        "slow_ema":         (150, 200, 10, int),
+        "slope_window":     (1, 3, 1, int),
+        "entry_bars":       (2, 3, 1, int),
+        "cooldown":         (0, 5, 5, int),
+        "atr_period":       (14, 20, 2, int),
+        "atr_look":         (20, 60, 10, int),
+        "atr_expand":       (1.5, 2.5, 0.5, float),
+        "atr_confirm":      (3, 5, 1, int),
+        "rsi_len":          (7, 21, 7, int),
+        "fast_len":         (30, 70, 20, int),
+        "trend_len":        (100, 200, 50, int),
+        "vol_short":        (10, 30, 10, int),
+        "vol_long":         (60, 120, 30, int),
+        "drawdown_lookback": (80, 160, 40, int),
+        "drawdown_pct":     (20.0, 35.0, 5.0, float),
+        "rsi_reclaim":      (40.0, 50.0, 5.0, float),
+        "vol_ratio_max":    (0.80, 1.05, 0.05, float),
+    },
+    "gc_vjatr_state_filter": {
+        "fast_ema":         (100, 140, 20, int),
+        "slow_ema":         (150, 200, 10, int),
+        "slope_window":     (1, 3, 1, int),
+        "entry_bars":       (2, 3, 1, int),
+        "cooldown":         (0, 5, 5, int),
+        "atr_period":       (14, 20, 2, int),
+        "atr_look":         (20, 60, 10, int),
+        "atr_expand":       (1.5, 2.5, 0.5, float),
+        "atr_confirm":      (3, 5, 1, int),
+        "fast_len":         (30, 70, 20, int),
+        "slow_len":         (150, 250, 50, int),
+        "rsi_len":          (7, 21, 7, int),
+        "vol_short":        (10, 30, 10, int),
+        "vol_long":         (60, 120, 30, int),
+        "vix_lookback":     (3, 7, 2, int),
+        "vix_shock_pct":    (25.0, 45.0, 10.0, float),
+        "vix_shock_level":  (24.0, 32.0, 4.0, float),
+        "vix_repair_level": (20.0, 26.0, 3.0, float),
+        "vol_shock_ratio":  (1.25, 1.75, 0.25, float),
     },
     # ── T1: Spike batch 2026-04-15b (diagnostic-informed) ──
     "gc_atr_trail": {

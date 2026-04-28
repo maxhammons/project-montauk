@@ -979,6 +979,29 @@ def _gate7_synthesis(
     backtest_certified = certified_not_overfit and all(
         check.get("passed", False) for check in certification_checks.values()
     )
+    m = entry.get("metrics") or {}
+    required_era_keys = ("share_multiple", "real_share_multiple", "modern_share_multiple")
+    try:
+        all_eras_beat_bh = all(
+            float(m.get(key, 0.0)) >= 1.0 for key in required_era_keys
+        )
+    except (TypeError, ValueError):
+        all_eras_beat_bh = False
+    gold_status = bool(
+        verdict == "PASS"
+        and certified_not_overfit
+        and backtest_certified
+        and all_eras_beat_bh
+    )
+    gold_status_blockers = []
+    if verdict != "PASS":
+        gold_status_blockers.append("validation verdict is not PASS")
+    if not certified_not_overfit:
+        gold_status_blockers.append("not certified_not_overfit")
+    if not backtest_certified:
+        gold_status_blockers.append("not backtest_certified / artifact-verified")
+    if not all_eras_beat_bh:
+        gold_status_blockers.append("does not beat B&H in every era")
 
     return {
         "verdict": verdict,
@@ -987,6 +1010,10 @@ def _gate7_synthesis(
         "certified_not_overfit": certified_not_overfit,
         "clean_pass": clean_pass,
         "backtest_certified": backtest_certified,
+        "gold_status": gold_status,
+        "gold_status_label": "Gold Status" if gold_status else "Not Gold",
+        "all_eras_beat_bh": all_eras_beat_bh,
+        "gold_status_blockers": gold_status_blockers,
         "certification_checks": certification_checks,
         "sub_scores": {k: (round(v, 4) if v is not None else None) for k, v in sub_scores.items()},
         "composite_confidence": round(composite_confidence, 4),
@@ -1028,6 +1055,10 @@ def _validate_entry(
         "promotion_ready": False,
         "certified_not_overfit": False,
         "backtest_certified": False,
+        "gold_status": False,
+        "gold_status_label": "Not Gold",
+        "all_eras_beat_bh": False,
+        "gold_status_blockers": ["validation not completed"],
         "clean_pass": False,
         "composite_confidence": 0.0,
         "tier": "T2",
@@ -1151,6 +1182,10 @@ def _validate_entry(
     validation["promotion_ready"] = gate7["promotion_ready"]
     validation["certified_not_overfit"] = gate7["certified_not_overfit"]
     validation["backtest_certified"] = gate7["backtest_certified"]
+    validation["gold_status"] = gate7.get("gold_status", False)
+    validation["gold_status_label"] = gate7.get("gold_status_label", "Not Gold")
+    validation["all_eras_beat_bh"] = gate7.get("all_eras_beat_bh", False)
+    validation["gold_status_blockers"] = gate7.get("gold_status_blockers", [])
     validation["clean_pass"] = gate7["clean_pass"]
     validation["certification_checks"] = gate7["certification_checks"]
     validation["composite_confidence"] = gate7["composite_confidence"]
