@@ -497,6 +497,38 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
         reverse=True,
     )[:20]
 
+    # Surface family concentration explicitly and disambiguate duplicate
+    # display names within the authority leaderboard. This is intentionally
+    # non-destructive: Gold siblings remain visible, but the UI no longer makes
+    # same-family variants look like independent discoveries.
+    family_counts: dict[str, int] = {}
+    for entry in leaderboard:
+        family = entry.get("strategy", "?")
+        family_counts[family] = family_counts.get(family, 0) + 1
+
+    family_seen: dict[str, int] = {}
+    name_counts: dict[str, int] = {}
+    for entry in leaderboard:
+        base_name = entry.get("display_name") or entry.get("strategy", "?")
+        entry["display_name_base"] = base_name
+        name_counts[base_name] = name_counts.get(base_name, 0) + 1
+
+    name_seen: dict[str, int] = {}
+    for entry in leaderboard:
+        family = entry.get("strategy", "?")
+        family_seen[family] = family_seen.get(family, 0) + 1
+        entry["family_rank"] = family_seen[family]
+        entry["family_size"] = family_counts[family]
+        entry["family_leader"] = entry["family_rank"] == 1
+        entry["family_concentration"] = (
+            round(family_counts[family] / len(leaderboard), 4) if leaderboard else 0.0
+        )
+
+        base_name = entry["display_name_base"]
+        name_seen[base_name] = name_seen.get(base_name, 0) + 1
+        if name_counts[base_name] > 1:
+            entry["display_name"] = f"{base_name} #{name_seen[base_name]}"
+
     # Save
     os.makedirs(os.path.dirname(leaderboard_path), exist_ok=True)
     with open(leaderboard_path, "w") as f:

@@ -81,7 +81,7 @@ Project Montauk/
 │   └── requirements.txt       # Python deps: pandas, numpy, requests
 ├── spike/                     # All /spike optimization output
 │   ├── runs/NNN/              # Per-session: report.md, results.json, log.txt + five standardized artifacts
-│   ├── leaderboard.json       # All-time top 20 strategies
+│   ├── leaderboard.json       # Authority leaderboard: Gold Status strategies only
 │   └── hash-index.json        # Compact dedup index: {hash: fitness}
 ├── tests/                     # Pytest suite
 │   ├── test_indicators.py     # EMA / TEMA / ATR / ADX reference-value tests (both engines)
@@ -198,7 +198,7 @@ Fire-and-forget extended optimization on 1-2 specific strategies. Use after `/sp
 
 The optimizer remembers everything across runs:
 - **`spike/hash-index.json`**: Compact dedup index mapping config hashes to fitness scores
-- **`spike/leaderboard.json`**: All-time top 20 with strategy descriptions
+- **`spike/leaderboard.json`**: Authority leaderboard of Gold Status strategies only
 - Each run seeds 20% of its population from historical winners
 - Exact duplicates are skipped via config hashing (saves 30-40% compute on repeat runs)
 
@@ -261,15 +261,17 @@ Skipped gates drop out and remaining weights renormalize.
 
 **Verdict rules:**
 - FAIL: any Layer 1 violation OR composite < 0.40
-- WARN: 0.40 ≤ composite < 0.70 (watchlist 60–69 displayed on leaderboard)
-- PASS: composite ≥ 0.70 (admitted to leaderboard)
+- WARN: 0.40 ≤ composite < 0.70 (research artifact only)
+- PASS: composite ≥ 0.70 (certification candidate)
 
-`backtest_certified` = all Layer 1 engine checks pass (regardless of Layer 2).
 `promotion_ready` = PASS verdict (composite ≥ 0.70 AND Layer 1 all pass).
+`certified_not_overfit` = `promotion_ready` plus required anti-overfit certification checks.
+`backtest_certified` = `certified_not_overfit` plus complete standardized artifacts.
+`gold_status` = `certified_not_overfit` + `backtest_certified` + beats B&H in the full, real, and modern eras.
 
-**Leaderboard ranking is confidence-first.** Fitness is only a tie-breaker.
-The viz UI (`viz/montauk-viz.html`) collapsed the multi-column sort to a
-single "Ranked by confidence" column.
+**Leaderboard admission is Gold Status only.** Confidence and fitness rank rows
+only after the Gold contract is satisfied. The viz UI (`viz/montauk-viz.html`)
+shows Gold Status strategy rows from `spike/leaderboard.json`.
 
 ## Reference Files
 

@@ -89,8 +89,15 @@ def _load_champion_from_leaderboard(
 
 def main():
     # Ensure scripts/ is on sys.path so `from search.spike_runner import ...` works
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from certify.contract import is_leaderboard_eligible, sync_entry_contract
+    project_root = os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    )
+    sys.path.insert(0, os.path.join(project_root, "scripts"))
+    from certify.contract import (
+        all_eras_beat_bh,
+        is_leaderboard_eligible,
+        sync_entry_contract,
+    )
 
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
@@ -132,10 +139,16 @@ def main():
         sys.exit(1)
 
     sync_entry_contract(champion)
-    eligible, reason = is_leaderboard_eligible(champion)
-    if not eligible:
+    validation = champion.get("validation") or {}
+    certification_ready = bool(
+        validation.get("verdict") == "PASS"
+        and validation.get("certified_not_overfit")
+        and all_eras_beat_bh(champion.get("metrics"))
+    )
+    if not certification_ready:
         print(
-            f"[certify] Refusing to certify non-promotable row: {reason}",
+            "[certify] Refusing to package row that is not a PASS, "
+            "certified-not-overfit, all-era B&H winner",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -170,6 +183,20 @@ def main():
     _finalize_champion_certification(results, artifacts)
     _refresh_final_artifact_views(results, artifacts)
     print("[certify] Finalized + refreshed on-disk artifact views")
+
+    sync_entry_contract(champion, artifact_paths=artifacts)
+    eligible, reason = is_leaderboard_eligible(champion)
+    if eligible:
+        from search.evolve import update_leaderboard
+
+        leaderboard_path = os.path.join(project_root, "spike", "leaderboard.json")
+        leaderboard = update_leaderboard(
+            {"rankings": [champion]},
+            leaderboard_path,
+        )
+        print(f"[certify] Gold Status confirmed; leaderboard rows: {len(leaderboard)}")
+    else:
+        print(f"[certify] Packaged but not leaderboard-eligible: {reason}")
 
     # Re-read and report
     with open(artifacts["validation_summary"]) as f:

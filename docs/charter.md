@@ -83,7 +83,7 @@ The system-level success condition is:
 
 > hypothesize / discover -> validate at the right tier -> certify signal bundle -> manually execute in brokerage
 
-The leaderboard is a trust surface, not a research watchlist. All-era performance determines rank only after certification. If fewer than 20 strategies are certified not overfit, the leaderboard should contain fewer than 20 rows.
+The leaderboard is a trust surface, not a research watchlist. All-era performance determines rank only after Gold Status is earned. If fewer than 20 strategies are Gold Status, the leaderboard should contain fewer than 20 rows.
 
 ---
 
@@ -136,7 +136,7 @@ The project optimizes for **share accumulation**, not impressive equity curves.
 
 Validation quality matters as much as performance. A high-share-count strategy that fails validation is out of scope for promotion.
 
-Performance and share multiple do **not** determine leaderboard eligibility. They only decide ordering among strategies that are already certified not overfit, and that ordering should reflect overall performance across full / real / modern eras rather than a single favored regime.
+Raw performance and share multiple do **not** determine leaderboard eligibility by themselves. Gold Status is the eligibility rule: a strategy must be certified not overfit, artifact-verified / `backtest_certified`, and above B&H in the full, real, and modern eras. Ranking happens only after that and should reflect overall performance across full / real / modern eras rather than a single favored regime.
 
 ---
 
@@ -158,11 +158,11 @@ If asked to add work that breaks the charter, call it out clearly:
 
 If asked whether a raw optimizer winner should be treated as real, the answer is:
 
-> "Not until it passes the validation tier appropriate to how it was selected, and emits a complete `backtest_certified` signal bundle."
+> "Not until it passes the validation tier appropriate to how it was selected, emits a complete `backtest_certified` signal bundle, and earns Gold Status."
 
 If asked what belongs on the leaderboard, the answer is:
 
-> "Only strategies certified not to be overfit to the backtest history. Ranking comes after certification, never before it."
+> "Only Gold Status strategies: certified not overfit, artifact-verified / `backtest_certified`, and beating B&H in full, real, and modern eras. Ranking comes after Gold Status, never before it."
 
 ---
 

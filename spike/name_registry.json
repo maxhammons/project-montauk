@@ -1091,6 +1091,15 @@
         "ff80b435b405": "Umber Bonobo"
       }
     },
+    "gc_vjatr_reclaimer": {
+      "adjectives_used": [
+        "Obsidian"
+      ],
+      "animal": "Osprey",
+      "assignments": {
+        "3362be175e38": "Obsidian Osprey"
+      }
+    },
     "gc_vjbb": {
       "adjectives_used": [
         "Velvet",

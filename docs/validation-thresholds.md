@@ -52,8 +52,12 @@ A strategy has Gold Status only when it:
 ```
 FAIL:  any Layer 1 hard fail  OR  composite_confidence < 0.40
 WARN:  composite_confidence >= 0.40 AND composite_confidence < 0.70
-PASS:  composite_confidence >= 0.70  (admitted to leaderboard)
+PASS:  composite_confidence >= 0.70  (certification candidate)
 ```
+
+`PASS` means the candidate is eligible for certification work. It does **not**
+by itself admit the row to `spike/leaderboard.json`. The authority leaderboard
+admits only Gold Status rows.
 
 ### Admission tiers (for UI / workflow display)
 
@@ -61,10 +65,10 @@ PASS:  composite_confidence >= 0.70  (admitted to leaderboard)
 |:-:|---|---|
 | 0–39 | Reject | Hidden |
 | 40–59 | Research only | Archived |
-| 60–69 | Watchlist | Visible, flagged |
+| 60–69 | Watchlist | Research artifact only |
 | 70–89 | Certified candidate | Research/certification queue |
 | 90–100 | High confidence candidate | Research/certification queue |
-| Gold Status | Certified + verified + all-era B&H winner | Highest trust display label |
+| Gold Status | Certified + verified + all-era B&H winner | Authority leaderboard |
 
 ---
 

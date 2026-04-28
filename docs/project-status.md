@@ -1,6 +1,6 @@
 # Project Montauk — Project Status
 
-> As of 2026-04-21
+> As of 2026-04-28
 
 ---
 
@@ -10,7 +10,7 @@ The project is no longer best described as "an EMA strategy with some optimizer 
 
 The correct framing is:
 
-> Project Montauk is a TECL share-accumulation factory: discover long-only TECL strategies that match the hand-marked cycle shape, validate them at the tier appropriate to how they were selected, and emit a `backtest_certified` signal bundle for the best PASS winner.
+> Project Montauk is a TECL share-accumulation factory: discover long-only TECL strategies that match the hand-marked cycle shape, validate them at the tier appropriate to how they were selected, emit a `backtest_certified` signal bundle, and admit only Gold Status strategies to the authority leaderboard.
 
 That is now the standard the codebase should be measured against.
 
@@ -29,11 +29,22 @@ The local full-run flow distinguishes between:
 - raw optimizer output
 - validated output
 
-Only validated PASS entries are intended to become promotable memory.
+Only Gold Status entries are intended to become promotable leaderboard memory. PASS entries are certification candidates, not authority rows.
 
 ### Signal certification exists (2026-04-15)
 
 A validated winner emits a `backtest_certified` signal bundle: the five standardized run artifacts (`trade_ledger.json`, `signal_series.json`, `equity_curve.json`, `validation_summary.json`, `dashboard_data.json`) plus the native HTML viewer built from `dashboard_data.json`. Certification requires engine integrity, golden regression pass, shadow-comparator agreement, data-quality pre-check pass, and artifact completeness. `promotion_ready` layers the tier-appropriate validation stack on top of that. Execution is manual brokerage from the daily risk_on / risk_off output; there is no external charting or execution surface in the pipeline.
+
+### Gold Status leaderboard contract (2026-04-28)
+
+`spike/leaderboard.json` is an authority surface, not a watchlist. A row belongs there only when it has Gold Status:
+
+- final validation verdict `PASS`
+- `certified_not_overfit=True`
+- `backtest_certified=True` / complete standardized artifacts
+- `share_multiple`, `real_share_multiple`, and `modern_share_multiple` all >= 1.0 versus B&H
+
+Rows that are PASS but not artifact-backed, or that lose to B&H in any canonical era, remain research/certification artifacts outside the leaderboard.
 
 > **Historical note**: the previous code-generation and parity-checking workflow was removed in Phase 2 of the Montauk 2.0 project (see `docs/Montauk 2.0/` for full provenance).
 
@@ -58,7 +69,8 @@ Summary of the shift:
   gate emits a smooth sub-score that contributes weighted partial credit. The
   composite drives the verdict.
 - **Admission tiers**: 0–39 Reject · 40–59 Research · 60–69 Watchlist · 70–89
-  Admitted · 90+ High confidence. Leaderboard shows watchlist + admitted.
+  certified candidate · 90+ high confidence candidate. Leaderboard shows only
+  Gold Status rows.
 - **Per-cycle magnitude-weighted marker timing** is a new first-class sub-score
   (0.15 T2 weight). This is what penalizes strategies that are late on COVID,
   late on 2022, or missed the 2025 tariff — previously averaged away in
@@ -70,8 +82,8 @@ Summary of the shift:
   non-definitive signal, not a bouncer.
 - **Trade sufficiency anchors relaxed** (0/10/20 instead of 0/25/40) to honor
   charter's "low-frequency strategies are not punished" principle.
-- **Leaderboard ranking** is now confidence-first (fitness is a tie-breaker).
-  Viz UI collapsed 5 sort options to a single "Ranked by confidence" display.
+- **Leaderboard admission** is now Gold Status only. Confidence and fitness
+  rank rows only after the Gold contract is satisfied.
 - **15/15 existing entries rescored**; 5 Admitted, 10 Watchlist, 0 Rejected.
   `gc_vjbb`'s manual admission is no longer needed — it scores 65.6 (watchlist)
   organically. The ranking inverts from fitness-dominant (raw shares) to
@@ -151,7 +163,7 @@ The next implementation sprint must close the gap between what the spirit-guide 
 6. Author a real T0 hypothesis strategy (e.g. EMA-200 crossover with canonical params) to exercise the T0 pipeline end-to-end.
 7. Update the `VALIDATION-THRESHOLDS.md` doc to split per tier now that the code supports it.
 8. ~~Add formal parity checks against external execution surface.~~ Superseded 2026-04-15: external path removed. Replaced by engine trust stack (indicator unit tests + golden regression + shadow comparator + slippage unification) — see Montauk 2.0 Phase 1.
-9. Keep the leaderboard PASS-only, with tier tags.
+9. Keep the leaderboard Gold Status-only, with tier tags.
 10. ~~Phase 7 engine consolidation — port full `montauk_821` semantics from `backtest_engine.py` into the modular `strategies.py` + `strategy_engine.py` pattern, drop the `vs_bah_multiple` alias.~~ Done 2026-04-15: `run_montauk_821()` now lives in `strategy_engine.py`, `backtest_engine.py` retains only regime-scoring helpers, `vs_bah_multiple` alias retired.
 
 ---
@@ -166,7 +178,7 @@ What it still needs is to become a **trustworthy and productive** strategy facto
 - tier-routed validation that matches selection bias
 - the marker chart as the working definition of success
 - share-count accumulation as the goal
-- PASS-only promotion across all tiers
+- Gold Status-only promotion across all tiers
 - `backtest_certified` signal bundle + native HTML viewer for the real winner
 - deployment analysis that sits downstream of validation instead of corrupting it
 

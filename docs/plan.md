@@ -109,7 +109,7 @@ The core strategy remains a binary TECL in/out engine. The Roth cashflow layer i
 - Discovery behavior:
   - two otherwise similar candidates with different marker alignment get appropriately different `discovery_score`
   - marker prior cannot rescue a zero-fitness or clearly poor strategy
-  - raw rankings sort by `discovery_score`, while validation/leaderboard rules remain PASS-only
+  - raw rankings sort by `discovery_score`, while leaderboard admission remains Gold Status-only
 - Overlay simulation:
   - risk-off contributions route to `SGOV`
   - buy transitions sweep the full `SGOV` sleeve into `TECL`

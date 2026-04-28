@@ -3,11 +3,11 @@
 **Canonical flow (four phases):**
 
 ```
-generate ideas   →   backtest + validate / check for overfitting   →   if PASS certify + admit to leaderboard   →   visualize in the UI
+generate ideas   →   backtest + validate / check for overfitting   →   certify + admit only Gold Status rows   →   visualize in the UI
  (scripts/search)         (scripts/validation)                               (scripts/certify → spike/leaderboard.json)                (viz/)
 ```
 
-**The leaderboard rule:** `spike/leaderboard.json` is the authority surface, not a mixed-trust watchlist. Entries are admitted only if they are `certified_not_overfit=True`, meaning `promotion_ready=True` and every required engine-level certification check passes (`engine_integrity`, `golden_regression`, `shadow_comparator`, `data_quality_precheck`). This contract is defined in `scripts/certify/contract.py` and reused by promotion, recertification, artifact backfill, and champion finalization. Performance does not affect eligibility; it only ranks already-certified rows and trims the surface to the top 20. That ranking should reflect balanced all-era performance, not just the modern regime.
+**The leaderboard rule:** `spike/leaderboard.json` is the authority surface, not a mixed-trust watchlist. Entries are admitted only if they have **Gold Status**: final validation verdict `PASS`, `certified_not_overfit=True`, `backtest_certified=True` / artifact-verified, and share-count outperformance versus B&H in the full, real, and modern eras. This contract is defined in `scripts/certify/contract.py` and reused by promotion, recertification, artifact backfill, champion finalization, and the viz builder. Raw performance does not admit a row by itself; it only ranks already-Gold rows. If fewer than 20 rows are Gold, the leaderboard has fewer than 20 rows.
 
 This document defines the intended operating model of the project under the charter. If this document ever conflicts with `docs/charter.md`, the charter wins.
 
@@ -46,13 +46,13 @@ The authoritative full-run path is:
    See `VALIDATION-PHILOSOPHY.md` for what each tier tests.
 
 5. **Certify + Promote**
-   Gate 7 synthesis computes `promotion_ready` (tier-appropriate PASS across all 7 gates) and `certified_not_overfit` (promotion-ready plus required anti-overfit certification checks). The post-run certification step (`scripts/certify/certify_champion.py`) emits the run's 5 standardized artifacts and flips `artifact_completeness` → `pass`, upgrading `backtest_certified` to True for the champion only if that row was already `certified_not_overfit=True`. The leaderboard admits entries that satisfy the canonical contract in `scripts/certify/contract.py`. `artifact_completeness` is a champion-only deployment concern, not part of non-champion leaderboard admission. Each entry is tagged `T0-PASS`, `T1-PASS`, or `T2-PASS`. To re-validate every existing leaderboard entry under new rules: `scripts/certify/recertify_leaderboard.py`.
+   Gate 7 synthesis computes `promotion_ready` (tier-appropriate PASS across all 7 gates), `certified_not_overfit` (promotion-ready plus required anti-overfit certification checks), `backtest_certified` (certified plus complete standardized artifacts), and `gold_status` (certified, artifact-verified, and beating B&H in full / real / modern eras). The leaderboard admits entries that satisfy the canonical Gold Status contract in `scripts/certify/contract.py`. Each entry is tagged with its tier and Gold Status. To re-validate every existing leaderboard entry under current rules: `scripts/certify/recertify_leaderboard.py`.
 
 6. **Simulate deployment overlay**
    Run the approved Roth account overlay for the validated champion.
 
 7. **Build native HTML viewer**
-   `python viz/build_viz.py` reads `spike/leaderboard.json` + each top-20 strategy's `spike/runs/NNN/dashboard_data.json`, assembles the bundle, and writes a self-contained `viz/montauk-viz.html`. Non-blocking; a missing/stale run dir gets flagged with a "stale artifact" badge rather than aborting.
+   `python viz/build_viz.py` reads `spike/leaderboard.json` + each Gold strategy's `spike/runs/NNN/dashboard_data.json`, assembles the bundle, and writes a self-contained `viz/montauk-viz.html`. Non-blocking; a missing/stale run dir gets flagged with a "stale artifact" badge rather than aborting.
 
 8. **Manually execute from the daily signal**
    The champion's `signal_series.json` emits daily risk_on / risk_off state. Execution happens manually in a brokerage account — no broker API, no auto-deploy.
@@ -73,7 +73,7 @@ It is responsible for:
 - recording marker shape alignment for every candidate
 - preserving raw results with tier tags
 - running tier-routed validation
-- updating the validated leaderboard
+- updating the Gold Status authority leaderboard
 - simulating the approved Roth overlay for the validated champion
 - generating human-readable reporting
 - emitting the five standardized JSON artifacts per run (trade ledger, signal series, equity curve, validation summary, dashboard bundle)
@@ -128,17 +128,19 @@ Raw output is for research. Validated output is for memory and promotion. The `d
 The pipeline has a simple rule:
 
 - raw winner -> **not promotable**
-- validated **PASS** winner at its tier -> promotable
+- validated **PASS** winner at its tier -> certification candidate
+- Gold Status winner -> promotable to `spike/leaderboard.json`
 
 Operationally:
 
-- only `certified_not_overfit` entries belong on `leaderboard.json`, each carrying its tier tag
+- only Gold Status entries belong on `leaderboard.json`, each carrying its tier tag
 - WARN and FAIL entries remain in run artifacts only
 - if no strategy passes, the run still matters, but the leaderboard does not change
-- if a strategy does not emit the five standardized artifacts completely, it cannot become the run's `backtest_certified` champion
-- the leaderboard keeps the top 20 performing certified strategies
+- if a strategy does not emit the five standardized artifacts completely, it cannot become `backtest_certified` and therefore cannot be Gold
+- if a strategy fails to beat B&H in any of the full, real, or modern eras, it cannot be Gold
+- the leaderboard keeps the top performing Gold strategies, up to 20 rows
 
-A T0-PASS strategy and a T2-PASS strategy are both promotable. The tier tag tells the user what level of statistical scrutiny backs the result. Both are real winners.
+A T0-PASS strategy and a T2-PASS strategy are both certification candidates. They become real leaderboard winners only after Gold Status. The tier tag tells the user what level of statistical scrutiny backs the result.
 
 ---
 
@@ -187,11 +189,13 @@ Gate 7 synthesis determines promotion readiness and anti-overfit certification. 
 
 `backtest_certified = certified_not_overfit AND artifact completeness`
 
-Only `certified_not_overfit` entries reach the leaderboard; `backtest_certified` is the stricter champion finalization state.
+`gold_status = certified_not_overfit AND backtest_certified AND full/real/modern share_multiple >= 1.0`
+
+Only Gold Status entries reach the leaderboard. `certified_not_overfit` is necessary but not sufficient.
 
 ### Visualization (`viz/montauk-viz.html`)
 
-Built by `viz/build_viz.py` from `dashboard_data.json` + `spike/leaderboard.json`. Library: TradingView Lightweight Charts v4 (OSS, MIT-style, vendored to `viz/lightweight-charts.js`). The output is a single self-contained HTML file — `open viz/montauk-viz.html`, no server, no install. MVP feature set: price candles with synthetic-period shading, trade markers, equity + drawdown panes, drawdown underwater pane, strategy sidebar (20 strategies, click-to-swap), metrics + gate-by-gate validation summary, 1Y / 3Y / 5Y recent-period scorecards, manifest-verified provenance badge, north-star marker toggle, 1Y/5Y/ALL time range controls, crosshair + tooltip.
+Built by `viz/build_viz.py` from `dashboard_data.json` + `spike/leaderboard.json`. Library: TradingView Lightweight Charts v4 (OSS, MIT-style, vendored to `viz/lightweight-charts.js`). The output is a single self-contained HTML file — `open viz/montauk-viz.html`, no server, no install. MVP feature set: price candles with synthetic-period shading, trade markers, equity + drawdown panes, drawdown underwater pane, Gold Status strategy sidebar, metrics + gate-by-gate validation summary, 1Y / 3Y / 5Y recent-period scorecards, manifest-verified provenance badge, north-star marker toggle, 1Y/5Y/ALL time range controls, crosshair + tooltip.
 
 ---
 
@@ -201,7 +205,7 @@ GitHub Actions should run the same promotion logic as local full runs:
 
 - discover and / or accept registered hypotheses
 - validate at each candidate's tier
-- promote PASS only
+- promote Gold Status only
 - generate artifacts
 - commit `spike/` outputs
 
