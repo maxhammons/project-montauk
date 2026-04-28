@@ -54,6 +54,8 @@ The first fitness-ranked grid pass searched 3,888 configurations; 1,310 passed t
 
 The first Gold diversity audit found that `Ivory Hare` is currently the most distinct Gold row by risk-on correlation and trade overlap, but the leaderboard is still highly concentrated: 6 of 8 rows are `gc_vjatr` and the family HHI is 0.594 (effective families 1.68). The overlay-on-Bonobo matrix shows timing repair improves marker timing when grafted onto Bonobo bases, but it fails retention thresholds by degrading full-history, real-era, or modern-era performance. Treat it as a separate Gold family, not as a replacement exit/entry patch for Bonobo.
 
+The first Gold-only ensemble audit did not produce a certification target. The best simple vote was `Obsidian Osprey + Marbled Bonobo + Ivory Hare` at 2-of-3, with all-era-positive economics (21.21x full, 1.33x real, 2.24x modern) and better real-era robustness than `Obsidian Osprey`, but it cut full-history performance to ~51% of the champion and modern performance to ~87%. This is useful as a defensive portfolio diagnostic, not yet an authority leaderboard candidate.
+
 The airbag and state-filter overlays were repaired so they no longer inherit full standalone exit behavior, but a diagnostic profile still found zero charter-pass candidates in the sampled grids because real-era and modern-era performance degrade below 1.0. They should stay in the diagnostic/research lane until redesigned as less destructive filters.
 
 > **Historical note**: the previous code-generation and parity-checking workflow was removed in Phase 2 of the Montauk 2.0 project (see `docs/Montauk 2.0/` for full provenance).
