@@ -46,7 +46,7 @@
     },
     "date": "2026-04-28",
     "converged": false,
-    "runs_without_improvement": 1,
+    "runs_without_improvement": 2,
     "marker_alignment_score": 0.6741,
     "marker_alignment_detail": {
       "score": 0.6741,
@@ -2081,7 +2081,7 @@
     "family_rank": 1,
     "family_size": 1,
     "family_leader": true,
-    "family_concentration": 0.1429
+    "family_concentration": 0.125
   },
   {
     "strategy": "gc_vjatr",
@@ -2122,7 +2122,7 @@
     },
     "date": "2026-04-21",
     "converged": true,
-    "runs_without_improvement": 102,
+    "runs_without_improvement": 103,
     "marker_alignment_score": 0.6827,
     "marker_alignment_detail": {
       "score": 0.6827,
@@ -3850,7 +3850,7 @@
     "family_rank": 1,
     "family_size": 6,
     "family_leader": true,
-    "family_concentration": 0.8571
+    "family_concentration": 0.75
   },
   {
     "strategy": "gc_vjatr",
@@ -3891,7 +3891,7 @@
     },
     "date": "2026-04-21",
     "converged": true,
-    "runs_without_improvement": 102,
+    "runs_without_improvement": 103,
     "marker_alignment_score": 0.6827,
     "marker_alignment_detail": {
       "score": 0.6827,
@@ -5609,7 +5609,7 @@
     "family_rank": 2,
     "family_size": 6,
     "family_leader": false,
-    "family_concentration": 0.8571
+    "family_concentration": 0.75
   },
   {
     "strategy": "gc_vjatr",
@@ -5649,7 +5649,7 @@
     },
     "date": "2026-04-21",
     "converged": true,
-    "runs_without_improvement": 102,
+    "runs_without_improvement": 103,
     "marker_alignment_score": 0.6738,
     "marker_alignment_detail": {
       "score": 0.6738,
@@ -7377,11 +7377,11 @@
     "gold_status_label": "Gold Status",
     "all_eras_beat_bh": true,
     "gold_status_blockers": [],
-    "display_name_base": "Russet Bonobo",
+    "display_name_base": "Russet Bonobo #1",
     "family_rank": 3,
     "family_size": 6,
     "family_leader": false,
-    "family_concentration": 0.8571
+    "family_concentration": 0.75
   },
   {
     "strategy": "gc_vjatr",
@@ -7422,7 +7422,7 @@
     },
     "date": "2026-04-21",
     "converged": true,
-    "runs_without_improvement": 102,
+    "runs_without_improvement": 103,
     "marker_alignment_score": 0.6827,
     "marker_alignment_detail": {
       "score": 0.6827,
@@ -9142,11 +9142,11 @@
     "gold_status_label": "Gold Status",
     "all_eras_beat_bh": true,
     "gold_status_blockers": [],
-    "display_name_base": "Russet Bonobo",
+    "display_name_base": "Russet Bonobo #2",
     "family_rank": 4,
     "family_size": 6,
     "family_leader": false,
-    "family_concentration": 0.8571
+    "family_concentration": 0.75
   },
   {
     "strategy": "gc_vjatr",
@@ -9187,7 +9187,7 @@
     },
     "date": "2026-04-21",
     "converged": true,
-    "runs_without_improvement": 102,
+    "runs_without_improvement": 103,
     "marker_alignment_score": 0.6827,
     "marker_alignment_detail": {
       "score": 0.6827,
@@ -10915,7 +10915,7 @@
     "family_rank": 5,
     "family_size": 6,
     "family_leader": false,
-    "family_concentration": 0.8571
+    "family_concentration": 0.75
   },
   {
     "strategy": "gc_vjatr",
@@ -10955,7 +10955,7 @@
     },
     "date": "2026-04-21",
     "converged": true,
-    "runs_without_improvement": 102,
+    "runs_without_improvement": 103,
     "marker_alignment_score": 0.6728,
     "marker_alignment_detail": {
       "score": 0.6728,
@@ -12687,6 +12687,1995 @@
     "family_rank": 6,
     "family_size": 6,
     "family_leader": false,
-    "family_concentration": 0.8571
+    "family_concentration": 0.75
+  },
+  {
+    "strategy": "gc_vjatr_timing_repair",
+    "display_name": "Ivory Hare",
+    "fitness": 0.6242069562851801,
+    "params": {
+      "fast_ema": 140,
+      "slow_ema": 160,
+      "slope_window": 1,
+      "entry_bars": 2,
+      "cooldown": 0,
+      "atr_period": 16,
+      "atr_look": 50,
+      "atr_expand": 2.0,
+      "atr_confirm": 3,
+      "repair_len": 30,
+      "rsi_len": 7,
+      "drawdown_lookback": 40,
+      "drawdown_pct": 25.0,
+      "repair_slope": 3,
+      "rsi_floor": 45.0,
+      "vix_ceiling": 50.0
+    },
+    "metrics": {
+      "trades": 44,
+      "trades_yr": 1.3,
+      "n_params": 15,
+      "share_multiple": 10.6316,
+      "real_share_multiple": 1.5469,
+      "modern_share_multiple": 2.239,
+      "cagr": 24.71,
+      "max_dd": 98.2,
+      "mar": 0.252,
+      "regime_score": 0.6147,
+      "hhi": 0.0708,
+      "bull_capture": 0.6357,
+      "bear_avoidance": 0.5938,
+      "win_rate": 56.8,
+      "exit_reasons": {
+        "A": 18,
+        "D": 21,
+        "V": 4,
+        "End of Data": 1
+      }
+    },
+    "date": "2026-04-28",
+    "converged": false,
+    "runs_without_improvement": 0,
+    "marker_alignment_score": 0.4742,
+    "marker_alignment_detail": {
+      "score": 0.4742,
+      "state_accuracy": 0.7762,
+      "precision": 0.819,
+      "recall": 0.8841,
+      "f1": 0.8503,
+      "transition_timing_score": 0.2702,
+      "timing_magnitude_weighted": 0.461,
+      "transition_count_score": 0.0,
+      "tolerance_bars": 30,
+      "overlap_start": "1999-10-27",
+      "overlap_end": "2025-10-30",
+      "target_buy_count": 14,
+      "target_sell_count": 14,
+      "candidate_buy_count": 34,
+      "candidate_sell_count": 34,
+      "buy_transition_matches": [
+        {
+          "target_bar": 1638,
+          "nearest_bar": 1699,
+          "distance_bars": 61,
+          "score": 0.0
+        },
+        {
+          "target_bar": 2001,
+          "nearest_bar": 2016,
+          "distance_bars": 15,
+          "score": 0.5
+        },
+        {
+          "target_bar": 2376,
+          "nearest_bar": 2016,
+          "distance_bars": 360,
+          "score": 0.0
+        },
+        {
+          "target_bar": 2841,
+          "nearest_bar": 2880,
+          "distance_bars": 39,
+          "score": 0.0
+        },
+        {
+          "target_bar": 3333,
+          "nearest_bar": 3317,
+          "distance_bars": 16,
+          "score": 0.4667
+        },
+        {
+          "target_bar": 3986,
+          "nearest_bar": 3970,
+          "distance_bars": 16,
+          "score": 0.4667
+        },
+        {
+          "target_bar": 4695,
+          "nearest_bar": 4707,
+          "distance_bars": 12,
+          "score": 0.6
+        },
+        {
+          "target_bar": 6461,
+          "nearest_bar": 6477,
+          "distance_bars": 16,
+          "score": 0.4667
+        },
+        {
+          "target_bar": 6772,
+          "nearest_bar": 6787,
+          "distance_bars": 15,
+          "score": 0.5
+        },
+        {
+          "target_bar": 7158,
+          "nearest_bar": 7355,
+          "distance_bars": 197,
+          "score": 0.0
+        },
+        {
+          "target_bar": 7478,
+          "nearest_bar": 7483,
+          "distance_bars": 5,
+          "score": 0.8333
+        },
+        {
+          "target_bar": 7798,
+          "nearest_bar": 7901,
+          "distance_bars": 103,
+          "score": 0.0
+        },
+        {
+          "target_bar": 7869,
+          "nearest_bar": 7901,
+          "distance_bars": 32,
+          "score": 0.0
+        },
+        {
+          "target_bar": 8049,
+          "nearest_bar": 8065,
+          "distance_bars": 16,
+          "score": 0.4667
+        }
+      ],
+      "sell_transition_matches": [
+        {
+          "target_bar": 1740,
+          "nearest_bar": 1734,
+          "distance_bars": 6,
+          "score": 0.8
+        },
+        {
+          "target_bar": 2033,
+          "nearest_bar": 1868,
+          "distance_bars": 165,
+          "score": 0.0
+        },
+        {
+          "target_bar": 2700,
+          "nearest_bar": 2829,
+          "distance_bars": 129,
+          "score": 0.0
+        },
+        {
+          "target_bar": 3256,
+          "nearest_bar": 3306,
+          "distance_bars": 50,
+          "score": 0.0
+        },
+        {
+          "target_bar": 3650,
+          "nearest_bar": 3596,
+          "distance_bars": 54,
+          "score": 0.0
+        },
+        {
+          "target_bar": 4477,
+          "nearest_bar": 4501,
+          "distance_bars": 24,
+          "score": 0.2
+        },
+        {
+          "target_bar": 6402,
+          "nearest_bar": 6431,
+          "distance_bars": 29,
+          "score": 0.0333
+        },
+        {
+          "target_bar": 6749,
+          "nearest_bar": 6749,
+          "distance_bars": 0,
+          "score": 1.0
+        },
+        {
+          "target_bar": 7131,
+          "nearest_bar": 7229,
+          "distance_bars": 98,
+          "score": 0.0
+        },
+        {
+          "target_bar": 7218,
+          "nearest_bar": 7229,
+          "distance_bars": 11,
+          "score": 0.6333
+        },
+        {
+          "target_bar": 7763,
+          "nearest_bar": 7868,
+          "distance_bars": 105,
+          "score": 0.0
+        },
+        {
+          "target_bar": 7854,
+          "nearest_bar": 7868,
+          "distance_bars": 14,
+          "score": 0.5333
+        },
+        {
+          "target_bar": 8004,
+          "nearest_bar": 8032,
+          "distance_bars": 28,
+          "score": 0.0667
+        },
+        {
+          "target_bar": 8180,
+          "nearest_bar": 8032,
+          "distance_bars": 148,
+          "score": 0.0
+        }
+      ],
+      "magnitude_weighted_matches": [
+        {
+          "target_bar": 1638,
+          "nearest_bar": 1688,
+          "distance_bars": 50,
+          "magnitude": 2.5699,
+          "score": 0.0
+        },
+        {
+          "target_bar": 1740,
+          "nearest_bar": 1734,
+          "distance_bars": 6,
+          "magnitude": 0.9742,
+          "score": 0.8
+        },
+        {
+          "target_bar": 2001,
+          "nearest_bar": 2016,
+          "distance_bars": 15,
+          "magnitude": 0.8051,
+          "score": 0.5
+        },
+        {
+          "target_bar": 2033,
+          "nearest_bar": 2016,
+          "distance_bars": 17,
+          "magnitude": 0.9716,
+          "score": 0.4333
+        },
+        {
+          "target_bar": 2376,
+          "nearest_bar": 2016,
+          "distance_bars": 360,
+          "magnitude": 3.7379,
+          "score": 0.0
+        },
+        {
+          "target_bar": 2700,
+          "nearest_bar": 2829,
+          "distance_bars": 129,
+          "magnitude": 0.4864,
+          "score": 0.0
+        },
+        {
+          "target_bar": 2841,
+          "nearest_bar": 2829,
+          "distance_bars": 12,
+          "magnitude": 0.7907,
+          "score": 0.6
+        },
+        {
+          "target_bar": 3256,
+          "nearest_bar": 3306,
+          "distance_bars": 50,
+          "magnitude": 0.3657,
+          "score": 0.0
+        },
+        {
+          "target_bar": 3333,
+          "nearest_bar": 3319,
+          "distance_bars": 14,
+          "magnitude": 1.709,
+          "score": 0.5333
+        },
+        {
+          "target_bar": 3650,
+          "nearest_bar": 3681,
+          "distance_bars": 31,
+          "magnitude": 0.9333,
+          "score": 0.0
+        },
+        {
+          "target_bar": 3986,
+          "nearest_bar": 3970,
+          "distance_bars": 16,
+          "magnitude": 5.1304,
+          "score": 0.4667
+        },
+        {
+          "target_bar": 4477,
+          "nearest_bar": 4501,
+          "distance_bars": 24,
+          "magnitude": 0.3475,
+          "score": 0.2
+        },
+        {
+          "target_bar": 4695,
+          "nearest_bar": 4707,
+          "distance_bars": 12,
+          "magnitude": 17.5978,
+          "score": 0.6
+        },
+        {
+          "target_bar": 6402,
+          "nearest_bar": 6431,
+          "distance_bars": 29,
+          "magnitude": 0.5167,
+          "score": 0.0333
+        },
+        {
+          "target_bar": 6461,
+          "nearest_bar": 6477,
+          "distance_bars": 16,
+          "magnitude": 2.6505,
+          "score": 0.4667
+        },
+        {
+          "target_bar": 6749,
+          "nearest_bar": 6749,
+          "distance_bars": 0,
+          "magnitude": 0.6476,
+          "score": 1.0
+        },
+        {
+          "target_bar": 6772,
+          "nearest_bar": 6787,
+          "distance_bars": 15,
+          "magnitude": 5.1541,
+          "score": 0.5
+        },
+        {
+          "target_bar": 7131,
+          "nearest_bar": 7229,
+          "distance_bars": 98,
+          "magnitude": 0.1242,
+          "score": 0.0
+        },
+        {
+          "target_bar": 7158,
+          "nearest_bar": 7229,
+          "distance_bars": 71,
+          "magnitude": 0.5266,
+          "score": 0.0
+        },
+        {
+          "target_bar": 7218,
+          "nearest_bar": 7229,
+          "distance_bars": 11,
+          "magnitude": 0.714,
+          "score": 0.6333
+        },
+        {
+          "target_bar": 7478,
+          "nearest_bar": 7483,
+          "distance_bars": 5,
+          "magnitude": 2.3582,
+          "score": 0.8333
+        },
+        {
+          "target_bar": 7763,
+          "nearest_bar": 7868,
+          "distance_bars": 105,
+          "magnitude": 0.2069,
+          "score": 0.0
+        },
+        {
+          "target_bar": 7798,
+          "nearest_bar": 7868,
+          "distance_bars": 70,
+          "magnitude": 0.6035,
+          "score": 0.0
+        },
+        {
+          "target_bar": 7854,
+          "nearest_bar": 7868,
+          "distance_bars": 14,
+          "magnitude": 0.4174,
+          "score": 0.5333
+        },
+        {
+          "target_bar": 7869,
+          "nearest_bar": 7868,
+          "distance_bars": 1,
+          "magnitude": 0.5807,
+          "score": 0.9667
+        },
+        {
+          "target_bar": 8004,
+          "nearest_bar": 8032,
+          "distance_bars": 28,
+          "magnitude": 0.4745,
+          "score": 0.0667
+        },
+        {
+          "target_bar": 8049,
+          "nearest_bar": 8065,
+          "distance_bars": 16,
+          "magnitude": 1.8473,
+          "score": 0.4667
+        },
+        {
+          "target_bar": 8180,
+          "nearest_bar": 8065,
+          "distance_bars": 115,
+          "magnitude": 0.0875,
+          "score": 0.0
+        }
+      ]
+    },
+    "tier": "T1",
+    "validation": {
+      "verdict": "PASS",
+      "promotion_ready": true,
+      "certified_not_overfit": true,
+      "backtest_certified": true,
+      "gold_status": true,
+      "gold_status_label": "Gold Status",
+      "all_eras_beat_bh": true,
+      "gold_status_blockers": [],
+      "clean_pass": false,
+      "composite_confidence": 0.7669,
+      "tier": "T2",
+      "tier_reasons": [
+        "T1 effective but 15 tunable params > 8"
+      ],
+      "certification_checks": {
+        "engine_integrity": {
+          "passed": true,
+          "status": "pass",
+          "checks": {
+            "slippage_pct_default": 0.05,
+            "slippage_active": true,
+            "bar_close_execution": true,
+            "lookahead_safe": true,
+            "repaint_safe": true
+          },
+          "errors": []
+        },
+        "golden_regression": {
+          "passed": true,
+          "status": "pass",
+          "fixture_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/tests/golden_trades_821.json",
+          "trade_count": 52,
+          "mismatches": []
+        },
+        "shadow_comparator": {
+          "passed": true,
+          "status": "pass",
+          "trade_count_ours": 21,
+          "trade_count_shadow": 21,
+          "issues": []
+        },
+        "data_quality_precheck": {
+          "passed": true,
+          "status": "pass",
+          "summary": {
+            "total": 41,
+            "pass": 41,
+            "warn": 0,
+            "fail": 0,
+            "skip": 0
+          },
+          "failing_checks": []
+        },
+        "artifact_completeness": {
+          "passed": true,
+          "status": "pass",
+          "reason": "run artifacts are generated after validation",
+          "paths": {
+            "validation_summary": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/157/validation_summary.json",
+            "trade_ledger": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/157/trade_ledger.json",
+            "signal_series": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/157/signal_series.json",
+            "equity_curve": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/157/equity_curve.json",
+            "dashboard_data": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/157/dashboard_data.json"
+          }
+        }
+      },
+      "sub_scores": {
+        "walk_forward": 1.0,
+        "marker_shape": 0.9603,
+        "marker_timing": 0.5545,
+        "named_windows": 0.4708,
+        "era_consistency": 1.0,
+        "fragility": 0.623,
+        "selection_bias": 0.6328,
+        "cross_asset": 0.4102,
+        "bootstrap": 0.6964,
+        "regime_consistency": 0.993,
+        "trade_sufficiency": 1.0
+      },
+      "advisories": [
+        "selection_bias: observed_rs=0.6147 expected_max=0.7607 deflated=0.0000"
+      ],
+      "soft_warnings": [
+        "walk-forward dispersion 0.71 > 0.65",
+        "2023_rebound: share_multiple=0.565",
+        "QQQ same-param share_multiple=0.478 < 0.50"
+      ],
+      "critical_warnings": [
+        "walk-forward: WF 2024-2025: OOS/IS regime ratio 0.58 < 0.65",
+        "morris warning: max_swing=0.15 sigma_ratio=2.81",
+        "bootstrap downside probability 0.79 > 0.50",
+        "TQQQ same-param share_multiple=0.446 < 0.50"
+      ],
+      "warnings": [
+        "walk-forward dispersion 0.71 > 0.65",
+        "2023_rebound: share_multiple=0.565",
+        "QQQ same-param share_multiple=0.478 < 0.50",
+        "walk-forward: WF 2024-2025: OOS/IS regime ratio 0.58 < 0.65",
+        "morris warning: max_swing=0.15 sigma_ratio=2.81",
+        "bootstrap downside probability 0.79 > 0.50",
+        "TQQQ same-param share_multiple=0.446 < 0.50"
+      ],
+      "hard_fail_reasons": [],
+      "gates": {
+        "gate1": {
+          "verdict": "PASS",
+          "tier": "T2",
+          "trade_count": 44,
+          "trades_per_year": 1.3,
+          "n_params": 15,
+          "trades_per_param": 2.9333,
+          "regime_transitions": 19,
+          "degeneracy": {
+            "verdict": "PASS",
+            "windows": [
+              {
+                "window": "1993-1996",
+                "exposure": 0.5635
+              },
+              {
+                "window": "1997-2000",
+                "exposure": 0.6509
+              },
+              {
+                "window": "2001-2004",
+                "exposure": 0.8719
+              },
+              {
+                "window": "2005-2008",
+                "exposure": 0.6313
+              },
+              {
+                "window": "2009-2012",
+                "exposure": 0.7349
+              },
+              {
+                "window": "2013-2016",
+                "exposure": 0.9376
+              },
+              {
+                "window": "2017-2020",
+                "exposure": 0.8273
+              },
+              {
+                "window": "2021-2024",
+                "exposure": 0.7311
+              },
+              {
+                "window": "2025-2026",
+                "exposure": 0.6084
+              }
+            ],
+            "warnings": [],
+            "hard_fail_reasons": []
+          },
+          "advisories": [],
+          "soft_warnings": [],
+          "critical_warnings": [],
+          "warnings": [],
+          "hard_fail_reasons": []
+        },
+        "gate_marker": {
+          "verdict": "PASS",
+          "tier": "T2",
+          "marker_score": 0.4928,
+          "state_agreement": 0.7762,
+          "transition_timing": 0.3446,
+          "timing_magnitude_weighted": 0.5545,
+          "target_buy_count": 14,
+          "candidate_buy_count": 34,
+          "missed_cycles": 5,
+          "tolerance_bars": 40,
+          "overlap_start": "1999-10-27",
+          "overlap_end": "2025-10-30",
+          "advisories": [],
+          "soft_warnings": [],
+          "critical_warnings": [],
+          "warnings": [],
+          "hard_fail_reasons": []
+        },
+        "gate2": {
+          "verdict": "PASS",
+          "observed_regime_score": 0.6147,
+          "expected_max_regime_score": 0.7607,
+          "deflation": {
+            "observed_rs": 0.6147,
+            "deflated_probability": 0.0,
+            "expected_max_rs": 0.7607,
+            "beats_noise": false,
+            "tier": "noise",
+            "null_percentile": 80.7
+          },
+          "exit_proximity": {
+            "n_exits": 44,
+            "n_bear_starts": 9,
+            "pct_within_5_of_bear_start": 0.0,
+            "pct_within_10_of_bear_start": 4.5,
+            "expected_pct_within_5": 1.2,
+            "expected_pct_within_10": 2.3,
+            "enrichment_5": 0.0,
+            "enrichment_10": 2.0,
+            "pct_within_5_of_any_transition": 0.0,
+            "median_distance_to_bear_start": 2613.0,
+            "distances_to_bear_start": [
+              9,
+              9,
+              12,
+              22,
+              27,
+              30,
+              34,
+              42,
+              55,
+              85
+            ],
+            "flag": false
+          },
+          "jackknife": {
+            "n_cycles": 19,
+            "max_impact_ratio": 1.15,
+            "n_dominant": 0,
+            "dominant": [],
+            "jackknife_se": 0.0916,
+            "flag": false
+          },
+          "concentration": {
+            "bull_hhi": 0.1249,
+            "bear_hhi": 0.1628,
+            "bull_thresh": 0.15,
+            "bear_thresh": 0.1667,
+            "bull_flag": false,
+            "bear_flag": false,
+            "dominance": 1.07,
+            "dominance_flag": false,
+            "bull_avg": 0.636,
+            "bear_avg": 0.594,
+            "flag": false
+          },
+          "meta_robustness": {
+            "n_definitions": 28,
+            "mean": 0.5865,
+            "std": 0.037,
+            "cv": 0.0631,
+            "min": 0.5408,
+            "max": 0.6593,
+            "pct_within_20pct": 100.0,
+            "flag": false
+          },
+          "trade_clustering": {
+            "flag": false,
+            "max_share": 0.1591,
+            "blocks": [
+              {
+                "window": "1993-1996",
+                "trades": 6,
+                "share": 0.1364
+              },
+              {
+                "window": "1997-2000",
+                "trades": 6,
+                "share": 0.1364
+              },
+              {
+                "window": "2001-2004",
+                "trades": 2,
+                "share": 0.0455
+              },
+              {
+                "window": "2005-2008",
+                "trades": 6,
+                "share": 0.1364
+              },
+              {
+                "window": "2009-2012",
+                "trades": 7,
+                "share": 0.1591
+              },
+              {
+                "window": "2013-2016",
+                "trades": 3,
+                "share": 0.0682
+              },
+              {
+                "window": "2017-2020",
+                "trades": 7,
+                "share": 0.1591
+              },
+              {
+                "window": "2021-2024",
+                "trades": 5,
+                "share": 0.1136
+              },
+              {
+                "window": "2025-2028",
+                "trades": 2,
+                "share": 0.0455
+              }
+            ]
+          },
+          "selection_bias_score": 0.6328,
+          "regime_consistency_score": 0.993,
+          "advisories": [
+            "selection_bias: observed_rs=0.6147 expected_max=0.7607 deflated=0.0000"
+          ],
+          "soft_warnings": [],
+          "critical_warnings": [],
+          "warnings": [],
+          "hard_fail_reasons": []
+        },
+        "gate3": {
+          "verdict": "PASS",
+          "evaluations": 61,
+          "baseline_score": 0.6147,
+          "max_swing_10": 0.102,
+          "max_swing_20": 0.3145,
+          "score": 0.2138,
+          "hard_fail_params": [],
+          "warn_params": [],
+          "details": [
+            {
+              "name": "fast_ema",
+              "perturbations": {
+                "-0.2": {
+                  "score": 0.6151,
+                  "swing": 0.0007
+                },
+                "-0.1": {
+                  "score": 0.6069,
+                  "swing": 0.0127
+                },
+                "0.1": {
+                  "score": 0.5834,
+                  "swing": 0.0509
+                },
+                "0.2": {
+                  "score": 0.4297,
+                  "swing": 0.301
+                }
+              }
+            },
+            {
+              "name": "slow_ema",
+              "perturbations": {
+                "-0.2": {
+                  "score": 0.4214,
+                  "swing": 0.3145
+                },
+                "-0.1": {
+                  "score": 0.6068,
+                  "swing": 0.0129
+                },
+                "0.1": {
+                  "score": 0.617,
+                  "swing": 0.0037
+                },
+                "0.2": {
+                  "score": 0.6167,
+                  "swing": 0.0033
+                }
+              }
+            },
+            {
+              "name": "slope_window",
+              "perturbations": {
+                "-0.2": {
+                  "score": 0.6147,
+                  "swing": 0.0
+                },
+                "-0.1": {
+                  "score": 0.6147,
+                  "swing": 0.0
+                },
+                "0.1": {
+                  "score": 0.6148,
+                  "swing": 0.0002
+                },
+                "0.2": {
+                  "score": 0.6148,
+                  "swing": 0.0002
+                }
+              }
+            },
+            {
+              "name": "entry_bars",
+              "perturbations": {
+                "-0.2": {
+                  "score": 0.6161,
+                  "swing": 0.0023
+                },
+                "-0.1": {
+                  "score": 0.6161,
+                  "swing": 0.0023
+                },
+                "0.1": {
+                  "score": 0.5822,
+                  "swing": 0.0529
+                },
+                "0.2": {
+                  "score": 0.5822,
+                  "swing": 0.0529
+                }
+              }
+            },
+            {
+              "name": "atr_period",
+              "perturbations": {
+                "-0.2": {
+                  "score": 0.6106,
+                  "swing": 0.0067
+                },
+                "-0.1": {
+                  "score": 0.6135,
+                  "swing": 0.002
+                },
+                "0.1": {
+                  "score": 0.5914,
+                  "swing": 0.0379
+                },
+                "0.2": {
+                  "score": 0.5904,
+                  "swing": 0.0395
+                }
+              }
+            },
+            {
+              "name": "atr_look",
+              "perturbations": {
+                "-0.2": {
+                  "score": 0.522,
+                  "swing": 0.1508
+                },
+                "-0.1": {
+                  "score": 0.5678,
+                  "swing": 0.0763
+                },
+                "0.1": {
+                  "score": 0.6161,
+                  "swing": 0.0023
+                },
+                "0.2": {
+                  "score": 0.6333,
+                  "swing": 0.0303
+                }
+              }
+            },
+            {
+              "name": "atr_expand",
+              "perturbations": {
+                "-0.2": {
+                  "score": 0.6205,
+                  "swing": 0.0094
+                },
+                "-0.1": {
+                  "score": 0.6476,
+                  "swing": 0.0535
+                },
+                "0.1": {
+                  "score": 0.552,
+                  "swing": 0.102
+                },
+                "0.2": {
+                  "score": 0.5598,
+                  "swing": 0.0893
+                }
+              }
+            },
+            {
+              "name": "atr_confirm",
+              "perturbations": {
+                "-0.2": {
+                  "score": 0.6131,
+                  "swing": 0.0026
+                },
+                "-0.1": {
+                  "score": 0.6131,
+                  "swing": 0.0026
+                },
+                "0.1": {
+                  "score": 0.6145,
+                  "swing": 0.0003
+                },
+                "0.2": {
+                  "score": 0.6145,
+                  "swing": 0.0003
+                }
+              }
+            },
+            {
+              "name": "repair_len",
+              "perturbations": {
+                "-0.2": {
+                  "score": 0.5989,
+                  "swing": 0.0257
+                },
+                "-0.1": {
+                  "score": 0.5996,
+                  "swing": 0.0246
+                },
+                "0.1": {
+                  "score": 0.5992,
+                  "swing": 0.0252
+                },
+                "0.2": {
+                  "score": 0.5829,
+                  "swing": 0.0517
+                }
+              }
+            },
+            {
+              "name": "rsi_len",
+              "perturbations": {
+                "-0.2": {
+                  "score": 0.6147,
+                  "swing": 0.0
+                },
+                "-0.1": {
+                  "score": 0.6147,
+                  "swing": 0.0
+                },
+                "0.1": {
+                  "score": 0.6147,
+                  "swing": 0.0
+                },
+                "0.2": {
+                  "score": 0.6147,
+                  "swing": 0.0
+                }
+              }
+            },
+            {
+              "name": "drawdown_lookback",
+              "perturbations": {
+                "-0.2": {
+                  "score": 0.6145,
+                  "swing": 0.0003
+                },
+                "-0.1": {
+                  "score": 0.6147,
+                  "swing": 0.0
+                },
+                "0.1": {
+                  "score": 0.6144,
+                  "swing": 0.0005
+                },
+                "0.2": {
+                  "score": 0.6144,
+                  "swing": 0.0005
+                }
+              }
+            },
+            {
+              "name": "drawdown_pct",
+              "perturbations": {
+                "-0.2": {
+                  "score": 0.6117,
+                  "swing": 0.0049
+                },
+                "-0.1": {
+                  "score": 0.6128,
+                  "swing": 0.0031
+                },
+                "0.1": {
+                  "score": 0.616,
+                  "swing": 0.0021
+                },
+                "0.2": {
+                  "score": 0.6159,
+                  "swing": 0.002
+                }
+              }
+            },
+            {
+              "name": "repair_slope",
+              "perturbations": {
+                "-0.2": {
+                  "score": 0.5859,
+                  "swing": 0.0469
+                },
+                "-0.1": {
+                  "score": 0.5859,
+                  "swing": 0.0469
+                },
+                "0.1": {
+                  "score": 0.6128,
+                  "swing": 0.0031
+                },
+                "0.2": {
+                  "score": 0.6128,
+                  "swing": 0.0031
+                }
+              }
+            },
+            {
+              "name": "rsi_floor",
+              "perturbations": {
+                "-0.2": {
+                  "score": 0.6161,
+                  "swing": 0.0023
+                },
+                "-0.1": {
+                  "score": 0.6147,
+                  "swing": 0.0
+                },
+                "0.1": {
+                  "score": 0.6157,
+                  "swing": 0.0016
+                },
+                "0.2": {
+                  "score": 0.6094,
+                  "swing": 0.0086
+                }
+              }
+            },
+            {
+              "name": "vix_ceiling",
+              "perturbations": {
+                "-0.2": {
+                  "score": 0.6146,
+                  "swing": 0.0002
+                },
+                "-0.1": {
+                  "score": 0.6147,
+                  "swing": 0.0
+                },
+                "0.1": {
+                  "score": 0.6147,
+                  "swing": 0.0
+                },
+                "0.2": {
+                  "score": 0.6147,
+                  "swing": 0.0
+                }
+              }
+            }
+          ],
+          "soft_warnings": [],
+          "critical_warnings": [],
+          "warnings": [],
+          "hard_fail_reasons": []
+        },
+        "gate4": {
+          "verdict": "WARN",
+          "tier": "T2",
+          "walk_forward": {
+            "verdict": "FAIL",
+            "windows": [
+              {
+                "label": "WF 2015-2017",
+                "train": {
+                  "regime_score": 0.6156,
+                  "bull_capture": 0.6375,
+                  "bear_avoidance": 0.5938,
+                  "mar": 0.155,
+                  "cagr": 15.2,
+                  "max_dd": 98.2,
+                  "trades": 27,
+                  "share_multiple": 6.079,
+                  "win_rate": 51.9
+                },
+                "test": {
+                  "regime_score": 0.709,
+                  "bull_capture": 0.7114,
+                  "bear_avoidance": 0.7065,
+                  "mar": 1.347,
+                  "cagr": 41.9,
+                  "max_dd": 31.1,
+                  "trades": 3,
+                  "share_multiple": 0.881,
+                  "win_rate": 66.7
+                },
+                "oos_is_ratio": 1.1517,
+                "oos_is_metric": "regime_score",
+                "share_multiple_ratio": 0.1449
+              },
+              {
+                "label": "WF 2018-2020",
+                "train": {
+                  "regime_score": 0.6171,
+                  "bull_capture": 0.6404,
+                  "bear_avoidance": 0.5938,
+                  "mar": 0.173,
+                  "cagr": 17.0,
+                  "max_dd": 98.2,
+                  "trades": 30,
+                  "share_multiple": 4.183,
+                  "win_rate": 53.3
+                },
+                "test": {
+                  "regime_score": 0.6244,
+                  "bull_capture": 0.7838,
+                  "bear_avoidance": 0.4651,
+                  "mar": 2.169,
+                  "cagr": 80.4,
+                  "max_dd": 37.1,
+                  "trades": 6,
+                  "share_multiple": 1.675,
+                  "win_rate": 66.7
+                },
+                "oos_is_ratio": 1.0118,
+                "oos_is_metric": "regime_score",
+                "share_multiple_ratio": 0.4004
+              },
+              {
+                "label": "WF 2021-2023",
+                "train": {
+                  "regime_score": 0.616,
+                  "bull_capture": 0.6382,
+                  "bear_avoidance": 0.5938,
+                  "mar": 0.233,
+                  "cagr": 22.9,
+                  "max_dd": 98.2,
+                  "trades": 37,
+                  "share_multiple": 7.224,
+                  "win_rate": 56.8
+                },
+                "test": {
+                  "regime_score": 0.7959,
+                  "bull_capture": 0.7069,
+                  "bear_avoidance": 0.885,
+                  "mar": 0.608,
+                  "cagr": 32.6,
+                  "max_dd": 53.5,
+                  "trades": 6,
+                  "share_multiple": 1.341,
+                  "win_rate": 50.0
+                },
+                "oos_is_ratio": 1.292,
+                "oos_is_metric": "regime_score",
+                "share_multiple_ratio": 0.1856
+              },
+              {
+                "label": "WF 2024-2025",
+                "train": {
+                  "regime_score": 0.6166,
+                  "bull_capture": 0.6395,
+                  "bear_avoidance": 0.5938,
+                  "mar": 0.258,
+                  "cagr": 25.4,
+                  "max_dd": 98.2,
+                  "trades": 41,
+                  "share_multiple": 15.069,
+                  "win_rate": 56.1
+                },
+                "test": {
+                  "regime_score": 0.3599,
+                  "bull_capture": 0.4043,
+                  "bear_avoidance": 0.3155,
+                  "mar": -0.068,
+                  "cagr": -2.8,
+                  "max_dd": 41.4,
+                  "trades": 3,
+                  "share_multiple": 0.495,
+                  "win_rate": 33.3
+                },
+                "oos_is_ratio": 0.5837,
+                "oos_is_metric": "regime_score",
+                "share_multiple_ratio": 0.0328
+              }
+            ],
+            "avg_oos_is_ratio": 1.0098,
+            "min_oos_is_ratio": 0.5837,
+            "max_oos_is_ratio": 1.292,
+            "spread": 0.7083,
+            "score": 1.0,
+            "soft_warnings": [
+              "walk-forward dispersion 0.71 > 0.65"
+            ],
+            "critical_warnings": [],
+            "warnings": [
+              "walk-forward dispersion 0.71 > 0.65"
+            ],
+            "hard_fail_reasons": [
+              "WF 2024-2025: OOS/IS regime ratio 0.58 < 0.65"
+            ]
+          },
+          "named_windows": {
+            "verdict": "WARN",
+            "results": [
+              {
+                "window": "2020_meltup",
+                "regime_score": 0.582,
+                "bull_capture": 0.6989,
+                "bear_avoidance": 0.4651,
+                "mar": 1.43,
+                "cagr": 53.0,
+                "max_dd": 37.1,
+                "trades": 7,
+                "share_multiple": 0.726,
+                "win_rate": 71.4
+              },
+              {
+                "window": "2021_2022_bear",
+                "regime_score": 0.6216,
+                "bull_capture": 0.535,
+                "bear_avoidance": 0.7083,
+                "mar": 1.319,
+                "cagr": 54.0,
+                "max_dd": 40.9,
+                "trades": 8,
+                "share_multiple": 3.894,
+                "win_rate": 50.0
+              },
+              {
+                "window": "2023_rebound",
+                "regime_score": 0.6687,
+                "bull_capture": 0.6265,
+                "bear_avoidance": 0.7108,
+                "mar": 0.76,
+                "cagr": 40.7,
+                "max_dd": 53.5,
+                "trades": 6,
+                "share_multiple": 0.565,
+                "win_rate": 50.0
+              },
+              {
+                "window": "2024_onward",
+                "regime_score": 0.6068,
+                "bull_capture": 0.5872,
+                "bear_avoidance": 0.6263,
+                "mar": 0.334,
+                "cagr": 21.5,
+                "max_dd": 64.3,
+                "trades": 6,
+                "share_multiple": 1.15,
+                "win_rate": 50.0
+              }
+            ],
+            "soft_warnings": [
+              "2023_rebound: share_multiple=0.565"
+            ],
+            "critical_warnings": [],
+            "warnings": [
+              "2023_rebound: share_multiple=0.565"
+            ],
+            "hard_fail_reasons": []
+          },
+          "walk_forward_score": 1.0,
+          "named_windows_score": 0.4708,
+          "soft_warnings": [
+            "walk-forward dispersion 0.71 > 0.65",
+            "2023_rebound: share_multiple=0.565"
+          ],
+          "critical_warnings": [
+            "walk-forward: WF 2024-2025: OOS/IS regime ratio 0.58 < 0.65"
+          ],
+          "warnings": [
+            "walk-forward dispersion 0.71 > 0.65",
+            "2023_rebound: share_multiple=0.565",
+            "walk-forward: WF 2024-2025: OOS/IS regime ratio 0.58 < 0.65"
+          ],
+          "hard_fail_reasons": []
+        },
+        "gate5": {
+          "verdict": "WARN",
+          "morris": {
+            "method": "morris",
+            "trajectories": 30,
+            "delta": 0.2,
+            "evaluations": 510,
+            "max_swing": 0.1508,
+            "max_sigma_ratio": 2.8065,
+            "s_frag": 0.623,
+            "interaction_flag": false,
+            "warning_flag": true,
+            "parameters": [
+              {
+                "name": "fast_ema",
+                "mu_star": 0.0,
+                "sigma": 0.0,
+                "sigma_ratio": 0.0
+              },
+              {
+                "name": "slow_ema",
+                "mu_star": 0.0625,
+                "sigma": 0.0741,
+                "sigma_ratio": 1.1856
+              },
+              {
+                "name": "slope_window",
+                "mu_star": 0.0,
+                "sigma": 0.0,
+                "sigma_ratio": 0.0
+              },
+              {
+                "name": "entry_bars",
+                "mu_star": 0.0,
+                "sigma": 0.0,
+                "sigma_ratio": 0.0
+              },
+              {
+                "name": "cooldown",
+                "mu_star": 0.0,
+                "sigma": 0.0,
+                "sigma_ratio": 0.0
+              },
+              {
+                "name": "atr_period",
+                "mu_star": 0.0516,
+                "sigma": 0.0648,
+                "sigma_ratio": 1.256
+              },
+              {
+                "name": "atr_look",
+                "mu_star": 0.2137,
+                "sigma": 0.2363,
+                "sigma_ratio": 1.106
+              },
+              {
+                "name": "atr_expand",
+                "mu_star": 0.0,
+                "sigma": 0.0,
+                "sigma_ratio": 0.0
+              },
+              {
+                "name": "atr_confirm",
+                "mu_star": 0.0,
+                "sigma": 0.0,
+                "sigma_ratio": 0.0
+              },
+              {
+                "name": "repair_len",
+                "mu_star": 0.1765,
+                "sigma": 0.1296,
+                "sigma_ratio": 0.7343
+              },
+              {
+                "name": "rsi_len",
+                "mu_star": 0.0,
+                "sigma": 0.0,
+                "sigma_ratio": 0.0
+              },
+              {
+                "name": "drawdown_lookback",
+                "mu_star": 0.004,
+                "sigma": 0.0111,
+                "sigma_ratio": 2.8065
+              },
+              {
+                "name": "drawdown_pct",
+                "mu_star": 0.0362,
+                "sigma": 0.0615,
+                "sigma_ratio": 1.7003
+              },
+              {
+                "name": "repair_slope",
+                "mu_star": 0.0,
+                "sigma": 0.0,
+                "sigma_ratio": 0.0
+              },
+              {
+                "name": "rsi_floor",
+                "mu_star": 0.0,
+                "sigma": 0.0,
+                "sigma_ratio": 0.0
+              },
+              {
+                "name": "vix_ceiling",
+                "mu_star": 0.0,
+                "sigma": 0.0,
+                "sigma_ratio": 0.0
+              }
+            ]
+          },
+          "bootstrap": {
+            "method": "stationary_bootstrap",
+            "resamples": 200,
+            "expected_block": 20,
+            "observed_regime_score": 0.6147,
+            "ci_90": [
+              0.4715,
+              0.6582
+            ],
+            "ci_width": 0.1866,
+            "mean_regime_score": 0.5643,
+            "mean_share_multiple": 10.852,
+            "downside_prob_share_multiple": 0.785,
+            "s_boot": 0.6964,
+            "hard_fail": true,
+            "warning_flag": true
+          },
+          "fragility_score": 0.623,
+          "bootstrap_score": 0.6964,
+          "soft_warnings": [],
+          "critical_warnings": [
+            "morris warning: max_swing=0.15 sigma_ratio=2.81",
+            "bootstrap downside probability 0.79 > 0.50"
+          ],
+          "warnings": [
+            "morris warning: max_swing=0.15 sigma_ratio=2.81",
+            "bootstrap downside probability 0.79 > 0.50"
+          ],
+          "hard_fail_reasons": []
+        },
+        "gate6": {
+          "verdict": "WARN",
+          "same_params": {
+            "strategy": "gc_vjatr_timing_repair",
+            "params": {
+              "fast_ema": 140,
+              "slow_ema": 160,
+              "slope_window": 1,
+              "entry_bars": 2,
+              "cooldown": 0,
+              "atr_period": 16,
+              "atr_look": 50,
+              "atr_expand": 2.0,
+              "atr_confirm": 3,
+              "repair_len": 30,
+              "rsi_len": 7,
+              "drawdown_lookback": 40,
+              "drawdown_pct": 25.0,
+              "repair_slope": 3,
+              "rsi_floor": 45.0,
+              "vix_ceiling": 50.0
+            },
+            "results": {
+              "TECL": {
+                "share_multiple": 10.6316,
+                "cagr": 24.7,
+                "max_dd": 98.2,
+                "trades": 44,
+                "trades_yr": 1.3,
+                "win_rate": 56.8,
+                "exit_reasons": {
+                  "A": 18,
+                  "D": 21,
+                  "V": 4,
+                  "End of Data": 1
+                }
+              },
+              "TQQQ": {
+                "share_multiple": 0.4461,
+                "cagr": 14.6,
+                "max_dd": 99.1,
+                "trades": 41,
+                "trades_yr": 1.2,
+                "win_rate": 39.0,
+                "exit_reasons": {
+                  "D": 26,
+                  "A": 10,
+                  "V": 5
+                }
+              },
+              "QQQ": {
+                "share_multiple": 0.4777,
+                "cagr": 11.4,
+                "max_dd": 47.2,
+                "trades": 16,
+                "trades_yr": 0.5,
+                "win_rate": 50.0,
+                "exit_reasons": {
+                  "A": 3,
+                  "D": 10,
+                  "V": 3
+                }
+              }
+            }
+          },
+          "tier3_reopt": {
+            "strategy": "gc_vjatr_timing_repair",
+            "asset": "TQQQ",
+            "best_fitness": 0.324,
+            "best_params": {
+              "repair_slope": 1,
+              "atr_period": 14,
+              "entry_bars": 3,
+              "atr_expand": 1.5,
+              "atr_look": 30,
+              "repair_len": 50,
+              "drawdown_lookback": 40,
+              "vix_ceiling": 50.0,
+              "drawdown_pct": 20.0,
+              "rsi_floor": 40.0,
+              "rsi_len": 7,
+              "fast_ema": 140,
+              "atr_confirm": 3,
+              "cooldown": 5,
+              "slow_ema": 180,
+              "slope_window": 1
+            },
+            "share_multiple": 1.6043,
+            "cagr": 19.1,
+            "trades": 68,
+            "verdict": "PASS",
+            "reason": "TQQQ share_multiple=1.6043 (beats buy-and-hold)"
+          },
+          "cross_asset_score": 0.4102,
+          "soft_warnings": [
+            "QQQ same-param share_multiple=0.478 < 0.50"
+          ],
+          "critical_warnings": [
+            "TQQQ same-param share_multiple=0.446 < 0.50"
+          ],
+          "warnings": [
+            "QQQ same-param share_multiple=0.478 < 0.50",
+            "TQQQ same-param share_multiple=0.446 < 0.50"
+          ],
+          "hard_fail_reasons": []
+        },
+        "gate7": {
+          "verdict": "PASS",
+          "tier": "T2",
+          "promotion_ready": true,
+          "certified_not_overfit": true,
+          "clean_pass": false,
+          "backtest_certified": true,
+          "gold_status": true,
+          "gold_status_label": "Gold Status",
+          "all_eras_beat_bh": true,
+          "gold_status_blockers": [],
+          "certification_checks": {
+            "engine_integrity": {
+              "passed": true,
+              "status": "pass",
+              "checks": {
+                "slippage_pct_default": 0.05,
+                "slippage_active": true,
+                "bar_close_execution": true,
+                "lookahead_safe": true,
+                "repaint_safe": true
+              },
+              "errors": []
+            },
+            "golden_regression": {
+              "passed": true,
+              "status": "pass",
+              "fixture_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/tests/golden_trades_821.json",
+              "trade_count": 52,
+              "mismatches": []
+            },
+            "shadow_comparator": {
+              "passed": true,
+              "status": "pass",
+              "trade_count_ours": 21,
+              "trade_count_shadow": 21,
+              "issues": []
+            },
+            "data_quality_precheck": {
+              "passed": true,
+              "status": "pass",
+              "summary": {
+                "total": 41,
+                "pass": 41,
+                "warn": 0,
+                "fail": 0,
+                "skip": 0
+              },
+              "failing_checks": []
+            },
+            "artifact_completeness": {
+              "passed": true,
+              "status": "pass",
+              "reason": "run artifacts are generated after validation",
+              "paths": {
+                "validation_summary": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/157/validation_summary.json",
+                "trade_ledger": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/157/trade_ledger.json",
+                "signal_series": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/157/signal_series.json",
+                "equity_curve": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/157/equity_curve.json",
+                "dashboard_data": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/spike/runs/157/dashboard_data.json"
+              }
+            }
+          },
+          "sub_scores": {
+            "walk_forward": 1.0,
+            "marker_shape": 0.9603,
+            "marker_timing": 0.5545,
+            "named_windows": 0.4708,
+            "era_consistency": 1.0,
+            "fragility": 0.623,
+            "selection_bias": 0.6328,
+            "cross_asset": 0.4102,
+            "bootstrap": 0.6964,
+            "regime_consistency": 0.993,
+            "trade_sufficiency": 1.0
+          },
+          "composite_confidence": 0.7669,
+          "advisories": [
+            "selection_bias: observed_rs=0.6147 expected_max=0.7607 deflated=0.0000"
+          ],
+          "soft_warnings": [
+            "walk-forward dispersion 0.71 > 0.65",
+            "2023_rebound: share_multiple=0.565",
+            "QQQ same-param share_multiple=0.478 < 0.50"
+          ],
+          "critical_warnings": [
+            "walk-forward: WF 2024-2025: OOS/IS regime ratio 0.58 < 0.65",
+            "morris warning: max_swing=0.15 sigma_ratio=2.81",
+            "bootstrap downside probability 0.79 > 0.50",
+            "TQQQ same-param share_multiple=0.446 < 0.50"
+          ],
+          "warnings": [
+            "walk-forward dispersion 0.71 > 0.65",
+            "2023_rebound: share_multiple=0.565",
+            "QQQ same-param share_multiple=0.478 < 0.50",
+            "walk-forward: WF 2024-2025: OOS/IS regime ratio 0.58 < 0.65",
+            "morris warning: max_swing=0.15 sigma_ratio=2.81",
+            "bootstrap downside probability 0.79 > 0.50",
+            "TQQQ same-param share_multiple=0.446 < 0.50"
+          ],
+          "hard_fail_reasons": []
+        }
+      }
+    },
+    "multi_era": {
+      "computed_at": "2026-04-28T23:21:30.444828Z",
+      "eras": {
+        "full": {
+          "share_multiple": 10.6316,
+          "fitness": 0.6242069562851801,
+          "cagr_pct": 24.71,
+          "max_dd_pct": 98.2,
+          "trades": 44,
+          "trades_per_year": 1.3,
+          "bars": 8298,
+          "start_date": "1993-05-04",
+          "end_date": "2026-04-21",
+          "bah_return_pct": 13528.1700559044,
+          "description": "1993-05-04 \u2192 now (includes synthetic pre-2008)"
+        },
+        "real": {
+          "share_multiple": 1.5469,
+          "fitness": 0.8068596117105857,
+          "cagr_pct": 44.02,
+          "max_dd_pct": 58.3,
+          "trades": 24,
+          "trades_per_year": 1.4,
+          "bars": 4361,
+          "start_date": "2008-12-17",
+          "end_date": "2026-04-21",
+          "bah_return_pct": 36016.03725862669,
+          "description": "TECL inception \u2192 now (real data only)"
+        },
+        "modern": {
+          "share_multiple": 2.239,
+          "fitness": 1.139082027452381,
+          "cagr_pct": 48.44,
+          "max_dd_pct": 58.3,
+          "trades": 17,
+          "trades_per_year": 1.5,
+          "bars": 2841,
+          "start_date": "2015-01-02",
+          "end_date": "2026-04-21",
+          "bah_return_pct": 3774.928147373694,
+          "description": "post-QE retail-algo era \u2192 now"
+        }
+      },
+      "regimes": [
+        {
+          "share_multiple": 0.4157,
+          "fitness": 0.0086120672245274,
+          "cagr_pct": 44.65,
+          "max_dd_pct": 55.6,
+          "trades": 7,
+          "trades_per_year": 1.3,
+          "bars": 1373,
+          "start_date": "1993-05-04",
+          "end_date": "1998-10-07",
+          "bah_return_pct": 1683.211695722121,
+          "key": "early_tech_bull",
+          "label": "Early tech bull",
+          "kind": "bull",
+          "description": "Pre-dotcom secular tech expansion before the LTCM washout."
+        },
+        {
+          "share_multiple": 0.1109,
+          "fitness": 0.0,
+          "cagr_pct": 78.48,
+          "max_dd_pct": 36.2,
+          "trades": 3,
+          "trades_per_year": 2.1,
+          "bars": 369,
+          "start_date": "1998-10-08",
+          "end_date": "2000-03-24",
+          "bah_return_pct": 1999.4396111754559,
+          "key": "dotcom_meltup",
+          "label": "Dot-com melt-up",
+          "kind": "bull",
+          "description": "Late-90s internet mania into the Nasdaq blow-off top."
+        },
+        {
+          "share_multiple": 8.4633,
+          "fitness": 0.0,
+          "cagr_pct": -83.53,
+          "max_dd_pct": 99.1,
+          "trades": 2,
+          "trades_per_year": 0.8,
+          "bars": 637,
+          "start_date": "2000-03-27",
+          "end_date": "2002-10-09",
+          "bah_return_pct": -99.87789988977134,
+          "key": "dotcom_bust",
+          "label": "Dot-com bust / Y2K fallout",
+          "kind": "bear",
+          "description": "Post-Y2K unwind and tech bust from the 2000 peak to the 2002 trough."
+        },
+        {
+          "share_multiple": 0.2901,
+          "fitness": 0.003592403060115355,
+          "cagr_pct": 14.79,
+          "max_dd_pct": 58.8,
+          "trades": 8,
+          "trades_per_year": 1.6,
+          "bars": 1274,
+          "start_date": "2002-10-10",
+          "end_date": "2007-10-31",
+          "bah_return_pct": 592.5412525253867,
+          "key": "credit_bull",
+          "label": "Housing / credit bull",
+          "kind": "bull",
+          "description": "Expansionary pre-GFC bull market after the dot-com reset."
+        },
+        {
+          "share_multiple": 9.5186,
+          "fitness": 0.0,
+          "cagr_pct": -35.86,
+          "max_dd_pct": 48.7,
+          "trades": 2,
+          "trades_per_year": 1.5,
+          "bars": 339,
+          "start_date": "2007-11-01",
+          "end_date": "2009-03-09",
+          "bah_return_pct": -94.2375000412739,
+          "key": "gfc_crash",
+          "label": "GFC crash",
+          "kind": "crash",
+          "description": "Global Financial Crisis drawdown from the 2007 peak to the March 2009 low."
+        },
+        {
+          "share_multiple": 0.2082,
+          "fitness": 0.0,
+          "cagr_pct": 5.03,
+          "max_dd_pct": 39.6,
+          "trades": 4,
+          "trades_per_year": 1.9,
+          "bars": 541,
+          "start_date": "2009-03-10",
+          "end_date": "2011-04-29",
+          "bah_return_pct": 433.33333333333337,
+          "key": "qe_recovery",
+          "label": "QE recovery",
+          "kind": "recovery",
+          "description": "Post-GFC recovery driven by emergency policy and early QE."
+        },
+        {
+          "share_multiple": 1.1905,
+          "fitness": 0.0,
+          "cagr_pct": -0.52,
+          "max_dd_pct": 37.9,
+          "trades": 2,
+          "trades_per_year": 1.3,
+          "bars": 390,
+          "start_date": "2011-05-02",
+          "end_date": "2012-11-15",
+          "bah_return_pct": -16.666666666666664,
+          "key": "euro_crisis_chop",
+          "label": "Euro crisis / downgrade chop",
+          "kind": "chop",
+          "description": "US downgrade, euro-sovereign stress, and high-volatility range behavior."
+        },
+        {
+          "share_multiple": 0.2675,
+          "fitness": 0.17797243627950846,
+          "cagr_pct": 27.66,
+          "max_dd_pct": 32.9,
+          "trades": 5,
+          "trades_per_year": 0.9,
+          "bars": 1471,
+          "start_date": "2012-11-16",
+          "end_date": "2018-09-20",
+          "bah_return_pct": 1456.6037735849056,
+          "key": "secular_tech_bull",
+          "label": "Secular tech bull",
+          "kind": "bull",
+          "description": "Long low-rate expansion before the 2018 tightening drawdown."
+        },
+        {
+          "share_multiple": 2.3667,
+          "fitness": 0.0,
+          "cagr_pct": 0.0,
+          "max_dd_pct": 0.0,
+          "trades": 0,
+          "trades_per_year": 0.0,
+          "bars": 65,
+          "start_date": "2018-09-21",
+          "end_date": "2018-12-24",
+          "bah_return_pct": -57.746478873239425,
+          "key": "tightening_trade_war",
+          "label": "Tightening / trade-war drawdown",
+          "kind": "bear",
+          "description": "Q4 2018 selloff under tightening fears and trade-war pressure."
+        },
+        {
+          "share_multiple": 0.5544,
+          "fitness": 0.0,
+          "cagr_pct": 104.69,
+          "max_dd_pct": 24.1,
+          "trades": 1,
+          "trades_per_year": 0.9,
+          "bars": 289,
+          "start_date": "2018-12-26",
+          "end_date": "2020-02-19",
+          "bah_return_pct": 311.0837438423646,
+          "key": "pre_covid_bull",
+          "label": "Pre-COVID melt-up",
+          "kind": "bull",
+          "description": "Late-cycle rally after the 2018 reset and before the pandemic shock."
+        },
+        {
+          "share_multiple": 3.8965,
+          "fitness": 0.0,
+          "cagr_pct": 0.0,
+          "max_dd_pct": 0.0,
+          "trades": 0,
+          "trades_per_year": 0.0,
+          "bars": 23,
+          "start_date": "2020-02-20",
+          "end_date": "2020-03-23",
+          "bah_return_pct": -74.33600988264361,
+          "key": "covid_crash",
+          "label": "COVID crash",
+          "kind": "crash",
+          "description": "Pandemic panic drawdown into the March 2020 low."
+        },
+        {
+          "share_multiple": 0.344,
+          "fitness": 0.0,
+          "cagr_pct": 82.79,
+          "max_dd_pct": 28.5,
+          "trades": 1,
+          "trades_per_year": 0.6,
+          "bars": 421,
+          "start_date": "2020-03-24",
+          "end_date": "2021-11-19",
+          "bah_return_pct": 689.5327102803739,
+          "key": "stimulus_bull",
+          "label": "Stimulus / reopening bull",
+          "kind": "bull",
+          "description": "Liquidity-driven rebound and reopening bull market."
+        },
+        {
+          "share_multiple": 2.7973,
+          "fitness": 0.0,
+          "cagr_pct": -34.89,
+          "max_dd_pct": 50.7,
+          "trades": 1,
+          "trades_per_year": 1.1,
+          "bars": 224,
+          "start_date": "2021-11-22",
+          "end_date": "2022-10-12",
+          "bah_return_pct": -75.56943423952976,
+          "key": "inflation_hiking_bear",
+          "label": "Inflation / hiking bear",
+          "kind": "bear",
+          "description": "Inflation shock and aggressive rate hikes driving a deep tech drawdown."
+        },
+        {
+          "share_multiple": 0.8492,
+          "fitness": 0.0,
+          "cagr_pct": 133.42,
+          "max_dd_pct": 33.8,
+          "trades": 1,
+          "trades_per_year": 0.6,
+          "bars": 436,
+          "start_date": "2022-10-13",
+          "end_date": "2024-07-10",
+          "bah_return_pct": 415.2113970588235,
+          "key": "ai_bull",
+          "label": "AI / disinflation bull",
+          "kind": "bull",
+          "description": "AI-led rebound with easing inflation expectations."
+        },
+        {
+          "share_multiple": 1.1823,
+          "fitness": 0.0,
+          "cagr_pct": 27.09,
+          "max_dd_pct": 37.7,
+          "trades": 3,
+          "trades_per_year": 1.7,
+          "bars": 446,
+          "start_date": "2024-07-11",
+          "end_date": "2026-04-21",
+          "bah_return_pct": 29.487679809194134,
+          "key": "policy_volatility",
+          "label": "Late-cycle policy volatility",
+          "kind": "policy",
+          "description": "Recent market shaped more by policy shocks and macro-volatility than a clean trend."
+        }
+      ],
+      "regime_summary": {
+        "overall_score": 0.8267751115875702,
+        "critical_floor": 0.85,
+        "critical_guardrail_passed": true,
+        "critical_failures": [],
+        "components": {
+          "bull_participation": {
+            "label": "Bull participation",
+            "score": 0.6810005579378506,
+            "aggregate_share_multiple": 0.3448004463502805,
+            "count": 7,
+            "weight": 0.2
+          },
+          "recovery_capture": {
+            "label": "Recovery capture",
+            "score": 0.2705000000000001,
+            "aggregate_share_multiple": 0.20820000000000002,
+            "count": 1,
+            "weight": 0.15
+          },
+          "bear_survival": {
+            "label": "Bear survival",
+            "score": 1.0,
+            "aggregate_share_multiple": 3.8265494549112398,
+            "count": 3,
+            "weight": 0.25
+          },
+          "crash_defense": {
+            "label": "Crash defense",
+            "score": 1.0,
+            "aggregate_share_multiple": 6.090092355621547,
+            "count": 2,
+            "weight": 0.3
+          },
+          "policy_resilience": {
+            "label": "Policy resilience",
+            "score": 1.0,
+            "aggregate_share_multiple": 1.1863929155216664,
+            "count": 2,
+            "weight": 0.1
+          }
+        },
+        "weakest_regime": {
+          "key": "dotcom_meltup",
+          "label": "Dot-com melt-up",
+          "share_multiple": 0.1109,
+          "kind": "bull"
+        }
+      },
+      "decayed": {
+        "fitness_decayed": 13.614706463348782,
+        "pseudo_share": 48.96219046034415,
+        "lambda": 0.07,
+        "half_life_years": 9.902102579427789,
+        "trades": 44
+      }
+    },
+    "overall_performance_score": 3.3268890721268884,
+    "display_name_base": "Ivory Hare",
+    "family_rank": 1,
+    "family_size": 1,
+    "family_leader": true,
+    "family_concentration": 0.125
   }
 ]

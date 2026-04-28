@@ -6013,10 +6013,113 @@ def _merge_exit_overlay(
     return exits, labels
 
 
+def _airbag_shock_events(ind, p) -> np.ndarray:
+    """Crash-shock events only, excluding standalone trend-filter exits."""
+    n = ind.n
+    cl = ind.close
+    vix = ind.vix_close()
+    atr_s = ind.atr(int(p.get("atr_short", 14)))
+    atr_l = ind.atr(int(p.get("atr_long", 60)))
+    xlk = ind.xlk_close
+    vix_lookback = int(p.get("vix_lookback", 5))
+    vix_spike_pct = float(p.get("vix_spike_pct", 35.0))
+    vix_level = float(p.get("vix_level", 28.0))
+    atr_ratio_exit = float(p.get("atr_ratio_exit", 1.6))
+    price_drop_pct = float(p.get("price_drop_pct", -7.0))
+    xlk_drop_pct = float(p.get("xlk_drop_pct", -3.0))
+    events = np.zeros(n, dtype=bool)
+    start = max(vix_lookback + 1, int(p.get("atr_long", 60)) + 1)
+    for i in range(start, n):
+        vix_prev = vix[i - vix_lookback]
+        vix_spike = vix_prev > 0 and (vix[i] / vix_prev - 1.0) * 100 >= vix_spike_pct
+        atr_ratio = atr_s[i] / atr_l[i] if atr_l[i] > 0 and not np.isnan(atr_l[i]) else 0.0
+        price_drop = (cl[i] / cl[i - vix_lookback] - 1.0) * 100
+        xlk_drop = 0.0
+        if xlk is not None and xlk[i - vix_lookback] > 0:
+            xlk_drop = (xlk[i] / xlk[i - vix_lookback] - 1.0) * 100
+        events[i] = (
+            (vix[i] >= vix_level and vix_spike)
+            or (atr_ratio >= atr_ratio_exit and price_drop <= price_drop_pct)
+            or (vix[i] >= vix_level and xlk_drop <= xlk_drop_pct)
+        )
+    return events
+
+
+def _state_crash_risk_off(ind, p) -> tuple[np.ndarray, np.ndarray]:
+    """Return risk-off state and first crash bars for soft state-filter overlays."""
+    n = ind.n
+    cl = ind.close
+    vix = ind.vix_close()
+    ema_fast = ind.ema(int(p.get("fast_len", 50)))
+    rsi = ind.rsi(int(p.get("rsi_len", 14)))
+    rv_s = ind.realized_vol(int(p.get("vol_short", 20)))
+    rv_l = ind.realized_vol(int(p.get("vol_long", 80)))
+    vix_lookback = int(p.get("vix_lookback", 5))
+    vix_shock_pct = float(p.get("vix_shock_pct", 35.0))
+    vix_shock_level = float(p.get("vix_shock_level", 28.0))
+    vix_repair_level = float(p.get("vix_repair_level", 24.0))
+    vol_shock_ratio = float(p.get("vol_shock_ratio", 1.45))
+    rsi_repair = float(p.get("rsi_repair", 42.0))
+    risk_off = np.zeros(n, dtype=bool)
+    crash_start = np.zeros(n, dtype=bool)
+    off = False
+    start = max(int(p.get("vol_long", 80)), vix_lookback + 1, int(p.get("fast_len", 50))) + 1
+    for i in range(start, n):
+        if np.isnan(ema_fast[i]) or np.isnan(rsi[i]) or np.isnan(rv_s[i]) or np.isnan(rv_l[i]) or rv_l[i] <= 0:
+            risk_off[i] = off
+            continue
+        vix_prev = vix[i - vix_lookback]
+        vix_spike = vix_prev > 0 and (vix[i] / vix_prev - 1.0) * 100 >= vix_shock_pct
+        vol_ratio = rv_s[i] / rv_l[i]
+        crash = (
+            (vix[i] >= vix_shock_level and vix_spike)
+            or (vol_ratio >= vol_shock_ratio and cl[i] < cl[i - vix_lookback])
+        )
+        repaired = vix[i] <= vix_repair_level and rsi[i] >= rsi_repair and cl[i] > ema_fast[i]
+        if off:
+            if repaired:
+                off = False
+        elif crash:
+            off = True
+            crash_start[i] = True
+        risk_off[i] = off
+    return risk_off, crash_start
+
+
+def timing_repair_entries(ind, p) -> np.ndarray:
+    """Small post-drawdown re-entry module for marker-timing research."""
+    n = ind.n
+    cl = ind.close
+    vix = ind.vix_close()
+    repair = ind.ema(int(p.get("repair_len", 30)))
+    rsi = ind.rsi(int(p.get("rsi_len", 14)))
+    lookback = int(p.get("drawdown_lookback", 60))
+    drawdown_pct = float(p.get("drawdown_pct", 15.0))
+    slope_lookback = int(p.get("repair_slope", 3))
+    rsi_floor = float(p.get("rsi_floor", 40.0))
+    vix_ceiling = float(p.get("vix_ceiling", 45.0))
+    entries = np.zeros(n, dtype=bool)
+    armed = False
+    start = max(lookback, int(p.get("repair_len", 30)), slope_lookback) + 1
+    for i in range(start, n):
+        if np.isnan(repair[i]) or np.isnan(repair[i - slope_lookback]) or np.isnan(rsi[i]):
+            continue
+        recent_high = np.max(cl[i - lookback + 1:i + 1])
+        drawdown = (cl[i] / recent_high - 1.0) * 100 if recent_high > 0 else 0.0
+        if drawdown <= -drawdown_pct:
+            armed = True
+        repair_cross = cl[i - 1] <= repair[i - 1] and cl[i] > repair[i]
+        repair_slope = repair[i] > repair[i - slope_lookback]
+        if armed and repair_cross and repair_slope and rsi[i] >= rsi_floor and vix[i] <= vix_ceiling:
+            entries[i] = True
+            armed = False
+    return entries
+
+
 def gc_vjatr_airbag(ind, p):
     """T1 overlay test: Bonobo/VJ-ATR base plus independent VIX/ATR airbag exits."""
     entries, base_exits, base_labels = gc_vjatr(ind, p)
-    _, airbag_exits, _airbag_labels = airbag_vix_atr(ind, p)
+    airbag_exits = _airbag_shock_events(ind, p)
     exits, labels = _merge_exit_overlay(base_exits, base_labels, airbag_exits, "AIR")
     return entries, exits, labels
 
@@ -6035,12 +6138,18 @@ def gc_vjatr_reclaimer(ind, p):
 
 
 def gc_vjatr_state_filter(ind, p):
-    """T1 overlay test: Bonobo/VJ-ATR gated by crash/recovery state machine."""
+    """T1 overlay test: Bonobo/VJ-ATR with soft crash-state suppression."""
     base_entries, base_exits, base_labels = gc_vjatr(ind, p)
-    state_entries, state_exits, _state_labels = state_machine_crash_recovery(ind, p)
-    allowed_state = _state_from_events(state_entries, state_exits)
-    entries = base_entries & allowed_state
-    exits, labels = _merge_exit_overlay(base_exits, base_labels, state_exits, "STM")
+    risk_off, crash_start = _state_crash_risk_off(ind, p)
+    entries = base_entries & (~risk_off)
+    exits, labels = _merge_exit_overlay(base_exits, base_labels, crash_start, "STM")
+    return entries, exits, labels
+
+
+def gc_vjatr_timing_repair(ind, p):
+    """T1 research overlay: Bonobo/VJ-ATR plus minimal post-drawdown re-entry."""
+    base_entries, exits, labels = gc_vjatr(ind, p)
+    entries = base_entries | timing_repair_entries(ind, p)
     return entries, exits, labels
 
 
@@ -6739,6 +6848,7 @@ STRATEGY_REGISTRY = {
     "gc_vjatr_airbag":          gc_vjatr_airbag,            # D4: Bonobo + airbag exits
     "gc_vjatr_reclaimer":       gc_vjatr_reclaimer,         # D5: Bonobo + recovery entries
     "gc_vjatr_state_filter":    gc_vjatr_state_filter,      # D6: Bonobo + state filter exits
+    "gc_vjatr_timing_repair":   gc_vjatr_timing_repair,     # D7: minimal post-drawdown re-entry
     "ensemble_vote_3of5":       ensemble_vote_3of5,         # B12
     "fed_macro_primary":        fed_macro_primary,          # B13
     "slope_only_200":           slope_only_200,             # B16
@@ -6882,6 +6992,7 @@ STRATEGY_TIERS = {
     "gc_vjatr_airbag":          "T1",
     "gc_vjatr_reclaimer":       "T1",
     "gc_vjatr_state_filter":    "T1",
+    "gc_vjatr_timing_repair":   "T1",
     "ensemble_vote_3of5":       "T1",
     "fed_macro_primary":        "T1",
     "slope_only_200":           "T1",
@@ -7494,6 +7605,24 @@ STRATEGY_PARAMS = {
         "vix_shock_level":  (24.0, 32.0, 4.0, float),
         "vix_repair_level": (20.0, 26.0, 3.0, float),
         "vol_shock_ratio":  (1.25, 1.75, 0.25, float),
+    },
+    "gc_vjatr_timing_repair": {
+        "fast_ema":          (100, 140, 20, int),
+        "slow_ema":          (150, 200, 10, int),
+        "slope_window":      (1, 3, 1, int),
+        "entry_bars":        (2, 3, 1, int),
+        "cooldown":          (0, 5, 5, int),
+        "atr_period":        (14, 20, 2, int),
+        "atr_look":          (20, 60, 10, int),
+        "atr_expand":        (1.5, 2.5, 0.5, float),
+        "atr_confirm":       (3, 5, 1, int),
+        "repair_len":        (20, 50, 10, int),
+        "rsi_len":           (7, 21, 7, int),
+        "drawdown_lookback": (40, 100, 20, int),
+        "drawdown_pct":      (10.0, 25.0, 5.0, float),
+        "repair_slope":      (1, 5, 2, int),
+        "rsi_floor":         (35.0, 45.0, 5.0, float),
+        "vix_ceiling":       (30.0, 50.0, 10.0, float),
     },
     # ── T1: Spike batch 2026-04-15b (diagnostic-informed) ──
     "gc_atr_trail": {
