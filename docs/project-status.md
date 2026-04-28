@@ -52,6 +52,8 @@ Rows that are PASS but not artifact-backed, or that lose to B&H in any canonical
 
 The first fitness-ranked grid pass searched 3,888 configurations; 1,310 passed the charter prefilter. The top 10 validation candidates all returned `PASS` with `certified_not_overfit=True`. The top representative was then packaged through `scripts/certify/certify_champion.py`, emitted the five standardized artifacts under `spike/runs/157/`, and entered the authority leaderboard as Gold Status row `Ivory Hare`. Certified economics are roughly 10.63x full-history, 1.55x real-era, 2.24x modern-era, 44 trades, and composite confidence 0.767.
 
+The first Gold diversity audit found that `Ivory Hare` is currently the most distinct Gold row by risk-on correlation and trade overlap, but the leaderboard is still highly concentrated: 6 of 8 rows are `gc_vjatr` and the family HHI is 0.594 (effective families 1.68). The overlay-on-Bonobo matrix shows timing repair improves marker timing when grafted onto Bonobo bases, but it fails retention thresholds by degrading full-history, real-era, or modern-era performance. Treat it as a separate Gold family, not as a replacement exit/entry patch for Bonobo.
+
 The airbag and state-filter overlays were repaired so they no longer inherit full standalone exit behavior, but a diagnostic profile still found zero charter-pass candidates in the sampled grids because real-era and modern-era performance degrade below 1.0. They should stay in the diagnostic/research lane until redesigned as less destructive filters.
 
 > **Historical note**: the previous code-generation and parity-checking workflow was removed in Phase 2 of the Montauk 2.0 project (see `docs/Montauk 2.0/` for full provenance).

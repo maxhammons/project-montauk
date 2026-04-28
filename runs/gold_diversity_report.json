@@ -1,0 +1,1158 @@
+{
+  "gold_rows": 8,
+  "family_concentration": {
+    "counts": {
+      "gc_vjatr": 6,
+      "gc_vjatr_reclaimer": 1,
+      "gc_vjatr_timing_repair": 1
+    },
+    "shares": {
+      "gc_vjatr": 0.75,
+      "gc_vjatr_reclaimer": 0.125,
+      "gc_vjatr_timing_repair": 0.125
+    },
+    "hhi": 0.5938,
+    "effective_families": 1.68
+  },
+  "rows": [
+    {
+      "rank": 1,
+      "display_name": "Obsidian Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "family_rank": 1,
+      "confidence": 0.7358,
+      "fitness": 1.4676407331482062,
+      "metrics": {
+        "share_multiple": 41.8867,
+        "real_share_multiple": 1.0319,
+        "modern_share_multiple": 2.5711,
+        "trades": 17,
+        "max_drawdown_pct": 51.5,
+        "recomputed_share_multiple": 41.8867,
+        "recomputed_real_share_multiple": 1.4741,
+        "recomputed_modern_share_multiple": 2.0084
+      },
+      "marker": {
+        "score": 0.6741,
+        "timing_magnitude_weighted": 0.3071,
+        "state_accuracy": 0.7854
+      }
+    },
+    {
+      "rank": 2,
+      "display_name": "Marbled Bonobo",
+      "strategy": "gc_vjatr",
+      "family_rank": 1,
+      "confidence": 0.7345,
+      "fitness": 2.6511,
+      "metrics": {
+        "share_multiple": 13.1308,
+        "real_share_multiple": 1.1311,
+        "modern_share_multiple": 2.7144,
+        "trades": 16,
+        "max_drawdown_pct": 64.7,
+        "recomputed_share_multiple": 13.1308,
+        "recomputed_real_share_multiple": 1.7353,
+        "recomputed_modern_share_multiple": 2.1203
+      },
+      "marker": {
+        "score": 0.6827,
+        "timing_magnitude_weighted": 0.3129,
+        "state_accuracy": 0.7775
+      }
+    },
+    {
+      "rank": 3,
+      "display_name": "Ember Bonobo",
+      "strategy": "gc_vjatr",
+      "family_rank": 2,
+      "confidence": 0.7344,
+      "fitness": 2.6511,
+      "metrics": {
+        "share_multiple": 13.1308,
+        "real_share_multiple": 1.1311,
+        "modern_share_multiple": 2.7144,
+        "trades": 16,
+        "max_drawdown_pct": 64.7,
+        "recomputed_share_multiple": 13.1308,
+        "recomputed_real_share_multiple": 1.7353,
+        "recomputed_modern_share_multiple": 2.1203
+      },
+      "marker": {
+        "score": 0.6827,
+        "timing_magnitude_weighted": 0.3129,
+        "state_accuracy": 0.7775
+      }
+    },
+    {
+      "rank": 4,
+      "display_name": "Russet Bonobo #1",
+      "strategy": "gc_vjatr",
+      "family_rank": 3,
+      "confidence": 0.7315,
+      "fitness": 2.5102,
+      "metrics": {
+        "share_multiple": 15.7149,
+        "real_share_multiple": 1.0276,
+        "modern_share_multiple": 2.4661,
+        "trades": 16,
+        "max_drawdown_pct": 51.5,
+        "recomputed_share_multiple": 15.7149,
+        "recomputed_real_share_multiple": 1.5766,
+        "recomputed_modern_share_multiple": 1.9263
+      },
+      "marker": {
+        "score": 0.6738,
+        "timing_magnitude_weighted": 0.3093,
+        "state_accuracy": 0.7576
+      }
+    },
+    {
+      "rank": 5,
+      "display_name": "Russet Bonobo #2",
+      "strategy": "gc_vjatr",
+      "family_rank": 4,
+      "confidence": 0.7341,
+      "fitness": 2.6195,
+      "metrics": {
+        "share_multiple": 12.1231,
+        "real_share_multiple": 1.1311,
+        "modern_share_multiple": 2.7144,
+        "trades": 16,
+        "max_drawdown_pct": 64.7,
+        "recomputed_share_multiple": 12.1231,
+        "recomputed_real_share_multiple": 1.7353,
+        "recomputed_modern_share_multiple": 2.1203
+      },
+      "marker": {
+        "score": 0.6827,
+        "timing_magnitude_weighted": 0.3129,
+        "state_accuracy": 0.7775
+      }
+    },
+    {
+      "rank": 6,
+      "display_name": "Crimson Bonobo",
+      "strategy": "gc_vjatr",
+      "family_rank": 5,
+      "confidence": 0.7341,
+      "fitness": 2.6195,
+      "metrics": {
+        "share_multiple": 12.1231,
+        "real_share_multiple": 1.1311,
+        "modern_share_multiple": 2.7144,
+        "trades": 16,
+        "max_drawdown_pct": 64.7,
+        "recomputed_share_multiple": 12.1231,
+        "recomputed_real_share_multiple": 1.7353,
+        "recomputed_modern_share_multiple": 2.1203
+      },
+      "marker": {
+        "score": 0.6827,
+        "timing_magnitude_weighted": 0.3129,
+        "state_accuracy": 0.7775
+      }
+    },
+    {
+      "rank": 7,
+      "display_name": "Brindled Bonobo",
+      "strategy": "gc_vjatr",
+      "family_rank": 6,
+      "confidence": 0.7299,
+      "fitness": 2.4583,
+      "metrics": {
+        "share_multiple": 15.2696,
+        "real_share_multiple": 1.0077,
+        "modern_share_multiple": 2.4183,
+        "trades": 16,
+        "max_drawdown_pct": 51.5,
+        "recomputed_share_multiple": 15.2696,
+        "recomputed_real_share_multiple": 1.546,
+        "recomputed_modern_share_multiple": 1.8891
+      },
+      "marker": {
+        "score": 0.6728,
+        "timing_magnitude_weighted": 0.302,
+        "state_accuracy": 0.7568
+      }
+    },
+    {
+      "rank": 8,
+      "display_name": "Ivory Hare",
+      "strategy": "gc_vjatr_timing_repair",
+      "family_rank": 1,
+      "confidence": 0.7669,
+      "fitness": 0.6242069562851801,
+      "metrics": {
+        "share_multiple": 10.6316,
+        "real_share_multiple": 1.5469,
+        "modern_share_multiple": 2.239,
+        "trades": 44,
+        "max_drawdown_pct": 98.2,
+        "recomputed_share_multiple": 10.6316,
+        "recomputed_real_share_multiple": 1.6072,
+        "recomputed_modern_share_multiple": 1.749
+      },
+      "marker": {
+        "score": 0.4742,
+        "timing_magnitude_weighted": 0.461,
+        "state_accuracy": 0.7762
+      }
+    }
+  ],
+  "pairs": [
+    {
+      "a_rank": 1,
+      "a_name": "Obsidian Osprey",
+      "a_strategy": "gc_vjatr_reclaimer",
+      "b_rank": 2,
+      "b_name": "Marbled Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.8882,
+      "state_agreement": 0.9442,
+      "jaccard_risk_on": 0.8988,
+      "entry_overlap": 0.9706,
+      "exit_overlap": 0.6673,
+      "trade_count_delta": 1
+    },
+    {
+      "a_rank": 1,
+      "a_name": "Obsidian Osprey",
+      "a_strategy": "gc_vjatr_reclaimer",
+      "b_rank": 3,
+      "b_name": "Ember Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.8882,
+      "state_agreement": 0.9442,
+      "jaccard_risk_on": 0.8988,
+      "entry_overlap": 0.9706,
+      "exit_overlap": 0.6673,
+      "trade_count_delta": 1
+    },
+    {
+      "a_rank": 1,
+      "a_name": "Obsidian Osprey",
+      "a_strategy": "gc_vjatr_reclaimer",
+      "b_rank": 4,
+      "b_name": "Russet Bonobo #1",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.9089,
+      "state_agreement": 0.9524,
+      "jaccard_risk_on": 0.9093,
+      "entry_overlap": 0.9706,
+      "exit_overlap": 0.7279,
+      "trade_count_delta": 1
+    },
+    {
+      "a_rank": 1,
+      "a_name": "Obsidian Osprey",
+      "a_strategy": "gc_vjatr_reclaimer",
+      "b_rank": 5,
+      "b_name": "Russet Bonobo #2",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.8894,
+      "state_agreement": 0.9448,
+      "jaccard_risk_on": 0.8999,
+      "entry_overlap": 0.9706,
+      "exit_overlap": 0.7279,
+      "trade_count_delta": 1
+    },
+    {
+      "a_rank": 1,
+      "a_name": "Obsidian Osprey",
+      "a_strategy": "gc_vjatr_reclaimer",
+      "b_rank": 6,
+      "b_name": "Crimson Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.8894,
+      "state_agreement": 0.9448,
+      "jaccard_risk_on": 0.8999,
+      "entry_overlap": 0.9706,
+      "exit_overlap": 0.7279,
+      "trade_count_delta": 1
+    },
+    {
+      "a_rank": 1,
+      "a_name": "Obsidian Osprey",
+      "a_strategy": "gc_vjatr_reclaimer",
+      "b_rank": 7,
+      "b_name": "Brindled Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.9092,
+      "state_agreement": 0.9525,
+      "jaccard_risk_on": 0.9094,
+      "entry_overlap": 0.9706,
+      "exit_overlap": 0.7886,
+      "trade_count_delta": 1
+    },
+    {
+      "a_rank": 1,
+      "a_name": "Obsidian Osprey",
+      "a_strategy": "gc_vjatr_reclaimer",
+      "b_rank": 8,
+      "b_name": "Ivory Hare",
+      "b_strategy": "gc_vjatr_timing_repair",
+      "risk_on_corr": 0.6185,
+      "state_agreement": 0.7819,
+      "jaccard_risk_on": 0.706,
+      "entry_overlap": 0.4485,
+      "exit_overlap": 0.6932,
+      "trade_count_delta": 27
+    },
+    {
+      "a_rank": 2,
+      "a_name": "Marbled Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 3,
+      "b_name": "Ember Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 1.0,
+      "state_agreement": 1.0,
+      "jaccard_risk_on": 1.0,
+      "entry_overlap": 1.0,
+      "exit_overlap": 1.0,
+      "trade_count_delta": 0
+    },
+    {
+      "a_rank": 2,
+      "a_name": "Marbled Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 4,
+      "b_name": "Russet Bonobo #1",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.9084,
+      "state_agreement": 0.9523,
+      "jaccard_risk_on": 0.9089,
+      "entry_overlap": 1.0,
+      "exit_overlap": 0.6875,
+      "trade_count_delta": 0
+    },
+    {
+      "a_rank": 2,
+      "a_name": "Marbled Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 5,
+      "b_name": "Russet Bonobo #2",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.9983,
+      "state_agreement": 0.9992,
+      "jaccard_risk_on": 0.9984,
+      "entry_overlap": 1.0,
+      "exit_overlap": 0.9375,
+      "trade_count_delta": 0
+    },
+    {
+      "a_rank": 2,
+      "a_name": "Marbled Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 6,
+      "b_name": "Crimson Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.9983,
+      "state_agreement": 0.9992,
+      "jaccard_risk_on": 0.9984,
+      "entry_overlap": 1.0,
+      "exit_overlap": 0.9375,
+      "trade_count_delta": 0
+    },
+    {
+      "a_rank": 2,
+      "a_name": "Marbled Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 7,
+      "b_name": "Brindled Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.9078,
+      "state_agreement": 0.9519,
+      "jaccard_risk_on": 0.9083,
+      "entry_overlap": 1.0,
+      "exit_overlap": 0.6875,
+      "trade_count_delta": 0
+    },
+    {
+      "a_rank": 2,
+      "a_name": "Marbled Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 8,
+      "b_name": "Ivory Hare",
+      "b_strategy": "gc_vjatr_timing_repair",
+      "risk_on_corr": 0.5179,
+      "state_agreement": 0.7374,
+      "jaccard_risk_on": 0.6561,
+      "entry_overlap": 0.4688,
+      "exit_overlap": 0.554,
+      "trade_count_delta": 28
+    },
+    {
+      "a_rank": 3,
+      "a_name": "Ember Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 4,
+      "b_name": "Russet Bonobo #1",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.9084,
+      "state_agreement": 0.9523,
+      "jaccard_risk_on": 0.9089,
+      "entry_overlap": 1.0,
+      "exit_overlap": 0.6875,
+      "trade_count_delta": 0
+    },
+    {
+      "a_rank": 3,
+      "a_name": "Ember Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 5,
+      "b_name": "Russet Bonobo #2",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.9983,
+      "state_agreement": 0.9992,
+      "jaccard_risk_on": 0.9984,
+      "entry_overlap": 1.0,
+      "exit_overlap": 0.9375,
+      "trade_count_delta": 0
+    },
+    {
+      "a_rank": 3,
+      "a_name": "Ember Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 6,
+      "b_name": "Crimson Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.9983,
+      "state_agreement": 0.9992,
+      "jaccard_risk_on": 0.9984,
+      "entry_overlap": 1.0,
+      "exit_overlap": 0.9375,
+      "trade_count_delta": 0
+    },
+    {
+      "a_rank": 3,
+      "a_name": "Ember Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 7,
+      "b_name": "Brindled Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.9078,
+      "state_agreement": 0.9519,
+      "jaccard_risk_on": 0.9083,
+      "entry_overlap": 1.0,
+      "exit_overlap": 0.6875,
+      "trade_count_delta": 0
+    },
+    {
+      "a_rank": 3,
+      "a_name": "Ember Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 8,
+      "b_name": "Ivory Hare",
+      "b_strategy": "gc_vjatr_timing_repair",
+      "risk_on_corr": 0.5179,
+      "state_agreement": 0.7374,
+      "jaccard_risk_on": 0.6561,
+      "entry_overlap": 0.4688,
+      "exit_overlap": 0.554,
+      "trade_count_delta": 28
+    },
+    {
+      "a_rank": 4,
+      "a_name": "Russet Bonobo #1",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 5,
+      "b_name": "Russet Bonobo #2",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.9103,
+      "state_agreement": 0.9531,
+      "jaccard_risk_on": 0.9106,
+      "entry_overlap": 1.0,
+      "exit_overlap": 0.75,
+      "trade_count_delta": 0
+    },
+    {
+      "a_rank": 4,
+      "a_name": "Russet Bonobo #1",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 6,
+      "b_name": "Crimson Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.9103,
+      "state_agreement": 0.9531,
+      "jaccard_risk_on": 0.9106,
+      "entry_overlap": 1.0,
+      "exit_overlap": 0.75,
+      "trade_count_delta": 0
+    },
+    {
+      "a_rank": 4,
+      "a_name": "Russet Bonobo #1",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 7,
+      "b_name": "Brindled Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.9983,
+      "state_agreement": 0.9992,
+      "jaccard_risk_on": 0.9982,
+      "entry_overlap": 1.0,
+      "exit_overlap": 1.0,
+      "trade_count_delta": 0
+    },
+    {
+      "a_rank": 4,
+      "a_name": "Russet Bonobo #1",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 8,
+      "b_name": "Ivory Hare",
+      "b_strategy": "gc_vjatr_timing_repair",
+      "risk_on_corr": 0.5606,
+      "state_agreement": 0.7343,
+      "jaccard_risk_on": 0.6422,
+      "entry_overlap": 0.4688,
+      "exit_overlap": 0.5114,
+      "trade_count_delta": 28
+    },
+    {
+      "a_rank": 5,
+      "a_name": "Russet Bonobo #2",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 6,
+      "b_name": "Crimson Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 1.0,
+      "state_agreement": 1.0,
+      "jaccard_risk_on": 1.0,
+      "entry_overlap": 1.0,
+      "exit_overlap": 1.0,
+      "trade_count_delta": 0
+    },
+    {
+      "a_rank": 5,
+      "a_name": "Russet Bonobo #2",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 7,
+      "b_name": "Brindled Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.9096,
+      "state_agreement": 0.9528,
+      "jaccard_risk_on": 0.9099,
+      "entry_overlap": 1.0,
+      "exit_overlap": 0.75,
+      "trade_count_delta": 0
+    },
+    {
+      "a_rank": 5,
+      "a_name": "Russet Bonobo #2",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 8,
+      "b_name": "Ivory Hare",
+      "b_strategy": "gc_vjatr_timing_repair",
+      "risk_on_corr": 0.5184,
+      "state_agreement": 0.738,
+      "jaccard_risk_on": 0.657,
+      "entry_overlap": 0.4688,
+      "exit_overlap": 0.5966,
+      "trade_count_delta": 28
+    },
+    {
+      "a_rank": 6,
+      "a_name": "Crimson Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 7,
+      "b_name": "Brindled Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.9096,
+      "state_agreement": 0.9528,
+      "jaccard_risk_on": 0.9099,
+      "entry_overlap": 1.0,
+      "exit_overlap": 0.75,
+      "trade_count_delta": 0
+    },
+    {
+      "a_rank": 6,
+      "a_name": "Crimson Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 8,
+      "b_name": "Ivory Hare",
+      "b_strategy": "gc_vjatr_timing_repair",
+      "risk_on_corr": 0.5184,
+      "state_agreement": 0.738,
+      "jaccard_risk_on": 0.657,
+      "entry_overlap": 0.4688,
+      "exit_overlap": 0.5966,
+      "trade_count_delta": 28
+    },
+    {
+      "a_rank": 7,
+      "a_name": "Brindled Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 8,
+      "b_name": "Ivory Hare",
+      "b_strategy": "gc_vjatr_timing_repair",
+      "risk_on_corr": 0.5613,
+      "state_agreement": 0.7344,
+      "jaccard_risk_on": 0.6423,
+      "entry_overlap": 0.4688,
+      "exit_overlap": 0.554,
+      "trade_count_delta": 28
+    }
+  ],
+  "redundant_pairs": [
+    {
+      "a_rank": 2,
+      "a_name": "Marbled Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 3,
+      "b_name": "Ember Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 1.0,
+      "state_agreement": 1.0,
+      "jaccard_risk_on": 1.0,
+      "entry_overlap": 1.0,
+      "exit_overlap": 1.0,
+      "trade_count_delta": 0
+    },
+    {
+      "a_rank": 5,
+      "a_name": "Russet Bonobo #2",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 6,
+      "b_name": "Crimson Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 1.0,
+      "state_agreement": 1.0,
+      "jaccard_risk_on": 1.0,
+      "entry_overlap": 1.0,
+      "exit_overlap": 1.0,
+      "trade_count_delta": 0
+    },
+    {
+      "a_rank": 4,
+      "a_name": "Russet Bonobo #1",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 7,
+      "b_name": "Brindled Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.9983,
+      "state_agreement": 0.9992,
+      "jaccard_risk_on": 0.9982,
+      "entry_overlap": 1.0,
+      "exit_overlap": 1.0,
+      "trade_count_delta": 0
+    },
+    {
+      "a_rank": 2,
+      "a_name": "Marbled Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 5,
+      "b_name": "Russet Bonobo #2",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.9983,
+      "state_agreement": 0.9992,
+      "jaccard_risk_on": 0.9984,
+      "entry_overlap": 1.0,
+      "exit_overlap": 0.9375,
+      "trade_count_delta": 0
+    },
+    {
+      "a_rank": 2,
+      "a_name": "Marbled Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 6,
+      "b_name": "Crimson Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.9983,
+      "state_agreement": 0.9992,
+      "jaccard_risk_on": 0.9984,
+      "entry_overlap": 1.0,
+      "exit_overlap": 0.9375,
+      "trade_count_delta": 0
+    },
+    {
+      "a_rank": 3,
+      "a_name": "Ember Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 5,
+      "b_name": "Russet Bonobo #2",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.9983,
+      "state_agreement": 0.9992,
+      "jaccard_risk_on": 0.9984,
+      "entry_overlap": 1.0,
+      "exit_overlap": 0.9375,
+      "trade_count_delta": 0
+    },
+    {
+      "a_rank": 3,
+      "a_name": "Ember Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 6,
+      "b_name": "Crimson Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.9983,
+      "state_agreement": 0.9992,
+      "jaccard_risk_on": 0.9984,
+      "entry_overlap": 1.0,
+      "exit_overlap": 0.9375,
+      "trade_count_delta": 0
+    }
+  ],
+  "most_diverse_pairs": [
+    {
+      "a_rank": 2,
+      "a_name": "Marbled Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 8,
+      "b_name": "Ivory Hare",
+      "b_strategy": "gc_vjatr_timing_repair",
+      "risk_on_corr": 0.5179,
+      "state_agreement": 0.7374,
+      "jaccard_risk_on": 0.6561,
+      "entry_overlap": 0.4688,
+      "exit_overlap": 0.554,
+      "trade_count_delta": 28
+    },
+    {
+      "a_rank": 3,
+      "a_name": "Ember Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 8,
+      "b_name": "Ivory Hare",
+      "b_strategy": "gc_vjatr_timing_repair",
+      "risk_on_corr": 0.5179,
+      "state_agreement": 0.7374,
+      "jaccard_risk_on": 0.6561,
+      "entry_overlap": 0.4688,
+      "exit_overlap": 0.554,
+      "trade_count_delta": 28
+    },
+    {
+      "a_rank": 5,
+      "a_name": "Russet Bonobo #2",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 8,
+      "b_name": "Ivory Hare",
+      "b_strategy": "gc_vjatr_timing_repair",
+      "risk_on_corr": 0.5184,
+      "state_agreement": 0.738,
+      "jaccard_risk_on": 0.657,
+      "entry_overlap": 0.4688,
+      "exit_overlap": 0.5966,
+      "trade_count_delta": 28
+    },
+    {
+      "a_rank": 6,
+      "a_name": "Crimson Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 8,
+      "b_name": "Ivory Hare",
+      "b_strategy": "gc_vjatr_timing_repair",
+      "risk_on_corr": 0.5184,
+      "state_agreement": 0.738,
+      "jaccard_risk_on": 0.657,
+      "entry_overlap": 0.4688,
+      "exit_overlap": 0.5966,
+      "trade_count_delta": 28
+    },
+    {
+      "a_rank": 4,
+      "a_name": "Russet Bonobo #1",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 8,
+      "b_name": "Ivory Hare",
+      "b_strategy": "gc_vjatr_timing_repair",
+      "risk_on_corr": 0.5606,
+      "state_agreement": 0.7343,
+      "jaccard_risk_on": 0.6422,
+      "entry_overlap": 0.4688,
+      "exit_overlap": 0.5114,
+      "trade_count_delta": 28
+    },
+    {
+      "a_rank": 7,
+      "a_name": "Brindled Bonobo",
+      "a_strategy": "gc_vjatr",
+      "b_rank": 8,
+      "b_name": "Ivory Hare",
+      "b_strategy": "gc_vjatr_timing_repair",
+      "risk_on_corr": 0.5613,
+      "state_agreement": 0.7344,
+      "jaccard_risk_on": 0.6423,
+      "entry_overlap": 0.4688,
+      "exit_overlap": 0.554,
+      "trade_count_delta": 28
+    },
+    {
+      "a_rank": 1,
+      "a_name": "Obsidian Osprey",
+      "a_strategy": "gc_vjatr_reclaimer",
+      "b_rank": 8,
+      "b_name": "Ivory Hare",
+      "b_strategy": "gc_vjatr_timing_repair",
+      "risk_on_corr": 0.6185,
+      "state_agreement": 0.7819,
+      "jaccard_risk_on": 0.706,
+      "entry_overlap": 0.4485,
+      "exit_overlap": 0.6932,
+      "trade_count_delta": 27
+    },
+    {
+      "a_rank": 1,
+      "a_name": "Obsidian Osprey",
+      "a_strategy": "gc_vjatr_reclaimer",
+      "b_rank": 2,
+      "b_name": "Marbled Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.8882,
+      "state_agreement": 0.9442,
+      "jaccard_risk_on": 0.8988,
+      "entry_overlap": 0.9706,
+      "exit_overlap": 0.6673,
+      "trade_count_delta": 1
+    },
+    {
+      "a_rank": 1,
+      "a_name": "Obsidian Osprey",
+      "a_strategy": "gc_vjatr_reclaimer",
+      "b_rank": 3,
+      "b_name": "Ember Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.8882,
+      "state_agreement": 0.9442,
+      "jaccard_risk_on": 0.8988,
+      "entry_overlap": 0.9706,
+      "exit_overlap": 0.6673,
+      "trade_count_delta": 1
+    },
+    {
+      "a_rank": 1,
+      "a_name": "Obsidian Osprey",
+      "a_strategy": "gc_vjatr_reclaimer",
+      "b_rank": 5,
+      "b_name": "Russet Bonobo #2",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.8894,
+      "state_agreement": 0.9448,
+      "jaccard_risk_on": 0.8999,
+      "entry_overlap": 0.9706,
+      "exit_overlap": 0.7279,
+      "trade_count_delta": 1
+    }
+  ],
+  "focus": "Ivory Hare",
+  "focus_pairs": [
+    {
+      "a_rank": 8,
+      "a_name": "Ivory Hare",
+      "a_strategy": "gc_vjatr_timing_repair",
+      "b_rank": 2,
+      "b_name": "Marbled Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.5179,
+      "state_agreement": 0.7374,
+      "jaccard_risk_on": 0.6561,
+      "entry_overlap": 0.4688,
+      "exit_overlap": 0.554,
+      "trade_count_delta": 28
+    },
+    {
+      "a_rank": 8,
+      "a_name": "Ivory Hare",
+      "a_strategy": "gc_vjatr_timing_repair",
+      "b_rank": 3,
+      "b_name": "Ember Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.5179,
+      "state_agreement": 0.7374,
+      "jaccard_risk_on": 0.6561,
+      "entry_overlap": 0.4688,
+      "exit_overlap": 0.554,
+      "trade_count_delta": 28
+    },
+    {
+      "a_rank": 8,
+      "a_name": "Ivory Hare",
+      "a_strategy": "gc_vjatr_timing_repair",
+      "b_rank": 5,
+      "b_name": "Russet Bonobo #2",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.5184,
+      "state_agreement": 0.738,
+      "jaccard_risk_on": 0.657,
+      "entry_overlap": 0.4688,
+      "exit_overlap": 0.5966,
+      "trade_count_delta": 28
+    },
+    {
+      "a_rank": 8,
+      "a_name": "Ivory Hare",
+      "a_strategy": "gc_vjatr_timing_repair",
+      "b_rank": 6,
+      "b_name": "Crimson Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.5184,
+      "state_agreement": 0.738,
+      "jaccard_risk_on": 0.657,
+      "entry_overlap": 0.4688,
+      "exit_overlap": 0.5966,
+      "trade_count_delta": 28
+    },
+    {
+      "a_rank": 8,
+      "a_name": "Ivory Hare",
+      "a_strategy": "gc_vjatr_timing_repair",
+      "b_rank": 4,
+      "b_name": "Russet Bonobo #1",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.5606,
+      "state_agreement": 0.7343,
+      "jaccard_risk_on": 0.6422,
+      "entry_overlap": 0.4688,
+      "exit_overlap": 0.5114,
+      "trade_count_delta": 28
+    },
+    {
+      "a_rank": 8,
+      "a_name": "Ivory Hare",
+      "a_strategy": "gc_vjatr_timing_repair",
+      "b_rank": 7,
+      "b_name": "Brindled Bonobo",
+      "b_strategy": "gc_vjatr",
+      "risk_on_corr": 0.5613,
+      "state_agreement": 0.7344,
+      "jaccard_risk_on": 0.6423,
+      "entry_overlap": 0.4688,
+      "exit_overlap": 0.554,
+      "trade_count_delta": 28
+    },
+    {
+      "a_rank": 8,
+      "a_name": "Ivory Hare",
+      "a_strategy": "gc_vjatr_timing_repair",
+      "b_rank": 1,
+      "b_name": "Obsidian Osprey",
+      "b_strategy": "gc_vjatr_reclaimer",
+      "risk_on_corr": 0.6185,
+      "state_agreement": 0.7819,
+      "jaccard_risk_on": 0.706,
+      "entry_overlap": 0.4485,
+      "exit_overlap": 0.6932,
+      "trade_count_delta": 27
+    }
+  ],
+  "era_leaders": {
+    "share_multiple": [
+      {
+        "rank": 1,
+        "display_name": "Obsidian Osprey",
+        "strategy": "gc_vjatr_reclaimer",
+        "family_rank": 1,
+        "confidence": 0.7358,
+        "fitness": 1.4676407331482062,
+        "metrics": {
+          "share_multiple": 41.8867,
+          "real_share_multiple": 1.0319,
+          "modern_share_multiple": 2.5711,
+          "trades": 17,
+          "max_drawdown_pct": 51.5,
+          "recomputed_share_multiple": 41.8867,
+          "recomputed_real_share_multiple": 1.4741,
+          "recomputed_modern_share_multiple": 2.0084
+        },
+        "marker": {
+          "score": 0.6741,
+          "timing_magnitude_weighted": 0.3071,
+          "state_accuracy": 0.7854
+        }
+      },
+      {
+        "rank": 4,
+        "display_name": "Russet Bonobo #1",
+        "strategy": "gc_vjatr",
+        "family_rank": 3,
+        "confidence": 0.7315,
+        "fitness": 2.5102,
+        "metrics": {
+          "share_multiple": 15.7149,
+          "real_share_multiple": 1.0276,
+          "modern_share_multiple": 2.4661,
+          "trades": 16,
+          "max_drawdown_pct": 51.5,
+          "recomputed_share_multiple": 15.7149,
+          "recomputed_real_share_multiple": 1.5766,
+          "recomputed_modern_share_multiple": 1.9263
+        },
+        "marker": {
+          "score": 0.6738,
+          "timing_magnitude_weighted": 0.3093,
+          "state_accuracy": 0.7576
+        }
+      },
+      {
+        "rank": 7,
+        "display_name": "Brindled Bonobo",
+        "strategy": "gc_vjatr",
+        "family_rank": 6,
+        "confidence": 0.7299,
+        "fitness": 2.4583,
+        "metrics": {
+          "share_multiple": 15.2696,
+          "real_share_multiple": 1.0077,
+          "modern_share_multiple": 2.4183,
+          "trades": 16,
+          "max_drawdown_pct": 51.5,
+          "recomputed_share_multiple": 15.2696,
+          "recomputed_real_share_multiple": 1.546,
+          "recomputed_modern_share_multiple": 1.8891
+        },
+        "marker": {
+          "score": 0.6728,
+          "timing_magnitude_weighted": 0.302,
+          "state_accuracy": 0.7568
+        }
+      }
+    ],
+    "real_share_multiple": [
+      {
+        "rank": 8,
+        "display_name": "Ivory Hare",
+        "strategy": "gc_vjatr_timing_repair",
+        "family_rank": 1,
+        "confidence": 0.7669,
+        "fitness": 0.6242069562851801,
+        "metrics": {
+          "share_multiple": 10.6316,
+          "real_share_multiple": 1.5469,
+          "modern_share_multiple": 2.239,
+          "trades": 44,
+          "max_drawdown_pct": 98.2,
+          "recomputed_share_multiple": 10.6316,
+          "recomputed_real_share_multiple": 1.6072,
+          "recomputed_modern_share_multiple": 1.749
+        },
+        "marker": {
+          "score": 0.4742,
+          "timing_magnitude_weighted": 0.461,
+          "state_accuracy": 0.7762
+        }
+      },
+      {
+        "rank": 2,
+        "display_name": "Marbled Bonobo",
+        "strategy": "gc_vjatr",
+        "family_rank": 1,
+        "confidence": 0.7345,
+        "fitness": 2.6511,
+        "metrics": {
+          "share_multiple": 13.1308,
+          "real_share_multiple": 1.1311,
+          "modern_share_multiple": 2.7144,
+          "trades": 16,
+          "max_drawdown_pct": 64.7,
+          "recomputed_share_multiple": 13.1308,
+          "recomputed_real_share_multiple": 1.7353,
+          "recomputed_modern_share_multiple": 2.1203
+        },
+        "marker": {
+          "score": 0.6827,
+          "timing_magnitude_weighted": 0.3129,
+          "state_accuracy": 0.7775
+        }
+      },
+      {
+        "rank": 3,
+        "display_name": "Ember Bonobo",
+        "strategy": "gc_vjatr",
+        "family_rank": 2,
+        "confidence": 0.7344,
+        "fitness": 2.6511,
+        "metrics": {
+          "share_multiple": 13.1308,
+          "real_share_multiple": 1.1311,
+          "modern_share_multiple": 2.7144,
+          "trades": 16,
+          "max_drawdown_pct": 64.7,
+          "recomputed_share_multiple": 13.1308,
+          "recomputed_real_share_multiple": 1.7353,
+          "recomputed_modern_share_multiple": 2.1203
+        },
+        "marker": {
+          "score": 0.6827,
+          "timing_magnitude_weighted": 0.3129,
+          "state_accuracy": 0.7775
+        }
+      }
+    ],
+    "modern_share_multiple": [
+      {
+        "rank": 2,
+        "display_name": "Marbled Bonobo",
+        "strategy": "gc_vjatr",
+        "family_rank": 1,
+        "confidence": 0.7345,
+        "fitness": 2.6511,
+        "metrics": {
+          "share_multiple": 13.1308,
+          "real_share_multiple": 1.1311,
+          "modern_share_multiple": 2.7144,
+          "trades": 16,
+          "max_drawdown_pct": 64.7,
+          "recomputed_share_multiple": 13.1308,
+          "recomputed_real_share_multiple": 1.7353,
+          "recomputed_modern_share_multiple": 2.1203
+        },
+        "marker": {
+          "score": 0.6827,
+          "timing_magnitude_weighted": 0.3129,
+          "state_accuracy": 0.7775
+        }
+      },
+      {
+        "rank": 3,
+        "display_name": "Ember Bonobo",
+        "strategy": "gc_vjatr",
+        "family_rank": 2,
+        "confidence": 0.7344,
+        "fitness": 2.6511,
+        "metrics": {
+          "share_multiple": 13.1308,
+          "real_share_multiple": 1.1311,
+          "modern_share_multiple": 2.7144,
+          "trades": 16,
+          "max_drawdown_pct": 64.7,
+          "recomputed_share_multiple": 13.1308,
+          "recomputed_real_share_multiple": 1.7353,
+          "recomputed_modern_share_multiple": 2.1203
+        },
+        "marker": {
+          "score": 0.6827,
+          "timing_magnitude_weighted": 0.3129,
+          "state_accuracy": 0.7775
+        }
+      },
+      {
+        "rank": 5,
+        "display_name": "Russet Bonobo #2",
+        "strategy": "gc_vjatr",
+        "family_rank": 4,
+        "confidence": 0.7341,
+        "fitness": 2.6195,
+        "metrics": {
+          "share_multiple": 12.1231,
+          "real_share_multiple": 1.1311,
+          "modern_share_multiple": 2.7144,
+          "trades": 16,
+          "max_drawdown_pct": 64.7,
+          "recomputed_share_multiple": 12.1231,
+          "recomputed_real_share_multiple": 1.7353,
+          "recomputed_modern_share_multiple": 2.1203
+        },
+        "marker": {
+          "score": 0.6827,
+          "timing_magnitude_weighted": 0.3129,
+          "state_accuracy": 0.7775
+        }
+      }
+    ]
+  },
+  "settings": {
+    "trade_overlap_tolerance_bars": 5
+  }
+}
