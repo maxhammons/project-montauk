@@ -72,6 +72,8 @@ Follow-up rebound repair work added `rsi_rebound_participation` and `atr_ratio_v
 
 Grid validation now reports raw engine-era metrics beside canonical standalone era reruns before admission. Re-running `atr_ratio_vix_rebound` confirmed the gap is semantic, not a dead process or random validation error: the fitness-ranked pass still produced 10/10 validation PASS rows, but 0/10 remained canonical Gold candidates; the best raw all-era row (`19.43/1.07/1.67`) canonicalized to `19.43/0.43/0.87`. A marker-timing ranked pass also failed the same canonical check (4 PASS, 1 WARN, 0/5 canonical Gold candidates), so this lane is useful diagnostic evidence but not a promotion path.
 
+Overlay-on-champion matrices now use the same canonical standalone era basis. `gc_vjatr_reclaimer` still survives as an economic overlay on Gold Bonobo bases, but the tested candidates do not improve marker timing (`dTiming=0.0000`, slight marker-score drag). `gc_vjatr_timing_repair` improves timing (`dTiming` up to `+0.1590`) and real-era share, but fails retention because full and/or modern ratios fall below the overlay thresholds. The next overlay design should combine reclaimer economics with a smaller timing-repair trigger, not promote the timing-repair module as-is.
+
 > **Historical note**: the previous code-generation and parity-checking workflow was removed in Phase 2 of the Montauk 2.0 project (see `docs/Montauk 2.0/` for full provenance).
 
 ### Deployment-context modeling exists as a separate concern

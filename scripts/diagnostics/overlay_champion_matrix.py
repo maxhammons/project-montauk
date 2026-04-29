@@ -130,6 +130,34 @@ def merge_base_overlay(base_params: dict[str, Any], overlay_params: dict[str, An
     return merged
 
 
+def _slice_df(df: pd.DataFrame, start: str | None) -> pd.DataFrame:
+    if start is None:
+        return df.reset_index(drop=True)
+    return df[df["date"] >= start].reset_index(drop=True)
+
+
+def _standalone_share_multiple(
+    df: pd.DataFrame,
+    strategy: str,
+    params: dict[str, Any],
+    start: str | None,
+) -> float:
+    df_slice = _slice_df(df, start)
+    if len(df_slice) < 2:
+        return 0.0
+    ind = Indicators(df_slice)
+    entries, exits, labels = STRATEGY_REGISTRY[strategy](ind, params)
+    result = backtest(
+        df_slice,
+        entries,
+        exits,
+        labels,
+        cooldown_bars=int(params.get("cooldown", 0)),
+        strategy_name=strategy,
+    )
+    return round(float(result.share_multiple), 4)
+
+
 def _run_strategy(df: pd.DataFrame, strategy: str, params: dict[str, Any]) -> dict[str, Any]:
     if strategy not in STRATEGY_REGISTRY:
         raise KeyError(f"unknown strategy: {strategy}")
@@ -144,10 +172,17 @@ def _run_strategy(df: pd.DataFrame, strategy: str, params: dict[str, Any]) -> di
         strategy_name=strategy,
     )
     marker = score_marker_alignment(df, result.trades)
-    return {
+    raw_engine = {
         "share_multiple": round(float(result.share_multiple), 4),
         "real_share_multiple": round(float(result.real_share_multiple), 4),
         "modern_share_multiple": round(float(result.modern_share_multiple), 4),
+    }
+    return {
+        "share_multiple": _standalone_share_multiple(df, strategy, params, None),
+        "real_share_multiple": _standalone_share_multiple(df, strategy, params, "2008-12-17"),
+        "modern_share_multiple": _standalone_share_multiple(df, strategy, params, "2015-01-01"),
+        "raw_engine": raw_engine,
+        "metrics_view": "canonical_standalone",
         "trades": int(result.num_trades),
         "trades_per_year": round(float(result.trades_per_year), 4),
         "max_drawdown_pct": round(float(result.max_drawdown_pct), 4),
