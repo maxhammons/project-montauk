@@ -414,6 +414,111 @@
     extract: (s) => (s.composite_confidence != null ? s.composite_confidence : null),
     format: (v) => (v == null ? "—" : `${(v * 100).toFixed(1)}`),
   };
+  const SORT_OPTIONS = {
+    allEra: {
+      label: "All-era score",
+      title: "Balanced geometric score across canonical full, real, and modern eras",
+      extract: (s) => s.overall_performance_score,
+      direction: "desc",
+    },
+    fitness: {
+      label: "Fitness",
+      title: "Optimizer fitness: full^0.15, real^0.25, modern^0.60",
+      extract: (s) => s.fitness,
+      direction: "desc",
+    },
+    confidence: {
+      label: "Confidence",
+      title: CONFIDENCE_KEY.label,
+      extract: CONFIDENCE_KEY.extract,
+      direction: "desc",
+    },
+    full: {
+      label: "Full share",
+      title: "Canonical full-history share multiple versus buy-and-hold",
+      extract: (s) => s.multi_era?.eras?.full?.share_multiple ?? s.metrics?.share_multiple,
+      direction: "desc",
+    },
+    real: {
+      label: "Real share",
+      title: "Canonical real-era share multiple from 2008-12-17 forward",
+      extract: (s) => s.multi_era?.eras?.real?.share_multiple ?? s.metrics?.real_share_multiple,
+      direction: "desc",
+    },
+    modern: {
+      label: "Modern share",
+      title: "Canonical modern-era share multiple from 2015 forward",
+      extract: (s) => s.multi_era?.eras?.modern?.share_multiple ?? s.metrics?.modern_share_multiple,
+      direction: "desc",
+    },
+    marker: {
+      label: "Marker timing",
+      title: "State agreement with the hand-marked buy/sell cycle file",
+      extract: (s) => s.metrics?.marker_alignment,
+      direction: "desc",
+    },
+    drawdown: {
+      label: "Drawdown",
+      title: "Maximum drawdown, lower is better",
+      extract: (s) => s.metrics?.max_dd,
+      direction: "asc",
+    },
+    canonical: {
+      label: "Canonical rank",
+      title: "Persisted leaderboard rank from the certification pipeline",
+      extract: (s) => s.rank,
+      direction: "asc",
+    },
+  };
+  let _leaderboardSort = "allEra";
+  let _leaderboardSortDir = SORT_OPTIONS[_leaderboardSort].direction;
+
+  function numericSortValue(strategy, sortKey) {
+    const def = SORT_OPTIONS[sortKey] || SORT_OPTIONS.allEra;
+    const value = def.extract(strategy);
+    const n = Number(value);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  function compareBySort(a, b) {
+    const av = numericSortValue(a, _leaderboardSort);
+    const bv = numericSortValue(b, _leaderboardSort);
+    if (av == null && bv != null) return 1;
+    if (bv == null && av != null) return -1;
+    if (av != null && bv != null && av !== bv) {
+      return _leaderboardSortDir === "asc" ? av - bv : bv - av;
+    }
+
+    const tieKeys = _leaderboardSort === "allEra"
+      ? ["fitness", "confidence", "canonical"]
+      : ["allEra", "fitness", "confidence", "canonical"];
+    for (const key of tieKeys) {
+      const def = SORT_OPTIONS[key] || SORT_OPTIONS.allEra;
+      const direction = def.direction;
+      const at = numericSortValue(a, key);
+      const bt = numericSortValue(b, key);
+      if (at == null && bt != null) return 1;
+      if (bt == null && at != null) return -1;
+      if (at != null && bt != null && at !== bt) {
+        return direction === "asc" ? at - bt : bt - at;
+      }
+    }
+    return String(a.name || "").localeCompare(String(b.name || ""));
+  }
+
+  function getSortedStrategies() {
+    return D.strategies.slice().sort(compareBySort);
+  }
+
+  function updateSortDirectionButton() {
+    const btn = document.getElementById("leaderboard-sort-dir");
+    if (!btn) return;
+    const desc = _leaderboardSortDir === "desc";
+    btn.textContent = desc ? "↓" : "↑";
+    btn.title = desc ? "Sort descending" : "Sort ascending";
+    btn.setAttribute("aria-label", btn.title);
+  }
+
   function admissionLabel(confidence) {
     if (confidence == null) return { tag: "—", cls: "unknown" };
     if (confidence >= 0.70) return { tag: "ADMITTED", cls: "admitted" };
@@ -442,18 +547,7 @@
   function renderSidebar() {
     const list = document.getElementById("strat-list");
     list.innerHTML = "";
-    // Rank by balanced all-era performance first among already-certified rows.
-    const sorted = D.strategies.slice().sort((a, b) => {
-      const as = a.overall_performance_score != null ? a.overall_performance_score : -Infinity;
-      const bs = b.overall_performance_score != null ? b.overall_performance_score : -Infinity;
-      if (bs !== as) return bs - as;
-      const af = a.fitness != null ? a.fitness : -Infinity;
-      const bf = b.fitness != null ? b.fitness : -Infinity;
-      if (bf !== af) return bf - af;
-      const av = CONFIDENCE_KEY.extract(a) ?? -Infinity;
-      const bv = CONFIDENCE_KEY.extract(b) ?? -Infinity;
-      return bv - av;
-    });
+    const sorted = getSortedStrategies();
     const secondaryDef = SECONDARY_SOURCES[_secondarySource] || SECONDARY_SOURCES.real;
     sorted.forEach((s, idx) => {
       const div = document.createElement("div");
@@ -502,7 +596,38 @@
       div.addEventListener("click", () => loadStrategy(s));
       list.appendChild(div);
     });
+    if (activeStrategy) {
+      document.querySelectorAll(".strat").forEach((el) => {
+        el.classList.toggle("active", el.dataset.id === activeStrategy.id);
+      });
+    }
     initBadges();
+  }
+
+  function initLeaderboardSort() {
+    const select = document.getElementById("leaderboard-sort");
+    const dirBtn = document.getElementById("leaderboard-sort-dir");
+    if (!select || !dirBtn) return;
+
+    select.value = _leaderboardSort;
+    select.title = SORT_OPTIONS[_leaderboardSort].title;
+    updateSortDirectionButton();
+
+    select.addEventListener("change", () => {
+      const next = select.value;
+      if (!SORT_OPTIONS[next]) return;
+      _leaderboardSort = next;
+      _leaderboardSortDir = SORT_OPTIONS[next].direction;
+      select.title = SORT_OPTIONS[next].title;
+      updateSortDirectionButton();
+      renderSidebar();
+    });
+
+    dirBtn.addEventListener("click", () => {
+      _leaderboardSortDir = _leaderboardSortDir === "desc" ? "asc" : "desc";
+      updateSortDirectionButton();
+      renderSidebar();
+    });
   }
 
   function initSecondaryToggle() {
@@ -1035,6 +1160,7 @@
 
   /* ---- Boot ---- */
   initBadges();
+  initLeaderboardSort();
   initSecondaryToggle();
   renderSidebar();
   initRangeButtons();
@@ -1042,7 +1168,7 @@
   fitAll();
 
   if (D.strategies && D.strategies.length) {
-    loadStrategy(D.strategies[0]);
+    loadStrategy(getSortedStrategies()[0]);
   }
   applyRange("ALL");
 })();

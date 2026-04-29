@@ -139,7 +139,7 @@
   .sort-toolbar {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     padding: 0 0 8px 0;
     font-size: 11px;
     color: var(--text-3);
@@ -158,8 +158,24 @@
     font-family: inherit;
     cursor: pointer;
   }
+  .sort-toolbar .sort-dir {
+    width: 26px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-2);
+    color: var(--text-1);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+  }
   .sort-toolbar select:hover { border-color: var(--text-3); }
   .sort-toolbar select:focus { outline: none; border-color: var(--tier-t1); }
+  .sort-toolbar .sort-dir:hover { border-color: var(--text-3); color: var(--text-0); }
+  .sort-toolbar .sort-dir:focus { outline: none; border-color: var(--tier-t1); }
   .strat {
     padding: 8px 14px;
     border-left: 3px solid transparent;
@@ -690,7 +706,19 @@
   <div class="sidebar">
     <h3>Leaderboard</h3>
     <div class="sort-toolbar">
-      <span class="sort-label">Certified, then ranked by all-era performance</span>
+      <label for="leaderboard-sort">Sort</label>
+      <select id="leaderboard-sort" title="Choose the leaderboard ranking field">
+        <option value="allEra">All-era score</option>
+        <option value="fitness">Fitness</option>
+        <option value="confidence">Confidence</option>
+        <option value="full">Full share</option>
+        <option value="real">Real share</option>
+        <option value="modern">Modern share</option>
+        <option value="marker">Marker timing</option>
+        <option value="drawdown">Drawdown</option>
+        <option value="canonical">Canonical rank</option>
+      </select>
+      <button class="sort-dir" id="leaderboard-sort-dir" type="button" title="Sort descending" aria-label="Sort descending">↓</button>
     </div>
     <div class="secondary-toolbar">
       <span class="secondary-label">Share multiple:</span>
