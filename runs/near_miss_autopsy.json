@@ -1,0 +1,2022 @@
+{
+  "generated_at": "2026-04-29T10:37:42",
+  "targets": [
+    "vol_calm_regime",
+    "vj_or_slope_meta",
+    "rsi_regime_canonical",
+    "atr_ratio_vix"
+  ],
+  "anchors": [
+    {
+      "name": "Obsidian Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "rank": 1
+    },
+    {
+      "name": "Ivory Hare",
+      "strategy": "gc_vjatr_timing_repair",
+      "rank": 8
+    },
+    {
+      "name": "Marbled Bonobo",
+      "strategy": "gc_vjatr",
+      "rank": 2
+    }
+  ],
+  "elapsed_seconds": 5.27,
+  "autopsies": [
+    {
+      "strategy": "vol_calm_regime",
+      "params": {
+        "vol_short": 10,
+        "vol_long": 200,
+        "cooldown": 5
+      },
+      "evaluated_grid_combos": 9,
+      "gold_contract_failures": [
+        "full_history_below_bh",
+        "real_era_below_bh",
+        "modern_era_below_bh"
+      ],
+      "metrics": {
+        "weighted_era_fitness": 0.7389,
+        "share_multiple": 0.2991,
+        "real_share_multiple": 0.6193,
+        "modern_share_multiple": 0.9971,
+        "trades": 172,
+        "trades_per_year": 5.2,
+        "max_drawdown_pct": 99.2,
+        "cagr_pct": 11.9,
+        "exposure_pct": 45.3,
+        "exit_reasons": {
+          "V": 171,
+          "End of Data": 1
+        }
+      },
+      "named_windows": {
+        "verdict": "WARN",
+        "warnings": [
+          "2023_rebound: share_multiple=0.288"
+        ],
+        "results": [
+          {
+            "window": "2023_rebound",
+            "share_multiple": 0.288,
+            "trades": 15,
+            "max_dd": 60.1,
+            "cagr": 19.8,
+            "regime_score": 0.6022,
+            "warning": true,
+            "error": null
+          },
+          {
+            "window": "2020_meltup",
+            "share_multiple": 0.677,
+            "trades": 16,
+            "max_dd": 32.2,
+            "cagr": 50.6,
+            "regime_score": 0.6289,
+            "warning": true,
+            "error": null
+          },
+          {
+            "window": "2024_onward",
+            "share_multiple": 1.565,
+            "trades": 18,
+            "max_dd": 60.1,
+            "cagr": 29.8,
+            "regime_score": 0.4893,
+            "warning": false,
+            "error": null
+          },
+          {
+            "window": "2021_2022_bear",
+            "share_multiple": 2.101,
+            "trades": 20,
+            "max_dd": 59.6,
+            "cagr": 35.3,
+            "regime_score": 0.55,
+            "warning": false,
+            "error": null
+          }
+        ]
+      },
+      "worst_years": [
+        {
+          "year": 2019,
+          "share_multiple": 0.5602,
+          "strategy_return_pct": 59.35,
+          "bah_return_pct": 184.47,
+          "risk_on_exposure": 0.4524
+        },
+        {
+          "year": 2014,
+          "share_multiple": 0.6236,
+          "strategy_return_pct": -1.8,
+          "bah_return_pct": 57.47,
+          "risk_on_exposure": 0.25
+        },
+        {
+          "year": 2017,
+          "share_multiple": 0.6581,
+          "strategy_return_pct": 43.66,
+          "bah_return_pct": 118.29,
+          "risk_on_exposure": 0.7131
+        },
+        {
+          "year": 2013,
+          "share_multiple": 0.6735,
+          "strategy_return_pct": 15.46,
+          "bah_return_pct": 71.43,
+          "risk_on_exposure": 0.5833
+        },
+        {
+          "year": 2023,
+          "share_multiple": 0.7054,
+          "strategy_return_pct": 119.07,
+          "bah_return_pct": 210.57,
+          "risk_on_exposure": 0.844
+        },
+        {
+          "year": 2024,
+          "share_multiple": 0.7347,
+          "strategy_return_pct": 8.01,
+          "bah_return_pct": 47.02,
+          "risk_on_exposure": 0.4802
+        },
+        {
+          "year": 2016,
+          "share_multiple": 0.7543,
+          "strategy_return_pct": 7.85,
+          "bah_return_pct": 42.98,
+          "risk_on_exposure": 0.7302
+        },
+        {
+          "year": 2015,
+          "share_multiple": 0.7584,
+          "strategy_return_pct": -20.44,
+          "bah_return_pct": 4.9,
+          "risk_on_exposure": 0.5635
+        },
+        {
+          "year": 2021,
+          "share_multiple": 0.7609,
+          "strategy_return_pct": 69.93,
+          "bah_return_pct": 123.34,
+          "risk_on_exposure": 0.6706
+        },
+        {
+          "year": 2010,
+          "share_multiple": 0.9127,
+          "strategy_return_pct": 1.02,
+          "bah_return_pct": 10.68,
+          "risk_on_exposure": 0.4921
+        }
+      ],
+      "marker": {
+        "score": 0.4285,
+        "state_accuracy": 0.5478,
+        "timing_magnitude_weighted": 0.6834,
+        "transition_timing_score": 0.5417,
+        "candidate_buy_count": 135,
+        "candidate_sell_count": 135,
+        "target_buy_count": 14,
+        "target_sell_count": 14
+      },
+      "worst_transition_misses": [
+        {
+          "kind": "buy",
+          "target_bar": 7478,
+          "target_date": "2023-01-12",
+          "nearest_bar": 7446,
+          "nearest_date": "2022-11-25",
+          "distance_bars": 32,
+          "magnitude": 2.3582,
+          "score": 0.0
+        },
+        {
+          "kind": "sell",
+          "target_bar": 6402,
+          "target_date": "2018-10-03",
+          "nearest_bar": 6340,
+          "nearest_date": "2018-07-06",
+          "distance_bars": 62,
+          "magnitude": 0.5167,
+          "score": 0.0
+        },
+        {
+          "kind": "sell",
+          "target_bar": 8180,
+          "target_date": "2025-10-30",
+          "nearest_bar": 8054,
+          "nearest_date": "2025-05-01",
+          "distance_bars": 126,
+          "magnitude": 0.0875,
+          "score": 0.0
+        },
+        {
+          "kind": "sell",
+          "target_bar": 7131,
+          "target_date": "2021-08-26",
+          "nearest_bar": 7154,
+          "nearest_date": "2021-09-29",
+          "distance_bars": 23,
+          "magnitude": 0.1242,
+          "score": 0.2333
+        },
+        {
+          "kind": "buy",
+          "target_bar": 6772,
+          "target_date": "2020-03-25",
+          "nearest_bar": 6790,
+          "nearest_date": "2020-04-21",
+          "distance_bars": 18,
+          "magnitude": 5.1541,
+          "score": 0.4
+        },
+        {
+          "kind": "buy",
+          "target_bar": 7869,
+          "target_date": "2024-08-05",
+          "nearest_bar": 7887,
+          "nearest_date": "2024-08-29",
+          "distance_bars": 18,
+          "magnitude": 0.5807,
+          "score": 0.4
+        },
+        {
+          "kind": "sell",
+          "target_bar": 2033,
+          "target_date": "2001-05-22",
+          "nearest_bar": 2019,
+          "nearest_date": "2001-05-02",
+          "distance_bars": 14,
+          "magnitude": 0.9716,
+          "score": 0.5333
+        },
+        {
+          "kind": "sell",
+          "target_bar": 4477,
+          "target_date": "2011-02-09",
+          "nearest_bar": 4491,
+          "nearest_date": "2011-03-02",
+          "distance_bars": 14,
+          "magnitude": 0.3475,
+          "score": 0.5333
+        },
+        {
+          "kind": "buy",
+          "target_bar": 3986,
+          "target_date": "2009-03-02",
+          "nearest_bar": 3999,
+          "nearest_date": "2009-03-19",
+          "distance_bars": 13,
+          "magnitude": 5.1304,
+          "score": 0.5667
+        },
+        {
+          "kind": "buy",
+          "target_bar": 6461,
+          "target_date": "2018-12-28",
+          "nearest_bar": 6474,
+          "nearest_date": "2019-01-17",
+          "distance_bars": 13,
+          "magnitude": 2.6505,
+          "score": 0.5667
+        }
+      ],
+      "worst_state_mismatches": [
+        {
+          "start_bar": 1641,
+          "end_bar": 1696,
+          "start_date": "1999-11-01",
+          "end_date": "2000-01-20",
+          "bars": 56,
+          "type": "missed_risk_on",
+          "move_pct": 91.07
+        },
+        {
+          "start_bar": 2033,
+          "end_bar": 2115,
+          "start_date": "2001-05-22",
+          "end_date": "2001-09-24",
+          "bars": 83,
+          "type": "exposed_risk_off",
+          "move_pct": -78.53
+        },
+        {
+          "start_bar": 6658,
+          "end_bar": 6732,
+          "start_date": "2019-10-10",
+          "end_date": "2020-01-28",
+          "bars": 75,
+          "type": "missed_risk_on",
+          "move_pct": 71.25
+        },
+        {
+          "start_bar": 1949,
+          "end_bar": 1976,
+          "start_date": "2001-01-22",
+          "end_date": "2001-03-01",
+          "bars": 28,
+          "type": "exposed_risk_off",
+          "move_pct": -57.23
+        },
+        {
+          "start_bar": 4367,
+          "end_bar": 4425,
+          "start_date": "2010-09-02",
+          "end_date": "2010-11-24",
+          "bars": 59,
+          "type": "missed_risk_on",
+          "move_pct": 53.73
+        },
+        {
+          "start_bar": 2627,
+          "end_bar": 2699,
+          "start_date": "2003-10-06",
+          "end_date": "2004-01-20",
+          "bars": 73,
+          "type": "missed_risk_on",
+          "move_pct": 45.43
+        },
+        {
+          "start_bar": 1798,
+          "end_bar": 1872,
+          "start_date": "2000-06-15",
+          "end_date": "2000-09-29",
+          "bars": 75,
+          "type": "exposed_risk_off",
+          "move_pct": -42.34
+        },
+        {
+          "start_bar": 2284,
+          "end_bar": 2306,
+          "start_date": "2002-05-28",
+          "end_date": "2002-06-27",
+          "bars": 23,
+          "type": "exposed_risk_off",
+          "move_pct": -41.5
+        },
+        {
+          "start_bar": 7166,
+          "end_bar": 7217,
+          "start_date": "2021-10-15",
+          "end_date": "2021-12-29",
+          "bars": 52,
+          "type": "missed_risk_on",
+          "move_pct": 39.33
+        },
+        {
+          "start_bar": 7682,
+          "end_bar": 7730,
+          "start_date": "2023-11-03",
+          "end_date": "2024-01-16",
+          "bars": 49,
+          "type": "missed_risk_on",
+          "move_pct": 36.9
+        }
+      ],
+      "diversity_vs_gold": {
+        "diversity_score": 0.7633,
+        "max_anchor_corr": 0.2282,
+        "max_entry_overlap": 0.2254,
+        "max_exit_overlap": 0.2733,
+        "anchors": [
+          {
+            "anchor": "Obsidian Osprey",
+            "risk_on_corr": 0.1434,
+            "entry_overlap": 0.097,
+            "exit_overlap": 0.2585
+          },
+          {
+            "anchor": "Ivory Hare",
+            "risk_on_corr": 0.2282,
+            "entry_overlap": 0.2254,
+            "exit_overlap": 0.2711
+          },
+          {
+            "anchor": "Marbled Bonobo",
+            "risk_on_corr": 0.1445,
+            "entry_overlap": 0.1025,
+            "exit_overlap": 0.2733
+          }
+        ]
+      },
+      "trade_preview": {
+        "worst_trades": [
+          {
+            "entry_date": "2001-05-02",
+            "exit_date": "2001-09-24",
+            "pnl_pct": -77.51,
+            "bars_held": 96,
+            "exit_reason": "V"
+          },
+          {
+            "entry_date": "2001-01-22",
+            "exit_date": "2001-03-01",
+            "pnl_pct": -57.27,
+            "bars_held": 27,
+            "exit_reason": "V"
+          },
+          {
+            "entry_date": "2000-06-15",
+            "exit_date": "2000-09-29",
+            "pnl_pct": -42.4,
+            "bars_held": 74,
+            "exit_reason": "V"
+          },
+          {
+            "entry_date": "2002-05-28",
+            "exit_date": "2002-06-27",
+            "pnl_pct": -41.56,
+            "bars_held": 22,
+            "exit_reason": "V"
+          },
+          {
+            "entry_date": "2002-09-17",
+            "exit_date": "2002-10-01",
+            "pnl_pct": -23.55,
+            "bars_held": 10,
+            "exit_reason": "V"
+          },
+          {
+            "entry_date": "2007-12-26",
+            "exit_date": "2008-01-04",
+            "pnl_pct": -23.16,
+            "bars_held": 6,
+            "exit_reason": "V"
+          },
+          {
+            "entry_date": "2001-03-27",
+            "exit_date": "2001-03-28",
+            "pnl_pct": -22.28,
+            "bars_held": 1,
+            "exit_reason": "V"
+          },
+          {
+            "entry_date": "2020-02-14",
+            "exit_date": "2020-02-24",
+            "pnl_pct": -19.25,
+            "bars_held": 5,
+            "exit_reason": "V"
+          }
+        ],
+        "recent_trades": [
+          {
+            "entry_date": "2026-04-14",
+            "exit_date": "2026-04-21",
+            "pnl_pct": 13.95,
+            "bars_held": 5,
+            "exit_reason": "End of Data"
+          },
+          {
+            "entry_date": "2026-02-23",
+            "exit_date": "2026-02-25",
+            "pnl_pct": 9.5,
+            "bars_held": 2,
+            "exit_reason": "V"
+          },
+          {
+            "entry_date": "2025-05-01",
+            "exit_date": "2026-01-29",
+            "pnl_pct": 113.1,
+            "bars_held": 187,
+            "exit_reason": "V"
+          },
+          {
+            "entry_date": "2025-03-24",
+            "exit_date": "2025-03-26",
+            "pnl_pct": -6.09,
+            "bars_held": 2,
+            "exit_reason": "V"
+          },
+          {
+            "entry_date": "2025-02-10",
+            "exit_date": "2025-02-27",
+            "pnl_pct": -17.44,
+            "bars_held": 12,
+            "exit_reason": "V"
+          },
+          {
+            "entry_date": "2024-11-14",
+            "exit_date": "2025-01-22",
+            "pnl_pct": 4.15,
+            "bars_held": 44,
+            "exit_reason": "V"
+          },
+          {
+            "entry_date": "2024-09-20",
+            "exit_date": "2024-11-06",
+            "pnl_pct": 12.26,
+            "bars_held": 33,
+            "exit_reason": "V"
+          },
+          {
+            "entry_date": "2024-08-29",
+            "exit_date": "2024-09-03",
+            "pnl_pct": -10.78,
+            "bars_held": 2,
+            "exit_reason": "V"
+          }
+        ]
+      }
+    },
+    {
+      "strategy": "vj_or_slope_meta",
+      "params": {
+        "fast_ema": 120,
+        "slow_ema": 150,
+        "slope_window": 3,
+        "entry_bars": 2,
+        "cooldown": 2,
+        "slope_ema_len": 200,
+        "slope_look": 20
+      },
+      "evaluated_grid_combos": 16,
+      "gold_contract_failures": [
+        "real_era_below_bh",
+        "modern_era_below_bh"
+      ],
+      "metrics": {
+        "weighted_era_fitness": 0.7346,
+        "share_multiple": 17.0887,
+        "real_share_multiple": 0.1902,
+        "modern_share_multiple": 0.5873,
+        "trades": 34,
+        "trades_per_year": 1.0,
+        "max_drawdown_pct": 63.5,
+        "cagr_pct": 26.52,
+        "exposure_pct": 63.8,
+        "exit_reasons": {
+          "S": 22,
+          "D": 6,
+          "V": 6
+        }
+      },
+      "named_windows": {
+        "verdict": "WARN",
+        "warnings": [
+          "2023_rebound: share_multiple=0.339"
+        ],
+        "results": [
+          {
+            "window": "2023_rebound",
+            "share_multiple": 0.339,
+            "trades": 3,
+            "max_dd": 55.6,
+            "cagr": 24.6,
+            "regime_score": 0.7087,
+            "warning": true,
+            "error": null
+          },
+          {
+            "window": "2020_meltup",
+            "share_multiple": 0.66,
+            "trades": 3,
+            "max_dd": 39.5,
+            "cagr": 49.7,
+            "regime_score": 0.6271,
+            "warning": true,
+            "error": null
+          },
+          {
+            "window": "2024_onward",
+            "share_multiple": 1.298,
+            "trades": 2,
+            "max_dd": 49.8,
+            "cagr": 24.7,
+            "regime_score": 0.5561,
+            "warning": false,
+            "error": null
+          },
+          {
+            "window": "2021_2022_bear",
+            "share_multiple": 2.078,
+            "trades": 3,
+            "max_dd": 50.1,
+            "cagr": 35.0,
+            "regime_score": 0.5583,
+            "warning": false,
+            "error": null
+          }
+        ]
+      },
+      "worst_years": [
+        {
+          "year": 2011,
+          "share_multiple": 0.6584,
+          "strategy_return_pct": -48.79,
+          "bah_return_pct": -22.22,
+          "risk_on_exposure": 0.6151
+        },
+        {
+          "year": 2024,
+          "share_multiple": 0.6877,
+          "strategy_return_pct": 1.1,
+          "bah_return_pct": 47.02,
+          "risk_on_exposure": 0.5913
+        },
+        {
+          "year": 2023,
+          "share_multiple": 0.6996,
+          "strategy_return_pct": 117.26,
+          "bah_return_pct": 210.57,
+          "risk_on_exposure": 0.908
+        },
+        {
+          "year": 2009,
+          "share_multiple": 0.7166,
+          "strategy_return_pct": 86.7,
+          "bah_return_pct": 160.53,
+          "risk_on_exposure": 0.5873
+        },
+        {
+          "year": 2019,
+          "share_multiple": 0.7261,
+          "strategy_return_pct": 106.56,
+          "bah_return_pct": 184.47,
+          "risk_on_exposure": 0.8651
+        },
+        {
+          "year": 2012,
+          "share_multiple": 0.7632,
+          "strategy_return_pct": -1.99,
+          "bah_return_pct": 28.42,
+          "risk_on_exposure": 0.648
+        },
+        {
+          "year": 2015,
+          "share_multiple": 0.7773,
+          "strategy_return_pct": -18.46,
+          "bah_return_pct": 4.9,
+          "risk_on_exposure": 0.8413
+        },
+        {
+          "year": 2026,
+          "share_multiple": 0.7782,
+          "strategy_return_pct": -11.44,
+          "bah_return_pct": 13.79,
+          "risk_on_exposure": 0.48
+        },
+        {
+          "year": 2016,
+          "share_multiple": 0.7929,
+          "strategy_return_pct": 13.36,
+          "bah_return_pct": 42.98,
+          "risk_on_exposure": 0.8135
+        },
+        {
+          "year": 2013,
+          "share_multiple": 0.9965,
+          "strategy_return_pct": 70.84,
+          "bah_return_pct": 71.43,
+          "risk_on_exposure": 0.9405
+        }
+      ],
+      "marker": {
+        "score": 0.4381,
+        "state_accuracy": 0.755,
+        "timing_magnitude_weighted": 0.3918,
+        "transition_timing_score": 0.1095,
+        "candidate_buy_count": 27,
+        "candidate_sell_count": 27,
+        "target_buy_count": 14,
+        "target_sell_count": 14
+      },
+      "worst_transition_misses": [
+        {
+          "kind": "buy",
+          "target_bar": 3986,
+          "target_date": "2009-03-02",
+          "nearest_bar": 4051,
+          "nearest_date": "2009-06-03",
+          "distance_bars": 65,
+          "magnitude": 5.1304,
+          "score": 0.0
+        },
+        {
+          "kind": "buy",
+          "target_bar": 2376,
+          "target_date": "2002-10-07",
+          "nearest_bar": 2537,
+          "nearest_date": "2003-05-29",
+          "distance_bars": 161,
+          "magnitude": 3.7379,
+          "score": 0.0
+        },
+        {
+          "kind": "buy",
+          "target_bar": 6461,
+          "target_date": "2018-12-28",
+          "nearest_bar": 6497,
+          "nearest_date": "2019-02-21",
+          "distance_bars": 36,
+          "magnitude": 2.6505,
+          "score": 0.0
+        },
+        {
+          "kind": "buy",
+          "target_bar": 1638,
+          "target_date": "1999-10-27",
+          "nearest_bar": 1774,
+          "nearest_date": "2000-05-11",
+          "distance_bars": 136,
+          "magnitude": 2.5699,
+          "score": 0.0
+        },
+        {
+          "kind": "sell",
+          "target_bar": 1740,
+          "target_date": "2000-03-23",
+          "nearest_bar": 1774,
+          "nearest_date": "2000-05-11",
+          "distance_bars": 34,
+          "magnitude": 0.9742,
+          "score": 0.0
+        },
+        {
+          "kind": "sell",
+          "target_bar": 2033,
+          "target_date": "2001-05-22",
+          "nearest_bar": 1774,
+          "nearest_date": "2000-05-11",
+          "distance_bars": 259,
+          "magnitude": 0.9716,
+          "score": 0.0
+        },
+        {
+          "kind": "sell",
+          "target_bar": 3650,
+          "target_date": "2007-10-29",
+          "nearest_bar": 3702,
+          "nearest_date": "2008-01-14",
+          "distance_bars": 52,
+          "magnitude": 0.9333,
+          "score": 0.0
+        },
+        {
+          "kind": "buy",
+          "target_bar": 2001,
+          "target_date": "2001-04-05",
+          "nearest_bar": 1774,
+          "nearest_date": "2000-05-11",
+          "distance_bars": 227,
+          "magnitude": 0.8051,
+          "score": 0.0
+        },
+        {
+          "kind": "sell",
+          "target_bar": 7218,
+          "target_date": "2021-12-30",
+          "nearest_bar": 7249,
+          "nearest_date": "2022-02-14",
+          "distance_bars": 31,
+          "magnitude": 0.714,
+          "score": 0.0
+        },
+        {
+          "kind": "buy",
+          "target_bar": 7798,
+          "target_date": "2024-04-23",
+          "nearest_bar": 7870,
+          "nearest_date": "2024-08-06",
+          "distance_bars": 72,
+          "magnitude": 0.6035,
+          "score": 0.0
+        }
+      ],
+      "worst_state_mismatches": [
+        {
+          "start_bar": 3986,
+          "end_bar": 4050,
+          "start_date": "2009-03-02",
+          "end_date": "2009-06-02",
+          "bars": 65,
+          "type": "missed_risk_on",
+          "move_pct": 134.78
+        },
+        {
+          "start_bar": 2376,
+          "end_bar": 2536,
+          "start_date": "2002-10-07",
+          "end_date": "2003-05-28",
+          "bars": 161,
+          "type": "missed_risk_on",
+          "move_pct": 127.53
+        },
+        {
+          "start_bar": 2001,
+          "end_bar": 2032,
+          "start_date": "2001-04-05",
+          "end_date": "2001-05-21",
+          "bars": 32,
+          "type": "missed_risk_on",
+          "move_pct": 81.58
+        },
+        {
+          "start_bar": 6772,
+          "end_bar": 6813,
+          "start_date": "2020-03-25",
+          "end_date": "2020-05-22",
+          "bars": 42,
+          "type": "missed_risk_on",
+          "move_pct": 75.47
+        },
+        {
+          "start_bar": 1740,
+          "end_bar": 1773,
+          "start_date": "2000-03-23",
+          "end_date": "2000-05-10",
+          "bars": 34,
+          "type": "exposed_risk_off",
+          "move_pct": -60.94
+        },
+        {
+          "start_bar": 7870,
+          "end_bar": 8003,
+          "start_date": "2024-08-06",
+          "end_date": "2025-02-18",
+          "bars": 134,
+          "type": "missed_risk_on",
+          "move_pct": 52.39
+        },
+        {
+          "start_bar": 6236,
+          "end_bar": 6401,
+          "start_date": "2018-02-06",
+          "end_date": "2018-10-02",
+          "bars": 166,
+          "type": "missed_risk_on",
+          "move_pct": 42.76
+        },
+        {
+          "start_bar": 6461,
+          "end_bar": 6496,
+          "start_date": "2018-12-28",
+          "end_date": "2019-02-20",
+          "bars": 36,
+          "type": "missed_risk_on",
+          "move_pct": 41.11
+        },
+        {
+          "start_bar": 3650,
+          "end_bar": 3701,
+          "start_date": "2007-10-29",
+          "end_date": "2008-01-11",
+          "bars": 52,
+          "type": "exposed_risk_off",
+          "move_pct": -37.5
+        },
+        {
+          "start_bar": 5619,
+          "end_bar": 5658,
+          "start_date": "2015-08-25",
+          "end_date": "2015-10-20",
+          "bars": 40,
+          "type": "missed_risk_on",
+          "move_pct": 35.69
+        }
+      ],
+      "diversity_vs_gold": {
+        "diversity_score": 0.3984,
+        "max_anchor_corr": 0.6503,
+        "max_entry_overlap": 0.7353,
+        "max_exit_overlap": 0.3217,
+        "anchors": [
+          {
+            "anchor": "Obsidian Osprey",
+            "risk_on_corr": 0.6503,
+            "entry_overlap": 0.7059,
+            "exit_overlap": 0.3088
+          },
+          {
+            "anchor": "Ivory Hare",
+            "risk_on_corr": 0.4296,
+            "entry_overlap": 0.2868,
+            "exit_overlap": 0.2086
+          },
+          {
+            "anchor": "Marbled Bonobo",
+            "risk_on_corr": 0.6209,
+            "entry_overlap": 0.7353,
+            "exit_overlap": 0.3217
+          }
+        ]
+      },
+      "trade_preview": {
+        "worst_trades": [
+          {
+            "entry_date": "2011-07-19",
+            "exit_date": "2011-08-08",
+            "pnl_pct": -37.25,
+            "bars_held": 14,
+            "exit_reason": "V"
+          },
+          {
+            "entry_date": "1994-03-17",
+            "exit_date": "1994-04-22",
+            "pnl_pct": -36.81,
+            "bars_held": 25,
+            "exit_reason": "S"
+          },
+          {
+            "entry_date": "2022-08-17",
+            "exit_date": "2022-08-29",
+            "pnl_pct": -23.35,
+            "bars_held": 8,
+            "exit_reason": "D"
+          },
+          {
+            "entry_date": "1996-02-12",
+            "exit_date": "1996-07-19",
+            "pnl_pct": -17.38,
+            "bars_held": 110,
+            "exit_reason": "S"
+          },
+          {
+            "entry_date": "2004-04-08",
+            "exit_date": "2004-05-05",
+            "pnl_pct": -14.15,
+            "bars_held": 18,
+            "exit_reason": "S"
+          },
+          {
+            "entry_date": "2004-06-28",
+            "exit_date": "2004-07-08",
+            "pnl_pct": -12.91,
+            "bars_held": 7,
+            "exit_reason": "S"
+          },
+          {
+            "entry_date": "2008-05-13",
+            "exit_date": "2008-06-11",
+            "pnl_pct": -12.44,
+            "bars_held": 20,
+            "exit_reason": "D"
+          },
+          {
+            "entry_date": "1994-06-14",
+            "exit_date": "1994-06-22",
+            "pnl_pct": -10.7,
+            "bars_held": 6,
+            "exit_reason": "S"
+          }
+        ],
+        "recent_trades": [
+          {
+            "entry_date": "2025-05-19",
+            "exit_date": "2026-02-24",
+            "pnl_pct": 38.25,
+            "bars_held": 192,
+            "exit_reason": "S"
+          },
+          {
+            "entry_date": "2023-02-06",
+            "exit_date": "2024-08-05",
+            "pnl_pct": 102.79,
+            "bars_held": 375,
+            "exit_reason": "V"
+          },
+          {
+            "entry_date": "2022-08-17",
+            "exit_date": "2022-08-29",
+            "pnl_pct": -23.35,
+            "bars_held": 8,
+            "exit_reason": "D"
+          },
+          {
+            "entry_date": "2020-05-26",
+            "exit_date": "2022-02-11",
+            "pnl_pct": 215.7,
+            "bars_held": 434,
+            "exit_reason": "S"
+          },
+          {
+            "entry_date": "2019-02-21",
+            "exit_date": "2020-02-27",
+            "pnl_pct": 72.56,
+            "bars_held": 256,
+            "exit_reason": "V"
+          },
+          {
+            "entry_date": "2016-05-31",
+            "exit_date": "2018-02-05",
+            "pnl_pct": 184.13,
+            "bars_held": 424,
+            "exit_reason": "V"
+          },
+          {
+            "entry_date": "2016-03-11",
+            "exit_date": "2016-05-18",
+            "pnl_pct": -2.38,
+            "bars_held": 47,
+            "exit_reason": "S"
+          },
+          {
+            "entry_date": "2015-10-21",
+            "exit_date": "2016-01-12",
+            "pnl_pct": -7.49,
+            "bars_held": 56,
+            "exit_reason": "S"
+          }
+        ]
+      }
+    },
+    {
+      "strategy": "rsi_regime_canonical",
+      "params": {
+        "rsi_len": 14,
+        "trend_len": 200,
+        "entry_rsi": 35.0,
+        "exit_rsi": 75.0,
+        "panic_rsi": 15.0,
+        "cooldown": 10
+      },
+      "evaluated_grid_combos": 36,
+      "gold_contract_failures": [
+        "real_era_below_bh",
+        "modern_era_below_bh"
+      ],
+      "metrics": {
+        "weighted_era_fitness": 0.6848,
+        "share_multiple": 2.5938,
+        "real_share_multiple": 0.4786,
+        "modern_share_multiple": 0.5699,
+        "trades": 26,
+        "trades_per_year": 0.8,
+        "max_drawdown_pct": 94.4,
+        "cagr_pct": 19.48,
+        "exposure_pct": 49.1,
+        "exit_reasons": {
+          "O": 26
+        }
+      },
+      "named_windows": {
+        "verdict": "WARN",
+        "warnings": [
+          "2020_meltup: share_multiple=0.280",
+          "2023_rebound: share_multiple=0.368"
+        ],
+        "results": [
+          {
+            "window": "2020_meltup",
+            "share_multiple": 0.28,
+            "trades": 4,
+            "max_dd": 65.8,
+            "cagr": 23.0,
+            "regime_score": 0.5279,
+            "warning": true,
+            "error": null
+          },
+          {
+            "window": "2023_rebound",
+            "share_multiple": 0.368,
+            "trades": 4,
+            "max_dd": 27.6,
+            "cagr": 27.0,
+            "regime_score": 0.5736,
+            "warning": true,
+            "error": null
+          },
+          {
+            "window": "2024_onward",
+            "share_multiple": 1.471,
+            "trades": 4,
+            "max_dd": 63.6,
+            "cagr": 28.1,
+            "regime_score": 0.4558,
+            "warning": false,
+            "error": null
+          },
+          {
+            "window": "2021_2022_bear",
+            "share_multiple": 2.005,
+            "trades": 4,
+            "max_dd": 65.8,
+            "cagr": 34.0,
+            "regime_score": 0.5775,
+            "warning": false,
+            "error": null
+          }
+        ]
+      },
+      "worst_years": [
+        {
+          "year": 2023,
+          "share_multiple": 0.3976,
+          "strategy_return_pct": 23.48,
+          "bah_return_pct": 210.57,
+          "risk_on_exposure": 0.28
+        },
+        {
+          "year": 2017,
+          "share_multiple": 0.5363,
+          "strategy_return_pct": 17.06,
+          "bah_return_pct": 118.29,
+          "risk_on_exposure": 0.1155
+        },
+        {
+          "year": 2009,
+          "share_multiple": 0.737,
+          "strategy_return_pct": 92.01,
+          "bah_return_pct": 160.53,
+          "risk_on_exposure": 0.5556
+        },
+        {
+          "year": 2019,
+          "share_multiple": 0.8551,
+          "strategy_return_pct": 143.26,
+          "bah_return_pct": 184.47,
+          "risk_on_exposure": 0.7341
+        },
+        {
+          "year": 2012,
+          "share_multiple": 0.8677,
+          "strategy_return_pct": 11.44,
+          "bah_return_pct": 28.42,
+          "risk_on_exposure": 0.292
+        },
+        {
+          "year": 2016,
+          "share_multiple": 0.8677,
+          "strategy_return_pct": 24.06,
+          "bah_return_pct": 42.98,
+          "risk_on_exposure": 0.3968
+        },
+        {
+          "year": 2021,
+          "share_multiple": 0.8812,
+          "strategy_return_pct": 96.81,
+          "bah_return_pct": 123.34,
+          "risk_on_exposure": 0.5992
+        },
+        {
+          "year": 2020,
+          "share_multiple": 0.8918,
+          "strategy_return_pct": 42.05,
+          "bah_return_pct": 59.29,
+          "risk_on_exposure": 0.4545
+        },
+        {
+          "year": 2018,
+          "share_multiple": 0.9785,
+          "strategy_return_pct": -28.49,
+          "bah_return_pct": -26.91,
+          "risk_on_exposure": 0.9044
+        },
+        {
+          "year": 2026,
+          "share_multiple": 0.9925,
+          "strategy_return_pct": 12.94,
+          "bah_return_pct": 13.79,
+          "risk_on_exposure": 0.9733
+        }
+      ],
+      "marker": {
+        "score": 0.488,
+        "state_accuracy": 0.563,
+        "timing_magnitude_weighted": 0.1178,
+        "transition_timing_score": 0.1298,
+        "candidate_buy_count": 19,
+        "candidate_sell_count": 20,
+        "target_buy_count": 14,
+        "target_sell_count": 14
+      },
+      "worst_transition_misses": [
+        {
+          "kind": "buy",
+          "target_bar": 3986,
+          "target_date": "2009-03-02",
+          "nearest_bar": 4087,
+          "nearest_date": "2009-07-24",
+          "distance_bars": 101,
+          "magnitude": 5.1304,
+          "score": 0.0
+        },
+        {
+          "kind": "buy",
+          "target_bar": 2376,
+          "target_date": "2002-10-07",
+          "nearest_bar": 2736,
+          "nearest_date": "2004-03-12",
+          "distance_bars": 360,
+          "magnitude": 3.7379,
+          "score": 0.0
+        },
+        {
+          "kind": "buy",
+          "target_bar": 6461,
+          "target_date": "2018-12-28",
+          "nearest_bar": 6515,
+          "nearest_date": "2019-03-19",
+          "distance_bars": 54,
+          "magnitude": 2.6505,
+          "score": 0.0
+        },
+        {
+          "kind": "buy",
+          "target_bar": 7478,
+          "target_date": "2023-01-12",
+          "nearest_bar": 7624,
+          "nearest_date": "2023-08-14",
+          "distance_bars": 146,
+          "magnitude": 2.3582,
+          "score": 0.0
+        },
+        {
+          "kind": "buy",
+          "target_bar": 8049,
+          "target_date": "2025-04-24",
+          "nearest_bar": 8153,
+          "nearest_date": "2025-09-23",
+          "distance_bars": 104,
+          "magnitude": 1.8473,
+          "score": 0.0
+        },
+        {
+          "kind": "buy",
+          "target_bar": 3333,
+          "target_date": "2006-07-26",
+          "nearest_bar": 3390,
+          "nearest_date": "2006-10-16",
+          "distance_bars": 57,
+          "magnitude": 1.709,
+          "score": 0.0
+        },
+        {
+          "kind": "sell",
+          "target_bar": 1740,
+          "target_date": "2000-03-23",
+          "nearest_bar": 1656,
+          "nearest_date": "1999-11-22",
+          "distance_bars": 84,
+          "magnitude": 0.9742,
+          "score": 0.0
+        },
+        {
+          "kind": "sell",
+          "target_bar": 2033,
+          "target_date": "2001-05-22",
+          "nearest_bar": 1656,
+          "nearest_date": "1999-11-22",
+          "distance_bars": 377,
+          "magnitude": 0.9716,
+          "score": 0.0
+        },
+        {
+          "kind": "sell",
+          "target_bar": 3650,
+          "target_date": "2007-10-29",
+          "nearest_bar": 3600,
+          "nearest_date": "2007-08-17",
+          "distance_bars": 50,
+          "magnitude": 0.9333,
+          "score": 0.0
+        },
+        {
+          "kind": "buy",
+          "target_bar": 2001,
+          "target_date": "2001-04-05",
+          "nearest_bar": 1656,
+          "nearest_date": "1999-11-22",
+          "distance_bars": 345,
+          "magnitude": 0.8051,
+          "score": 0.0
+        }
+      ],
+      "worst_state_mismatches": [
+        {
+          "start_bar": 2376,
+          "end_bar": 2699,
+          "start_date": "2002-10-07",
+          "end_date": "2004-01-20",
+          "bars": 324,
+          "type": "missed_risk_on",
+          "move_pct": 385.0
+        },
+        {
+          "start_bar": 1656,
+          "end_bar": 1739,
+          "start_date": "1999-11-22",
+          "end_date": "2000-03-22",
+          "bars": 84,
+          "type": "missed_risk_on",
+          "move_pct": 99.58
+        },
+        {
+          "start_bar": 3650,
+          "end_bar": 3985,
+          "start_date": "2007-10-29",
+          "end_date": "2009-02-27",
+          "bars": 336,
+          "type": "exposed_risk_off",
+          "move_pct": -92.75
+        },
+        {
+          "start_bar": 7478,
+          "end_bar": 7623,
+          "start_date": "2023-01-12",
+          "end_date": "2023-08-11",
+          "bars": 146,
+          "type": "missed_risk_on",
+          "move_pct": 86.58
+        },
+        {
+          "start_bar": 2001,
+          "end_bar": 2032,
+          "start_date": "2001-04-05",
+          "end_date": "2001-05-21",
+          "bars": 32,
+          "type": "missed_risk_on",
+          "move_pct": 81.58
+        },
+        {
+          "start_bar": 5990,
+          "end_bar": 6235,
+          "start_date": "2017-02-14",
+          "end_date": "2018-02-05",
+          "bars": 246,
+          "type": "missed_risk_on",
+          "move_pct": 80.1
+        },
+        {
+          "start_bar": 6687,
+          "end_bar": 6748,
+          "start_date": "2019-11-20",
+          "end_date": "2020-02-20",
+          "bars": 62,
+          "type": "missed_risk_on",
+          "move_pct": 55.97
+        },
+        {
+          "start_bar": 8004,
+          "end_bar": 8048,
+          "start_date": "2025-02-19",
+          "end_date": "2025-04-23",
+          "bars": 45,
+          "type": "exposed_risk_off",
+          "move_pct": -52.78
+        },
+        {
+          "start_bar": 6402,
+          "end_bar": 6460,
+          "start_date": "2018-10-03",
+          "end_date": "2018-12-27",
+          "bars": 59,
+          "type": "exposed_risk_off",
+          "move_pct": -51.2
+        },
+        {
+          "start_bar": 4398,
+          "end_bar": 4476,
+          "start_date": "2010-10-18",
+          "end_date": "2011-02-08",
+          "bars": 79,
+          "type": "missed_risk_on",
+          "move_pct": 44.9
+        }
+      ],
+      "diversity_vs_gold": {
+        "diversity_score": 0.9451,
+        "max_anchor_corr": 0.0746,
+        "max_entry_overlap": 0.0,
+        "max_exit_overlap": 0.0505,
+        "anchors": [
+          {
+            "anchor": "Obsidian Osprey",
+            "risk_on_corr": -0.0221,
+            "entry_overlap": 0.0,
+            "exit_overlap": 0.0
+          },
+          {
+            "anchor": "Ivory Hare",
+            "risk_on_corr": -0.0808,
+            "entry_overlap": 0.0,
+            "exit_overlap": 0.0306
+          },
+          {
+            "anchor": "Marbled Bonobo",
+            "risk_on_corr": 0.0746,
+            "entry_overlap": 0.0,
+            "exit_overlap": 0.0505
+          }
+        ]
+      },
+      "trade_preview": {
+        "worst_trades": [
+          {
+            "entry_date": "2007-08-17",
+            "exit_date": "2009-07-23",
+            "pnl_pct": -70.1,
+            "bars_held": 486,
+            "exit_reason": "O"
+          },
+          {
+            "entry_date": "2020-03-02",
+            "exit_date": "2020-06-10",
+            "pnl_pct": -3.96,
+            "bars_held": 70,
+            "exit_reason": "O"
+          },
+          {
+            "entry_date": "2010-05-10",
+            "exit_date": "2010-10-15",
+            "pnl_pct": 5.33,
+            "bars_held": 111,
+            "exit_reason": "O"
+          },
+          {
+            "entry_date": "2011-03-21",
+            "exit_date": "2012-02-01",
+            "pnl_pct": 6.14,
+            "bars_held": 219,
+            "exit_reason": "O"
+          },
+          {
+            "entry_date": "2004-03-12",
+            "exit_date": "2004-11-15",
+            "pnl_pct": 7.94,
+            "bars_held": 171,
+            "exit_reason": "O"
+          },
+          {
+            "entry_date": "1994-04-05",
+            "exit_date": "1994-08-25",
+            "pnl_pct": 10.23,
+            "bars_held": 99,
+            "exit_reason": "O"
+          },
+          {
+            "entry_date": "2005-01-18",
+            "exit_date": "2005-11-22",
+            "pnl_pct": 13.65,
+            "bars_held": 215,
+            "exit_reason": "O"
+          },
+          {
+            "entry_date": "2018-02-06",
+            "exit_date": "2019-03-18",
+            "pnl_pct": 14.36,
+            "bars_held": 278,
+            "exit_reason": "O"
+          }
+        ],
+        "recent_trades": [
+          {
+            "entry_date": "2025-11-24",
+            "exit_date": "2026-04-17",
+            "pnl_pct": 14.57,
+            "bars_held": 98,
+            "exit_reason": "O"
+          },
+          {
+            "entry_date": "2024-07-26",
+            "exit_date": "2025-09-22",
+            "pnl_pct": 52.09,
+            "bars_held": 289,
+            "exit_reason": "O"
+          },
+          {
+            "entry_date": "2024-04-23",
+            "exit_date": "2024-06-13",
+            "pnl_pct": 47.67,
+            "bars_held": 36,
+            "exit_reason": "O"
+          },
+          {
+            "entry_date": "2023-08-14",
+            "exit_date": "2023-11-20",
+            "pnl_pct": 23.48,
+            "bars_held": 69,
+            "exit_reason": "O"
+          },
+          {
+            "entry_date": "2021-10-01",
+            "exit_date": "2021-11-04",
+            "pnl_pct": 30.79,
+            "bars_held": 24,
+            "exit_reason": "O"
+          },
+          {
+            "entry_date": "2020-10-29",
+            "exit_date": "2021-07-02",
+            "pnl_pct": 111.4,
+            "bars_held": 169,
+            "exit_reason": "O"
+          },
+          {
+            "entry_date": "2020-03-02",
+            "exit_date": "2020-06-10",
+            "pnl_pct": -3.96,
+            "bars_held": 70,
+            "exit_reason": "O"
+          },
+          {
+            "entry_date": "2019-05-14",
+            "exit_date": "2019-11-19",
+            "pnl_pct": 52.11,
+            "bars_held": 132,
+            "exit_reason": "O"
+          }
+        ]
+      }
+    },
+    {
+      "strategy": "atr_ratio_vix",
+      "params": {
+        "atr_short": 7,
+        "atr_long": 100,
+        "fast_ema": 30,
+        "slow_ema": 100,
+        "cooldown": 5
+      },
+      "evaluated_grid_combos": 36,
+      "gold_contract_failures": [
+        "real_era_below_bh",
+        "modern_era_below_bh"
+      ],
+      "metrics": {
+        "weighted_era_fitness": 0.6757,
+        "share_multiple": 16.7257,
+        "real_share_multiple": 0.2489,
+        "modern_share_multiple": 0.4593,
+        "trades": 30,
+        "trades_per_year": 0.9,
+        "max_drawdown_pct": 61.8,
+        "cagr_pct": 26.43,
+        "exposure_pct": 62.6,
+        "exit_reasons": {
+          "D": 26,
+          "V": 4
+        }
+      },
+      "named_windows": {
+        "verdict": "PASS",
+        "warnings": [],
+        "results": [
+          {
+            "window": "2023_rebound",
+            "share_multiple": 0.618,
+            "trades": 3,
+            "max_dd": 38.9,
+            "cagr": 43.7,
+            "regime_score": 0.5276,
+            "warning": true,
+            "error": null
+          },
+          {
+            "window": "2020_meltup",
+            "share_multiple": 0.707,
+            "trades": 4,
+            "max_dd": 47.3,
+            "cagr": 52.1,
+            "regime_score": 0.6187,
+            "warning": true,
+            "error": null
+          },
+          {
+            "window": "2024_onward",
+            "share_multiple": 0.823,
+            "trades": 4,
+            "max_dd": 52.4,
+            "cagr": 13.1,
+            "regime_score": 0.4654,
+            "warning": true,
+            "error": null
+          },
+          {
+            "window": "2021_2022_bear",
+            "share_multiple": 1.738,
+            "trades": 3,
+            "max_dd": 47.3,
+            "cagr": 30.0,
+            "regime_score": 0.5487,
+            "warning": false,
+            "error": null
+          }
+        ]
+      },
+      "worst_years": [
+        {
+          "year": 2023,
+          "share_multiple": 0.5893,
+          "strategy_return_pct": 83.03,
+          "bah_return_pct": 210.57,
+          "risk_on_exposure": 0.8
+        },
+        {
+          "year": 2019,
+          "share_multiple": 0.7062,
+          "strategy_return_pct": 100.9,
+          "bah_return_pct": 184.47,
+          "risk_on_exposure": 0.8294
+        },
+        {
+          "year": 2026,
+          "share_multiple": 0.7144,
+          "strategy_return_pct": -18.7,
+          "bah_return_pct": 13.79,
+          "risk_on_exposure": 0.32
+        },
+        {
+          "year": 2024,
+          "share_multiple": 0.7176,
+          "strategy_return_pct": 5.5,
+          "bah_return_pct": 47.02,
+          "risk_on_exposure": 0.8333
+        },
+        {
+          "year": 2016,
+          "share_multiple": 0.8008,
+          "strategy_return_pct": 14.5,
+          "bah_return_pct": 42.98,
+          "risk_on_exposure": 0.8135
+        },
+        {
+          "year": 2009,
+          "share_multiple": 0.8081,
+          "strategy_return_pct": 110.53,
+          "bah_return_pct": 160.53,
+          "risk_on_exposure": 0.6111
+        },
+        {
+          "year": 2012,
+          "share_multiple": 0.8085,
+          "strategy_return_pct": 3.82,
+          "bah_return_pct": 28.42,
+          "risk_on_exposure": 0.592
+        },
+        {
+          "year": 2010,
+          "share_multiple": 0.8263,
+          "strategy_return_pct": -8.55,
+          "bah_return_pct": 10.68,
+          "risk_on_exposure": 0.5198
+        },
+        {
+          "year": 2015,
+          "share_multiple": 0.8363,
+          "strategy_return_pct": -12.27,
+          "bah_return_pct": 4.9,
+          "risk_on_exposure": 0.6905
+        },
+        {
+          "year": 2020,
+          "share_multiple": 0.9095,
+          "strategy_return_pct": 44.86,
+          "bah_return_pct": 59.29,
+          "risk_on_exposure": 0.7233
+        }
+      ],
+      "marker": {
+        "score": 0.5428,
+        "state_accuracy": 0.7749,
+        "timing_magnitude_weighted": 0.241,
+        "transition_timing_score": 0.1381,
+        "candidate_buy_count": 22,
+        "candidate_sell_count": 22,
+        "target_buy_count": 14,
+        "target_sell_count": 14
+      },
+      "worst_transition_misses": [
+        {
+          "kind": "buy",
+          "target_bar": 3986,
+          "target_date": "2009-03-02",
+          "nearest_bar": 4045,
+          "nearest_date": "2009-05-26",
+          "distance_bars": 59,
+          "magnitude": 5.1304,
+          "score": 0.0
+        },
+        {
+          "kind": "buy",
+          "target_bar": 2376,
+          "target_date": "2002-10-07",
+          "nearest_bar": 2525,
+          "nearest_date": "2003-05-12",
+          "distance_bars": 149,
+          "magnitude": 3.7379,
+          "score": 0.0
+        },
+        {
+          "kind": "buy",
+          "target_bar": 6461,
+          "target_date": "2018-12-28",
+          "nearest_bar": 6417,
+          "nearest_date": "2018-10-24",
+          "distance_bars": 44,
+          "magnitude": 2.6505,
+          "score": 0.0
+        },
+        {
+          "kind": "buy",
+          "target_bar": 1638,
+          "target_date": "1999-10-27",
+          "nearest_bar": 1771,
+          "nearest_date": "2000-05-08",
+          "distance_bars": 133,
+          "magnitude": 2.5699,
+          "score": 0.0
+        },
+        {
+          "kind": "buy",
+          "target_bar": 8049,
+          "target_date": "2025-04-24",
+          "nearest_bar": 8082,
+          "nearest_date": "2025-06-11",
+          "distance_bars": 33,
+          "magnitude": 1.8473,
+          "score": 0.0
+        },
+        {
+          "kind": "buy",
+          "target_bar": 3333,
+          "target_date": "2006-07-26",
+          "nearest_bar": 3368,
+          "nearest_date": "2006-09-14",
+          "distance_bars": 35,
+          "magnitude": 1.709,
+          "score": 0.0
+        },
+        {
+          "kind": "sell",
+          "target_bar": 1740,
+          "target_date": "2000-03-23",
+          "nearest_bar": 1771,
+          "nearest_date": "2000-05-08",
+          "distance_bars": 31,
+          "magnitude": 0.9742,
+          "score": 0.0
+        },
+        {
+          "kind": "sell",
+          "target_bar": 2033,
+          "target_date": "2001-05-22",
+          "nearest_bar": 1771,
+          "nearest_date": "2000-05-08",
+          "distance_bars": 262,
+          "magnitude": 0.9716,
+          "score": 0.0
+        },
+        {
+          "kind": "buy",
+          "target_bar": 2001,
+          "target_date": "2001-04-05",
+          "nearest_bar": 1771,
+          "nearest_date": "2000-05-08",
+          "distance_bars": 230,
+          "magnitude": 0.8051,
+          "score": 0.0
+        },
+        {
+          "kind": "buy",
+          "target_bar": 2841,
+          "target_date": "2004-08-12",
+          "nearest_bar": 2898,
+          "nearest_date": "2004-11-02",
+          "distance_bars": 57,
+          "magnitude": 0.7907,
+          "score": 0.0
+        }
+      ],
+      "worst_state_mismatches": [
+        {
+          "start_bar": 2376,
+          "end_bar": 2524,
+          "start_date": "2002-10-07",
+          "end_date": "2003-05-09",
+          "bars": 149,
+          "type": "missed_risk_on",
+          "move_pct": 115.32
+        },
+        {
+          "start_bar": 6772,
+          "end_bar": 6823,
+          "start_date": "2020-03-25",
+          "end_date": "2020-06-08",
+          "bars": 52,
+          "type": "missed_risk_on",
+          "move_pct": 106.11
+        },
+        {
+          "start_bar": 3986,
+          "end_bar": 4044,
+          "start_date": "2009-03-02",
+          "end_date": "2009-05-22",
+          "bars": 59,
+          "type": "missed_risk_on",
+          "move_pct": 86.96
+        },
+        {
+          "start_bar": 2001,
+          "end_bar": 2032,
+          "start_date": "2001-04-05",
+          "end_date": "2001-05-21",
+          "bars": 32,
+          "type": "missed_risk_on",
+          "move_pct": 81.58
+        },
+        {
+          "start_bar": 8049,
+          "end_bar": 8081,
+          "start_date": "2025-04-24",
+          "end_date": "2025-06-10",
+          "bars": 33,
+          "type": "missed_risk_on",
+          "move_pct": 56.56
+        },
+        {
+          "start_bar": 6461,
+          "end_bar": 6505,
+          "start_date": "2018-12-28",
+          "end_date": "2019-03-05",
+          "bars": 45,
+          "type": "missed_risk_on",
+          "move_pct": 47.88
+        },
+        {
+          "start_bar": 1740,
+          "end_bar": 1770,
+          "start_date": "2000-03-23",
+          "end_date": "2000-05-05",
+          "bars": 31,
+          "type": "exposed_risk_off",
+          "move_pct": -45.84
+        },
+        {
+          "start_bar": 2841,
+          "end_bar": 2897,
+          "start_date": "2004-08-12",
+          "end_date": "2004-11-01",
+          "bars": 57,
+          "type": "missed_risk_on",
+          "move_pct": 38.26
+        },
+        {
+          "start_bar": 3333,
+          "end_bar": 3367,
+          "start_date": "2006-07-26",
+          "end_date": "2006-09-13",
+          "bars": 35,
+          "type": "missed_risk_on",
+          "move_pct": 34.34
+        },
+        {
+          "start_bar": 2700,
+          "end_bar": 2743,
+          "start_date": "2004-01-21",
+          "end_date": "2004-03-23",
+          "bars": 44,
+          "type": "exposed_risk_off",
+          "move_pct": -32.08
+        }
+      ],
+      "diversity_vs_gold": {
+        "diversity_score": 0.6018,
+        "max_anchor_corr": 0.5518,
+        "max_entry_overlap": 0.1437,
+        "max_exit_overlap": 0.1917,
+        "anchors": [
+          {
+            "anchor": "Obsidian Osprey",
+            "risk_on_corr": 0.5518,
+            "entry_overlap": 0.1382,
+            "exit_overlap": 0.1843
+          },
+          {
+            "anchor": "Ivory Hare",
+            "risk_on_corr": 0.418,
+            "entry_overlap": 0.0561,
+            "exit_overlap": 0.1121
+          },
+          {
+            "anchor": "Marbled Bonobo",
+            "risk_on_corr": 0.5031,
+            "entry_overlap": 0.1437,
+            "exit_overlap": 0.1917
+          }
+        ]
+      },
+      "trade_preview": {
+        "worst_trades": [
+          {
+            "entry_date": "1996-04-22",
+            "exit_date": "1996-07-15",
+            "pnl_pct": -29.64,
+            "bars_held": 58,
+            "exit_reason": "D"
+          },
+          {
+            "entry_date": "2015-10-29",
+            "exit_date": "2016-01-11",
+            "pnl_pct": -22.98,
+            "bars_held": 49,
+            "exit_reason": "D"
+          },
+          {
+            "entry_date": "2008-05-20",
+            "exit_date": "2008-06-20",
+            "pnl_pct": -16.48,
+            "bars_held": 22,
+            "exit_reason": "D"
+          },
+          {
+            "entry_date": "1996-02-16",
+            "exit_date": "1996-03-28",
+            "pnl_pct": -16.47,
+            "bars_held": 28,
+            "exit_reason": "D"
+          },
+          {
+            "entry_date": "2024-10-04",
+            "exit_date": "2025-02-27",
+            "pnl_pct": -12.69,
+            "bars_held": 98,
+            "exit_reason": "D"
+          },
+          {
+            "entry_date": "1993-10-04",
+            "exit_date": "1994-04-19",
+            "pnl_pct": -11.82,
+            "bars_held": 137,
+            "exit_reason": "D"
+          },
+          {
+            "entry_date": "2012-08-13",
+            "exit_date": "2012-11-01",
+            "pnl_pct": -8.72,
+            "bars_held": 55,
+            "exit_reason": "D"
+          },
+          {
+            "entry_date": "2010-03-08",
+            "exit_date": "2010-05-06",
+            "pnl_pct": -7.62,
+            "bars_held": 42,
+            "exit_reason": "V"
+          }
+        ],
+        "recent_trades": [
+          {
+            "entry_date": "2025-06-11",
+            "exit_date": "2026-02-05",
+            "pnl_pct": 19.27,
+            "bars_held": 164,
+            "exit_reason": "D"
+          },
+          {
+            "entry_date": "2024-10-04",
+            "exit_date": "2025-02-27",
+            "pnl_pct": -12.69,
+            "bars_held": 98,
+            "exit_reason": "D"
+          },
+          {
+            "entry_date": "2023-11-09",
+            "exit_date": "2024-08-05",
+            "pnl_pct": 21.8,
+            "bars_held": 183,
+            "exit_reason": "V"
+          },
+          {
+            "entry_date": "2023-02-09",
+            "exit_date": "2023-10-05",
+            "pnl_pct": 40.27,
+            "bars_held": 164,
+            "exit_reason": "D"
+          },
+          {
+            "entry_date": "2020-06-09",
+            "exit_date": "2022-01-28",
+            "pnl_pct": 185.26,
+            "bars_held": 414,
+            "exit_reason": "D"
+          },
+          {
+            "entry_date": "2019-03-06",
+            "exit_date": "2020-02-27",
+            "pnl_pct": 67.83,
+            "bars_held": 247,
+            "exit_reason": "V"
+          },
+          {
+            "entry_date": "2018-05-16",
+            "exit_date": "2018-10-23",
+            "pnl_pct": -1.07,
+            "bars_held": 111,
+            "exit_reason": "D"
+          },
+          {
+            "entry_date": "2016-03-21",
+            "exit_date": "2018-02-05",
+            "pnl_pct": 189.39,
+            "bars_held": 473,
+            "exit_reason": "V"
+          }
+        ]
+      }
+    }
+  ]
+}

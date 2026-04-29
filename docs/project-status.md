@@ -66,6 +66,8 @@ The strict focused scan searched 679 non-Bonobo overlay/concept configurations w
 
 A relaxed diagnostic run at `min_weighted_era_fitness=0.6` produced 9 research survivors (`rsi_regime_canonical`, `atr_ratio_vix`, and `vj_or_slope_meta` variants). These are useful for studying independent timing behavior, but none is certification-ready. The immediate conclusion is that the current non-`gc_` grid library is failing economics more than diversity. The next productive work is either redesigning the best near-miss families around real/modern era robustness or adding genuinely new external/breadth features, not promoting relaxed survivors.
 
+`scripts/diagnostics/near_miss_autopsy.py` now explains why the best near misses fail. The first autopsy covered `vol_calm_regime`, `vj_or_slope_meta`, `rsi_regime_canonical`, and `atr_ratio_vix`. The common damage pattern is missed or undercaptured rebound participation: all four underperform B&H in `2023_rebound`; three also underperform in `2020_meltup`. `rsi_regime_canonical` is the most independent candidate by Gold-anchor distance (`diversity_score=0.945`), but it is too defensive in rebound years. `atr_ratio_vix` and `vj_or_slope_meta` have strong full-history economics, but real-era and modern-era share multiples remain far below 1.0. The next search should force modern/rebound capture into the strategy logic rather than only penalizing it after the fact.
+
 > **Historical note**: the previous code-generation and parity-checking workflow was removed in Phase 2 of the Montauk 2.0 project (see `docs/Montauk 2.0/` for full provenance).
 
 ### Deployment-context modeling exists as a separate concern
