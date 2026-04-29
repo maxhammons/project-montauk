@@ -1093,20 +1093,54 @@
     },
     "gc_vjatr_reclaimer": {
       "adjectives_used": [
-        "Obsidian"
+        "Obsidian",
+        "Dusky",
+        "Verdant",
+        "Bronze",
+        "Ashen",
+        "Hazel",
+        "Jade",
+        "Ember",
+        "Russet",
+        "Gilded"
       ],
       "animal": "Osprey",
       "assignments": {
-        "3362be175e38": "Obsidian Osprey"
+        "181732bc08fb": "Russet Osprey",
+        "3362be175e38": "Obsidian Osprey",
+        "58675402d213": "Hazel Osprey",
+        "5c0107aa3773": "Bronze Osprey",
+        "6bcfa6a7a1be": "Gilded Osprey",
+        "714bd38dfbfa": "Ashen Osprey",
+        "7e711a299260": "Jade Osprey",
+        "8e470dd2c30e": "Ember Osprey",
+        "a83ded2fad7b": "Dusky Osprey",
+        "cc6a5f740037": "Verdant Osprey"
       }
     },
     "gc_vjatr_timing_repair": {
       "adjectives_used": [
-        "Ivory"
+        "Ivory",
+        "Cerulean",
+        "Sable",
+        "Hazel",
+        "Amber",
+        "Gilded",
+        "Ember",
+        "Slate",
+        "Copper"
       ],
       "animal": "Hare",
       "assignments": {
-        "54b22e72153c": "Ivory Hare"
+        "1324e5d83866": "Amber Hare",
+        "235b8841060e": "Cerulean Hare",
+        "3e66c776b6cf": "Ember Hare",
+        "54b22e72153c": "Ivory Hare",
+        "6e9f391ae11e": "Copper Hare",
+        "79c369924cb6": "Gilded Hare",
+        "eacbdead39de": "Slate Hare",
+        "ebd39ec9b9ca": "Hazel Hare",
+        "f074310c7476": "Sable Hare"
       }
     },
     "gc_vjbb": {
