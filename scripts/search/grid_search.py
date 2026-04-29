@@ -36,6 +36,11 @@ from search.evolve import (
     _count_tunable_params,
     update_leaderboard,
 )
+from search.fitness import (
+    all_era_score_from_entry,
+    canonicalize_metrics_with_multi_era,
+    fitness_from_metrics,
+)
 from strategies.library import STRATEGY_REGISTRY, STRATEGY_TIERS
 from engine.strategy_engine import Indicators, backtest
 from validation.pipeline import run_validation_pipeline
@@ -1285,6 +1290,87 @@ def _rank_value(entry: dict, rank_by: str) -> float:
     return float(entry.get("fitness", 0.0))
 
 
+def _all_eras_beat_bh(metrics: dict) -> bool:
+    try:
+        return all(
+            float(metrics.get(key, 0.0)) >= 1.0
+            for key in ("share_multiple", "real_share_multiple", "modern_share_multiple")
+        )
+    except (TypeError, ValueError):
+        return False
+
+
+def _attach_canonical_multi_era(
+    candidates: list[dict],
+    df,
+) -> list[dict]:
+    """Stamp validation candidates with canonical standalone era reruns.
+
+    Raw grid metrics use era slices from one continuous full-history equity
+    curve. Leaderboard Gold uses standalone era reruns that restart capital at
+    each era boundary. This function records both views and makes the canonical
+    view explicit before admission/certification decisions.
+    """
+
+    if not candidates:
+        return []
+
+    from certify.backfill_multi_era_metrics import enrich_entry_with_multi_era
+
+    reconciliation = []
+    for entry in candidates:
+        raw_metrics = dict(entry.get("metrics") or {})
+        entry.setdefault("metrics_raw_engine", raw_metrics)
+        entry["fitness_raw_engine"] = float(entry.get("fitness") or 0.0)
+        entry["multi_era"] = enrich_entry_with_multi_era(entry, df)
+        entry["metrics"] = canonicalize_metrics_with_multi_era(
+            raw_metrics,
+            entry.get("multi_era"),
+        )
+        entry["fitness"] = fitness_from_metrics(
+            entry.get("metrics") or {},
+            multi_era=entry.get("multi_era"),
+        )
+        entry["overall_performance_score"] = all_era_score_from_entry(entry)
+
+        validation = entry.get("validation") or {}
+        canonical_all_eras = _all_eras_beat_bh(entry.get("metrics") or {})
+        certified = bool(validation.get("certified_not_overfit"))
+        verdict_pass = validation.get("verdict") == "PASS"
+        candidate_ready = verdict_pass and certified and canonical_all_eras
+        blockers = []
+        if not verdict_pass:
+            blockers.append("validation verdict is not PASS")
+        if not certified:
+            blockers.append("not certified_not_overfit")
+        if not canonical_all_eras:
+            blockers.append("canonical standalone eras do not all beat B&H")
+        entry["canonical_gold_candidate"] = candidate_ready
+        entry["canonical_gold_candidate_blockers"] = blockers
+
+        reconciliation.append(
+            {
+                "strategy": entry.get("strategy"),
+                "rank": entry.get("rank"),
+                "raw_engine": {
+                    "fitness": round(float(entry.get("fitness_raw_engine") or 0.0), 6),
+                    "full": raw_metrics.get("share_multiple"),
+                    "real": raw_metrics.get("real_share_multiple"),
+                    "modern": raw_metrics.get("modern_share_multiple"),
+                },
+                "canonical_standalone": {
+                    "fitness": round(float(entry.get("fitness") or 0.0), 6),
+                    "full": entry.get("metrics", {}).get("share_multiple"),
+                    "real": entry.get("metrics", {}).get("real_share_multiple"),
+                    "modern": entry.get("metrics", {}).get("modern_share_multiple"),
+                },
+                "canonical_gold_candidate": candidate_ready,
+                "blockers": blockers,
+            }
+        )
+    return reconciliation
+
+
 def _is_valid_combo(concept: str, params: dict) -> bool:
     """Reject obviously invalid combos (e.g., fast_ema >= slow_ema)."""
     fast = params.get("fast_ema") or params.get("short_ema")
@@ -1752,6 +1838,25 @@ def run_grid_search(
     # decides whether a row is authoritative enough for leaderboard persistence.
     lb_path = os.path.join(PROJECT_ROOT, "spike", "leaderboard.json")
     admit_candidates = validation.get("raw_rankings", [])
+    canonical_reconciliation = _attach_canonical_multi_era(admit_candidates, df)
+    if canonical_reconciliation:
+        ready_count = sum(
+            1 for item in canonical_reconciliation if item["canonical_gold_candidate"]
+        )
+        print(
+            f"\n[grid] Canonical standalone era check: "
+            f"{ready_count}/{len(canonical_reconciliation)} candidates remain "
+            "Gold candidates before artifact packaging"
+        )
+        for item in canonical_reconciliation[:5]:
+            raw = item["raw_engine"]
+            can = item["canonical_standalone"]
+            status = "READY" if item["canonical_gold_candidate"] else "BLOCKED"
+            print(
+                f"  {item['strategy']:<28} {status:<7} "
+                f"raw={raw['full']:.2f}/{raw['real']:.2f}/{raw['modern']:.2f} "
+                f"canon={can['full']:.2f}/{can['real']:.2f}/{can['modern']:.2f}"
+            )
     if admit_candidates and admit:
         lb = update_leaderboard(
             {
@@ -1797,6 +1902,7 @@ def run_grid_search(
         "include_trades": include_trades,
         "raw_rankings": all_results[:top_n],
         "validation": validation,
+        "canonical_metric_reconciliation": canonical_reconciliation,
         "leaderboard_entries": len(admit_candidates) if admit else 0,
     }
 

@@ -70,6 +70,8 @@ A relaxed diagnostic run at `min_weighted_era_fitness=0.6` produced 9 research s
 
 Follow-up rebound repair work added `rsi_rebound_participation` and `atr_ratio_vix_rebound`. The RSI repair underperformed the original canonical RSI lane (`best_weighted_era_fitness=0.454`), so it should stay research-only. ATR/VIX rebound repair was more promising: a focused grid found 44 weighted-era charter-pass rows and 10/10 validation PASS candidates, including raw engine-era rows that beat B&H in full, real, and modern eras. However, canonical leaderboard multi-era reruns reduced the best candidate to real=0.4267 and modern=0.8734, so it is not Gold. This exposed and fixed a process bug: certification and leaderboard sync now re-check Gold eligibility after canonical multi-era metric rewriting, preventing stale `gold_status=True` rows.
 
+Grid validation now reports raw engine-era metrics beside canonical standalone era reruns before admission. Re-running `atr_ratio_vix_rebound` confirmed the gap is semantic, not a dead process or random validation error: the fitness-ranked pass still produced 10/10 validation PASS rows, but 0/10 remained canonical Gold candidates; the best raw all-era row (`19.43/1.07/1.67`) canonicalized to `19.43/0.43/0.87`. A marker-timing ranked pass also failed the same canonical check (4 PASS, 1 WARN, 0/5 canonical Gold candidates), so this lane is useful diagnostic evidence but not a promotion path.
+
 > **Historical note**: the previous code-generation and parity-checking workflow was removed in Phase 2 of the Montauk 2.0 project (see `docs/Montauk 2.0/` for full provenance).
 
 ### Deployment-context modeling exists as a separate concern

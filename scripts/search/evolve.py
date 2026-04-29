@@ -37,6 +37,7 @@ from engine.regime_helpers import score_regime_capture
 from search.fitness import (
     all_era_score_from_entry,
     canonicalize_metrics_with_multi_era,
+    fitness_from_metrics,
     fitness_from_result,
     weighted_era_fitness,
 )
@@ -388,42 +389,16 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
             continue
         name = entry["strategy"]
         strategies_in_run.add(name)
-        new_fitness = entry["fitness"]
-
-        if name not in strategy_state:
-            strategy_state[name] = {
-                "best_fitness": new_fitness,
-                "runs_without_improvement": 0,
-                "converged": False,
-            }
-        else:
-            prev_best = strategy_state[name]["best_fitness"]
-            # Improvement threshold: must beat previous best by >0.1% to count
-            if new_fitness > prev_best * 1.001:
-                strategy_state[name]["best_fitness"] = new_fitness
-                strategy_state[name]["runs_without_improvement"] = 0
-                strategy_state[name]["converged"] = False
-            else:
-                strategy_state[name]["runs_without_improvement"] += 1
-
-        # Auto-converge check (only if not manually unconverged)
-        rwi = strategy_state[name]["runs_without_improvement"]
-        if rwi >= CONVERGE_RUNS and not strategy_state[name].get("manual_unconverge"):
-            if not strategy_state[name]["converged"]:
-                strategy_state[name]["converged"] = True
-                print(f"[leaderboard] {name} auto-converged after {rwi} runs with no improvement")
 
         # Build leaderboard entry. Display names are assigned only after the
         # canonical multi-era Gold check so rejected rows do not pollute the
         # name registry.
         lb_entry = {
             "strategy": name,
-            "fitness": new_fitness,
+            "fitness": entry["fitness"],
             "params": entry.get("params", {}),
             "metrics": entry["metrics"],
             "date": date,
-            "converged": strategy_state[name]["converged"],
-            "runs_without_improvement": strategy_state[name]["runs_without_improvement"],
         }
         # Preserve marker alignment fields — these are first-class charter
         # signals, not optional decoration. Reports/dashboards rely on
@@ -445,15 +420,44 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
             lb_entry.get("metrics"),
             lb_entry.get("multi_era"),
         )
+        lb_entry["fitness"] = fitness_from_metrics(
+            lb_entry.get("metrics") or {},
+            multi_era=lb_entry.get("multi_era"),
+        )
         sync_entry_contract(lb_entry)
         eligible, reason = _is_leaderboard_eligible(lb_entry)
         if not eligible:
             rejected_count += 1
             print(
                 f"[leaderboard] rejected {name} after multi-era canonicalization "
-                f"(fit={new_fitness:.2f}): {reason}"
+                f"(fit={lb_entry.get('fitness', 0):.2f}): {reason}"
             )
             continue
+        new_fitness = lb_entry["fitness"]
+        if name not in strategy_state:
+            strategy_state[name] = {
+                "best_fitness": new_fitness,
+                "runs_without_improvement": 0,
+                "converged": False,
+            }
+        else:
+            prev_best = strategy_state[name]["best_fitness"]
+            # Improvement threshold: must beat previous best by >0.1% to count.
+            if new_fitness > prev_best * 1.001:
+                strategy_state[name]["best_fitness"] = new_fitness
+                strategy_state[name]["runs_without_improvement"] = 0
+                strategy_state[name]["converged"] = False
+            else:
+                strategy_state[name]["runs_without_improvement"] += 1
+
+        # Auto-converge check (only if not manually unconverged).
+        rwi = strategy_state[name]["runs_without_improvement"]
+        if rwi >= CONVERGE_RUNS and not strategy_state[name].get("manual_unconverge"):
+            if not strategy_state[name]["converged"]:
+                strategy_state[name]["converged"] = True
+                print(f"[leaderboard] {name} auto-converged after {rwi} runs with no improvement")
+        lb_entry["converged"] = strategy_state[name]["converged"]
+        lb_entry["runs_without_improvement"] = strategy_state[name]["runs_without_improvement"]
         from strategies.naming import assign_display_name
         lb_entry["display_name"] = assign_display_name(
             name, entry.get("params", {}), name_registry_path
