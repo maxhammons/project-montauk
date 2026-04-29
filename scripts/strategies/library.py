@@ -6279,6 +6279,68 @@ def timing_repair_entries(ind, p) -> np.ndarray:
     return entries
 
 
+def filtered_timing_repair_entries(ind, p) -> np.ndarray:
+    """Narrow timing-repair trigger for hybrid overlay tests.
+
+    This uses prefixed params so it can be combined with the reclaimer without
+    changing the reclaimer's known-good recovery settings.
+    """
+    n = ind.n
+    cl = ind.close
+    vix = ind.vix_close()
+    repair_len = int(p.get("timing_repair_len", 30))
+    rsi_len = int(p.get("timing_rsi_len", 7))
+    lookback = int(p.get("timing_drawdown_lookback", 40))
+    drawdown_pct = float(p.get("timing_drawdown_pct", 25.0))
+    slope_lookback = int(p.get("timing_repair_slope", 3))
+    rsi_floor = float(p.get("timing_rsi_floor", 45.0))
+    vix_ceiling = float(p.get("timing_vix_ceiling", 35.0))
+    trend_len = int(p.get("timing_trend_len", 100))
+    vol_short = int(p.get("timing_vol_short", 10))
+    vol_long = int(p.get("timing_vol_long", 60))
+    vol_ratio_max = float(p.get("timing_vol_ratio_max", 0.85))
+
+    repair = ind.ema(repair_len)
+    trend = ind.ema(trend_len)
+    rsi = ind.rsi(rsi_len)
+    rv_s = ind.realized_vol(vol_short)
+    rv_l = ind.realized_vol(vol_long)
+    entries = np.zeros(n, dtype=bool)
+    armed = False
+    start = max(lookback, repair_len, slope_lookback, trend_len, vol_long) + 1
+    for i in range(start, n):
+        if (
+            np.isnan(repair[i])
+            or np.isnan(repair[i - slope_lookback])
+            or np.isnan(trend[i])
+            or np.isnan(rsi[i])
+            or np.isnan(rv_s[i])
+            or np.isnan(rv_l[i])
+            or rv_l[i] <= 0
+        ):
+            continue
+        recent_high = np.max(cl[i - lookback + 1:i + 1])
+        drawdown = (cl[i] / recent_high - 1.0) * 100 if recent_high > 0 else 0.0
+        if drawdown <= -drawdown_pct:
+            armed = True
+        repair_cross = cl[i - 1] <= repair[i - 1] and cl[i] > repair[i]
+        repair_slope = repair[i] > repair[i - slope_lookback]
+        calm_vol = rv_s[i] / rv_l[i] <= vol_ratio_max
+        trend_ok = cl[i] > trend[i]
+        if (
+            armed
+            and repair_cross
+            and repair_slope
+            and trend_ok
+            and calm_vol
+            and rsi[i] >= rsi_floor
+            and vix[i] <= vix_ceiling
+        ):
+            entries[i] = True
+            armed = False
+    return entries
+
+
 def gc_vjatr_airbag(ind, p):
     """T1 overlay test: Bonobo/VJ-ATR base plus independent VIX/ATR airbag exits."""
     entries, base_exits, base_labels = gc_vjatr(ind, p)
@@ -6313,6 +6375,15 @@ def gc_vjatr_timing_repair(ind, p):
     """T1 research overlay: Bonobo/VJ-ATR plus minimal post-drawdown re-entry."""
     base_entries, exits, labels = gc_vjatr(ind, p)
     entries = base_entries | timing_repair_entries(ind, p)
+    return entries, exits, labels
+
+
+def gc_vjatr_reclaimer_timing(ind, p):
+    """T1 hybrid overlay: Bonobo/VJ-ATR plus reclaimer and narrow timing repair."""
+    base_entries, exits, labels = gc_vjatr(ind, p)
+    reclaim_entries, _reclaim_exits, _reclaim_labels = reclaimer_vol_rsi(ind, p)
+    timing_entries = filtered_timing_repair_entries(ind, p)
+    entries = base_entries | reclaim_entries | timing_entries
     return entries, exits, labels
 
 
@@ -7014,6 +7085,7 @@ STRATEGY_REGISTRY = {
     "gc_vjatr_reclaimer":       gc_vjatr_reclaimer,         # D5: Bonobo + recovery entries
     "gc_vjatr_state_filter":    gc_vjatr_state_filter,      # D6: Bonobo + state filter exits
     "gc_vjatr_timing_repair":   gc_vjatr_timing_repair,     # D7: minimal post-drawdown re-entry
+    "gc_vjatr_reclaimer_timing": gc_vjatr_reclaimer_timing, # D8: reclaimer plus narrow timing repair
     "ensemble_vote_3of5":       ensemble_vote_3of5,         # B12
     "fed_macro_primary":        fed_macro_primary,          # B13
     "slope_only_200":           slope_only_200,             # B16
@@ -7160,6 +7232,7 @@ STRATEGY_TIERS = {
     "gc_vjatr_reclaimer":       "T1",
     "gc_vjatr_state_filter":    "T1",
     "gc_vjatr_timing_repair":   "T1",
+    "gc_vjatr_reclaimer_timing": "T1",
     "ensemble_vote_3of5":       "T1",
     "fed_macro_primary":        "T1",
     "slope_only_200":           "T1",
@@ -7825,6 +7898,37 @@ STRATEGY_PARAMS = {
         "repair_slope":      (1, 5, 2, int),
         "rsi_floor":         (35.0, 45.0, 5.0, float),
         "vix_ceiling":       (30.0, 50.0, 10.0, float),
+    },
+    "gc_vjatr_reclaimer_timing": {
+        "fast_ema":                 (100, 140, 20, int),
+        "slow_ema":                 (150, 200, 10, int),
+        "slope_window":             (1, 3, 1, int),
+        "entry_bars":               (2, 3, 1, int),
+        "cooldown":                 (0, 5, 5, int),
+        "atr_period":               (14, 20, 2, int),
+        "atr_look":                 (20, 60, 10, int),
+        "atr_expand":               (1.5, 2.5, 0.5, float),
+        "atr_confirm":              (3, 5, 1, int),
+        "rsi_len":                  (7, 21, 7, int),
+        "fast_len":                 (30, 70, 20, int),
+        "trend_len":                (100, 200, 50, int),
+        "vol_short":                (10, 30, 10, int),
+        "vol_long":                 (60, 120, 30, int),
+        "drawdown_lookback":        (80, 160, 40, int),
+        "drawdown_pct":             (20.0, 35.0, 5.0, float),
+        "rsi_reclaim":              (40.0, 50.0, 5.0, float),
+        "vol_ratio_max":            (0.80, 1.05, 0.05, float),
+        "timing_repair_len":        (20, 50, 10, int),
+        "timing_rsi_len":           (7, 21, 7, int),
+        "timing_drawdown_lookback": (40, 100, 20, int),
+        "timing_drawdown_pct":      (15.0, 30.0, 5.0, float),
+        "timing_repair_slope":      (1, 5, 2, int),
+        "timing_rsi_floor":         (40.0, 50.0, 5.0, float),
+        "timing_vix_ceiling":       (30.0, 45.0, 5.0, float),
+        "timing_trend_len":         (50, 150, 50, int),
+        "timing_vol_short":         (10, 20, 10, int),
+        "timing_vol_long":          (60, 90, 30, int),
+        "timing_vol_ratio_max":     (0.70, 0.90, 0.10, float),
     },
     # ── T1: Spike batch 2026-04-15b (diagnostic-informed) ──
     "gc_atr_trail": {

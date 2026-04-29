@@ -74,6 +74,8 @@ Grid validation now reports raw engine-era metrics beside canonical standalone e
 
 Overlay-on-champion matrices now use the same canonical standalone era basis. `gc_vjatr_reclaimer` still survives as an economic overlay on Gold Bonobo bases, but the tested candidates do not improve marker timing (`dTiming=0.0000`, slight marker-score drag). `gc_vjatr_timing_repair` improves timing (`dTiming` up to `+0.1590`) and real-era share, but fails retention because full and/or modern ratios fall below the overlay thresholds. The next overlay design should combine reclaimer economics with a smaller timing-repair trigger, not promote the timing-repair module as-is.
 
+That hybrid design is now tested as `gc_vjatr_reclaimer_timing`: reclaimer entries plus a separately gated, prefixed timing-repair trigger. The focused 384-combo grid found economically viable raw candidates and timing-ranked candidates, but canonical overlay matrices found zero survivors. Marker-ranked candidates improved timing only modestly (`dTiming≈+0.036`) while breaking full/modern retention. Fitness-ranked candidates produced strong standalone full-history numbers but still failed overlay retention (`real_ratio≈0.90`, `modern_ratio≈0.84` on the best Gold base comparison). The top-three full validation attempt was stopped after the validation pipeline stalled in Gate 6; the raw and canonical overlay evidence is sufficient to keep this hybrid in research-only status.
+
 > **Historical note**: the previous code-generation and parity-checking workflow was removed in Phase 2 of the Montauk 2.0 project (see `docs/Montauk 2.0/` for full provenance).
 
 ### Deployment-context modeling exists as a separate concern
