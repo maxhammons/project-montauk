@@ -413,14 +413,11 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
                 strategy_state[name]["converged"] = True
                 print(f"[leaderboard] {name} auto-converged after {rwi} runs with no improvement")
 
-        # Build leaderboard entry
-        from strategies.naming import assign_display_name
-
+        # Build leaderboard entry. Display names are assigned only after the
+        # canonical multi-era Gold check so rejected rows do not pollute the
+        # name registry.
         lb_entry = {
             "strategy": name,
-            "display_name": assign_display_name(
-                name, entry.get("params", {}), name_registry_path
-            ),
             "fitness": new_fitness,
             "params": entry.get("params", {}),
             "metrics": entry["metrics"],
@@ -447,6 +444,19 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
         lb_entry["metrics"] = canonicalize_metrics_with_multi_era(
             lb_entry.get("metrics"),
             lb_entry.get("multi_era"),
+        )
+        sync_entry_contract(lb_entry)
+        eligible, reason = _is_leaderboard_eligible(lb_entry)
+        if not eligible:
+            rejected_count += 1
+            print(
+                f"[leaderboard] rejected {name} after multi-era canonicalization "
+                f"(fit={new_fitness:.2f}): {reason}"
+            )
+            continue
+        from strategies.naming import assign_display_name
+        lb_entry["display_name"] = assign_display_name(
+            name, entry.get("params", {}), name_registry_path
         )
         lb_entry["overall_performance_score"] = all_era_score_from_entry(lb_entry)
         leaderboard.append(lb_entry)

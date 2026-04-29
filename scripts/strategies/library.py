@@ -3091,6 +3091,84 @@ def atr_ratio_vix(ind, p):
     return entries, exits, labels
 
 
+def atr_ratio_vix_rebound(ind, p):
+    """T1: ATR/VIX trend shell with explicit post-drawdown rebound entry.
+
+    Base entry is the original calm-vol ATR ratio trend. Rebound entry can fire
+    earlier after a drawdown/VIX shock when price repairs above the fast EMA.
+    """
+    n = ind.n
+    cl = ind.close
+    atr_s = ind.atr(int(p.get("atr_short", 7)))
+    atr_l = ind.atr(int(p.get("atr_long", 100)))
+    fast_len = int(p.get("fast_ema", 30))
+    slow_len = int(p.get("slow_ema", 100))
+    fast = ind.ema(fast_len)
+    slow = ind.ema(slow_len)
+    rsi = ind.rsi(int(p.get("rsi_len", 14)))
+    vix = ind.vix
+    atr_ratio_entry = float(p.get("atr_ratio_entry", 1.0))
+    rebound_ratio_max = float(p.get("rebound_ratio_max", 1.5))
+    drawdown_lookback = int(p.get("drawdown_lookback", 80))
+    drawdown_pct = float(p.get("drawdown_pct", 15.0))
+    repair_slope = int(p.get("repair_slope", 5))
+    rsi_reclaim = float(p.get("rsi_reclaim", 45.0))
+    vix_arm = float(p.get("vix_arm", 28.0))
+    vix_exit_level = float(p.get("vix_exit_level", 30.0))
+    vix_spike_pct = float(p.get("vix_spike_pct", 75.0))
+    death_buffer_pct = float(p.get("death_buffer_pct", 0.0))
+    death_persist = int(p.get("death_persist", 1))
+
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    armed = False
+    death_count = 0
+    start = max(int(p.get("atr_long", 100)), slow_len, drawdown_lookback, repair_slope + 5) + 1
+    for i in range(start, n):
+        if (
+            np.isnan(atr_s[i])
+            or np.isnan(atr_l[i])
+            or atr_l[i] == 0
+            or np.isnan(fast[i])
+            or np.isnan(fast[i - repair_slope])
+            or np.isnan(slow[i])
+            or np.isnan(rsi[i])
+        ):
+            continue
+        ratio = atr_s[i] / atr_l[i]
+        recent_high = np.max(cl[i - drawdown_lookback + 1:i + 1])
+        drawdown = (cl[i] / recent_high - 1.0) * 100.0 if recent_high > 0 else 0.0
+        if drawdown <= -drawdown_pct or vix[i] >= vix_arm:
+            armed = True
+
+        base_entry = ratio < atr_ratio_entry and fast[i] > slow[i]
+        repair_entry = (
+            armed
+            and ratio <= rebound_ratio_max
+            and cl[i] > fast[i]
+            and fast[i] > fast[i - repair_slope]
+            and rsi[i] >= rsi_reclaim
+        )
+        if base_entry or repair_entry:
+            entries[i] = True
+            armed = False
+
+        death_raw = fast[i] < slow[i] * (1.0 - death_buffer_pct / 100.0)
+        death_count = death_count + 1 if death_raw else 0
+        if death_count >= death_persist:
+            exits[i] = True
+            labels[i] = "D"
+            armed = True
+            death_count = 0
+        if vix is not None and not np.isnan(vix[i]) and not np.isnan(vix[i - 5]):
+            if vix[i] > vix_exit_level and vix[i - 5] > 0 and (vix[i] - vix[i - 5]) / vix[i - 5] > vix_spike_pct / 100.0:
+                exits[i] = True
+                labels[i] = "V"
+                armed = True
+    return entries, exits, labels
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Spike batch 2026-04-15a: Diversity strategies (non-crossover signals)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -5282,6 +5360,91 @@ def rsi_regime_canonical(ind, p):
     return entries, exits, labels
 
 
+def rsi_rebound_participation(ind, p):
+    """T1 standalone: RSI recovery with explicit rebound participation.
+
+    Unlike `rsi_regime_canonical`, this does not sell merely because RSI is
+    overbought. Strength is allowed to persist until panic or trend failure.
+    """
+    n = ind.n
+    cl = ind.close
+    vix = ind.vix_close()
+    rsi_len = int(p.get("rsi_len", 14))
+    fast_len = int(p.get("fast_len", 30))
+    trend_len = int(p.get("trend_len", 150))
+    entry_rsi = float(p.get("entry_rsi", 40.0))
+    participation_rsi = float(p.get("participation_rsi", 50.0))
+    panic_rsi = float(p.get("panic_rsi", 20.0))
+    drawdown_lookback = int(p.get("drawdown_lookback", 80))
+    drawdown_pct = float(p.get("drawdown_pct", 15.0))
+    slope_lookback = int(p.get("slope_lookback", 5))
+    confirm_bars = int(p.get("confirm_bars", 2))
+    exit_buffer_pct = float(p.get("exit_buffer_pct", 5.0))
+    below_persist = int(p.get("below_persist", 5))
+    vix_arm = float(p.get("vix_arm", 28.0))
+
+    rsi = ind.rsi(rsi_len)
+    fast = ind.ema(fast_len)
+    trend = ind.ema(trend_len)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+
+    armed = False
+    confirm = 0
+    below_count = 0
+    prev_participation = False
+    start = max(rsi_len, fast_len, trend_len, drawdown_lookback, slope_lookback) + 1
+
+    for i in range(start, n):
+        if (
+            np.isnan(rsi[i])
+            or np.isnan(rsi[i - 1])
+            or np.isnan(fast[i])
+            or np.isnan(fast[i - slope_lookback])
+            or np.isnan(trend[i])
+        ):
+            continue
+
+        recent_high = np.max(cl[i - drawdown_lookback + 1:i + 1])
+        drawdown = (cl[i] / recent_high - 1.0) * 100.0 if recent_high > 0 else 0.0
+        if drawdown <= -drawdown_pct or rsi[i] <= entry_rsi - 5.0 or vix[i] >= vix_arm:
+            armed = True
+
+        fast_rising = fast[i] > fast[i - slope_lookback]
+        above_fast = cl[i] > fast[i]
+        above_trend = cl[i] > trend[i]
+        rsi_cross = rsi[i - 1] < entry_rsi <= rsi[i]
+        participation = above_trend and fast_rising and rsi[i] >= participation_rsi
+        confirm = confirm + 1 if participation else 0
+
+        recovery_entry = armed and rsi_cross and above_fast and fast_rising
+        participation_entry = armed and confirm >= confirm_bars
+        continuation_entry = participation and not prev_participation and confirm >= confirm_bars
+        if recovery_entry or participation_entry or continuation_entry:
+            entries[i] = True
+            armed = False
+
+        below_trend = cl[i] < trend[i] * (1.0 - exit_buffer_pct / 100.0)
+        below_count = below_count + 1 if below_trend else 0
+        if rsi[i] < panic_rsi:
+            exits[i] = True
+            labels[i] = "P"
+            armed = True
+            below_count = 0
+            confirm = 0
+        elif below_count >= below_persist:
+            exits[i] = True
+            labels[i] = "T"
+            armed = True
+            below_count = 0
+            confirm = 0
+
+        prev_participation = participation
+
+    return entries, exits, labels
+
+
 def dual_tf_gc(ind, p):
     """T1 standalone (B4): nested EMA pair-ups as daily+'weekly' proxy.
     Entry: EMA(fast_ema) > EMA(slow_ema) AND EMA(outer_fast) > EMA(outer_slow)
@@ -6748,6 +6911,7 @@ STRATEGY_REGISTRY = {
     "gc_pre_vix":               gc_pre_vix,
     "gc_strict_vix":            gc_strict_vix,
     "atr_ratio_vix":            atr_ratio_vix,
+    "atr_ratio_vix_rebound":    atr_ratio_vix_rebound,
     # ── T1: Spike batch 2026-04-15a (diversity — non-crossover strategies) ──
     "drawdown_recovery":        drawdown_recovery,
     "multi_tf_momentum":        multi_tf_momentum,
@@ -6824,6 +6988,7 @@ STRATEGY_REGISTRY = {
     "pullback_in_trend": pullback_in_trend, # B9: standalone buy-the-dip
     # ── Velvet Jaguar Overlays 2026-04-20 (Round 3) ──
     "rsi_regime_canonical": rsi_regime_canonical,  # B1: canonical-only RSI regime revive
+    "rsi_rebound_participation": rsi_rebound_participation,  # B1b: RSI recovery without overbought exit
     "dual_tf_gc":           dual_tf_gc,            # B4: nested EMA pair-ups
     "tecl_sgov_rs":         tecl_sgov_rs,          # B14: TECL/SGOV relative-strength rotation
     # ── Circuit breakers on VJ (Round 4, Bucket C) ──
@@ -6947,6 +7112,7 @@ STRATEGY_TIERS = {
     "gc_pre_vix":               "T1",
     "gc_strict_vix":            "T1",
     "atr_ratio_vix":            "T1",
+    "atr_ratio_vix_rebound":    "T1",
     # ── GC Enhancement Matrix 2026-04-20 addons (E1-E19, N1-N14, S1-S3) ──
     "gc_e1":  "T1", "gc_e2":  "T1", "gc_e3":  "T1", "gc_e4":  "T1",
     "gc_e5":  "T1", "gc_e6":  "T1", "gc_e7":  "T1", "gc_e8":  "T1",
@@ -6969,6 +7135,7 @@ STRATEGY_TIERS = {
     "pullback_in_trend": "T1",
     # ── Velvet Jaguar Overlays 2026-04-20 (Round 3) ──
     "rsi_regime_canonical": "T1",
+    "rsi_rebound_participation": "T1",
     "dual_tf_gc":           "T1",
     "tecl_sgov_rs":         "T1",
     # ── Circuit breakers on VJ (Round 4, Bucket C) ──
@@ -7452,6 +7619,25 @@ STRATEGY_PARAMS = {
         "slow_ema":       (100, 300, 50, int),
         "cooldown":       (2, 10, 3, int),
     },
+    "atr_ratio_vix_rebound": {
+        "atr_short":          (7, 14, 7, int),
+        "atr_long":           (50, 100, 50, int),
+        "fast_ema":           (20, 50, 10, int),
+        "slow_ema":           (100, 200, 50, int),
+        "rsi_len":            (7, 14, 7, int),
+        "atr_ratio_entry":    (1.0, 1.1, 0.1, float),
+        "rebound_ratio_max":  (1.2, 1.8, 0.3, float),
+        "drawdown_lookback":  (40, 120, 40, int),
+        "drawdown_pct":       (10.0, 20.0, 5.0, float),
+        "repair_slope":       (3, 5, 2, int),
+        "rsi_reclaim":        (40.0, 50.0, 5.0, float),
+        "vix_arm":            (28.0, 32.0, 4.0, float),
+        "vix_exit_level":     (28.0, 32.0, 4.0, float),
+        "vix_spike_pct":      (50.0, 75.0, 25.0, float),
+        "death_buffer_pct":   (0.0, 2.0, 1.0, float),
+        "death_persist":      (1, 12, 1, int),
+        "cooldown":           (2, 10, 4, int),
+    },
     # ── T1: Spike batch 2026-04-15 (diversity) ──
     "drawdown_recovery": {
         "trend_len":      (100, 200, 50, int),
@@ -7473,6 +7659,22 @@ STRATEGY_PARAMS = {
         "oversold":       (20.0, 40.0, 10.0, float),
         "overbought":     (70.0, 80.0, 5.0, float),
         "cooldown":       (2, 10, 3, int),
+    },
+    "rsi_rebound_participation": {
+        "rsi_len":             (7, 14, 7, int),
+        "fast_len":            (20, 50, 10, int),
+        "trend_len":           (100, 200, 50, int),
+        "entry_rsi":           (35.0, 45.0, 5.0, float),
+        "participation_rsi":   (45.0, 55.0, 5.0, float),
+        "panic_rsi":           (20.0, 25.0, 5.0, float),
+        "drawdown_lookback":   (40, 120, 40, int),
+        "drawdown_pct":        (10.0, 20.0, 5.0, float),
+        "slope_lookback":      (3, 5, 2, int),
+        "confirm_bars":        (1, 3, 1, int),
+        "exit_buffer_pct":     (3.0, 8.0, 2.5, float),
+        "below_persist":       (3, 7, 2, int),
+        "vix_arm":             (28.0, 32.0, 4.0, float),
+        "cooldown":            (2, 10, 4, int),
     },
     "vol_compression_breakout": {
         "atr_period":     (7, 20, 7, int),

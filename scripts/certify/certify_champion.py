@@ -98,6 +98,9 @@ def main():
         is_leaderboard_eligible,
         sync_entry_contract,
     )
+    from certify.backfill_multi_era_metrics import enrich_entry_with_multi_era
+    from data.loader import get_tecl_data
+    from search.fitness import canonicalize_metrics_with_multi_era
 
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
@@ -136,6 +139,17 @@ def main():
 
     if champion is None:
         print("[certify] No matching champion found. Aborting.", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        df_full = get_tecl_data()
+        champion["multi_era"] = enrich_entry_with_multi_era(champion, df_full)
+        champion["metrics"] = canonicalize_metrics_with_multi_era(
+            champion.get("metrics"),
+            champion.get("multi_era"),
+        )
+    except Exception as exc:
+        print(f"[certify] Multi-era canonicalization failed: {exc}", file=sys.stderr)
         sys.exit(1)
 
     sync_entry_contract(champion)
@@ -194,7 +208,25 @@ def main():
             {"rankings": [champion]},
             leaderboard_path,
         )
-        print(f"[certify] Gold Status confirmed; leaderboard rows: {len(leaderboard)}")
+        key = (
+            champion.get("strategy"),
+            json.dumps(champion.get("params", {}), sort_keys=True),
+        )
+        persisted = any(
+            (
+                row.get("strategy"),
+                json.dumps(row.get("params", {}), sort_keys=True),
+            )
+            == key
+            for row in leaderboard
+        )
+        if persisted:
+            print(f"[certify] Gold Status confirmed; leaderboard rows: {len(leaderboard)}")
+        else:
+            print(
+                "[certify] Packaged but not persisted to leaderboard after "
+                "canonical multi-era guard"
+            )
     else:
         print(f"[certify] Packaged but not leaderboard-eligible: {reason}")
 

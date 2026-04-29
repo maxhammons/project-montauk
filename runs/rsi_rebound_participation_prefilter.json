@@ -1,0 +1,892 @@
+{
+  "concepts": [
+    "rsi_rebound_participation"
+  ],
+  "anchors": [
+    {
+      "name": "Obsidian Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "rank": 1
+    },
+    {
+      "name": "Ivory Hare",
+      "strategy": "gc_vjatr_timing_repair",
+      "rank": 8
+    },
+    {
+      "name": "Marbled Bonobo",
+      "strategy": "gc_vjatr",
+      "rank": 2
+    }
+  ],
+  "thresholds": {
+    "min_weighted_era_fitness": 1.0,
+    "max_anchor_corr": 0.85,
+    "max_entry_overlap": 0.85,
+    "max_exit_overlap": 0.85,
+    "min_diversity_score": 0.1,
+    "trade_overlap_tolerance_bars": 5
+  },
+  "total_combos": 9216,
+  "workers": 8,
+  "survivors": 0,
+  "rejects": {
+    "exception": 0,
+    "weighted_era_fitness_below_min": 9216,
+    "trades<5": 0,
+    "trades_per_year>5": 0,
+    "diversity": 0
+  },
+  "concept_summary": [
+    {
+      "strategy": "rsi_rebound_participation",
+      "combos": 9216,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.4542
+    }
+  ],
+  "near_misses": [
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4542,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 35.0,
+        "participation_rsi": 45.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 10.0,
+        "slope_lookback": 5,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 50,
+        "trades_yr": 1.5,
+        "share_multiple": 2.6135,
+        "real_share_multiple": 0.1478,
+        "modern_share_multiple": 0.4681,
+        "max_dd": 87.8
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4542,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 35.0,
+        "participation_rsi": 50.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 10.0,
+        "slope_lookback": 5,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 50,
+        "trades_yr": 1.5,
+        "share_multiple": 2.6135,
+        "real_share_multiple": 0.1478,
+        "modern_share_multiple": 0.4681,
+        "max_dd": 87.8
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4542,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 40.0,
+        "participation_rsi": 45.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 10.0,
+        "slope_lookback": 5,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 50,
+        "trades_yr": 1.5,
+        "share_multiple": 2.6135,
+        "real_share_multiple": 0.1478,
+        "modern_share_multiple": 0.4681,
+        "max_dd": 87.8
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4542,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 40.0,
+        "participation_rsi": 50.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 10.0,
+        "slope_lookback": 5,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 50,
+        "trades_yr": 1.5,
+        "share_multiple": 2.6135,
+        "real_share_multiple": 0.1478,
+        "modern_share_multiple": 0.4681,
+        "max_dd": 87.8
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4438,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 30,
+        "trend_len": 100,
+        "entry_rsi": 35.0,
+        "participation_rsi": 45.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 10.0,
+        "slope_lookback": 3,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 51,
+        "trades_yr": 1.5,
+        "share_multiple": 2.2408,
+        "real_share_multiple": 0.1478,
+        "modern_share_multiple": 0.4681,
+        "max_dd": 87.5
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4438,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 30,
+        "trend_len": 100,
+        "entry_rsi": 35.0,
+        "participation_rsi": 50.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 10.0,
+        "slope_lookback": 3,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 51,
+        "trades_yr": 1.5,
+        "share_multiple": 2.2408,
+        "real_share_multiple": 0.1478,
+        "modern_share_multiple": 0.4681,
+        "max_dd": 87.5
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4438,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 30,
+        "trend_len": 100,
+        "entry_rsi": 40.0,
+        "participation_rsi": 45.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 10.0,
+        "slope_lookback": 3,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 51,
+        "trades_yr": 1.5,
+        "share_multiple": 2.2408,
+        "real_share_multiple": 0.1478,
+        "modern_share_multiple": 0.4681,
+        "max_dd": 87.5
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4438,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 30,
+        "trend_len": 100,
+        "entry_rsi": 40.0,
+        "participation_rsi": 50.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 10.0,
+        "slope_lookback": 3,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 51,
+        "trades_yr": 1.5,
+        "share_multiple": 2.2408,
+        "real_share_multiple": 0.1478,
+        "modern_share_multiple": 0.4681,
+        "max_dd": 87.5
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4395,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 35.0,
+        "participation_rsi": 45.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 40,
+        "drawdown_pct": 10.0,
+        "slope_lookback": 5,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 50,
+        "trades_yr": 1.5,
+        "share_multiple": 2.0992,
+        "real_share_multiple": 0.1478,
+        "modern_share_multiple": 0.4681,
+        "max_dd": 87.8
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4395,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 35.0,
+        "participation_rsi": 50.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 40,
+        "drawdown_pct": 10.0,
+        "slope_lookback": 5,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 50,
+        "trades_yr": 1.5,
+        "share_multiple": 2.0992,
+        "real_share_multiple": 0.1478,
+        "modern_share_multiple": 0.4681,
+        "max_dd": 87.8
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4395,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 40.0,
+        "participation_rsi": 45.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 40,
+        "drawdown_pct": 10.0,
+        "slope_lookback": 5,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 50,
+        "trades_yr": 1.5,
+        "share_multiple": 2.0992,
+        "real_share_multiple": 0.1478,
+        "modern_share_multiple": 0.4681,
+        "max_dd": 87.8
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4395,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 40.0,
+        "participation_rsi": 50.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 40,
+        "drawdown_pct": 10.0,
+        "slope_lookback": 5,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 50,
+        "trades_yr": 1.5,
+        "share_multiple": 2.0992,
+        "real_share_multiple": 0.1478,
+        "modern_share_multiple": 0.4681,
+        "max_dd": 87.8
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4378,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 35.0,
+        "participation_rsi": 45.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 10.0,
+        "slope_lookback": 3,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 52,
+        "trades_yr": 1.6,
+        "share_multiple": 1.9397,
+        "real_share_multiple": 0.1496,
+        "modern_share_multiple": 0.472,
+        "max_dd": 87.5
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4378,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 35.0,
+        "participation_rsi": 50.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 10.0,
+        "slope_lookback": 3,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 52,
+        "trades_yr": 1.6,
+        "share_multiple": 1.9397,
+        "real_share_multiple": 0.1496,
+        "modern_share_multiple": 0.472,
+        "max_dd": 87.5
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4378,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 40.0,
+        "participation_rsi": 45.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 10.0,
+        "slope_lookback": 3,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 52,
+        "trades_yr": 1.6,
+        "share_multiple": 1.9397,
+        "real_share_multiple": 0.1496,
+        "modern_share_multiple": 0.472,
+        "max_dd": 87.5
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4378,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 40.0,
+        "participation_rsi": 50.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 10.0,
+        "slope_lookback": 3,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 52,
+        "trades_yr": 1.6,
+        "share_multiple": 1.9397,
+        "real_share_multiple": 0.1496,
+        "modern_share_multiple": 0.472,
+        "max_dd": 87.5
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4274,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 35.0,
+        "participation_rsi": 50.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 40,
+        "drawdown_pct": 15.0,
+        "slope_lookback": 3,
+        "confirm_bars": 2,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 3,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 57,
+        "trades_yr": 1.7,
+        "share_multiple": 2.3047,
+        "real_share_multiple": 0.1544,
+        "modern_share_multiple": 0.4286,
+        "max_dd": 89.0
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4274,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 35.0,
+        "participation_rsi": 50.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 15.0,
+        "slope_lookback": 3,
+        "confirm_bars": 2,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 3,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 57,
+        "trades_yr": 1.7,
+        "share_multiple": 2.3047,
+        "real_share_multiple": 0.1544,
+        "modern_share_multiple": 0.4286,
+        "max_dd": 89.0
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4274,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 40.0,
+        "participation_rsi": 50.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 40,
+        "drawdown_pct": 15.0,
+        "slope_lookback": 3,
+        "confirm_bars": 2,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 3,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 57,
+        "trades_yr": 1.7,
+        "share_multiple": 2.3047,
+        "real_share_multiple": 0.1544,
+        "modern_share_multiple": 0.4286,
+        "max_dd": 89.0
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4274,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 40.0,
+        "participation_rsi": 50.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 15.0,
+        "slope_lookback": 3,
+        "confirm_bars": 2,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 3,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 57,
+        "trades_yr": 1.7,
+        "share_multiple": 2.3047,
+        "real_share_multiple": 0.1544,
+        "modern_share_multiple": 0.4286,
+        "max_dd": 89.0
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4178,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 35.0,
+        "participation_rsi": 45.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 40,
+        "drawdown_pct": 15.0,
+        "slope_lookback": 5,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 50,
+        "trades_yr": 1.5,
+        "share_multiple": 1.4989,
+        "real_share_multiple": 0.1478,
+        "modern_share_multiple": 0.4681,
+        "max_dd": 87.8
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4178,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 35.0,
+        "participation_rsi": 45.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 15.0,
+        "slope_lookback": 5,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 50,
+        "trades_yr": 1.5,
+        "share_multiple": 1.4989,
+        "real_share_multiple": 0.1478,
+        "modern_share_multiple": 0.4681,
+        "max_dd": 87.8
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4178,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 35.0,
+        "participation_rsi": 50.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 40,
+        "drawdown_pct": 15.0,
+        "slope_lookback": 5,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 50,
+        "trades_yr": 1.5,
+        "share_multiple": 1.4989,
+        "real_share_multiple": 0.1478,
+        "modern_share_multiple": 0.4681,
+        "max_dd": 87.8
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4178,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 35.0,
+        "participation_rsi": 50.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 15.0,
+        "slope_lookback": 5,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 50,
+        "trades_yr": 1.5,
+        "share_multiple": 1.4989,
+        "real_share_multiple": 0.1478,
+        "modern_share_multiple": 0.4681,
+        "max_dd": 87.8
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4178,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 40.0,
+        "participation_rsi": 45.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 40,
+        "drawdown_pct": 15.0,
+        "slope_lookback": 5,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 50,
+        "trades_yr": 1.5,
+        "share_multiple": 1.4989,
+        "real_share_multiple": 0.1478,
+        "modern_share_multiple": 0.4681,
+        "max_dd": 87.8
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4178,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 40.0,
+        "participation_rsi": 45.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 15.0,
+        "slope_lookback": 5,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 50,
+        "trades_yr": 1.5,
+        "share_multiple": 1.4989,
+        "real_share_multiple": 0.1478,
+        "modern_share_multiple": 0.4681,
+        "max_dd": 87.8
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4178,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 40.0,
+        "participation_rsi": 50.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 40,
+        "drawdown_pct": 15.0,
+        "slope_lookback": 5,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 50,
+        "trades_yr": 1.5,
+        "share_multiple": 1.4989,
+        "real_share_multiple": 0.1478,
+        "modern_share_multiple": 0.4681,
+        "max_dd": 87.8
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.4178,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 20,
+        "trend_len": 100,
+        "entry_rsi": 40.0,
+        "participation_rsi": 50.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 15.0,
+        "slope_lookback": 5,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 50,
+        "trades_yr": 1.5,
+        "share_multiple": 1.4989,
+        "real_share_multiple": 0.1478,
+        "modern_share_multiple": 0.4681,
+        "max_dd": 87.8
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.413,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 50,
+        "trend_len": 100,
+        "entry_rsi": 35.0,
+        "participation_rsi": 45.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 10.0,
+        "slope_lookback": 3,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 50,
+        "trades_yr": 1.5,
+        "share_multiple": 2.1308,
+        "real_share_multiple": 0.133,
+        "modern_share_multiple": 0.4394,
+        "max_dd": 87.5
+      }
+    },
+    {
+      "strategy": "rsi_rebound_participation",
+      "weighted_era_fitness": 0.413,
+      "params": {
+        "rsi_len": 14,
+        "fast_len": 50,
+        "trend_len": 100,
+        "entry_rsi": 35.0,
+        "participation_rsi": 50.0,
+        "panic_rsi": 20.0,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 10.0,
+        "slope_lookback": 3,
+        "confirm_bars": 1,
+        "exit_buffer_pct": 5.0,
+        "below_persist": 5,
+        "vix_arm": 28.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 50,
+        "trades_yr": 1.5,
+        "share_multiple": 2.1308,
+        "real_share_multiple": 0.133,
+        "modern_share_multiple": 0.4394,
+        "max_dd": 87.5
+      }
+    }
+  ],
+  "rankings": [],
+  "elapsed_seconds": 158.63
+}

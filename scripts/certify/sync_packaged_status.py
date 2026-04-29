@@ -20,7 +20,7 @@ SCRIPTS_DIR = PROJECT_ROOT / "scripts"
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
-from certify.contract import REQUIRED_RUN_ARTIFACTS, sync_entry_contract
+from certify.contract import REQUIRED_RUN_ARTIFACTS, is_leaderboard_eligible, sync_entry_contract
 from certify.backfill_multi_era_metrics import enrich_entry_with_multi_era
 from search.fitness import all_era_score_from_entry, canonicalize_metrics_with_multi_era
 from data.loader import get_tecl_data
@@ -106,8 +106,20 @@ def main() -> int:
             row.get("metrics"),
             row.get("multi_era"),
         )
+        sync_entry_contract(row, artifact_paths=artifact_paths)
         row["overall_performance_score"] = all_era_score_from_entry(row)
         synced += 1
+
+    kept = []
+    dropped = 0
+    for row in rows:
+        sync_entry_contract(row)
+        eligible, _reason = is_leaderboard_eligible(row)
+        if eligible:
+            kept.append(row)
+        else:
+            dropped += 1
+    rows = kept
 
     rows.sort(
         key=lambda row: (
@@ -121,7 +133,7 @@ def main() -> int:
     with open(LEADERBOARD_PATH, "w") as f:
         json.dump(rows, f, indent=2)
 
-    print(f"[sync-packaged] synced={synced} missing_or_incomplete={missing}")
+    print(f"[sync-packaged] synced={synced} missing_or_incomplete={missing} dropped_not_gold={dropped}")
     return 0
 
 
