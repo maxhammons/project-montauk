@@ -1,6 +1,6 @@
 # Project Montauk — Project Status
 
-> As of 2026-04-28
+> As of 2026-04-29
 
 ---
 
@@ -57,6 +57,14 @@ The first Gold diversity audit found that `Ivory Hare` is currently the most dis
 The first Gold-only ensemble audit did not produce a certification target. The best simple vote was `Obsidian Osprey + Marbled Bonobo + Ivory Hare` at 2-of-3, with all-era-positive economics (21.21x full, 1.33x real, 2.24x modern) and better real-era robustness than `Obsidian Osprey`, but it cut full-history performance to ~51% of the champion and modern performance to ~87%. This is useful as a defensive portfolio diagnostic, not yet an authority leaderboard candidate.
 
 The airbag and state-filter overlays were repaired so they no longer inherit full standalone exit behavior, but a diagnostic profile still found zero charter-pass candidates in the sampled grids because real-era and modern-era performance degrade below 1.0. They should stay in the diagnostic/research lane until redesigned as less destructive filters.
+
+### Diversity-prefilter research lane (2026-04-29)
+
+`scripts/diagnostics/diversity_prefilter_search.py` is now the dedicated "third independent Gold family" search tool. It reuses `search.grid_search.GRIDS`, runs multicore via `--workers`, anchors against current Gold rows, and ranks candidates by all-era economics plus risk-state/trade-date distance from Gold anchors. It is a research screen, not an admission path.
+
+The strict focused scan searched 679 non-Bonobo overlay/concept configurations with 8 workers and found zero survivors. The strict broad non-`gc_` scan searched 2,407 valid configurations and also found zero survivors; every rejection happened at the all-era economics floor before diversity checks. Best near misses were `vol_calm_regime` (`weighted_era_fitness=0.739`) and `vj_or_slope_meta` (`0.735`), but they still fail the Gold economic contract because one or more canonical eras remain below B&H.
+
+A relaxed diagnostic run at `min_weighted_era_fitness=0.6` produced 9 research survivors (`rsi_regime_canonical`, `atr_ratio_vix`, and `vj_or_slope_meta` variants). These are useful for studying independent timing behavior, but none is certification-ready. The immediate conclusion is that the current non-`gc_` grid library is failing economics more than diversity. The next productive work is either redesigning the best near-miss families around real/modern era robustness or adding genuinely new external/breadth features, not promoting relaxed survivors.
 
 > **Historical note**: the previous code-generation and parity-checking workflow was removed in Phase 2 of the Montauk 2.0 project (see `docs/Montauk 2.0/` for full provenance).
 

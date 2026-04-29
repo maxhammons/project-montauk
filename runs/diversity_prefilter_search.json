@@ -1,0 +1,696 @@
+{
+  "concepts": [
+    "drawdown_recovery",
+    "multi_tf_momentum",
+    "rsi_mean_revert_trend",
+    "vol_compression_breakout",
+    "price_position_regime",
+    "treasury_regime",
+    "xlk_relative_momentum",
+    "vix_regime_entry",
+    "donchian_vix",
+    "fed_macro_primary",
+    "sgov_flight_switch",
+    "vol_calm_regime",
+    "keltner_squeeze_breakout",
+    "vix_term_proxy",
+    "macd_qqq_bull",
+    "ensemble_vote_3of5"
+  ],
+  "anchors": [
+    {
+      "name": "Obsidian Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "rank": 1
+    },
+    {
+      "name": "Ivory Hare",
+      "strategy": "gc_vjatr_timing_repair",
+      "rank": 8
+    },
+    {
+      "name": "Marbled Bonobo",
+      "strategy": "gc_vjatr",
+      "rank": 2
+    }
+  ],
+  "thresholds": {
+    "min_weighted_era_fitness": 1.0,
+    "max_anchor_corr": 0.85,
+    "max_entry_overlap": 0.85,
+    "max_exit_overlap": 0.85,
+    "min_diversity_score": 0.1,
+    "trade_overlap_tolerance_bars": 5
+  },
+  "total_combos": 679,
+  "workers": 8,
+  "survivors": 0,
+  "rejects": {
+    "exception": 0,
+    "weighted_era_fitness_below_min": 679,
+    "trades<5": 0,
+    "trades_per_year>5": 0,
+    "diversity": 0
+  },
+  "concept_summary": [
+    {
+      "strategy": "donchian_vix",
+      "combos": 16,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.237
+    },
+    {
+      "strategy": "drawdown_recovery",
+      "combos": 162,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.15
+    },
+    {
+      "strategy": "ensemble_vote_3of5",
+      "combos": 18,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.1074
+    },
+    {
+      "strategy": "fed_macro_primary",
+      "combos": 24,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.0829
+    },
+    {
+      "strategy": "keltner_squeeze_breakout",
+      "combos": 9,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.1072
+    },
+    {
+      "strategy": "macd_qqq_bull",
+      "combos": 3,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.0242
+    },
+    {
+      "strategy": "multi_tf_momentum",
+      "combos": 24,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.1254
+    },
+    {
+      "strategy": "price_position_regime",
+      "combos": 36,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.1514
+    },
+    {
+      "strategy": "rsi_mean_revert_trend",
+      "combos": 54,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.1334
+    },
+    {
+      "strategy": "sgov_flight_switch",
+      "combos": 6,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.078
+    },
+    {
+      "strategy": "treasury_regime",
+      "combos": 12,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.3828
+    },
+    {
+      "strategy": "vix_regime_entry",
+      "combos": 27,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.2832
+    },
+    {
+      "strategy": "vix_term_proxy",
+      "combos": 18,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.0343
+    },
+    {
+      "strategy": "vol_calm_regime",
+      "combos": 9,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.7389
+    },
+    {
+      "strategy": "vol_compression_breakout",
+      "combos": 243,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.0628
+    },
+    {
+      "strategy": "xlk_relative_momentum",
+      "combos": 18,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.2074
+    }
+  ],
+  "near_misses": [
+    {
+      "strategy": "vol_calm_regime",
+      "weighted_era_fitness": 0.7389,
+      "params": {
+        "vol_short": 10,
+        "vol_long": 200,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 172,
+        "trades_yr": 5.2,
+        "share_multiple": 0.2991,
+        "real_share_multiple": 0.6193,
+        "modern_share_multiple": 0.9971,
+        "max_dd": 99.2
+      }
+    },
+    {
+      "strategy": "vol_calm_regime",
+      "weighted_era_fitness": 0.5462,
+      "params": {
+        "vol_short": 20,
+        "vol_long": 150,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 115,
+        "trades_yr": 3.5,
+        "share_multiple": 0.0809,
+        "real_share_multiple": 0.4222,
+        "modern_share_multiple": 0.9803,
+        "max_dd": 99.4
+      }
+    },
+    {
+      "strategy": "vol_calm_regime",
+      "weighted_era_fitness": 0.5228,
+      "params": {
+        "vol_short": 10,
+        "vol_long": 150,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 183,
+        "trades_yr": 5.6,
+        "share_multiple": 0.0642,
+        "real_share_multiple": 0.3748,
+        "modern_share_multiple": 1.0144,
+        "max_dd": 99.8
+      }
+    },
+    {
+      "strategy": "vol_calm_regime",
+      "weighted_era_fitness": 0.4806,
+      "params": {
+        "vol_short": 50,
+        "vol_long": 200,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 50,
+        "trades_yr": 1.5,
+        "share_multiple": 4.9707,
+        "real_share_multiple": 0.1852,
+        "modern_share_multiple": 0.3988,
+        "max_dd": 94.4
+      }
+    },
+    {
+      "strategy": "vol_calm_regime",
+      "weighted_era_fitness": 0.4263,
+      "params": {
+        "vol_short": 20,
+        "vol_long": 200,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 97,
+        "trades_yr": 2.9,
+        "share_multiple": 0.1665,
+        "real_share_multiple": 0.2088,
+        "modern_share_multiple": 0.7259,
+        "max_dd": 99.1
+      }
+    },
+    {
+      "strategy": "treasury_regime",
+      "weighted_era_fitness": 0.3828,
+      "params": {
+        "trend_len": 50,
+        "slope_window": 5,
+        "exit_bars": 3,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 70,
+        "trades_yr": 2.1,
+        "share_multiple": 0.5201,
+        "real_share_multiple": 0.1552,
+        "modern_share_multiple": 0.5165,
+        "max_dd": 79.9
+      }
+    },
+    {
+      "strategy": "vol_calm_regime",
+      "weighted_era_fitness": 0.3238,
+      "params": {
+        "vol_short": 20,
+        "vol_long": 100,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 129,
+        "trades_yr": 3.9,
+        "share_multiple": 0.0556,
+        "real_share_multiple": 0.1873,
+        "modern_share_multiple": 0.632,
+        "max_dd": 99.6
+      }
+    },
+    {
+      "strategy": "vix_regime_entry",
+      "weighted_era_fitness": 0.2832,
+      "params": {
+        "trend_len": 50,
+        "entry_vix": 25.0,
+        "exit_vix": 25.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 75,
+        "trades_yr": 2.3,
+        "share_multiple": 0.5143,
+        "real_share_multiple": 0.1087,
+        "modern_share_multiple": 0.3635,
+        "max_dd": 97.1
+      }
+    },
+    {
+      "strategy": "treasury_regime",
+      "weighted_era_fitness": 0.2564,
+      "params": {
+        "trend_len": 50,
+        "slope_window": 3,
+        "exit_bars": 3,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 74,
+        "trades_yr": 2.2,
+        "share_multiple": 0.3013,
+        "real_share_multiple": 0.1105,
+        "modern_share_multiple": 0.3498,
+        "max_dd": 79.9
+      }
+    },
+    {
+      "strategy": "vix_regime_entry",
+      "weighted_era_fitness": 0.2439,
+      "params": {
+        "trend_len": 100,
+        "entry_vix": 25.0,
+        "exit_vix": 25.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 69,
+        "trades_yr": 2.1,
+        "share_multiple": 2.6287,
+        "real_share_multiple": 0.0745,
+        "modern_share_multiple": 0.2206,
+        "max_dd": 84.9
+      }
+    },
+    {
+      "strategy": "vol_calm_regime",
+      "weighted_era_fitness": 0.2434,
+      "params": {
+        "vol_short": 10,
+        "vol_long": 100,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 210,
+        "trades_yr": 6.4,
+        "share_multiple": 0.1935,
+        "real_share_multiple": 0.1296,
+        "modern_share_multiple": 0.3352,
+        "max_dd": 98.8
+      }
+    },
+    {
+      "strategy": "donchian_vix",
+      "weighted_era_fitness": 0.237,
+      "params": {
+        "entry_len": 50,
+        "exit_len": 30,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 31,
+        "trades_yr": 0.9,
+        "share_multiple": 5.7166,
+        "real_share_multiple": 0.0588,
+        "modern_share_multiple": 0.1911,
+        "max_dd": 72.4
+      }
+    },
+    {
+      "strategy": "vol_calm_regime",
+      "weighted_era_fitness": 0.2313,
+      "params": {
+        "vol_short": 50,
+        "vol_long": 150,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 67,
+        "trades_yr": 2.0,
+        "share_multiple": 0.4596,
+        "real_share_multiple": 0.1507,
+        "modern_share_multiple": 0.2329,
+        "max_dd": 92.2
+      }
+    },
+    {
+      "strategy": "xlk_relative_momentum",
+      "weighted_era_fitness": 0.2074,
+      "params": {
+        "lookback": 20,
+        "trend_len": 20,
+        "confirm_bars": 2,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 157,
+        "trades_yr": 4.8,
+        "share_multiple": 0.1013,
+        "real_share_multiple": 0.0721,
+        "modern_share_multiple": 0.3852,
+        "max_dd": 85.7
+      }
+    },
+    {
+      "strategy": "treasury_regime",
+      "weighted_era_fitness": 0.1798,
+      "params": {
+        "trend_len": 100,
+        "slope_window": 5,
+        "exit_bars": 3,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 53,
+        "trades_yr": 1.6,
+        "share_multiple": 0.1859,
+        "real_share_multiple": 0.0762,
+        "modern_share_multiple": 0.2549,
+        "max_dd": 83.3
+      }
+    },
+    {
+      "strategy": "treasury_regime",
+      "weighted_era_fitness": 0.1635,
+      "params": {
+        "trend_len": 200,
+        "slope_window": 5,
+        "exit_bars": 3,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 44,
+        "trades_yr": 1.3,
+        "share_multiple": 0.1825,
+        "real_share_multiple": 0.0469,
+        "modern_share_multiple": 0.2677,
+        "max_dd": 89.0
+      }
+    },
+    {
+      "strategy": "vix_regime_entry",
+      "weighted_era_fitness": 0.1587,
+      "params": {
+        "trend_len": 200,
+        "entry_vix": 25.0,
+        "exit_vix": 25.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 67,
+        "trades_yr": 2.0,
+        "share_multiple": 1.3617,
+        "real_share_multiple": 0.0479,
+        "modern_share_multiple": 0.1528,
+        "max_dd": 75.6
+      }
+    },
+    {
+      "strategy": "donchian_vix",
+      "weighted_era_fitness": 0.1515,
+      "params": {
+        "entry_len": 50,
+        "exit_len": 20,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 38,
+        "trades_yr": 1.2,
+        "share_multiple": 2.6414,
+        "real_share_multiple": 0.0379,
+        "modern_share_multiple": 0.132,
+        "max_dd": 72.4
+      }
+    },
+    {
+      "strategy": "price_position_regime",
+      "weighted_era_fitness": 0.1514,
+      "params": {
+        "high_lb": 100,
+        "low_lb": 100,
+        "exit_lb": 200,
+        "pct_of_high": 85.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 83,
+        "trades_yr": 2.5,
+        "share_multiple": 1.4231,
+        "real_share_multiple": 0.0402,
+        "modern_share_multiple": 0.1502,
+        "max_dd": 76.3
+      }
+    },
+    {
+      "strategy": "drawdown_recovery",
+      "weighted_era_fitness": 0.15,
+      "params": {
+        "trend_len": 200,
+        "lookback": 200,
+        "thresh_pct": 20.0,
+        "recover_pct": 25.0,
+        "exit_dd_pct": 25.0
+      },
+      "metrics": {
+        "trades": 196,
+        "trades_yr": 5.9,
+        "share_multiple": 0.4643,
+        "real_share_multiple": 0.0378,
+        "modern_share_multiple": 0.2009,
+        "max_dd": 90.5
+      }
+    },
+    {
+      "strategy": "treasury_regime",
+      "weighted_era_fitness": 0.1475,
+      "params": {
+        "trend_len": 200,
+        "slope_window": 5,
+        "exit_bars": 2,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 54,
+        "trades_yr": 1.6,
+        "share_multiple": 0.1903,
+        "real_share_multiple": 0.0457,
+        "modern_share_multiple": 0.2256,
+        "max_dd": 77.5
+      }
+    },
+    {
+      "strategy": "price_position_regime",
+      "weighted_era_fitness": 0.1443,
+      "params": {
+        "high_lb": 100,
+        "low_lb": 20,
+        "exit_lb": 200,
+        "pct_of_high": 85.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 69,
+        "trades_yr": 2.1,
+        "share_multiple": 1.4812,
+        "real_share_multiple": 0.0402,
+        "modern_share_multiple": 0.1373,
+        "max_dd": 76.3
+      }
+    },
+    {
+      "strategy": "drawdown_recovery",
+      "weighted_era_fitness": 0.1433,
+      "params": {
+        "trend_len": 200,
+        "lookback": 100,
+        "thresh_pct": 20.0,
+        "recover_pct": 25.0,
+        "exit_dd_pct": 25.0
+      },
+      "metrics": {
+        "trades": 173,
+        "trades_yr": 5.2,
+        "share_multiple": 0.3183,
+        "real_share_multiple": 0.0318,
+        "modern_share_multiple": 0.2199,
+        "max_dd": 90.4
+      }
+    },
+    {
+      "strategy": "drawdown_recovery",
+      "weighted_era_fitness": 0.142,
+      "params": {
+        "trend_len": 200,
+        "lookback": 200,
+        "thresh_pct": 20.0,
+        "recover_pct": 50.0,
+        "exit_dd_pct": 25.0
+      },
+      "metrics": {
+        "trades": 109,
+        "trades_yr": 3.3,
+        "share_multiple": 0.6639,
+        "real_share_multiple": 0.0263,
+        "modern_share_multiple": 0.1949,
+        "max_dd": 74.8
+      }
+    },
+    {
+      "strategy": "drawdown_recovery",
+      "weighted_era_fitness": 0.1411,
+      "params": {
+        "trend_len": 200,
+        "lookback": 200,
+        "thresh_pct": 15.0,
+        "recover_pct": 25.0,
+        "exit_dd_pct": 25.0
+      },
+      "metrics": {
+        "trades": 199,
+        "trades_yr": 6.0,
+        "share_multiple": 0.4747,
+        "real_share_multiple": 0.035,
+        "modern_share_multiple": 0.1862,
+        "max_dd": 89.5
+      }
+    },
+    {
+      "strategy": "treasury_regime",
+      "weighted_era_fitness": 0.1401,
+      "params": {
+        "trend_len": 200,
+        "slope_window": 3,
+        "exit_bars": 2,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 57,
+        "trades_yr": 1.7,
+        "share_multiple": 0.1444,
+        "real_share_multiple": 0.0436,
+        "modern_share_multiple": 0.2261,
+        "max_dd": 80.3
+      }
+    },
+    {
+      "strategy": "treasury_regime",
+      "weighted_era_fitness": 0.1366,
+      "params": {
+        "trend_len": 100,
+        "slope_window": 3,
+        "exit_bars": 3,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 54,
+        "trades_yr": 1.6,
+        "share_multiple": 0.1606,
+        "real_share_multiple": 0.0564,
+        "modern_share_multiple": 0.1897,
+        "max_dd": 79.9
+      }
+    },
+    {
+      "strategy": "price_position_regime",
+      "weighted_era_fitness": 0.136,
+      "params": {
+        "high_lb": 100,
+        "low_lb": 50,
+        "exit_lb": 200,
+        "pct_of_high": 85.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 82,
+        "trades_yr": 2.5,
+        "share_multiple": 1.2424,
+        "real_share_multiple": 0.0351,
+        "modern_share_multiple": 0.1375,
+        "max_dd": 76.3
+      }
+    },
+    {
+      "strategy": "rsi_mean_revert_trend",
+      "weighted_era_fitness": 0.1334,
+      "params": {
+        "rsi_len": 14,
+        "trend_len": 200,
+        "oversold": 40.0,
+        "overbought": 80.0,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 44,
+        "trades_yr": 1.3,
+        "share_multiple": 0.0402,
+        "real_share_multiple": 0.0335,
+        "modern_share_multiple": 0.3201,
+        "max_dd": 87.4
+      }
+    },
+    {
+      "strategy": "drawdown_recovery",
+      "weighted_era_fitness": 0.133,
+      "params": {
+        "trend_len": 200,
+        "lookback": 200,
+        "thresh_pct": 20.0,
+        "recover_pct": 25.0,
+        "exit_dd_pct": 15.0
+      },
+      "metrics": {
+        "trades": 411,
+        "trades_yr": 12.5,
+        "share_multiple": 0.2523,
+        "real_share_multiple": 0.0328,
+        "modern_share_multiple": 0.2031,
+        "max_dd": 89.3
+      }
+    }
+  ],
+  "rankings": [],
+  "elapsed_seconds": 17.82
+}
