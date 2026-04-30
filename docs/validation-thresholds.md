@@ -10,7 +10,7 @@
 Validation has two layers (see `validation-philosophy.md` §4):
 
 - **Layer 1 — Correctness**: binary, hard-fail, no weights. A strategy that fails any Layer 1 check is disqualified regardless of confidence.
-- **Layer 2 — Confidence**: `composite_confidence` score on [0, 1], displayed ×100 on the leaderboard. Weighted geometric mean of tier-applicable sub-scores.
+- **Layer 2 — Confidence**: `composite_confidence` score on [0, 1], displayed ×100 on the leaderboard. It is the project estimate of robustness into future TECL data, not a raw return score. It is computed as a weighted geometric mean of tier-applicable sub-scores.
 
 No gate in Layer 2 has veto power on its own. Every sub-score contributes weighted partial credit.
 
@@ -74,7 +74,7 @@ admits only Gold Status rows.
 
 ## Composite Weights (T2 baseline)
 
-`composite_confidence` is a weighted geometric mean over present sub-scores. Skipped gates return `None` and renormalize out — no penalty for gates that didn't apply to the tier.
+`composite_confidence` is a weighted geometric mean over present sub-scores. Higher means stronger evidence that the strategy should hold up and remain useful on future TECL data. Skipped gates return `None` and renormalize out — no penalty for gates that didn't apply to the tier.
 
 | Sub-score | T2 weight | Source gate | T0 applies | T1 applies | T2 applies |
 |---|:-:|---|:-:|:-:|:-:|
@@ -96,18 +96,18 @@ admits only Gold Status rows.
 
 | Sub-score | T0 effective | T1 effective | T2 effective |
 |---|:-:|:-:|:-:|
-| `walk_forward` | 0.308 | 0.235 | 0.200 |
-| `marker_shape` | 0.154 | 0.118 | 0.100 |
-| `marker_timing` | 0.231 | 0.177 | 0.150 |
-| `named_windows` | 0.154 | 0.118 | 0.100 |
-| `fragility` | — | 0.177 | 0.150 |
+| `walk_forward` | 0.154 | 0.125 | 0.100 |
+| `marker_shape` | 0.154 | 0.125 | 0.100 |
+| `marker_timing` | 0.231 | 0.188 | 0.150 |
+| `named_windows` | 0.077 | 0.063 | 0.050 |
+| `era_consistency` | 0.308 | 0.250 | 0.200 |
+| `fragility` | — | 0.188 | 0.150 |
 | `selection_bias` | — | — | 0.100 |
-| `cross_asset` | 0.077 | 0.059 | 0.050 |
 | `bootstrap` | — | — | 0.050 |
 | `regime_consistency` | — | — | 0.050 |
-| `trade_sufficiency` | 0.077 | 0.059 | 0.050 |
+| `trade_sufficiency` | 0.077 | 0.063 | 0.050 |
 
-T0 composite is dominated by time/marker sub-scores (~85% across WF + marker_shape + marker_timing + named_windows). T2 spreads across the full statistical stack.
+T0 composite is dominated by era consistency plus time/marker sub-scores. T2 spreads across the full statistical stack. `cross_asset` is reported diagnostically but has no composite weight.
 
 ---
 
@@ -203,7 +203,7 @@ TQQQ re-optimization result is reported as advisory only — no longer feeds a h
 Mean of: bull HHI margin, bear HHI margin, dominance margin, meta robustness, trade-clustering margin. Already smooth [0, 1] (T2 only).
 
 ### `trade_sufficiency`
-`(trade_count - 10) / 30` clamped to [0, 1]. Encourages enough trades to draw signal from noise without punishing low-frequency candidates.
+Smooth anchors: 0 trades -> 0.0, 10 trades -> 0.5, 20+ trades -> 1.0. Encourages enough trades to draw signal from noise without punishing low-frequency candidates.
 
 ---
 

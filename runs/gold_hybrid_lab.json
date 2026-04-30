@@ -1,32 +1,39 @@
 {
   "champion": {
-    "display_name": "Dusky Osprey",
-    "strategy": "gc_vjatr_reclaimer",
+    "display_name": "Cerulean Hare #1",
+    "strategy": "gold_hybrid_committee",
     "metrics": {
-      "trades": 17,
-      "trades_yr": 0.5,
-      "n_params": 17,
-      "share_multiple": 41.8867,
-      "real_share_multiple": 1.0319,
-      "modern_share_multiple": 2.5711,
-      "cagr": 30.0,
-      "max_dd": 51.5,
-      "mar": 0.583,
-      "regime_score": 0.5564,
+      "trades": 19,
+      "trades_yr": 0.6,
+      "n_params": 53,
+      "share_multiple": 30.4933,
+      "real_share_multiple": 1.3324,
+      "modern_share_multiple": 3.32,
+      "cagr": 28.76,
+      "max_dd": 65.8,
+      "mar": 0.437,
+      "regime_score": 0.5555,
       "hhi": 0.0872,
       "bull_capture": 0.27,
-      "bear_avoidance": 0.8428,
-      "win_rate": 70.6,
+      "bear_avoidance": 0.841,
+      "win_rate": 68.4,
       "exit_reasons": {
-        "A": 8,
-        "D": 6,
-        "V": 3
+        "COM": 18,
+        "End of Data": 1
       }
     }
   },
+  "base_source": {
+    "display_name": "Dusky Osprey",
+    "strategy": "gc_vjatr_reclaimer"
+  },
+  "source_policy": {
+    "include_hybrids_as_sources": false,
+    "source_gold_rows": 19
+  },
   "entry_leaderboard": [
     {
-      "leaderboard_rank": 17,
+      "leaderboard_rank": 18,
       "display_name": "Ivory Hare",
       "strategy": "gc_vjatr_timing_repair",
       "params": {
@@ -81,8 +88,8 @@
       "candidate_sell_count": 34
     },
     {
-      "leaderboard_rank": 18,
-      "display_name": "Cerulean Hare",
+      "leaderboard_rank": 19,
+      "display_name": "Cerulean Hare #2",
       "strategy": "gc_vjatr_timing_repair",
       "params": {
         "fast_ema": 140,
@@ -136,7 +143,7 @@
       "candidate_sell_count": 34
     },
     {
-      "leaderboard_rank": 19,
+      "leaderboard_rank": 20,
       "display_name": "Sable Hare",
       "strategy": "gc_vjatr_timing_repair",
       "params": {
@@ -191,62 +198,7 @@
       "candidate_sell_count": 34
     },
     {
-      "leaderboard_rank": 20,
-      "display_name": "Hazel Hare",
-      "strategy": "gc_vjatr_timing_repair",
-      "params": {
-        "fast_ema": 140,
-        "slow_ema": 160,
-        "slope_window": 1,
-        "entry_bars": 2,
-        "cooldown": 0,
-        "atr_period": 16,
-        "atr_look": 50,
-        "atr_expand": 2.0,
-        "atr_confirm": 3,
-        "repair_len": 30,
-        "rsi_len": 14,
-        "drawdown_lookback": 40,
-        "drawdown_pct": 25.0,
-        "repair_slope": 3,
-        "rsi_floor": 40.0,
-        "vix_ceiling": 50.0
-      },
-      "confidence": 0.7678,
-      "overall_performance_score": 3.2695,
-      "metrics": {
-        "trades": 44,
-        "trades_yr": 1.3,
-        "n_params": 15,
-        "share_multiple": 10.0909,
-        "real_share_multiple": 1.5469,
-        "modern_share_multiple": 2.239,
-        "cagr": 24.51,
-        "max_dd": 98.2,
-        "mar": 0.25,
-        "regime_score": 0.6161,
-        "hhi": 0.0707,
-        "bull_capture": 0.6357,
-        "bear_avoidance": 0.5964,
-        "win_rate": 54.5,
-        "exit_reasons": {
-          "A": 18,
-          "D": 21,
-          "V": 4,
-          "End of Data": 1
-        }
-      },
-      "entry_score": 0.5427,
-      "exit_score": 0.4073,
-      "entry_timing": 0.3071,
-      "exit_timing": 0.2333,
-      "marker_score": 0.4742,
-      "marker_timing": 0.461,
-      "candidate_buy_count": 34,
-      "candidate_sell_count": 34
-    },
-    {
-      "leaderboard_rank": 1,
+      "leaderboard_rank": 2,
       "display_name": "Dusky Osprey",
       "strategy": "gc_vjatr_reclaimer",
       "params": {
@@ -302,7 +254,7 @@
       "candidate_sell_count": 15
     },
     {
-      "leaderboard_rank": 2,
+      "leaderboard_rank": 3,
       "display_name": "Verdant Osprey",
       "strategy": "gc_vjatr_reclaimer",
       "params": {
@@ -358,7 +310,7 @@
       "candidate_sell_count": 15
     },
     {
-      "leaderboard_rank": 3,
+      "leaderboard_rank": 4,
       "display_name": "Bronze Osprey",
       "strategy": "gc_vjatr_reclaimer",
       "params": {
@@ -414,7 +366,7 @@
       "candidate_sell_count": 15
     },
     {
-      "leaderboard_rank": 4,
+      "leaderboard_rank": 5,
       "display_name": "Ashen Osprey",
       "strategy": "gc_vjatr_reclaimer",
       "params": {
@@ -470,7 +422,7 @@
       "candidate_sell_count": 15
     },
     {
-      "leaderboard_rank": 5,
+      "leaderboard_rank": 6,
       "display_name": "Hazel Osprey",
       "strategy": "gc_vjatr_reclaimer",
       "params": {
@@ -526,7 +478,7 @@
       "candidate_sell_count": 15
     },
     {
-      "leaderboard_rank": 6,
+      "leaderboard_rank": 7,
       "display_name": "Jade Osprey",
       "strategy": "gc_vjatr_reclaimer",
       "params": {
@@ -582,7 +534,7 @@
       "candidate_sell_count": 15
     },
     {
-      "leaderboard_rank": 7,
+      "leaderboard_rank": 8,
       "display_name": "Ember Osprey",
       "strategy": "gc_vjatr_reclaimer",
       "params": {
@@ -638,7 +590,7 @@
       "candidate_sell_count": 15
     },
     {
-      "leaderboard_rank": 8,
+      "leaderboard_rank": 9,
       "display_name": "Russet Osprey",
       "strategy": "gc_vjatr_reclaimer",
       "params": {
@@ -694,7 +646,7 @@
       "candidate_sell_count": 15
     },
     {
-      "leaderboard_rank": 9,
+      "leaderboard_rank": 10,
       "display_name": "Gilded Osprey",
       "strategy": "gc_vjatr_reclaimer",
       "params": {
@@ -750,7 +702,7 @@
       "candidate_sell_count": 15
     },
     {
-      "leaderboard_rank": 10,
+      "leaderboard_rank": 11,
       "display_name": "Obsidian Osprey",
       "strategy": "gc_vjatr_reclaimer",
       "params": {
@@ -806,7 +758,7 @@
       "candidate_sell_count": 15
     },
     {
-      "leaderboard_rank": 11,
+      "leaderboard_rank": 12,
       "display_name": "Marbled Bonobo",
       "strategy": "gc_vjatr",
       "params": {
@@ -854,7 +806,7 @@
       "candidate_sell_count": 14
     },
     {
-      "leaderboard_rank": 12,
+      "leaderboard_rank": 13,
       "display_name": "Ember Bonobo",
       "strategy": "gc_vjatr",
       "params": {
@@ -902,7 +854,7 @@
       "candidate_sell_count": 14
     },
     {
-      "leaderboard_rank": 14,
+      "leaderboard_rank": 15,
       "display_name": "Russet Bonobo #2",
       "strategy": "gc_vjatr",
       "params": {
@@ -950,7 +902,7 @@
       "candidate_sell_count": 14
     },
     {
-      "leaderboard_rank": 15,
+      "leaderboard_rank": 16,
       "display_name": "Crimson Bonobo",
       "strategy": "gc_vjatr",
       "params": {
@@ -998,7 +950,7 @@
       "candidate_sell_count": 14
     },
     {
-      "leaderboard_rank": 13,
+      "leaderboard_rank": 14,
       "display_name": "Russet Bonobo #1",
       "strategy": "gc_vjatr",
       "params": {
@@ -1045,7 +997,7 @@
       "candidate_sell_count": 14
     },
     {
-      "leaderboard_rank": 16,
+      "leaderboard_rank": 17,
       "display_name": "Brindled Bonobo",
       "strategy": "gc_vjatr",
       "params": {
@@ -1094,7 +1046,7 @@
   ],
   "exit_leaderboard": [
     {
-      "leaderboard_rank": 13,
+      "leaderboard_rank": 14,
       "display_name": "Russet Bonobo #1",
       "strategy": "gc_vjatr",
       "params": {
@@ -1141,7 +1093,7 @@
       "candidate_sell_count": 14
     },
     {
-      "leaderboard_rank": 16,
+      "leaderboard_rank": 17,
       "display_name": "Brindled Bonobo",
       "strategy": "gc_vjatr",
       "params": {
@@ -1188,7 +1140,7 @@
       "candidate_sell_count": 14
     },
     {
-      "leaderboard_rank": 1,
+      "leaderboard_rank": 2,
       "display_name": "Dusky Osprey",
       "strategy": "gc_vjatr_reclaimer",
       "params": {
@@ -1244,7 +1196,7 @@
       "candidate_sell_count": 15
     },
     {
-      "leaderboard_rank": 2,
+      "leaderboard_rank": 3,
       "display_name": "Verdant Osprey",
       "strategy": "gc_vjatr_reclaimer",
       "params": {
@@ -1300,7 +1252,7 @@
       "candidate_sell_count": 15
     },
     {
-      "leaderboard_rank": 3,
+      "leaderboard_rank": 4,
       "display_name": "Bronze Osprey",
       "strategy": "gc_vjatr_reclaimer",
       "params": {
@@ -1356,7 +1308,7 @@
       "candidate_sell_count": 15
     },
     {
-      "leaderboard_rank": 4,
+      "leaderboard_rank": 5,
       "display_name": "Ashen Osprey",
       "strategy": "gc_vjatr_reclaimer",
       "params": {
@@ -1412,7 +1364,7 @@
       "candidate_sell_count": 15
     },
     {
-      "leaderboard_rank": 5,
+      "leaderboard_rank": 6,
       "display_name": "Hazel Osprey",
       "strategy": "gc_vjatr_reclaimer",
       "params": {
@@ -1468,7 +1420,7 @@
       "candidate_sell_count": 15
     },
     {
-      "leaderboard_rank": 6,
+      "leaderboard_rank": 7,
       "display_name": "Jade Osprey",
       "strategy": "gc_vjatr_reclaimer",
       "params": {
@@ -1524,7 +1476,7 @@
       "candidate_sell_count": 15
     },
     {
-      "leaderboard_rank": 7,
+      "leaderboard_rank": 8,
       "display_name": "Ember Osprey",
       "strategy": "gc_vjatr_reclaimer",
       "params": {
@@ -1580,7 +1532,7 @@
       "candidate_sell_count": 15
     },
     {
-      "leaderboard_rank": 8,
+      "leaderboard_rank": 9,
       "display_name": "Russet Osprey",
       "strategy": "gc_vjatr_reclaimer",
       "params": {
@@ -1636,7 +1588,7 @@
       "candidate_sell_count": 15
     },
     {
-      "leaderboard_rank": 9,
+      "leaderboard_rank": 10,
       "display_name": "Gilded Osprey",
       "strategy": "gc_vjatr_reclaimer",
       "params": {
@@ -1692,7 +1644,7 @@
       "candidate_sell_count": 15
     },
     {
-      "leaderboard_rank": 10,
+      "leaderboard_rank": 11,
       "display_name": "Obsidian Osprey",
       "strategy": "gc_vjatr_reclaimer",
       "params": {
@@ -1748,7 +1700,7 @@
       "candidate_sell_count": 15
     },
     {
-      "leaderboard_rank": 11,
+      "leaderboard_rank": 12,
       "display_name": "Marbled Bonobo",
       "strategy": "gc_vjatr",
       "params": {
@@ -1796,7 +1748,7 @@
       "candidate_sell_count": 14
     },
     {
-      "leaderboard_rank": 12,
+      "leaderboard_rank": 13,
       "display_name": "Ember Bonobo",
       "strategy": "gc_vjatr",
       "params": {
@@ -1844,7 +1796,7 @@
       "candidate_sell_count": 14
     },
     {
-      "leaderboard_rank": 14,
+      "leaderboard_rank": 15,
       "display_name": "Russet Bonobo #2",
       "strategy": "gc_vjatr",
       "params": {
@@ -1892,7 +1844,7 @@
       "candidate_sell_count": 14
     },
     {
-      "leaderboard_rank": 15,
+      "leaderboard_rank": 16,
       "display_name": "Crimson Bonobo",
       "strategy": "gc_vjatr",
       "params": {
@@ -1940,8 +1892,8 @@
       "candidate_sell_count": 14
     },
     {
-      "leaderboard_rank": 18,
-      "display_name": "Cerulean Hare",
+      "leaderboard_rank": 19,
+      "display_name": "Cerulean Hare #2",
       "strategy": "gc_vjatr_timing_repair",
       "params": {
         "fast_ema": 140,
@@ -1995,7 +1947,7 @@
       "candidate_sell_count": 34
     },
     {
-      "leaderboard_rank": 19,
+      "leaderboard_rank": 20,
       "display_name": "Sable Hare",
       "strategy": "gc_vjatr_timing_repair",
       "params": {
@@ -2050,62 +2002,7 @@
       "candidate_sell_count": 34
     },
     {
-      "leaderboard_rank": 20,
-      "display_name": "Hazel Hare",
-      "strategy": "gc_vjatr_timing_repair",
-      "params": {
-        "fast_ema": 140,
-        "slow_ema": 160,
-        "slope_window": 1,
-        "entry_bars": 2,
-        "cooldown": 0,
-        "atr_period": 16,
-        "atr_look": 50,
-        "atr_expand": 2.0,
-        "atr_confirm": 3,
-        "repair_len": 30,
-        "rsi_len": 14,
-        "drawdown_lookback": 40,
-        "drawdown_pct": 25.0,
-        "repair_slope": 3,
-        "rsi_floor": 40.0,
-        "vix_ceiling": 50.0
-      },
-      "confidence": 0.7678,
-      "overall_performance_score": 3.2695,
-      "metrics": {
-        "trades": 44,
-        "trades_yr": 1.3,
-        "n_params": 15,
-        "share_multiple": 10.0909,
-        "real_share_multiple": 1.5469,
-        "modern_share_multiple": 2.239,
-        "cagr": 24.51,
-        "max_dd": 98.2,
-        "mar": 0.25,
-        "regime_score": 0.6161,
-        "hhi": 0.0707,
-        "bull_capture": 0.6357,
-        "bear_avoidance": 0.5964,
-        "win_rate": 54.5,
-        "exit_reasons": {
-          "A": 18,
-          "D": 21,
-          "V": 4,
-          "End of Data": 1
-        }
-      },
-      "entry_score": 0.5427,
-      "exit_score": 0.4073,
-      "entry_timing": 0.3071,
-      "exit_timing": 0.2333,
-      "marker_score": 0.4742,
-      "marker_timing": 0.461,
-      "candidate_buy_count": 34,
-      "candidate_sell_count": 34
-    },
-    {
-      "leaderboard_rank": 17,
+      "leaderboard_rank": 18,
       "display_name": "Ivory Hare",
       "strategy": "gc_vjatr_timing_repair",
       "params": {
@@ -2315,9 +2212,9 @@
         "exit_timing": 0.16904285714285713
       },
       "vs_champion": {
-        "full_ratio": 0.728,
-        "real_ratio": 1.2912,
-        "modern_ratio": 1.2913
+        "full_ratio": 1.0,
+        "real_ratio": 1.0,
+        "modern_ratio": 1.0
       }
     },
     {
@@ -2408,9 +2305,9 @@
         "exit_timing": 0.16904285714285713
       },
       "vs_champion": {
-        "full_ratio": 1.0,
-        "real_ratio": 1.0,
-        "modern_ratio": 1.0
+        "full_ratio": 1.3736,
+        "real_ratio": 0.7745,
+        "modern_ratio": 0.7744
       }
     },
     {
@@ -2501,9 +2398,9 @@
         "exit_timing": 0.16904285714285713
       },
       "vs_champion": {
-        "full_ratio": 1.0,
-        "real_ratio": 1.0,
-        "modern_ratio": 1.0
+        "full_ratio": 1.3736,
+        "real_ratio": 0.7745,
+        "modern_ratio": 0.7744
       }
     },
     {
@@ -2579,9 +2476,9 @@
         "exit_timing": 0.29762142857142854
       },
       "vs_champion": {
-        "full_ratio": 0.2035,
-        "real_ratio": 1.5251,
-        "modern_ratio": 0.7945
+        "full_ratio": 0.2795,
+        "real_ratio": 1.1811,
+        "modern_ratio": 0.6153
       }
     },
     {
@@ -2636,9 +2533,9 @@
         "exit_timing": 0.27619285714285713
       },
       "vs_champion": {
-        "full_ratio": 0.1443,
-        "real_ratio": 1.5251,
-        "modern_ratio": 0.7945
+        "full_ratio": 0.1982,
+        "real_ratio": 1.1811,
+        "modern_ratio": 0.6153
       }
     }
   ],
@@ -7318,6 +7215,7 @@
             "trade_sufficiency": 0.85
           },
           "advisories": [
+            "strategy family still unconverged in leaderboard history",
             "selection_bias: observed_rs=0.5564 expected_max=0.7607 deflated=0.0000",
             "artifact completeness pending"
           ],
@@ -7394,7 +7292,9 @@
                 "warnings": [],
                 "hard_fail_reasons": []
               },
-              "advisories": [],
+              "advisories": [
+                "strategy family still unconverged in leaderboard history"
+              ],
               "soft_warnings": [
                 "n_params=53 exceeds regime_transitions=19"
               ],
@@ -8039,6 +7939,7 @@
               },
               "composite_confidence": 0.7542,
               "advisories": [
+                "strategy family still unconverged in leaderboard history",
                 "selection_bias: observed_rs=0.5564 expected_max=0.7607 deflated=0.0000",
                 "artifact completeness pending"
               ],
@@ -8811,6 +8712,7 @@
             "trade_sufficiency": 0.85
           },
           "advisories": [
+            "strategy family still unconverged in leaderboard history",
             "selection_bias: observed_rs=0.5564 expected_max=0.7607 deflated=0.0000",
             "artifact completeness pending"
           ],
@@ -8887,7 +8789,9 @@
                 "warnings": [],
                 "hard_fail_reasons": []
               },
-              "advisories": [],
+              "advisories": [
+                "strategy family still unconverged in leaderboard history"
+              ],
               "soft_warnings": [
                 "n_params=53 exceeds regime_transitions=19"
               ],
@@ -9532,6 +9436,7 @@
               },
               "composite_confidence": 0.7542,
               "advisories": [
+                "strategy family still unconverged in leaderboard history",
                 "selection_bias: observed_rs=0.5564 expected_max=0.7607 deflated=0.0000",
                 "artifact completeness pending"
               ],
@@ -10327,6 +10232,7 @@
             "trade_sufficiency": 0.95
           },
           "advisories": [
+            "strategy family still unconverged in leaderboard history",
             "selection_bias: observed_rs=0.5555 expected_max=0.7607 deflated=0.0000",
             "artifact completeness pending"
           ],
@@ -10403,7 +10309,9 @@
                 "warnings": [],
                 "hard_fail_reasons": []
               },
-              "advisories": [],
+              "advisories": [
+                "strategy family still unconverged in leaderboard history"
+              ],
               "soft_warnings": [
                 "n_params=53 exceeds regime_transitions=19"
               ],
@@ -11054,6 +10962,7 @@
               },
               "composite_confidence": 0.7594,
               "advisories": [
+                "strategy family still unconverged in leaderboard history",
                 "selection_bias: observed_rs=0.5555 expected_max=0.7607 deflated=0.0000",
                 "artifact completeness pending"
               ],
@@ -15290,6 +15199,7 @@
             "trade_sufficiency": 0.85
           },
           "advisories": [
+            "strategy family still unconverged in leaderboard history",
             "selection_bias: observed_rs=0.5564 expected_max=0.7607 deflated=0.0000",
             "artifact completeness pending"
           ],
@@ -15366,7 +15276,9 @@
                 "warnings": [],
                 "hard_fail_reasons": []
               },
-              "advisories": [],
+              "advisories": [
+                "strategy family still unconverged in leaderboard history"
+              ],
               "soft_warnings": [
                 "n_params=53 exceeds regime_transitions=19"
               ],
@@ -16011,6 +15923,7 @@
               },
               "composite_confidence": 0.7542,
               "advisories": [
+                "strategy family still unconverged in leaderboard history",
                 "selection_bias: observed_rs=0.5564 expected_max=0.7607 deflated=0.0000",
                 "artifact completeness pending"
               ],
@@ -16783,6 +16696,7 @@
             "trade_sufficiency": 0.85
           },
           "advisories": [
+            "strategy family still unconverged in leaderboard history",
             "selection_bias: observed_rs=0.5564 expected_max=0.7607 deflated=0.0000",
             "artifact completeness pending"
           ],
@@ -16859,7 +16773,9 @@
                 "warnings": [],
                 "hard_fail_reasons": []
               },
-              "advisories": [],
+              "advisories": [
+                "strategy family still unconverged in leaderboard history"
+              ],
               "soft_warnings": [
                 "n_params=53 exceeds regime_transitions=19"
               ],
@@ -17504,6 +17420,7 @@
               },
               "composite_confidence": 0.7542,
               "advisories": [
+                "strategy family still unconverged in leaderboard history",
                 "selection_bias: observed_rs=0.5564 expected_max=0.7607 deflated=0.0000",
                 "artifact completeness pending"
               ],
@@ -18299,6 +18216,7 @@
             "trade_sufficiency": 0.95
           },
           "advisories": [
+            "strategy family still unconverged in leaderboard history",
             "selection_bias: observed_rs=0.5555 expected_max=0.7607 deflated=0.0000",
             "artifact completeness pending"
           ],
@@ -18375,7 +18293,9 @@
                 "warnings": [],
                 "hard_fail_reasons": []
               },
-              "advisories": [],
+              "advisories": [
+                "strategy family still unconverged in leaderboard history"
+              ],
               "soft_warnings": [
                 "n_params=53 exceeds regime_transitions=19"
               ],
@@ -19026,6 +18946,7 @@
               },
               "composite_confidence": 0.7594,
               "advisories": [
+                "strategy family still unconverged in leaderboard history",
                 "selection_bias: observed_rs=0.5555 expected_max=0.7607 deflated=0.0000",
                 "artifact completeness pending"
               ],
@@ -23261,6 +23182,7 @@
           "trade_sufficiency": 0.85
         },
         "advisories": [
+          "strategy family still unconverged in leaderboard history",
           "selection_bias: observed_rs=0.5564 expected_max=0.7607 deflated=0.0000",
           "artifact completeness pending"
         ],
@@ -23337,7 +23259,9 @@
               "warnings": [],
               "hard_fail_reasons": []
             },
-            "advisories": [],
+            "advisories": [
+              "strategy family still unconverged in leaderboard history"
+            ],
             "soft_warnings": [
               "n_params=53 exceeds regime_transitions=19"
             ],
@@ -23982,6 +23906,7 @@
             },
             "composite_confidence": 0.7542,
             "advisories": [
+              "strategy family still unconverged in leaderboard history",
               "selection_bias: observed_rs=0.5564 expected_max=0.7607 deflated=0.0000",
               "artifact completeness pending"
             ],
@@ -24019,7 +23944,7 @@
       "validated_fail": 0,
       "tier3_minutes": 0.5,
       "tier3_pop_size": 12,
-      "elapsed_seconds": 99.5,
+      "elapsed_seconds": 104.7,
       "run_integrity": {
         "verdict": "PASS",
         "datasets": {

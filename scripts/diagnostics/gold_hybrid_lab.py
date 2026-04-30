@@ -54,17 +54,27 @@ def _safe_float(value: Any, default: float = 0.0) -> float:
     return out if np.isfinite(out) else default
 
 
+def _is_hybrid_strategy(strategy: str | None) -> bool:
+    return str(strategy or "").startswith("gold_hybrid_")
+
+
 def _mean_match_score(matches: list[dict[str, Any]]) -> float:
     if not matches:
         return 0.0
     return float(np.mean([_safe_float(match.get("score")) for match in matches]))
 
 
-def load_gold_rows(*, top_n: int | None = None) -> list[dict[str, Any]]:
+def load_gold_rows(
+    *,
+    top_n: int | None = None,
+    include_hybrids: bool = True,
+) -> list[dict[str, Any]]:
     rows = []
     for rank, row in enumerate(_load_json(LEADERBOARD_PATH), start=1):
         synced = sync_entry_contract(dict(row))
         if not synced.get("gold_status"):
+            continue
+        if not include_hybrids and _is_hybrid_strategy(synced.get("strategy")):
             continue
         synced["leaderboard_rank"] = rank
         rows.append(synced)
@@ -304,21 +314,33 @@ def _candidate(
     }
 
 
-def build_lab(*, top_n: int = 20, family_limit: int = 5) -> dict[str, Any]:
+def build_lab(
+    *,
+    top_n: int = 20,
+    family_limit: int = 5,
+    include_hybrids_as_sources: bool = False,
+) -> dict[str, Any]:
     rows = load_gold_rows(top_n=top_n)
     if len(rows) < 2:
         raise ValueError("need at least two Gold rows")
+    source_rows = load_gold_rows(
+        top_n=top_n,
+        include_hybrids=include_hybrids_as_sources,
+    )
+    if len(source_rows) < 2:
+        raise ValueError("need at least two source Gold rows")
 
     df = get_tecl_data()
-    skills = [score_gold_row(df, row) for row in rows]
+    skills = [score_gold_row(df, row) for row in source_rows]
     entry_board = sorted(skills, key=lambda row: row["entry_score"], reverse=True)
     exit_board = sorted(skills, key=lambda row: row["exit_score"], reverse=True)
 
-    by_name = {row.get("display_name") or row["strategy"]: row for row in rows}
+    by_name = {row.get("display_name") or row["strategy"]: row for row in source_rows}
     entry_row = by_name[entry_board[0]["display_name"]]
     exit_row = by_name[exit_board[0]["display_name"]]
     champion = rows[0]
-    families = _family_leaders(rows, limit=family_limit)
+    base_row = source_rows[0]
+    families = _family_leaders(source_rows, limit=family_limit)
 
     switchboard_params = {
         "entry_strategy": entry_row["strategy"],
@@ -327,8 +349,8 @@ def build_lab(*, top_n: int = 20, family_limit: int = 5) -> dict[str, Any]:
         "exit_params": exit_row.get("params") or {},
     }
     overlay_params = {
-        "base_strategy": champion["strategy"],
-        "base_params": champion.get("params") or {},
+        "base_strategy": base_row["strategy"],
+        "base_params": base_row.get("params") or {},
         "entry_strategy": entry_row["strategy"],
         "entry_params": entry_row.get("params") or {},
         "exit_strategy": exit_row["strategy"],
@@ -384,6 +406,14 @@ def build_lab(*, top_n: int = 20, family_limit: int = 5) -> dict[str, Any]:
             "display_name": champion.get("display_name") or champion.get("strategy"),
             "strategy": champion.get("strategy"),
             "metrics": champion.get("metrics") or {},
+        },
+        "base_source": {
+            "display_name": base_row.get("display_name") or base_row.get("strategy"),
+            "strategy": base_row.get("strategy"),
+        },
+        "source_policy": {
+            "include_hybrids_as_sources": include_hybrids_as_sources,
+            "source_gold_rows": len(source_rows),
         },
         "entry_leaderboard": entry_board,
         "exit_leaderboard": exit_board,
@@ -455,11 +485,20 @@ def main() -> None:
     parser.add_argument("--top", type=int, default=8, help="Rows to show in entry/exit tables")
     parser.add_argument("--top-gold", type=int, default=20, help="Gold rows to evaluate")
     parser.add_argument("--family-limit", type=int, default=5, help="Top family leaders in committee")
+    parser.add_argument(
+        "--include-hybrids-as-sources",
+        action="store_true",
+        help="Allow promoted gold_hybrid_* rows to become members of newly tested hybrids",
+    )
     parser.add_argument("--validate", action="store_true", help="Run the quick validation pipeline on hybrid candidates")
     parser.add_argument("--output", default=DEFAULT_OUTPUT)
     args = parser.parse_args()
 
-    lab = build_lab(top_n=args.top_gold, family_limit=args.family_limit)
+    lab = build_lab(
+        top_n=args.top_gold,
+        family_limit=args.family_limit,
+        include_hybrids_as_sources=args.include_hybrids_as_sources,
+    )
     if args.validate:
         validation = run_validation_pipeline(
             {"raw_rankings": lab["raw_rankings"]},

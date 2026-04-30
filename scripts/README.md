@@ -84,6 +84,9 @@ See `validation/__init__.py` and `validation/pipeline.py`. Each gate lives in it
 
 ### `diagnostics/`
 - `cycle_diagnostics.py` — per-bull/per-bear cycle trade breakdown for a single strategy
+- `family_confidence_leaderboard.py` — one Gold representative per family, ranked by composite confidence
+- `gold_diversity_report.py` — Gold-row family concentration, signal overlap, and diversity checks
+- `gold_ensemble_matrix.py` / `gold_hybrid_lab.py` — Gold-only ensemble and hybrid research diagnostics
 - `report.py` — generate the markdown report that summarizes a `/spike` run
 - `roth_overlay.py` — post-validation Roth IRA cashflow simulator (tax-aware net-of-contribution-limit share count)
 

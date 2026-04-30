@@ -46,16 +46,27 @@ def load_gold_rows() -> list[dict[str, Any]]:
     return rows
 
 
-def select_default_shortlist(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _is_hybrid_strategy(strategy: str | None) -> bool:
+    return str(strategy or "").startswith("gold_hybrid_")
+
+
+def select_default_shortlist(
+    rows: list[dict[str, Any]],
+    *,
+    include_hybrids: bool = False,
+) -> list[dict[str, Any]]:
     """Top row per family plus the strongest full-history Bonobo alternate."""
+    source_rows = rows if include_hybrids else [
+        row for row in rows if not _is_hybrid_strategy(row.get("strategy"))
+    ]
     selected: list[dict[str, Any]] = []
     seen_families: set[str] = set()
-    for row in rows:
+    for row in source_rows:
         family = row.get("strategy")
         if family not in seen_families:
             selected.append(row)
             seen_families.add(family)
-    bonobos = [row for row in rows if row.get("strategy") == "gc_vjatr"]
+    bonobos = [row for row in source_rows if row.get("strategy") == "gc_vjatr"]
     if bonobos:
         best_full = max(
             bonobos,
@@ -149,7 +160,11 @@ def _metrics_from_result(result, marker: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def build_matrix(*, shortlist_names: list[str] | None = None) -> dict[str, Any]:
+def build_matrix(
+    *,
+    shortlist_names: list[str] | None = None,
+    include_hybrids: bool = False,
+) -> dict[str, Any]:
     leaderboard = load_gold_rows()
     if not leaderboard:
         raise ValueError("no Gold rows found")
@@ -162,7 +177,10 @@ def build_matrix(*, shortlist_names: list[str] | None = None) -> dict[str, Any]:
             or str(row.get("strategy", "")).lower() in wanted
         ]
     else:
-        shortlist = select_default_shortlist(leaderboard)
+        shortlist = select_default_shortlist(
+            leaderboard,
+            include_hybrids=include_hybrids,
+        )
     if len(shortlist) < 3:
         raise ValueError("need at least 3 Gold rows for an ensemble")
 
@@ -250,6 +268,9 @@ def build_matrix(*, shortlist_names: list[str] | None = None) -> dict[str, Any]:
             }
             for row in shortlist
         ],
+        "source_policy": {
+            "include_hybrids": include_hybrids,
+        },
         "rows": candidate_rows,
     }
 
@@ -286,12 +307,20 @@ def format_matrix(matrix: dict[str, Any], *, top_n: int) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--shortlist", default=None, help="comma-separated display names/strategy names")
+    parser.add_argument(
+        "--include-hybrids",
+        action="store_true",
+        help="Allow promoted gold_hybrid_* rows to participate as ensemble members",
+    )
     parser.add_argument("--top", type=int, default=20)
     parser.add_argument("--output", default=None)
     args = parser.parse_args()
 
     shortlist_names = [item.strip() for item in args.shortlist.split(",")] if args.shortlist else None
-    matrix = build_matrix(shortlist_names=shortlist_names)
+    matrix = build_matrix(
+        shortlist_names=shortlist_names,
+        include_hybrids=args.include_hybrids,
+    )
     print(format_matrix(matrix, top_n=args.top))
     if args.output:
         os.makedirs(os.path.dirname(os.path.abspath(args.output)), exist_ok=True)
