@@ -1,17 +1,17 @@
 {
   "metadata": {
     "generator": "tests/generate_golden_trades.py",
-    "generated_utc": "2026-04-21T21:43:14Z",
+    "generated_utc": "2026-04-30T22:29:44Z",
     "data_file": "data/TECL.csv",
-    "data_rows": 8298,
+    "data_rows": 8305,
     "data_first_date": "1993-05-04",
-    "data_last_date": "2026-04-21",
+    "data_last_date": "2026-04-30",
     "slippage_pct": 0.05,
     "commission_pct": 0.0,
     "num_trades": 52,
     "share_multiple": 8.481,
-    "total_return_pct": 115481.975,
-    "cagr_pct": 23.856,
+    "total_return_pct": 125625.258,
+    "cagr_pct": 24.1524,
     "max_drawdown_pct": 85.78
   },
   "params": {
@@ -529,11 +529,11 @@
     {
       "entry_date": "2026-04-16",
       "entry_price": 128.003972,
-      "exit_date": "2026-04-21",
-      "exit_price": 134.460007,
+      "exit_date": "2026-04-30",
+      "exit_price": 146.259995,
       "exit_reason": "End of Data",
-      "pnl_pct": 5.04362,
-      "bars_held": 3
+      "pnl_pct": 14.262075,
+      "bars_held": 10
     }
   ]
 }

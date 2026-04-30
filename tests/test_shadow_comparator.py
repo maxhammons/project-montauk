@@ -226,6 +226,9 @@ def test_per_trade_pnl_within_0p5pct(ours_result, shadow_stats):
     assertion — same entry/exit bar ⇒ same PnL — is what catches bugs.
     """
     ours_by_date = {t.entry_date: float(t.pnl_pct) for t in ours_result.trades}
+    ours_terminal_entries = {
+        t.entry_date for t in ours_result.trades if t.exit_reason == "End of Data"
+    }
 
     shadow_trades = shadow_stats["_trades"]
     shadow_by_date = {
@@ -247,11 +250,11 @@ def test_per_trade_pnl_within_0p5pct(ours_result, shadow_stats):
 
     divergences = []
     for d in common:
-        # backtesting.py force-finalizes the last open trade as a zero-duration,
-        # same-bar liquidation. Our engine records the same position through the
-        # final bar as an End-of-Data exit. Excluding that artifact keeps this
-        # test focused on true same-bar execution parity.
-        if d in shadow_zero_duration:
+        # backtesting.py force-finalizes the last open trade before/at the final
+        # bar. Our engine records the same position through the final bar as an
+        # End-of-Data exit. Excluding that artifact keeps this test focused on
+        # true same-bar execution parity.
+        if d in shadow_zero_duration or d in ours_terminal_entries:
             continue
         op, sp = ours_by_date[d], shadow_by_date[d]
         diff = op - sp

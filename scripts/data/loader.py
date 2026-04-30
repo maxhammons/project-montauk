@@ -255,10 +255,13 @@ def _append_new_bars(csv_path: str, ticker: str, start_override: str | None = No
                 df[col] = df["close"]
             else:
                 df[col] = np.nan
+    for col in df.columns:
+        if col not in fresh.columns:
+            fresh[col] = np.nan
 
-    # Only keep columns that exist in the current CSV
-    shared = [c for c in df.columns if c in fresh.columns]
-    combined = pd.concat([df[shared], fresh[shared]], ignore_index=True)
+    # Preserve the existing CSV schema. Provenance columns are filled by the
+    # stitch-plan migration after append, not by Yahoo's raw payload.
+    combined = pd.concat([df[df.columns], fresh[df.columns]], ignore_index=True)
     combined = _normalize_date_column(combined)
     combined.to_csv(csv_path, index=False)
     return len(fresh)
@@ -321,6 +324,7 @@ def refresh_all():
     # ── TQQQ ──
     n = _append_new_bars(TQQQ_CSV, "TQQQ")
     print(f"[refresh] TQQQ: +{n} new bars")
+    migrate_provenance()
 
     # ── SGOV ──
     n = _refresh_or_create_ticker_csv(SGOV_CSV, "SGOV", start="2020-01-01")

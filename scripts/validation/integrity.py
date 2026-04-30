@@ -253,12 +253,14 @@ def _run_shadow_comparator_check() -> dict:
             issues.append(f"trade_count ours={ours_n} shadow={shadow_n}")
 
         ours_by_date = {t.entry_date: float(t.pnl_pct) for t in ours.trades}
-        # backtesting.py force-finalizes the last open position as a
-        # zero-duration, same-bar liquidation (EntryBar == ExitBar, ReturnPct == 0).
-        # Our engine records the same position through the final bar as an
-        # End-of-Data exit with real PnL. Exclude that artifact — it's a
+        # backtesting.py force-finalizes the last open position before/at the
+        # final bar. Our engine records the same position through the final bar
+        # as an End-of-Data exit with real PnL. Exclude that artifact — it's a
         # bar-close-semantic difference between engines, not a real divergence.
         # This matches tests/test_shadow_comparator.py::test_per_trade_pnl_within_0p5pct.
+        ours_terminal_entries = {
+            t.entry_date for t in ours.trades if t.exit_reason == "End of Data"
+        }
         shadow_zero_duration = {
             str(pd.Timestamp(row.EntryTime).date())
             for row in stats["_trades"].itertuples()
@@ -269,7 +271,9 @@ def _run_shadow_comparator_check() -> dict:
             for row in stats["_trades"].itertuples()
         }
         common = sorted(
-            (set(ours_by_date) & set(shadow_by_date)) - shadow_zero_duration
+            (set(ours_by_date) & set(shadow_by_date))
+            - shadow_zero_duration
+            - ours_terminal_entries
         )
         if len(common) < 10:
             issues.append(f"common_trade_count={len(common)} < 10")

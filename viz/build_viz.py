@@ -46,6 +46,7 @@ SPIKE_DIR = os.path.join(PROJECT_ROOT, "spike")
 TEMPLATE_DIR = os.path.join(VIZ_DIR, "templates")
 
 LEADERBOARD_PATH = os.path.join(SPIKE_DIR, "leaderboard.json")
+FAMILY_CONFIDENCE_PATH = os.path.join(PROJECT_ROOT, "runs", "family_confidence_leaderboard.json")
 RUNS_DIR = os.path.join(SPIKE_DIR, "runs")
 TECL_CSV = os.path.join(DATA_DIR, "TECL.csv")
 MARKERS_CSV = os.path.join(DATA_DIR, "markers", "TECL-markers.csv")
@@ -559,6 +560,22 @@ def load_leaderboard() -> list[dict[str, Any]]:
     return d
 
 
+def load_family_confidence() -> dict[str, Any] | None:
+    if not os.path.exists(FAMILY_CONFIDENCE_PATH):
+        print(f"[build_viz] Family confidence report not found at {FAMILY_CONFIDENCE_PATH}")
+        return None
+    try:
+        with open(FAMILY_CONFIDENCE_PATH) as f:
+            data = json.load(f)
+    except Exception as exc:
+        print(f"[build_viz] WARNING: failed to load family confidence report: {exc}")
+        return None
+    if not isinstance(data, dict):
+        print("[build_viz] WARNING: family confidence report is not an object; skipping")
+        return None
+    return data
+
+
 def index_run_artifacts() -> dict[tuple[str, str], dict[str, Any]]:
     """Index every spike/runs/*/dashboard_data.json by (strategy_name, params_key).
 
@@ -845,6 +862,10 @@ def build_bundle() -> dict[str, Any]:
 
     leaderboard = load_leaderboard()
     print(f"[build_viz] Leaderboard entries: {len(leaderboard)}")
+    family_confidence = load_family_confidence()
+    if family_confidence:
+        leaders = family_confidence.get("strategy_family_leaders") or []
+        print(f"[build_viz] Family confidence leaders: {len(leaders)}")
 
     runs = index_run_artifacts()
     print(f"[build_viz] Indexed {len(runs)} run-dir dashboard_data.json files")
@@ -868,6 +889,7 @@ def build_bundle() -> dict[str, Any]:
         "tecl_health": health,
         "markers": {"north_star": markers},
         "strategies": strategies,
+        "family_confidence": family_confidence,
     }
     return bundle
 

@@ -472,6 +472,7 @@
   };
   let _leaderboardSort = "allEra";
   let _leaderboardSortDir = SORT_OPTIONS[_leaderboardSort].direction;
+  let _leaderboardView = "full";
 
   function numericSortValue(strategy, sortKey) {
     const def = SORT_OPTIONS[sortKey] || SORT_OPTIONS.allEra;
@@ -508,6 +509,64 @@
 
   function getSortedStrategies() {
     return D.strategies.slice().sort(compareBySort);
+  }
+
+  function _sameParams(a, b) {
+    try {
+      return JSON.stringify(a || {}) === JSON.stringify(b || {});
+    } catch (_err) {
+      return false;
+    }
+  }
+
+  function findStrategyForFamilyLeader(leader) {
+    if (!leader) return null;
+    const byName = D.strategies.find((s) => s.name === leader.display_name);
+    if (byName) return byName;
+    return D.strategies.find((s) => (
+      s.codename === leader.strategy && _sameParams(s.params, leader.params)
+    )) || D.strategies.find((s) => s.codename === leader.strategy) || null;
+  }
+
+  function getFamilyLeaderStrategies() {
+    const leaders = D.family_confidence?.strategy_family_leaders;
+    if (Array.isArray(leaders) && leaders.length) {
+      return leaders
+        .map((leader) => {
+          const strat = findStrategyForFamilyLeader(leader);
+          if (!strat) return null;
+          return {
+            ...strat,
+            _family_label: leader.family,
+            _family_size: leader.family_size,
+            _family_confidence_rank: leader.rank,
+          };
+        })
+        .filter(Boolean);
+    }
+
+    const byFamily = new Map();
+    D.strategies.forEach((s) => {
+      const existing = byFamily.get(s.codename);
+      if (!existing || compareBySort(s, existing) < 0) {
+        byFamily.set(s.codename, s);
+      }
+    });
+    return Array.from(byFamily.entries())
+      .map(([family, strat]) => ({
+        ...strat,
+        _family_label: family,
+        _family_size: strat.family_size || 1,
+      }))
+      .sort((a, b) => {
+        const ac = Number(a.composite_confidence || 0);
+        const bc = Number(b.composite_confidence || 0);
+        return bc - ac || compareBySort(a, b);
+      });
+  }
+
+  function getSidebarStrategies() {
+    return _leaderboardView === "family" ? getFamilyLeaderStrategies() : getSortedStrategies();
   }
 
   function updateSortDirectionButton() {
@@ -547,7 +606,7 @@
   function renderSidebar() {
     const list = document.getElementById("strat-list");
     list.innerHTML = "";
-    const sorted = getSortedStrategies();
+    const sorted = getSidebarStrategies();
     const secondaryDef = SECONDARY_SOURCES[_secondarySource] || SECONDARY_SOURCES.real;
     sorted.forEach((s, idx) => {
       const div = document.createElement("div");
@@ -565,14 +624,19 @@
           : "not verified not overfit";
       const manual = s.manually_admitted ? '<span class="manual-flag" title="manually admitted — see spirit-memory/decisions.md 2026-04-20-a">★</span>' : "";
       const displayRank = idx + 1;
-      const rankLabel = `#${displayRank}`;
+      const familyMode = _leaderboardView === "family";
+      const rankLabel = familyMode
+        ? `#${displayRank}<span class="orig-rank" title="Original full leaderboard rank">LB #${s.rank}</span>`
+        : `#${displayRank}`;
       const secondaryVal = secondaryDef.extract(s);
       const secondaryCls = secondaryVal == null
         ? "secondary-mult missing"
         : `secondary-mult ${secondaryVal < 1 ? "bad" : ""}`;
       const secondaryStr = secondaryVal == null ? "— " + secondaryDef.label : `${fmtMult(secondaryVal)} ${secondaryDef.label}`;
       const secondaryTip = `${secondaryDef.tooltip} Value shown: ${secondaryVal == null ? "not available for this strategy" : fmtMult(secondaryVal)}.`;
-      const familyTag = s.family_size && s.family_size > 1
+      const familyTag = familyMode
+        ? `<span class="family" title="Strategy family representative selected by confidence">${escapeHtml(s._family_label || s.codename)} · ${s._family_size || 1}</span>`
+        : s.family_size && s.family_size > 1
         ? `<span class="family" title="Gold sibling ${s.family_rank} of ${s.family_size} within ${escapeHtml(s.codename)}">F${s.family_rank}/${s.family_size}</span>`
         : "";
       div.innerHTML = `
@@ -602,6 +666,22 @@
       });
     }
     initBadges();
+  }
+
+  function initLeaderboardTabs() {
+    const tabs = document.getElementById("leaderboard-tabs");
+    if (!tabs) return;
+    tabs.addEventListener("click", (e) => {
+      const btn = e.target.closest(".leaderboard-tab");
+      if (!btn) return;
+      const view = btn.dataset.view;
+      if (!view || view === _leaderboardView) return;
+      _leaderboardView = view;
+      tabs.querySelectorAll(".leaderboard-tab").forEach((el) => {
+        el.classList.toggle("active", el.dataset.view === view);
+      });
+      renderSidebar();
+    });
   }
 
   function initLeaderboardSort() {
@@ -1160,6 +1240,7 @@
 
   /* ---- Boot ---- */
   initBadges();
+  initLeaderboardTabs();
   initLeaderboardSort();
   initSecondaryToggle();
   renderSidebar();
@@ -1168,7 +1249,7 @@
   fitAll();
 
   if (D.strategies && D.strategies.length) {
-    loadStrategy(getSortedStrategies()[0]);
+    loadStrategy(getSidebarStrategies()[0]);
   }
   applyRange("ALL");
 })();

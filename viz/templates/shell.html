@@ -136,6 +136,30 @@
     border-bottom: 1px solid var(--line-soft);
   }
   .strat-list { padding: 4px 0; }
+  .leaderboard-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    padding: 8px 14px 8px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .leaderboard-tab {
+    background: var(--bg-2);
+    color: var(--text-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 5px 6px;
+    font-size: 11px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .leaderboard-tab:hover { color: var(--text-0); border-color: var(--text-3); }
+  .leaderboard-tab.active {
+    background: var(--accent-soft);
+    color: #fff;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
   .sort-toolbar {
     display: flex;
     align-items: center;
@@ -705,6 +729,10 @@
 
   <div class="sidebar">
     <h3>Leaderboard</h3>
+    <div class="leaderboard-tabs" id="leaderboard-tabs">
+      <button class="leaderboard-tab active" type="button" data-view="full">Full leaderboard</button>
+      <button class="leaderboard-tab" type="button" data-view="family">Family leaders</button>
+    </div>
     <div class="sort-toolbar">
       <label for="leaderboard-sort">Sort</label>
       <select id="leaderboard-sort" title="Choose the leaderboard ranking field">
