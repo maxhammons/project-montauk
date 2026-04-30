@@ -6387,6 +6387,146 @@ def gc_vjatr_reclaimer_timing(ind, p):
     return entries, exits, labels
 
 
+def _member_signals(ind, strategy_name: str, params: dict) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Run another registered strategy inside a hybrid strategy."""
+    if strategy_name in {
+        "gold_hybrid_switchboard",
+        "gold_hybrid_champion_overlay",
+        "gold_hybrid_committee",
+    }:
+        raise ValueError(f"hybrid strategy cannot recursively include {strategy_name}")
+    fn = globals().get(strategy_name)
+    if fn is None:
+        raise KeyError(f"unknown hybrid member strategy: {strategy_name}")
+    entries, exits, labels = fn(ind, dict(params or {}))
+    return entries.astype(bool), exits.astype(bool), labels
+
+
+def _events_to_state(entries: np.ndarray, exits: np.ndarray) -> np.ndarray:
+    state = np.zeros(len(entries), dtype=bool)
+    long = False
+    for i in range(len(entries)):
+        if exits[i]:
+            long = False
+        if entries[i]:
+            long = True
+        state[i] = long
+    return state
+
+
+def _state_to_events(state: np.ndarray, label: str) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    entries = np.zeros(len(state), dtype=bool)
+    exits = np.zeros(len(state), dtype=bool)
+    labels = np.array([""] * len(state), dtype=object)
+    prev = False
+    for i, current in enumerate(state):
+        current = bool(current)
+        if current and not prev:
+            entries[i] = True
+        elif prev and not current:
+            exits[i] = True
+            labels[i] = label
+        prev = current
+    return entries, exits, labels
+
+
+def _labeled_or(
+    primary_exits: np.ndarray,
+    primary_labels: np.ndarray,
+    secondary_exits: np.ndarray,
+    secondary_label: str,
+) -> tuple[np.ndarray, np.ndarray]:
+    exits = primary_exits.copy()
+    labels = np.asarray(primary_labels, dtype=object).copy()
+    for i in range(len(exits)):
+        if secondary_exits[i]:
+            exits[i] = True
+            if not labels[i]:
+                labels[i] = secondary_label
+    return exits, labels
+
+
+def gold_hybrid_switchboard(ind, p):
+    """Gold-specialist hybrid: entries from one Gold row, exits from another.
+
+    Params:
+      entry_strategy / entry_params
+      exit_strategy / exit_params
+
+    This is intentionally generic so diagnostics can freeze the selected
+    specialists into params before validation. It does not read the leaderboard
+    at runtime.
+    """
+    entry_strategy = p.get("entry_strategy", "gc_vjatr_reclaimer")
+    exit_strategy = p.get("exit_strategy", "gc_vjatr")
+    entry_params = p.get("entry_params", {})
+    exit_params = p.get("exit_params", {})
+
+    entries, _entry_exits, _entry_labels = _member_signals(ind, entry_strategy, entry_params)
+    _exit_entries, exits, exit_labels = _member_signals(ind, exit_strategy, exit_params)
+    labels = np.asarray(exit_labels, dtype=object).copy()
+    labels[exits & (labels == "")] = "SW"
+    return entries, exits, labels
+
+
+def gold_hybrid_champion_overlay(ind, p):
+    """Gold champion plus specialist overlays.
+
+    Base entries/exits define the canonical behavior. The entry specialist may
+    add re-entry events; the exit specialist may add risk-off events.
+    """
+    base_strategy = p.get("base_strategy", "gc_vjatr")
+    entry_strategy = p.get("entry_strategy", base_strategy)
+    exit_strategy = p.get("exit_strategy", base_strategy)
+
+    base_entries, base_exits, base_labels = _member_signals(
+        ind, base_strategy, p.get("base_params", {})
+    )
+    entry_entries, _entry_exits, _entry_labels = _member_signals(
+        ind, entry_strategy, p.get("entry_params", {})
+    )
+    _exit_entries, exit_exits, _exit_labels = _member_signals(
+        ind, exit_strategy, p.get("exit_params", {})
+    )
+    entries = base_entries | entry_entries
+    exits, labels = _labeled_or(base_exits, base_labels, exit_exits, "OV")
+    return entries, exits, labels
+
+
+def gold_hybrid_committee(ind, p):
+    """Gold-only weighted long/flat committee.
+
+    Params:
+      members: [{strategy, params, weight}, ...]
+      threshold: weighted long-state threshold, default 0.50
+    """
+    members = list(p.get("members") or [])
+    if not members:
+        return gold_hybrid_champion_overlay(ind, p)
+
+    states = []
+    weights = []
+    for member in members:
+        strategy = member.get("strategy")
+        if not strategy:
+            continue
+        entries, exits, _labels = _member_signals(ind, strategy, member.get("params", {}))
+        states.append(_events_to_state(entries, exits).astype(float))
+        weights.append(float(member.get("weight", 1.0) or 1.0))
+
+    n = ind.n
+    if not states:
+        return np.zeros(n, dtype=bool), np.zeros(n, dtype=bool), np.array([""] * n, dtype=object)
+
+    weights_arr = np.asarray(weights, dtype=float)
+    if float(np.sum(weights_arr)) <= 0.0:
+        weights_arr = np.ones(len(states))
+    state_arr = np.asarray(states)
+    scores = np.sum(state_arr * weights_arr[:, None], axis=0) / float(np.sum(weights_arr))
+    threshold = float(p.get("threshold", 0.50))
+    return _state_to_events(scores >= threshold, "COM")
+
+
 def ensemble_vote_3of5(ind, p):
     """T1 standalone (B12): 5 signals vote; enter on score>=entry_vote, exit on score<=exit_vote."""
     n = ind.n
@@ -7086,6 +7226,9 @@ STRATEGY_REGISTRY = {
     "gc_vjatr_state_filter":    gc_vjatr_state_filter,      # D6: Bonobo + state filter exits
     "gc_vjatr_timing_repair":   gc_vjatr_timing_repair,     # D7: minimal post-drawdown re-entry
     "gc_vjatr_reclaimer_timing": gc_vjatr_reclaimer_timing, # D8: reclaimer plus narrow timing repair
+    "gold_hybrid_switchboard":  gold_hybrid_switchboard,    # H1: best Gold entry + best Gold exit
+    "gold_hybrid_champion_overlay": gold_hybrid_champion_overlay, # H2: Gold champion plus specialists
+    "gold_hybrid_committee":     gold_hybrid_committee,      # H3: weighted Gold family/state committee
     "ensemble_vote_3of5":       ensemble_vote_3of5,         # B12
     "fed_macro_primary":        fed_macro_primary,          # B13
     "slope_only_200":           slope_only_200,             # B16
@@ -7233,6 +7376,9 @@ STRATEGY_TIERS = {
     "gc_vjatr_state_filter":    "T1",
     "gc_vjatr_timing_repair":   "T1",
     "gc_vjatr_reclaimer_timing": "T1",
+    "gold_hybrid_switchboard":  "T2",
+    "gold_hybrid_champion_overlay": "T2",
+    "gold_hybrid_committee":    "T2",
     "ensemble_vote_3of5":       "T1",
     "fed_macro_primary":        "T1",
     "slope_only_200":           "T1",
@@ -7930,6 +8076,11 @@ STRATEGY_PARAMS = {
         "timing_vol_long":          (60, 90, 30, int),
         "timing_vol_ratio_max":     (0.70, 0.90, 0.10, float),
     },
+    # Hybrid params are intentionally supplied by diagnostics/certification as
+    # frozen nested configs, not by random GA mutation.
+    "gold_hybrid_switchboard": {},
+    "gold_hybrid_champion_overlay": {},
+    "gold_hybrid_committee": {},
     # ── T1: Spike batch 2026-04-15b (diagnostic-informed) ──
     "gc_atr_trail": {
         "fast_ema":       (20, 100, 10, int),
