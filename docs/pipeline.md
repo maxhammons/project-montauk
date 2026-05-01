@@ -54,6 +54,12 @@ The authoritative full-run path is:
 7. **Build native HTML viewer**
    `python viz/build_viz.py` reads `spike/leaderboard.json` + each Gold strategy's `spike/runs/NNN/dashboard_data.json`, assembles the bundle, and writes a self-contained `viz/montauk-viz.html`. Non-blocking; a missing/stale run dir gets flagged with a "stale artifact" badge rather than aborting.
 
+   Confidence v2 diagnostics are generated separately with
+   `python scripts/diagnostics/confidence_vintage_harness.py`. The resulting
+   `runs/confidence_v2/leaderboard_scores.json` enriches the viz with Edge
+   Confidence and Capital Readiness, but it does not alter Gold Status
+   admission.
+
 8. **Manually execute from the daily signal**
    The champion's `signal_series.json` emits daily risk_on / risk_off state. Execution happens manually in a brokerage account — no broker API, no auto-deploy.
 

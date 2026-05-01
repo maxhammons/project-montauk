@@ -10,7 +10,8 @@
 Validation has two layers (see `validation-philosophy.md` §4):
 
 - **Layer 1 — Correctness**: binary, hard-fail, no weights. A strategy that fails any Layer 1 check is disqualified regardless of confidence.
-- **Layer 2 — Confidence**: `composite_confidence` score on [0, 1], displayed ×100 on the leaderboard. It is the project estimate of robustness into future TECL data, not a raw return score. It is computed as a weighted geometric mean of tier-applicable sub-scores.
+- **Layer 2 — Validation composite**: `composite_confidence` score on [0, 1]. It summarizes the tier-applicable validation stack and still drives PASS/WARN/FAIL. It is not the capital-allocation confidence metric.
+- **Confidence v2 diagnostics**: Gold rows can also carry `edge_confidence` and `capital_readiness`. These are diagnostic-only until the vintage calibration harness has enough evidence to replace heuristic ranking.
 
 No gate in Layer 2 has veto power on its own. Every sub-score contributes weighted partial credit.
 
@@ -45,7 +46,7 @@ A strategy has Gold Status only when it:
 
 ---
 
-## Layer 2 — Confidence Composite
+## Layer 2 — Validation Composite
 
 ### Verdict rules (2-tier)
 
@@ -74,7 +75,7 @@ admits only Gold Status rows.
 
 ## Composite Weights (T2 baseline)
 
-`composite_confidence` is a weighted geometric mean over present sub-scores. Higher means stronger evidence that the strategy should hold up and remain useful on future TECL data. Skipped gates return `None` and renormalize out — no penalty for gates that didn't apply to the tier.
+`composite_confidence` is a weighted geometric mean over present sub-scores. Higher means the validation stack is cleaner. Skipped gates return `None` and renormalize out — no penalty for gates that didn't apply to the tier. It remains a validation diagnostic, not a calibrated probability of future success.
 
 | Sub-score | T2 weight | Source gate | T0 applies | T1 applies | T2 applies |
 |---|:-:|---|:-:|:-:|:-:|
@@ -94,10 +95,12 @@ admits only Gold Status rows.
 
 ### Family-board future confidence
 
-`composite_confidence` remains the validation/certification score. The family
-leaderboard adds a stricter selection score, `future_confidence`, for choosing
-one representative per family. This score is not a replacement for validation;
-it is a Gold-only ranking overlay. Non-Gold rows still cannot appear.
+`composite_confidence` remains the validation/certification score. The legacy
+family leaderboard score, `future_confidence`, remains available as a stricter
+Gold-only ranking overlay. Confidence v2 supersedes it when
+`runs/confidence_v2/leaderboard_scores.json` is present: family representatives
+rank by `edge_confidence`, then `capital_readiness`, then legacy
+`future_confidence`. Non-Gold rows still cannot appear.
 
 `future_confidence` is a weighted geometric mean over:
 
@@ -116,6 +119,28 @@ This deliberately makes the family board more conservative than the full
 authority leaderboard. A high `future_confidence` row must be Gold, pass the
 normal validation stack, avoid relying on one very weak evidence plank, hold up
 across eras, and not merely duplicate an already-crowded signal cluster.
+
+### Confidence v2
+
+Confidence v2 separates three concepts:
+
+| Concept | Field | Meaning |
+|---|---|---|
+| Gold Status | `gold_status` | Binary leaderboard eligibility |
+| Edge Confidence | `edge_confidence` | Calibration-assisted estimate that the strategy remains useful over the next 1-3 years |
+| Capital Readiness | `capital_readiness` | Deployment suitability after edge: drawdown, redundancy, parameter parsimony, artifacts, and live degradation |
+
+Confidence v2 artifacts live under `runs/confidence_v2/`:
+
+- `vintage_trials.json` — simulated historical vintage trials
+- `calibration_model.json` — mapping from raw confidence features to observed forward survival
+- `leaderboard_scores.json` — current Gold rows enriched with Edge Confidence and Capital Readiness
+- `confidence_timeseries.json` — score drift by strategy across refreshes
+- `live_holdout_log.json` — forward-only evidence starting from 2026-05-01
+
+The live holdout starts on 2026-05-01 because earlier data has already been
+seen by Montauk. Historical dates are treated only as simulated vintages, not
+pristine holdout data.
 
 ### Effective weights per tier (after renormalization)
 

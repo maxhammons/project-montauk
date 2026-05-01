@@ -47,6 +47,7 @@ TEMPLATE_DIR = os.path.join(VIZ_DIR, "templates")
 
 LEADERBOARD_PATH = os.path.join(SPIKE_DIR, "leaderboard.json")
 FAMILY_CONFIDENCE_PATH = os.path.join(PROJECT_ROOT, "runs", "family_confidence_leaderboard.json")
+CONFIDENCE_V2_PATH = os.path.join(PROJECT_ROOT, "runs", "confidence_v2", "leaderboard_scores.json")
 RUNS_DIR = os.path.join(SPIKE_DIR, "runs")
 TECL_CSV = os.path.join(DATA_DIR, "TECL.csv")
 MARKERS_CSV = os.path.join(DATA_DIR, "markers", "TECL-markers.csv")
@@ -576,6 +577,33 @@ def load_family_confidence() -> dict[str, Any] | None:
     return data
 
 
+def load_confidence_v2() -> dict[str, Any] | None:
+    if not os.path.exists(CONFIDENCE_V2_PATH):
+        print(f"[build_viz] Confidence v2 report not found at {CONFIDENCE_V2_PATH}")
+        return None
+    try:
+        with open(CONFIDENCE_V2_PATH) as f:
+            data = json.load(f)
+    except Exception as exc:
+        print(f"[build_viz] WARNING: failed to load Confidence v2 report: {exc}")
+        return None
+    if not isinstance(data, dict):
+        print("[build_viz] WARNING: Confidence v2 report is not an object; skipping")
+        return None
+    return data
+
+
+def confidence_v2_index(report: dict[str, Any] | None) -> dict[str, dict[str, Any]]:
+    if not report:
+        return {}
+    index = {}
+    for score in report.get("scores", []) or []:
+        key = score.get("strategy_key")
+        if key:
+            index[str(key)] = score
+    return index
+
+
 def index_run_artifacts() -> dict[tuple[str, str], dict[str, Any]]:
     """Index every spike/runs/*/dashboard_data.json by (strategy_name, params_key).
 
@@ -612,6 +640,10 @@ def index_run_artifacts() -> dict[tuple[str, str], dict[str, Any]]:
 def params_key(params: dict[str, Any]) -> str:
     """Stable string key for a params dict."""
     return json.dumps(params, sort_keys=True, separators=(",", ":"))
+
+
+def strategy_key(strategy: str | None, params: dict[str, Any]) -> str:
+    return f"{strategy or 'unknown'}::{params_key(params or {})}"
 
 
 # --------------------------------------------------------------------------- #
@@ -718,7 +750,8 @@ def flatten_gates(validation: dict[str, Any]) -> dict[str, str]:
 
 def build_strategy_entry(rank: int,
                          entry: dict[str, Any],
-                         run: dict[str, Any] | None) -> dict[str, Any]:
+                         run: dict[str, Any] | None,
+                         confidence_v2: dict[str, Any] | None = None) -> dict[str, Any]:
     """Build one strategy bundle entry from a leaderboard row + matching run."""
     codename = entry.get("strategy", "?")
     name = entry.get("display_name") or codename
@@ -771,6 +804,14 @@ def build_strategy_entry(rank: int,
         "fitness": entry.get("fitness"),
         "overall_performance_score": entry.get("overall_performance_score"),
         "composite_confidence": validation.get("composite_confidence"),
+        "edge_confidence": (confidence_v2 or {}).get("edge_confidence"),
+        "edge_confidence_100": (confidence_v2 or {}).get("edge_confidence_100"),
+        "capital_readiness": (confidence_v2 or {}).get("capital_readiness"),
+        "capital_readiness_100": (confidence_v2 or {}).get("capital_readiness_100"),
+        "calibration_state": (confidence_v2 or {}).get("calibration_state"),
+        "edge_confidence_components": (confidence_v2 or {}).get("edge_confidence_components"),
+        "capital_readiness_components": (confidence_v2 or {}).get("capital_readiness_components"),
+        "search_provenance": (confidence_v2 or {}).get("search_provenance"),
         "tier": tier,
         "certified_not_overfit": certified_not_overfit,
         "backtest_certified": backtest_certified,
@@ -866,6 +907,10 @@ def build_bundle() -> dict[str, Any]:
     if family_confidence:
         leaders = family_confidence.get("strategy_family_leaders") or []
         print(f"[build_viz] Family confidence leaders: {len(leaders)}")
+    confidence_v2 = load_confidence_v2()
+    confidence_v2_by_key = confidence_v2_index(confidence_v2)
+    if confidence_v2:
+        print(f"[build_viz] Confidence v2 scores: {len(confidence_v2_by_key)}")
 
     runs = index_run_artifacts()
     print(f"[build_viz] Indexed {len(runs)} run-dir dashboard_data.json files")
@@ -877,7 +922,8 @@ def build_bundle() -> dict[str, Any]:
         run = runs.get(key)
         if run:
             matched += 1
-        strategies.append(build_strategy_entry(i, entry, run))
+        c2 = confidence_v2_by_key.get(strategy_key(entry.get("strategy"), entry.get("params") or {}))
+        strategies.append(build_strategy_entry(i, entry, run, c2))
     print(f"[build_viz] Matched {matched}/{len(leaderboard)} leaderboard entries to run artifacts")
 
     tecl_out = dict(tecl)
@@ -890,6 +936,7 @@ def build_bundle() -> dict[str, Any]:
         "markers": {"north_star": markers},
         "strategies": strategies,
         "family_confidence": family_confidence,
+        "confidence_v2": confidence_v2,
     }
     return bundle
 

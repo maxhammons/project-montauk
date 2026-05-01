@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-05-01T10:25:33",
+  "generated_at": "2026-05-01T10:56:18",
   "source": "spike/leaderboard.json",
   "gold_rows": 8,
   "confidence_definition": "future_confidence estimates robustness into future TECL data. It starts from validation composite_confidence, then discounts weak evidence planks, era imbalance, drawdown, parameter sprawl, duplicate signals, family crowding, and warning load.",
-  "selection_rule": "Gold rows only; one representative per family; choose highest future_confidence, tie-break by all-era score, fitness, real share multiple, then modern share multiple.",
+  "selection_rule": "Gold rows only; one representative per family; choose highest Edge Confidence when Confidence v2 is available, then Capital Readiness, then legacy future_confidence, all-era score, fitness, real share multiple, and modern share multiple.",
   "confidence_components": {
     "validation_confidence": "existing validation composite_confidence",
     "evidence_floor": "blend of weakest and 20th percentile validation sub-scores",
@@ -15,55 +15,10 @@
     "warning_cleanliness": "small discount for soft/critical validation warnings"
   },
   "diversity_source": "runs/gold_diversity_report.json",
+  "confidence_v2_source": "runs/confidence_v2/leaderboard_scores.json",
   "strategy_family_leaders": [
     {
       "rank": 1,
-      "family": "gc_vjatr",
-      "family_size": 4,
-      "leaderboard_rank": 2,
-      "display_name": "Marbled Bonobo",
-      "strategy": "gc_vjatr",
-      "confidence": 0.6987,
-      "confidence_100": 69.87,
-      "future_confidence": 0.6987,
-      "future_confidence_100": 69.87,
-      "validation_confidence": 0.7345,
-      "validation_confidence_100": 73.45,
-      "confidence_components": {
-        "validation_confidence": 0.7345,
-        "evidence_floor": 0.442,
-        "era_balance": 0.6882,
-        "drawdown_resilience": 0.7575,
-        "parameter_parsimony": 1.0,
-        "duplicate_signal": 0.8,
-        "family_crowding": 0.9445,
-        "warning_cleanliness": 0.845
-      },
-      "overall_performance_score": 3.428904149621613,
-      "fitness": 2.6511,
-      "gold_status": true,
-      "gold_status_label": "Gold Status",
-      "metrics": {
-        "share_multiple": 13.1308,
-        "real_share_multiple": 1.1311,
-        "modern_share_multiple": 2.7144,
-        "trades": 16,
-        "max_dd": 64.7
-      },
-      "params": {
-        "fast_ema": 140,
-        "slow_ema": 160,
-        "slope_window": 1,
-        "entry_bars": 2,
-        "cooldown": 0,
-        "atr_period": 7,
-        "atr_look": 40,
-        "atr_expand": 2.5,
-        "atr_confirm": 1
-      }
-    },
-    {
-      "rank": 2,
       "family": "gold_hybrid_committee",
       "family_size": 1,
       "leaderboard_rank": 1,
@@ -73,6 +28,35 @@
       "confidence_100": 66.43,
       "future_confidence": 0.6643,
       "future_confidence_100": 66.43,
+      "edge_confidence": 0.6233,
+      "edge_confidence_100": 62.33,
+      "capital_readiness": 0.7839,
+      "capital_readiness_100": 78.39,
+      "calibration_state": "calibrated",
+      "edge_confidence_components": {
+        "validation_quality": 0.6792,
+        "forward_edge": 0.79,
+        "robustness": 0.7703,
+        "charter_fit": 0.6366,
+        "search_deflation": 0.7575
+      },
+      "capital_readiness_components": {
+        "edge_confidence": 0.6233,
+        "drawdown_resilience": 0.73,
+        "parameter_parsimony": 1.0,
+        "portfolio_redundancy": 1.0,
+        "family_crowding": 1.0,
+        "artifact_cleanliness": 0.825
+      },
+      "search_provenance": {
+        "discovery_mode": "hybrid",
+        "n_configs_tested": 35568,
+        "n_effective_configs": 155,
+        "n_params": 1,
+        "family_candidates_tested": 1,
+        "selection_pressure": 0.4381,
+        "provenance_quality": "partial"
+      },
       "validation_confidence": 0.7594,
       "validation_confidence_100": 75.94,
       "confidence_components": {
@@ -167,6 +151,81 @@
       }
     },
     {
+      "rank": 2,
+      "family": "gc_vjatr",
+      "family_size": 4,
+      "leaderboard_rank": 2,
+      "display_name": "Marbled Bonobo",
+      "strategy": "gc_vjatr",
+      "confidence": 0.6987,
+      "confidence_100": 69.87,
+      "future_confidence": 0.6987,
+      "future_confidence_100": 69.87,
+      "edge_confidence": 0.5939,
+      "edge_confidence_100": 59.39,
+      "capital_readiness": 0.7432,
+      "capital_readiness_100": 74.32,
+      "calibration_state": "calibrated",
+      "edge_confidence_components": {
+        "validation_quality": 0.6468,
+        "forward_edge": 0.7214,
+        "robustness": 0.7861,
+        "charter_fit": 0.5657,
+        "search_deflation": 0.6913
+      },
+      "capital_readiness_components": {
+        "edge_confidence": 0.5939,
+        "drawdown_resilience": 0.7575,
+        "parameter_parsimony": 1.0,
+        "portfolio_redundancy": 0.75,
+        "family_crowding": 0.9306,
+        "artifact_cleanliness": 0.825
+      },
+      "search_provenance": {
+        "discovery_mode": "ga",
+        "n_configs_tested": 35568,
+        "n_effective_configs": 1080,
+        "n_params": 8,
+        "family_candidates_tested": 4,
+        "selection_pressure": 0.6067,
+        "provenance_quality": "partial"
+      },
+      "validation_confidence": 0.7345,
+      "validation_confidence_100": 73.45,
+      "confidence_components": {
+        "validation_confidence": 0.7345,
+        "evidence_floor": 0.442,
+        "era_balance": 0.6882,
+        "drawdown_resilience": 0.7575,
+        "parameter_parsimony": 1.0,
+        "duplicate_signal": 0.8,
+        "family_crowding": 0.9445,
+        "warning_cleanliness": 0.845
+      },
+      "overall_performance_score": 3.428904149621613,
+      "fitness": 2.6511,
+      "gold_status": true,
+      "gold_status_label": "Gold Status",
+      "metrics": {
+        "share_multiple": 13.1308,
+        "real_share_multiple": 1.1311,
+        "modern_share_multiple": 2.7144,
+        "trades": 16,
+        "max_dd": 64.7
+      },
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 7,
+        "atr_look": 40,
+        "atr_expand": 2.5,
+        "atr_confirm": 1
+      }
+    },
+    {
       "rank": 3,
       "family": "gc_vjatr_timing_repair",
       "family_size": 3,
@@ -177,6 +236,35 @@
       "confidence_100": 19.52,
       "future_confidence": 0.1952,
       "future_confidence_100": 19.52,
+      "edge_confidence": 0.4142,
+      "edge_confidence_100": 41.42,
+      "capital_readiness": 0.0261,
+      "capital_readiness_100": 2.61,
+      "calibration_state": "calibrated",
+      "edge_confidence_components": {
+        "validation_quality": 0.706,
+        "forward_edge": 0.92,
+        "robustness": 0.0228,
+        "charter_fit": 0.7377,
+        "search_deflation": 0.8436
+      },
+      "capital_readiness_components": {
+        "edge_confidence": 0.4142,
+        "drawdown_resilience": 0.0,
+        "parameter_parsimony": 0.7812,
+        "portfolio_redundancy": 0.75,
+        "family_crowding": 0.945,
+        "artifact_cleanliness": 0.825
+      },
+      "search_provenance": {
+        "discovery_mode": "grid",
+        "n_configs_tested": 35568,
+        "n_effective_configs": 615,
+        "n_params": 15,
+        "family_candidates_tested": 3,
+        "selection_pressure": 0.5578,
+        "provenance_quality": "partial"
+      },
       "validation_confidence": 0.7678,
       "validation_confidence_100": 76.78,
       "confidence_components": {
@@ -223,52 +311,6 @@
   "codename_family_leaders": [
     {
       "rank": 1,
-      "family": "Bonobo",
-      "family_size": 4,
-      "leaderboard_rank": 2,
-      "display_name": "Marbled Bonobo",
-      "strategy": "gc_vjatr",
-      "confidence": 0.6987,
-      "confidence_100": 69.87,
-      "future_confidence": 0.6987,
-      "future_confidence_100": 69.87,
-      "validation_confidence": 0.7345,
-      "validation_confidence_100": 73.45,
-      "confidence_components": {
-        "validation_confidence": 0.7345,
-        "evidence_floor": 0.442,
-        "era_balance": 0.6882,
-        "drawdown_resilience": 0.7575,
-        "parameter_parsimony": 1.0,
-        "duplicate_signal": 0.8,
-        "family_crowding": 0.9445,
-        "warning_cleanliness": 0.845
-      },
-      "overall_performance_score": 3.428904149621613,
-      "fitness": 2.6511,
-      "gold_status": true,
-      "gold_status_label": "Gold Status",
-      "metrics": {
-        "share_multiple": 13.1308,
-        "real_share_multiple": 1.1311,
-        "modern_share_multiple": 2.7144,
-        "trades": 16,
-        "max_dd": 64.7
-      },
-      "params": {
-        "fast_ema": 140,
-        "slow_ema": 160,
-        "slope_window": 1,
-        "entry_bars": 2,
-        "cooldown": 0,
-        "atr_period": 7,
-        "atr_look": 40,
-        "atr_expand": 2.5,
-        "atr_confirm": 1
-      }
-    },
-    {
-      "rank": 2,
       "family": "Hare",
       "family_size": 4,
       "leaderboard_rank": 1,
@@ -278,6 +320,35 @@
       "confidence_100": 66.24,
       "future_confidence": 0.6624,
       "future_confidence_100": 66.24,
+      "edge_confidence": 0.6233,
+      "edge_confidence_100": 62.33,
+      "capital_readiness": 0.7839,
+      "capital_readiness_100": 78.39,
+      "calibration_state": "calibrated",
+      "edge_confidence_components": {
+        "validation_quality": 0.6792,
+        "forward_edge": 0.79,
+        "robustness": 0.7703,
+        "charter_fit": 0.6366,
+        "search_deflation": 0.7575
+      },
+      "capital_readiness_components": {
+        "edge_confidence": 0.6233,
+        "drawdown_resilience": 0.73,
+        "parameter_parsimony": 1.0,
+        "portfolio_redundancy": 1.0,
+        "family_crowding": 1.0,
+        "artifact_cleanliness": 0.825
+      },
+      "search_provenance": {
+        "discovery_mode": "hybrid",
+        "n_configs_tested": 35568,
+        "n_effective_configs": 155,
+        "n_params": 1,
+        "family_candidates_tested": 1,
+        "selection_pressure": 0.4381,
+        "provenance_quality": "partial"
+      },
       "validation_confidence": 0.7594,
       "validation_confidence_100": 75.94,
       "confidence_components": {
@@ -369,6 +440,81 @@
           }
         ],
         "threshold": 0.5
+      }
+    },
+    {
+      "rank": 2,
+      "family": "Bonobo",
+      "family_size": 4,
+      "leaderboard_rank": 2,
+      "display_name": "Marbled Bonobo",
+      "strategy": "gc_vjatr",
+      "confidence": 0.6987,
+      "confidence_100": 69.87,
+      "future_confidence": 0.6987,
+      "future_confidence_100": 69.87,
+      "edge_confidence": 0.5939,
+      "edge_confidence_100": 59.39,
+      "capital_readiness": 0.7432,
+      "capital_readiness_100": 74.32,
+      "calibration_state": "calibrated",
+      "edge_confidence_components": {
+        "validation_quality": 0.6468,
+        "forward_edge": 0.7214,
+        "robustness": 0.7861,
+        "charter_fit": 0.5657,
+        "search_deflation": 0.6913
+      },
+      "capital_readiness_components": {
+        "edge_confidence": 0.5939,
+        "drawdown_resilience": 0.7575,
+        "parameter_parsimony": 1.0,
+        "portfolio_redundancy": 0.75,
+        "family_crowding": 0.9306,
+        "artifact_cleanliness": 0.825
+      },
+      "search_provenance": {
+        "discovery_mode": "ga",
+        "n_configs_tested": 35568,
+        "n_effective_configs": 1080,
+        "n_params": 8,
+        "family_candidates_tested": 4,
+        "selection_pressure": 0.6067,
+        "provenance_quality": "partial"
+      },
+      "validation_confidence": 0.7345,
+      "validation_confidence_100": 73.45,
+      "confidence_components": {
+        "validation_confidence": 0.7345,
+        "evidence_floor": 0.442,
+        "era_balance": 0.6882,
+        "drawdown_resilience": 0.7575,
+        "parameter_parsimony": 1.0,
+        "duplicate_signal": 0.8,
+        "family_crowding": 0.9445,
+        "warning_cleanliness": 0.845
+      },
+      "overall_performance_score": 3.428904149621613,
+      "fitness": 2.6511,
+      "gold_status": true,
+      "gold_status_label": "Gold Status",
+      "metrics": {
+        "share_multiple": 13.1308,
+        "real_share_multiple": 1.1311,
+        "modern_share_multiple": 2.7144,
+        "trades": 16,
+        "max_dd": 64.7
+      },
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 7,
+        "atr_look": 40,
+        "atr_expand": 2.5,
+        "atr_confirm": 1
       }
     }
   ]

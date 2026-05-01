@@ -33,6 +33,7 @@ from certify.contract import sync_entry_contract
 LEADERBOARD_PATH = os.path.join(PROJECT_ROOT, "spike", "leaderboard.json")
 DEFAULT_OUTPUT = os.path.join(PROJECT_ROOT, "runs", "family_confidence_leaderboard.json")
 DEFAULT_DIVERSITY_REPORT = os.path.join(PROJECT_ROOT, "runs", "gold_diversity_report.json")
+DEFAULT_CONFIDENCE_V2 = os.path.join(PROJECT_ROOT, "runs", "confidence_v2", "leaderboard_scores.json")
 
 
 def _load_json(path: str) -> Any:
@@ -147,6 +148,29 @@ def _load_duplicate_scores(path: str | None) -> dict[str, float]:
     return scores
 
 
+def _params_key(params: dict[str, Any]) -> str:
+    return json.dumps(params or {}, sort_keys=True, separators=(",", ":"))
+
+
+def _strategy_key(row: dict[str, Any]) -> str:
+    return f"{row.get('strategy') or 'unknown'}::{_params_key(row.get('params') or {})}"
+
+
+def _load_confidence_v2(path: str | None) -> dict[str, dict[str, Any]]:
+    if not path or not os.path.exists(path):
+        return {}
+    try:
+        report = _load_json(path)
+    except Exception:
+        return {}
+    out = {}
+    for score in report.get("scores", []) or []:
+        key = score.get("strategy_key")
+        if key:
+            out[str(key)] = score
+    return out
+
+
 def _future_confidence(row: dict[str, Any], *, family_size: int, duplicate_score: float | None) -> tuple[float, dict[str, float]]:
     metrics = row.get("metrics") or {}
     validation = row.get("validation") or {}
@@ -214,6 +238,8 @@ def _future_confidence(row: dict[str, Any], *, family_size: int, duplicate_score
 def _tie_key(row: dict[str, Any]) -> tuple[float, float, float, float, float]:
     metrics = row.get("metrics") or {}
     return (
+        _safe_float(row.get("edge_confidence"), -1.0),
+        _safe_float(row.get("capital_readiness"), -1.0),
         _safe_float(row.get("future_confidence"), _confidence(row)),
         _safe_float(row.get("overall_performance_score")),
         _safe_float(row.get("fitness")),
@@ -238,6 +264,14 @@ def _leader_row(row: dict[str, Any], *, rank: int, family: str, family_size: int
         "confidence_100": round(future_confidence * 100.0, 2),
         "future_confidence": round(future_confidence, 4),
         "future_confidence_100": round(future_confidence * 100.0, 2),
+        "edge_confidence": row.get("edge_confidence"),
+        "edge_confidence_100": row.get("edge_confidence_100"),
+        "capital_readiness": row.get("capital_readiness"),
+        "capital_readiness_100": row.get("capital_readiness_100"),
+        "calibration_state": row.get("calibration_state"),
+        "edge_confidence_components": row.get("edge_confidence_components"),
+        "capital_readiness_components": row.get("capital_readiness_components"),
+        "search_provenance": row.get("search_provenance"),
         "validation_confidence": round(_confidence(row), 4),
         "validation_confidence_100": round(_confidence(row) * 100.0, 2),
         "confidence_components": {
@@ -276,6 +310,7 @@ def build_family_board(
     *,
     family_key: str,
     duplicate_scores: dict[str, float],
+    confidence_v2: dict[str, dict[str, Any]],
 ) -> list[dict[str, Any]]:
     grouped: dict[str, list[dict[str, Any]]] = {}
     for row in rows:
@@ -286,6 +321,20 @@ def build_family_board(
         enriched = []
         for row in family_rows:
             candidate = dict(row)
+            v2 = confidence_v2.get(_strategy_key(candidate))
+            if v2:
+                candidate.update(
+                    {
+                        "edge_confidence": v2.get("edge_confidence"),
+                        "edge_confidence_100": v2.get("edge_confidence_100"),
+                        "capital_readiness": v2.get("capital_readiness"),
+                        "capital_readiness_100": v2.get("capital_readiness_100"),
+                        "calibration_state": v2.get("calibration_state"),
+                        "edge_confidence_components": v2.get("edge_confidence_components"),
+                        "capital_readiness_components": v2.get("capital_readiness_components"),
+                        "search_provenance": v2.get("search_provenance"),
+                    }
+                )
             future, components = _future_confidence(
                 candidate,
                 family_size=len(family_rows),
@@ -304,9 +353,15 @@ def build_family_board(
     ]
 
 
-def build_report(path: str, *, diversity_report: str | None = DEFAULT_DIVERSITY_REPORT) -> dict[str, Any]:
+def build_report(
+    path: str,
+    *,
+    diversity_report: str | None = DEFAULT_DIVERSITY_REPORT,
+    confidence_v2_report: str | None = DEFAULT_CONFIDENCE_V2,
+) -> dict[str, Any]:
     rows = load_gold_rows(path)
     duplicate_scores = _load_duplicate_scores(diversity_report)
+    confidence_v2 = _load_confidence_v2(confidence_v2_report)
     return {
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "source": os.path.relpath(path, PROJECT_ROOT),
@@ -319,8 +374,9 @@ def build_report(path: str, *, diversity_report: str | None = DEFAULT_DIVERSITY_
         ),
         "selection_rule": (
             "Gold rows only; one representative per family; choose highest "
-            "future_confidence, tie-break by all-era score, fitness, real share "
-            "multiple, then modern share multiple."
+            "Edge Confidence when Confidence v2 is available, then Capital "
+            "Readiness, then legacy future_confidence, all-era score, fitness, "
+            "real share multiple, and modern share multiple."
         ),
         "confidence_components": {
             "validation_confidence": "existing validation composite_confidence",
@@ -337,15 +393,22 @@ def build_report(path: str, *, diversity_report: str | None = DEFAULT_DIVERSITY_
             if diversity_report and os.path.exists(diversity_report)
             else None
         ),
+        "confidence_v2_source": (
+            os.path.relpath(confidence_v2_report, PROJECT_ROOT)
+            if confidence_v2_report and os.path.exists(confidence_v2_report)
+            else None
+        ),
         "strategy_family_leaders": build_family_board(
             rows,
             family_key="strategy",
             duplicate_scores=duplicate_scores,
+            confidence_v2=confidence_v2,
         ),
         "codename_family_leaders": build_family_board(
             rows,
             family_key="codename",
             duplicate_scores=duplicate_scores,
+            confidence_v2=confidence_v2,
         ),
     }
 
@@ -357,13 +420,15 @@ def format_board(report: dict[str, Any], *, family_key: str) -> str:
         title,
         "=" * 108,
         f"Gold rows: {report['gold_rows']}",
-        "rank family                         leader                 future valid overall fit   full  real modern n",
+        "rank family                         leader                   edge   cap future valid overall fit   full  real modern n",
     ]
     for row in report[key]:
         metrics = row["metrics"]
         lines.append(
             f"{row['rank']:>4} {row['family'][:30]:30s} "
             f"{row['display_name'][:22]:22s} "
+            f"{_safe_float(row.get('edge_confidence_100')):>6.1f} "
+            f"{_safe_float(row.get('capital_readiness_100')):>5.1f} "
             f"{row['future_confidence_100']:>6.1f} "
             f"{row['validation_confidence_100']:>5.1f} "
             f"{_safe_float(row.get('overall_performance_score')):>7.3f} "
@@ -381,10 +446,15 @@ def main() -> None:
     parser.add_argument("--leaderboard", default=LEADERBOARD_PATH)
     parser.add_argument("--output", default=DEFAULT_OUTPUT)
     parser.add_argument("--diversity-report", default=DEFAULT_DIVERSITY_REPORT)
+    parser.add_argument("--confidence-v2-report", default=DEFAULT_CONFIDENCE_V2)
     parser.add_argument("--family-key", choices=("strategy", "codename"), default="strategy")
     args = parser.parse_args()
 
-    report = build_report(args.leaderboard, diversity_report=args.diversity_report)
+    report = build_report(
+        args.leaderboard,
+        diversity_report=args.diversity_report,
+        confidence_v2_report=args.confidence_v2_report,
+    )
     print(format_board(report, family_key=args.family_key))
     if args.output:
         os.makedirs(os.path.dirname(os.path.abspath(args.output)), exist_ok=True)

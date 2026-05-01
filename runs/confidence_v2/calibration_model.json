@@ -1,0 +1,42 @@
+{
+  "generated_at": "2026-05-01T10:56:08",
+  "status": "calibrated",
+  "model_type": "quantile_bucket_survival_v1",
+  "trial_count": 48,
+  "overall_survival_rate": 0.3333,
+  "target": "survived_useful_2y",
+  "buckets": [
+    {
+      "min_score": 0.1577,
+      "max_score": 0.1973,
+      "midpoint": 0.1778,
+      "n": 12,
+      "observed_survival_rate": 0.25
+    },
+    {
+      "min_score": 0.2695,
+      "max_score": 0.3466,
+      "midpoint": 0.3175,
+      "n": 12,
+      "observed_survival_rate": 0.3333
+    },
+    {
+      "min_score": 0.3601,
+      "max_score": 0.4071,
+      "midpoint": 0.3852,
+      "n": 12,
+      "observed_survival_rate": 0.3333
+    },
+    {
+      "min_score": 0.4071,
+      "max_score": 0.8918,
+      "midpoint": 0.6457,
+      "n": 12,
+      "observed_survival_rate": 0.4167
+    }
+  ],
+  "limitations": [
+    "Uses current Gold configs as historical candidates; it does not reconstruct historical discovery runs yet.",
+    "Confidence values are calibration-assisted but still provisional until more vintage candidates are added."
+  ]
+}

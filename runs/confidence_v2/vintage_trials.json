@@ -1,0 +1,2181 @@
+{
+  "generated_at": "2026-05-01T10:56:08",
+  "diagnostic_only": true,
+  "method": "Fixed current Gold configs are evaluated at historical vintage dates. This is simulated vintage evidence, not pristine historical discovery.",
+  "vintages": [
+    "2014-01-01",
+    "2016-01-01",
+    "2018-01-01",
+    "2020-01-01",
+    "2022-01-01",
+    "2024-01-01"
+  ],
+  "horizons_months": [
+    6,
+    12,
+    24
+  ],
+  "trial_count": 48,
+  "trials": [
+    {
+      "vintage_date": "2014-01-01",
+      "strategy_key": "gold_hybrid_committee::{\"members\":[{\"display_name\":\"Dusky Osprey\",\"params\":{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":80,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"fast_len\":50,\"rsi_len\":14,\"rsi_reclaim\":45.0,\"slope_window\":1,\"slow_ema\":160,\"trend_len\":100,\"vol_long\":60,\"vol_ratio_max\":0.85,\"vol_short\":20},\"strategy\":\"gc_vjatr_reclaimer\",\"weight\":3.540446},{\"display_name\":\"Marbled Bonobo\",\"params\":{\"atr_confirm\":1,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160},\"strategy\":\"gc_vjatr\",\"weight\":2.51853},{\"display_name\":\"Ivory Hare\",\"params\":{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":45.0,\"rsi_len\":7,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0},\"strategy\":\"gc_vjatr_timing_repair\",\"weight\":2.551391}],\"threshold\":0.5}",
+      "display_name": "Cerulean Hare #1",
+      "strategy": "gold_hybrid_committee",
+      "leaderboard_rank": 1,
+      "prediction_score": 0.328,
+      "train_metrics": {
+        "share_multiple": 11.7582,
+        "real_share_multiple": 0.734,
+        "modern_share_multiple": 0.0,
+        "max_dd": 65.8,
+        "trades": 12
+      },
+      "forward": {
+        "6m": {
+          "start": "2014-01-01",
+          "end": "2014-07-01",
+          "months": 6,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 15.9,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2014-01-01",
+          "end": "2014-12-31",
+          "months": 12,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 23.0,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2014-01-01",
+          "end": "2015-12-31",
+          "months": 24,
+          "share_multiple": 0.7594,
+          "beats_bh": false,
+          "max_dd": 36.2,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2014-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":1,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Marbled Bonobo",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 2,
+      "prediction_score": 0.3233,
+      "train_metrics": {
+        "share_multiple": 6.1928,
+        "real_share_multiple": 0.8184,
+        "modern_share_multiple": 0.0,
+        "max_dd": 64.7,
+        "trades": 10
+      },
+      "forward": {
+        "6m": {
+          "start": "2014-01-01",
+          "end": "2014-07-01",
+          "months": 6,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 15.9,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2014-01-01",
+          "end": "2014-12-31",
+          "months": 12,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 23.0,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2014-01-01",
+          "end": "2015-12-31",
+          "months": 24,
+          "share_multiple": 0.7594,
+          "beats_bh": false,
+          "max_dd": 36.2,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2014-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":2,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Ember Bonobo",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 3,
+      "prediction_score": 0.3233,
+      "train_metrics": {
+        "share_multiple": 6.1928,
+        "real_share_multiple": 0.8184,
+        "modern_share_multiple": 0.0,
+        "max_dd": 64.7,
+        "trades": 10
+      },
+      "forward": {
+        "6m": {
+          "start": "2014-01-01",
+          "end": "2014-07-01",
+          "months": 6,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 15.9,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2014-01-01",
+          "end": "2014-12-31",
+          "months": 12,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 23.0,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2014-01-01",
+          "end": "2015-12-31",
+          "months": 24,
+          "share_multiple": 0.7594,
+          "beats_bh": false,
+          "max_dd": 36.2,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2014-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":5,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Russet Bonobo #2",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 4,
+      "prediction_score": 0.3233,
+      "train_metrics": {
+        "share_multiple": 5.7175,
+        "real_share_multiple": 0.8184,
+        "modern_share_multiple": 0.0,
+        "max_dd": 64.7,
+        "trades": 10
+      },
+      "forward": {
+        "6m": {
+          "start": "2014-01-01",
+          "end": "2014-07-01",
+          "months": 6,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 15.9,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2014-01-01",
+          "end": "2014-12-31",
+          "months": 12,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 23.0,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2014-01-01",
+          "end": "2015-12-31",
+          "months": 24,
+          "share_multiple": 0.7594,
+          "beats_bh": false,
+          "max_dd": 36.2,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2014-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":3,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Crimson Bonobo",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 5,
+      "prediction_score": 0.3233,
+      "train_metrics": {
+        "share_multiple": 5.7175,
+        "real_share_multiple": 0.8184,
+        "modern_share_multiple": 0.0,
+        "max_dd": 64.7,
+        "trades": 10
+      },
+      "forward": {
+        "6m": {
+          "start": "2014-01-01",
+          "end": "2014-07-01",
+          "months": 6,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 15.9,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2014-01-01",
+          "end": "2014-12-31",
+          "months": 12,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 23.0,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2014-01-01",
+          "end": "2015-12-31",
+          "months": 24,
+          "share_multiple": 0.7594,
+          "beats_bh": false,
+          "max_dd": 36.2,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2014-01-01",
+      "strategy_key": "gc_vjatr_timing_repair::{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":45.0,\"rsi_len\":7,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0}",
+      "display_name": "Ivory Hare",
+      "strategy": "gc_vjatr_timing_repair",
+      "leaderboard_rank": 6,
+      "prediction_score": 0.1577,
+      "train_metrics": {
+        "share_multiple": 6.0787,
+        "real_share_multiple": 0.9189,
+        "modern_share_multiple": 0.0,
+        "max_dd": 98.2,
+        "trades": 27
+      },
+      "forward": {
+        "6m": {
+          "start": "2014-01-01",
+          "end": "2014-07-01",
+          "months": 6,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 15.9,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2014-01-01",
+          "end": "2014-12-31",
+          "months": 12,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 23.0,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2014-01-01",
+          "end": "2015-12-31",
+          "months": 24,
+          "share_multiple": 0.7594,
+          "beats_bh": false,
+          "max_dd": 36.2,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2014-01-01",
+      "strategy_key": "gc_vjatr_timing_repair::{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":35.0,\"rsi_len\":7,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0}",
+      "display_name": "Cerulean Hare #2",
+      "strategy": "gc_vjatr_timing_repair",
+      "leaderboard_rank": 7,
+      "prediction_score": 0.1577,
+      "train_metrics": {
+        "share_multiple": 5.7695,
+        "real_share_multiple": 0.9189,
+        "modern_share_multiple": 0.0,
+        "max_dd": 98.2,
+        "trades": 27
+      },
+      "forward": {
+        "6m": {
+          "start": "2014-01-01",
+          "end": "2014-07-01",
+          "months": 6,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 15.9,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2014-01-01",
+          "end": "2014-12-31",
+          "months": 12,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 23.0,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2014-01-01",
+          "end": "2015-12-31",
+          "months": 24,
+          "share_multiple": 0.7594,
+          "beats_bh": false,
+          "max_dd": 36.2,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2014-01-01",
+      "strategy_key": "gc_vjatr_timing_repair::{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":35.0,\"rsi_len\":14,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0}",
+      "display_name": "Sable Hare",
+      "strategy": "gc_vjatr_timing_repair",
+      "leaderboard_rank": 8,
+      "prediction_score": 0.1577,
+      "train_metrics": {
+        "share_multiple": 5.7695,
+        "real_share_multiple": 0.9189,
+        "modern_share_multiple": 0.0,
+        "max_dd": 98.2,
+        "trades": 27
+      },
+      "forward": {
+        "6m": {
+          "start": "2014-01-01",
+          "end": "2014-07-01",
+          "months": 6,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 15.9,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2014-01-01",
+          "end": "2014-12-31",
+          "months": 12,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 23.0,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2014-01-01",
+          "end": "2015-12-31",
+          "months": 24,
+          "share_multiple": 0.7594,
+          "beats_bh": false,
+          "max_dd": 36.2,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2016-01-01",
+      "strategy_key": "gold_hybrid_committee::{\"members\":[{\"display_name\":\"Dusky Osprey\",\"params\":{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":80,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"fast_len\":50,\"rsi_len\":14,\"rsi_reclaim\":45.0,\"slope_window\":1,\"slow_ema\":160,\"trend_len\":100,\"vol_long\":60,\"vol_ratio_max\":0.85,\"vol_short\":20},\"strategy\":\"gc_vjatr_reclaimer\",\"weight\":3.540446},{\"display_name\":\"Marbled Bonobo\",\"params\":{\"atr_confirm\":1,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160},\"strategy\":\"gc_vjatr\",\"weight\":2.51853},{\"display_name\":\"Ivory Hare\",\"params\":{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":45.0,\"rsi_len\":7,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0},\"strategy\":\"gc_vjatr_timing_repair\",\"weight\":2.551391}],\"threshold\":0.5}",
+      "display_name": "Cerulean Hare #1",
+      "strategy": "gold_hybrid_committee",
+      "leaderboard_rank": 1,
+      "prediction_score": 0.4292,
+      "train_metrics": {
+        "share_multiple": 8.9287,
+        "real_share_multiple": 0.5573,
+        "modern_share_multiple": 0.7594,
+        "max_dd": 65.8,
+        "trades": 13
+      },
+      "forward": {
+        "6m": {
+          "start": "2016-01-01",
+          "end": "2016-07-01",
+          "months": 6,
+          "share_multiple": 0.8756,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 1
+        },
+        "1y": {
+          "start": "2016-01-01",
+          "end": "2016-12-30",
+          "months": 12,
+          "share_multiple": 0.8756,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 1
+        },
+        "2y": {
+          "start": "2016-01-01",
+          "end": "2017-12-29",
+          "months": 24,
+          "share_multiple": 0.8756,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2016-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":1,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Marbled Bonobo",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 2,
+      "prediction_score": 0.4014,
+      "train_metrics": {
+        "share_multiple": 4.7025,
+        "real_share_multiple": 0.6215,
+        "modern_share_multiple": 0.7594,
+        "max_dd": 64.7,
+        "trades": 11
+      },
+      "forward": {
+        "6m": {
+          "start": "2016-01-01",
+          "end": "2016-07-01",
+          "months": 6,
+          "share_multiple": 0.8756,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 1
+        },
+        "1y": {
+          "start": "2016-01-01",
+          "end": "2016-12-30",
+          "months": 12,
+          "share_multiple": 0.8756,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 1
+        },
+        "2y": {
+          "start": "2016-01-01",
+          "end": "2017-12-29",
+          "months": 24,
+          "share_multiple": 0.8756,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2016-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":2,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Ember Bonobo",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 3,
+      "prediction_score": 0.4014,
+      "train_metrics": {
+        "share_multiple": 4.7025,
+        "real_share_multiple": 0.6215,
+        "modern_share_multiple": 0.7594,
+        "max_dd": 64.7,
+        "trades": 11
+      },
+      "forward": {
+        "6m": {
+          "start": "2016-01-01",
+          "end": "2016-07-01",
+          "months": 6,
+          "share_multiple": 0.8756,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 1
+        },
+        "1y": {
+          "start": "2016-01-01",
+          "end": "2016-12-30",
+          "months": 12,
+          "share_multiple": 0.8756,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 1
+        },
+        "2y": {
+          "start": "2016-01-01",
+          "end": "2017-12-29",
+          "months": 24,
+          "share_multiple": 0.8756,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2016-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":5,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Russet Bonobo #2",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 4,
+      "prediction_score": 0.3976,
+      "train_metrics": {
+        "share_multiple": 4.3416,
+        "real_share_multiple": 0.6215,
+        "modern_share_multiple": 0.7594,
+        "max_dd": 64.7,
+        "trades": 11
+      },
+      "forward": {
+        "6m": {
+          "start": "2016-01-01",
+          "end": "2016-07-01",
+          "months": 6,
+          "share_multiple": 0.8756,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 1
+        },
+        "1y": {
+          "start": "2016-01-01",
+          "end": "2016-12-30",
+          "months": 12,
+          "share_multiple": 0.8756,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 1
+        },
+        "2y": {
+          "start": "2016-01-01",
+          "end": "2017-12-29",
+          "months": 24,
+          "share_multiple": 0.8756,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2016-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":3,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Crimson Bonobo",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 5,
+      "prediction_score": 0.3976,
+      "train_metrics": {
+        "share_multiple": 4.3416,
+        "real_share_multiple": 0.6215,
+        "modern_share_multiple": 0.7594,
+        "max_dd": 64.7,
+        "trades": 11
+      },
+      "forward": {
+        "6m": {
+          "start": "2016-01-01",
+          "end": "2016-07-01",
+          "months": 6,
+          "share_multiple": 0.8756,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 1
+        },
+        "1y": {
+          "start": "2016-01-01",
+          "end": "2016-12-30",
+          "months": 12,
+          "share_multiple": 0.8756,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 1
+        },
+        "2y": {
+          "start": "2016-01-01",
+          "end": "2017-12-29",
+          "months": 24,
+          "share_multiple": 0.8756,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2016-01-01",
+      "strategy_key": "gc_vjatr_timing_repair::{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":45.0,\"rsi_len\":7,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0}",
+      "display_name": "Ivory Hare",
+      "strategy": "gc_vjatr_timing_repair",
+      "leaderboard_rank": 6,
+      "prediction_score": 0.1973,
+      "train_metrics": {
+        "share_multiple": 4.6159,
+        "real_share_multiple": 0.6978,
+        "modern_share_multiple": 0.7594,
+        "max_dd": 98.2,
+        "trades": 28
+      },
+      "forward": {
+        "6m": {
+          "start": "2016-01-01",
+          "end": "2016-07-01",
+          "months": 6,
+          "share_multiple": 0.9062,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 2
+        },
+        "1y": {
+          "start": "2016-01-01",
+          "end": "2016-12-30",
+          "months": 12,
+          "share_multiple": 0.9062,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 2
+        },
+        "2y": {
+          "start": "2016-01-01",
+          "end": "2017-12-29",
+          "months": 24,
+          "share_multiple": 0.9062,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 2
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2016-01-01",
+      "strategy_key": "gc_vjatr_timing_repair::{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":35.0,\"rsi_len\":7,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0}",
+      "display_name": "Cerulean Hare #2",
+      "strategy": "gc_vjatr_timing_repair",
+      "leaderboard_rank": 7,
+      "prediction_score": 0.1961,
+      "train_metrics": {
+        "share_multiple": 4.3811,
+        "real_share_multiple": 0.6978,
+        "modern_share_multiple": 0.7594,
+        "max_dd": 98.2,
+        "trades": 28
+      },
+      "forward": {
+        "6m": {
+          "start": "2016-01-01",
+          "end": "2016-07-01",
+          "months": 6,
+          "share_multiple": 0.9062,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 2
+        },
+        "1y": {
+          "start": "2016-01-01",
+          "end": "2016-12-30",
+          "months": 12,
+          "share_multiple": 0.9062,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 2
+        },
+        "2y": {
+          "start": "2016-01-01",
+          "end": "2017-12-29",
+          "months": 24,
+          "share_multiple": 0.9062,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 2
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2016-01-01",
+      "strategy_key": "gc_vjatr_timing_repair::{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":35.0,\"rsi_len\":14,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0}",
+      "display_name": "Sable Hare",
+      "strategy": "gc_vjatr_timing_repair",
+      "leaderboard_rank": 8,
+      "prediction_score": 0.1961,
+      "train_metrics": {
+        "share_multiple": 4.3811,
+        "real_share_multiple": 0.6978,
+        "modern_share_multiple": 0.7594,
+        "max_dd": 98.2,
+        "trades": 28
+      },
+      "forward": {
+        "6m": {
+          "start": "2016-01-01",
+          "end": "2016-07-01",
+          "months": 6,
+          "share_multiple": 0.9062,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 2
+        },
+        "1y": {
+          "start": "2016-01-01",
+          "end": "2016-12-30",
+          "months": 12,
+          "share_multiple": 0.9062,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 2
+        },
+        "2y": {
+          "start": "2016-01-01",
+          "end": "2017-12-29",
+          "months": 24,
+          "share_multiple": 0.9062,
+          "beats_bh": false,
+          "max_dd": 21.8,
+          "trades": 2
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2018-01-01",
+      "strategy_key": "gold_hybrid_committee::{\"members\":[{\"display_name\":\"Dusky Osprey\",\"params\":{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":80,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"fast_len\":50,\"rsi_len\":14,\"rsi_reclaim\":45.0,\"slope_window\":1,\"slow_ema\":160,\"trend_len\":100,\"vol_long\":60,\"vol_ratio_max\":0.85,\"vol_short\":20},\"strategy\":\"gc_vjatr_reclaimer\",\"weight\":3.540446},{\"display_name\":\"Marbled Bonobo\",\"params\":{\"atr_confirm\":1,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160},\"strategy\":\"gc_vjatr\",\"weight\":2.51853},{\"display_name\":\"Ivory Hare\",\"params\":{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":45.0,\"rsi_len\":7,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0},\"strategy\":\"gc_vjatr_timing_repair\",\"weight\":2.551391}],\"threshold\":0.5}",
+      "display_name": "Cerulean Hare #1",
+      "strategy": "gold_hybrid_committee",
+      "leaderboard_rank": 1,
+      "prediction_score": 0.3903,
+      "train_metrics": {
+        "share_multiple": 7.8179,
+        "real_share_multiple": 0.488,
+        "modern_share_multiple": 0.6649,
+        "max_dd": 65.8,
+        "trades": 14
+      },
+      "forward": {
+        "6m": {
+          "start": "2018-01-01",
+          "end": "2018-06-29",
+          "months": 6,
+          "share_multiple": 0.821,
+          "beats_bh": false,
+          "max_dd": 22.5,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2018-01-01",
+          "end": "2018-12-31",
+          "months": 12,
+          "share_multiple": 1.2876,
+          "beats_bh": true,
+          "max_dd": 22.5,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2018-01-01",
+          "end": "2019-12-31",
+          "months": 24,
+          "share_multiple": 0.935,
+          "beats_bh": false,
+          "max_dd": 29.8,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2018-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":1,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Marbled Bonobo",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 2,
+      "prediction_score": 0.3638,
+      "train_metrics": {
+        "share_multiple": 4.1175,
+        "real_share_multiple": 0.5442,
+        "modern_share_multiple": 0.6649,
+        "max_dd": 64.7,
+        "trades": 12
+      },
+      "forward": {
+        "6m": {
+          "start": "2018-01-01",
+          "end": "2018-06-29",
+          "months": 6,
+          "share_multiple": 0.821,
+          "beats_bh": false,
+          "max_dd": 22.5,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2018-01-01",
+          "end": "2018-12-31",
+          "months": 12,
+          "share_multiple": 1.2876,
+          "beats_bh": true,
+          "max_dd": 22.5,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2018-01-01",
+          "end": "2019-12-31",
+          "months": 24,
+          "share_multiple": 0.935,
+          "beats_bh": false,
+          "max_dd": 29.8,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2018-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":2,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Ember Bonobo",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 3,
+      "prediction_score": 0.3638,
+      "train_metrics": {
+        "share_multiple": 4.1175,
+        "real_share_multiple": 0.5442,
+        "modern_share_multiple": 0.6649,
+        "max_dd": 64.7,
+        "trades": 12
+      },
+      "forward": {
+        "6m": {
+          "start": "2018-01-01",
+          "end": "2018-06-29",
+          "months": 6,
+          "share_multiple": 0.821,
+          "beats_bh": false,
+          "max_dd": 22.5,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2018-01-01",
+          "end": "2018-12-31",
+          "months": 12,
+          "share_multiple": 1.2876,
+          "beats_bh": true,
+          "max_dd": 22.5,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2018-01-01",
+          "end": "2019-12-31",
+          "months": 24,
+          "share_multiple": 0.935,
+          "beats_bh": false,
+          "max_dd": 29.8,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2018-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":5,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Russet Bonobo #2",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 4,
+      "prediction_score": 0.3601,
+      "train_metrics": {
+        "share_multiple": 3.8015,
+        "real_share_multiple": 0.5442,
+        "modern_share_multiple": 0.6649,
+        "max_dd": 64.7,
+        "trades": 12
+      },
+      "forward": {
+        "6m": {
+          "start": "2018-01-01",
+          "end": "2018-06-29",
+          "months": 6,
+          "share_multiple": 0.821,
+          "beats_bh": false,
+          "max_dd": 22.5,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2018-01-01",
+          "end": "2018-12-31",
+          "months": 12,
+          "share_multiple": 1.2876,
+          "beats_bh": true,
+          "max_dd": 22.5,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2018-01-01",
+          "end": "2019-12-31",
+          "months": 24,
+          "share_multiple": 0.935,
+          "beats_bh": false,
+          "max_dd": 29.8,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2018-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":3,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Crimson Bonobo",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 5,
+      "prediction_score": 0.3601,
+      "train_metrics": {
+        "share_multiple": 3.8015,
+        "real_share_multiple": 0.5442,
+        "modern_share_multiple": 0.6649,
+        "max_dd": 64.7,
+        "trades": 12
+      },
+      "forward": {
+        "6m": {
+          "start": "2018-01-01",
+          "end": "2018-06-29",
+          "months": 6,
+          "share_multiple": 0.821,
+          "beats_bh": false,
+          "max_dd": 22.5,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2018-01-01",
+          "end": "2018-12-31",
+          "months": 12,
+          "share_multiple": 1.2876,
+          "beats_bh": true,
+          "max_dd": 22.5,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2018-01-01",
+          "end": "2019-12-31",
+          "months": 24,
+          "share_multiple": 0.935,
+          "beats_bh": false,
+          "max_dd": 29.8,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2018-01-01",
+      "strategy_key": "gc_vjatr_timing_repair::{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":45.0,\"rsi_len\":7,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0}",
+      "display_name": "Ivory Hare",
+      "strategy": "gc_vjatr_timing_repair",
+      "leaderboard_rank": 6,
+      "prediction_score": 0.1822,
+      "train_metrics": {
+        "share_multiple": 4.1827,
+        "real_share_multiple": 0.6323,
+        "modern_share_multiple": 0.6881,
+        "max_dd": 98.2,
+        "trades": 30
+      },
+      "forward": {
+        "6m": {
+          "start": "2018-01-01",
+          "end": "2018-06-29",
+          "months": 6,
+          "share_multiple": 0.9641,
+          "beats_bh": false,
+          "max_dd": 22.5,
+          "trades": 2
+        },
+        "1y": {
+          "start": "2018-01-01",
+          "end": "2018-12-31",
+          "months": 12,
+          "share_multiple": 1.2936,
+          "beats_bh": true,
+          "max_dd": 33.7,
+          "trades": 2
+        },
+        "2y": {
+          "start": "2018-01-01",
+          "end": "2019-12-31",
+          "months": 24,
+          "share_multiple": 0.9625,
+          "beats_bh": false,
+          "max_dd": 33.7,
+          "trades": 4
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2018-01-01",
+      "strategy_key": "gc_vjatr_timing_repair::{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":35.0,\"rsi_len\":7,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0}",
+      "display_name": "Cerulean Hare #2",
+      "strategy": "gc_vjatr_timing_repair",
+      "leaderboard_rank": 7,
+      "prediction_score": 0.181,
+      "train_metrics": {
+        "share_multiple": 3.97,
+        "real_share_multiple": 0.6323,
+        "modern_share_multiple": 0.6881,
+        "max_dd": 98.2,
+        "trades": 30
+      },
+      "forward": {
+        "6m": {
+          "start": "2018-01-01",
+          "end": "2018-06-29",
+          "months": 6,
+          "share_multiple": 0.9641,
+          "beats_bh": false,
+          "max_dd": 22.5,
+          "trades": 2
+        },
+        "1y": {
+          "start": "2018-01-01",
+          "end": "2018-12-31",
+          "months": 12,
+          "share_multiple": 1.2936,
+          "beats_bh": true,
+          "max_dd": 33.7,
+          "trades": 2
+        },
+        "2y": {
+          "start": "2018-01-01",
+          "end": "2019-12-31",
+          "months": 24,
+          "share_multiple": 0.9625,
+          "beats_bh": false,
+          "max_dd": 33.7,
+          "trades": 4
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2018-01-01",
+      "strategy_key": "gc_vjatr_timing_repair::{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":35.0,\"rsi_len\":14,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0}",
+      "display_name": "Sable Hare",
+      "strategy": "gc_vjatr_timing_repair",
+      "leaderboard_rank": 8,
+      "prediction_score": 0.181,
+      "train_metrics": {
+        "share_multiple": 3.97,
+        "real_share_multiple": 0.6323,
+        "modern_share_multiple": 0.6881,
+        "max_dd": 98.2,
+        "trades": 30
+      },
+      "forward": {
+        "6m": {
+          "start": "2018-01-01",
+          "end": "2018-06-29",
+          "months": 6,
+          "share_multiple": 0.9641,
+          "beats_bh": false,
+          "max_dd": 22.5,
+          "trades": 2
+        },
+        "1y": {
+          "start": "2018-01-01",
+          "end": "2018-12-31",
+          "months": 12,
+          "share_multiple": 1.2936,
+          "beats_bh": true,
+          "max_dd": 33.7,
+          "trades": 2
+        },
+        "2y": {
+          "start": "2018-01-01",
+          "end": "2019-12-31",
+          "months": 24,
+          "share_multiple": 0.9625,
+          "beats_bh": false,
+          "max_dd": 33.7,
+          "trades": 4
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2020-01-01",
+      "strategy_key": "gold_hybrid_committee::{\"members\":[{\"display_name\":\"Dusky Osprey\",\"params\":{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":80,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"fast_len\":50,\"rsi_len\":14,\"rsi_reclaim\":45.0,\"slope_window\":1,\"slow_ema\":160,\"trend_len\":100,\"vol_long\":60,\"vol_ratio_max\":0.85,\"vol_short\":20},\"strategy\":\"gc_vjatr_reclaimer\",\"weight\":3.540446},{\"display_name\":\"Marbled Bonobo\",\"params\":{\"atr_confirm\":1,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160},\"strategy\":\"gc_vjatr\",\"weight\":2.51853},{\"display_name\":\"Ivory Hare\",\"params\":{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":45.0,\"rsi_len\":7,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0},\"strategy\":\"gc_vjatr_timing_repair\",\"weight\":2.551391}],\"threshold\":0.5}",
+      "display_name": "Cerulean Hare #1",
+      "strategy": "gold_hybrid_committee",
+      "leaderboard_rank": 1,
+      "prediction_score": 0.3725,
+      "train_metrics": {
+        "share_multiple": 7.3094,
+        "real_share_multiple": 0.4563,
+        "modern_share_multiple": 0.6216,
+        "max_dd": 65.8,
+        "trades": 15
+      },
+      "forward": {
+        "6m": {
+          "start": "2020-01-01",
+          "end": "2020-07-01",
+          "months": 6,
+          "share_multiple": 1.7326,
+          "beats_bh": true,
+          "max_dd": 17.3,
+          "trades": 1
+        },
+        "1y": {
+          "start": "2020-01-01",
+          "end": "2020-12-31",
+          "months": 12,
+          "share_multiple": 1.7326,
+          "beats_bh": true,
+          "max_dd": 37.1,
+          "trades": 1
+        },
+        "2y": {
+          "start": "2020-01-01",
+          "end": "2021-12-31",
+          "months": 24,
+          "share_multiple": 1.7326,
+          "beats_bh": true,
+          "max_dd": 37.1,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": true
+    },
+    {
+      "vintage_date": "2020-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":1,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Marbled Bonobo",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 2,
+      "prediction_score": 0.3466,
+      "train_metrics": {
+        "share_multiple": 3.8497,
+        "real_share_multiple": 0.5088,
+        "modern_share_multiple": 0.6216,
+        "max_dd": 64.7,
+        "trades": 13
+      },
+      "forward": {
+        "6m": {
+          "start": "2020-01-01",
+          "end": "2020-07-01",
+          "months": 6,
+          "share_multiple": 1.6154,
+          "beats_bh": true,
+          "max_dd": 17.3,
+          "trades": 1
+        },
+        "1y": {
+          "start": "2020-01-01",
+          "end": "2020-12-31",
+          "months": 12,
+          "share_multiple": 1.6154,
+          "beats_bh": true,
+          "max_dd": 37.1,
+          "trades": 1
+        },
+        "2y": {
+          "start": "2020-01-01",
+          "end": "2021-12-31",
+          "months": 24,
+          "share_multiple": 1.4839,
+          "beats_bh": true,
+          "max_dd": 37.1,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": true
+    },
+    {
+      "vintage_date": "2020-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":2,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Ember Bonobo",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 3,
+      "prediction_score": 0.3466,
+      "train_metrics": {
+        "share_multiple": 3.8497,
+        "real_share_multiple": 0.5088,
+        "modern_share_multiple": 0.6216,
+        "max_dd": 64.7,
+        "trades": 13
+      },
+      "forward": {
+        "6m": {
+          "start": "2020-01-01",
+          "end": "2020-07-01",
+          "months": 6,
+          "share_multiple": 1.6154,
+          "beats_bh": true,
+          "max_dd": 17.3,
+          "trades": 1
+        },
+        "1y": {
+          "start": "2020-01-01",
+          "end": "2020-12-31",
+          "months": 12,
+          "share_multiple": 1.6154,
+          "beats_bh": true,
+          "max_dd": 37.1,
+          "trades": 1
+        },
+        "2y": {
+          "start": "2020-01-01",
+          "end": "2021-12-31",
+          "months": 24,
+          "share_multiple": 1.4839,
+          "beats_bh": true,
+          "max_dd": 37.1,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": true
+    },
+    {
+      "vintage_date": "2020-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":5,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Russet Bonobo #2",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 4,
+      "prediction_score": 0.3428,
+      "train_metrics": {
+        "share_multiple": 3.5542,
+        "real_share_multiple": 0.5088,
+        "modern_share_multiple": 0.6216,
+        "max_dd": 64.7,
+        "trades": 13
+      },
+      "forward": {
+        "6m": {
+          "start": "2020-01-01",
+          "end": "2020-07-01",
+          "months": 6,
+          "share_multiple": 1.6154,
+          "beats_bh": true,
+          "max_dd": 17.3,
+          "trades": 1
+        },
+        "1y": {
+          "start": "2020-01-01",
+          "end": "2020-12-31",
+          "months": 12,
+          "share_multiple": 1.6154,
+          "beats_bh": true,
+          "max_dd": 37.1,
+          "trades": 1
+        },
+        "2y": {
+          "start": "2020-01-01",
+          "end": "2021-12-31",
+          "months": 24,
+          "share_multiple": 1.4839,
+          "beats_bh": true,
+          "max_dd": 37.1,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": true
+    },
+    {
+      "vintage_date": "2020-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":3,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Crimson Bonobo",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 5,
+      "prediction_score": 0.3428,
+      "train_metrics": {
+        "share_multiple": 3.5542,
+        "real_share_multiple": 0.5088,
+        "modern_share_multiple": 0.6216,
+        "max_dd": 64.7,
+        "trades": 13
+      },
+      "forward": {
+        "6m": {
+          "start": "2020-01-01",
+          "end": "2020-07-01",
+          "months": 6,
+          "share_multiple": 1.6154,
+          "beats_bh": true,
+          "max_dd": 17.3,
+          "trades": 1
+        },
+        "1y": {
+          "start": "2020-01-01",
+          "end": "2020-12-31",
+          "months": 12,
+          "share_multiple": 1.6154,
+          "beats_bh": true,
+          "max_dd": 37.1,
+          "trades": 1
+        },
+        "2y": {
+          "start": "2020-01-01",
+          "end": "2021-12-31",
+          "months": 24,
+          "share_multiple": 1.4839,
+          "beats_bh": true,
+          "max_dd": 37.1,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": true
+    },
+    {
+      "vintage_date": "2020-01-01",
+      "strategy_key": "gc_vjatr_timing_repair::{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":45.0,\"rsi_len\":7,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0}",
+      "display_name": "Ivory Hare",
+      "strategy": "gc_vjatr_timing_repair",
+      "leaderboard_rank": 6,
+      "prediction_score": 0.1764,
+      "train_metrics": {
+        "share_multiple": 4.0257,
+        "real_share_multiple": 0.6086,
+        "modern_share_multiple": 0.6623,
+        "max_dd": 98.2,
+        "trades": 34
+      },
+      "forward": {
+        "6m": {
+          "start": "2020-01-01",
+          "end": "2020-07-01",
+          "months": 6,
+          "share_multiple": 1.7944,
+          "beats_bh": true,
+          "max_dd": 17.3,
+          "trades": 3
+        },
+        "1y": {
+          "start": "2020-01-01",
+          "end": "2020-12-31",
+          "months": 12,
+          "share_multiple": 1.7944,
+          "beats_bh": true,
+          "max_dd": 37.1,
+          "trades": 3
+        },
+        "2y": {
+          "start": "2020-01-01",
+          "end": "2021-12-31",
+          "months": 24,
+          "share_multiple": 1.7944,
+          "beats_bh": true,
+          "max_dd": 37.1,
+          "trades": 3
+        }
+      },
+      "survived_useful_2y": true
+    },
+    {
+      "vintage_date": "2020-01-01",
+      "strategy_key": "gc_vjatr_timing_repair::{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":35.0,\"rsi_len\":7,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0}",
+      "display_name": "Cerulean Hare #2",
+      "strategy": "gc_vjatr_timing_repair",
+      "leaderboard_rank": 7,
+      "prediction_score": 0.1752,
+      "train_metrics": {
+        "share_multiple": 3.821,
+        "real_share_multiple": 0.6086,
+        "modern_share_multiple": 0.6623,
+        "max_dd": 98.2,
+        "trades": 34
+      },
+      "forward": {
+        "6m": {
+          "start": "2020-01-01",
+          "end": "2020-07-01",
+          "months": 6,
+          "share_multiple": 1.7944,
+          "beats_bh": true,
+          "max_dd": 17.3,
+          "trades": 3
+        },
+        "1y": {
+          "start": "2020-01-01",
+          "end": "2020-12-31",
+          "months": 12,
+          "share_multiple": 1.7944,
+          "beats_bh": true,
+          "max_dd": 37.1,
+          "trades": 3
+        },
+        "2y": {
+          "start": "2020-01-01",
+          "end": "2021-12-31",
+          "months": 24,
+          "share_multiple": 1.7944,
+          "beats_bh": true,
+          "max_dd": 37.1,
+          "trades": 3
+        }
+      },
+      "survived_useful_2y": true
+    },
+    {
+      "vintage_date": "2020-01-01",
+      "strategy_key": "gc_vjatr_timing_repair::{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":35.0,\"rsi_len\":14,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0}",
+      "display_name": "Sable Hare",
+      "strategy": "gc_vjatr_timing_repair",
+      "leaderboard_rank": 8,
+      "prediction_score": 0.1752,
+      "train_metrics": {
+        "share_multiple": 3.821,
+        "real_share_multiple": 0.6086,
+        "modern_share_multiple": 0.6623,
+        "max_dd": 98.2,
+        "trades": 34
+      },
+      "forward": {
+        "6m": {
+          "start": "2020-01-01",
+          "end": "2020-07-01",
+          "months": 6,
+          "share_multiple": 1.7944,
+          "beats_bh": true,
+          "max_dd": 17.3,
+          "trades": 3
+        },
+        "1y": {
+          "start": "2020-01-01",
+          "end": "2020-12-31",
+          "months": 12,
+          "share_multiple": 1.7944,
+          "beats_bh": true,
+          "max_dd": 37.1,
+          "trades": 3
+        },
+        "2y": {
+          "start": "2020-01-01",
+          "end": "2021-12-31",
+          "months": 24,
+          "share_multiple": 1.7944,
+          "beats_bh": true,
+          "max_dd": 37.1,
+          "trades": 3
+        }
+      },
+      "survived_useful_2y": true
+    },
+    {
+      "vintage_date": "2022-01-01",
+      "strategy_key": "gold_hybrid_committee::{\"members\":[{\"display_name\":\"Dusky Osprey\",\"params\":{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":80,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"fast_len\":50,\"rsi_len\":14,\"rsi_reclaim\":45.0,\"slope_window\":1,\"slow_ema\":160,\"trend_len\":100,\"vol_long\":60,\"vol_ratio_max\":0.85,\"vol_short\":20},\"strategy\":\"gc_vjatr_reclaimer\",\"weight\":3.540446},{\"display_name\":\"Marbled Bonobo\",\"params\":{\"atr_confirm\":1,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160},\"strategy\":\"gc_vjatr\",\"weight\":2.51853},{\"display_name\":\"Ivory Hare\",\"params\":{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":45.0,\"rsi_len\":7,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0},\"strategy\":\"gc_vjatr_timing_repair\",\"weight\":2.551391}],\"threshold\":0.5}",
+      "display_name": "Cerulean Hare #1",
+      "strategy": "gold_hybrid_committee",
+      "leaderboard_rank": 1,
+      "prediction_score": 0.567,
+      "train_metrics": {
+        "share_multiple": 12.6643,
+        "real_share_multiple": 0.7905,
+        "modern_share_multiple": 1.0771,
+        "max_dd": 65.8,
+        "trades": 16
+      },
+      "forward": {
+        "6m": {
+          "start": "2022-01-01",
+          "end": "2022-07-01",
+          "months": 6,
+          "share_multiple": 2.5625,
+          "beats_bh": true,
+          "max_dd": 18.4,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2022-01-01",
+          "end": "2022-12-30",
+          "months": 12,
+          "share_multiple": 3.2744,
+          "beats_bh": true,
+          "max_dd": 18.4,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2022-01-01",
+          "end": "2023-12-29",
+          "months": 24,
+          "share_multiple": 2.3567,
+          "beats_bh": true,
+          "max_dd": 33.8,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": true
+    },
+    {
+      "vintage_date": "2022-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":1,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Marbled Bonobo",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 2,
+      "prediction_score": 0.4812,
+      "train_metrics": {
+        "share_multiple": 5.7126,
+        "real_share_multiple": 0.755,
+        "modern_share_multiple": 0.9225,
+        "max_dd": 64.7,
+        "trades": 14
+      },
+      "forward": {
+        "6m": {
+          "start": "2022-01-01",
+          "end": "2022-07-01",
+          "months": 6,
+          "share_multiple": 3.1402,
+          "beats_bh": true,
+          "max_dd": 0.0,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2022-01-01",
+          "end": "2022-12-30",
+          "months": 12,
+          "share_multiple": 4.0127,
+          "beats_bh": true,
+          "max_dd": 0.0,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2022-01-01",
+          "end": "2023-12-29",
+          "months": 24,
+          "share_multiple": 2.8881,
+          "beats_bh": true,
+          "max_dd": 33.8,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": true
+    },
+    {
+      "vintage_date": "2022-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":2,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Ember Bonobo",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 3,
+      "prediction_score": 0.4812,
+      "train_metrics": {
+        "share_multiple": 5.7126,
+        "real_share_multiple": 0.755,
+        "modern_share_multiple": 0.9225,
+        "max_dd": 64.7,
+        "trades": 14
+      },
+      "forward": {
+        "6m": {
+          "start": "2022-01-01",
+          "end": "2022-07-01",
+          "months": 6,
+          "share_multiple": 3.1402,
+          "beats_bh": true,
+          "max_dd": 0.0,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2022-01-01",
+          "end": "2022-12-30",
+          "months": 12,
+          "share_multiple": 4.0127,
+          "beats_bh": true,
+          "max_dd": 0.0,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2022-01-01",
+          "end": "2023-12-29",
+          "months": 24,
+          "share_multiple": 2.8881,
+          "beats_bh": true,
+          "max_dd": 33.8,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": true
+    },
+    {
+      "vintage_date": "2022-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":5,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Russet Bonobo #2",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 4,
+      "prediction_score": 0.4771,
+      "train_metrics": {
+        "share_multiple": 5.2742,
+        "real_share_multiple": 0.755,
+        "modern_share_multiple": 0.9225,
+        "max_dd": 64.7,
+        "trades": 14
+      },
+      "forward": {
+        "6m": {
+          "start": "2022-01-01",
+          "end": "2022-07-01",
+          "months": 6,
+          "share_multiple": 3.1402,
+          "beats_bh": true,
+          "max_dd": 0.0,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2022-01-01",
+          "end": "2022-12-30",
+          "months": 12,
+          "share_multiple": 4.0127,
+          "beats_bh": true,
+          "max_dd": 0.0,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2022-01-01",
+          "end": "2023-12-29",
+          "months": 24,
+          "share_multiple": 2.8881,
+          "beats_bh": true,
+          "max_dd": 33.8,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": true
+    },
+    {
+      "vintage_date": "2022-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":3,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Crimson Bonobo",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 5,
+      "prediction_score": 0.4771,
+      "train_metrics": {
+        "share_multiple": 5.2742,
+        "real_share_multiple": 0.755,
+        "modern_share_multiple": 0.9225,
+        "max_dd": 64.7,
+        "trades": 14
+      },
+      "forward": {
+        "6m": {
+          "start": "2022-01-01",
+          "end": "2022-07-01",
+          "months": 6,
+          "share_multiple": 3.1402,
+          "beats_bh": true,
+          "max_dd": 0.0,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2022-01-01",
+          "end": "2022-12-30",
+          "months": 12,
+          "share_multiple": 4.0127,
+          "beats_bh": true,
+          "max_dd": 0.0,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2022-01-01",
+          "end": "2023-12-29",
+          "months": 24,
+          "share_multiple": 2.8881,
+          "beats_bh": true,
+          "max_dd": 33.8,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": true
+    },
+    {
+      "vintage_date": "2022-01-01",
+      "strategy_key": "gc_vjatr_timing_repair::{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":45.0,\"rsi_len\":7,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0}",
+      "display_name": "Ivory Hare",
+      "strategy": "gc_vjatr_timing_repair",
+      "leaderboard_rank": 6,
+      "prediction_score": 0.2709,
+      "train_metrics": {
+        "share_multiple": 7.2236,
+        "real_share_multiple": 1.092,
+        "modern_share_multiple": 1.1883,
+        "max_dd": 98.2,
+        "trades": 37
+      },
+      "forward": {
+        "6m": {
+          "start": "2022-01-01",
+          "end": "2022-07-01",
+          "months": 6,
+          "share_multiple": 2.5625,
+          "beats_bh": true,
+          "max_dd": 18.4,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2022-01-01",
+          "end": "2022-12-30",
+          "months": 12,
+          "share_multiple": 2.4187,
+          "beats_bh": true,
+          "max_dd": 39.7,
+          "trades": 3
+        },
+        "2y": {
+          "start": "2022-01-01",
+          "end": "2023-12-29",
+          "months": 24,
+          "share_multiple": 2.0861,
+          "beats_bh": true,
+          "max_dd": 39.8,
+          "trades": 4
+        }
+      },
+      "survived_useful_2y": true
+    },
+    {
+      "vintage_date": "2022-01-01",
+      "strategy_key": "gc_vjatr_timing_repair::{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":35.0,\"rsi_len\":7,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0}",
+      "display_name": "Cerulean Hare #2",
+      "strategy": "gc_vjatr_timing_repair",
+      "leaderboard_rank": 7,
+      "prediction_score": 0.2695,
+      "train_metrics": {
+        "share_multiple": 6.8562,
+        "real_share_multiple": 1.092,
+        "modern_share_multiple": 1.1883,
+        "max_dd": 98.2,
+        "trades": 37
+      },
+      "forward": {
+        "6m": {
+          "start": "2022-01-01",
+          "end": "2022-07-01",
+          "months": 6,
+          "share_multiple": 2.5625,
+          "beats_bh": true,
+          "max_dd": 18.4,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2022-01-01",
+          "end": "2022-12-30",
+          "months": 12,
+          "share_multiple": 2.4187,
+          "beats_bh": true,
+          "max_dd": 39.7,
+          "trades": 3
+        },
+        "2y": {
+          "start": "2022-01-01",
+          "end": "2023-12-29",
+          "months": 24,
+          "share_multiple": 2.0861,
+          "beats_bh": true,
+          "max_dd": 39.8,
+          "trades": 4
+        }
+      },
+      "survived_useful_2y": true
+    },
+    {
+      "vintage_date": "2022-01-01",
+      "strategy_key": "gc_vjatr_timing_repair::{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":35.0,\"rsi_len\":14,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0}",
+      "display_name": "Sable Hare",
+      "strategy": "gc_vjatr_timing_repair",
+      "leaderboard_rank": 8,
+      "prediction_score": 0.2695,
+      "train_metrics": {
+        "share_multiple": 6.8562,
+        "real_share_multiple": 1.092,
+        "modern_share_multiple": 1.1883,
+        "max_dd": 98.2,
+        "trades": 37
+      },
+      "forward": {
+        "6m": {
+          "start": "2022-01-01",
+          "end": "2022-07-01",
+          "months": 6,
+          "share_multiple": 2.5625,
+          "beats_bh": true,
+          "max_dd": 18.4,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2022-01-01",
+          "end": "2022-12-30",
+          "months": 12,
+          "share_multiple": 2.4187,
+          "beats_bh": true,
+          "max_dd": 39.7,
+          "trades": 3
+        },
+        "2y": {
+          "start": "2022-01-01",
+          "end": "2023-12-29",
+          "months": 24,
+          "share_multiple": 2.0861,
+          "beats_bh": true,
+          "max_dd": 39.8,
+          "trades": 4
+        }
+      },
+      "survived_useful_2y": true
+    },
+    {
+      "vintage_date": "2024-01-01",
+      "strategy_key": "gold_hybrid_committee::{\"members\":[{\"display_name\":\"Dusky Osprey\",\"params\":{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":80,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"fast_len\":50,\"rsi_len\":14,\"rsi_reclaim\":45.0,\"slope_window\":1,\"slow_ema\":160,\"trend_len\":100,\"vol_long\":60,\"vol_ratio_max\":0.85,\"vol_short\":20},\"strategy\":\"gc_vjatr_reclaimer\",\"weight\":3.540446},{\"display_name\":\"Marbled Bonobo\",\"params\":{\"atr_confirm\":1,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160},\"strategy\":\"gc_vjatr\",\"weight\":2.51853},{\"display_name\":\"Ivory Hare\",\"params\":{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":45.0,\"rsi_len\":7,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0},\"strategy\":\"gc_vjatr_timing_repair\",\"weight\":2.551391}],\"threshold\":0.5}",
+      "display_name": "Cerulean Hare #1",
+      "strategy": "gold_hybrid_committee",
+      "leaderboard_rank": 1,
+      "prediction_score": 0.8918,
+      "train_metrics": {
+        "share_multiple": 29.8462,
+        "real_share_multiple": 1.8631,
+        "modern_share_multiple": 2.5383,
+        "max_dd": 65.8,
+        "trades": 17
+      },
+      "forward": {
+        "6m": {
+          "start": "2024-01-01",
+          "end": "2024-07-01",
+          "months": 6,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 25.9,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2024-01-01",
+          "end": "2024-12-31",
+          "months": 12,
+          "share_multiple": 0.8332,
+          "beats_bh": false,
+          "max_dd": 32.8,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2024-01-01",
+          "end": "2025-12-31",
+          "months": 24,
+          "share_multiple": 0.9055,
+          "beats_bh": false,
+          "max_dd": 39.5,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2024-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":1,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Marbled Bonobo",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 2,
+      "prediction_score": 0.8841,
+      "train_metrics": {
+        "share_multiple": 16.0428,
+        "real_share_multiple": 2.1202,
+        "modern_share_multiple": 2.5906,
+        "max_dd": 64.7,
+        "trades": 15
+      },
+      "forward": {
+        "6m": {
+          "start": "2024-01-01",
+          "end": "2024-07-01",
+          "months": 6,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 25.9,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2024-01-01",
+          "end": "2024-12-31",
+          "months": 12,
+          "share_multiple": 0.6877,
+          "beats_bh": false,
+          "max_dd": 44.5,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2024-01-01",
+          "end": "2025-12-31",
+          "months": 24,
+          "share_multiple": 0.8185,
+          "beats_bh": false,
+          "max_dd": 50.1,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2024-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":2,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Ember Bonobo",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 3,
+      "prediction_score": 0.8841,
+      "train_metrics": {
+        "share_multiple": 16.0428,
+        "real_share_multiple": 2.1202,
+        "modern_share_multiple": 2.5906,
+        "max_dd": 64.7,
+        "trades": 15
+      },
+      "forward": {
+        "6m": {
+          "start": "2024-01-01",
+          "end": "2024-07-01",
+          "months": 6,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 25.9,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2024-01-01",
+          "end": "2024-12-31",
+          "months": 12,
+          "share_multiple": 0.6877,
+          "beats_bh": false,
+          "max_dd": 44.5,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2024-01-01",
+          "end": "2025-12-31",
+          "months": 24,
+          "share_multiple": 0.8185,
+          "beats_bh": false,
+          "max_dd": 50.1,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2024-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":5,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Russet Bonobo #2",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 4,
+      "prediction_score": 0.8841,
+      "train_metrics": {
+        "share_multiple": 14.8115,
+        "real_share_multiple": 2.1202,
+        "modern_share_multiple": 2.5906,
+        "max_dd": 64.7,
+        "trades": 15
+      },
+      "forward": {
+        "6m": {
+          "start": "2024-01-01",
+          "end": "2024-07-01",
+          "months": 6,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 25.9,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2024-01-01",
+          "end": "2024-12-31",
+          "months": 12,
+          "share_multiple": 0.6877,
+          "beats_bh": false,
+          "max_dd": 44.5,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2024-01-01",
+          "end": "2025-12-31",
+          "months": 24,
+          "share_multiple": 0.8185,
+          "beats_bh": false,
+          "max_dd": 50.1,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2024-01-01",
+      "strategy_key": "gc_vjatr::{\"atr_confirm\":3,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}",
+      "display_name": "Crimson Bonobo",
+      "strategy": "gc_vjatr",
+      "leaderboard_rank": 5,
+      "prediction_score": 0.8841,
+      "train_metrics": {
+        "share_multiple": 14.8115,
+        "real_share_multiple": 2.1202,
+        "modern_share_multiple": 2.5906,
+        "max_dd": 64.7,
+        "trades": 15
+      },
+      "forward": {
+        "6m": {
+          "start": "2024-01-01",
+          "end": "2024-07-01",
+          "months": 6,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 25.9,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2024-01-01",
+          "end": "2024-12-31",
+          "months": 12,
+          "share_multiple": 0.6877,
+          "beats_bh": false,
+          "max_dd": 44.5,
+          "trades": 0
+        },
+        "2y": {
+          "start": "2024-01-01",
+          "end": "2025-12-31",
+          "months": 24,
+          "share_multiple": 0.8185,
+          "beats_bh": false,
+          "max_dd": 50.1,
+          "trades": 1
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2024-01-01",
+      "strategy_key": "gc_vjatr_timing_repair::{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":45.0,\"rsi_len\":7,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0}",
+      "display_name": "Ivory Hare",
+      "strategy": "gc_vjatr_timing_repair",
+      "leaderboard_rank": 6,
+      "prediction_score": 0.4071,
+      "train_metrics": {
+        "share_multiple": 15.0693,
+        "real_share_multiple": 2.278,
+        "modern_share_multiple": 2.479,
+        "max_dd": 98.2,
+        "trades": 41
+      },
+      "forward": {
+        "6m": {
+          "start": "2024-01-01",
+          "end": "2024-07-01",
+          "months": 6,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 25.9,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2024-01-01",
+          "end": "2024-12-31",
+          "months": 12,
+          "share_multiple": 0.892,
+          "beats_bh": false,
+          "max_dd": 35.4,
+          "trades": 1
+        },
+        "2y": {
+          "start": "2024-01-01",
+          "end": "2025-12-31",
+          "months": 24,
+          "share_multiple": 0.6253,
+          "beats_bh": false,
+          "max_dd": 58.3,
+          "trades": 2
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2024-01-01",
+      "strategy_key": "gc_vjatr_timing_repair::{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":35.0,\"rsi_len\":7,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0}",
+      "display_name": "Cerulean Hare #2",
+      "strategy": "gc_vjatr_timing_repair",
+      "leaderboard_rank": 7,
+      "prediction_score": 0.4071,
+      "train_metrics": {
+        "share_multiple": 14.3029,
+        "real_share_multiple": 2.278,
+        "modern_share_multiple": 2.479,
+        "max_dd": 98.2,
+        "trades": 41
+      },
+      "forward": {
+        "6m": {
+          "start": "2024-01-01",
+          "end": "2024-07-01",
+          "months": 6,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 25.9,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2024-01-01",
+          "end": "2024-12-31",
+          "months": 12,
+          "share_multiple": 0.892,
+          "beats_bh": false,
+          "max_dd": 35.4,
+          "trades": 1
+        },
+        "2y": {
+          "start": "2024-01-01",
+          "end": "2025-12-31",
+          "months": 24,
+          "share_multiple": 0.6253,
+          "beats_bh": false,
+          "max_dd": 58.3,
+          "trades": 2
+        }
+      },
+      "survived_useful_2y": false
+    },
+    {
+      "vintage_date": "2024-01-01",
+      "strategy_key": "gc_vjatr_timing_repair::{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":35.0,\"rsi_len\":14,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0}",
+      "display_name": "Sable Hare",
+      "strategy": "gc_vjatr_timing_repair",
+      "leaderboard_rank": 8,
+      "prediction_score": 0.4071,
+      "train_metrics": {
+        "share_multiple": 14.3029,
+        "real_share_multiple": 2.278,
+        "modern_share_multiple": 2.479,
+        "max_dd": 98.2,
+        "trades": 41
+      },
+      "forward": {
+        "6m": {
+          "start": "2024-01-01",
+          "end": "2024-07-01",
+          "months": 6,
+          "share_multiple": 1.0,
+          "beats_bh": true,
+          "max_dd": 25.9,
+          "trades": 0
+        },
+        "1y": {
+          "start": "2024-01-01",
+          "end": "2024-12-31",
+          "months": 12,
+          "share_multiple": 0.892,
+          "beats_bh": false,
+          "max_dd": 35.4,
+          "trades": 1
+        },
+        "2y": {
+          "start": "2024-01-01",
+          "end": "2025-12-31",
+          "months": 24,
+          "share_multiple": 0.6253,
+          "beats_bh": false,
+          "max_dd": 58.3,
+          "trades": 2
+        }
+      },
+      "survived_useful_2y": false
+    }
+  ]
+}

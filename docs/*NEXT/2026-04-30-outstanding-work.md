@@ -31,9 +31,15 @@ Acceptance criteria:
 
 ### 2. Nail Down Confidence Semantics
 
-`composite_confidence` should mean: higher score means stronger evidence that
-the strategy is likely to remain robust and useful into future TECL data. It is
-not a raw performance score.
+Confidence is now split into three concepts:
+
+- Gold Status: binary leaderboard admission
+- Edge Confidence: calibration-assisted estimate of future usefulness
+- Capital Readiness: deployment suitability after edge is established
+
+`composite_confidence` remains the validation-stack composite and still drives
+PASS/WARN/FAIL, but it is no longer the final "would I put money behind this?"
+score.
 
 Current structure:
 
@@ -41,14 +47,13 @@ Current structure:
 - confidence is the weighted geometric mean of tier-applicable robustness sub-scores
 - Gold Status requires PASS, certified-not-overfit, backtest-certified artifacts, and full/real/modern B&H outperformance
 - the authority leaderboard remains Gold-only
-- the family-confidence leaderboard should select one Gold row per family and rank by `composite_confidence`
+- the family-confidence leaderboard should select one Gold row per family and rank by Edge Confidence when Confidence v2 is available
 
 Open work:
 
-- monitor whether `future_confidence` is too punitive to complex but explicit
+- monitor whether Edge Confidence is too punitive to complex but explicit
   committee strategies
-- compare `future_confidence` drift after each data refresh before changing the
-  underlying certification score
+- compare Edge Confidence and Capital Readiness drift after each data refresh before changing the underlying certification score
 - recertify the leaderboard before changing `validation.composite_confidence`
   itself
 
@@ -65,6 +70,22 @@ Open work:
   from 20 rows to 8 Gold rows because several Osprey/reclaimer and Bonobo rows
   no longer beat B&H in every canonical era
 
+2026-05-01 Confidence v2 update:
+
+- `scripts/validation/confidence_v2.py` computes diagnostic Edge Confidence and
+  Capital Readiness
+- `scripts/diagnostics/confidence_vintage_harness.py` writes
+  `runs/confidence_v2/vintage_trials.json`, `calibration_model.json`,
+  `leaderboard_scores.json`, `confidence_timeseries.json`, and
+  `live_holdout_log.json`
+- the current harness evaluates fixed current Gold configs at simulated
+  historical vintage dates; it does not yet reconstruct full historical
+  discovery runs
+- true live holdout evidence starts at 2026-05-01 because older data has already
+  been seen by Montauk
+- next improvement: expand vintage candidates beyond current Gold rows and add
+  richer search provenance from future grid/GA logs
+
 ### 3. Build And Use A Family Confidence Leaderboard
 
 The main leaderboard is intentionally Gold-only, but it can still get cluttered
@@ -75,7 +96,7 @@ Rules:
 
 - load only Gold Status rows from `spike/leaderboard.json`
 - group by strategy family first (`strategy` field)
-- choose the highest-`future_confidence` row in each family
+- choose the highest Edge Confidence row in each family when Confidence v2 is available; fall back to `future_confidence`
 - tie-break by all-era score, then fitness, then real/modern share multiples
 - emit a JSON artifact under `runs/`
 - expose Full leaderboard / Family leaders tabs in the viz
