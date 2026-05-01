@@ -148,3 +148,153 @@ Known cleanup item from `scripts/validation/pipeline.py`:
   validation report is easier to reason about
 
 Do this after the current confidence/family-board work stabilizes.
+
+### 6. Confidence v2 Calibration Diagnostics
+
+Goal: make Overall Confidence a better decision surface for finding the best
+charter strategy, not just a nicer display score.
+
+Next action:
+
+- run a broader calibration pass using more of
+  `runs/confidence_v2/candidate_archive.json`
+  - compare top 120 vs top 300 vs top 500 archived candidates
+  - preserve runtime and output size by making `--max-rows` explicit in every
+    run note
+  - compare whether current Gold family ranks and scores are stable across
+    candidate-set size
+  - document score drift for Overall Confidence, Future Confidence, and Trust
+
+Add a calibration diagnostics report:
+
+- create a report under `runs/confidence_v2/` that shows:
+  - trials per raw-score bucket
+  - observed survival rate per bucket
+  - monotonicity of raw score vs forward survival
+  - score drift between top-120 / top-300 / top-500 calibration runs
+  - which components appear predictive vs saturated/noisy
+- flag weak calibration behavior:
+  - higher raw score does not improve forward survival
+  - buckets have too few trials
+  - one family dominates the trial set
+  - a component is saturated across most candidates
+- acceptance criteria:
+  - diagnostics explain why the top family ranking changed or stayed stable
+  - Overall Confidence is still diagnostic-only unless calibration quality is
+    acceptable
+
+### 7. Roadmap To The Best Charter Strategy
+
+North star: find the strategy or strategy system that best accomplishes the
+charter: accumulate more TECL shares than B&H while surviving full, real, and
+modern eras, passing validation, and earning enough Trust to be deployable.
+
+#### Step 1 — Stabilize The Confidence Signal
+
+- broaden calibration as described above
+- add diagnostics showing whether Overall Confidence is predictive
+- expose Confidence v2 component breakdown in the viz:
+  - Overall Confidence
+  - Future Confidence
+  - Trust
+  - Future components: validation quality, forward edge, robustness, charter
+    fit, search deflation, live evidence
+  - Trust components: drawdown resilience, redundancy, parsimony, family
+    crowding, artifact cleanliness, live degradation
+- update the family board to show why each family leader won
+- do not change Gold admission until the diagnostics support it
+
+#### Step 2 — Improve Search Provenance Going Forward
+
+- make every grid/GA/hybrid run emit explicit provenance:
+  - run id and timestamp
+  - discovery mode
+  - total configs tested
+  - family configs tested
+  - parameter dimensions and active search ranges
+  - seed source, if any
+  - whether the candidate was pre-registered, grid-found, GA-found, or
+    assembled as a hybrid
+- store provenance directly on candidate artifacts instead of inferring it later
+- backfill what can be inferred from existing artifacts
+- feed provenance into Future Confidence as a first-class search-deflation
+  input
+
+#### Step 3 — Build Better Candidate Families, Not More Siblings
+
+- use the family leaderboard as the selection surface
+- prioritize families that are different from Bonobo/Hare:
+  - crash-airbag exits
+  - re-entry reclaimers
+  - volatility-compression recovery
+  - trend-quality filters
+  - state-machine crash/recovery strategies
+  - non-Golden-Cross baseline families
+- require every new family sprint to report:
+  - best Gold candidate, if any
+  - best near-Gold candidate
+  - why near-Gold failed
+  - diversity vs current Gold champion
+  - Confidence v2 score if admitted or archived
+- stop filling the leaderboard with near-identical siblings unless they improve
+  Overall Confidence or represent a materially different risk state
+
+#### Step 4 — Build Hybrids From Proven Specialists
+
+- use Overall Confidence to choose source members, but inspect subscores before
+  combining
+- maintain separate specialist boards:
+  - best entry timing
+  - best exit timing
+  - best crash avoidance
+  - best rebound participation
+  - best Trust / drawdown resilience
+- test hybrid forms in this order:
+  - confidence-weighted committee of family leaders
+  - entry-specialist + exit-specialist switchboard
+  - Bonobo core with independently validated overlay
+  - state-machine allocator using family leaders by market state
+- do not let recursive hybrid-on-hybrid inputs become the default source set
+- promote a hybrid only if it improves the charter objective without destroying
+  Trust
+
+#### Step 5 — Convert The Best Candidate Into A Champion Dossier
+
+- once a candidate leads by Overall Confidence and all-era score, build a
+  champion dossier:
+  - strategy definition and rationale
+  - full/real/modern metrics
+  - Confidence v2 component breakdown
+  - marker and named-window behavior
+  - failure modes and worst historical periods
+  - diversity vs existing Gold families
+  - parameter sensitivity and search provenance
+  - live-holdout monitoring plan
+- require recertification after the dossier
+- if the candidate remains Gold and Trust is acceptable, make it the comparison
+  champion for future research
+
+#### Step 6 — Start Live Confidence Monitoring
+
+- treat 2026-05-01 forward as the true live holdout
+- update `live_holdout_log.json` on each data refresh
+- track:
+  - live share multiple vs B&H
+  - live drawdown vs expected drawdown
+  - signal behavior vs historical analogs
+  - Overall/Future/Trust drift
+- define auto-review triggers:
+  - Overall Confidence drops materially after refresh
+  - Trust drops from drawdown or signal redundancy
+  - live behavior diverges from vintage-calibrated expectations
+  - current champion loses Gold Status
+
+#### Step 7 — Keep The Codebase Maintainable Enough To Move Fast
+
+- split `scripts/strategies/library.py` after the confidence/family workflow is
+  stable
+- keep strategy registry compatibility intact
+- move hybrid and diversity concepts into dedicated modules so new family work
+  is easier to review
+- keep generated artifacts separate from source code changes in commits when
+  practical
