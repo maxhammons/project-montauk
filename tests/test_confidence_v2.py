@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 
 from validation.confidence_v2 import calibration_lookup, score_entry
+from diagnostics.confidence_candidate_archive import build_archive
 
 
 def _row(max_dd: float = 60.0, strategy: str = "gc_vjatr") -> dict:
@@ -104,3 +105,45 @@ def test_score_entry_separates_future_confidence_from_trust_drawdown():
     assert normal["edge_confidence"] == normal["future_confidence"]
     assert normal["capital_readiness"] == normal["trust"]
     assert normal["calibration_state"] == "calibrated"
+
+
+def test_candidate_archive_collects_unique_strategy_params_from_artifacts(tmp_path):
+    artifact = tmp_path / "sample_results.json"
+    artifact.write_text(
+        """
+        {
+          "total_combos": 42,
+          "rankings": [
+            {
+              "strategy": "gc_vjatr",
+              "rank": 1,
+              "fitness": 1.25,
+              "params": {
+                "fast_ema": 140,
+                "slow_ema": 160,
+                "slope_window": 1,
+                "entry_bars": 2,
+                "cooldown": 0,
+                "atr_period": 7,
+                "atr_look": 40,
+                "atr_expand": 2.5,
+                "atr_confirm": 1
+              },
+              "metrics": {
+                "share_multiple": 2.0,
+                "real_share_multiple": 1.1,
+                "modern_share_multiple": 1.2
+              }
+            }
+          ]
+        }
+        """
+    )
+
+    archive = build_archive(paths=[str(artifact)])
+
+    assert archive["candidate_count"] == 1
+    candidate = archive["candidates"][0]
+    assert candidate["strategy"] == "gc_vjatr"
+    assert candidate["search_provenance"]["n_configs_tested"] == 42
+    assert candidate["search_provenance"]["family_candidates_tested"] == 1

@@ -133,6 +133,7 @@ Confidence v2 separates four concepts:
 
 Confidence v2 artifacts live under `runs/confidence_v2/`:
 
+- `candidate_archive.json` — archived current/near-miss/spike/grid candidates with search provenance
 - `vintage_trials.json` — simulated historical vintage trials
 - `calibration_model.json` — mapping from raw confidence features to observed forward survival
 - `leaderboard_scores.json` — current Gold rows enriched with Overall Confidence, Future Confidence, and Trust
@@ -142,6 +143,11 @@ Confidence v2 artifacts live under `runs/confidence_v2/`:
 The live holdout starts on 2026-05-01 because earlier data has already been
 seen by Montauk. Historical dates are treated only as simulated vintages, not
 pristine holdout data.
+
+The default harness uses the top 120 archived candidates by source quality,
+Gold/era evidence, weighted fitness, and marker score. This keeps calibration
+broader than the current Gold board without making every refresh a full search
+rerun.
 
 ### Effective weights per tier (after renormalization)
 

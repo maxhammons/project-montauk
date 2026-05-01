@@ -21,6 +21,15 @@
         "edge_confidence": 0.6233,
         "capital_readiness": 0.7839,
         "calibration_state": "calibrated"
+      },
+      {
+        "generated_at": "2026-05-01T15:19:52",
+        "overall_confidence": 0.6609,
+        "future_confidence": 0.6058,
+        "trust": 0.7767,
+        "edge_confidence": 0.6058,
+        "capital_readiness": 0.7767,
+        "calibration_state": "calibrated"
       }
     ],
     "gc_vjatr::{\"atr_confirm\":1,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}": [
@@ -43,6 +52,15 @@
         "trust": 0.7432,
         "edge_confidence": 0.5939,
         "capital_readiness": 0.7432,
+        "calibration_state": "calibrated"
+      },
+      {
+        "generated_at": "2026-05-01T15:19:52",
+        "overall_confidence": 0.6279,
+        "future_confidence": 0.5764,
+        "trust": 0.7361,
+        "edge_confidence": 0.5764,
+        "capital_readiness": 0.7361,
         "calibration_state": "calibrated"
       }
     ],
@@ -67,6 +85,15 @@
         "edge_confidence": 0.5938,
         "capital_readiness": 0.7432,
         "calibration_state": "calibrated"
+      },
+      {
+        "generated_at": "2026-05-01T15:19:52",
+        "overall_confidence": 0.6278,
+        "future_confidence": 0.5763,
+        "trust": 0.7361,
+        "edge_confidence": 0.5763,
+        "capital_readiness": 0.7361,
+        "calibration_state": "calibrated"
       }
     ],
     "gc_vjatr::{\"atr_confirm\":3,\"atr_expand\":2.5,\"atr_look\":40,\"atr_period\":7,\"cooldown\":0,\"entry_bars\":2,\"fast_ema\":140,\"slope_window\":1,\"slow_ema\":160}": [
@@ -89,6 +116,15 @@
         "trust": 0.7432,
         "edge_confidence": 0.5937,
         "capital_readiness": 0.7432,
+        "calibration_state": "calibrated"
+      },
+      {
+        "generated_at": "2026-05-01T15:19:52",
+        "overall_confidence": 0.6278,
+        "future_confidence": 0.5762,
+        "trust": 0.736,
+        "edge_confidence": 0.5762,
+        "capital_readiness": 0.736,
         "calibration_state": "calibrated"
       }
     ],
@@ -113,6 +149,15 @@
         "edge_confidence": 0.5937,
         "capital_readiness": 0.7412,
         "calibration_state": "calibrated"
+      },
+      {
+        "generated_at": "2026-05-01T15:19:52",
+        "overall_confidence": 0.6271,
+        "future_confidence": 0.5762,
+        "trust": 0.7341,
+        "edge_confidence": 0.5762,
+        "capital_readiness": 0.7341,
+        "calibration_state": "calibrated"
       }
     ],
     "gc_vjatr_timing_repair::{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":45.0,\"rsi_len\":7,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0}": [
@@ -135,6 +180,15 @@
         "trust": 0.0261,
         "edge_confidence": 0.414,
         "capital_readiness": 0.0261,
+        "calibration_state": "calibrated"
+      },
+      {
+        "generated_at": "2026-05-01T15:19:52",
+        "overall_confidence": 0.1508,
+        "future_confidence": 0.3917,
+        "trust": 0.0256,
+        "edge_confidence": 0.3917,
+        "capital_readiness": 0.0256,
         "calibration_state": "calibrated"
       }
     ],
@@ -159,6 +213,15 @@
         "edge_confidence": 0.4142,
         "capital_readiness": 0.0261,
         "calibration_state": "calibrated"
+      },
+      {
+        "generated_at": "2026-05-01T15:19:52",
+        "overall_confidence": 0.1509,
+        "future_confidence": 0.3918,
+        "trust": 0.0256,
+        "edge_confidence": 0.3918,
+        "capital_readiness": 0.0256,
+        "calibration_state": "calibrated"
       }
     ],
     "gc_vjatr_timing_repair::{\"atr_confirm\":3,\"atr_expand\":2.0,\"atr_look\":50,\"atr_period\":16,\"cooldown\":0,\"drawdown_lookback\":40,\"drawdown_pct\":25.0,\"entry_bars\":2,\"fast_ema\":140,\"repair_len\":30,\"repair_slope\":3,\"rsi_floor\":35.0,\"rsi_len\":14,\"slope_window\":1,\"slow_ema\":160,\"vix_ceiling\":50.0}": [
@@ -181,6 +244,15 @@
         "trust": 0.0261,
         "edge_confidence": 0.4142,
         "capital_readiness": 0.0261,
+        "calibration_state": "calibrated"
+      },
+      {
+        "generated_at": "2026-05-01T15:19:52",
+        "overall_confidence": 0.1509,
+        "future_confidence": 0.3918,
+        "trust": 0.0256,
+        "edge_confidence": 0.3918,
+        "capital_readiness": 0.0256,
         "calibration_state": "calibrated"
       }
     ]

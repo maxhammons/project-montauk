@@ -55,6 +55,7 @@ The authoritative full-run path is:
    `python viz/build_viz.py` reads `spike/leaderboard.json` + each Gold strategy's `spike/runs/NNN/dashboard_data.json`, assembles the bundle, and writes a self-contained `viz/montauk-viz.html`. Non-blocking; a missing/stale run dir gets flagged with a "stale artifact" badge rather than aborting.
 
    Confidence v2 diagnostics are generated separately with
+   `python scripts/diagnostics/confidence_candidate_archive.py`, then
    `python scripts/diagnostics/confidence_vintage_harness.py`. The resulting
    `runs/confidence_v2/leaderboard_scores.json` enriches the viz with Overall
    Confidence, Future Confidence, and Trust, but it does not alter Gold Status

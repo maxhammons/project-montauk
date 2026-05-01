@@ -172,9 +172,16 @@ def infer_discovery_mode(row: dict[str, Any]) -> str:
 
 def search_provenance(row: dict[str, Any], *, hash_summary: dict[str, Any], family_size: int) -> dict[str, Any]:
     n_params = count_tunable_params(row.get("params") or {})
+    existing = row.get("search_provenance") if isinstance(row.get("search_provenance"), dict) else {}
     mode = infer_discovery_mode(row)
+    if existing.get("discovery_mode"):
+        mode = str(existing.get("discovery_mode"))
     global_configs = int(hash_summary.get("n_configs") or 0)
-    if mode == "preregistered":
+    existing_eff = int(safe_float(existing.get("n_effective_configs"), 0.0))
+    existing_tested = int(safe_float(existing.get("n_configs_tested"), 0.0))
+    if existing_eff > 1:
+        n_eff = existing_eff
+    elif mode == "preregistered":
         n_eff = max(1, n_params * 2)
     elif mode == "grid":
         n_eff = max(50, min(global_configs or 500, family_size * 80 + n_params * 25))
@@ -188,12 +195,12 @@ def search_provenance(row: dict[str, Any], *, hash_summary: dict[str, Any], fami
     pressure = clamp(math.log10(max(n_eff, 1)) / 5.0)
     return {
         "discovery_mode": mode,
-        "n_configs_tested": global_configs,
+        "n_configs_tested": max(existing_tested, global_configs),
         "n_effective_configs": int(n_eff),
         "n_params": n_params,
-        "family_candidates_tested": family_size,
+        "family_candidates_tested": int(safe_float(existing.get("family_candidates_tested"), family_size) or family_size),
         "selection_pressure": round(pressure, 4),
-        "provenance_quality": "partial",
+        "provenance_quality": existing.get("provenance_quality") or "partial",
     }
 
 

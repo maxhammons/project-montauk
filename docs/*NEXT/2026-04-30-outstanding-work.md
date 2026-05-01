@@ -75,17 +75,20 @@ Open work:
 
 - `scripts/validation/confidence_v2.py` computes diagnostic Overall Confidence,
   Future Confidence, and Trust
+- `scripts/diagnostics/confidence_candidate_archive.py` collects current Gold,
+  archived leaderboard, spike run, grid, hybrid, prefilter, and near-miss
+  candidates into `runs/confidence_v2/candidate_archive.json`
 - `scripts/diagnostics/confidence_vintage_harness.py` writes
   `runs/confidence_v2/vintage_trials.json`, `calibration_model.json`,
   `leaderboard_scores.json`, `confidence_timeseries.json`, and
   `live_holdout_log.json`
-- the current harness evaluates fixed current Gold configs at simulated
-  historical vintage dates; it does not yet reconstruct full historical
-  discovery runs
+- the current archive contains 710 unique candidates across 97 families from
+  167 artifacts; the default harness evaluates the top 120 across 6 historical
+  vintages, producing 720 simulated vintage trials
 - true live holdout evidence starts at 2026-05-01 because older data has already
   been seen by Montauk
-- next improvement: expand vintage candidates beyond current Gold rows and add
-  richer search provenance from future grid/GA logs
+- next improvement: make future grid/GA logs store full parameter provenance so
+  the archive no longer needs to infer search burden from artifacts
 
 ### 3. Build And Use A Family Confidence Leaderboard
 

@@ -1,38 +1,38 @@
 {
-  "generated_at": "2026-05-01T11:39:13",
+  "generated_at": "2026-05-01T15:19:52",
   "status": "calibrated",
   "model_type": "quantile_bucket_survival_v1",
-  "trial_count": 48,
-  "overall_survival_rate": 0.3333,
+  "trial_count": 720,
+  "overall_survival_rate": 0.3389,
   "target": "survived_useful_2y",
   "buckets": [
     {
       "min_score": 0.1577,
-      "max_score": 0.1973,
-      "midpoint": 0.1778,
-      "n": 12,
-      "observed_survival_rate": 0.25
+      "max_score": 0.3542,
+      "midpoint": 0.2991,
+      "n": 180,
+      "observed_survival_rate": 0.2833
     },
     {
-      "min_score": 0.2695,
-      "max_score": 0.3466,
-      "midpoint": 0.3175,
-      "n": 12,
-      "observed_survival_rate": 0.3333
-    },
-    {
-      "min_score": 0.3601,
+      "min_score": 0.3542,
       "max_score": 0.4071,
-      "midpoint": 0.3852,
-      "n": 12,
-      "observed_survival_rate": 0.3333
+      "midpoint": 0.3777,
+      "n": 180,
+      "observed_survival_rate": 0.3528
     },
     {
       "min_score": 0.4071,
-      "max_score": 0.8918,
-      "midpoint": 0.6457,
-      "n": 12,
-      "observed_survival_rate": 0.4167
+      "max_score": 0.4812,
+      "midpoint": 0.4407,
+      "n": 180,
+      "observed_survival_rate": 0.3528
+    },
+    {
+      "min_score": 0.4843,
+      "max_score": 0.9657,
+      "midpoint": 0.6833,
+      "n": 180,
+      "observed_survival_rate": 0.3667
     }
   ],
   "limitations": [

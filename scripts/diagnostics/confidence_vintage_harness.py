@@ -41,6 +41,7 @@ from validation.confidence_v2 import (
     write_leaderboard_scores,
 )
 
+DEFAULT_CANDIDATE_ARCHIVE = os.path.join(PROJECT_ROOT, "runs", "confidence_v2", "candidate_archive.json")
 DEFAULT_VINTAGES = (
     "2014-01-01",
     "2016-01-01",
@@ -49,6 +50,40 @@ DEFAULT_VINTAGES = (
     "2022-01-01",
     "2024-01-01",
 )
+
+
+def _load_json(path: str, default: Any) -> Any:
+    if not os.path.exists(path):
+        return default
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except Exception:
+        return default
+
+
+def load_candidate_rows(path: str = DEFAULT_CANDIDATE_ARCHIVE, *, limit: int | None = 120) -> list[dict[str, Any]]:
+    archive = _load_json(path, {})
+    rows = archive.get("candidates") if isinstance(archive, dict) else None
+    if not isinstance(rows, list) or not rows:
+        return load_gold_rows()
+    out = []
+    seen = set()
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        strategy = row.get("strategy")
+        params = row.get("params")
+        if strategy not in STRATEGY_REGISTRY or not isinstance(params, dict):
+            continue
+        key = strategy_key(row)
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(row)
+        if limit and len(out) >= limit:
+            break
+    return out
 
 
 def _slice_through(df: pd.DataFrame, end: pd.Timestamp) -> pd.DataFrame:
@@ -131,10 +166,11 @@ def build_trials(
     vintages: tuple[str, ...],
     horizons: tuple[int, ...],
     max_rows: int | None = None,
+    candidate_archive: str = DEFAULT_CANDIDATE_ARCHIVE,
 ) -> dict[str, Any]:
     df = get_tecl_data(use_yfinance=False)
     df["date"] = pd.to_datetime(df["date"])
-    rows = load_gold_rows()
+    rows = load_candidate_rows(candidate_archive, limit=max_rows)
     if max_rows is not None:
         rows = rows[:max_rows]
     trials = []
@@ -210,9 +246,14 @@ def build_trials(
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "diagnostic_only": True,
         "method": (
-            "Fixed current Gold configs are evaluated at historical vintage dates. "
-            "This is simulated vintage evidence, not pristine historical discovery."
+            "Archived and current candidate configs are evaluated at historical "
+            "vintage dates. This is simulated vintage evidence, not pristine "
+            "historical discovery."
         ),
+        "candidate_source": os.path.relpath(candidate_archive, PROJECT_ROOT)
+        if os.path.exists(candidate_archive)
+        else "current Gold rows fallback",
+        "candidate_count": len(rows),
         "vintages": list(vintages),
         "horizons_months": list(horizons),
         "trial_count": len(trials),
@@ -315,6 +356,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--vintage", action="append", dest="vintages")
     parser.add_argument("--quick", action="store_true", help="Use fewer vintages and top 4 Gold rows")
+    parser.add_argument("--candidate-archive", default=DEFAULT_CANDIDATE_ARCHIVE)
     parser.add_argument("--max-rows", type=int, default=None)
     parser.add_argument("--output", default=VINTAGE_TRIALS_PATH)
     parser.add_argument("--calibration-output", default=CALIBRATION_MODEL_PATH)
@@ -326,8 +368,15 @@ def main() -> None:
     if args.quick:
         vintages = ("2020-01-01", "2022-01-01", "2024-01-01")
         max_rows = max_rows or 4
+    else:
+        max_rows = max_rows or 120
 
-    trials = build_trials(vintages=vintages, horizons=(6, 12, 24), max_rows=max_rows)
+    trials = build_trials(
+        vintages=vintages,
+        horizons=(6, 12, 24),
+        max_rows=max_rows,
+        candidate_archive=args.candidate_archive,
+    )
     calibration = build_calibration_model(trials)
     scores = build_leaderboard_scores(calibration_model=calibration)
 
