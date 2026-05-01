@@ -4,8 +4,9 @@ This module is intentionally diagnostic-only.  It does not decide Gold Status
 or leaderboard admission.  It separates:
 
 * validation composite: the existing validation-stack summary
-* edge confidence: probability-like estimate of future usefulness
-* capital readiness: deployment/sizing suitability after edge is established
+* future confidence: probability-like estimate of future usefulness
+* trust: deployment/sizing suitability after future confidence is established
+* overall confidence: combined trust surface, with both sub-scores visible
 """
 
 from __future__ import annotations
@@ -339,8 +340,8 @@ def score_entry(
     )
     edge, calibration_state = calibration_lookup(calibration_model, raw_edge)
 
-    capital_components = {
-        "edge_confidence": edge,
+    trust_components = {
+        "future_confidence": edge,
         "drawdown_resilience": drawdown_resilience,
         "parameter_parsimony": parsimony,
         "portfolio_redundancy": duplicate,
@@ -348,10 +349,10 @@ def score_entry(
         "artifact_cleanliness": warning_cleanliness,
         "live_degradation": live_score,
     }
-    capital = weighted_geomean(
-        capital_components,
+    trust = weighted_geomean(
+        trust_components,
         {
-            "edge_confidence": 0.30,
+            "future_confidence": 0.30,
             "drawdown_resilience": 0.22,
             "parameter_parsimony": 0.12,
             "portfolio_redundancy": 0.13,
@@ -360,6 +361,10 @@ def score_entry(
             "live_degradation": 0.07,
         },
     )
+    overall = weighted_geomean(
+        {"future_confidence": edge, "trust": trust},
+        {"future_confidence": 0.65, "trust": 0.35},
+    )
 
     return {
         "strategy_key": strategy_key(row),
@@ -367,14 +372,25 @@ def score_entry(
         "strategy": row.get("strategy"),
         "leaderboard_rank": row.get("leaderboard_rank"),
         "gold_status": bool(row.get("gold_status")),
+        "overall_confidence": round(overall, 4),
+        "overall_confidence_100": round(overall * 100.0, 2),
+        "future_confidence": round(edge, 4),
+        "future_confidence_100": round(edge * 100.0, 2),
+        "trust": round(trust, 4),
+        "trust_100": round(trust * 100.0, 2),
+        "future_confidence_raw": round(raw_edge, 4),
+        "future_confidence_components": {k: round(float(v), 4) for k, v in raw_components.items() if v is not None},
+        "trust_components": {k: round(float(v), 4) for k, v in trust_components.items() if v is not None},
+        # Backward-compatible aliases for Confidence v2 artifacts written
+        # before the naming pass.
         "edge_confidence": round(edge, 4),
         "edge_confidence_100": round(edge * 100.0, 2),
-        "capital_readiness": round(capital, 4),
-        "capital_readiness_100": round(capital * 100.0, 2),
+        "capital_readiness": round(trust, 4),
+        "capital_readiness_100": round(trust * 100.0, 2),
         "calibration_state": calibration_state,
         "edge_confidence_raw": round(raw_edge, 4),
         "edge_confidence_components": {k: round(float(v), 4) for k, v in raw_components.items() if v is not None},
-        "capital_readiness_components": {k: round(float(v), 4) for k, v in capital_components.items() if v is not None},
+        "capital_readiness_components": {k: round(float(v), 4) for k, v in trust_components.items() if v is not None},
         "search_provenance": provenance,
     }
 
@@ -407,6 +423,9 @@ def build_leaderboard_scores(
         )
     scores.sort(
         key=lambda item: (
+            safe_float(item.get("overall_confidence")),
+            safe_float(item.get("future_confidence")),
+            safe_float(item.get("trust")),
             safe_float(item.get("edge_confidence")),
             safe_float(item.get("capital_readiness")),
         ),
@@ -417,8 +436,9 @@ def build_leaderboard_scores(
         "diagnostic_only": True,
         "live_holdout_start": LIVE_HOLDOUT_START,
         "definition": (
-            "Edge Confidence estimates future usefulness; Capital Readiness "
-            "estimates deployability. Neither changes Gold Status admission."
+            "Overall Confidence combines Future Confidence and Trust. Future "
+            "Confidence estimates future usefulness; Trust estimates "
+            "deployability. None of these change Gold Status admission."
         ),
         "hash_index_summary": hash_summary,
         "calibration_status": (calibration_model or {}).get("status", "uncalibrated"),
@@ -445,6 +465,9 @@ def append_timeseries(report: dict[str, Any], path: str = CONFIDENCE_TIMESERIES_
         series.setdefault(key, []).append(
             {
                 "generated_at": ts,
+                "overall_confidence": score.get("overall_confidence"),
+                "future_confidence": score.get("future_confidence"),
+                "trust": score.get("trust"),
                 "edge_confidence": score.get("edge_confidence"),
                 "capital_readiness": score.get("capital_readiness"),
                 "calibration_state": score.get("calibration_state"),

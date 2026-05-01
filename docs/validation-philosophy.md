@@ -81,7 +81,7 @@ A correctness failure means the strategy *isn't a strategy*. No confidence score
 
 ### Layer 2 — Confidence (weighted, scored 0–100)
 
-Everything else feeds a single `composite_confidence` score on [0, 1]. It is a weighted geometric mean of tier-applicable sub-scores (see `validation-thresholds.md` for weights) and remains the validation-stack composite for PASS/WARN/FAIL. Confidence v2 adds separate diagnostic `edge_confidence` and `capital_readiness` scores for future usefulness and deployability.
+Everything else feeds a single `composite_confidence` score on [0, 1]. It is a weighted geometric mean of tier-applicable sub-scores (see `validation-thresholds.md` for weights) and remains the validation-stack composite for PASS/WARN/FAIL. Confidence v2 adds separate diagnostic `future_confidence`, `trust`, and `overall_confidence` scores for future usefulness, deployability, and combined confidence.
 
 Each sub-score is a smooth [0, 1] value: hard-fail threshold → 0.0, soft-warn threshold → 0.5, full pass → 1.0, with smooth interpolation between. A close miss costs a little. A far miss costs a lot. Nothing is binary.
 

@@ -238,9 +238,10 @@ def _future_confidence(row: dict[str, Any], *, family_size: int, duplicate_score
 def _tie_key(row: dict[str, Any]) -> tuple[float, float, float, float, float]:
     metrics = row.get("metrics") or {}
     return (
-        _safe_float(row.get("edge_confidence"), -1.0),
-        _safe_float(row.get("capital_readiness"), -1.0),
-        _safe_float(row.get("future_confidence"), _confidence(row)),
+        _safe_float(row.get("overall_confidence"), -1.0),
+        _safe_float(row.get("future_confidence_v2"), -1.0),
+        _safe_float(row.get("trust"), -1.0),
+        _safe_float(row.get("legacy_family_confidence"), _confidence(row)),
         _safe_float(row.get("overall_performance_score")),
         _safe_float(row.get("fitness")),
         _safe_float(metrics.get("real_share_multiple")),
@@ -251,8 +252,8 @@ def _tie_key(row: dict[str, Any]) -> tuple[float, float, float, float, float]:
 def _leader_row(row: dict[str, Any], *, rank: int, family: str, family_size: int) -> dict[str, Any]:
     metrics = row.get("metrics") or {}
     validation = row.get("validation") or {}
-    future_confidence = _safe_float(row.get("future_confidence"), _confidence(row))
-    components = row.get("future_confidence_components") or {}
+    legacy_confidence = _safe_float(row.get("legacy_family_confidence"), _confidence(row))
+    components = row.get("legacy_family_confidence_components") or {}
     return {
         "rank": rank,
         "family": family,
@@ -260,10 +261,20 @@ def _leader_row(row: dict[str, Any], *, rank: int, family: str, family_size: int
         "leaderboard_rank": row.get("leaderboard_rank"),
         "display_name": _display_name(row),
         "strategy": row.get("strategy"),
-        "confidence": round(future_confidence, 4),
-        "confidence_100": round(future_confidence * 100.0, 2),
-        "future_confidence": round(future_confidence, 4),
-        "future_confidence_100": round(future_confidence * 100.0, 2),
+        "confidence": row.get("overall_confidence", round(legacy_confidence, 4)),
+        "confidence_100": row.get("overall_confidence_100", round(legacy_confidence * 100.0, 2)),
+        "overall_confidence": row.get("overall_confidence"),
+        "overall_confidence_100": row.get("overall_confidence_100"),
+        "future_confidence": row.get("future_confidence_v2"),
+        "future_confidence_100": row.get("future_confidence_v2_100"),
+        "trust": row.get("trust"),
+        "trust_100": row.get("trust_100"),
+        "legacy_family_confidence": round(legacy_confidence, 4),
+        "legacy_family_confidence_100": round(legacy_confidence * 100.0, 2),
+        "legacy_family_confidence_components": {
+            key: round(float(value), 4) for key, value in components.items()
+        },
+        # Backward-compatible aliases for pre-rename Confidence v2 consumers.
         "edge_confidence": row.get("edge_confidence"),
         "edge_confidence_100": row.get("edge_confidence_100"),
         "capital_readiness": row.get("capital_readiness"),
@@ -325,6 +336,14 @@ def build_family_board(
             if v2:
                 candidate.update(
                     {
+                        "overall_confidence": v2.get("overall_confidence"),
+                        "overall_confidence_100": v2.get("overall_confidence_100"),
+                        "future_confidence_v2": v2.get("future_confidence", v2.get("edge_confidence")),
+                        "future_confidence_v2_100": v2.get("future_confidence_100", v2.get("edge_confidence_100")),
+                        "trust": v2.get("trust", v2.get("capital_readiness")),
+                        "trust_100": v2.get("trust_100", v2.get("capital_readiness_100")),
+                        "future_confidence_components": v2.get("future_confidence_components", v2.get("edge_confidence_components")),
+                        "trust_components": v2.get("trust_components", v2.get("capital_readiness_components")),
                         "edge_confidence": v2.get("edge_confidence"),
                         "edge_confidence_100": v2.get("edge_confidence_100"),
                         "capital_readiness": v2.get("capital_readiness"),
@@ -340,8 +359,8 @@ def build_family_board(
                 family_size=len(family_rows),
                 duplicate_score=duplicate_scores.get(_display_name(candidate)),
             )
-            candidate["future_confidence"] = future
-            candidate["future_confidence_components"] = components
+            candidate["legacy_family_confidence"] = future
+            candidate["legacy_family_confidence_components"] = components
             enriched.append(candidate)
         selected = max(enriched, key=_tie_key)
         leaders.append((family, selected, len(family_rows)))
@@ -367,16 +386,16 @@ def build_report(
         "source": os.path.relpath(path, PROJECT_ROOT),
         "gold_rows": len(rows),
         "confidence_definition": (
-            "future_confidence estimates robustness into future TECL data. It "
-            "starts from validation composite_confidence, then discounts weak "
-            "evidence planks, era imbalance, drawdown, parameter sprawl, "
-            "duplicate signals, family crowding, and warning load."
+            "Overall Confidence combines Future Confidence and Trust. Future "
+            "Confidence estimates future usefulness; Trust estimates "
+            "deployability. Legacy family confidence remains available for "
+            "comparison."
         ),
         "selection_rule": (
             "Gold rows only; one representative per family; choose highest "
-            "Edge Confidence when Confidence v2 is available, then Capital "
-            "Readiness, then legacy future_confidence, all-era score, fitness, "
-            "real share multiple, and modern share multiple."
+            "Overall Confidence when Confidence v2 is available, then Future "
+            "Confidence, Trust, legacy family confidence, all-era score, "
+            "fitness, real share multiple, and modern share multiple."
         ),
         "confidence_components": {
             "validation_confidence": "existing validation composite_confidence",
@@ -420,16 +439,17 @@ def format_board(report: dict[str, Any], *, family_key: str) -> str:
         title,
         "=" * 108,
         f"Gold rows: {report['gold_rows']}",
-        "rank family                         leader                   edge   cap future valid overall fit   full  real modern n",
+        "rank family                         leader                overall future trust legacy valid allera fit   full  real modern n",
     ]
     for row in report[key]:
         metrics = row["metrics"]
         lines.append(
             f"{row['rank']:>4} {row['family'][:30]:30s} "
             f"{row['display_name'][:22]:22s} "
-            f"{_safe_float(row.get('edge_confidence_100')):>6.1f} "
-            f"{_safe_float(row.get('capital_readiness_100')):>5.1f} "
-            f"{row['future_confidence_100']:>6.1f} "
+            f"{_safe_float(row.get('overall_confidence_100')):>7.1f} "
+            f"{_safe_float(row.get('future_confidence_100')):>6.1f} "
+            f"{_safe_float(row.get('trust_100')):>5.1f} "
+            f"{_safe_float(row.get('legacy_family_confidence_100')):>6.1f} "
             f"{row['validation_confidence_100']:>5.1f} "
             f"{_safe_float(row.get('overall_performance_score')):>7.3f} "
             f"{_safe_float(row.get('fitness')):>5.3f} "

@@ -34,8 +34,9 @@ Acceptance criteria:
 Confidence is now split into three concepts:
 
 - Gold Status: binary leaderboard admission
-- Edge Confidence: calibration-assisted estimate of future usefulness
-- Capital Readiness: deployment suitability after edge is established
+- Future Confidence: calibration-assisted estimate of future usefulness
+- Trust: deployment suitability after future confidence is established
+- Overall Confidence: super score combining Future Confidence and Trust
 
 `composite_confidence` remains the validation-stack composite and still drives
 PASS/WARN/FAIL, but it is no longer the final "would I put money behind this?"
@@ -47,13 +48,13 @@ Current structure:
 - confidence is the weighted geometric mean of tier-applicable robustness sub-scores
 - Gold Status requires PASS, certified-not-overfit, backtest-certified artifacts, and full/real/modern B&H outperformance
 - the authority leaderboard remains Gold-only
-- the family-confidence leaderboard should select one Gold row per family and rank by Edge Confidence when Confidence v2 is available
+- the family-confidence leaderboard should select one Gold row per family and rank by Overall Confidence when Confidence v2 is available
 
 Open work:
 
-- monitor whether Edge Confidence is too punitive to complex but explicit
+- monitor whether Future Confidence is too punitive to complex but explicit
   committee strategies
-- compare Edge Confidence and Capital Readiness drift after each data refresh before changing the underlying certification score
+- compare Overall Confidence, Future Confidence, and Trust drift after each data refresh before changing the underlying certification score
 - recertify the leaderboard before changing `validation.composite_confidence`
   itself
 
@@ -72,8 +73,8 @@ Open work:
 
 2026-05-01 Confidence v2 update:
 
-- `scripts/validation/confidence_v2.py` computes diagnostic Edge Confidence and
-  Capital Readiness
+- `scripts/validation/confidence_v2.py` computes diagnostic Overall Confidence,
+  Future Confidence, and Trust
 - `scripts/diagnostics/confidence_vintage_harness.py` writes
   `runs/confidence_v2/vintage_trials.json`, `calibration_model.json`,
   `leaderboard_scores.json`, `confidence_timeseries.json`, and
@@ -96,7 +97,7 @@ Rules:
 
 - load only Gold Status rows from `spike/leaderboard.json`
 - group by strategy family first (`strategy` field)
-- choose the highest Edge Confidence row in each family when Confidence v2 is available; fall back to `future_confidence`
+- choose the highest Overall Confidence row in each family when Confidence v2 is available; fall back to legacy family confidence
 - tie-break by all-era score, then fitness, then real/modern share multiples
 - emit a JSON artifact under `runs/`
 - expose Full leaderboard / Family leaders tabs in the viz

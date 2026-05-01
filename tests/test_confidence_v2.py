@@ -67,7 +67,7 @@ def test_calibrated_lookup_blends_bucket_survival_without_flattening_raw_score()
     assert high > low
 
 
-def test_score_entry_separates_edge_confidence_from_capital_readiness_drawdown():
+def test_score_entry_separates_future_confidence_from_trust_drawdown():
     hash_summary = {"n_configs": 1000, "rs_p99": 0.65}
     model = {
         "status": "calibrated",
@@ -96,7 +96,11 @@ def test_score_entry_separates_edge_confidence_from_capital_readiness_drawdown()
         calibration_model=model,
     )
 
-    assert normal["edge_confidence"] > fragile["edge_confidence"]
-    assert normal["capital_readiness"] > fragile["capital_readiness"]
-    assert fragile["capital_readiness_components"]["drawdown_resilience"] == 0.0
+    assert normal["future_confidence"] > fragile["future_confidence"]
+    assert normal["trust"] > fragile["trust"]
+    assert normal["overall_confidence"] > fragile["overall_confidence"]
+    assert fragile["trust_components"]["drawdown_resilience"] == 0.0
+    # Backward-compatible aliases remain available for older artifacts.
+    assert normal["edge_confidence"] == normal["future_confidence"]
+    assert normal["capital_readiness"] == normal["trust"]
     assert normal["calibration_state"] == "calibrated"

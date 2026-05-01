@@ -56,8 +56,8 @@ The authoritative full-run path is:
 
    Confidence v2 diagnostics are generated separately with
    `python scripts/diagnostics/confidence_vintage_harness.py`. The resulting
-   `runs/confidence_v2/leaderboard_scores.json` enriches the viz with Edge
-   Confidence and Capital Readiness, but it does not alter Gold Status
+   `runs/confidence_v2/leaderboard_scores.json` enriches the viz with Overall
+   Confidence, Future Confidence, and Trust, but it does not alter Gold Status
    admission.
 
 8. **Manually execute from the daily signal**

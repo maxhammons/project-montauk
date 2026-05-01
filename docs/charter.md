@@ -136,7 +136,7 @@ The project optimizes for **share accumulation**, not impressive equity curves.
 
 Validation quality matters as much as performance. A high-share-count strategy that fails validation is out of scope for promotion.
 
-Raw performance and share multiple do **not** determine leaderboard eligibility by themselves. Gold Status is the eligibility rule: a strategy must be certified not overfit, artifact-verified / `backtest_certified`, and above B&H in the full, real, and modern eras. Ranking happens only after that and should reflect overall performance across full / real / modern eras rather than a single favored regime. The separate family-confidence leaderboard selects one Gold row per family and, when Confidence v2 artifacts are present, ranks those representatives by Edge Confidence, then Capital Readiness.
+Raw performance and share multiple do **not** determine leaderboard eligibility by themselves. Gold Status is the eligibility rule: a strategy must be certified not overfit, artifact-verified / `backtest_certified`, and above B&H in the full, real, and modern eras. Ranking happens only after that and should reflect overall performance across full / real / modern eras rather than a single favored regime. The separate family-confidence leaderboard selects one Gold row per family and, when Confidence v2 artifacts are present, ranks those representatives by Overall Confidence, then Future Confidence and Trust.
 
 ---
 

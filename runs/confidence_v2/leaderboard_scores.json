@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-05-01T10:56:08",
+  "generated_at": "2026-05-01T11:39:13",
   "diagnostic_only": true,
   "live_holdout_start": "2026-05-01",
-  "definition": "Edge Confidence estimates future usefulness; Capital Readiness estimates deployability. Neither changes Gold Status admission.",
+  "definition": "Overall Confidence combines Future Confidence and Trust. Future Confidence estimates future usefulness; Trust estimates deployability. None of these change Gold Status admission.",
   "hash_index_summary": {
     "n_configs": 35568,
     "rs_mean": 0.527946,
@@ -17,6 +17,28 @@
       "strategy": "gold_hybrid_committee",
       "leaderboard_rank": 1,
       "gold_status": true,
+      "overall_confidence": 0.6754,
+      "overall_confidence_100": 67.54,
+      "future_confidence": 0.6233,
+      "future_confidence_100": 62.33,
+      "trust": 0.7839,
+      "trust_100": 78.39,
+      "future_confidence_raw": 0.7345,
+      "future_confidence_components": {
+        "validation_quality": 0.6792,
+        "forward_edge": 0.79,
+        "robustness": 0.7703,
+        "charter_fit": 0.6366,
+        "search_deflation": 0.7575
+      },
+      "trust_components": {
+        "future_confidence": 0.6233,
+        "drawdown_resilience": 0.73,
+        "parameter_parsimony": 1.0,
+        "portfolio_redundancy": 1.0,
+        "family_crowding": 1.0,
+        "artifact_cleanliness": 0.825
+      },
       "edge_confidence": 0.6233,
       "edge_confidence_100": 62.33,
       "capital_readiness": 0.7839,
@@ -31,7 +53,7 @@
         "search_deflation": 0.7575
       },
       "capital_readiness_components": {
-        "edge_confidence": 0.6233,
+        "future_confidence": 0.6233,
         "drawdown_resilience": 0.73,
         "parameter_parsimony": 1.0,
         "portfolio_redundancy": 1.0,
@@ -54,6 +76,28 @@
       "strategy": "gc_vjatr",
       "leaderboard_rank": 2,
       "gold_status": true,
+      "overall_confidence": 0.6424,
+      "overall_confidence_100": 64.24,
+      "future_confidence": 0.5939,
+      "future_confidence_100": 59.39,
+      "trust": 0.7432,
+      "trust_100": 74.32,
+      "future_confidence_raw": 0.6893,
+      "future_confidence_components": {
+        "validation_quality": 0.6468,
+        "forward_edge": 0.7214,
+        "robustness": 0.7861,
+        "charter_fit": 0.5657,
+        "search_deflation": 0.6913
+      },
+      "trust_components": {
+        "future_confidence": 0.5939,
+        "drawdown_resilience": 0.7575,
+        "parameter_parsimony": 1.0,
+        "portfolio_redundancy": 0.75,
+        "family_crowding": 0.9306,
+        "artifact_cleanliness": 0.825
+      },
       "edge_confidence": 0.5939,
       "edge_confidence_100": 59.39,
       "capital_readiness": 0.7432,
@@ -68,7 +112,7 @@
         "search_deflation": 0.6913
       },
       "capital_readiness_components": {
-        "edge_confidence": 0.5939,
+        "future_confidence": 0.5939,
         "drawdown_resilience": 0.7575,
         "parameter_parsimony": 1.0,
         "portfolio_redundancy": 0.75,
@@ -91,6 +135,28 @@
       "strategy": "gc_vjatr",
       "leaderboard_rank": 3,
       "gold_status": true,
+      "overall_confidence": 0.6423,
+      "overall_confidence_100": 64.23,
+      "future_confidence": 0.5938,
+      "future_confidence_100": 59.38,
+      "trust": 0.7432,
+      "trust_100": 74.32,
+      "future_confidence_raw": 0.6891,
+      "future_confidence_components": {
+        "validation_quality": 0.6467,
+        "forward_edge": 0.7214,
+        "robustness": 0.7855,
+        "charter_fit": 0.5657,
+        "search_deflation": 0.6913
+      },
+      "trust_components": {
+        "future_confidence": 0.5938,
+        "drawdown_resilience": 0.7575,
+        "parameter_parsimony": 1.0,
+        "portfolio_redundancy": 0.75,
+        "family_crowding": 0.9306,
+        "artifact_cleanliness": 0.825
+      },
       "edge_confidence": 0.5938,
       "edge_confidence_100": 59.38,
       "capital_readiness": 0.7432,
@@ -105,7 +171,7 @@
         "search_deflation": 0.6913
       },
       "capital_readiness_components": {
-        "edge_confidence": 0.5938,
+        "future_confidence": 0.5938,
         "drawdown_resilience": 0.7575,
         "parameter_parsimony": 1.0,
         "portfolio_redundancy": 0.75,
@@ -128,6 +194,28 @@
       "strategy": "gc_vjatr",
       "leaderboard_rank": 5,
       "gold_status": true,
+      "overall_confidence": 0.6422,
+      "overall_confidence_100": 64.22,
+      "future_confidence": 0.5937,
+      "future_confidence_100": 59.37,
+      "trust": 0.7432,
+      "trust_100": 74.32,
+      "future_confidence_raw": 0.689,
+      "future_confidence_components": {
+        "validation_quality": 0.6466,
+        "forward_edge": 0.7214,
+        "robustness": 0.7843,
+        "charter_fit": 0.5657,
+        "search_deflation": 0.692
+      },
+      "trust_components": {
+        "future_confidence": 0.5937,
+        "drawdown_resilience": 0.7575,
+        "parameter_parsimony": 1.0,
+        "portfolio_redundancy": 0.75,
+        "family_crowding": 0.9306,
+        "artifact_cleanliness": 0.825
+      },
       "edge_confidence": 0.5937,
       "edge_confidence_100": 59.37,
       "capital_readiness": 0.7432,
@@ -142,7 +230,7 @@
         "search_deflation": 0.692
       },
       "capital_readiness_components": {
-        "edge_confidence": 0.5937,
+        "future_confidence": 0.5937,
         "drawdown_resilience": 0.7575,
         "parameter_parsimony": 1.0,
         "portfolio_redundancy": 0.75,
@@ -165,6 +253,28 @@
       "strategy": "gc_vjatr",
       "leaderboard_rank": 4,
       "gold_status": true,
+      "overall_confidence": 0.6416,
+      "overall_confidence_100": 64.16,
+      "future_confidence": 0.5937,
+      "future_confidence_100": 59.37,
+      "trust": 0.7412,
+      "trust_100": 74.12,
+      "future_confidence_raw": 0.6889,
+      "future_confidence_components": {
+        "validation_quality": 0.6466,
+        "forward_edge": 0.7214,
+        "robustness": 0.784,
+        "charter_fit": 0.5657,
+        "search_deflation": 0.692
+      },
+      "trust_components": {
+        "future_confidence": 0.5937,
+        "drawdown_resilience": 0.7575,
+        "parameter_parsimony": 1.0,
+        "portfolio_redundancy": 0.75,
+        "family_crowding": 0.9306,
+        "artifact_cleanliness": 0.8
+      },
       "edge_confidence": 0.5937,
       "edge_confidence_100": 59.37,
       "capital_readiness": 0.7412,
@@ -179,7 +289,7 @@
         "search_deflation": 0.692
       },
       "capital_readiness_components": {
-        "edge_confidence": 0.5937,
+        "future_confidence": 0.5937,
         "drawdown_resilience": 0.7575,
         "parameter_parsimony": 1.0,
         "portfolio_redundancy": 0.75,
@@ -202,6 +312,28 @@
       "strategy": "gc_vjatr_timing_repair",
       "leaderboard_rank": 7,
       "gold_status": true,
+      "overall_confidence": 0.1574,
+      "overall_confidence_100": 15.74,
+      "future_confidence": 0.4142,
+      "future_confidence_100": 41.42,
+      "trust": 0.0261,
+      "trust_100": 2.61,
+      "future_confidence_raw": 0.4128,
+      "future_confidence_components": {
+        "validation_quality": 0.706,
+        "forward_edge": 0.92,
+        "robustness": 0.0228,
+        "charter_fit": 0.7377,
+        "search_deflation": 0.8436
+      },
+      "trust_components": {
+        "future_confidence": 0.4142,
+        "drawdown_resilience": 0.0,
+        "parameter_parsimony": 0.7812,
+        "portfolio_redundancy": 0.75,
+        "family_crowding": 0.945,
+        "artifact_cleanliness": 0.825
+      },
       "edge_confidence": 0.4142,
       "edge_confidence_100": 41.42,
       "capital_readiness": 0.0261,
@@ -216,7 +348,7 @@
         "search_deflation": 0.8436
       },
       "capital_readiness_components": {
-        "edge_confidence": 0.4142,
+        "future_confidence": 0.4142,
         "drawdown_resilience": 0.0,
         "parameter_parsimony": 0.7812,
         "portfolio_redundancy": 0.75,
@@ -239,6 +371,28 @@
       "strategy": "gc_vjatr_timing_repair",
       "leaderboard_rank": 8,
       "gold_status": true,
+      "overall_confidence": 0.1574,
+      "overall_confidence_100": 15.74,
+      "future_confidence": 0.4142,
+      "future_confidence_100": 41.42,
+      "trust": 0.0261,
+      "trust_100": 2.61,
+      "future_confidence_raw": 0.4128,
+      "future_confidence_components": {
+        "validation_quality": 0.706,
+        "forward_edge": 0.92,
+        "robustness": 0.0228,
+        "charter_fit": 0.7377,
+        "search_deflation": 0.8436
+      },
+      "trust_components": {
+        "future_confidence": 0.4142,
+        "drawdown_resilience": 0.0,
+        "parameter_parsimony": 0.7812,
+        "portfolio_redundancy": 0.75,
+        "family_crowding": 0.945,
+        "artifact_cleanliness": 0.825
+      },
       "edge_confidence": 0.4142,
       "edge_confidence_100": 41.42,
       "capital_readiness": 0.0261,
@@ -253,7 +407,7 @@
         "search_deflation": 0.8436
       },
       "capital_readiness_components": {
-        "edge_confidence": 0.4142,
+        "future_confidence": 0.4142,
         "drawdown_resilience": 0.0,
         "parameter_parsimony": 0.7812,
         "portfolio_redundancy": 0.75,
@@ -276,6 +430,28 @@
       "strategy": "gc_vjatr_timing_repair",
       "leaderboard_rank": 6,
       "gold_status": true,
+      "overall_confidence": 0.1574,
+      "overall_confidence_100": 15.74,
+      "future_confidence": 0.414,
+      "future_confidence_100": 41.4,
+      "trust": 0.0261,
+      "trust_100": 2.61,
+      "future_confidence_raw": 0.4126,
+      "future_confidence_components": {
+        "validation_quality": 0.7051,
+        "forward_edge": 0.9216,
+        "robustness": 0.0228,
+        "charter_fit": 0.7377,
+        "search_deflation": 0.8427
+      },
+      "trust_components": {
+        "future_confidence": 0.414,
+        "drawdown_resilience": 0.0,
+        "parameter_parsimony": 0.7812,
+        "portfolio_redundancy": 0.7518,
+        "family_crowding": 0.945,
+        "artifact_cleanliness": 0.825
+      },
       "edge_confidence": 0.414,
       "edge_confidence_100": 41.4,
       "capital_readiness": 0.0261,
@@ -290,7 +466,7 @@
         "search_deflation": 0.8427
       },
       "capital_readiness_components": {
-        "edge_confidence": 0.414,
+        "future_confidence": 0.414,
         "drawdown_resilience": 0.0,
         "parameter_parsimony": 0.7812,
         "portfolio_redundancy": 0.7518,

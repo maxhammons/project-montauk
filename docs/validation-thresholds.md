@@ -11,7 +11,7 @@ Validation has two layers (see `validation-philosophy.md` §4):
 
 - **Layer 1 — Correctness**: binary, hard-fail, no weights. A strategy that fails any Layer 1 check is disqualified regardless of confidence.
 - **Layer 2 — Validation composite**: `composite_confidence` score on [0, 1]. It summarizes the tier-applicable validation stack and still drives PASS/WARN/FAIL. It is not the capital-allocation confidence metric.
-- **Confidence v2 diagnostics**: Gold rows can also carry `edge_confidence` and `capital_readiness`. These are diagnostic-only until the vintage calibration harness has enough evidence to replace heuristic ranking.
+- **Confidence v2 diagnostics**: Gold rows can also carry `overall_confidence`, `future_confidence`, and `trust`. These are diagnostic-only until the vintage calibration harness has enough evidence to replace heuristic ranking.
 
 No gate in Layer 2 has veto power on its own. Every sub-score contributes weighted partial credit.
 
@@ -99,8 +99,8 @@ admits only Gold Status rows.
 family leaderboard score, `future_confidence`, remains available as a stricter
 Gold-only ranking overlay. Confidence v2 supersedes it when
 `runs/confidence_v2/leaderboard_scores.json` is present: family representatives
-rank by `edge_confidence`, then `capital_readiness`, then legacy
-`future_confidence`. Non-Gold rows still cannot appear.
+rank by `overall_confidence`, then new `future_confidence`, then `trust`, then
+legacy family confidence. Non-Gold rows still cannot appear.
 
 `future_confidence` is a weighted geometric mean over:
 
@@ -122,19 +122,20 @@ across eras, and not merely duplicate an already-crowded signal cluster.
 
 ### Confidence v2
 
-Confidence v2 separates three concepts:
+Confidence v2 separates four concepts:
 
 | Concept | Field | Meaning |
 |---|---|---|
 | Gold Status | `gold_status` | Binary leaderboard eligibility |
-| Edge Confidence | `edge_confidence` | Calibration-assisted estimate that the strategy remains useful over the next 1-3 years |
-| Capital Readiness | `capital_readiness` | Deployment suitability after edge: drawdown, redundancy, parameter parsimony, artifacts, and live degradation |
+| Future Confidence | `future_confidence` | Calibration-assisted estimate that the strategy remains useful over the next 1-3 years |
+| Trust | `trust` | Deployment suitability after future confidence: drawdown, redundancy, parameter parsimony, artifacts, and live degradation |
+| Overall Confidence | `overall_confidence` | Super score combining Future Confidence and Trust |
 
 Confidence v2 artifacts live under `runs/confidence_v2/`:
 
 - `vintage_trials.json` — simulated historical vintage trials
 - `calibration_model.json` — mapping from raw confidence features to observed forward survival
-- `leaderboard_scores.json` — current Gold rows enriched with Edge Confidence and Capital Readiness
+- `leaderboard_scores.json` — current Gold rows enriched with Overall Confidence, Future Confidence, and Trust
 - `confidence_timeseries.json` — score drift by strategy across refreshes
 - `live_holdout_log.json` — forward-only evidence starting from 2026-05-01
 

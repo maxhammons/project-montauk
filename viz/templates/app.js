@@ -410,8 +410,8 @@
   // ordered by all-era performance so the top of the board reflects the
   // strongest certified strategy across full / real / modern history.
   const CONFIDENCE_KEY = {
-    label: "Edge Confidence (0–100; calibrated/provisional future usefulness)",
-    extract: (s) => (s.edge_confidence != null ? s.edge_confidence : s.composite_confidence ?? null),
+    label: "Overall Confidence (0–100; Future Confidence + Trust)",
+    extract: (s) => (s.overall_confidence != null ? s.overall_confidence : s.edge_confidence ?? s.composite_confidence ?? null),
     format: (v) => (v == null ? "—" : `${(v * 100).toFixed(1)}`),
   };
   const SORT_OPTIONS = {
@@ -428,15 +428,21 @@
       direction: "desc",
     },
     confidence: {
-      label: "Edge confidence",
+      label: "Overall confidence",
       title: CONFIDENCE_KEY.label,
       extract: CONFIDENCE_KEY.extract,
       direction: "desc",
     },
-    capital: {
-      label: "Capital readiness",
-      title: "Deployment readiness: drawdown, redundancy, parsimony, artifacts, and live degradation",
-      extract: (s) => s.capital_readiness,
+    future: {
+      label: "Future confidence",
+      title: "Future Confidence: calibrated/provisional estimate of future usefulness",
+      extract: (s) => s.future_confidence ?? s.edge_confidence,
+      direction: "desc",
+    },
+    trust: {
+      label: "Trust",
+      title: "Trust: deployability after future confidence, including drawdown, redundancy, parsimony, artifacts, and live degradation",
+      extract: (s) => s.trust ?? s.capital_readiness,
       direction: "desc",
     },
     full: {
@@ -541,21 +547,28 @@
         .map((leader) => {
           const strat = findStrategyForFamilyLeader(leader);
           if (!strat) return null;
-          const edgeConfidence = leader.edge_confidence ?? strat.edge_confidence;
-          const futureConfidence = leader.future_confidence ?? leader.confidence;
+          const overallConfidence = leader.overall_confidence ?? strat.overall_confidence;
+          const futureConfidence = leader.future_confidence ?? strat.future_confidence ?? leader.edge_confidence ?? strat.edge_confidence;
+          const trust = leader.trust ?? strat.trust ?? leader.capital_readiness ?? strat.capital_readiness;
           return {
             ...strat,
-            edge_confidence: edgeConfidence ?? strat.edge_confidence,
+            overall_confidence: overallConfidence ?? strat.overall_confidence,
+            overall_confidence_100: leader.overall_confidence_100 ?? strat.overall_confidence_100,
+            future_confidence: futureConfidence ?? strat.future_confidence,
+            future_confidence_100: leader.future_confidence_100 ?? strat.future_confidence_100,
+            trust: trust ?? strat.trust,
+            trust_100: leader.trust_100 ?? strat.trust_100,
+            edge_confidence: futureConfidence ?? strat.edge_confidence,
             edge_confidence_100: leader.edge_confidence_100 ?? strat.edge_confidence_100,
-            capital_readiness: leader.capital_readiness ?? strat.capital_readiness,
+            capital_readiness: trust ?? strat.capital_readiness,
             capital_readiness_100: leader.capital_readiness_100 ?? strat.capital_readiness_100,
             calibration_state: leader.calibration_state ?? strat.calibration_state,
-            composite_confidence: edgeConfidence ?? futureConfidence ?? strat.composite_confidence,
-            _future_confidence: futureConfidence,
+            composite_confidence: overallConfidence ?? futureConfidence ?? strat.composite_confidence,
+            _future_confidence: leader.legacy_family_confidence ?? leader.confidence,
             _validation_confidence: leader.validation_confidence ?? strat.composite_confidence,
             _confidence_components: leader.confidence_components || null,
-            _edge_confidence_components: leader.edge_confidence_components || strat.edge_confidence_components || null,
-            _capital_readiness_components: leader.capital_readiness_components || strat.capital_readiness_components || null,
+            _future_confidence_components: leader.future_confidence_components || strat.future_confidence_components || leader.edge_confidence_components || strat.edge_confidence_components || null,
+            _trust_components: leader.trust_components || strat.trust_components || leader.capital_readiness_components || strat.capital_readiness_components || null,
             _family_label: leader.family,
             _family_size: leader.family_size,
             _family_confidence_rank: leader.rank,
@@ -644,7 +657,7 @@
       const familyMode = _leaderboardView === "family";
       const admission = familyMode ? familyConfidenceLabel(confidence) : admissionLabel(confidence);
       const confidenceTitle = familyMode
-        ? "Edge Confidence: calibrated/provisional estimate of future usefulness. Capital Readiness is shown in the detail panel."
+        ? "Overall Confidence combines Future Confidence and Trust. Subscores are shown in the detail panel."
         : CONFIDENCE_KEY.label;
       const cert = s.gold_status ? "G" : s.certified_not_overfit ? "✓" : "·";
       const certTitle = s.gold_status
@@ -769,11 +782,16 @@
     tierBadge.dataset.tip = "Validation tier. T0 = hand-authored canonical params (light pipeline). T1 = hand-authored + canonical grid (medium). T2 = GA-tuned or optimizer-discovered (full statistical stack).";
     meta.appendChild(tierBadge);
     meta.appendChild(makeBadge(s.gold_status ? "Gold Status" : "Not Gold", s.gold_status ? "ok gold" : "warn"));
-    if (s.edge_confidence != null) {
-      meta.appendChild(makeBadge(`edge ${fmtNum(s.edge_confidence * 100, 1)}`, s.edge_confidence >= 0.65 ? "ok" : "warn"));
+    if (s.overall_confidence != null) {
+      meta.appendChild(makeBadge(`overall ${fmtNum(s.overall_confidence * 100, 1)}`, s.overall_confidence >= 0.65 ? "ok" : "warn"));
     }
-    if (s.capital_readiness != null) {
-      meta.appendChild(makeBadge(`capital ${fmtNum(s.capital_readiness * 100, 1)}`, s.capital_readiness >= 0.65 ? "ok" : "warn"));
+    if ((s.future_confidence ?? s.edge_confidence) != null) {
+      const future = s.future_confidence ?? s.edge_confidence;
+      meta.appendChild(makeBadge(`future ${fmtNum(future * 100, 1)}`, future >= 0.65 ? "ok" : "warn"));
+    }
+    if ((s.trust ?? s.capital_readiness) != null) {
+      const trust = s.trust ?? s.capital_readiness;
+      meta.appendChild(makeBadge(`trust ${fmtNum(trust * 100, 1)}`, trust >= 0.65 ? "ok" : "warn"));
     }
     if (s.family_size && s.family_size > 1) {
       meta.appendChild(makeBadge(`family ${s.family_rank}/${s.family_size}`, s.family_leader ? "ok" : "warn"));
@@ -805,8 +823,9 @@
     addMetric(metricsEl, "Bear avoidance", fmtPct(m.bear_avoidance * 100));
     addMetric(metricsEl, "Marker alignment", fmtNum(m.marker_alignment, 3), "", "State-agreement % vs the hand-marked buy/sell cycle file (north-star). 1 = perfectly mirrors Max's hindsight-perfect timing.");
     addMetric(metricsEl, "HHI (concentration)", fmtNum(m.hhi, 3), "", "Herfindahl index of per-trade PnL contribution. Low (0.05-0.15) = diversified across many trades. High (>0.3) = one lucky trade carries the result. Lower is better.");
-    addMetric(metricsEl, "Edge Confidence", s.edge_confidence == null ? "—" : fmtNum(s.edge_confidence * 100, 1), "", "Confidence v2 estimate of future usefulness. Diagnostic-only; Gold Status still controls leaderboard admission.");
-    addMetric(metricsEl, "Capital Readiness", s.capital_readiness == null ? "—" : fmtNum(s.capital_readiness * 100, 1), "", "Deployment suitability after edge: drawdown, redundancy, parameter parsimony, artifact cleanliness, and live degradation.");
+    addMetric(metricsEl, "Overall Confidence", s.overall_confidence == null ? "—" : fmtNum(s.overall_confidence * 100, 1), "", "Confidence v2 super score combining Future Confidence and Trust. Diagnostic-only; Gold Status still controls leaderboard admission.");
+    addMetric(metricsEl, "Future Confidence", (s.future_confidence ?? s.edge_confidence) == null ? "—" : fmtNum((s.future_confidence ?? s.edge_confidence) * 100, 1), "", "Estimate of future usefulness based on validation quality, forward-edge evidence, robustness, charter fit, search deflation, and calibration.");
+    addMetric(metricsEl, "Trust", (s.trust ?? s.capital_readiness) == null ? "—" : fmtNum((s.trust ?? s.capital_readiness) * 100, 1), "", "Deployment suitability after future confidence: drawdown, redundancy, parameter parsimony, artifact cleanliness, and live degradation.");
     addMetric(metricsEl, "Validation Composite", s.composite_confidence == null ? "—" : fmtNum(s.composite_confidence * 100, 1), "", "Legacy validation-stack composite. Kept as a diagnostic, not the Confidence v2 capital metric.");
 
     // Era breakdown — dual view for "crash insurance vs modern participation"
