@@ -25,33 +25,32 @@
   },
   "shortlist": [
     {
-      "rank": 2,
-      "display_name": "Dusky Osprey",
-      "strategy": "gc_vjatr_reclaimer",
+      "rank": 1,
+      "display_name": "Cerulean Hare #1",
+      "strategy": "gold_hybrid_committee",
       "metrics": {
-        "trades": 17,
-        "trades_yr": 0.5,
-        "n_params": 17,
-        "share_multiple": 41.8867,
-        "real_share_multiple": 1.0319,
-        "modern_share_multiple": 2.5711,
-        "cagr": 30.0,
-        "max_dd": 51.5,
-        "mar": 0.583,
-        "regime_score": 0.5564,
+        "trades": 19,
+        "trades_yr": 0.6,
+        "n_params": 53,
+        "share_multiple": 30.4933,
+        "real_share_multiple": 1.3324,
+        "modern_share_multiple": 3.32,
+        "cagr": 28.76,
+        "max_dd": 65.8,
+        "mar": 0.437,
+        "regime_score": 0.5555,
         "hhi": 0.0872,
         "bull_capture": 0.27,
-        "bear_avoidance": 0.8428,
-        "win_rate": 70.6,
+        "bear_avoidance": 0.841,
+        "win_rate": 68.4,
         "exit_reasons": {
-          "A": 8,
-          "D": 6,
-          "V": 3
+          "COM": 18,
+          "End of Data": 1
         }
       }
     },
     {
-      "rank": 12,
+      "rank": 2,
       "display_name": "Marbled Bonobo",
       "strategy": "gc_vjatr",
       "metrics": {
@@ -78,7 +77,7 @@
       }
     },
     {
-      "rank": 18,
+      "rank": 6,
       "display_name": "Ivory Hare",
       "strategy": "gc_vjatr_timing_repair",
       "metrics": {
@@ -103,36 +102,10 @@
           "End of Data": 1
         }
       }
-    },
-    {
-      "rank": 14,
-      "display_name": "Russet Bonobo #1",
-      "strategy": "gc_vjatr",
-      "metrics": {
-        "trades": 16,
-        "trades_yr": 0.5,
-        "n_params": 8,
-        "share_multiple": 15.7149,
-        "real_share_multiple": 1.0276,
-        "modern_share_multiple": 2.4661,
-        "cagr": 26.2,
-        "max_dd": 51.5,
-        "mar": 0.509,
-        "regime_score": 0.5428,
-        "hhi": 0.0939,
-        "bull_capture": 0.132,
-        "bear_avoidance": 0.9537,
-        "win_rate": 68.8,
-        "exit_reasons": {
-          "A": 8,
-          "D": 6,
-          "V": 2
-        }
-      }
     }
   ],
   "source_policy": {
-    "include_hybrids": false
+    "include_hybrids": true
   },
   "rows": [
     {
@@ -140,7 +113,7 @@
       "mode": "equal",
       "threshold": 2.0,
       "members": [
-        "Dusky Osprey",
+        "Cerulean Hare #1",
         "Marbled Bonobo",
         "Ivory Hare"
       ],
@@ -154,7 +127,7 @@
         "trades_per_year": 0.6,
         "max_drawdown_pct": 64.4,
         "marker_score": 0.6527,
-        "marker_timing": 0.3099
+        "marker_timing": 0.3102
       },
       "vs_champion": {
         "full_ratio": 0.6955,
@@ -167,7 +140,7 @@
       "mode": "confidence",
       "threshold": 0.5,
       "members": [
-        "Dusky Osprey",
+        "Cerulean Hare #1",
         "Marbled Bonobo",
         "Ivory Hare"
       ],
@@ -181,7 +154,7 @@
         "trades_per_year": 0.6,
         "max_drawdown_pct": 64.4,
         "marker_score": 0.6527,
-        "marker_timing": 0.3099
+        "marker_timing": 0.3102
       },
       "vs_champion": {
         "full_ratio": 0.6955,
@@ -194,7 +167,7 @@
       "mode": "performance",
       "threshold": 0.5,
       "members": [
-        "Dusky Osprey",
+        "Cerulean Hare #1",
         "Marbled Bonobo",
         "Ivory Hare"
       ],
@@ -208,7 +181,7 @@
         "trades_per_year": 0.6,
         "max_drawdown_pct": 64.4,
         "marker_score": 0.6527,
-        "marker_timing": 0.3099
+        "marker_timing": 0.3102
       },
       "vs_champion": {
         "full_ratio": 0.6955,
@@ -221,7 +194,7 @@
       "mode": "confidence",
       "threshold": 0.6,
       "members": [
-        "Dusky Osprey",
+        "Cerulean Hare #1",
         "Marbled Bonobo",
         "Ivory Hare"
       ],
@@ -235,7 +208,7 @@
         "trades_per_year": 0.6,
         "max_drawdown_pct": 64.4,
         "marker_score": 0.6527,
-        "marker_timing": 0.3099
+        "marker_timing": 0.3102
       },
       "vs_champion": {
         "full_ratio": 0.6955,
@@ -244,11 +217,11 @@
       }
     },
     {
-      "label": "conf0.67",
-      "mode": "confidence",
-      "threshold": 0.67,
+      "label": "perf0.60",
+      "mode": "performance",
+      "threshold": 0.6,
       "members": [
-        "Dusky Osprey",
+        "Cerulean Hare #1",
         "Marbled Bonobo",
         "Ivory Hare"
       ],
@@ -262,7 +235,7 @@
         "trades_per_year": 0.6,
         "max_drawdown_pct": 64.4,
         "marker_score": 0.6527,
-        "marker_timing": 0.3099
+        "marker_timing": 0.3102
       },
       "vs_champion": {
         "full_ratio": 0.6955,
@@ -271,14 +244,13 @@
       }
     },
     {
-      "label": "conf0.50",
+      "label": "conf0.67",
       "mode": "confidence",
-      "threshold": 0.5,
+      "threshold": 0.67,
       "members": [
-        "Dusky Osprey",
+        "Cerulean Hare #1",
         "Marbled Bonobo",
-        "Ivory Hare",
-        "Russet Bonobo #1"
+        "Ivory Hare"
       ],
       "all_era_ok": true,
       "metrics": {
@@ -290,7 +262,7 @@
         "trades_per_year": 0.6,
         "max_drawdown_pct": 64.4,
         "marker_score": 0.6527,
-        "marker_timing": 0.3099
+        "marker_timing": 0.3102
       },
       "vs_champion": {
         "full_ratio": 0.6955,
@@ -299,820 +271,30 @@
       }
     },
     {
-      "label": "conf0.67",
-      "mode": "confidence",
+      "label": "perf0.67",
+      "mode": "performance",
       "threshold": 0.67,
       "members": [
+        "Cerulean Hare #1",
         "Marbled Bonobo",
-        "Ivory Hare",
-        "Russet Bonobo #1"
+        "Ivory Hare"
       ],
       "all_era_ok": true,
       "metrics": {
-        "fitness": 2.7312,
-        "share_multiple": 10.8254,
-        "real_share_multiple": 1.7183,
-        "modern_share_multiple": 2.348,
-        "trades": 18,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 64.4,
-        "marker_score": 0.6618,
-        "marker_timing": 0.3134
-      },
-      "vs_champion": {
-        "full_ratio": 0.355,
-        "real_ratio": 1.2896,
-        "modern_ratio": 0.7072
-      }
-    },
-    {
-      "label": "2of4",
-      "mode": "equal",
-      "threshold": 2.0,
-      "members": [
-        "Dusky Osprey",
-        "Marbled Bonobo",
-        "Ivory Hare",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.7255,
-        "share_multiple": 19.5377,
+        "fitness": 2.7592,
+        "share_multiple": 21.2083,
         "real_share_multiple": 1.3339,
         "modern_share_multiple": 2.2433,
         "trades": 19,
         "trades_per_year": 0.6,
-        "max_drawdown_pct": 67.2,
-        "marker_score": 0.653,
-        "marker_timing": 0.3099
+        "max_drawdown_pct": 64.4,
+        "marker_score": 0.6527,
+        "marker_timing": 0.3102
       },
       "vs_champion": {
-        "full_ratio": 0.6407,
+        "full_ratio": 0.6955,
         "real_ratio": 1.0011,
         "modern_ratio": 0.6757
-      }
-    },
-    {
-      "label": "2of3",
-      "mode": "equal",
-      "threshold": 2.0,
-      "members": [
-        "Marbled Bonobo",
-        "Ivory Hare",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.6978,
-        "share_multiple": 9.9726,
-        "real_share_multiple": 1.7183,
-        "modern_share_multiple": 2.348,
-        "trades": 18,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 67.2,
-        "marker_score": 0.6622,
-        "marker_timing": 0.3134
-      },
-      "vs_champion": {
-        "full_ratio": 0.327,
-        "real_ratio": 1.2896,
-        "modern_ratio": 0.7072
-      }
-    },
-    {
-      "label": "conf0.50",
-      "mode": "confidence",
-      "threshold": 0.5,
-      "members": [
-        "Marbled Bonobo",
-        "Ivory Hare",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.6978,
-        "share_multiple": 9.9726,
-        "real_share_multiple": 1.7183,
-        "modern_share_multiple": 2.348,
-        "trades": 18,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 67.2,
-        "marker_score": 0.6622,
-        "marker_timing": 0.3134
-      },
-      "vs_champion": {
-        "full_ratio": 0.327,
-        "real_ratio": 1.2896,
-        "modern_ratio": 0.7072
-      }
-    },
-    {
-      "label": "perf0.50",
-      "mode": "performance",
-      "threshold": 0.5,
-      "members": [
-        "Marbled Bonobo",
-        "Ivory Hare",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.6978,
-        "share_multiple": 9.9726,
-        "real_share_multiple": 1.7183,
-        "modern_share_multiple": 2.348,
-        "trades": 18,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 67.2,
-        "marker_score": 0.6622,
-        "marker_timing": 0.3134
-      },
-      "vs_champion": {
-        "full_ratio": 0.327,
-        "real_ratio": 1.2896,
-        "modern_ratio": 0.7072
-      }
-    },
-    {
-      "label": "conf0.60",
-      "mode": "confidence",
-      "threshold": 0.6,
-      "members": [
-        "Marbled Bonobo",
-        "Ivory Hare",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.6978,
-        "share_multiple": 9.9726,
-        "real_share_multiple": 1.7183,
-        "modern_share_multiple": 2.348,
-        "trades": 18,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 67.2,
-        "marker_score": 0.6622,
-        "marker_timing": 0.3134
-      },
-      "vs_champion": {
-        "full_ratio": 0.327,
-        "real_ratio": 1.2896,
-        "modern_ratio": 0.7072
-      }
-    },
-    {
-      "label": "perf0.60",
-      "mode": "performance",
-      "threshold": 0.6,
-      "members": [
-        "Marbled Bonobo",
-        "Ivory Hare",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.6978,
-        "share_multiple": 9.9726,
-        "real_share_multiple": 1.7183,
-        "modern_share_multiple": 2.348,
-        "trades": 18,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 67.2,
-        "marker_score": 0.6622,
-        "marker_timing": 0.3134
-      },
-      "vs_champion": {
-        "full_ratio": 0.327,
-        "real_ratio": 1.2896,
-        "modern_ratio": 0.7072
-      }
-    },
-    {
-      "label": "perf0.60",
-      "mode": "performance",
-      "threshold": 0.6,
-      "members": [
-        "Dusky Osprey",
-        "Marbled Bonobo",
-        "Ivory Hare"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.3405,
-        "share_multiple": 30.1345,
-        "real_share_multiple": 1.033,
-        "modern_share_multiple": 1.7373,
-        "trades": 17,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6729,
-        "marker_timing": 0.3099
-      },
-      "vs_champion": {
-        "full_ratio": 0.9882,
-        "real_ratio": 0.7753,
-        "modern_ratio": 0.5233
-      }
-    },
-    {
-      "label": "perf0.67",
-      "mode": "performance",
-      "threshold": 0.67,
-      "members": [
-        "Dusky Osprey",
-        "Marbled Bonobo",
-        "Ivory Hare"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.3405,
-        "share_multiple": 30.1345,
-        "real_share_multiple": 1.033,
-        "modern_share_multiple": 1.7373,
-        "trades": 17,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6729,
-        "marker_timing": 0.3099
-      },
-      "vs_champion": {
-        "full_ratio": 0.9882,
-        "real_ratio": 0.7753,
-        "modern_ratio": 0.5233
-      }
-    },
-    {
-      "label": "2of3",
-      "mode": "equal",
-      "threshold": 2.0,
-      "members": [
-        "Dusky Osprey",
-        "Ivory Hare",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.3405,
-        "share_multiple": 30.1345,
-        "real_share_multiple": 1.033,
-        "modern_share_multiple": 1.7373,
-        "trades": 17,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6729,
-        "marker_timing": 0.3099
-      },
-      "vs_champion": {
-        "full_ratio": 0.9882,
-        "real_ratio": 0.7753,
-        "modern_ratio": 0.5233
-      }
-    },
-    {
-      "label": "conf0.50",
-      "mode": "confidence",
-      "threshold": 0.5,
-      "members": [
-        "Dusky Osprey",
-        "Ivory Hare",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.3405,
-        "share_multiple": 30.1345,
-        "real_share_multiple": 1.033,
-        "modern_share_multiple": 1.7373,
-        "trades": 17,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6729,
-        "marker_timing": 0.3099
-      },
-      "vs_champion": {
-        "full_ratio": 0.9882,
-        "real_ratio": 0.7753,
-        "modern_ratio": 0.5233
-      }
-    },
-    {
-      "label": "perf0.50",
-      "mode": "performance",
-      "threshold": 0.5,
-      "members": [
-        "Dusky Osprey",
-        "Ivory Hare",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.3405,
-        "share_multiple": 30.1345,
-        "real_share_multiple": 1.033,
-        "modern_share_multiple": 1.7373,
-        "trades": 17,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6729,
-        "marker_timing": 0.3099
-      },
-      "vs_champion": {
-        "full_ratio": 0.9882,
-        "real_ratio": 0.7753,
-        "modern_ratio": 0.5233
-      }
-    },
-    {
-      "label": "conf0.60",
-      "mode": "confidence",
-      "threshold": 0.6,
-      "members": [
-        "Dusky Osprey",
-        "Ivory Hare",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.3405,
-        "share_multiple": 30.1345,
-        "real_share_multiple": 1.033,
-        "modern_share_multiple": 1.7373,
-        "trades": 17,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6729,
-        "marker_timing": 0.3099
-      },
-      "vs_champion": {
-        "full_ratio": 0.9882,
-        "real_ratio": 0.7753,
-        "modern_ratio": 0.5233
-      }
-    },
-    {
-      "label": "perf0.60",
-      "mode": "performance",
-      "threshold": 0.6,
-      "members": [
-        "Dusky Osprey",
-        "Ivory Hare",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.3405,
-        "share_multiple": 30.1345,
-        "real_share_multiple": 1.033,
-        "modern_share_multiple": 1.7373,
-        "trades": 17,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6729,
-        "marker_timing": 0.3099
-      },
-      "vs_champion": {
-        "full_ratio": 0.9882,
-        "real_ratio": 0.7753,
-        "modern_ratio": 0.5233
-      }
-    },
-    {
-      "label": "conf0.67",
-      "mode": "confidence",
-      "threshold": 0.67,
-      "members": [
-        "Dusky Osprey",
-        "Ivory Hare",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.3405,
-        "share_multiple": 30.1345,
-        "real_share_multiple": 1.033,
-        "modern_share_multiple": 1.7373,
-        "trades": 17,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6729,
-        "marker_timing": 0.3099
-      },
-      "vs_champion": {
-        "full_ratio": 0.9882,
-        "real_ratio": 0.7753,
-        "modern_ratio": 0.5233
-      }
-    },
-    {
-      "label": "perf0.67",
-      "mode": "performance",
-      "threshold": 0.67,
-      "members": [
-        "Dusky Osprey",
-        "Ivory Hare",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.3405,
-        "share_multiple": 30.1345,
-        "real_share_multiple": 1.033,
-        "modern_share_multiple": 1.7373,
-        "trades": 17,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6729,
-        "marker_timing": 0.3099
-      },
-      "vs_champion": {
-        "full_ratio": 0.9882,
-        "real_ratio": 0.7753,
-        "modern_ratio": 0.5233
-      }
-    },
-    {
-      "label": "perf0.50",
-      "mode": "performance",
-      "threshold": 0.5,
-      "members": [
-        "Dusky Osprey",
-        "Marbled Bonobo",
-        "Ivory Hare",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.3405,
-        "share_multiple": 30.1345,
-        "real_share_multiple": 1.033,
-        "modern_share_multiple": 1.7373,
-        "trades": 17,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6729,
-        "marker_timing": 0.3099
-      },
-      "vs_champion": {
-        "full_ratio": 0.9882,
-        "real_ratio": 0.7753,
-        "modern_ratio": 0.5233
-      }
-    },
-    {
-      "label": "perf0.60",
-      "mode": "performance",
-      "threshold": 0.6,
-      "members": [
-        "Dusky Osprey",
-        "Marbled Bonobo",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.3168,
-        "share_multiple": 15.3816,
-        "real_share_multiple": 1.3308,
-        "modern_share_multiple": 1.8184,
-        "trades": 16,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6821,
-        "marker_timing": 0.3134
-      },
-      "vs_champion": {
-        "full_ratio": 0.5044,
-        "real_ratio": 0.9988,
-        "modern_ratio": 0.5477
-      }
-    },
-    {
-      "label": "perf0.67",
-      "mode": "performance",
-      "threshold": 0.67,
-      "members": [
-        "Dusky Osprey",
-        "Marbled Bonobo",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.3168,
-        "share_multiple": 15.3816,
-        "real_share_multiple": 1.3308,
-        "modern_share_multiple": 1.8184,
-        "trades": 16,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6821,
-        "marker_timing": 0.3134
-      },
-      "vs_champion": {
-        "full_ratio": 0.5044,
-        "real_ratio": 0.9988,
-        "modern_ratio": 0.5477
-      }
-    },
-    {
-      "label": "3of4",
-      "mode": "equal",
-      "threshold": 3.0,
-      "members": [
-        "Dusky Osprey",
-        "Marbled Bonobo",
-        "Ivory Hare",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.3168,
-        "share_multiple": 15.3816,
-        "real_share_multiple": 1.3308,
-        "modern_share_multiple": 1.8184,
-        "trades": 16,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6821,
-        "marker_timing": 0.3134
-      },
-      "vs_champion": {
-        "full_ratio": 0.5044,
-        "real_ratio": 0.9988,
-        "modern_ratio": 0.5477
-      }
-    },
-    {
-      "label": "conf0.60",
-      "mode": "confidence",
-      "threshold": 0.6,
-      "members": [
-        "Dusky Osprey",
-        "Marbled Bonobo",
-        "Ivory Hare",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.3168,
-        "share_multiple": 15.3816,
-        "real_share_multiple": 1.3308,
-        "modern_share_multiple": 1.8184,
-        "trades": 16,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6821,
-        "marker_timing": 0.3134
-      },
-      "vs_champion": {
-        "full_ratio": 0.5044,
-        "real_ratio": 0.9988,
-        "modern_ratio": 0.5477
-      }
-    },
-    {
-      "label": "perf0.60",
-      "mode": "performance",
-      "threshold": 0.6,
-      "members": [
-        "Dusky Osprey",
-        "Marbled Bonobo",
-        "Ivory Hare",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.3168,
-        "share_multiple": 15.3816,
-        "real_share_multiple": 1.3308,
-        "modern_share_multiple": 1.8184,
-        "trades": 16,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6821,
-        "marker_timing": 0.3134
-      },
-      "vs_champion": {
-        "full_ratio": 0.5044,
-        "real_ratio": 0.9988,
-        "modern_ratio": 0.5477
-      }
-    },
-    {
-      "label": "conf0.67",
-      "mode": "confidence",
-      "threshold": 0.67,
-      "members": [
-        "Dusky Osprey",
-        "Marbled Bonobo",
-        "Ivory Hare",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.3168,
-        "share_multiple": 15.3816,
-        "real_share_multiple": 1.3308,
-        "modern_share_multiple": 1.8184,
-        "trades": 16,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6821,
-        "marker_timing": 0.3134
-      },
-      "vs_champion": {
-        "full_ratio": 0.5044,
-        "real_ratio": 0.9988,
-        "modern_ratio": 0.5477
-      }
-    },
-    {
-      "label": "perf0.67",
-      "mode": "performance",
-      "threshold": 0.67,
-      "members": [
-        "Dusky Osprey",
-        "Marbled Bonobo",
-        "Ivory Hare",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.3168,
-        "share_multiple": 15.3816,
-        "real_share_multiple": 1.3308,
-        "modern_share_multiple": 1.8184,
-        "trades": 16,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6821,
-        "marker_timing": 0.3134
-      },
-      "vs_champion": {
-        "full_ratio": 0.5044,
-        "real_ratio": 0.9988,
-        "modern_ratio": 0.5477
-      }
-    },
-    {
-      "label": "2of3",
-      "mode": "equal",
-      "threshold": 2.0,
-      "members": [
-        "Dusky Osprey",
-        "Marbled Bonobo",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.2885,
-        "share_multiple": 14.17,
-        "real_share_multiple": 1.3308,
-        "modern_share_multiple": 1.8184,
-        "trades": 16,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6824,
-        "marker_timing": 0.3134
-      },
-      "vs_champion": {
-        "full_ratio": 0.4647,
-        "real_ratio": 0.9988,
-        "modern_ratio": 0.5477
-      }
-    },
-    {
-      "label": "conf0.50",
-      "mode": "confidence",
-      "threshold": 0.5,
-      "members": [
-        "Dusky Osprey",
-        "Marbled Bonobo",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.2885,
-        "share_multiple": 14.17,
-        "real_share_multiple": 1.3308,
-        "modern_share_multiple": 1.8184,
-        "trades": 16,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6824,
-        "marker_timing": 0.3134
-      },
-      "vs_champion": {
-        "full_ratio": 0.4647,
-        "real_ratio": 0.9988,
-        "modern_ratio": 0.5477
-      }
-    },
-    {
-      "label": "perf0.50",
-      "mode": "performance",
-      "threshold": 0.5,
-      "members": [
-        "Dusky Osprey",
-        "Marbled Bonobo",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.2885,
-        "share_multiple": 14.17,
-        "real_share_multiple": 1.3308,
-        "modern_share_multiple": 1.8184,
-        "trades": 16,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6824,
-        "marker_timing": 0.3134
-      },
-      "vs_champion": {
-        "full_ratio": 0.4647,
-        "real_ratio": 0.9988,
-        "modern_ratio": 0.5477
-      }
-    },
-    {
-      "label": "conf0.60",
-      "mode": "confidence",
-      "threshold": 0.6,
-      "members": [
-        "Dusky Osprey",
-        "Marbled Bonobo",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.2885,
-        "share_multiple": 14.17,
-        "real_share_multiple": 1.3308,
-        "modern_share_multiple": 1.8184,
-        "trades": 16,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6824,
-        "marker_timing": 0.3134
-      },
-      "vs_champion": {
-        "full_ratio": 0.4647,
-        "real_ratio": 0.9988,
-        "modern_ratio": 0.5477
-      }
-    },
-    {
-      "label": "conf0.67",
-      "mode": "confidence",
-      "threshold": 0.67,
-      "members": [
-        "Dusky Osprey",
-        "Marbled Bonobo",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.1375,
-        "share_multiple": 15.0419,
-        "real_share_multiple": 1.2085,
-        "modern_share_multiple": 1.6644,
-        "trades": 16,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6743,
-        "marker_timing": 0.3138
-      },
-      "vs_champion": {
-        "full_ratio": 0.4933,
-        "real_ratio": 0.907,
-        "modern_ratio": 0.5013
-      }
-    },
-    {
-      "label": "perf0.67",
-      "mode": "performance",
-      "threshold": 0.67,
-      "members": [
-        "Marbled Bonobo",
-        "Ivory Hare",
-        "Russet Bonobo #1"
-      ],
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.1114,
-        "share_multiple": 13.857,
-        "real_share_multiple": 1.2085,
-        "modern_share_multiple": 1.6644,
-        "trades": 16,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 52.1,
-        "marker_score": 0.6747,
-        "marker_timing": 0.3138
-      },
-      "vs_champion": {
-        "full_ratio": 0.4544,
-        "real_ratio": 0.907,
-        "modern_ratio": 0.5013
       }
     }
   ]

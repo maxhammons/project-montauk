@@ -45,10 +45,25 @@ Current structure:
 
 Open work:
 
-- audit whether `selection_bias` should become stronger for heavily searched families
-- decide whether confidence should include a family-diversity or duplicate-signal penalty
-- document any change in `docs/validation-thresholds.md` before reranking
-- recertify the leaderboard after any scoring-weight change
+- monitor whether `future_confidence` is too punitive to complex but explicit
+  committee strategies
+- compare `future_confidence` drift after each data refresh before changing the
+  underlying certification score
+- recertify the leaderboard before changing `validation.composite_confidence`
+  itself
+
+2026-05-01 update:
+
+- `validation.composite_confidence` remains the certification score
+- `runs/family_confidence_leaderboard.json` now ranks family representatives by
+  `future_confidence`, a stricter Gold-only score that discounts weak evidence
+  planks, era imbalance, drawdown, parameter sprawl, duplicate signals, family
+  crowding, and validation warnings
+- the viz Family tab uses this stricter future-confidence rank while the Full
+  leaderboard keeps the canonical certification confidence
+- after refreshing data through 2026-05-01, the authority leaderboard compressed
+  from 20 rows to 8 Gold rows because several Osprey/reclaimer and Bonobo rows
+  no longer beat B&H in every canonical era
 
 ### 3. Build And Use A Family Confidence Leaderboard
 
@@ -60,10 +75,10 @@ Rules:
 
 - load only Gold Status rows from `spike/leaderboard.json`
 - group by strategy family first (`strategy` field)
-- choose the highest-confidence row in each family
+- choose the highest-`future_confidence` row in each family
 - tie-break by all-era score, then fitness, then real/modern share multiples
 - emit a JSON artifact under `runs/`
-- optionally add a viz view once the report format is stable
+- expose Full leaderboard / Family leaders tabs in the viz
 
 ### 4. Continue Hybrid Strategy Research
 
@@ -86,6 +101,19 @@ Next checks:
 - entry/exit switchboard and overlay variants improved marker timing, but gave up too much share performance and had unacceptable drawdown, so they should stay research-only
 - `gold_diversity_report.py` showed 20 Gold rows compress to about 2.74 effective strategy families
 - `family_confidence_leaderboard.py` now emits one-row-per-family confidence rankings to `runs/family_confidence_leaderboard.json`
+
+2026-05-01 run notes:
+
+- current Gold rows form three strategy families: hybrid committee, Bonobo, and
+  timing-repair Hare
+- the stricter family board ranks Marbled Bonobo first by future confidence
+  (69.9), then Cerulean Hare #1 (66.4), then timing-repair Hare (19.5)
+- the timing-repair family remains Gold but scores poorly on future confidence
+  because max drawdown is still the dominant weak plank
+- `gold_hybrid_lab.py --validate` passed 5/5 quick-validation candidates; the
+  best new committee variants (`family_committee_0.60` / `0.67`) improve real
+  and modern share multiples versus the current champion but give up full-history
+  share multiple
 
 ### 5. Validation Pipeline Cleanup
 

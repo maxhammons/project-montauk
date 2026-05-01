@@ -535,8 +535,13 @@
         .map((leader) => {
           const strat = findStrategyForFamilyLeader(leader);
           if (!strat) return null;
+          const futureConfidence = leader.future_confidence ?? leader.confidence;
           return {
             ...strat,
+            composite_confidence: futureConfidence ?? strat.composite_confidence,
+            _future_confidence: futureConfidence,
+            _validation_confidence: leader.validation_confidence ?? strat.composite_confidence,
+            _confidence_components: leader.confidence_components || null,
             _family_label: leader.family,
             _family_size: leader.family_size,
             _family_confidence_rank: leader.rank,
@@ -585,6 +590,13 @@
     return { tag: "RESEARCH", cls: "research" };
   }
 
+  function familyConfidenceLabel(confidence) {
+    if (confidence == null) return { tag: "—", cls: "unknown" };
+    if (confidence >= 0.70) return { tag: "ROBUST", cls: "admitted" };
+    if (confidence >= 0.60) return { tag: "WATCH", cls: "watchlist" };
+    return { tag: "FRAGILE", cls: "research" };
+  }
+
   /* ---- Secondary share-multiple sources ---- */
   // Uses the same multi_era era breakdown the right panel shows, so the two
   // views always agree.
@@ -615,7 +627,11 @@
       const sm = s.metrics?.share_multiple;
       const confidence = CONFIDENCE_KEY.extract(s);
       const confStr = CONFIDENCE_KEY.format(confidence);
-      const admission = admissionLabel(confidence);
+      const familyMode = _leaderboardView === "family";
+      const admission = familyMode ? familyConfidenceLabel(confidence) : admissionLabel(confidence);
+      const confidenceTitle = familyMode
+        ? "Future confidence: validation confidence discounted for weak evidence, era imbalance, drawdown, complexity, duplicate signals, family crowding, and warnings"
+        : CONFIDENCE_KEY.label;
       const cert = s.gold_status ? "G" : s.certified_not_overfit ? "✓" : "·";
       const certTitle = s.gold_status
         ? "Gold Status: certified, artifact-backed, and beats B&H in all eras"
@@ -624,7 +640,6 @@
           : "not verified not overfit";
       const manual = s.manually_admitted ? '<span class="manual-flag" title="manually admitted — see spirit-memory/decisions.md 2026-04-20-a">★</span>' : "";
       const displayRank = idx + 1;
-      const familyMode = _leaderboardView === "family";
       const rankLabel = familyMode
         ? `#${displayRank}<span class="orig-rank" title="Original full leaderboard rank">LB #${s.rank}</span>`
         : `#${displayRank}`;
@@ -635,16 +650,16 @@
       const secondaryStr = secondaryVal == null ? "— " + secondaryDef.label : `${fmtMult(secondaryVal)} ${secondaryDef.label}`;
       const secondaryTip = `${secondaryDef.tooltip} Value shown: ${secondaryVal == null ? "not available for this strategy" : fmtMult(secondaryVal)}.`;
       const familyTag = familyMode
-        ? `<span class="family" title="Strategy family representative selected by confidence">${escapeHtml(s._family_label || s.codename)} · ${s._family_size || 1}</span>`
+        ? `<span class="family" title="Strategy family representative selected by future confidence">${escapeHtml(s._family_label || s.codename)} · ${s._family_size || 1}</span>`
         : s.family_size && s.family_size > 1
         ? `<span class="family" title="Gold sibling ${s.family_rank} of ${s.family_size} within ${escapeHtml(s.codename)}">F${s.family_rank}/${s.family_size}</span>`
         : "";
       div.innerHTML = `
         <div class="row1">
-          <span class="rank" title="${CONFIDENCE_KEY.label}">${rankLabel}${manual}</span>
+          <span class="rank" title="${escapeHtml(confidenceTitle)}">${rankLabel}${manual}</span>
           <span class="name">${escapeHtml(s.name)}</span>
           <span class="metric-col">
-            <span class="fitness" title="${CONFIDENCE_KEY.label}">${confStr}</span>
+            <span class="fitness" title="${escapeHtml(confidenceTitle)}">${confStr}</span>
             <span class="${secondaryCls}" title="${escapeHtml(secondaryTip)}">${secondaryStr}</span>
           </span>
         </div>

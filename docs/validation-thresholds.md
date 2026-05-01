@@ -92,6 +92,31 @@ admits only Gold Status rows.
 
 **Note:** `cross_asset` was removed from the composite in 2026-04-21 after the gc_vjatr finding. It was penalizing TECL-specific era winners for non-portability to TQQQ, which contradicts the charter's TECL-only design intent. The sub-score is still computed in Gate 6 and surfaced in the validation output for diagnostic purposes but does not factor into `composite_confidence`.
 
+### Family-board future confidence
+
+`composite_confidence` remains the validation/certification score. The family
+leaderboard adds a stricter selection score, `future_confidence`, for choosing
+one representative per family. This score is not a replacement for validation;
+it is a Gold-only ranking overlay. Non-Gold rows still cannot appear.
+
+`future_confidence` is a weighted geometric mean over:
+
+| Component | Weight | Meaning |
+|---|:-:|---|
+| `validation_confidence` | 0.35 | Existing `validation.composite_confidence` |
+| `evidence_floor` | 0.18 | Blend of weakest and 20th-percentile validation sub-scores |
+| `era_balance` | 0.14 | All-era outperformance floor plus real/modern symmetry |
+| `drawdown_resilience` | 0.10 | Penalizes high max drawdown |
+| `parameter_parsimony` | 0.08 | Penalizes large parameter surfaces and committee sprawl |
+| `duplicate_signal` | 0.07 | Penalizes near-identical risk-state and entry/exit behavior |
+| `family_crowding` | 0.05 | Mild discount for crowded sibling clusters |
+| `warning_cleanliness` | 0.03 | Mild discount for soft/critical validation warnings |
+
+This deliberately makes the family board more conservative than the full
+authority leaderboard. A high `future_confidence` row must be Gold, pass the
+normal validation stack, avoid relying on one very weak evidence plank, hold up
+across eras, and not merely duplicate an already-crowded signal cluster.
+
 ### Effective weights per tier (after renormalization)
 
 | Sub-score | T0 effective | T1 effective | T2 effective |
@@ -275,5 +300,5 @@ A strategy that scores weakly across multiple overfit-sensitive sub-scores will 
 
 ---
 
-*Last updated: 2026-04-21*
+*Last updated: 2026-05-01*
 *Source of truth: `scripts/validation/pipeline.py`, `scripts/validation/candidate.py`, `scripts/validation/uncertainty.py`, `scripts/strategies/markers.py`*
