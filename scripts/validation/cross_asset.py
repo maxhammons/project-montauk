@@ -32,8 +32,14 @@ def cross_asset_validate(
     """
     Run a strategy on multiple assets with the same params.
 
-    Returns dict with per-asset metrics:
-      {asset_name: {share_multiple, cagr, max_dd, trades, trades_yr, win_rate}}
+    Returns dict of the form:
+      {
+        "strategy": str,
+        "params": dict,
+        "results": {asset_name: {share_multiple, cagr, max_dd, trades,
+                                 trades_yr, win_rate, exit_reasons}},
+      }
+    On per-asset failure, the asset entry is {"error": str}.
     """
     if assets is None:
         assets = ["TECL", "TQQQ", "QQQ"]
@@ -155,15 +161,19 @@ def cross_asset_reoptimize(
     if not result["rankings"]:
         return {
             "strategy": strategy_name,
+            "asset": "TQQQ",
+            "share_multiple": 0.0,
+            "cagr": 0.0,
+            "trades": 0,
             "verdict": "FAIL",
             "reason": "No valid configs found on TQQQ",
         }
 
     best = result["rankings"][0]
-    metrics = best.get("metrics", {})
-    share_multiple = float(metrics.get("share_multiple", 0.0))
-    cagr = float(metrics.get("cagr", 0.0))
-    trades = int(metrics.get("trades", 0))
+    metrics = best["metrics"]
+    share_multiple = float(metrics["share_multiple"])
+    cagr = float(metrics["cagr"])
+    trades = int(metrics["trades"])
 
     verdict = "PASS" if share_multiple >= 1.0 else "FAIL"
 
@@ -186,9 +196,6 @@ def format_reoptimize(result: dict) -> str:
         f"TIER 3 — Cross-Asset Re-Optimization: {result['strategy']} on {result.get('asset', 'TQQQ')}"
     ]
     lines.append("=" * 60)
-    if "error" in result:
-        lines.append(f"  ERROR: {result['error']}")
-        return "\n".join(lines)
     lines.append(f"  share_multiple:  {result['share_multiple']:.4f}x")
     lines.append(f"  CAGR:    {result['cagr']:.1f}%")
     lines.append(f"  Trades:  {result['trades']}")

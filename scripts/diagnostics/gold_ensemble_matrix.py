@@ -27,8 +27,18 @@ from strategies.library import STRATEGY_REGISTRY
 from strategies.markers import candidate_risk_state_from_trades, score_marker_alignment
 
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
 LEADERBOARD_PATH = os.path.join(PROJECT_ROOT, "spike", "leaderboard.json")
+
+
+def _safe_ratio(numerator: float, denominator: float | None) -> float:
+    """Champion-relative ratio. Returns NaN when the champion metric is zero or missing
+    so callers cannot silently treat a degenerate baseline as a unit denominator."""
+    if denominator is None or float(denominator) == 0.0:
+        return math.nan
+    return float(numerator) / float(denominator)
 
 
 def _load_json(path: str) -> Any:
@@ -56,9 +66,11 @@ def select_default_shortlist(
     include_hybrids: bool = False,
 ) -> list[dict[str, Any]]:
     """Top row per family plus the strongest full-history Bonobo alternate."""
-    source_rows = rows if include_hybrids else [
-        row for row in rows if not _is_hybrid_strategy(row.get("strategy"))
-    ]
+    source_rows = (
+        rows
+        if include_hybrids
+        else [row for row in rows if not _is_hybrid_strategy(row.get("strategy"))]
+    )
     selected: list[dict[str, Any]] = []
     seen_families: set[str] = set()
     for row in source_rows:
@@ -70,7 +82,9 @@ def select_default_shortlist(
     if bonobos:
         best_full = max(
             bonobos,
-            key=lambda row: float((row.get("metrics") or {}).get("share_multiple") or 0.0),
+            key=lambda row: float(
+                (row.get("metrics") or {}).get("share_multiple") or 0.0
+            ),
         )
         if best_full not in selected:
             selected.append(best_full)
@@ -125,16 +139,27 @@ def _ensemble_state(
     if mode == "confidence":
         weights = np.asarray(
             [
-                float((run["row"].get("validation") or {}).get("composite_confidence") or 0.0)
+                float(
+                    (run["row"].get("validation") or {}).get("composite_confidence")
+                    or 0.0
+                )
                 for run in member_runs
             ]
         )
     elif mode == "performance":
         weights = np.asarray(
-            [float(run["row"].get("overall_performance_score") or run["row"].get("fitness") or 0.0) for run in member_runs]
+            [
+                float(
+                    run["row"].get("overall_performance_score")
+                    or run["row"].get("fitness")
+                    or 0.0
+                )
+                for run in member_runs
+            ]
         )
     else:
         raise ValueError(f"unknown ensemble mode: {mode}")
+    weights = np.clip(weights, 0.0, None)
     if float(np.sum(weights)) <= 0.0:
         weights = np.ones(len(member_runs))
     weighted = np.sum(states * weights[:, None], axis=0) / float(np.sum(weights))
@@ -195,23 +220,39 @@ def build_matrix(
         if len(runs) < size:
             continue
         for combo in combinations(runs, size):
-            specs.append((list(combo), "equal", 2.0 if size == 3 else 2.0, "2of3" if size == 3 else "2of4"))
+            specs.append(
+                (
+                    list(combo),
+                    "equal",
+                    2.0 if size == 3 else 2.0,
+                    "2of3" if size == 3 else "2of4",
+                )
+            )
             if size == 4:
                 specs.append((list(combo), "equal", 3.0, "3of4"))
             for threshold in (0.50, 0.60, 0.67):
-                specs.append((list(combo), "confidence", threshold, f"conf{threshold:.2f}"))
-                specs.append((list(combo), "performance", threshold, f"perf{threshold:.2f}"))
+                specs.append(
+                    (list(combo), "confidence", threshold, f"conf{threshold:.2f}")
+                )
+                specs.append(
+                    (list(combo), "performance", threshold, f"perf{threshold:.2f}")
+                )
 
     seen_specs: set[str] = set()
     for members, mode, threshold, label in specs:
-        member_names = [run["row"].get("display_name") or run["row"].get("strategy") for run in members]
+        member_names = [
+            run["row"].get("display_name") or run["row"].get("strategy")
+            for run in members
+        ]
         sig = json.dumps([member_names, mode, threshold], sort_keys=True)
         if sig in seen_specs:
             continue
         seen_specs.add(sig)
         state = _ensemble_state(members, mode=mode, threshold=threshold)
         entries, exits, labels = _events_from_state(state)
-        result = backtest(df, entries, exits, labels, strategy_name=f"gold_ensemble_{label}")
+        result = backtest(
+            df, entries, exits, labels, strategy_name=f"gold_ensemble_{label}"
+        )
         marker = score_marker_alignment(df, result.trades)
         metrics = _metrics_from_result(result, marker)
         all_era_ok = (
@@ -229,15 +270,24 @@ def build_matrix(
                 "metrics": metrics,
                 "vs_champion": {
                     "full_ratio": round(
-                        metrics["share_multiple"] / float(champion_metrics.get("share_multiple") or 1.0),
+                        _safe_ratio(
+                            metrics["share_multiple"],
+                            champion_metrics.get("share_multiple"),
+                        ),
                         4,
                     ),
                     "real_ratio": round(
-                        metrics["real_share_multiple"] / float(champion_metrics.get("real_share_multiple") or 1.0),
+                        _safe_ratio(
+                            metrics["real_share_multiple"],
+                            champion_metrics.get("real_share_multiple"),
+                        ),
                         4,
                     ),
                     "modern_ratio": round(
-                        metrics["modern_share_multiple"] / float(champion_metrics.get("modern_share_multiple") or 1.0),
+                        _safe_ratio(
+                            metrics["modern_share_multiple"],
+                            champion_metrics.get("modern_share_multiple"),
+                        ),
                         4,
                     ),
                 },
@@ -306,7 +356,9 @@ def format_matrix(matrix: dict[str, Any], *, top_n: int) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--shortlist", default=None, help="comma-separated display names/strategy names")
+    parser.add_argument(
+        "--shortlist", default=None, help="comma-separated display names/strategy names"
+    )
     parser.add_argument(
         "--include-hybrids",
         action="store_true",
@@ -316,7 +368,9 @@ def main() -> None:
     parser.add_argument("--output", default=None)
     args = parser.parse_args()
 
-    shortlist_names = [item.strip() for item in args.shortlist.split(",")] if args.shortlist else None
+    shortlist_names = (
+        [item.strip() for item in args.shortlist.split(",")] if args.shortlist else None
+    )
     matrix = build_matrix(
         shortlist_names=shortlist_names,
         include_hybrids=args.include_hybrids,

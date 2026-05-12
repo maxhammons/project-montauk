@@ -40,6 +40,7 @@ import json
 import os
 import subprocess
 import sys
+import traceback
 
 import pandas as pd
 
@@ -72,6 +73,8 @@ ZERO_VOL_THRESHOLD = 0.05  # >5% zero-volume real ETF bars → WARN
 SEAM_CONTINUITY_TOL = 1e-6  # rebuilt synth's last close vs real's first close
 RESIDUAL_TOL_BPS_BUILD = 1e-5  # reconstruction residual cap
 RESIDUAL_TOL_BPS_FORMULA = 1e-3  # per-segment formula residual cap (1bp)
+_SYNTHETIC_TRUE_VALUES = {"true", "1"}
+_SYNTHETIC_BOOL_VALUES = _SYNTHETIC_TRUE_VALUES | {"false", "0"}
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -87,6 +90,22 @@ def _load(name: str) -> pd.DataFrame:
     df.columns = [c.lower().strip() for c in df.columns]
     df["date"] = df["date"].dt.normalize()
     return df.sort_values("date").reset_index(drop=True)
+
+
+def _parse_is_synthetic(series: pd.Series) -> tuple[pd.Series | None, list[str]]:
+    normalized = series.astype("string").str.strip().str.lower()
+    valid = normalized.isin(_SYNTHETIC_BOOL_VALUES).fillna(False)
+    if not bool(valid.all()):
+        bad_values = (
+            series.loc[~valid]
+            .astype("string")
+            .fillna("<NA>")
+            .drop_duplicates()
+            .head(5)
+            .tolist()
+        )
+        return None, bad_values
+    return normalized.isin(_SYNTHETIC_TRUE_VALUES).astype(bool), []
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -299,8 +318,16 @@ def test_split_detection() -> list[dict]:
         df["close_pct"] = df["close"].pct_change().abs()
         df["vol_ratio"] = df["volume"] / df["volume"].rolling(20).median()
         if "is_synthetic" in df.columns:
-            # Coerce to bool — stored values may be True/False, 0/1, or "True"/"False"
-            is_syn = df["is_synthetic"].astype(str).str.lower().isin(("true", "1"))
+            is_syn, bad_values = _parse_is_synthetic(df["is_synthetic"])
+            if is_syn is None:
+                out.append(_result(
+                    "split_detection",
+                    "FAIL",
+                    name,
+                    "invalid is_synthetic values",
+                    {"sample_values": bad_values},
+                ))
+                continue
             real_mask = ~is_syn
         else:
             real_mask = pd.Series(True, index=df.index)
@@ -397,8 +424,16 @@ def test_crosscheck_divergence() -> list[dict]:
                         {"stdout": proc.stdout[:500], "stderr": proc.stderr[:500]})]
     if isinstance(payload, dict) and payload.get("status") == "SKIP":
         return [_result("crosscheck_divergence", "SKIP", "all", payload.get("reason", ""))]
+    if not isinstance(payload, list):
+        return [_result("crosscheck_divergence", "FAIL", "all",
+                        f"bad JSON shape from data_crosscheck.py: expected list, got {type(payload).__name__}",
+                        {"payload_type": type(payload).__name__})]
     out = []
     for r in payload:
+        if not isinstance(r, dict):
+            return [_result("crosscheck_divergence", "FAIL", "all",
+                            f"bad JSON row from data_crosscheck.py: expected object, got {type(r).__name__}",
+                            {"row_type": type(r).__name__})]
         src = r.get("source") or "n/a"
         out.append(_result("crosscheck_divergence", r["status"], f"{r['ticker']} via {src}",
                            f"max div {((r['max_div_pct'] or 0) * 100):.4f}%, "
@@ -475,7 +510,13 @@ def audit_all(include_crosscheck: bool = False) -> list[dict]:
         try:
             flat.extend(fn())
         except Exception as e:
-            flat.append(_result(_name, "FAIL", "<runner>", f"test errored: {e}"))
+            flat.append(_result(
+                _name,
+                "FAIL",
+                "<runner>",
+                f"test errored ({type(e).__name__}): {e}",
+                {"exception_type": type(e).__name__, "traceback": traceback.format_exc(limit=5)},
+            ))
     return flat
 
 

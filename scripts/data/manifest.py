@@ -21,7 +21,9 @@ from datetime import datetime, timezone
 import pandas as pd
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))  # scripts/data/ -> scripts/ -> project root
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(SCRIPT_DIR)
+)  # scripts/data/ -> scripts/ -> project root
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 MANIFEST_PATH = os.path.join(DATA_DIR, "manifest.json")
 
@@ -102,7 +104,7 @@ def _file_rows(path: str) -> int | None:
     try:
         df = pd.read_csv(path)
         return int(len(df))
-    except Exception:
+    except (OSError, pd.errors.ParserError, pd.errors.EmptyDataError):
         return None
 
 

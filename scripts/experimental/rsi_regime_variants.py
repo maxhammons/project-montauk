@@ -84,7 +84,8 @@ def regime_score(ind: Indicators, p: dict) -> tuple:
 
     entries = np.zeros(n, dtype=bool)
     exits = np.zeros(n, dtype=bool)
-    labels = np.array([""] * n)
+    labels = np.empty(n, dtype=object)
+    labels[:] = ""
 
     panic_rsi = p.get("panic_rsi", 15)
     prev_entry_score = 0.0
@@ -129,7 +130,9 @@ def regime_score(ind: Indicators, p: dict) -> tuple:
         # Price below MA → high score (invert: lower price/MA = higher)
         s_ma_entry = _tanh_norm(-price_ma, -ma_center, ma_scale)
 
-        entry_score = w_dd * s_dd + w_rsi * s_rsi_entry + w_vol * s_vol_entry + w_ma * s_ma_entry
+        entry_score = (
+            w_dd * s_dd + w_rsi * s_rsi_entry + w_vol * s_vol_entry + w_ma * s_ma_entry
+        )
 
         # ── Exit score (high = bearish exhaustion) ──
         # High rise from trough → high score
@@ -141,7 +144,9 @@ def regime_score(ind: Indicators, p: dict) -> tuple:
         # Price above MA → high score
         s_ma_exit = _tanh_norm(price_ma, ma_center, ma_scale)
 
-        exit_score = w_dd * s_rise + w_rsi * s_rsi_exit + w_vol * s_vol_exit + w_ma * s_ma_exit
+        exit_score = (
+            w_dd * s_rise + w_rsi * s_rsi_exit + w_vol * s_vol_exit + w_ma * s_ma_exit
+        )
 
         # ── Entry: score crosses above threshold ──
         if prev_entry_score < entry_thresh and entry_score >= entry_thresh:
@@ -177,6 +182,11 @@ REGIME_SCORE_PARAMS = {
     "entry_thresh": (0.5, 0.8, 0.05, float),
     "exit_thresh": (0.5, 0.8, 0.05, float),
     "dd_center": (-35.0, -15.0, 5.0, float),
+    "dd_scale": (10.0, 25.0, 5.0, float),
+    "rsi_center": (25.0, 45.0, 5.0, float),
+    "rsi_scale": (10.0, 25.0, 5.0, float),
+    "ma_center": (0.9, 1.1, 0.05, float),
+    "ma_scale": (0.1, 0.3, 0.05, float),
     "panic_rsi": (10, 25, 5, float),
     "cooldown": (0, 20, 5, int),
 }

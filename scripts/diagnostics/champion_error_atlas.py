@@ -29,7 +29,9 @@ from strategies.markers import (
 )
 
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
 LEADERBOARD_PATH = os.path.join(PROJECT_ROOT, "spike", "leaderboard.json")
 
 
@@ -230,8 +232,12 @@ def format_error_atlas(atlas: dict, *, top_n: int) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--strategy", help="registered strategy name; defaults to leaderboard #1")
-    parser.add_argument("--params-json", help="JSON object overriding/defaulting params")
+    parser.add_argument(
+        "--strategy", help="registered strategy name; defaults to leaderboard #1"
+    )
+    parser.add_argument(
+        "--params-json", help="JSON object overriding/defaulting params"
+    )
     parser.add_argument("--top", type=int, default=12)
     parser.add_argument("--json", action="store_true", help="print raw JSON")
     args = parser.parse_args()
@@ -241,7 +247,11 @@ def main() -> None:
         strategy_name = args.strategy
         params = {}
     if args.params_json:
-        params.update(json.loads(args.params_json))
+        try:
+            override = json.loads(args.params_json)
+        except json.JSONDecodeError as e:
+            parser.error(f"--params-json is not valid JSON: {e}")
+        params.update(override)
 
     df = get_tecl_data()
     atlas = build_error_atlas(strategy_name, params, df)

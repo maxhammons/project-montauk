@@ -6,7 +6,7 @@ This is the main entry point for /spike. It:
   1. Creates a sequentially numbered run directory
   2. Runs the evolutionary optimizer (with history seeding + dedup)
   3. Generates a markdown report with top-10 table
-  4. Updates the all-time leaderboard (top 20)
+  4. Updates the all-time leaderboard after validation (top 20)
   5. Saves everything to spike/runs/NNN/
 
 Usage:
@@ -23,7 +23,8 @@ import json
 import os
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
+from decimal import Decimal, ROUND_HALF_UP
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -32,19 +33,40 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 from certify.contract import sync_entry_contract
 
 
-def _load_json(path: str):
+def _load_json(path: str, *, missing_ok: bool = False):
     if not os.path.exists(path):
-        return None
-    with open(path) as f:
+        if missing_ok:
+            return None
+        raise FileNotFoundError(path)
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
+def _load_json_object(path: str) -> dict:
+    payload = _load_json(path)
+    if not isinstance(payload, dict):
+        raise TypeError(f"{path} must contain a JSON object")
+    return payload
+
+
 def _write_json(path: str, payload, *, encoder_cls=None):
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         if encoder_cls is not None:
             json.dump(payload, f, indent=2, cls=encoder_cls)
         else:
             json.dump(payload, f, indent=2)
+
+
+def _round_half_up(value: float, places: int) -> float:
+    quant = Decimal("1").scaleb(-places)
+    return float(Decimal(str(float(value))).quantize(quant, rounding=ROUND_HALF_UP))
+
+
+def _required_metrics(champion: dict) -> dict:
+    metrics = champion["metrics"]
+    if not isinstance(metrics, dict):
+        raise TypeError("champion['metrics'] must be a dict")
+    return metrics
 
 
 def _risk_state_from_trades(
@@ -72,15 +94,17 @@ def _compute_drawdown_series(values) -> list[float]:
     arr = np.asarray(values, dtype=float)
     if len(arr) == 0:
         return []
+    if not np.all(np.isfinite(arr)):
+        raise ValueError("drawdown series contains non-finite values")
     peak = np.maximum.accumulate(arr)
     dd = np.where(peak > 0, (arr - peak) / peak * 100, 0.0)
-    return [round(float(v), 4) for v in dd]
+    return [_round_half_up(float(v), 4) for v in dd]
 
 
 def _refresh_final_artifact_views(results: dict, artifacts: dict, *, encoder_cls=None):
     validation_summary_path = artifacts.get("validation_summary")
     if validation_summary_path and os.path.exists(validation_summary_path):
-        payload = _load_json(validation_summary_path) or {}
+        payload = _load_json_object(validation_summary_path)
         payload["summary"] = results.get("validation_summary", {})
         payload["champion_validation"] = (results.get("champion") or {}).get(
             "validation", {}
@@ -89,7 +113,7 @@ def _refresh_final_artifact_views(results: dict, artifacts: dict, *, encoder_cls
 
     dashboard_data_path = artifacts.get("dashboard_data")
     if dashboard_data_path and os.path.exists(dashboard_data_path):
-        payload = _load_json(dashboard_data_path) or {}
+        payload = _load_json_object(dashboard_data_path)
         payload["validation"] = (results.get("champion") or {}).get("validation", {})
         payload["validation_summary"] = results.get("validation_summary", {})
         _write_json(dashboard_data_path, payload, encoder_cls=encoder_cls)
@@ -122,7 +146,12 @@ def _finalize_champion_certification(results: dict, artifacts: dict):
 def _emit_run_artifacts(
     run_dir: str, results: dict, *, encoder_cls=None, overlay=None
 ) -> dict:
-    generated_utc = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    generated_utc = (
+        datetime.now(timezone.utc)
+        .replace(microsecond=0)
+        .isoformat()
+        .replace("+00:00", "Z")
+    )
     champion = results.get("champion")
     artifacts = {}
 
@@ -246,9 +275,8 @@ def _emit_run_artifacts(
         for i in range(len(df))
     ]
 
-    stored_share_multiple = float(
-        (champion.get("metrics") or {}).get("share_multiple", 0.0)
-    )
+    champion_metrics = _required_metrics(champion)
+    stored_share_multiple = float(champion_metrics["share_multiple"])
     recomputed_share_multiple = float(backtest_result.share_multiple)
     drift = abs(recomputed_share_multiple - stored_share_multiple)
     if drift > 0.01:
@@ -272,7 +300,7 @@ def _emit_run_artifacts(
         "rank": champion.get("rank", 1),
         "fitness": champion.get("fitness"),
         "params": params,
-        "metrics": champion.get("metrics", {}),
+        "metrics": champion_metrics,
         "marker_alignment_score": champion.get("marker_alignment_score"),
         "marker_alignment_detail": champion.get("marker_alignment_detail"),
         "validation": champion.get("validation", {}),
@@ -320,7 +348,7 @@ class TeeWriter:
 
     def __init__(self, log_path: str):
         self.terminal = sys.stdout
-        self.log_file = open(log_path, "w")
+        self.log_file = open(log_path, "w", encoding="utf-8")
 
     def write(self, text):
         self.terminal.write(text)
@@ -402,8 +430,7 @@ def _run_chunk(args, strategy_filter):
     # Load state from previous chunk if provided
     state = None
     if args.state_file and os.path.exists(args.state_file):
-        with open(args.state_file) as f:
-            state = json.load(f)
+        state = _load_json(args.state_file)
 
     # Create run dir (reuse existing if resuming)
     run_dir = create_run_dir()
@@ -427,15 +454,15 @@ def _run_chunk(args, strategy_filter):
                 return o.item()
             return super().default(o)
 
-    with open(state_path, "w") as f:
-        json.dump(result["state"], f, cls=_Enc)
+    _write_json(state_path, result["state"], encoder_cls=_Enc)
 
     # Save chunk results
     results_path = os.path.join(run_dir, "chunk_results.json")
-    with open(results_path, "w") as f:
-        json.dump(
-            {k: v for k, v in result.items() if k != "state"}, f, cls=_Enc, indent=2
-        )
+    _write_json(
+        results_path,
+        {k: v for k, v in result.items() if k != "state"},
+        encoder_cls=_Enc,
+    )
 
     print(f"\nState saved: {state_path}")
     print(f"Results saved: {results_path}")
@@ -488,8 +515,7 @@ def _run_full(args, strategy_filter):
         )
 
         raw_results_path = os.path.join(run_dir, "raw_results.json")
-        with open(raw_results_path, "w") as f:
-            json.dump(results, f, indent=2, cls=_Enc)
+        _write_json(raw_results_path, results, encoder_cls=_Enc)
         print(f"[validate] Raw optimizer results saved: {raw_results_path}")
 
         validation = run_validation_pipeline(
@@ -516,8 +542,7 @@ def _run_full(args, strategy_filter):
                 if results["validated_rankings"]:
                     results["validated_rankings"][0]["overlay"] = overlay
                 overlay_path = os.path.join(run_dir, "overlay_report.json")
-                with open(overlay_path, "w") as f:
-                    json.dump(overlay, f, indent=2, cls=_Enc)
+                _write_json(overlay_path, overlay, encoder_cls=_Enc)
                 artifacts["overlay_report"] = overlay_path
                 print(f"[validate] Roth overlay: {overlay_path}")
             except Exception as exc:
@@ -527,7 +552,7 @@ def _run_full(args, strategy_filter):
                 or champion.get("tier")
                 or "T2"
             )
-            champ_share = (champion.get("metrics") or {}).get("share_multiple", 0.0)
+            champ_share = _required_metrics(champion)["share_multiple"]
             print(
                 f"[validate] Champion: {champion['strategy']} "
                 f"tier={champ_tier} share={champ_share:.3f}x "
@@ -567,14 +592,13 @@ def _run_full(args, strategy_filter):
                 "fully validated entries"
             )
         else:
-            leaderboard = _load_json(leaderboard_path) or []
+            leaderboard = _load_json(leaderboard_path, missing_ok=True) or []
             print(
                 "[validate] Leaderboard unchanged because no entry passed full validation."
             )
 
         results_path = os.path.join(run_dir, "results.json")
-        with open(results_path, "w") as f:
-            json.dump(results, f, indent=2, cls=_Enc)
+        _write_json(results_path, results, encoder_cls=_Enc)
         print(f"[validate] Validated results saved: {results_path}")
 
         report_text = generate_report(
@@ -585,7 +609,7 @@ def _run_full(args, strategy_filter):
             history_stats=results.get("history_stats"),
         )
         report_path = os.path.join(run_dir, "report.md")
-        with open(report_path, "w") as f:
+        with open(report_path, "w", encoding="utf-8") as f:
             f.write(report_text)
 
         print(f"\n{'=' * 60}")

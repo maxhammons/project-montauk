@@ -97,7 +97,7 @@ SEED_ASSIGNMENTS: dict[str, dict[str, str]] = {
 
 
 def _params_hash(params: dict[str, Any]) -> str:
-    raw = json.dumps(params or {}, sort_keys=True, separators=(",", ":"))
+    raw = json.dumps(params or {}, sort_keys=True, separators=(",", ":"), default=str)
     return hashlib.md5(raw.encode()).hexdigest()[:12]
 
 
@@ -105,9 +105,11 @@ def _load_registry(path: str) -> dict[str, Any]:
     if os.path.exists(path):
         try:
             with open(path) as f:
-                return json.load(f)
-        except (json.JSONDecodeError, OSError):
-            pass
+                data = json.load(f)
+        except json.JSONDecodeError:
+            data = None
+        if isinstance(data, dict):
+            return data
     return {"families": {}, "used_animals": []}
 
 

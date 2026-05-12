@@ -112,7 +112,11 @@ def family_for_param(name: str) -> set | None:
 
 
 def is_canonical_value(name: str, value: Any) -> bool:
-    """Is a single (name, value) pair drawn from the canonical set for its family?"""
+    """Is a single (name, value) pair drawn from the canonical set for its family?
+
+    Boolean values are explicitly excluded — even though `bool` is a subclass
+    of `int` in Python, booleans are not considered canonical numeric values.
+    """
     family = family_for_param(name)
     if family is None:
         return False

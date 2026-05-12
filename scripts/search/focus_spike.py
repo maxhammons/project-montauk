@@ -11,7 +11,7 @@ Long-run reliability via GridRunner harness (see safe_runner.py):
 Usage:
     python scripts/search/focus_spike.py --strategy gc_vjatr [--top-n 100]
 
-Grid is loaded from `scripts/search/focus_grids.py` keyed by strategy.
+Grids are defined inline in this file (`FOCUS_GRIDS`), keyed by strategy.
 Results:
   - Admitted to `spike/leaderboard.json` only if the canonical promotion
     contract marks the row authority-eligible
@@ -59,20 +59,6 @@ FOCUS_GRIDS: dict[str, dict[str, list]] = {
 _WORKER_STRATEGY: str | None = None
 
 
-def _worker_init_factory(strategy_name: str):
-    """Return a closure-free initializer. The strategy name is picked up from
-    a module-level global that the parent sets before Pool creation."""
-    def _init():
-        global _df, _ind, _fn
-        from data.loader import get_tecl_data
-        from engine.strategy_engine import Indicators
-        from strategies.library import STRATEGY_REGISTRY
-        _df = get_tecl_data()
-        _ind = Indicators(_df)
-        _fn = STRATEGY_REGISTRY[strategy_name]
-    return _init
-
-
 def _worker_init():
     """Actual initializer — reads strategy from module-level _WORKER_STRATEGY
     (set in each worker via fork inheritance from parent)."""
@@ -88,16 +74,18 @@ def _worker_init():
 def _worker_eval(params: dict):
     """Backtest one combo. Returns tuple on charter-pass, None on reject,
     {"_error": str} on crash."""
+    import math
+
     from engine.strategy_engine import backtest
     from search.fitness import weighted_era_fitness
 
     try:
         e, x, l = _fn(_ind, params)
         r = backtest(_df, e, x, l, cooldown_bars=params.get("cooldown", 0), strategy_name=_WORKER_STRATEGY)
-        if r.num_trades < 5 or r.trades_per_year > 5.0:
+        if not math.isfinite(r.trades_per_year) or r.num_trades < 5 or r.trades_per_year > 5.0:
             return None
         wef = weighted_era_fitness(r.share_multiple, r.real_share_multiple, r.modern_share_multiple)
-        if wef < 1.0:
+        if not math.isfinite(wef) or wef < 1.0:
             return None
         return (
             float(wef),

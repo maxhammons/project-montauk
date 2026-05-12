@@ -2,7 +2,8 @@
 """Audit TECL Health against named regimes and hand-marked cycles.
 
 The TECL Health model is diagnostic-only. This report checks whether the
-score is directionally useful before weights, caps, or smoothing are tuned.
+score is directionally useful before weights, caps, or smoothing are tuned;
+the calibration section is guidance for future review, not an optimizer.
 """
 
 from __future__ import annotations
@@ -32,6 +33,7 @@ from strategies.regime_map import build_regime_map  # noqa: E402
 
 MARKERS_CSV = os.path.join(PROJECT_ROOT, "data", "markers", "TECL-markers.csv")
 DEFAULT_OUTPUT = os.path.join(PROJECT_ROOT, "docs", "tecl-health-audit.md")
+DATE_FORMAT = "%Y-%m-%d"
 
 
 def _finite_float(value: Any) -> float | None:
@@ -75,13 +77,48 @@ def _fmt_int(value: Any) -> str:
 def _date_str(value: Any) -> str:
     if value is None or value == "":
         return "open"
-    return pd.Timestamp(value).date().isoformat()
+    return _parse_date(value, "date").date().isoformat()
+
+
+def _parse_date_series(values: Any, context: str) -> pd.Series:
+    dates = pd.Series(pd.to_datetime(values, format=DATE_FORMAT, errors="raise"))
+    if dates.dt.tz is not None:
+        raise ValueError(f"{context} must be timezone-naive dates")
+    return dates.dt.normalize()
+
+
+def _parse_date(value: Any, context: str) -> pd.Timestamp:
+    ts = pd.to_datetime(value, format=DATE_FORMAT, errors="raise")
+    if isinstance(ts, pd.DatetimeIndex):
+        raise ValueError(f"{context} must be a scalar date")
+    if ts.tzinfo is not None:
+        raise ValueError(f"{context} must be timezone-naive")
+    return pd.Timestamp(ts).normalize()
+
+
+def _numeric_series(values: Any, context: str) -> pd.Series:
+    series = pd.Series(values)
+    converted = pd.to_numeric(series, errors="coerce")
+    invalid = series.notna() & converted.isna()
+    if invalid.any():
+        bad = series[invalid].iloc[0]
+        raise ValueError(f"{context} contains non-numeric value {bad!r}")
+    return converted
+
+
+def _require_keys(data: dict[str, Any], keys: set[str], context: str) -> None:
+    missing = sorted(keys - set(data))
+    if missing:
+        raise KeyError(f"{context} missing required keys: {', '.join(missing)}")
 
 
 def _tecl_price_df(tecl: dict[str, Any]) -> pd.DataFrame:
+    _require_keys(tecl, {"dates", "close"}, "TECL data")
+    if len(tecl["dates"]) != len(tecl["close"]):
+        raise ValueError("TECL data dates and close arrays must have matching lengths")
     return pd.DataFrame({
-        "date": pd.to_datetime(tecl["dates"]).normalize(),
-        "close": pd.to_numeric(pd.Series(tecl["close"]), errors="coerce"),
+        "date": _parse_date_series(tecl["dates"], "TECL dates"),
+        "close": _numeric_series(tecl["close"], "TECL close"),
     })
 
 
@@ -91,10 +128,18 @@ def _health_df(health: dict[str, Any]) -> pd.DataFrame:
         return pd.DataFrame()
 
     df = pd.DataFrame(series)
-    layers = pd.DataFrame((df.pop("layers") if "layers" in df else pd.Series([])).tolist())
+    required = {"date", "composite", "smooth", "cross", "confidence", "layers"}
+    missing = sorted(required - set(df.columns))
+    if missing:
+        raise KeyError(f"TECL Health series missing required columns: {', '.join(missing)}")
+
+    bad_layers = df["layers"].map(lambda value: not isinstance(value, dict))
+    if bad_layers.any():
+        raise ValueError("TECL Health series layers must be objects")
+    layers = pd.DataFrame(df.pop("layers").tolist())
     layers = layers.add_prefix("layer_")
     df = pd.concat([df, layers], axis=1)
-    df["date"] = pd.to_datetime(df["date"]).dt.normalize()
+    df["date"] = _parse_date_series(df["date"], "TECL Health dates")
 
     numeric_cols = [
         "composite",
@@ -108,7 +153,7 @@ def _health_df(health: dict[str, Any]) -> pd.DataFrame:
     ]
     for col in numeric_cols:
         if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors="coerce")
+            df[col] = _numeric_series(df[col], f"TECL Health {col}")
 
     layer_cols = [c for c in df.columns if c.startswith("layer_")]
     df["conflict"] = df[layer_cols].std(axis=1, skipna=True, ddof=0)
@@ -134,15 +179,15 @@ def _period_return(price_df: pd.DataFrame, start: pd.Timestamp, end: pd.Timestam
     return (last / first - 1.0) * 100.0
 
 
-def _summarize_period(
+def _summarize_period_health_metrics(
     health_df: pd.DataFrame,
     price_df: pd.DataFrame,
     start: str | pd.Timestamp,
     end: str | pd.Timestamp | None,
     data_end: pd.Timestamp,
 ) -> dict[str, Any]:
-    start_ts = pd.Timestamp(start).normalize()
-    end_ts = data_end if end is None else min(pd.Timestamp(end).normalize(), data_end)
+    start_ts = _parse_date(start, "period start")
+    end_ts = data_end if end is None else min(_parse_date(end, "period end"), data_end)
     window = _window_slice(health_df, start_ts, end_ts)
     scored = window.dropna(subset=["composite"])
     if scored.empty:
@@ -183,7 +228,7 @@ def _summarize_period(
     }
 
 
-def _alignment_for_expectation(kind: str, avg_score: float | None) -> str:
+def _classify_alignment(kind: str, avg_score: float | None) -> str:
     if avg_score is None:
         return "n/a"
     if kind in {"bull", "recovery", "risk_on"}:
@@ -206,11 +251,19 @@ def _load_marker_rows() -> list[dict[str, Any]]:
         return []
     rows: list[dict[str, Any]] = []
     with open(MARKERS_CSV, newline="") as f:
-        for row in csv.DictReader(f):
+        for line_no, row in enumerate(csv.DictReader(f), start=2):
+            date = row["date"]
+            _parse_date(date, f"marker row {line_no} date")
+            marker_type = (row.get("type") or "").strip().lower()
+            if marker_type not in {"buy", "sell"}:
+                raise ValueError(f"marker row {line_no} has invalid type {marker_type!r}")
+            price = _finite_float(row.get("price"))
+            if price is None:
+                raise ValueError(f"marker row {line_no} has invalid price {row.get('price')!r}")
             rows.append({
-                "date": row["date"],
-                "price": _finite_float(row.get("price")),
-                "type": (row.get("type") or "").strip().lower(),
+                "date": date,
+                "price": price,
+                "type": marker_type,
             })
     return rows
 
@@ -257,13 +310,19 @@ def _named_regime_rows(
 ) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for regime in MARKET_REGIMES:
-        stats = _summarize_period(health_df, price_df, regime["start"], regime.get("end"), data_end)
+        stats = _summarize_period_health_metrics(
+            health_df,
+            price_df,
+            regime["start"],
+            regime.get("end"),
+            data_end,
+        )
         avg = stats.get("score_avg")
         stats.update({
             "key": regime["key"],
             "label": regime["label"],
             "kind": regime["kind"],
-            "alignment": _alignment_for_expectation(regime["kind"], avg),
+            "alignment": _classify_alignment(regime["kind"], avg),
             "description": regime.get("description") or "",
         })
         rows.append(stats)
@@ -277,13 +336,19 @@ def _marker_cycle_rows(
 ) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for cycle in _marker_cycles(data_end):
-        stats = _summarize_period(health_df, price_df, cycle["start"], cycle["end"], data_end)
+        stats = _summarize_period_health_metrics(
+            health_df,
+            price_df,
+            cycle["start"],
+            cycle["end"],
+            data_end,
+        )
         kind = cycle["kind"] if cycle["kind"] in {"risk_on", "risk_off"} else "neutral"
         stats.update({
             "kind": cycle["kind"],
             "start_marker": cycle["start_marker"],
             "end_marker": cycle["end_marker"],
-            "alignment": _alignment_for_expectation(kind, stats.get("score_avg")),
+            "alignment": _classify_alignment(kind, stats.get("score_avg")),
         })
         rows.append(stats)
     return rows
@@ -298,13 +363,19 @@ def _detected_cycle_rows(
     regime_map = build_regime_map(regime_df)
     rows: list[dict[str, Any]] = []
     for cycle in regime_map["cycles"]:
-        stats = _summarize_period(health_df, price_df, cycle["start_date"], cycle["end_date"], data_end)
+        stats = _summarize_period_health_metrics(
+            health_df,
+            price_df,
+            cycle["start_date"],
+            cycle["end_date"],
+            data_end,
+        )
         avg = stats.get("score_avg")
         stats.update({
             "kind": cycle["type"],
             "move_pct": cycle.get("move_pct"),
             "duration_months": cycle.get("duration_months"),
-            "alignment": _alignment_for_expectation(cycle["type"], avg),
+            "alignment": _classify_alignment(cycle["type"], avg),
         })
         rows.append(stats)
     return rows
@@ -583,7 +654,7 @@ def build_report(output_path: str = DEFAULT_OUTPUT) -> str:
     if health_df.empty:
         raise RuntimeError("TECL Health produced no series rows")
 
-    data_end = pd.Timestamp(tecl["dates"][-1]).normalize()
+    data_end = _parse_date(tecl["dates"][-1], "TECL final date")
     named_rows = _named_regime_rows(health_df, price_df, data_end)
     marker_rows = _marker_cycle_rows(health_df, price_df, data_end)
     detected_rows = _detected_cycle_rows(health_df, price_df, data_end)

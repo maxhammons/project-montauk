@@ -354,17 +354,9 @@ class Indicators:
             return out
         return self._cached(("mom", length), _calc)
 
-    # ── External series indicators (VIX, XLK, Treasury, Fed Funds, SGOV) ──
-    def vix_ema(self, length: int) -> np.ndarray | None:
-        if self.vix is None:
-            return None
-        return self._cached(("vix_ema", length), lambda: _ema(self.vix, length))
-
-    def vix_sma(self, length: int) -> np.ndarray | None:
-        if self.vix is None:
-            return None
-        return self._cached(("vix_sma", length), lambda: _sma(self.vix, length))
-
+    # ── External series indicators (XLK, Treasury, Fed Funds, SGOV) ──
+    # VIX EMA/SMA live in the "VIX indicators" block below — they always return
+    # an array (zeros when VIX missing) via vix_close().
     def xlk_ema(self, length: int) -> np.ndarray | None:
         if self.xlk_close is None:
             return None
@@ -505,6 +497,12 @@ class Indicators:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _adx(hi, lo, cl, period):
+    """Wilder's ADX = RMA(DX, period), where DX = 100 * |DI+ - DI-| / (DI+ + DI-).
+
+    Note: this returns the RMA of DX (the standard ADX definition). It is not
+    the raw DX series — callers wanting raw DX should compute it from
+    `_dmi()` directly.
+    """
     di_p, di_m = _dmi(hi, lo, cl, period)
     den = di_p + di_m
     dx = np.full_like(den, np.nan, dtype=np.float64)
@@ -512,6 +510,14 @@ def _adx(hi, lo, cl, period):
     return _rma(np.nan_to_num(dx, nan=0.0), period)
 
 def _dmi(hi, lo, cl, period):
+    """Wilder's Directional Movement Index.
+
+    Returns
+    -------
+    (di_plus, di_minus) : tuple of np.ndarray
+        Wilder-smoothed +DI and -DI as percentages (0-100), aligned to `cl`.
+        Values are NaN where the smoothed true range is non-positive.
+    """
     n = len(cl)
     dm_plus = np.zeros(n)
     dm_minus = np.zeros(n)

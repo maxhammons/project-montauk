@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """Build Confidence v2 vintage calibration artifacts.
 
-This is diagnostic-only.  It does not promote, demote, or rewrite the
-authority leaderboard.  It evaluates the current Gold strategy configs as if
-they existed at historical vintage dates, then measures fixed forward outcomes.
+This is diagnostic-only in the sense that it does not promote, demote, or
+rewrite the authority leaderboard.  It evaluates the current Gold strategy
+configs as if they existed at historical vintage dates, then measures fixed
+forward outcomes.  The output is consumed by ``build_leaderboard_scores`` to
+produce calibration-assisted confidence scores written to the leaderboard
+scores file and live holdout log; those downstream artifacts are not
+diagnostic-only even though this harness's evaluation is.
 """
 
 from __future__ import annotations
@@ -197,7 +201,7 @@ def build_trials(
                     {
                         "vintage_date": vintage_str,
                         "strategy_key": strategy_key(row),
-                        "display_name": row.get("display_name") or strategy,
+                        "display_name": row.get("display_name", strategy),
                         "strategy": strategy,
                         "error": str(exc),
                     }
@@ -232,7 +236,7 @@ def build_trials(
                 {
                     "vintage_date": vintage_str,
                     "strategy_key": strategy_key(row),
-                    "display_name": row.get("display_name") or strategy,
+                    "display_name": row.get("display_name", strategy),
                     "strategy": strategy,
                     "leaderboard_rank": row.get("leaderboard_rank"),
                     "prediction_score": _prediction_score(train_metrics),
@@ -334,7 +338,7 @@ def build_calibration_model(trials_report: dict[str, Any]) -> dict[str, Any]:
 def write_json(path: str, payload: dict[str, Any]) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
-        json.dump(payload, f, indent=2)
+        json.dump(payload, f, indent=2, ensure_ascii=False, sort_keys=True)
 
 
 def write_live_holdout_log(path: str = LIVE_HOLDOUT_LOG_PATH) -> None:

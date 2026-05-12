@@ -9,7 +9,7 @@ LEGACY_SHARE_MULTIPLE_KEY = "vs_" "bah"
 
 
 def read_share_multiple(metrics: Mapping[str, Any] | None) -> float:
-    """Read the canonical share-count multiplier from a metrics mapping."""
+    """Safely read the share-count multiplier with legacy key fallback and zero default."""
     if not metrics:
         return 0.0
     value = metrics.get("share_multiple")

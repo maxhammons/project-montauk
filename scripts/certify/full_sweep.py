@@ -52,7 +52,10 @@ def _load_checkpoint() -> dict:
     try:
         with open(CHECKPOINT_PATH) as f:
             return json.load(f)
-    except Exception:
+    except Exception as exc:
+        print(
+            f"[sweep] WARN: checkpoint unreadable ({CHECKPOINT_PATH}): {exc} — starting fresh"
+        )
         return {}
 
 
@@ -73,7 +76,8 @@ def _best_historical_params(strategy_name: str) -> dict | None:
         try:
             with open(rf) as f:
                 r = json.load(f)
-        except Exception:
+        except Exception as exc:
+            print(f"[sweep] WARN: unreadable run file {rf}: {exc}")
             continue
         for entry in r.get("raw_rankings") or r.get("rankings") or []:
             if entry.get("strategy") != strategy_name:
@@ -152,7 +156,10 @@ def _backtest_fixed_param(strategy_name: str, params: dict):
     try:
         rs = score_regime_capture(bt.trades, cl, dates)
         regime_score = float(rs.composite)
-    except Exception:
+    except Exception as exc:
+        print(
+            f"[sweep] WARN: regime scoring failed for {strategy_name}: {exc} — defaulting to 0.0"
+        )
         regime_score = 0.0
 
     marker = score_marker_alignment(df, bt.trades)
@@ -343,7 +350,8 @@ def build_rescore_report(new_rubric_cutoff_ts: float | None = None) -> dict:
         try:
             with open(rf) as f:
                 r = json.load(f)
-        except Exception:
+        except Exception as exc:
+            print(f"[sweep] WARN: unreadable run file {rf}: {exc}")
             continue
         for entry in r.get("raw_rankings") or r.get("rankings") or []:
             _ingest(entry, source=os.path.relpath(rf, PROJECT_ROOT))

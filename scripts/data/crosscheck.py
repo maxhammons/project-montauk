@@ -48,7 +48,9 @@ import numpy as np
 import pandas as pd
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))  # scripts/data/ -> scripts/ -> project root
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(SCRIPT_DIR)
+)  # scripts/data/ -> scripts/ -> project root
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 
 DIVERGENCE_FLAG_PCT = 0.005  # 0.5% per-day flag (Master Plan)
@@ -66,10 +68,17 @@ VENDOR_PRECISION_USD = 0.01
 
 @dataclass(frozen=True)
 class CrossCheckSpec:
+    """Per-ticker cross-check spec.
+
+    `real_start` is the inclusive lower-bound date used to filter the local
+    Yahoo CSV before comparison (synthetic pre-real history is excluded so
+    only real-vendor bars are cross-checked).
+    """
+
     name: str  # local CSV stem (e.g. "TECL")
     tiingo_symbol: str | None
     stooq_symbol: str | None
-    real_start: str  # real Yahoo data starts on/after this date
+    real_start: str  # real Yahoo data starts on/after this date; used to filter local data in _compare_one
 
 
 SPECS = [
@@ -99,10 +108,12 @@ def _resolve_key(env_var: str, keyfile_name: str) -> str | None:
 
 
 def _resolve_tiingo() -> str | None:
+    """Resolve Tiingo API key from TIINGO_APIKEY env var or ~/.tiingokey keyfile."""
     return _resolve_key("TIINGO_APIKEY", ".tiingokey")
 
 
 def _resolve_stooq() -> str | None:
+    """Resolve Stooq API key from STOOQ_APIKEY env var or ~/.stooqkey keyfile."""
     return _resolve_key("STOOQ_APIKEY", ".stooqkey")
 
 
@@ -216,7 +227,7 @@ def _fetch_stooq(
     df.columns = [c.lower().strip() for c in df.columns]
     if "date" not in df.columns or "close" not in df.columns:
         return pd.DataFrame(columns=["date", "open", "high", "low", "close", "volume"])
-    df["date"] = pd.to_datetime(df["date"]).dt.normalize()
+    df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d").dt.normalize()
     keep = [
         c for c in ("date", "open", "high", "low", "close", "volume") if c in df.columns
     ]

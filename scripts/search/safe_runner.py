@@ -98,7 +98,14 @@ class GridRunner:
     Args:
         strategy_name:     For logging. Not used for routing.
         grid:              Dict of param_name -> list of values. Cartesian product.
-        worker_eval:       Callable that takes params dict, returns tuple or None.
+        worker_eval:       Callable that takes a params dict and returns a result.
+                           Recognized return shapes:
+                             - None            → counted as skipped (charter reject)
+                             - dict with key   → counted as crashed
+                               "_error"
+                             - any other value → treated as a valid result; must be
+                                                 indexable at `fitness_key` with a
+                                                 finite numeric fitness for ranking.
                            Worker must be picklable (no closures over local state).
         worker_init:       Optional initializer for the multiprocessing Pool.
                            Usually loads data once per worker to share via globals.
@@ -200,8 +207,10 @@ class GridRunner:
             "top_k": [self._serialize_result(r) for r in top_k],
         }
         path = self._checkpoint_path()
-        tmp = path + ".tmp"
-        with open(tmp, "w") as f:
+        # Unique tmp suffix per write so concurrent runners (or retries) can't
+        # clobber each other's in-flight temp file before the atomic rename.
+        tmp = f"{path}.{os.getpid()}.{uuid.uuid4().hex}.tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
             json.dump(payload, f, indent=2, default=str)
         os.replace(tmp, path)  # atomic rename
 
@@ -213,7 +222,12 @@ class GridRunner:
             return str(result)
 
     def _sorted_top_k(self) -> list:
-        """Return heap contents sorted by fitness descending."""
+        """Return heap contents sorted by fitness descending.
+
+        Note: returns *all* items currently in the heap, not a fresh top-K
+        selection. The heap is bounded to `top_n_keep` at insert time
+        (see `_handle_result`), so its full contents *are* the running top-K.
+        """
         # heap stores (fitness, counter, result) — strip counter, sort by fitness desc.
         return [
             item[2] for item in sorted(self._heap, key=lambda t: t[0], reverse=True)
@@ -331,10 +345,28 @@ class GridRunner:
         self.stats.combos_passed += 1
         self._passers.append(res)
 
-        # Maintain top-K heap by fitness
+        # Maintain top-K heap by fitness. Validate sequence length and
+        # finiteness so NaN/Inf/None never poisons the ranking.
         try:
-            fitness = float(res[self.fitness_key])
-        except Exception:
+            if not hasattr(res, "__getitem__") or not hasattr(res, "__len__"):
+                raise TypeError(
+                    f"result is not indexable (type={type(res).__name__})"
+                )
+            if len(res) <= self.fitness_key:
+                raise IndexError(
+                    f"result length {len(res)} <= fitness_key {self.fitness_key}"
+                )
+            raw = res[self.fitness_key]
+            if raw is None:
+                raise ValueError("fitness value is None")
+            fitness = float(raw)
+            if not math.isfinite(fitness):
+                raise ValueError(f"fitness value is not finite ({fitness!r})")
+        except Exception as exc:
+            print(
+                f"  [!] dropping result from ranking: {type(exc).__name__}: {exc}",
+                flush=True,
+            )
             return
         self._heap_counter += 1
         entry = (fitness, self._heap_counter, res)

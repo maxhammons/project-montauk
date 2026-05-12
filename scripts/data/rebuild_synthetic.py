@@ -60,6 +60,7 @@ SYNTHETIC_MODEL_VERSION_TECL = "v2-3xTechIdx-0.95%ER-daily"
 SYNTHETIC_MODEL_VERSION_TQQQ = "v1-3xQQQ-0.75%ER-daily"
 
 OUT_COLUMNS = ["date", "open", "high", "low", "close", "volume"]
+REQUIRED_CSV_COLUMNS = set(OUT_COLUMNS)
 
 
 @dataclass(frozen=True)
@@ -113,11 +114,47 @@ SPECS: List[TickerSpec] = [
 
 def _load_csv(filename: str) -> pd.DataFrame:
     path = os.path.join(DATA_DIR, filename)
-    df = pd.read_csv(path, parse_dates=["date"])
+    df = pd.read_csv(path)
     df.columns = [c.lower().strip() for c in df.columns]
-    df["date"] = df["date"].dt.normalize()
+    _require_columns(df, REQUIRED_CSV_COLUMNS, filename)
+    dates = pd.to_datetime(df["date"], errors="raise")
+    if dates.dt.tz is not None:
+        raise ValueError(f"{filename}: date column must be timezone-naive")
+    df["date"] = dates.dt.normalize()
     df = df.sort_values("date").drop_duplicates(subset=["date"], keep="last").reset_index(drop=True)
     return df
+
+
+def _require_columns(df: pd.DataFrame, columns: set[str], context: str) -> None:
+    missing = sorted(columns - set(df.columns))
+    if missing:
+        raise ValueError(f"{context}: missing required columns: {', '.join(missing)}")
+
+
+def _finite_float_array(
+    df: pd.DataFrame,
+    column: str,
+    context: str,
+    *,
+    min_value: float | None = None,
+    min_inclusive: bool = True,
+) -> np.ndarray:
+    values = pd.to_numeric(df[column], errors="raise").to_numpy(dtype=np.float64)
+    bad = ~np.isfinite(values)
+    if min_value is not None:
+        if min_inclusive:
+            bad |= values < min_value
+            relation = f">= {min_value:g}"
+        else:
+            bad |= values <= min_value
+            relation = f"> {min_value:g}"
+    else:
+        relation = "finite"
+    if bad.any():
+        idx = int(np.flatnonzero(bad)[0])
+        date = pd.Timestamp(df.iloc[idx]["date"]).strftime("%Y-%m-%d")
+        raise ValueError(f"{context}: {column} must be {relation}; first bad row {date}")
+    return values
 
 
 def _load_real_tail(spec: TickerSpec) -> pd.DataFrame:
@@ -132,7 +169,12 @@ def _load_real_tail(spec: TickerSpec) -> pd.DataFrame:
     degenerate = (real["high"] == real["low"]) & (real["high"] == real["close"]) & (real["open"] != real["close"])
     if degenerate.any():
         real = real[~degenerate].copy()
-    return real.reset_index(drop=True)[[c for c in OUT_COLUMNS if c in real.columns]]
+    real = real.reset_index(drop=True)
+    context = f"{spec.name}.csv real tail"
+    for col in ("open", "high", "low", "close"):
+        _finite_float_array(real, col, context, min_value=0.0, min_inclusive=False)
+    _finite_float_array(real, "volume", context, min_value=0.0)
+    return real[OUT_COLUMNS]
 
 
 def _build_segment_returns(seg: SynthSegment, expense_ratio: float) -> pd.DataFrame:
@@ -144,24 +186,30 @@ def _build_segment_returns(seg: SynthSegment, expense_ratio: float) -> pd.DataFr
     if len(src) < 2:
         return pd.DataFrame(columns=["date", "open_r", "high_r", "low_r", "close_r", "synth_ret", "volume"])
 
+    context = f"{seg.source_csv} synthetic segment {seg.start_date} to {seg.end_date}"
     daily_expense = expense_ratio / 252.0
-    close = src["close"].to_numpy(dtype=np.float64)
-    close_safe = np.where(close > 0, close, 1.0)
+    open_ = _finite_float_array(src, "open", context, min_value=0.0, min_inclusive=False)
+    high = _finite_float_array(src, "high", context, min_value=0.0, min_inclusive=False)
+    low = _finite_float_array(src, "low", context, min_value=0.0, min_inclusive=False)
+    close = _finite_float_array(src, "close", context, min_value=0.0, min_inclusive=False)
+    volume = _finite_float_array(src, "volume", context, min_value=0.0)
     daily_ret = np.zeros(len(src), dtype=np.float64)
     daily_ret[1:] = close[1:] / close[:-1] - 1.0
     synth_ret = 3.0 * daily_ret - daily_expense
     synth_ret[0] = 0.0  # first bar anchors only
+    if not np.isfinite(synth_ret).all():
+        raise ValueError(f"{context}: synthetic returns contain non-finite values")
 
     out = pd.DataFrame({
         "date":     src["date"].values,
         # OHLC shape ratios relative to source close — let us paint a synthetic
         # OHLC bar from the synthetic close once anchored.
-        "open_r":   src["open"].to_numpy(dtype=np.float64)  / close_safe,
-        "high_r":   src["high"].to_numpy(dtype=np.float64)  / close_safe,
-        "low_r":    src["low"].to_numpy(dtype=np.float64)   / close_safe,
+        "open_r":   open_ / close,
+        "high_r":   high / close,
+        "low_r":    low / close,
         "close_r":  np.ones(len(src), dtype=np.float64),
         "synth_ret": synth_ret,
-        "volume":   src["volume"].to_numpy(dtype=np.float64) if "volume" in src.columns else np.zeros(len(src)),
+        "volume":   volume,
     })
     return out
 
@@ -193,10 +241,15 @@ def build_one(spec: TickerSpec) -> pd.DataFrame:
     rets = all_synth["synth_ret"].to_numpy(dtype=np.float64)
     for i in range(1, n):
         synth_close[i] = synth_close[i - 1] * (1.0 + rets[i])
+        if not np.isfinite(synth_close[i]) or synth_close[i] <= 0:
+            date = pd.Timestamp(all_synth.iloc[i]["date"]).strftime("%Y-%m-%d")
+            raise ValueError(f"{spec.name}: synthetic close became non-positive/non-finite on {date}")
 
     if synth_close[-1] == 0:
         raise ValueError(f"{spec.name}: synthetic close decayed to zero; cannot anchor.")
     anchor = float(real.iloc[0]["close"])
+    if not np.isfinite(anchor) or anchor <= 0:
+        raise ValueError(f"{spec.name}: real seam close must be positive and finite.")
     scale = anchor / synth_close[-1]
     synth_close = synth_close * scale
 
@@ -220,10 +273,12 @@ def build_one(spec: TickerSpec) -> pd.DataFrame:
 def _format_for_disk(df: pd.DataFrame) -> pd.DataFrame:
     """Round to a stable precision so CSV bytes are deterministic."""
     out = df.copy()
+    _require_columns(out, REQUIRED_CSV_COLUMNS, "rebuilt output")
     for col in ("open", "high", "low", "close"):
+        _finite_float_array(out, col, "rebuilt output", min_value=0.0, min_inclusive=False)
         out[col] = out[col].round(8)
-    if "volume" in out.columns:
-        out["volume"] = pd.to_numeric(out["volume"], errors="coerce").fillna(0).astype(np.int64)
+    volume = _finite_float_array(out, "volume", "rebuilt output", min_value=0.0)
+    out["volume"] = volume.astype(np.int64)
     out["date"] = pd.to_datetime(out["date"]).dt.strftime("%Y-%m-%d")
     return out[OUT_COLUMNS]
 

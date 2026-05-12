@@ -10,16 +10,19 @@
 
 3. **[pipeline.md](pipeline.md)** — The canonical workflow: hypothesize/discover -> route to tier -> validate -> certify signal bundle -> native HTML viewer -> manually execute from daily risk_on/risk_off signal.
 
-4. **[validation-philosophy.md](validation-philosophy.md)** — Why validation difficulty must match selection bias. Defines the T0/T1/T2 tier framework and the strict canonical parameter set for T0.
+4. **[app-charter.md](app-charter.md)** — Product charter for the standalone macOS app and background operations surface.
 
-5. **[project-status.md](project-status.md)** — What is already true in the codebase today, what is partially true, and what still needs to be built.
+5. **[validation-philosophy.md](validation-philosophy.md)** — Why validation difficulty must match selection bias. Defines the T0/T1/T2 tier framework and the strict canonical parameter set for T0.
 
-6. **[design-guide.md](design-guide.md)** — **Read before authoring any new T0 hypothesis strategy.** What has worked, what has failed (and why), with a pre-flight checklist.
+6. **[project-status.md](project-status.md)** — What is already true in the codebase today, what is partially true, and what still needs to be built.
+
+7. **[design-guide.md](design-guide.md)** — **Read before authoring any new T0 hypothesis strategy.** What has worked, what has failed (and why), with a pre-flight checklist.
 
 ## Other Docs
 
 - **[validation-thresholds.md](validation-thresholds.md)** — Threshold definitions for every validation gate (must stay in sync with `scripts/validation/`)
 - **[plan.md](plan.md)** — Marker prior + Roth overlay implementation plan
+- **[*NEXT/2026-05-12-mac-app-implementation-plan.md](*NEXT/2026-05-12-mac-app-implementation-plan.md)** — Build plan for the macOS app, scheduler, notifications, research queue, and strategy ideation loop
 - **[Montauk 2.0/](Montauk%202.0/)** — Historical record of the Pine/TradingView excision project (seven phases, spirit-guide, master plan)
 - **[research/](research/)** — Market research, optimization roadmap, academic papers
 

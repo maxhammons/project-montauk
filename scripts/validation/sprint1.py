@@ -40,6 +40,18 @@ PROJECT_ROOT = os.path.dirname(_SCRIPTS_DIR)
 LEADERBOARD_FILE = os.path.join(PROJECT_ROOT, "spike", "leaderboard.json")
 
 
+def _finite_float_array(values, label: str) -> np.ndarray:
+    try:
+        arr = np.asarray(values, dtype=np.float64)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{label} must contain numeric values") from exc
+    if arr.ndim != 1:
+        raise ValueError(f"{label} must be one-dimensional")
+    if not np.all(np.isfinite(arr)):
+        raise ValueError(f"{label} contains non-finite values")
+    return arr
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # 1.2 Exit-Boundary Proximity Test
 # ─────────────────────────────────────────────────────────────────────────────
@@ -124,8 +136,8 @@ def test_exit_boundary_proximity(trades, bears, bulls) -> dict:
 
 def test_jackknife(trades, close, dates, baseline_composite: float) -> dict:
     """
-    Remove each cycle one at a time. A cycle is "dominant" if removing it
-    causes >2x the expected impact of an average cycle.
+    Exclude each detected cycle from the scoring pass. A cycle is "dominant"
+    if excluding it causes >2x the expected impact of an average cycle.
     """
     base_rs = score_regime_capture(trades, close, dates)
     n_bears = base_rs.num_bear_periods
@@ -186,11 +198,14 @@ def test_jackknife(trades, close, dates, baseline_composite: float) -> dict:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def compute_hhi(scores: list[float]) -> float:
-    if not scores or sum(scores) == 0:
+    if scores is None or len(scores) == 0:
         return 1.0
-    total = sum(scores)
-    shares = [s / total for s in scores]
-    return sum(s ** 2 for s in shares)
+    values = _finite_float_array(scores, "HHI scores")
+    total = float(values.sum())
+    if total == 0:
+        return 1.0
+    shares = values / total
+    return float(np.sum(shares ** 2))
 
 
 def test_concentration(rs) -> dict:
@@ -248,7 +263,7 @@ def test_meta_robustness(trades, close, dates, baseline_composite: float) -> dic
                                      min_duration=md)
             scores.append(rs.composite)
 
-    composites = np.array(scores)
+    composites = _finite_float_array(scores, "meta robustness composites")
     mean_s = float(composites.mean())
     std_s = float(composites.std())
     cv = std_s / mean_s if mean_s > 0 else float('inf')
@@ -320,7 +335,8 @@ def get_strategy_trades(df, strategy_name, params):
         result = backtest(df, entries, exits, labels,
                           cooldown_bars=cooldown, strategy_name=strategy_name)
         return result.trades, result
-    except Exception:
+    except Exception as exc:
+        print(f"  ERROR evaluating {strategy_name}: {type(exc).__name__}: {exc}", file=sys.stderr)
         return None, None
 
 
@@ -354,13 +370,15 @@ def run_sprint1(top_n: int = 20, n_eff_override: int | None = None,
     print(f"  N_eff={n_eff} → expected max RS = {expected_max:.4f}")
 
     # Load leaderboard
-    with open(LEADERBOARD_FILE) as f:
+    with open(LEADERBOARD_FILE, encoding="utf-8") as f:
         leaderboard = json.load(f)[:top_n]
 
     all_results = []
     for i, entry in enumerate(leaderboard):
         name = entry["strategy"]
-        params = entry.get("params", {})
+        params = entry["params"]
+        if not isinstance(params, dict):
+            raise TypeError(f"leaderboard params for {name} must be a dict")
         fitness = entry["fitness"]
         print(f"\n[{i+1}/{len(leaderboard)}] {name} (fitness={fitness:.4f})")
 

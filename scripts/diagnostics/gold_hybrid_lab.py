@@ -8,7 +8,8 @@ This diagnostic keeps the hybrid research honest:
   * Hybrid params freeze the selected members explicitly; no strategy reads the
     leaderboard at runtime.
 
-It does not admit anything to the leaderboard. Promising rows should be passed
+It evaluates hybrid candidates against existing Gold rows for research, but
+does not promote them to the leaderboard. Promising rows should be passed
 through the normal validation/certification path before promotion.
 """
 
@@ -36,7 +37,9 @@ from strategies.markers import score_marker_alignment
 from validation.pipeline import run_validation_pipeline
 
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
 LEADERBOARD_PATH = os.path.join(PROJECT_ROOT, "spike", "leaderboard.json")
 DEFAULT_OUTPUT = os.path.join(PROJECT_ROOT, "runs", "gold_hybrid_lab.json")
 
@@ -55,6 +58,10 @@ def _safe_float(value: Any, default: float = 0.0) -> float:
 
 
 def _is_hybrid_strategy(strategy: str | None) -> bool:
+    """Return True if `strategy` follows the gold_hybrid_* naming convention.
+
+    This is a name-prefix check only; it does not introspect strategy behavior.
+    """
     return str(strategy or "").startswith("gold_hybrid_")
 
 
@@ -108,7 +115,9 @@ def _run_backtest(df: pd.DataFrame, strategy: str, params: dict[str, Any]):
     )
 
 
-def _canonical_metrics(df: pd.DataFrame, strategy: str, params: dict[str, Any]) -> dict[str, Any]:
+def _canonical_metrics(
+    df: pd.DataFrame, strategy: str, params: dict[str, Any]
+) -> dict[str, Any]:
     full = _run_backtest(_slice_df(df, None), strategy, params)
     real = _run_backtest(_slice_df(df, "2008-12-17"), strategy, params)
     modern = _run_backtest(_slice_df(df, "2015-01-01"), strategy, params)
@@ -164,7 +173,9 @@ def _serialize_trades(trades) -> list[dict[str, Any]]:
     ]
 
 
-def _raw_entry(df: pd.DataFrame, strategy: str, params: dict[str, Any], rank: int) -> dict[str, Any]:
+def _raw_entry(
+    df: pd.DataFrame, strategy: str, params: dict[str, Any], rank: int
+) -> dict[str, Any]:
     result = _run_backtest(df, strategy, params)
     close = df["close"].values.astype(np.float64)
     dates = df["date"].values
@@ -193,8 +204,12 @@ def _raw_entry(df: pd.DataFrame, strategy: str, params: dict[str, Any], rank: in
             "mar": result.mar_ratio,
             "regime_score": result.regime_score.composite if result.regime_score else 0,
             "hhi": (result.regime_score.hhi or 0) if result.regime_score else 0,
-            "bull_capture": result.regime_score.bull_capture_ratio if result.regime_score else 0,
-            "bear_avoidance": result.regime_score.bear_avoidance_ratio if result.regime_score else 0,
+            "bull_capture": result.regime_score.bull_capture_ratio
+            if result.regime_score
+            else 0,
+            "bear_avoidance": result.regime_score.bear_avoidance_ratio
+            if result.regime_score
+            else 0,
             "win_rate": result.win_rate_pct,
             "exit_reasons": result.exit_reasons,
         },
@@ -246,7 +261,9 @@ def score_gold_row(df: pd.DataFrame, row: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _member_config(row: dict[str, Any], *, weight: float | None = None) -> dict[str, Any]:
+def _member_config(
+    row: dict[str, Any], *, weight: float | None = None
+) -> dict[str, Any]:
     out = {
         "display_name": row.get("display_name"),
         "strategy": row["strategy"],
@@ -258,8 +275,12 @@ def _member_config(row: dict[str, Any], *, weight: float | None = None) -> dict[
 
 
 def _row_weight(row: dict[str, Any]) -> float:
-    confidence = _safe_float((row.get("validation") or {}).get("composite_confidence"), 0.5)
-    performance = _safe_float(row.get("overall_performance_score") or row.get("fitness"), 1.0)
+    confidence = _safe_float(
+        (row.get("validation") or {}).get("composite_confidence"), 0.5
+    )
+    performance = _safe_float(
+        row.get("overall_performance_score") or row.get("fitness"), 1.0
+    )
     return max(0.01, confidence * performance)
 
 
@@ -275,6 +296,13 @@ def _family_leaders(rows: list[dict[str, Any]], *, limit: int) -> list[dict[str,
         if len(selected) >= limit:
             break
     return selected
+
+
+def _safe_ratio(numerator: float, denominator: Any) -> float:
+    denom = _safe_float(denominator)
+    if denom == 0.0:
+        denom = 1.0
+    return numerator / denom
 
 
 def _candidate(
@@ -299,15 +327,23 @@ def _candidate(
         "metrics": metrics,
         "vs_champion": {
             "full_ratio": round(
-                metrics["share_multiple"] / _safe_float(champ_metrics.get("share_multiple"), 1.0),
+                _safe_ratio(
+                    metrics["share_multiple"], champ_metrics.get("share_multiple")
+                ),
                 4,
             ),
             "real_ratio": round(
-                metrics["real_share_multiple"] / _safe_float(champ_metrics.get("real_share_multiple"), 1.0),
+                _safe_ratio(
+                    metrics["real_share_multiple"],
+                    champ_metrics.get("real_share_multiple"),
+                ),
                 4,
             ),
             "modern_ratio": round(
-                metrics["modern_share_multiple"] / _safe_float(champ_metrics.get("modern_share_multiple"), 1.0),
+                _safe_ratio(
+                    metrics["modern_share_multiple"],
+                    champ_metrics.get("modern_share_multiple"),
+                ),
                 4,
             ),
         },
@@ -447,11 +483,13 @@ def format_lab(lab: dict[str, Any], *, top_n: int) -> str:
             f"{_safe_float(m.get('real_share_multiple')):.2f}/"
             f"{_safe_float(m.get('modern_share_multiple')):.2f}"
         )
-    lines.extend([
-        "",
-        "EXIT SPECIALISTS",
-        "rank name                     exit   timing conf  full/real/modern",
-    ])
+    lines.extend(
+        [
+            "",
+            "EXIT SPECIALISTS",
+            "rank name                     exit   timing conf  full/real/modern",
+        ]
+    )
     for idx, row in enumerate(lab["exit_leaderboard"][:top_n], start=1):
         m = row["metrics"]
         lines.append(
@@ -461,11 +499,13 @@ def format_lab(lab: dict[str, Any], *, top_n: int) -> str:
             f"{_safe_float(m.get('real_share_multiple')):.2f}/"
             f"{_safe_float(m.get('modern_share_multiple')):.2f}"
         )
-    lines.extend([
-        "",
-        "HYBRID CANDIDATES",
-        "label                              ok  overall fit   full  real modern trades dd    marker vsChamp full/real/modern",
-    ])
+    lines.extend(
+        [
+            "",
+            "HYBRID CANDIDATES",
+            "label                              ok  overall fit   full  real modern trades dd    marker vsChamp full/real/modern",
+        ]
+    )
     for row in lab["candidates"]:
         m = row["metrics"]
         v = row["vs_champion"]
@@ -482,15 +522,25 @@ def format_lab(lab: dict[str, Any], *, top_n: int) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--top", type=int, default=8, help="Rows to show in entry/exit tables")
-    parser.add_argument("--top-gold", type=int, default=20, help="Gold rows to evaluate")
-    parser.add_argument("--family-limit", type=int, default=5, help="Top family leaders in committee")
+    parser.add_argument(
+        "--top", type=int, default=8, help="Rows to show in entry/exit tables"
+    )
+    parser.add_argument(
+        "--top-gold", type=int, default=20, help="Gold rows to evaluate"
+    )
+    parser.add_argument(
+        "--family-limit", type=int, default=5, help="Top family leaders in committee"
+    )
     parser.add_argument(
         "--include-hybrids-as-sources",
         action="store_true",
         help="Allow promoted gold_hybrid_* rows to become members of newly tested hybrids",
     )
-    parser.add_argument("--validate", action="store_true", help="Run the quick validation pipeline on hybrid candidates")
+    parser.add_argument(
+        "--validate",
+        action="store_true",
+        help="Run the quick validation pipeline on hybrid candidates",
+    )
     parser.add_argument("--output", default=DEFAULT_OUTPUT)
     args = parser.parse_args()
 

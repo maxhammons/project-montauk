@@ -329,6 +329,10 @@ def score_marker_alignment(
     precision, recall, f1 = _precision_recall_f1(target_window, candidate_window)
 
     candidate_buys, candidate_sells = _transition_bars_from_state(candidate_state)
+    # Filter target/candidate transitions to the [overlap_start, overlap_end] window
+    # so timing/count scores only consider the bars where both target markers and
+    # candidate trades are defined — keeps scoring consistent across runs that
+    # span different histories.
     target_buys = [
         bar for bar in target["buy_bars"] if overlap_start <= bar <= overlap_end
     ]

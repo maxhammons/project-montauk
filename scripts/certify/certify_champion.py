@@ -125,7 +125,13 @@ def main():
     )
     args = parser.parse_args()
 
-    params_filter = json.loads(args.params) if args.params else None
+    if args.params:
+        try:
+            params_filter = json.loads(args.params)
+        except json.JSONDecodeError as exc:
+            parser.error(f"--params is not valid JSON: {exc}")
+    else:
+        params_filter = None
 
     champion = None
     if args.result:
@@ -221,7 +227,9 @@ def main():
             for row in leaderboard
         )
         if persisted:
-            print(f"[certify] Gold Status confirmed; leaderboard rows: {len(leaderboard)}")
+            print(
+                f"[certify] Gold Status confirmed; leaderboard rows: {len(leaderboard)}"
+            )
         else:
             print(
                 "[certify] Packaged but not persisted to leaderboard after "

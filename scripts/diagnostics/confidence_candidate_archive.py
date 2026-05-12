@@ -22,7 +22,7 @@ if SCRIPTS_DIR not in sys.path:
 
 from engine.canonical_params import count_tunable_params
 from strategies.library import STRATEGY_REGISTRY, STRATEGY_TIERS
-from validation.confidence_v2 import OUTPUT_DIR, params_key, safe_float, strategy_key
+from validation.confidence_v2 import OUTPUT_DIR, params_key, safe_float
 
 DEFAULT_OUTPUT = os.path.join(OUTPUT_DIR, "candidate_archive.json")
 
@@ -251,7 +251,9 @@ def build_archive(paths: list[str] | None = None) -> dict[str, Any]:
             )
             if candidate["source_priority"] > existing.get("source_priority", 0):
                 for field in ("display_name", "metrics", "fitness", "marker_alignment_score", "validation", "tier"):
-                    existing[field] = candidate.get(field)
+                    new_value = candidate.get(field)
+                    if new_value is not None:
+                        existing[field] = new_value
 
     candidates = sorted(
         by_key.values(),

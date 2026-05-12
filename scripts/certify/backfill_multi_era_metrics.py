@@ -285,10 +285,7 @@ def _era_metrics(
     close = df["close"].values.astype(np.float64)
     dates = df["date"].values
     bah_return_pct = ((close[-1] / close[0]) - 1.0) * 100.0 if close[0] > 0 else 0.0
-    try:
-        r.regime_score = score_regime_capture(r.trades, close, dates)
-    except Exception:
-        pass
+    r.regime_score = score_regime_capture(r.trades, close, dates)
     fit = compute_fitness(r, tier=tier)
     return {
         "share_multiple": float(r.share_multiple),
@@ -363,11 +360,7 @@ def _decayed_fitness(
         fit_decayed = 0.0
     else:
         rs = r.regime_score
-        try:
-            rs_ok = rs is not None
-        except Exception:
-            rs_ok = False
-        if not rs_ok:
+        if rs is None:
             r.regime_score = score_regime_capture(
                 r.trades,
                 df["close"].values.astype(np.float64),
@@ -456,7 +449,11 @@ def summarize_regime_performance(regimes: list[dict]) -> dict:
     for regime in regimes:
         key = regime.get("key")
         share = regime.get("share_multiple")
-        if key in CRITICAL_REGIME_KEYS and share is not None and float(share) < CRITICAL_REGIME_FLOOR:
+        if (
+            key in CRITICAL_REGIME_KEYS
+            and share is not None
+            and float(share) < CRITICAL_REGIME_FLOOR
+        ):
             critical_failures.append(
                 {
                     "key": key,
@@ -470,11 +467,14 @@ def summarize_regime_performance(regimes: list[dict]) -> dict:
     total_weight = 0.0
     for key, spec in REGIME_SCORE_COMPONENTS.items():
         members = [
-            regime for regime in regimes
+            regime
+            for regime in regimes
             if regime.get("kind") in spec["kinds"]
             and regime.get("share_multiple") is not None
         ]
-        aggregate_share = _geo_mean([float(regime["share_multiple"]) for regime in members])
+        aggregate_share = _geo_mean(
+            [float(regime["share_multiple"]) for regime in members]
+        )
         score = _interp_score(aggregate_share, *spec["anchors"]) if members else 0.0
         components[key] = {
             "label": spec["label"],
@@ -539,9 +539,11 @@ def main() -> int:
     with open(LEADERBOARD_PATH) as f:
         lb = json.load(f)
     print(f"[backfill] {len(lb)} leaderboard entries")
-    print(
-        f"[backfill] λ = {args.decay_lambda} (half-life ≈ {math.log(2) / args.decay_lambda:.1f} years)"
-    )
+    if args.decay_lambda > 0:
+        half_life_str = f"half-life ≈ {math.log(2) / args.decay_lambda:.1f} years"
+    else:
+        half_life_str = "half-life = ∞ (no decay)"
+    print(f"[backfill] λ = {args.decay_lambda} ({half_life_str})")
 
     print("[backfill] Loading TECL data...")
     df_full = get_tecl_data()

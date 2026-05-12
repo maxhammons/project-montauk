@@ -78,10 +78,10 @@ def _apply_stitch_plan(df: pd.DataFrame, plan: list) -> pd.DataFrame:
     for sid, sym, kind, mv, end in plan:
         end_ts = pd.Timestamp(end) if end else pd.Timestamp("2999-12-31")
         mask = (df["date"] >= prev_end) & (df["date"] < end_ts)
-        seg_id[mask] = sid
-        src_sym[mask] = sym
-        src_kind[mask] = kind
-        model_v[mask] = mv
+        seg_id.loc[mask] = sid
+        src_sym.loc[mask] = sym
+        src_kind.loc[mask] = kind
+        model_v.loc[mask] = mv
         prev_end = end_ts
 
     df["is_synthetic"] = (src_kind == "synthetic-leveraged").astype(bool)
@@ -90,6 +90,19 @@ def _apply_stitch_plan(df: pd.DataFrame, plan: list) -> pd.DataFrame:
     df["synthetic_model_version"] = model_v
     df["stitch_segment"] = seg_id.astype("Int64")
     return df
+
+
+def _provenance_series_equal(left: pd.Series, right: pd.Series, column: str) -> bool:
+    """Compare provenance columns across CSV-read and in-memory dtypes."""
+    if column == "is_synthetic":
+        return left.astype(bool).equals(right.astype(bool))
+    if column == "stitch_segment":
+        left_num = pd.to_numeric(left, errors="raise").astype("Int64")
+        right_num = pd.to_numeric(right, errors="raise").astype("Int64")
+        return left_num.equals(right_num)
+    left_text = left.fillna("").astype(str)
+    right_text = right.fillna("").astype(str)
+    return left_text.equals(right_text)
 
 
 def _ensure_provenance_columns(csv_path: str, plan: list) -> bool:
@@ -103,9 +116,16 @@ def _ensure_provenance_columns(csv_path: str, plan: list) -> bool:
     df.columns = [c.lower().strip() for c in df.columns]
     df = _normalize_date_column(df)
 
+    updated = _apply_stitch_plan(df, plan)
     needs_write = any(c not in df.columns for c in PROVENANCE_COLUMNS)
-    df = _apply_stitch_plan(df, plan)
-    df.to_csv(csv_path, index=False)
+    if not needs_write:
+        needs_write = any(
+            not _provenance_series_equal(df[c], updated[c], c)
+            for c in PROVENANCE_COLUMNS
+        )
+
+    if needs_write:
+        updated.to_csv(csv_path, index=False)
     return needs_write
 
 
@@ -129,7 +149,7 @@ def _normalize_date_column(df: pd.DataFrame) -> pd.DataFrame:
     """
     if "date" not in df.columns or df.empty:
         return df
-    df["date"] = pd.to_datetime(df["date"])
+    df["date"] = pd.to_datetime(df["date"], format="mixed")
     if hasattr(df["date"].dt, "tz") and df["date"].dt.tz is not None:
         df["date"] = df["date"].dt.tz_localize(None)
     df["date"] = df["date"].dt.normalize()
@@ -213,8 +233,15 @@ def _fetch_fred_csv(series_id: str, start: str = "1998-01-01") -> pd.DataFrame:
         resp.raise_for_status()
         df = pd.read_csv(StringIO(resp.text))
         df.columns = ["date", "value"]
-        df["date"] = pd.to_datetime(df["date"])
-        df["value"] = pd.to_numeric(df["value"], errors="coerce")
+        df["date"] = pd.to_datetime(df["date"], format="mixed")
+        raw_values = df["value"].astype("string").str.strip()
+        missing = raw_values.isna() | raw_values.isin(["", "."])
+        values = pd.to_numeric(raw_values.mask(missing), errors="coerce")
+        invalid = values.isna() & ~missing
+        if invalid.any():
+            bad_values = raw_values[invalid].head(3).tolist()
+            raise ValueError(f"FRED {series_id} contained non-numeric values: {bad_values}")
+        df["value"] = values
         df = df.dropna(subset=["value"]).reset_index(drop=True)
         df = _normalize_date_column(df)
         return df
@@ -289,7 +316,8 @@ def _refresh_or_create_ticker_csv(csv_path: str, ticker: str, *, start: str) -> 
 def refresh_all():
     """
     Pull latest bars for all local CSVs. Called once at /spike invocation.
-    Updates files in place — only appends, never overwrites historical data.
+    Updates files in place. Refreshes append new bars; the one-time legacy
+    TECL migration creates TECL.csv from the legacy source if needed.
     """
     print("[refresh] Updating all local CSVs...")
 
@@ -477,6 +505,13 @@ _TREASURY_CSV = os.path.join(TS_DIR, "treasury-spread-10y2y.csv")
 _FED_FUNDS_CSV = os.path.join(TS_DIR, "fed-funds-rate.csv")
 
 
+def _require_columns(df: pd.DataFrame, columns: list[str], source: str) -> None:
+    """Fail fast when a local data file has drifted from its expected schema."""
+    missing = [col for col in columns if col not in df.columns]
+    if missing:
+        raise ValueError(f"{source} missing required column(s): {', '.join(missing)}")
+
+
 def _merge_macro_data(df: pd.DataFrame) -> pd.DataFrame:
     """Merge macro indicators into a price DataFrame by date (left join).
 
@@ -491,9 +526,9 @@ def _merge_macro_data(df: pd.DataFrame) -> pd.DataFrame:
             vix = _normalize_date_column(vix)
             # VIX.csv uses "vix_close" column name
             vix_col = "vix_close" if "vix_close" in vix.columns else "close"
-            if vix_col in vix.columns:
-                vix = vix[["date", vix_col]].rename(columns={vix_col: "vix_close"})
-                df = df.merge(vix, on="date", how="left")
+            _require_columns(vix, ["date", vix_col], "VIX.csv")
+            vix = vix[["date", vix_col]].rename(columns={vix_col: "vix_close"})
+            df = df.merge(vix, on="date", how="left")
         if "vix_close" not in df.columns:
             df["vix_close"] = np.nan
 
@@ -502,7 +537,8 @@ def _merge_macro_data(df: pd.DataFrame) -> pd.DataFrame:
         ts = pd.read_csv(_TREASURY_CSV, parse_dates=["date"])
         ts.columns = [c.lower().strip() for c in ts.columns]
         ts = _normalize_date_column(ts)
-        col = "yield_spread_10y2y" if "yield_spread_10y2y" in ts.columns else ts.columns[1]
+        col = "yield_spread_10y2y"
+        _require_columns(ts, ["date", col], "treasury-spread-10y2y.csv")
         ts = ts[["date", col]].rename(columns={col: "treasury_spread"})
         df = df.merge(ts, on="date", how="left")
         df["treasury_spread"] = df["treasury_spread"].ffill()
@@ -514,7 +550,8 @@ def _merge_macro_data(df: pd.DataFrame) -> pd.DataFrame:
         ff = pd.read_csv(_FED_FUNDS_CSV, parse_dates=["date"])
         ff.columns = [c.lower().strip() for c in ff.columns]
         ff = _normalize_date_column(ff)
-        col = "fed_funds_rate" if "fed_funds_rate" in ff.columns else ff.columns[1]
+        col = "fed_funds_rate"
+        _require_columns(ff, ["date", col], "fed-funds-rate.csv")
         ff = ff[["date", col]].rename(columns={col: "fed_funds_rate"})
         df = df.merge(ff, on="date", how="left")
         df["fed_funds_rate"] = df["fed_funds_rate"].ffill()
@@ -526,9 +563,9 @@ def _merge_macro_data(df: pd.DataFrame) -> pd.DataFrame:
         xlk = pd.read_csv(XLK_CSV, parse_dates=["date"])
         xlk.columns = [c.lower().strip() for c in xlk.columns]
         xlk = _normalize_date_column(xlk)
-        if "close" in xlk.columns:
-            xlk = xlk[["date", "close"]].rename(columns={"close": "xlk_close"})
-            df = df.merge(xlk, on="date", how="left")
+        _require_columns(xlk, ["date", "close"], "XLK.csv")
+        xlk = xlk[["date", "close"]].rename(columns={"close": "xlk_close"})
+        df = df.merge(xlk, on="date", how="left")
     if "xlk_close" not in df.columns:
         df["xlk_close"] = np.nan
 
@@ -537,9 +574,9 @@ def _merge_macro_data(df: pd.DataFrame) -> pd.DataFrame:
         sgov = pd.read_csv(SGOV_CSV, parse_dates=["date"])
         sgov.columns = [c.lower().strip() for c in sgov.columns]
         sgov = _normalize_date_column(sgov)
-        if "close" in sgov.columns:
-            sgov_df = sgov[["date", "close"]].rename(columns={"close": "sgov_close"})
-            df = df.merge(sgov_df, on="date", how="left")
+        _require_columns(sgov, ["date", "close"], "SGOV.csv")
+        sgov_df = sgov[["date", "close"]].rename(columns={"close": "sgov_close"})
+        df = df.merge(sgov_df, on="date", how="left")
     if "sgov_close" not in df.columns:
         df["sgov_close"] = np.nan
 
@@ -688,6 +725,14 @@ def build_synthetic_tecl(start: str = "1998-01-01", end: str | None = None,
     xlk_low = xlk["low"].values.astype(np.float64)
     n = len(xlk_close)
 
+    if np.any(xlk_close <= 0):
+        bad_idx = int(np.where(xlk_close <= 0)[0][0])
+        bad_date = pd.Timestamp(xlk["date"].iloc[bad_idx]).date()
+        raise ValueError(
+            "XLK close must be positive for synthetic TECL build; "
+            f"got {xlk_close[bad_idx]} on {bad_date}"
+        )
+
     daily_ret = np.zeros(n)
     synth_ret = np.zeros(n)
     for i in range(1, n):
@@ -701,12 +746,11 @@ def build_synthetic_tecl(start: str = "1998-01-01", end: str | None = None,
     scale = anchor_price / synth_close[-1] if synth_close[-1] != 0 else 1.0
     synth_close *= scale
 
-    xlk_close_safe = np.where(xlk_close > 0, xlk_close, 1.0)
     df = pd.DataFrame({
         "date": xlk["date"].values,
-        "open": synth_close * (xlk_open / xlk_close_safe),
-        "high": synth_close * (xlk_high / xlk_close_safe),
-        "low": synth_close * (xlk_low / xlk_close_safe),
+        "open": synth_close * (xlk_open / xlk_close),
+        "high": synth_close * (xlk_high / xlk_close),
+        "low": synth_close * (xlk_low / xlk_close),
         "close": synth_close,
         "volume": xlk["volume"].values,
     })

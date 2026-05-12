@@ -20,7 +20,9 @@ from typing import Any
 from certify.contract import sync_entry_contract
 from engine.canonical_params import count_tunable_params
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
 LEADERBOARD_PATH = os.path.join(PROJECT_ROOT, "spike", "leaderboard.json")
 HASH_INDEX_PATH = os.path.join(PROJECT_ROOT, "spike", "hash-index.json")
 DIVERSITY_REPORT_PATH = os.path.join(PROJECT_ROOT, "runs", "gold_diversity_report.json")
@@ -48,7 +50,13 @@ def clamp(value: float, lo: float = 0.0, hi: float = 1.0) -> float:
 
 
 def inverse_interp(value: float, pass_: float, soft: float, fail: float) -> float:
-    """Score where lower values are better."""
+    """Map a metric where lower input values are better into a [0, 1] score
+    where higher output values are better.
+
+    `pass_`/`soft`/`fail` are thresholds on the *input* metric (lower input is
+    better); the returned score is confidence-like (1.0 at or below `pass_`,
+    0.0 at or above `fail`).
+    """
     value = float(value)
     if value <= pass_:
         return 1.0
@@ -59,7 +67,9 @@ def inverse_interp(value: float, pass_: float, soft: float, fail: float) -> floa
     return 0.5 - 0.5 * ((value - soft) / max(fail - soft, 1e-9))
 
 
-def weighted_geomean(values: dict[str, float | None], weights: dict[str, float]) -> float:
+def weighted_geomean(
+    values: dict[str, float | None], weights: dict[str, float]
+) -> float:
     present = {
         key: clamp(value, 1e-6, 1.0)
         for key, value in values.items()
@@ -98,11 +108,8 @@ def strategy_key(row: dict[str, Any]) -> str:
 def load_json(path: str, default: Any) -> Any:
     if not os.path.exists(path):
         return default
-    try:
-        with open(path) as f:
-            return json.load(f)
-    except Exception:
-        return default
+    with open(path) as f:
+        return json.load(f)
 
 
 def load_gold_rows(path: str = LEADERBOARD_PATH) -> list[dict[str, Any]]:
@@ -160,7 +167,9 @@ def infer_discovery_mode(row: dict[str, Any]) -> str:
     params = row.get("params") or {}
     if strategy.startswith("gold_hybrid_") or "members" in params:
         return "hybrid"
-    tier = str(row.get("tier") or (row.get("validation") or {}).get("tier") or "").upper()
+    tier = str(
+        row.get("tier") or (row.get("validation") or {}).get("tier") or ""
+    ).upper()
     if tier == "T0":
         return "preregistered"
     if tier == "T1":
@@ -170,9 +179,15 @@ def infer_discovery_mode(row: dict[str, Any]) -> str:
     return "unknown"
 
 
-def search_provenance(row: dict[str, Any], *, hash_summary: dict[str, Any], family_size: int) -> dict[str, Any]:
+def search_provenance(
+    row: dict[str, Any], *, hash_summary: dict[str, Any], family_size: int
+) -> dict[str, Any]:
     n_params = count_tunable_params(row.get("params") or {})
-    existing = row.get("search_provenance") if isinstance(row.get("search_provenance"), dict) else {}
+    existing = (
+        row.get("search_provenance")
+        if isinstance(row.get("search_provenance"), dict)
+        else {}
+    )
     mode = infer_discovery_mode(row)
     if existing.get("discovery_mode"):
         mode = str(existing.get("discovery_mode"))
@@ -198,7 +213,10 @@ def search_provenance(row: dict[str, Any], *, hash_summary: dict[str, Any], fami
         "n_configs_tested": max(existing_tested, global_configs),
         "n_effective_configs": int(n_eff),
         "n_params": n_params,
-        "family_candidates_tested": int(safe_float(existing.get("family_candidates_tested"), family_size) or family_size),
+        "family_candidates_tested": int(
+            safe_float(existing.get("family_candidates_tested"), family_size)
+            or family_size
+        ),
         "selection_pressure": round(pressure, 4),
         "provenance_quality": existing.get("provenance_quality") or "partial",
     }
@@ -228,7 +246,9 @@ def era_balance(metrics: dict[str, Any]) -> float:
     return clamp(min(values) / max(values)) if values else 0.0
 
 
-def deflation_score(row: dict[str, Any], provenance: dict[str, Any], hash_summary: dict[str, Any]) -> float:
+def deflation_score(
+    row: dict[str, Any], provenance: dict[str, Any], hash_summary: dict[str, Any]
+) -> float:
     metrics = row.get("metrics") or {}
     observed = safe_float(metrics.get("regime_score"))
     p99 = safe_float(hash_summary.get("rs_p99"), 0.0)
@@ -248,7 +268,9 @@ def deflation_score(row: dict[str, Any], provenance: dict[str, Any], hash_summar
     return clamp(mode_floor + 0.22 * signal_margin - 0.10 * pressure, 0.45, 1.0)
 
 
-def calibration_lookup(model: dict[str, Any] | None, raw_score: float) -> tuple[float, str]:
+def calibration_lookup(
+    model: dict[str, Any] | None, raw_score: float
+) -> tuple[float, str]:
     if not model or model.get("status") != "calibrated":
         return raw_score, "provisional_uncalibrated"
     buckets = model.get("buckets") or []
@@ -257,10 +279,16 @@ def calibration_lookup(model: dict[str, Any] | None, raw_score: float) -> tuple[
     for bucket in buckets:
         lo = safe_float(bucket.get("min_score"), 0.0)
         hi = safe_float(bucket.get("max_score"), 1.0)
+        if lo > hi:
+            raise ValueError(f"calibration bucket has min_score={lo} > max_score={hi}")
         if lo <= raw_score <= hi:
-            observed = clamp(safe_float(bucket.get("observed_survival_rate"), raw_score))
+            observed = clamp(
+                safe_float(bucket.get("observed_survival_rate"), raw_score)
+            )
             return clamp(0.65 * raw_score + 0.35 * observed), "calibrated"
-    nearest = min(buckets, key=lambda b: abs(safe_float(b.get("midpoint"), raw_score) - raw_score))
+    nearest = min(
+        buckets, key=lambda b: abs(safe_float(b.get("midpoint"), raw_score) - raw_score)
+    )
     observed = clamp(safe_float(nearest.get("observed_survival_rate"), raw_score))
     return clamp(0.65 * raw_score + 0.35 * observed), "calibrated"
 
@@ -279,15 +307,27 @@ def score_entry(
     sub = validation.get("sub_scores") or {}
     val_conf = safe_float(validation.get("composite_confidence"))
     floor = evidence_floor(sub)
-    provenance = search_provenance(row, hash_summary=hash_summary, family_size=family_size)
+    provenance = search_provenance(
+        row, hash_summary=hash_summary, family_size=family_size
+    )
 
     drawdown = safe_float(metrics.get("max_dd"), 100.0)
     drawdown_resilience = inverse_interp(drawdown, pass_=55.0, soft=75.0, fail=95.0)
     parsimony = inverse_interp(provenance["n_params"], pass_=8.0, soft=24.0, fail=80.0)
-    warnings = len(validation.get("soft_warnings") or []) + len(validation.get("critical_warnings") or [])
+    warnings = len(validation.get("soft_warnings") or []) + len(
+        validation.get("critical_warnings") or []
+    )
     warning_cleanliness = clamp(1.0 - min(0.25, 0.025 * warnings), 0.75, 1.0)
-    duplicate = clamp(duplicate_score if duplicate_score is not None else 1.0, 0.75, 1.0)
-    crowding = clamp(1.0 if family_size <= 1 else 1.0 - min(0.15, math.log(family_size) / math.log(20.0) * 0.15), 0.85, 1.0)
+    duplicate = clamp(
+        duplicate_score if duplicate_score is not None else 1.0, 0.75, 1.0
+    )
+    crowding = clamp(
+        1.0
+        if family_size <= 1
+        else 1.0 - min(0.15, math.log(family_size) / math.log(20.0) * 0.15),
+        0.85,
+        1.0,
+    )
 
     validation_quality = clamp(0.70 * val_conf + 0.30 * floor)
     robustness = weighted_geomean(
@@ -386,8 +426,12 @@ def score_entry(
         "trust": round(trust, 4),
         "trust_100": round(trust * 100.0, 2),
         "future_confidence_raw": round(raw_edge, 4),
-        "future_confidence_components": {k: round(float(v), 4) for k, v in raw_components.items() if v is not None},
-        "trust_components": {k: round(float(v), 4) for k, v in trust_components.items() if v is not None},
+        "future_confidence_components": {
+            k: round(float(v), 4) for k, v in raw_components.items() if v is not None
+        },
+        "trust_components": {
+            k: round(float(v), 4) for k, v in trust_components.items() if v is not None
+        },
         # Backward-compatible aliases for Confidence v2 artifacts written
         # before the naming pass.
         "edge_confidence": round(edge, 4),
@@ -396,8 +440,12 @@ def score_entry(
         "capital_readiness_100": round(trust * 100.0, 2),
         "calibration_state": calibration_state,
         "edge_confidence_raw": round(raw_edge, 4),
-        "edge_confidence_components": {k: round(float(v), 4) for k, v in raw_components.items() if v is not None},
-        "capital_readiness_components": {k: round(float(v), 4) for k, v in trust_components.items() if v is not None},
+        "edge_confidence_components": {
+            k: round(float(v), 4) for k, v in raw_components.items() if v is not None
+        },
+        "capital_readiness_components": {
+            k: round(float(v), 4) for k, v in trust_components.items() if v is not None
+        },
         "search_provenance": provenance,
     }
 
@@ -423,7 +471,9 @@ def build_leaderboard_scores(
             score_entry(
                 row,
                 family_size=family_sizes.get(family, 1),
-                duplicate_score=duplicate_scores.get(str(row.get("display_name") or "")),
+                duplicate_score=duplicate_scores.get(
+                    str(row.get("display_name") or "")
+                ),
                 hash_summary=hash_summary,
                 calibration_model=calibration_model,
             )
@@ -445,7 +495,9 @@ def build_leaderboard_scores(
         "definition": (
             "Overall Confidence combines Future Confidence and Trust. Future "
             "Confidence estimates future usefulness; Trust estimates "
-            "deployability. None of these change Gold Status admission."
+            "deployability. This module is diagnostic-only: neither sub-score "
+            "nor the overall composite is used to admit strategies to Gold "
+            "Status or the leaderboard (admission is governed elsewhere)."
         ),
         "hash_index_summary": hash_summary,
         "calibration_status": (calibration_model or {}).get("status", "uncalibrated"),
@@ -453,13 +505,17 @@ def build_leaderboard_scores(
     }
 
 
-def write_leaderboard_scores(report: dict[str, Any], path: str = LEADERBOARD_SCORES_PATH) -> None:
+def write_leaderboard_scores(
+    report: dict[str, Any], path: str = LEADERBOARD_SCORES_PATH
+) -> None:
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
         json.dump(report, f, indent=2)
 
 
-def append_timeseries(report: dict[str, Any], path: str = CONFIDENCE_TIMESERIES_PATH) -> dict[str, Any]:
+def append_timeseries(
+    report: dict[str, Any], path: str = CONFIDENCE_TIMESERIES_PATH
+) -> dict[str, Any]:
     existing = load_json(path, {"series": {}})
     if not isinstance(existing, dict):
         existing = {"series": {}}

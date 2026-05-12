@@ -33,9 +33,12 @@ def _detect_drawdowns(
     Detect bear periods using rolling peaks and TROUGH-RELATIVE recovery.
 
     A bear starts when drawdown from rolling peak exceeds dd_threshold.
-    A bear ends when price has risen trough_recovery_mult times from the trough
-    (e.g., 2.0 = price doubles from trough). This handles 3x leveraged ETFs
-    where peak-relative recovery is impossible after 99%+ drawdowns.
+    A bear ends (for the purpose of detection) when price has risen
+    trough_recovery_mult times from the trough (e.g., 2.0 = price doubles
+    from trough), but the recorded `end_idx`/`end_date` is the TROUGH index/date
+    — i.e., bears are reported as peak-to-trough, not peak-to-recovery.
+    This handles 3x leveraged ETFs where peak-relative recovery is impossible
+    after 99%+ drawdowns.
 
     Parameters
     ----------
@@ -84,6 +87,8 @@ def _detect_drawdowns(
                 peak_idx = i
                 peak_price = close[i]
             else:
+                if peak_price <= 0:
+                    continue
                 drawdown = (peak_price - close[i]) / peak_price
                 if drawdown >= dd_threshold:
                     in_bear = True
@@ -264,8 +269,8 @@ def format_regime_map(regime_map: dict) -> str:
         mag_ratio = abs(s["avg_bull_magnitude_pct"]) / abs(s["avg_bear_magnitude_pct"])
         if mag_ratio > 2:
             lines.append(f"  - Bull gains are {mag_ratio:.0f}x larger than bear losses on average")
-    lines.append(f"  - Implication: missing bull upside costs more than catching bear downside")
-    lines.append(f"  - Strategy priority: maximize time IN market during bulls, accept some bear exposure")
+    lines.append("  - Implication: missing bull upside costs more than catching bear downside")
+    lines.append("  - Strategy priority: maximize time IN market during bulls, accept some bear exposure")
 
     return "\n".join(lines)
 

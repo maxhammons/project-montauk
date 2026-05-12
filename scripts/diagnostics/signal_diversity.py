@@ -23,7 +23,9 @@ from strategies.library import STRATEGY_REGISTRY
 from strategies.markers import candidate_risk_state_from_trades
 
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
 LEADERBOARD_PATH = os.path.join(PROJECT_ROOT, "spike", "leaderboard.json")
 
 
@@ -36,7 +38,7 @@ def _load_entry(strategy: str | None, params_json: str | None) -> tuple[str, dic
     if not leaderboard:
         raise ValueError("leaderboard is empty")
     top = leaderboard[0]
-    return top["strategy"], top.get("params", {})
+    return top["strategy"], top.get("params") or {}
 
 
 def _state_for(strategy: str, params: dict, df) -> tuple[np.ndarray, object]:
@@ -78,7 +80,9 @@ def compare(a_state: np.ndarray, b_state: np.ndarray) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--base", default=None, help="base strategy; default leaderboard #1")
+    parser.add_argument(
+        "--base", default=None, help="base strategy; default leaderboard #1"
+    )
     parser.add_argument("--base-params-json", default=None)
     parser.add_argument("--candidate", required=True)
     parser.add_argument("--candidate-params-json", default=None)

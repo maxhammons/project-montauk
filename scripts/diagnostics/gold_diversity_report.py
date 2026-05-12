@@ -31,7 +31,9 @@ from strategies.library import STRATEGY_REGISTRY
 from strategies.markers import candidate_risk_state_from_trades, score_marker_alignment
 
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
 LEADERBOARD_PATH = os.path.join(PROJECT_ROOT, "spike", "leaderboard.json")
 
 
@@ -60,6 +62,12 @@ def _trade_bars(trades: list, attr: str) -> list[int]:
 
 
 def _overlap(a: list[int], b: list[int], *, tolerance: int) -> float:
+    """Return a normalized similarity score in [0, 1] between two bar lists.
+
+    Score is the symmetric mean of the fraction of bars in each list that
+    have a counterpart in the other within ``tolerance`` bars. This is a
+    similarity ratio, not a raw overlap count.
+    """
     if not a and not b:
         return 1.0
     if not a or not b:
@@ -125,14 +133,29 @@ def _summary_for(run: dict[str, Any]) -> dict[str, Any]:
         "confidence": validation.get("composite_confidence"),
         "fitness": entry.get("fitness"),
         "metrics": {
-            "share_multiple": round(float(metrics.get("share_multiple", result.share_multiple)), 4),
-            "real_share_multiple": round(float(metrics.get("real_share_multiple", result.real_share_multiple)), 4),
-            "modern_share_multiple": round(float(metrics.get("modern_share_multiple", result.modern_share_multiple)), 4),
+            "share_multiple": round(
+                float(metrics.get("share_multiple", result.share_multiple)), 4
+            ),
+            "real_share_multiple": round(
+                float(metrics.get("real_share_multiple", result.real_share_multiple)), 4
+            ),
+            "modern_share_multiple": round(
+                float(
+                    metrics.get("modern_share_multiple", result.modern_share_multiple)
+                ),
+                4,
+            ),
             "trades": int(metrics.get("trades", result.num_trades)),
-            "max_drawdown_pct": round(float(metrics.get("max_dd", result.max_drawdown_pct)), 4),
+            "max_drawdown_pct": round(
+                float(metrics.get("max_dd", result.max_drawdown_pct)), 4
+            ),
             "recomputed_share_multiple": round(float(result.share_multiple), 4),
-            "recomputed_real_share_multiple": round(float(result.real_share_multiple), 4),
-            "recomputed_modern_share_multiple": round(float(result.modern_share_multiple), 4),
+            "recomputed_real_share_multiple": round(
+                float(result.real_share_multiple), 4
+            ),
+            "recomputed_modern_share_multiple": round(
+                float(result.modern_share_multiple), 4
+            ),
         },
         "marker": {
             "score": marker.get("score"),
@@ -142,7 +165,9 @@ def _summary_for(run: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _pair_row(a: dict[str, Any], b: dict[str, Any], *, tolerance: int) -> dict[str, Any]:
+def _pair_row(
+    a: dict[str, Any], b: dict[str, Any], *, tolerance: int
+) -> dict[str, Any]:
     a_entry = a["entry"]
     b_entry = b["entry"]
     agreement = float(np.mean(a["state"] == b["state"]))
@@ -158,7 +183,9 @@ def _pair_row(a: dict[str, Any], b: dict[str, Any], *, tolerance: int) -> dict[s
         "risk_on_corr": _risk_corr(a["state"], b["state"]),
         "state_agreement": round(agreement, 4),
         "jaccard_risk_on": round(both_on / either_on, 4) if either_on else 1.0,
-        "entry_overlap": _overlap(a["entry_bars"], b["entry_bars"], tolerance=tolerance),
+        "entry_overlap": _overlap(
+            a["entry_bars"], b["entry_bars"], tolerance=tolerance
+        ),
         "exit_overlap": _overlap(a["exit_bars"], b["exit_bars"], tolerance=tolerance),
         "trade_count_delta": abs(len(a["entry_bars"]) - len(b["entry_bars"])),
     }
@@ -181,10 +208,7 @@ def build_report(*, focus: str | None, tolerance: int) -> dict[str, Any]:
     family_shares = {k: round(v / total, 4) for k, v in sorted(family_counts.items())}
     hhi = sum((v / total) ** 2 for v in family_counts.values())
 
-    pairs = [
-        _pair_row(a, b, tolerance=tolerance)
-        for a, b in combinations(runs, 2)
-    ]
+    pairs = [_pair_row(a, b, tolerance=tolerance) for a, b in combinations(runs, 2)]
     redundant_pairs = sorted(
         [
             pair
@@ -218,7 +242,11 @@ def build_report(*, focus: str | None, tolerance: int) -> dict[str, Any]:
                     for other in runs
                     if other is not focus_run
                 ],
-                key=lambda x: (x["risk_on_corr"], x["entry_overlap"], x["exit_overlap"]),
+                key=lambda x: (
+                    x["risk_on_corr"],
+                    x["entry_overlap"],
+                    x["exit_overlap"],
+                ),
             )
 
     era_leaders = {}
@@ -277,7 +305,11 @@ def format_report(report: dict[str, Any], *, top_pairs: int) -> str:
     if report.get("focus_pairs"):
         lines.extend(["", f"FOCUS PAIRS: {report.get('focus')}"])
         for row in report["focus_pairs"][:top_pairs]:
-            other = row["b_name"] if report["focus"].lower() in row["a_name"].lower() else row["a_name"]
+            other = (
+                row["b_name"]
+                if report["focus"].lower() in row["a_name"].lower()
+                else row["a_name"]
+            )
             lines.append(
                 f"  vs {other:<20} corr={row['risk_on_corr']:>6.3f} "
                 f"agree={row['state_agreement']:>6.3f} entry={row['entry_overlap']:>5.2f} "

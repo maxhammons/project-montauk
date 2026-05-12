@@ -120,7 +120,14 @@ def sync_validation_contract(
     *,
     artifact_paths: dict[str, str] | None = None,
 ) -> dict[str, Any]:
-    """Normalize validation semantics so every caller enforces the same rule."""
+    """Return a deep-copied, normalized validation dict.
+
+    The input is not mutated; a `copy.deepcopy` of `validation` is taken and
+    all canonical contract fields (`promotion_ready`, `certified_not_overfit`,
+    `backtest_certified`, `clean_pass`, `certification_checks`, `advisories`,
+    and the mirrored `gates.gate7` block) are recomputed from the inputs and
+    written onto the copy before it is returned.
+    """
 
     normalized = copy.deepcopy(validation or {})
     checks = dict(normalized.get("certification_checks") or {})
@@ -134,8 +141,10 @@ def sync_validation_contract(
     artifact_check = dict(checks.get("artifact_completeness") or {})
     if artifact_paths is None:
         if artifact_check:
-            default_status = "pass" if artifact_check.get("passed") else (
-                artifact_check.get("status") or "fail"
+            default_status = (
+                "pass"
+                if artifact_check.get("passed")
+                else (artifact_check.get("status") or "fail")
             )
             checks["artifact_completeness"] = _normalized_check(
                 artifact_check,
@@ -171,9 +180,7 @@ def sync_validation_contract(
             gate7.get("promotion_ready", normalized.get("promotion_eligible", False)),
         )
     )
-    required_ok = not required_certification_failures(
-        {"certification_checks": checks}
-    )
+    required_ok = not required_certification_failures({"certification_checks": checks})
     artifact_ok = bool((checks.get("artifact_completeness") or {}).get("passed", False))
     certified_not_overfit = promotion_ready and required_ok
     backtest_certified = certified_not_overfit and artifact_ok

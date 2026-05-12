@@ -30,7 +30,9 @@ from strategies.library import STRATEGY_REGISTRY
 from strategies.markers import score_marker_alignment
 
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
 LEADERBOARD_PATH = os.path.join(PROJECT_ROOT, "spike", "leaderboard.json")
 
 BASE_KEYS = {
@@ -109,6 +111,10 @@ def load_overlay_candidates(
 
 def load_gold_bases(*, family: str, top_n: int) -> list[dict[str, Any]]:
     leaderboard = _load_json(LEADERBOARD_PATH)
+    if not isinstance(leaderboard, list):
+        raise ValueError(
+            f"expected leaderboard JSON root to be a list, got {type(leaderboard).__name__}: {LEADERBOARD_PATH}"
+        )
     bases = []
     for row in leaderboard:
         synced = sync_entry_contract(dict(row))
@@ -122,7 +128,9 @@ def load_gold_bases(*, family: str, top_n: int) -> list[dict[str, Any]]:
     return bases
 
 
-def merge_base_overlay(base_params: dict[str, Any], overlay_params: dict[str, Any]) -> dict[str, Any]:
+def merge_base_overlay(
+    base_params: dict[str, Any], overlay_params: dict[str, Any]
+) -> dict[str, Any]:
     merged = dict(overlay_params or {})
     for key in BASE_KEYS:
         if key in base_params:
@@ -133,7 +141,10 @@ def merge_base_overlay(base_params: dict[str, Any], overlay_params: dict[str, An
 def _slice_df(df: pd.DataFrame, start: str | None) -> pd.DataFrame:
     if start is None:
         return df.reset_index(drop=True)
-    return df[df["date"] >= start].reset_index(drop=True)
+    start_ts = pd.Timestamp(start)
+    if start_ts.tzinfo is not None:
+        start_ts = start_ts.tz_localize(None)
+    return df[df["date"] >= start_ts].reset_index(drop=True)
 
 
 def _standalone_share_multiple(
@@ -158,7 +169,9 @@ def _standalone_share_multiple(
     return round(float(result.share_multiple), 4)
 
 
-def _run_strategy(df: pd.DataFrame, strategy: str, params: dict[str, Any]) -> dict[str, Any]:
+def _run_strategy(
+    df: pd.DataFrame, strategy: str, params: dict[str, Any]
+) -> dict[str, Any]:
     if strategy not in STRATEGY_REGISTRY:
         raise KeyError(f"unknown strategy: {strategy}")
     ind = Indicators(df)
@@ -179,8 +192,12 @@ def _run_strategy(df: pd.DataFrame, strategy: str, params: dict[str, Any]) -> di
     }
     return {
         "share_multiple": _standalone_share_multiple(df, strategy, params, None),
-        "real_share_multiple": _standalone_share_multiple(df, strategy, params, "2008-12-17"),
-        "modern_share_multiple": _standalone_share_multiple(df, strategy, params, "2015-01-01"),
+        "real_share_multiple": _standalone_share_multiple(
+            df, strategy, params, "2008-12-17"
+        ),
+        "modern_share_multiple": _standalone_share_multiple(
+            df, strategy, params, "2015-01-01"
+        ),
         "raw_engine": raw_engine,
         "metrics_view": "canonical_standalone",
         "trades": int(result.num_trades),
@@ -207,30 +224,32 @@ def build_matrix(
         base_params = base.get("params") or {}
         base_metrics = _run_strategy(df, base_strategy, base_params)
         for cand_idx, candidate in enumerate(candidates, start=1):
-            overlay_params = merge_base_overlay(base_params, candidate.get("params") or {})
+            overlay_params = merge_base_overlay(
+                base_params, candidate.get("params") or {}
+            )
             overlay_metrics = _run_strategy(df, overlay_strategy, overlay_params)
             full_ratio = (
                 overlay_metrics["share_multiple"] / base_metrics["share_multiple"]
-                if base_metrics["share_multiple"]
+                if base_metrics["share_multiple"] != 0
                 else 0.0
             )
             real_ratio = (
-                overlay_metrics["real_share_multiple"] / base_metrics["real_share_multiple"]
-                if base_metrics["real_share_multiple"]
+                overlay_metrics["real_share_multiple"]
+                / base_metrics["real_share_multiple"]
+                if base_metrics["real_share_multiple"] != 0
                 else 0.0
             )
             modern_ratio = (
-                overlay_metrics["modern_share_multiple"] / base_metrics["modern_share_multiple"]
-                if base_metrics["modern_share_multiple"]
+                overlay_metrics["modern_share_multiple"]
+                / base_metrics["modern_share_multiple"]
+                if base_metrics["modern_share_multiple"] != 0
                 else 0.0
             )
-            timing_delta = (
-                float(overlay_metrics["marker_timing"] or 0.0)
-                - float(base_metrics["marker_timing"] or 0.0)
+            timing_delta = float(overlay_metrics["marker_timing"] or 0.0) - float(
+                base_metrics["marker_timing"] or 0.0
             )
-            score_delta = (
-                float(overlay_metrics["marker_score"] or 0.0)
-                - float(base_metrics["marker_score"] or 0.0)
+            score_delta = float(overlay_metrics["marker_score"] or 0.0) - float(
+                base_metrics["marker_score"] or 0.0
             )
             survives = bool(
                 overlay_metrics["share_multiple"] >= 1.0
@@ -307,9 +326,15 @@ def _format_table(matrix: dict[str, Any], *, top_n: int) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--overlay", required=True, help="overlay strategy, e.g. gc_vjatr_reclaimer")
-    parser.add_argument("--grid", default=None, help="grid_search JSON to source overlay candidates")
-    parser.add_argument("--params-json", default=None, help="explicit overlay params JSON")
+    parser.add_argument(
+        "--overlay", required=True, help="overlay strategy, e.g. gc_vjatr_reclaimer"
+    )
+    parser.add_argument(
+        "--grid", default=None, help="grid_search JSON to source overlay candidates"
+    )
+    parser.add_argument(
+        "--params-json", default=None, help="explicit overlay params JSON"
+    )
     parser.add_argument("--base-family", default="gc_vjatr")
     parser.add_argument("--top-bases", type=int, default=6)
     parser.add_argument("--top-candidates", type=int, default=8)

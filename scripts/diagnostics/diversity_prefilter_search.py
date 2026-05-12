@@ -78,7 +78,7 @@ _worker_thresholds = None
 
 
 def _load_json(path: str) -> Any:
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -111,7 +111,14 @@ def _overlap(a: list[int], b: list[int], *, tolerance: int) -> float:
 def _corr(a: np.ndarray, b: np.ndarray) -> float:
     af = a.astype(float)
     bf = b.astype(float)
-    if np.std(af) == 0 or np.std(bf) == 0:
+    a_std = np.std(af)
+    b_std = np.std(bf)
+    if (
+        not np.isfinite(a_std)
+        or not np.isfinite(b_std)
+        or np.isclose(a_std, 0.0)
+        or np.isclose(b_std, 0.0)
+    ):
         return 0.0
     return float(np.corrcoef(af, bf)[0, 1])
 
@@ -240,8 +247,13 @@ def _evaluate_job(job: tuple[str, dict[str, Any]]) -> dict[str, Any]:
     concept, params = job
     try:
         result = _run_strategy(_worker_df, _worker_ind, concept, params)
-    except Exception:
-        return {"status": "reject", "reason": "exception", "concept": concept}
+    except Exception as exc:
+        return {
+            "status": "reject",
+            "reason": "exception",
+            "concept": concept,
+            "error": f"{type(exc).__name__}: {exc}",
+        }
     wfit = weighted_era_fitness(
         result.share_multiple,
         result.real_share_multiple,
@@ -431,6 +443,7 @@ def run_search(
     concept_survivors: dict[str, int] = {}
     concept_best_wfit: dict[str, float] = {}
     near_misses: list[dict[str, Any]] = []
+    exception_examples: list[dict[str, str]] = []
     thresholds = {
         "min_weighted_era_fitness": min_weighted_era_fitness,
         "max_anchor_corr": max_anchor_corr,
@@ -450,6 +463,13 @@ def run_search(
         else:
             reason = str(payload.get("reason") or "exception")
             rejects[reason] = rejects.get(reason, 0) + 1
+            if reason == "exception" and payload.get("error") and len(exception_examples) < 20:
+                exception_examples.append(
+                    {
+                        "concept": str(payload.get("concept") or "?"),
+                        "error": str(payload["error"]),
+                    }
+                )
         if payload.get("near_miss"):
             near_misses.append(payload["near_miss"])
             near_misses.sort(key=lambda row: row["weighted_era_fitness"], reverse=True)
@@ -528,6 +548,7 @@ def run_search(
             for concept in sorted(concept_counts)
         ],
         "near_misses": near_misses[:30],
+        "exception_examples": exception_examples,
         "rankings": rows[:top_n],
         "elapsed_seconds": round(time.time() - start, 2),
     }
@@ -564,6 +585,10 @@ def format_report(payload: dict[str, Any]) -> str:
                 f"full={m['share_multiple']:>5.2f} real={m['real_share_multiple']:>4.2f} "
                 f"modern={m['modern_share_multiple']:>5.2f} trades={m['trades']:>4}"
             )
+    if payload.get("exception_examples"):
+        lines.extend(["", "EXCEPTION REJECT EXAMPLES"])
+        for item in payload["exception_examples"][:10]:
+            lines.append(f"  {item['concept']}: {item['error']}")
     if payload.get("concept_summary"):
         lines.extend(["", "BEST BY CONCEPT"])
         for row in sorted(
@@ -627,7 +652,7 @@ def main() -> None:
     print(format_report(payload))
     if args.output:
         os.makedirs(os.path.dirname(os.path.abspath(args.output)), exist_ok=True)
-        with open(args.output, "w") as f:
+        with open(args.output, "w", encoding="utf-8") as f:
             json.dump(payload, f, indent=2)
         print(f"\n[diversity-search] wrote {args.output}")
 

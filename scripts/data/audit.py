@@ -41,9 +41,18 @@ def fetch_fred_series(series_id: str, start: str = "1998-01-01") -> pd.DataFrame
         resp.raise_for_status()
         from io import StringIO
         df = pd.read_csv(StringIO(resp.text))
+        if len(df.columns) != 2:
+            raise ValueError(f"unexpected FRED CSV shape for {series_id}: {list(df.columns)}")
         df.columns = ["date", "value"]
-        df["date"] = pd.to_datetime(df["date"])
-        df["value"] = pd.to_numeric(df["value"], errors="coerce")
+        df = _normalize_dates(df, f"FRED {series_id}")
+        raw_values = df["value"]
+        parsed_values = pd.to_numeric(raw_values, errors="coerce")
+        missing_markers = raw_values.astype(str).str.strip().isin({"", "."})
+        invalid = parsed_values.isna() & raw_values.notna() & ~missing_markers
+        if invalid.any():
+            sample = raw_values[invalid].head(3).tolist()
+            raise ValueError(f"invalid numeric values in FRED {series_id}: {sample}")
+        df["value"] = parsed_values
         df = df.dropna(subset=["value"]).reset_index(drop=True)
         return df
     except Exception as e:
@@ -86,6 +95,31 @@ def fetch_fred_series(series_id: str, start: str = "1998-01-01") -> pd.DataFrame
 EXPENSE_RATIO_TECL = 0.0095   # /yr — ProShares 2024 prospectus
 EXPENSE_RATIO_TQQQ = 0.0075   # /yr — ProShares prospectus
 TRADING_DAYS_PER_YEAR = 252
+
+
+def _require_columns(df: pd.DataFrame, columns: list[str], label: str) -> None:
+    missing = [col for col in columns if col not in df.columns]
+    if missing:
+        raise ValueError(f"{label} missing required columns: {missing}")
+
+
+def _normalize_dates(df: pd.DataFrame, label: str) -> pd.DataFrame:
+    _require_columns(df, ["date"], label)
+    df = df.copy()
+    df["date"] = pd.to_datetime(df["date"])
+    if hasattr(df["date"].dt, "tz") and df["date"].dt.tz is not None:
+        df["date"] = df["date"].dt.tz_localize(None)
+    df["date"] = df["date"].dt.normalize()
+    return df
+
+
+def _positive_float_array(df: pd.DataFrame, column: str, label: str) -> np.ndarray:
+    values = pd.to_numeric(df[column], errors="coerce").to_numpy(dtype=np.float64, na_value=np.nan)
+    invalid = ~np.isfinite(values) | (values <= 0)
+    if invalid.any():
+        bad_rows = df.loc[invalid, ["date", column]].head(3).to_dict("records")
+        raise ValueError(f"{label} has non-positive or non-finite {column}: {bad_rows}")
+    return values
 
 
 def reverify_formula() -> dict:
@@ -161,8 +195,10 @@ def audit_synthetic_tecl():
     # Load the existing TECL CSV
     csv_path = os.path.join(TS_DIR, "TECL Price History (2-23-26).csv")
     tecl = pd.read_csv(csv_path, parse_dates=["date"])
-    tecl = tecl.sort_values("date").reset_index(drop=True)
     tecl.columns = [c.lower().strip() for c in tecl.columns]
+    _require_columns(tecl, ["date", "open", "high", "low", "close", "volume"], "TECL audit CSV")
+    tecl = _normalize_dates(tecl, "TECL audit CSV")
+    tecl = tecl.sort_values("date").reset_index(drop=True)
 
     # TECL IPO was 2008-12-17. Everything before that is synthetic.
     ipo_date = pd.Timestamp("2008-12-17")
@@ -180,6 +216,8 @@ def audit_synthetic_tecl():
     if xlk.empty:
         print("  ERROR: Could not fetch XLK data. Skipping audit.")
         return None
+    _require_columns(xlk, ["date", "close"], "fresh XLK data")
+    xlk = _normalize_dates(xlk, "fresh XLK data")
 
     print(f"  XLK bars fetched: {len(xlk)}")
 
@@ -191,17 +229,14 @@ def audit_synthetic_tecl():
         print("  ERROR: Too few matched bars for audit.")
         return None
 
-    # Compute XLK daily returns
-    xlk_close = merged["close_xlk"].values.astype(np.float64)
-    tecl_close = merged["close_tecl"].values.astype(np.float64)
+    # Compute XLK daily returns. Bad closes are integrity failures, not zero returns.
+    xlk_close = _positive_float_array(merged, "close_xlk", "merged XLK audit data")
+    tecl_close = _positive_float_array(merged, "close_tecl", "merged TECL audit data")
 
-    xlk_ret = np.zeros(len(xlk_close))
-    tecl_ret = np.zeros(len(tecl_close))
-    for i in range(1, len(xlk_close)):
-        if xlk_close[i-1] > 0:
-            xlk_ret[i] = xlk_close[i] / xlk_close[i-1] - 1
-        if tecl_close[i-1] > 0:
-            tecl_ret[i] = tecl_close[i] / tecl_close[i-1] - 1
+    xlk_ret = np.zeros(len(xlk_close), dtype=np.float64)
+    tecl_ret = np.zeros(len(tecl_close), dtype=np.float64)
+    xlk_ret[1:] = xlk_close[1:] / xlk_close[:-1] - 1.0
+    tecl_ret[1:] = tecl_close[1:] / tecl_close[:-1] - 1.0
 
     # Expected synthetic return: 3x XLK daily return - expense
     daily_expense = 0.0095 / 252
@@ -383,7 +418,7 @@ def download_fed_funds():
 
 def build_master_csv():
     """
-    Build a single TECL master CSV with all available enrichment columns:
+    Build a single TECL master CSV with selected enrichment columns:
     - TECL OHLCV (synthetic + real)
     - VIX close
     - XLK close (underlying)

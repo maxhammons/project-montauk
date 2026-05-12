@@ -28,6 +28,11 @@ from strategies.library import STRATEGY_REGISTRY
 PROJECT_ROOT = os.path.dirname(_SCRIPTS_DIR)
 LEADERBOARD_FILE = os.path.join(PROJECT_ROOT, "spike", "leaderboard.json")
 
+# Pass/fail thresholds for the single-split out-of-sample check.
+MIN_TEST_BAH = 0.8           # test share_multiple must clear this to PASS
+MIN_DEGRADATION_RATIO = 0.5  # test/train share_multiple ratio must clear this
+MIN_TEST_TRADES = 2          # test period must have at least this many trades
+
 
 def walk_forward_test(
     strategy_name: str,
@@ -82,13 +87,22 @@ def walk_forward_test(
     test_bah = test.get("share_multiple", 0)
     test_trades = test.get("trades", 0)
 
-    degradation = test_bah / train_bah if train_bah > 0 else 0
-    results["degradation"] = round(degradation, 3)
+    # Degradation is undefined when the train baseline is non-positive: a
+    # negative or zero training share_multiple means the strategy lost (or
+    # broke even on) shares, so the test/train ratio is not a meaningful
+    # generalization signal. Flag as NaN rather than collapsing to 0, which
+    # would silently mask a losing baseline.
+    if train_bah > 0:
+        degradation = test_bah / train_bah
+        results["degradation"] = round(degradation, 3)
+    else:
+        degradation = float("nan")
+        results["degradation"] = degradation
 
     # Pass criteria
-    passes_bah = test_bah > 0.8
-    passes_degradation = degradation > 0.5
-    passes_trades = test_trades >= 2
+    passes_bah = test_bah > MIN_TEST_BAH
+    passes_degradation = (not math.isnan(degradation)) and degradation > MIN_DEGRADATION_RATIO
+    passes_trades = test_trades >= MIN_TEST_TRADES
 
     if passes_bah and passes_degradation and passes_trades:
         results["verdict"] = "PASS"
@@ -97,10 +111,16 @@ def walk_forward_test(
         results["reason"] = f"Only {test_trades} trades in test period"
     elif not passes_bah:
         results["verdict"] = "FAIL"
-        results["reason"] = f"Test share_multiple {test_bah:.3f} < 0.8"
+        results["reason"] = f"Test share_multiple {test_bah:.3f} < {MIN_TEST_BAH}"
+    elif math.isnan(degradation):
+        results["verdict"] = "FAIL"
+        results["reason"] = f"Train baseline non-positive ({train_bah:.3f}); degradation undefined"
     else:
         results["verdict"] = "WARN"
-        results["reason"] = f"Degradation {degradation:.2f} < 0.5 (train={train_bah:.3f} test={test_bah:.3f})"
+        results["reason"] = (
+            f"Degradation {degradation:.2f} < {MIN_DEGRADATION_RATIO} "
+            f"(train={train_bah:.3f} test={test_bah:.3f})"
+        )
 
     return results
 
@@ -145,10 +165,8 @@ def run_walk_forward(split_date: str = "2020-01-01", top_n: int = 20) -> list:
         verdict = result.get("verdict", "?")
         degrad = result.get("degradation", 0)
 
-        # Color-code verdict
-        v_str = verdict
         print(f"{name:<25} {train.get('share_multiple', 0):>10.3f} {test.get('share_multiple', 0):>10.3f} "
-              f"{degrad:>8.2f} {test.get('trades', 0):>8} {v_str:>8}")
+              f"{degrad:>8.2f} {test.get('trades', 0):>8} {verdict:>8}")
 
     # Summary
     n_pass = sum(1 for r in results if r.get("verdict") == "PASS")

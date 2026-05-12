@@ -123,6 +123,16 @@ def _json_safe(value):
     return value
 
 
+def _load_leaderboard(path: str = LEADERBOARD_FILE) -> list[dict]:
+    if not os.path.exists(path):
+        return []
+    with open(path, encoding="utf-8") as f:
+        leaderboard = json.load(f)
+    if not isinstance(leaderboard, list):
+        raise TypeError(f"leaderboard must be a list: {path}")
+    return leaderboard
+
+
 def _build_context(raw_rankings: list[dict]) -> ValidationContext:
     strategy_names = [entry.get("strategy", "") for entry in raw_rankings if entry.get("strategy")]
     run_integrity = validate_run_integrity(strategy_names)
@@ -138,13 +148,7 @@ def _build_context(raw_rankings: list[dict]) -> ValidationContext:
     n_eff = estimate_n_eff_heuristic()
     expected_max = expected_max_beta(null["beta_alpha"], null["beta_beta"], n_eff)
 
-    leaderboard = []
-    if os.path.exists(LEADERBOARD_FILE):
-        try:
-            with open(LEADERBOARD_FILE) as f:
-                leaderboard = json.load(f)
-        except Exception:
-            leaderboard = []
+    leaderboard = _load_leaderboard()
 
     return ValidationContext(
         df=df,
@@ -1048,6 +1052,7 @@ def _validate_entry(
     reopt_minutes: float,
     reopt_pop_size: int,
 ) -> dict:
+    entry = copy.deepcopy(entry)
     strategy_name = entry.get("strategy", "")
     params = copy.deepcopy(entry.get("params", {}))
     validation = {
@@ -1221,14 +1226,7 @@ def _val_worker_init(strategy_names, reopt_minutes, reopt_pop_size):
     null = calibrate_null_distribution(samples_per_family=40, use_cache=True)
     n_eff = estimate_n_eff_heuristic()
     expected_max = expected_max_beta(null["beta_alpha"], null["beta_beta"], n_eff)
-    leaderboard = []
-    lb_path = os.path.join(PROJECT_ROOT, "spike", "leaderboard.json")
-    if os.path.exists(lb_path):
-        try:
-            with open(lb_path) as f:
-                leaderboard = json.load(f)
-        except Exception:
-            leaderboard = []
+    leaderboard = _load_leaderboard()
     _val_ctx = ValidationContext(
         df=df, close=close, dates=dates, bears=bears, bulls=bulls,
         null=null, n_eff=n_eff, expected_max=expected_max,

@@ -20,7 +20,7 @@ import os
 import re
 import sys
 from datetime import datetime
-from math import log
+from math import isfinite, log
 from typing import Any
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -41,6 +41,16 @@ def _load_json(path: str) -> Any:
         return json.load(f)
 
 
+def _score_float(value: Any, field: str) -> float:
+    try:
+        score = float(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{field} must be numeric, got {value!r}") from exc
+    if not isfinite(score):
+        raise ValueError(f"{field} must be finite, got {value!r}")
+    return score
+
+
 def _safe_float(value: Any, default: float = 0.0) -> float:
     try:
         return float(value)
@@ -49,12 +59,12 @@ def _safe_float(value: Any, default: float = 0.0) -> float:
 
 
 def _clamp(value: float, lo: float = 0.0, hi: float = 1.0) -> float:
-    return max(lo, min(hi, float(value)))
+    return max(lo, min(hi, _score_float(value, "score")))
 
 
 def _inverse_interp(value: float, pass_: float, soft: float, fail: float) -> float:
     """Inverse smooth score where lower values are better."""
-    value = float(value)
+    value = _score_float(value, "interpolation value")
     if value <= pass_:
         return 1.0
     if value >= fail:
@@ -76,7 +86,7 @@ def _weighted_geomean(values: dict[str, float], weights: dict[str, float]) -> fl
 
 
 def _percentile(values: list[float], q: float) -> float:
-    clean = sorted(float(v) for v in values if v is not None)
+    clean = sorted(_score_float(v, "percentile value") for v in values if v is not None)
     if not clean:
         return 0.0
     if len(clean) == 1:
@@ -117,25 +127,22 @@ def _count_leaf_params(value: Any) -> int:
 
 
 def _load_duplicate_scores(path: str | None) -> dict[str, float]:
-    """Return duplicate-signal scores by display name.
+    """Return max pair-derived duplicate-signal scores by display name.
 
     Score is 1.0 when no highly redundant neighbor is found, and trends toward
     0.80 when risk-state correlation plus entry/exit overlap are all near 1.0.
     """
     if not path or not os.path.exists(path):
         return {}
-    try:
-        report = _load_json(path)
-    except Exception:
-        return {}
+    report = _load_json(path)
     max_redundancy: dict[str, float] = {}
     for pair in report.get("pairs", []) or []:
         a = str(pair.get("a_name") or "")
         b = str(pair.get("b_name") or "")
         values = [
-            _safe_float(pair.get("risk_on_corr")),
-            _safe_float(pair.get("entry_overlap")),
-            _safe_float(pair.get("exit_overlap")),
+            _score_float(pair.get("risk_on_corr"), "diversity pair risk_on_corr"),
+            _score_float(pair.get("entry_overlap"), "diversity pair entry_overlap"),
+            _score_float(pair.get("exit_overlap"), "diversity pair exit_overlap"),
         ]
         redundancy = sum(values) / len(values)
         for name in (a, b):
@@ -159,10 +166,7 @@ def _strategy_key(row: dict[str, Any]) -> str:
 def _load_confidence_v2(path: str | None) -> dict[str, dict[str, Any]]:
     if not path or not os.path.exists(path):
         return {}
-    try:
-        report = _load_json(path)
-    except Exception:
-        return {}
+    report = _load_json(path)
     out = {}
     for score in report.get("scores", []) or []:
         key = score.get("strategy_key")
@@ -178,7 +182,7 @@ def _future_confidence(row: dict[str, Any], *, family_size: int, duplicate_score
     validation_confidence = _confidence(row)
 
     evidence_scores = [
-        _safe_float(value)
+        _score_float(value, f"validation sub-score {key}")
         for key, value in sub_scores.items()
         if value is not None and key != "cross_asset"
     ]

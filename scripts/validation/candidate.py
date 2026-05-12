@@ -34,6 +34,26 @@ WF_WINDOWS = [
     ("WF 2021-2023", "2021-01-01", "2024-01-01"),
 ]
 
+# Walk-forward thresholds (loosened 2026-04-13 third revision; with only 4 OOS
+# windows at ~6 trades each, individual-window ratio noise is high, so we set
+# thresholds to catch catastrophic OOS failure rather than normal regime
+# variance).
+WF_PER_WINDOW_FAIL_RATIO = 0.65        # individual-window OOS/IS hard fail
+WF_AVG_FAIL_RATIO = 0.50               # average OOS/IS hard fail
+WF_AVG_CRITICAL_RATIO = 0.65           # average OOS/IS critical warning
+WF_DISPERSION_CRITICAL = 0.75          # walk-forward spread critical warning
+WF_DISPERSION_SOFT = 0.65              # walk-forward spread soft warning
+WF_EXPECTED_TRADES_FAIL = 1.5          # expected OOS trades above which a
+                                       # zero-trade window is a hard fail
+
+# Stability/fragility thresholds. STABILITY_SWING_THRESHOLD: a single-param
+# regime-score swing >20% under ±10% perturbation flags as unstable.
+STABILITY_SWING_THRESHOLD = 0.20
+FRAGILITY_HARD_FAIL_SWING_10 = 0.30
+FRAGILITY_WARN_SWING_10 = 0.20
+FRAGILITY_WARN_SWING_20 = 0.40
+FRAGILITY_NORMALIZER = 0.40
+
 NAMED_WINDOWS = {
     "2020_meltup":    ("2019-06-01", "2021-01-01"),
     "2021_2022_bear": ("2021-01-01", "2023-01-01"),
@@ -43,6 +63,14 @@ NAMED_WINDOWS = {
 
 
 def _latest_stable_test_end(df: pd.DataFrame) -> pd.Timestamp:
+    """Compute the exclusive end-date for the dynamic walk-forward test window.
+
+    Not a stability guarantee: the name reflects that we want the last *complete*
+    trading year so the OOS slice doesn't include a partial in-progress year.
+    Returns max(df_date) + 1 day if data already lands on a Dec-31 boundary or
+    we don't yet have a fully closed year past 2024-12-31; otherwise the
+    Jan-1-of-current-year boundary.
+    """
     latest = pd.Timestamp(df["date"].max())
     if latest.month == 12 and latest.day == 31:
         return latest + pd.Timedelta(days=1)
@@ -76,6 +104,12 @@ def build_walk_forward_splits(df: pd.DataFrame):
 
 
 def split_walk_forward(df: pd.DataFrame):
+    """Backwards-compatible alias for `build_walk_forward_splits`.
+
+    Returns the list of (label, train_df, test_df) tuples. Kept under the
+    legacy name for the CLI-driven `validate()` entrypoint below; new code
+    should call `build_walk_forward_splits` directly.
+    """
     return build_walk_forward_splits(df)
 
 
@@ -150,6 +184,14 @@ def check_parameter_fragility(
     name: str,
     perturbations: tuple[float, ...] = (-0.20, -0.10, 0.10, 0.20),
 ) -> dict:
+    """Per-parameter regime-score sensitivity sweep.
+
+    The returned dict's `"score"` key is a normalized *stability* score in
+    [0, 1] (1.0 = no swing under perturbation, 0.0 = swing ≥ FRAGILITY_NORMALIZER).
+    It is NOT a pass/fail indicator — verdict is the `"verdict"` key. The
+    `"score"` name is preserved because validation/pipeline.py consumes it
+    directly as a sub-score input to the composite confidence calculation.
+    """
     baseline = run_eval(df, strategy_fn, params, name)
     base_score = max(float(baseline["regime_score"]), 1e-6)
     numeric = {
@@ -195,12 +237,18 @@ def check_parameter_fragility(
             swings.get("-0.2", {}).get("swing", 0.0),
             swings.get("0.2", {}).get("swing", 0.0),
         )
-        if swing_10 > 0.30:
+        if swing_10 > FRAGILITY_HARD_FAIL_SWING_10:
             hard_fail_params.append(f"{detail['name']} ({swing_10:.0%} @ ±10%)")
-        elif swing_10 > 0.20 or swing_20 > 0.40:
+        elif swing_10 > FRAGILITY_WARN_SWING_10 or swing_20 > FRAGILITY_WARN_SWING_20:
             warn_params.append(f"{detail['name']} ({max(swing_10, swing_20):.0%})")
 
-    score = float(np.clip(1.0 - max(max_swing_10, max_swing_20) / 0.40, 0.0, 1.0))
+    score = float(
+        np.clip(
+            1.0 - max(max_swing_10, max_swing_20) / FRAGILITY_NORMALIZER,
+            0.0,
+            1.0,
+        )
+    )
     verdict = "FAIL" if hard_fail_params else "WARN" if warn_params else "PASS"
     return {
         "verdict": verdict,
@@ -252,35 +300,45 @@ def analyze_walk_forward(
         if test_r.get("trades", 0) == 0:
             window_years = max(len(test) / 252.0, 0.1)
             expected_trades = full_trades_yr * window_years
-            if expected_trades >= 1.5:
+            if expected_trades >= WF_EXPECTED_TRADES_FAIL:
                 # Strategy should have traded but didn't — real concern
                 hard_fail_reasons.append(f"{label}: zero OOS trades (expected ~{expected_trades:.1f})")
             else:
                 # Low-frequency strategy in a short window — zero trades is normal
                 soft_warnings.append(f"{label}: zero OOS trades (expected ~{expected_trades:.1f})")
-        elif regime_ratio < 0.65:
+        elif regime_ratio < WF_PER_WINDOW_FAIL_RATIO:
             # Loosened from 0.75 → 0.65 (2026-04-13 third revision):
             # with 4 OOS windows and ~6 trades each, individual-window
             # OOS/IS ratios are noisy. 0.65 still catches catastrophic OOS
             # failures (the actual concern) without rejecting strategies
             # for normal regime variance.
-            hard_fail_reasons.append(f"{label}: OOS/IS regime ratio {regime_ratio:.2f} < 0.65")
+            hard_fail_reasons.append(
+                f"{label}: OOS/IS regime ratio {regime_ratio:.2f} < {WF_PER_WINDOW_FAIL_RATIO}"
+            )
 
     ratios = [w["oos_is_ratio"] for w in windows] or [0.0]
     avg_ratio = float(np.mean(ratios))
     spread = float(max(ratios) - min(ratios)) if len(ratios) > 1 else 0.0
 
-    if avg_ratio < 0.50:
-        hard_fail_reasons.append(f"average OOS/IS regime ratio {avg_ratio:.2f} < 0.50")
-    elif avg_ratio < 0.65:
-        critical_warnings.append(f"average OOS/IS regime ratio {avg_ratio:.2f} < 0.65")
+    if avg_ratio < WF_AVG_FAIL_RATIO:
+        hard_fail_reasons.append(
+            f"average OOS/IS regime ratio {avg_ratio:.2f} < {WF_AVG_FAIL_RATIO}"
+        )
+    elif avg_ratio < WF_AVG_CRITICAL_RATIO:
+        critical_warnings.append(
+            f"average OOS/IS regime ratio {avg_ratio:.2f} < {WF_AVG_CRITICAL_RATIO}"
+        )
     # Walk-forward dispersion thresholds loosened (2026-04-13 third revision):
     # critical 0.65 → 0.75, soft 0.50 → 0.65. With only 4 windows, dispersion
     # in this range is normal noise rather than statistically meaningful signal.
-    if spread > 0.75:
-        critical_warnings.append(f"walk-forward dispersion {spread:.2f} > 0.75")
-    elif spread > 0.65:
-        soft_warnings.append(f"walk-forward dispersion {spread:.2f} > 0.65")
+    if spread > WF_DISPERSION_CRITICAL:
+        critical_warnings.append(
+            f"walk-forward dispersion {spread:.2f} > {WF_DISPERSION_CRITICAL}"
+        )
+    elif spread > WF_DISPERSION_SOFT:
+        soft_warnings.append(
+            f"walk-forward dispersion {spread:.2f} > {WF_DISPERSION_SOFT}"
+        )
 
     warnings = soft_warnings + critical_warnings
     verdict = "FAIL" if hard_fail_reasons else "WARN" if warnings else "PASS"
@@ -419,7 +477,13 @@ def analyze_four_year_degeneracy(df: pd.DataFrame, trades: list) -> dict:
 
 def check_stability(df: pd.DataFrame, strategy_fn, params: dict, name: str,
                     perturbation: float = 0.10) -> tuple[float, list[str]]:
-    """Perturb each numeric param ±10%, check if regime_score swings >20%."""
+    """Perturb each numeric param ±10%, flag if regime_score swings beyond
+    `STABILITY_SWING_THRESHOLD` (default 0.20 = 20% relative swing).
+
+    Returns (stability_score, unstable_param_descriptions). Stability score is
+    the fraction of numeric params whose regime_score swing stayed within
+    threshold (1.0 = all params stable).
+    """
     baseline = run_eval(df, strategy_fn, params, name)
     base_score = baseline["regime_score"]
 
@@ -451,7 +515,7 @@ def check_stability(df: pd.DataFrame, strategy_fn, params: dict, name: str,
         else:
             max_swing = max(abs(s - base_score) for s in scores)
 
-        if max_swing <= 0.20:
+        if max_swing <= STABILITY_SWING_THRESHOLD:
             stable += 1
         else:
             unstable.append(f"{k} ({max_swing:.0%} swing)")

@@ -35,10 +35,15 @@ def diagnose_strategy(
     Run a strategy and produce per-cycle trade diagnostics.
 
     Returns dict with:
-      summary: overall metrics
+      strategy: strategy name
+      params: strategy params used
+      summary: overall metrics (share_multiple, cagr, max_dd, trades, trades_yr, win_rate, exit_reasons)
       bull_cycles: per-bull analysis with trades and gaps
       bear_cycles: per-bear analysis with trades
-      exit_analysis: which exit reasons fire most, and in which cycle types
+      exit_in_bulls: count of each exit reason fired during bull cycles
+      exit_in_bears: count of each exit reason fired during bear cycles
+      avg_bull_capture: mean captured_pct across bull cycles
+      avg_bear_avoidance: mean avoided_pct across bear cycles
       bottleneck: "bull_capture" or "bear_avoidance" — where the strategy loses most
     """
     if regime_map is None:
@@ -155,7 +160,9 @@ def format_diagnostics(diag: dict, top_n_cycles: int = 5) -> str:
     """Format cycle diagnostics as a readable string for Claude."""
     lines = []
     s = diag["summary"]
-    lines.append(f"CYCLE DIAGNOSTICS: {diag['strategy']} (share_multiple: {s['share_multiple']:.4f}x)")
+    lines.append(
+        f"CYCLE DIAGNOSTICS: {diag['strategy']} (share_multiple: {s['share_multiple']:.4f}x)"
+    )
     lines.append("=" * 65)
     lines.append(
         f"CAGR: {s['cagr']}% | MaxDD: {s['max_dd']}% | Trades: {s['trades']} ({s['trades_yr']}/yr)"

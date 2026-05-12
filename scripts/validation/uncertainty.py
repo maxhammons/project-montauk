@@ -62,6 +62,7 @@ def morris_fragility(
             "delta": delta,
             "evaluations": 1,
             "max_swing": 0.0,
+            "max_sigma_ratio": 0.0,
             "s_frag": 1.0,
             "interaction_flag": False,
             "warning_flag": False,
@@ -157,7 +158,7 @@ def _stationary_bootstrap_indices(n: int, *, block_p: float, rng: np.random.Gene
     return indices
 
 
-def _bootstrap_df(df: pd.DataFrame, indices: np.ndarray) -> pd.DataFrame:
+def _reconstruct_ohlc_from_sampled_returns(df: pd.DataFrame, indices: np.ndarray) -> pd.DataFrame:
     base = df.iloc[indices].reset_index(drop=True).copy()
     close = df["close"].values.astype(np.float64)
     returns = np.zeros(len(close), dtype=np.float64)
@@ -196,7 +197,7 @@ def stationary_bootstrap_validation(
     share_multiple_values = []
     for _ in range(resamples):
         indices = _stationary_bootstrap_indices(n, block_p=block_p, rng=rng)
-        boot_df = _bootstrap_df(df, indices)
+        boot_df = _reconstruct_ohlc_from_sampled_returns(df, indices)
         metrics = run_eval(boot_df, strategy_fn, params, strategy_name)
         regime_scores.append(float(metrics.get("regime_score", 0.0)))
         share_multiple_values.append(float(metrics.get("share_multiple", 0.0)))

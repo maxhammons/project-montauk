@@ -64,8 +64,9 @@ def weighted_era_fitness(
 
     full_share^0.15 × real_share^0.25 × modern_share^0.60
 
-    Returns 0.0 only if all inputs are non-positive. Otherwise, floors each
-    era at `era_floor` before exponentiation.
+    Each era input is floored at `era_floor` (default 0.01) before
+    exponentiation, so the return value is always >= era_floor ** sum(weights)
+    and never 0.0, even when all inputs are non-positive.
     """
     f = max(float(full_share or 0.0), era_floor)
     r = max(float(real_share or 0.0), era_floor)
@@ -162,7 +163,9 @@ def all_era_performance_score(
     )
 
 
-def all_era_score_from_metrics(metrics: dict, *, multi_era: dict | None = None) -> float:
+def all_era_score_from_metrics(
+    metrics: dict, *, multi_era: dict | None = None
+) -> float:
     full_share, real_share, modern_share = canonical_era_shares(
         metrics,
         multi_era=multi_era,

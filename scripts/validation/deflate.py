@@ -14,6 +14,7 @@ Usage:
     python3 scripts/deflate.py --n-eff 500            # Override N_eff estimate
     python3 scripts/deflate.py --samples 200          # More Monte Carlo samples
 """
+
 from __future__ import annotations
 
 import argparse
@@ -39,8 +40,10 @@ NULL_CACHE_FILE = os.path.join(PROJECT_ROOT, "spike", "null-distribution.json")
 # N_eff estimation
 # ─────────────────────────────────────────────────────────────────────────────
 
-def estimate_n_eff_heuristic(n_families: int = 15,
-                             effective_per_family: int = 20) -> int:
+
+def estimate_n_eff_heuristic(
+    n_families: int = 15, effective_per_family: int = 20
+) -> int:
     """
     Structural heuristic: GA mutations are highly correlated (rho ~0.95).
     Each family explores ~10-30 distinct basins. Conservative lower bound.
@@ -53,8 +56,10 @@ def estimate_n_eff_heuristic(n_families: int = 15,
 # Monte Carlo null distribution
 # ─────────────────────────────────────────────────────────────────────────────
 
-def calibrate_null_distribution(samples_per_family: int = 40,
-                                use_cache: bool = True) -> dict:
+
+def calibrate_null_distribution(
+    samples_per_family: int = 40, use_cache: bool = True
+) -> dict:
     """
     Run random parameter configs across all strategy families, compute
     Regime Scores, and fit a Beta distribution to the results.
@@ -96,14 +101,24 @@ def calibrate_null_distribution(samples_per_family: int = 40,
             try:
                 entries, exits, labels = fam_fn(ind, params)
                 cooldown = params.get("cooldown", 0)
-                result = backtest(df, entries, exits, labels,
-                                  cooldown_bars=cooldown, strategy_name=fam_name)
+                result = backtest(
+                    df,
+                    entries,
+                    exits,
+                    labels,
+                    cooldown_bars=cooldown,
+                    strategy_name=fam_name,
+                )
                 if result.num_trades >= 3:
                     rs = score_regime_capture(result.trades, close, dates)
                     rs_values.append(rs.composite)
                     fam_rs.append(rs.composite)
-            except Exception:
-                pass
+            except (ValueError, RuntimeError, KeyError, IndexError) as e:
+                # MC samples can fail on degenerate random params; log and continue
+                # so the null distribution isn't silently skewed by hidden failures.
+                print(
+                    f"  [MC skip] {fam_name}: {type(e).__name__}: {e}", file=sys.stderr
+                )
         if fam_rs:
             per_family[fam_name] = {
                 "mean": round(float(np.mean(fam_rs)), 4),
@@ -138,10 +153,12 @@ def calibrate_null_distribution(samples_per_family: int = 40,
         "per_family": per_family,
     }
 
-    # Cache
+    # Cache (atomic write: tmp file + os.replace)
     os.makedirs(os.path.dirname(NULL_CACHE_FILE), exist_ok=True)
-    with open(NULL_CACHE_FILE, "w") as f:
+    tmp_path = NULL_CACHE_FILE + ".tmp"
+    with open(tmp_path, "w") as f:
         json.dump(result, f, indent=2)
+    os.replace(tmp_path, NULL_CACHE_FILE)
 
     return result
 
@@ -150,17 +167,22 @@ def calibrate_null_distribution(samples_per_family: int = 40,
 # Deflation math
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def expected_max_beta(alpha: float, beta_param: float, n_eff: int) -> float:
-    """Expected maximum of N_eff draws from Beta(alpha, beta)."""
+    """
+    Approximate maximum of N_eff draws from Beta(alpha, beta) via the
+    (1 - 1/n_eff)-quantile (ppf). This is a heuristic proxy for the true
+    expectation of the maximum order statistic, not its closed-form value.
+    """
     if n_eff <= 1:
         return alpha / (alpha + beta_param)
     p = 1.0 - 1.0 / n_eff
     return float(beta_dist.ppf(p, alpha, beta_param))
 
 
-def deflated_probability(observed: float,
-                         alpha: float, beta_param: float,
-                         n_eff: int) -> float:
+def deflated_probability(
+    observed: float, alpha: float, beta_param: float, n_eff: int
+) -> float:
     """
     P(max of N_eff draws from Beta(alpha,beta) < observed) = CDF(observed)^N_eff
 
@@ -169,11 +191,10 @@ def deflated_probability(observed: float,
     """
     observed = np.clip(observed, 0.001, 0.999)
     cdf_val = float(beta_dist.cdf(observed, alpha, beta_param))
-    return cdf_val ** n_eff
+    return cdf_val**n_eff
 
 
-def deflate_regime_score(observed_rs: float, null: dict,
-                         n_eff: int) -> dict:
+def deflate_regime_score(observed_rs: float, null: dict, n_eff: int) -> dict:
     """Deflate a single observed Regime Score against the null distribution."""
     alpha = null["beta_alpha"]
     beta_param = null["beta_beta"]
@@ -186,21 +207,30 @@ def deflate_regime_score(observed_rs: float, null: dict,
         "expected_max_rs": round(expected_max, 4),
         "beats_noise": observed_rs > expected_max,
         "tier": (
-            "strong_signal" if dp >= 0.95 else
-            "modest_signal" if dp >= 0.80 else
-            "fragile" if dp >= 0.50 else
-            "noise"
+            "strong_signal"
+            if dp >= 0.95
+            else "modest_signal"
+            if dp >= 0.80
+            else "fragile"
+            if dp >= 0.50
+            else "noise"
         ),
         # Also report raw percentile vs null (simpler to interpret)
-        "null_percentile": round(float(beta_dist.cdf(observed_rs, alpha, beta_param)) * 100, 1),
+        "null_percentile": round(
+            float(beta_dist.cdf(observed_rs, alpha, beta_param)) * 100, 1
+        ),
     }
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--n-eff", type=int, help="Override N_eff estimate")
-    parser.add_argument("--samples", type=int, default=40, help="Samples per family for MC null")
-    parser.add_argument("--recalibrate", action="store_true", help="Force recalibration")
+    parser.add_argument(
+        "--samples", type=int, default=40, help="Samples per family for MC null"
+    )
+    parser.add_argument(
+        "--recalibrate", action="store_true", help="Force recalibration"
+    )
     args = parser.parse_args()
 
     print("Calibrating null distribution...")
@@ -210,7 +240,13 @@ if __name__ == "__main__":
     )
     n_eff = args.n_eff or estimate_n_eff_heuristic()
 
-    print(f"\nNull distribution ({null['n_valid']} samples, {null['elapsed_seconds']}s):")
-    print(f"  RS: mean={null['rs_mean']:.4f} std={null['rs_std']:.4f} [{null['rs_min']:.3f}, {null['rs_max']:.3f}]")
+    print(
+        f"\nNull distribution ({null['n_valid']} samples, {null['elapsed_seconds']}s):"
+    )
+    print(
+        f"  RS: mean={null['rs_mean']:.4f} std={null['rs_std']:.4f} [{null['rs_min']:.3f}, {null['rs_max']:.3f}]"
+    )
     print(f"  Beta fit: Beta({null['beta_alpha']:.1f}, {null['beta_beta']:.1f})")
-    print(f"  Expected max RS at N_eff={n_eff}: {expected_max_beta(null['beta_alpha'], null['beta_beta'], n_eff):.4f}")
+    print(
+        f"  Expected max RS at N_eff={n_eff}: {expected_max_beta(null['beta_alpha'], null['beta_beta'], n_eff):.4f}"
+    )

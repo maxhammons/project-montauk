@@ -84,9 +84,10 @@ def detect_bear_regimes(
     """
     Algorithmically detect bear market periods from a price series.
 
-    A bear period starts when price drops bear_threshold% from a rolling peak,
-    and ends when price recovers above a new local peak (or the series ends).
-    Requires min_duration bars to count as a real bear.
+    A bear period starts at the most recent peak once price has dropped
+    bear_threshold% below it, and ends when price recovers above the peak
+    that initiated the bear (or the series ends). Requires min_duration
+    bars between bear start and trough to count as a real bear.
 
     Parameters
     ----------
@@ -99,6 +100,10 @@ def detect_bear_regimes(
     -------
     List of Regime objects with kind="bear"
     """
+    if len(dates) != len(close):
+        raise ValueError(
+            f"detect_bear_regimes: len(dates)={len(dates)} != len(close)={len(close)}"
+        )
     n = len(close)
     bears = []
 
@@ -174,6 +179,10 @@ def detect_bull_regimes(
     A bull period runs from the trough of one bear to the peak of the next.
     Only includes bull periods with move_pct >= bull_threshold.
     """
+    if len(dates) != len(close):
+        raise ValueError(
+            f"detect_bull_regimes: len(dates)={len(dates)} != len(close)={len(close)}"
+        )
     n = len(close)
     bulls = []
 
@@ -246,11 +255,11 @@ def score_regime_capture(
     """
     Score how well the strategy captures bull markets and avoids bear markets.
 
-    For each bull period: compute what fraction of the price gain (trough to peak)
-    the strategy participated in based on bars held within that period.
+    For each bull period: compute the fraction of time (bars) spent in the
+    market during that bull leg (bars_in / bull_bars).
 
-    For each bear period: compute what fraction of the price loss the strategy
-    avoided by being out of the market.
+    For each bear period: compute the fraction of time (bars) spent out of
+    the market during that bear leg (bars_out / bear_bars).
 
     Parameters
     ----------
@@ -371,7 +380,7 @@ def score_regime_capture(
     )
 
 
-from engine.strategy_engine import (  # noqa: E402
+from engine.strategy_engine import (  # noqa: E402, F401
     BacktestResult,
     StrategyParams,
     Trade,
@@ -384,6 +393,26 @@ from engine.strategy_engine import (  # noqa: E402
     _tema as tema,
     run_montauk_821,
 )
+
+__all__ = [
+    "Regime",
+    "RegimeScore",
+    "detect_bear_regimes",
+    "detect_bull_regimes",
+    "score_regime_capture",
+    "run_backtest",
+    "BacktestResult",
+    "StrategyParams",
+    "Trade",
+    "adx",
+    "atr",
+    "ema",
+    "highest",
+    "lowest",
+    "sma",
+    "tema",
+    "run_montauk_821",
+]
 
 
 def run_backtest(df, params: StrategyParams | None = None, *, score_regimes: bool = False):

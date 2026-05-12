@@ -229,7 +229,9 @@ def _leaderboard_table(leaderboard: list) -> str:
             status = "Gold Status"
         elif validation.get("backtest_certified") or entry.get("backtest_certified"):
             status = "Certified"
-        elif validation.get("certified_not_overfit") or entry.get("certified_not_overfit"):
+        elif validation.get("certified_not_overfit") or entry.get(
+            "certified_not_overfit"
+        ):
             status = "Not-overfit"
         elif converged:
             status = "CONVERGED"
@@ -264,6 +266,10 @@ def generate_report(
 ) -> str:
     """
     Generate a full markdown report and save it to run_dir/report.md.
+
+    Side effect: writes the rendered markdown to ``<run_dir>/report.md``
+    (creating ``run_dir`` if needed). The same text is also returned for
+    callers that want to print or post-process it.
 
     Parameters
     ----------

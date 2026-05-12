@@ -11,7 +11,6 @@ already on disk.
 from __future__ import annotations
 
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -47,10 +46,7 @@ def _index_runs() -> dict[tuple[str, str], Path]:
         dashboard_path = run_dir / "dashboard_data.json"
         if not dashboard_path.exists():
             continue
-        try:
-            payload = _load_json(dashboard_path)
-        except Exception:
-            continue
+        payload = _load_json(dashboard_path)
         strategy = payload.get("strategy")
         params = payload.get("params") or {}
         if not strategy:
@@ -92,11 +88,7 @@ def main() -> int:
             missing += 1
             continue
 
-        try:
-            payload = _load_json(dashboard_path)
-        except Exception:
-            missing += 1
-            continue
+        payload = _load_json(dashboard_path)
 
         if payload.get("validation"):
             row["validation"] = payload["validation"]
@@ -130,8 +122,10 @@ def main() -> int:
         reverse=True,
     )
 
-    with open(LEADERBOARD_PATH, "w") as f:
+    tmp_path = LEADERBOARD_PATH.with_suffix(LEADERBOARD_PATH.suffix + ".tmp")
+    with open(tmp_path, "w") as f:
         json.dump(rows, f, indent=2)
+    os.replace(tmp_path, LEADERBOARD_PATH)
 
     print(f"[sync-packaged] synced={synced} missing_or_incomplete={missing} dropped_not_gold={dropped}")
     return 0
