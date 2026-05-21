@@ -17,6 +17,7 @@ generate ideas  →  backtest + validate  →  if PASS → leaderboard  →  vis
 | [`validation/`](validation/) | The 7-gate validation pipeline. Each file = one gate (integrity, candidate, fragility, walk-forward, uncertainty, cross-asset, synthesis). A strategy that reaches `spike/leaderboard.json` has cleared every gate here. | "Why did strategy X WARN instead of PASS?" |
 | [`certify/`](certify/) | Post-validation certification + leaderboard sealing. `certify_champion.py` emits the 5 standardized run artifacts and flips `backtest_certified=True`. `recertify_leaderboard.py` re-validates the entire current leaderboard under today's rules. | "After I patched the engine, how do I re-verify the leaderboard is still correct?" |
 | [`diagnostics/`](diagnostics/) | Post-run analysis tools that don't affect verdicts: per-cycle trade breakdowns, markdown report generation, Roth-IRA cashflow overlay. | "Where did strategy X miss bull #7?" |
+| [`ops/`](ops/) | Daily operations layer for the future Mac app: signal snapshots, status JSON, event logs, and background-job command surfaces. | "Is Montauk current? What signal should the app show?" |
 | [`experimental/`](experimental/) | Work-in-progress / scratch code. Not wired into the main pipeline. | Rarely. |
 
 ## The pipeline rule (cement)
@@ -89,6 +90,21 @@ See `validation/__init__.py` and `validation/pipeline.py`. Each gate lives in it
 - `gold_ensemble_matrix.py` / `gold_hybrid_lab.py` — Gold-only ensemble and hybrid research diagnostics
 - `report.py` — generate the markdown report that summarizes a `/spike` run
 - `roth_overlay.py` — post-validation Roth IRA cashflow simulator (tax-aware net-of-contribution-limit share count)
+
+### `ops/`
+- `daily.py` — app-facing daily operation: optional data refresh, manifest rebuild, data quality, active champion signal snapshot, event log, optional viz rebuild, live holdout, governance, and notification follow-ups
+- `status.py` — app-facing status reader for `runs/operations/latest.json`, latest signal snapshot, and recent events
+- `events.py` — append/read structured JSONL operations events
+- `run_job.py` — run one named scheduled job with lock protection and write a structured job record
+- `scheduler.py` — manage the app-facing schedule config and computed next-run/last-run status
+- `install_launch_agent.py` — generate/install the macOS LaunchAgent plist that runs scheduled jobs in the background
+- `notifications.py` — scan operations events into a deduped notification outbox for the app or explicit macOS sending
+- `live_holdout.py` — compare point-in-time signal snapshots against current replay and write live-holdout status
+- `governance.py` — evaluate active champion state (`active_ok`, `active_watch`, `active_blocked`) for app display
+- `research_queue.py` — generate, store, approve, dismiss, and reset reviewable strategy research ideas from current warnings and governance state
+- `research_runner.py` — turn approved research ideas into bounded run artifacts, with optional registered-command execution
+- `doctor.py` — one-command readiness check for app bundle, ops artifacts, scheduler, and LaunchAgents
+- `paths.py` — shared filesystem paths for signals, operations, scheduler, and research queue artifacts
 
 ### `experimental/`
 Scratch / WIP. Not imported by any production path.

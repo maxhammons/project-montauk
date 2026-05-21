@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "ccd484bec821",
+  "created_utc": "2026-05-12T04:33:35Z",
+  "status": "proposed",
+  "kind": "rebound_capture_repair",
+  "rationale": "Current warnings point to weak rebound participation.",
+  "validation_tier": "T1",
+  "suggested_tests": [
+    "near_miss_autopsy",
+    "focused_grid_search",
+    "named_window_recheck"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+}

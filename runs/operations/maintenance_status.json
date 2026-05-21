@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "status": "ok",
+  "started_utc": "2026-05-18T05:43:00Z",
+  "finished_utc": "2026-05-18T05:43:18Z",
+  "phases": [
+    {
+      "key": "daily",
+      "label": "Refresh data & recompute signal",
+      "detail": "scripts/ops/daily.py \u2014 pull TECL/VIX/macro, verify manifest, write a fresh signal snapshot, rebuild the viz bundle.",
+      "status": "ok",
+      "started_utc": "2026-05-18T05:43:00Z",
+      "finished_utc": "2026-05-18T05:43:18Z",
+      "returncode": 0,
+      "stderr_tail": ""
+    },
+    {
+      "key": "doctor",
+      "label": "Run health checks",
+      "detail": "scripts/ops/doctor.py \u2014 verify app bundle, ops artifacts, scheduler config, and local launchd state.",
+      "status": "ok",
+      "started_utc": "2026-05-18T05:43:18Z",
+      "finished_utc": "2026-05-18T05:43:18Z",
+      "returncode": 0,
+      "stderr_tail": ""
+    }
+  ],
+  "current_phase": "doctor",
+  "summary": {
+    "daily_ok": true,
+    "doctor_ok": true,
+    "research": null
+  },
+  "error": null
+}

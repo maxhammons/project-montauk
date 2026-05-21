@@ -1,0 +1,715 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-05-21T20:50:06Z",
+  "pending_count": 5,
+  "notifications": [
+    {
+      "id": "f184da1d7aa827cb",
+      "created_utc": "2026-05-21T20:50:06Z",
+      "title": "Montauk Notice",
+      "body": "A higher-confidence certified strategy is available for review.",
+      "severity": "notice",
+      "event_type": "replacement_candidate",
+      "event": {
+        "timestamp_utc": "2026-05-13T22:19:14Z",
+        "severity": "notice",
+        "event_type": "replacement_candidate",
+        "message": "A higher-confidence certified strategy is available for review.",
+        "payload": {
+          "schema_version": 1,
+          "generated_utc": "2026-05-13T22:19:14Z",
+          "status": "switch_candidate",
+          "on_best_certified": false,
+          "selection_rule": "highest composite confidence among current Gold PASS leaderboard rows",
+          "active": {
+            "strategy": "gold_hybrid_committee",
+            "rank": 1,
+            "confidence": 0.7594,
+            "score_label": "composite_confidence",
+            "data_end_date": "2026-05-13",
+            "risk_state": "risk_on"
+          },
+          "best_certified": {
+            "strategy": "gc_vjatr_timing_repair",
+            "rank": null,
+            "display_name": "Cerulean Hare #2",
+            "confidence": 0.7678,
+            "score_label": "composite_confidence",
+            "share_multiple": 10.0909,
+            "real_share_multiple": 1.5469,
+            "modern_share_multiple": 2.239
+          },
+          "leaderboard_count": 8,
+          "gold_count": 8
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "65b518ef99843587",
+      "created_utc": "2026-05-21T20:50:06Z",
+      "title": "Montauk Notice",
+      "body": "A higher-confidence certified strategy is available for review.",
+      "severity": "notice",
+      "event_type": "replacement_candidate",
+      "event": {
+        "timestamp_utc": "2026-05-13T22:22:12Z",
+        "severity": "notice",
+        "event_type": "replacement_candidate",
+        "message": "A higher-confidence certified strategy is available for review.",
+        "payload": {
+          "schema_version": 1,
+          "generated_utc": "2026-05-13T22:22:12Z",
+          "status": "switch_candidate",
+          "on_best_certified": false,
+          "selection_metric": "real_share_multiple",
+          "selection_rule": "highest real-era share multiple among current Gold PASS leaderboard rows",
+          "active": {
+            "strategy": "gc_vjatr_timing_repair",
+            "rank": 1,
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "confidence": 0.7678,
+            "score_label": "composite_confidence",
+            "data_end_date": "2026-05-13",
+            "risk_state": "risk_on"
+          },
+          "best_certified": {
+            "strategy": "gc_vjatr_timing_repair",
+            "rank": null,
+            "display_name": "Ivory Hare",
+            "params_hash": "4eb716eb38dbcd348d9e2a70f8de62c13feaf100a30faadacc459ba0207a0124",
+            "confidence": 0.7669,
+            "selected_score": 1.5469,
+            "score_label": "real-era share multiple",
+            "share_multiple": 10.6316,
+            "real_share_multiple": 1.5469,
+            "modern_share_multiple": 2.239
+          },
+          "leaderboard_count": 8,
+          "gold_count": 8,
+          "selected_signal": {
+            "snapshot_schema_version": 1,
+            "generated_utc": "2026-05-13T22:22:12Z",
+            "data_end_date": "2026-05-13",
+            "active_champion": {
+              "strategy": "gc_vjatr_timing_repair",
+              "rank": 1,
+              "date": "2026-04-28",
+              "params_hash": "4eb716eb38dbcd348d9e2a70f8de62c13feaf100a30faadacc459ba0207a0124",
+              "params": {
+                "fast_ema": 140,
+                "slow_ema": 160,
+                "slope_window": 1,
+                "entry_bars": 2,
+                "cooldown": 0,
+                "atr_period": 16,
+                "atr_look": 50,
+                "atr_expand": 2.0,
+                "atr_confirm": 3,
+                "repair_len": 30,
+                "rsi_len": 7,
+                "drawdown_lookback": 40,
+                "drawdown_pct": 25.0,
+                "repair_slope": 3,
+                "rsi_floor": 45.0,
+                "vix_ceiling": 50.0
+              },
+              "metrics": {
+                "share_multiple": 10.6316,
+                "real_share_multiple": 1.5469,
+                "modern_share_multiple": 2.239,
+                "max_dd": 98.2,
+                "trades": 44
+              }
+            },
+            "risk_state": "risk_on",
+            "risk_on": true,
+            "entry_signal": false,
+            "exit_signal": false,
+            "exit_label": "",
+            "buy_event": false,
+            "sell_event": false,
+            "close": 197.149994,
+            "validation": {
+              "verdict": "PASS",
+              "promotion_ready": true,
+              "certified_not_overfit": true,
+              "backtest_certified": true,
+              "gold_status": true,
+              "composite_confidence": 0.7669,
+              "tier": "T2",
+              "warnings": [
+                "walk-forward dispersion 0.71 > 0.65",
+                "2023_rebound: share_multiple=0.565",
+                "QQQ same-param share_multiple=0.478 < 0.50",
+                "walk-forward: WF 2024-2025: OOS/IS regime ratio 0.58 < 0.65",
+                "morris warning: max_swing=0.15 sigma_ratio=2.81",
+                "bootstrap downside probability 0.79 > 0.50",
+                "TQQQ same-param share_multiple=0.446 < 0.50"
+              ],
+              "hard_fail_reasons": [],
+              "certification_checks": {
+                "engine_integrity": {
+                  "passed": true,
+                  "status": "pass"
+                },
+                "golden_regression": {
+                  "passed": true,
+                  "status": "pass"
+                },
+                "shadow_comparator": {
+                  "passed": true,
+                  "status": "pass"
+                },
+                "data_quality_precheck": {
+                  "passed": true,
+                  "status": "pass"
+                },
+                "artifact_completeness": {
+                  "passed": true,
+                  "status": "pass"
+                }
+              }
+            },
+            "warnings": [
+              "walk-forward dispersion 0.71 > 0.65",
+              "2023_rebound: share_multiple=0.565",
+              "QQQ same-param share_multiple=0.478 < 0.50",
+              "walk-forward: WF 2024-2025: OOS/IS regime ratio 0.58 < 0.65",
+              "morris warning: max_swing=0.15 sigma_ratio=2.81",
+              "bootstrap downside probability 0.79 > 0.50",
+              "TQQQ same-param share_multiple=0.446 < 0.50"
+            ],
+            "blockers": []
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "c5a2da4901f0069e",
+      "created_utc": "2026-05-21T20:50:06Z",
+      "title": "Montauk Notice",
+      "body": "A higher-confidence certified strategy is available for review.",
+      "severity": "notice",
+      "event_type": "replacement_candidate",
+      "event": {
+        "timestamp_utc": "2026-05-13T22:24:56Z",
+        "severity": "notice",
+        "event_type": "replacement_candidate",
+        "message": "A higher-confidence certified strategy is available for review.",
+        "payload": {
+          "schema_version": 1,
+          "generated_utc": "2026-05-13T22:24:55Z",
+          "status": "switch_candidate",
+          "on_best_certified": false,
+          "selection_metric": "share_multiple",
+          "selection_rule": "highest full-history share multiple among current Gold PASS leaderboard rows",
+          "active": {
+            "strategy": "gc_vjatr_timing_repair",
+            "rank": 1,
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "confidence": 0.7678,
+            "score_label": "composite_confidence",
+            "data_end_date": "2026-05-13",
+            "risk_state": "risk_on"
+          },
+          "best_certified": {
+            "strategy": "gold_hybrid_committee",
+            "rank": null,
+            "display_name": "Cerulean Hare #1",
+            "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
+            "confidence": 0.7594,
+            "selected_score": 30.4933,
+            "score_label": "full-history share multiple",
+            "share_multiple": 30.4933,
+            "real_share_multiple": 1.3324,
+            "modern_share_multiple": 3.32
+          },
+          "leaderboard_count": 8,
+          "gold_count": 8,
+          "selected_signal": {
+            "snapshot_schema_version": 1,
+            "generated_utc": "2026-05-13T22:24:56Z",
+            "data_end_date": "2026-05-13",
+            "active_champion": {
+              "strategy": "gold_hybrid_committee",
+              "rank": 1,
+              "date": "2026-04-30",
+              "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
+              "params": {
+                "members": [
+                  {
+                    "display_name": "Dusky Osprey",
+                    "strategy": "gc_vjatr_reclaimer",
+                    "params": {
+                      "fast_ema": 140,
+                      "slow_ema": 160,
+                      "slope_window": 1,
+                      "entry_bars": 2,
+                      "cooldown": 0,
+                      "atr_period": 16,
+                      "atr_look": 50,
+                      "atr_expand": 2.0,
+                      "atr_confirm": 3,
+                      "rsi_len": 14,
+                      "fast_len": 50,
+                      "trend_len": 100,
+                      "vol_short": 20,
+                      "vol_long": 60,
+                      "drawdown_lookback": 80,
+                      "drawdown_pct": 25.0,
+                      "rsi_reclaim": 45.0,
+                      "vol_ratio_max": 0.85
+                    },
+                    "weight": 3.540446
+                  },
+                  {
+                    "display_name": "Marbled Bonobo",
+                    "strategy": "gc_vjatr",
+                    "params": {
+                      "fast_ema": 140,
+                      "slow_ema": 160,
+                      "slope_window": 1,
+                      "entry_bars": 2,
+                      "cooldown": 0,
+                      "atr_period": 7,
+                      "atr_look": 40,
+                      "atr_expand": 2.5,
+                      "atr_confirm": 1
+                    },
+                    "weight": 2.51853
+                  },
+                  {
+                    "display_name": "Ivory Hare",
+                    "strategy": "gc_vjatr_timing_repair",
+                    "params": {
+                      "fast_ema": 140,
+                      "slow_ema": 160,
+                      "slope_window": 1,
+                      "entry_bars": 2,
+                      "cooldown": 0,
+                      "atr_period": 16,
+                      "atr_look": 50,
+                      "atr_expand": 2.0,
+                      "atr_confirm": 3,
+                      "repair_len": 30,
+                      "rsi_len": 7,
+                      "drawdown_lookback": 40,
+                      "drawdown_pct": 25.0,
+                      "repair_slope": 3,
+                      "rsi_floor": 45.0,
+                      "vix_ceiling": 50.0
+                    },
+                    "weight": 2.551391
+                  }
+                ],
+                "threshold": 0.5
+              },
+              "metrics": {
+                "share_multiple": 30.4933,
+                "real_share_multiple": 1.3324,
+                "modern_share_multiple": 3.32,
+                "max_dd": 65.8,
+                "trades": 19
+              }
+            },
+            "risk_state": "risk_on",
+            "risk_on": true,
+            "entry_signal": false,
+            "exit_signal": false,
+            "exit_label": "",
+            "buy_event": false,
+            "sell_event": false,
+            "close": 197.149994,
+            "validation": {
+              "verdict": "PASS",
+              "promotion_ready": true,
+              "certified_not_overfit": true,
+              "backtest_certified": true,
+              "gold_status": true,
+              "composite_confidence": 0.7594,
+              "tier": "T2",
+              "warnings": [
+                "n_params=53 exceeds regime_transitions=19",
+                "[T2] missed_marker_cycles=9 > 5 (informational)",
+                "[T2] transition_timing=0.184 < 0.30 (informational)",
+                "concentration: bull_hhi=0.258 bear_hhi=0.128 dom=3.11x",
+                "2023_rebound: share_multiple=0.434",
+                "QQQ same-param share_multiple=0.484 < 0.50",
+                "bootstrap downside probability 0.79 > 0.50"
+              ],
+              "hard_fail_reasons": [],
+              "certification_checks": {
+                "engine_integrity": {
+                  "passed": true,
+                  "status": "pass"
+                },
+                "golden_regression": {
+                  "passed": true,
+                  "status": "pass"
+                },
+                "shadow_comparator": {
+                  "passed": true,
+                  "status": "pass"
+                },
+                "data_quality_precheck": {
+                  "passed": true,
+                  "status": "pass"
+                },
+                "artifact_completeness": {
+                  "passed": true,
+                  "status": "pass"
+                }
+              }
+            },
+            "warnings": [
+              "n_params=53 exceeds regime_transitions=19",
+              "[T2] missed_marker_cycles=9 > 5 (informational)",
+              "[T2] transition_timing=0.184 < 0.30 (informational)",
+              "concentration: bull_hhi=0.258 bear_hhi=0.128 dom=3.11x",
+              "2023_rebound: share_multiple=0.434",
+              "QQQ same-param share_multiple=0.484 < 0.50",
+              "bootstrap downside probability 0.79 > 0.50"
+            ],
+            "blockers": []
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "a795804388207584",
+      "created_utc": "2026-05-21T20:50:06Z",
+      "title": "Montauk Notice",
+      "body": "A higher-confidence certified strategy is available for review.",
+      "severity": "notice",
+      "event_type": "replacement_candidate",
+      "event": {
+        "timestamp_utc": "2026-05-13T22:24:57Z",
+        "severity": "notice",
+        "event_type": "replacement_candidate",
+        "message": "A higher-confidence certified strategy is available for review.",
+        "payload": {
+          "schema_version": 1,
+          "generated_utc": "2026-05-13T22:24:57Z",
+          "status": "switch_candidate",
+          "on_best_certified": false,
+          "selection_metric": "real_share_multiple",
+          "selection_rule": "highest real-era share multiple among current Gold PASS leaderboard rows",
+          "active": {
+            "strategy": "gc_vjatr_timing_repair",
+            "rank": 1,
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "confidence": 0.7678,
+            "score_label": "composite_confidence",
+            "data_end_date": "2026-05-13",
+            "risk_state": "risk_on"
+          },
+          "best_certified": {
+            "strategy": "gc_vjatr_timing_repair",
+            "rank": null,
+            "display_name": "Ivory Hare",
+            "params_hash": "4eb716eb38dbcd348d9e2a70f8de62c13feaf100a30faadacc459ba0207a0124",
+            "confidence": 0.7669,
+            "selected_score": 1.5469,
+            "score_label": "real-era share multiple",
+            "share_multiple": 10.6316,
+            "real_share_multiple": 1.5469,
+            "modern_share_multiple": 2.239
+          },
+          "leaderboard_count": 8,
+          "gold_count": 8,
+          "selected_signal": {
+            "snapshot_schema_version": 1,
+            "generated_utc": "2026-05-13T22:24:57Z",
+            "data_end_date": "2026-05-13",
+            "active_champion": {
+              "strategy": "gc_vjatr_timing_repair",
+              "rank": 1,
+              "date": "2026-04-28",
+              "params_hash": "4eb716eb38dbcd348d9e2a70f8de62c13feaf100a30faadacc459ba0207a0124",
+              "params": {
+                "fast_ema": 140,
+                "slow_ema": 160,
+                "slope_window": 1,
+                "entry_bars": 2,
+                "cooldown": 0,
+                "atr_period": 16,
+                "atr_look": 50,
+                "atr_expand": 2.0,
+                "atr_confirm": 3,
+                "repair_len": 30,
+                "rsi_len": 7,
+                "drawdown_lookback": 40,
+                "drawdown_pct": 25.0,
+                "repair_slope": 3,
+                "rsi_floor": 45.0,
+                "vix_ceiling": 50.0
+              },
+              "metrics": {
+                "share_multiple": 10.6316,
+                "real_share_multiple": 1.5469,
+                "modern_share_multiple": 2.239,
+                "max_dd": 98.2,
+                "trades": 44
+              }
+            },
+            "risk_state": "risk_on",
+            "risk_on": true,
+            "entry_signal": false,
+            "exit_signal": false,
+            "exit_label": "",
+            "buy_event": false,
+            "sell_event": false,
+            "close": 197.149994,
+            "validation": {
+              "verdict": "PASS",
+              "promotion_ready": true,
+              "certified_not_overfit": true,
+              "backtest_certified": true,
+              "gold_status": true,
+              "composite_confidence": 0.7669,
+              "tier": "T2",
+              "warnings": [
+                "walk-forward dispersion 0.71 > 0.65",
+                "2023_rebound: share_multiple=0.565",
+                "QQQ same-param share_multiple=0.478 < 0.50",
+                "walk-forward: WF 2024-2025: OOS/IS regime ratio 0.58 < 0.65",
+                "morris warning: max_swing=0.15 sigma_ratio=2.81",
+                "bootstrap downside probability 0.79 > 0.50",
+                "TQQQ same-param share_multiple=0.446 < 0.50"
+              ],
+              "hard_fail_reasons": [],
+              "certification_checks": {
+                "engine_integrity": {
+                  "passed": true,
+                  "status": "pass"
+                },
+                "golden_regression": {
+                  "passed": true,
+                  "status": "pass"
+                },
+                "shadow_comparator": {
+                  "passed": true,
+                  "status": "pass"
+                },
+                "data_quality_precheck": {
+                  "passed": true,
+                  "status": "pass"
+                },
+                "artifact_completeness": {
+                  "passed": true,
+                  "status": "pass"
+                }
+              }
+            },
+            "warnings": [
+              "walk-forward dispersion 0.71 > 0.65",
+              "2023_rebound: share_multiple=0.565",
+              "QQQ same-param share_multiple=0.478 < 0.50",
+              "walk-forward: WF 2024-2025: OOS/IS regime ratio 0.58 < 0.65",
+              "morris warning: max_swing=0.15 sigma_ratio=2.81",
+              "bootstrap downside probability 0.79 > 0.50",
+              "TQQQ same-param share_multiple=0.446 < 0.50"
+            ],
+            "blockers": []
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "d69a59a211166044",
+      "created_utc": "2026-05-21T20:50:06Z",
+      "title": "Montauk Notice",
+      "body": "A higher-confidence certified strategy is available for review.",
+      "severity": "notice",
+      "event_type": "replacement_candidate",
+      "event": {
+        "timestamp_utc": "2026-05-13T22:24:59Z",
+        "severity": "notice",
+        "event_type": "replacement_candidate",
+        "message": "A higher-confidence certified strategy is available for review.",
+        "payload": {
+          "schema_version": 1,
+          "generated_utc": "2026-05-13T22:24:59Z",
+          "status": "switch_candidate",
+          "on_best_certified": false,
+          "selection_metric": "modern_share_multiple",
+          "selection_rule": "highest modern-era share multiple among current Gold PASS leaderboard rows",
+          "active": {
+            "strategy": "gc_vjatr_timing_repair",
+            "rank": 1,
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "confidence": 0.7678,
+            "score_label": "composite_confidence",
+            "data_end_date": "2026-05-13",
+            "risk_state": "risk_on"
+          },
+          "best_certified": {
+            "strategy": "gold_hybrid_committee",
+            "rank": null,
+            "display_name": "Cerulean Hare #1",
+            "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
+            "confidence": 0.7594,
+            "selected_score": 3.32,
+            "score_label": "modern-era share multiple",
+            "share_multiple": 30.4933,
+            "real_share_multiple": 1.3324,
+            "modern_share_multiple": 3.32
+          },
+          "leaderboard_count": 8,
+          "gold_count": 8,
+          "selected_signal": {
+            "snapshot_schema_version": 1,
+            "generated_utc": "2026-05-13T22:24:59Z",
+            "data_end_date": "2026-05-13",
+            "active_champion": {
+              "strategy": "gold_hybrid_committee",
+              "rank": 1,
+              "date": "2026-04-30",
+              "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
+              "params": {
+                "members": [
+                  {
+                    "display_name": "Dusky Osprey",
+                    "strategy": "gc_vjatr_reclaimer",
+                    "params": {
+                      "fast_ema": 140,
+                      "slow_ema": 160,
+                      "slope_window": 1,
+                      "entry_bars": 2,
+                      "cooldown": 0,
+                      "atr_period": 16,
+                      "atr_look": 50,
+                      "atr_expand": 2.0,
+                      "atr_confirm": 3,
+                      "rsi_len": 14,
+                      "fast_len": 50,
+                      "trend_len": 100,
+                      "vol_short": 20,
+                      "vol_long": 60,
+                      "drawdown_lookback": 80,
+                      "drawdown_pct": 25.0,
+                      "rsi_reclaim": 45.0,
+                      "vol_ratio_max": 0.85
+                    },
+                    "weight": 3.540446
+                  },
+                  {
+                    "display_name": "Marbled Bonobo",
+                    "strategy": "gc_vjatr",
+                    "params": {
+                      "fast_ema": 140,
+                      "slow_ema": 160,
+                      "slope_window": 1,
+                      "entry_bars": 2,
+                      "cooldown": 0,
+                      "atr_period": 7,
+                      "atr_look": 40,
+                      "atr_expand": 2.5,
+                      "atr_confirm": 1
+                    },
+                    "weight": 2.51853
+                  },
+                  {
+                    "display_name": "Ivory Hare",
+                    "strategy": "gc_vjatr_timing_repair",
+                    "params": {
+                      "fast_ema": 140,
+                      "slow_ema": 160,
+                      "slope_window": 1,
+                      "entry_bars": 2,
+                      "cooldown": 0,
+                      "atr_period": 16,
+                      "atr_look": 50,
+                      "atr_expand": 2.0,
+                      "atr_confirm": 3,
+                      "repair_len": 30,
+                      "rsi_len": 7,
+                      "drawdown_lookback": 40,
+                      "drawdown_pct": 25.0,
+                      "repair_slope": 3,
+                      "rsi_floor": 45.0,
+                      "vix_ceiling": 50.0
+                    },
+                    "weight": 2.551391
+                  }
+                ],
+                "threshold": 0.5
+              },
+              "metrics": {
+                "share_multiple": 30.4933,
+                "real_share_multiple": 1.3324,
+                "modern_share_multiple": 3.32,
+                "max_dd": 65.8,
+                "trades": 19
+              }
+            },
+            "risk_state": "risk_on",
+            "risk_on": true,
+            "entry_signal": false,
+            "exit_signal": false,
+            "exit_label": "",
+            "buy_event": false,
+            "sell_event": false,
+            "close": 197.149994,
+            "validation": {
+              "verdict": "PASS",
+              "promotion_ready": true,
+              "certified_not_overfit": true,
+              "backtest_certified": true,
+              "gold_status": true,
+              "composite_confidence": 0.7594,
+              "tier": "T2",
+              "warnings": [
+                "n_params=53 exceeds regime_transitions=19",
+                "[T2] missed_marker_cycles=9 > 5 (informational)",
+                "[T2] transition_timing=0.184 < 0.30 (informational)",
+                "concentration: bull_hhi=0.258 bear_hhi=0.128 dom=3.11x",
+                "2023_rebound: share_multiple=0.434",
+                "QQQ same-param share_multiple=0.484 < 0.50",
+                "bootstrap downside probability 0.79 > 0.50"
+              ],
+              "hard_fail_reasons": [],
+              "certification_checks": {
+                "engine_integrity": {
+                  "passed": true,
+                  "status": "pass"
+                },
+                "golden_regression": {
+                  "passed": true,
+                  "status": "pass"
+                },
+                "shadow_comparator": {
+                  "passed": true,
+                  "status": "pass"
+                },
+                "data_quality_precheck": {
+                  "passed": true,
+                  "status": "pass"
+                },
+                "artifact_completeness": {
+                  "passed": true,
+                  "status": "pass"
+                }
+              }
+            },
+            "warnings": [
+              "n_params=53 exceeds regime_transitions=19",
+              "[T2] missed_marker_cycles=9 > 5 (informational)",
+              "[T2] transition_timing=0.184 < 0.30 (informational)",
+              "concentration: bull_hhi=0.258 bear_hhi=0.128 dom=3.11x",
+              "2023_rebound: share_multiple=0.434",
+              "QQQ same-param share_multiple=0.484 < 0.50",
+              "bootstrap downside probability 0.79 > 0.50"
+            ],
+            "blockers": []
+          }
+        }
+      },
+      "status": "pending"
+    }
+  ]
+}

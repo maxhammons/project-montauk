@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-05-12T04:33:35Z",
+  "idea_count": 4,
+  "ideas": [
+    {
+      "schema_version": 1,
+      "id": "ccd484bec821",
+      "created_utc": "2026-05-12T04:33:35Z",
+      "status": "proposed",
+      "kind": "rebound_capture_repair",
+      "rationale": "Current warnings point to weak rebound participation.",
+      "validation_tier": "T1",
+      "suggested_tests": [
+        "near_miss_autopsy",
+        "focused_grid_search",
+        "named_window_recheck"
+      ],
+      "time_budget": "bounded local diagnostic first",
+      "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+    },
+    {
+      "schema_version": 1,
+      "id": "e50632b64313",
+      "created_utc": "2026-05-12T04:33:35Z",
+      "status": "proposed",
+      "kind": "drawdown_resilience_probe",
+      "rationale": "Current champion has downside or drawdown trust pressure.",
+      "validation_tier": "T1",
+      "suggested_tests": [
+        "gold_hybrid_lab",
+        "overlay_champion_matrix",
+        "live_holdout_review"
+      ],
+      "time_budget": "bounded local diagnostic first",
+      "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+    },
+    {
+      "schema_version": 1,
+      "id": "cca1cc13d4e7",
+      "created_utc": "2026-05-12T04:33:35Z",
+      "status": "proposed",
+      "kind": "parsimony_challenger",
+      "rationale": "Current champion is complex enough to justify a simpler challenger lane.",
+      "validation_tier": "T0/T1",
+      "suggested_tests": [
+        "family_confidence_leaderboard",
+        "grid_search_simple_families"
+      ],
+      "time_budget": "bounded local diagnostic first",
+      "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+    },
+    {
+      "schema_version": 1,
+      "id": "c1f5de8333a6",
+      "created_utc": "2026-05-12T04:33:35Z",
+      "status": "proposed",
+      "kind": "portability_repair",
+      "rationale": "Cross-asset portability warning suggests testing more general signal shapes.",
+      "validation_tier": "T1",
+      "suggested_tests": [
+        "cross_asset_recheck",
+        "diversity_prefilter_search"
+      ],
+      "time_budget": "bounded local diagnostic first",
+      "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+    }
+  ]
+}

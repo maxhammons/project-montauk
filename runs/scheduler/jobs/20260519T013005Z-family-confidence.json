@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "job": "family-confidence",
+  "status": "ok",
+  "started_utc": "2026-05-19T01:30:05Z",
+  "finished_utc": "2026-05-19T01:30:05Z",
+  "command": [
+    "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+    "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/diagnostics/family_confidence_leaderboard.py"
+  ],
+  "cwd": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk",
+  "returncode": 0,
+  "stdout_tail": "STRATEGY FAMILY CONFIDENCE LEADERBOARD\n============================================================================================================\nGold rows: 8\nrank family                         leader                overall future trust legacy valid allera fit   full  real modern n\n   1 gold_hybrid_committee          Cerulean Hare #1          66.1   60.6  77.7   66.4  75.9   5.129 3.685  30.49  1.33   3.32  1\n   2 gc_vjatr                       Marbled Bonobo            62.8   57.6  73.6   69.9  73.5   3.429 2.651  13.13  1.13   2.71  4\n   3 gc_vjatr_timing_repair         Cerulean Hare #2          15.1   39.2   2.6   19.5  76.8   3.270 2.559  10.09  1.55   2.24  3\n\n[family-confidence] wrote /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/family_confidence_leaderboard.json\n",
+  "stderr_tail": "",
+  "lock_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/scheduler/locks/family-confidence.lock",
+  "record_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/scheduler/jobs/20260519T013005Z-family-confidence.json"
+}

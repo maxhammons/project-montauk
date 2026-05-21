@@ -17,6 +17,15 @@ logic.
 Default recommendation: use a Tauri desktop shell with a lightweight frontend
 and Python sidecar commands.
 
+2026-05-12 implementation slice:
+
+- chose the Tauri direction for the first app shell
+- scaffolded `app/`
+- added static dashboard assets under `app/src/`
+- added Tauri bridge commands under `app/src-tauri/`
+- installed app dependencies locally
+- verified the Vite app build and native Tauri bundle build
+
 Reason:
 
 - the existing visualization is already HTML/JS
@@ -46,6 +55,25 @@ Acceptance criteria:
 ## Phase 1 — Operations Artifacts
 
 Create a stable operations layer before building much UI.
+
+2026-05-12 implementation slice:
+
+- added `scripts/ops/daily.py`
+- added `scripts/ops/status.py`
+- added `scripts/ops/events.py`
+- added `scripts/ops/paths.py`
+- added `tests/test_ops.py`
+- created initial `signals/2026-05-08.json`
+- created initial `runs/operations/latest.json`
+- verified local data quality at 41 PASS / 0 WARN / 0 FAIL with refresh disabled
+- current app-facing status reports `risk_on` through `2026-05-08`
+
+2026-05-12 follow-up slice:
+
+- `daily.py` now builds live holdout, governance, and notification artifacts
+  after the core daily snapshot unless `--skip-followups` is passed
+- latest hardened local run produced live holdout `ok`, governance
+  `active_watch`, and notification pending count `0`
 
 New folders:
 
@@ -100,6 +128,44 @@ Use macOS `launchd` for the first background implementation. The app should
 install, inspect, pause, and remove the LaunchAgent rather than invent its own
 daemon first.
 
+2026-05-12 implementation slice:
+
+- added `scripts/ops/run_job.py`
+- added `scripts/ops/scheduler.py`
+- added `scripts/ops/install_launch_agent.py`
+- created default scheduler config at `runs/scheduler/config.json`
+- created first lightweight job record under `runs/scheduler/jobs/`
+- verified LaunchAgent plist generation for the `daily` job
+- later implementation installed and loaded the enabled LaunchAgents
+
+2026-05-12 hardening slice:
+
+- `scripts/ops/run_job.py` now uses per-job lock files under
+  `runs/scheduler/locks/`
+- stale locks can be recovered after the configured timeout
+- overlapping jobs are recorded as `locked` instead of running concurrently
+- `scripts/ops/install_launch_agent.py` can now generate, install, load,
+  unload, and uninstall LaunchAgent plists
+- LaunchAgent load/unload support is implemented and has been exercised for
+  enabled jobs
+- the Mac app Settings view can inspect, install, load, unload, and uninstall
+  the `daily` LaunchAgent through explicit user actions
+- the Mac app Settings view can now install/load/unload/uninstall all enabled
+  scheduler job LaunchAgents
+- enabled LaunchAgents were installed and loaded on 2026-05-12
+- daily schedule corrected on 2026-05-12 to run the main block at 13:30 local
+  time, followed by governance at 13:45, notifications at 13:50, and approved
+  research planning at 14:10
+- `scripts/ops/scheduler.py status --json` now returns app-ready scheduler
+  status with next local run time and latest job result
+- the app Jobs view can enable or disable configured scheduler jobs
+- scheduler config loading merges in newly introduced default jobs without
+  clobbering local job settings
+- `daily-research-supervisor` creates bounded run artifacts for approved
+  research ideas
+- `scripts/ops/doctor.py` verifies app bundle, core ops artifacts, scheduler,
+  and enabled LaunchAgent install/load state from one command
+
 Schedules:
 
 - daily operations after market data is expected to settle
@@ -137,6 +203,20 @@ Acceptance criteria:
 
 Add notification rules after the operations artifacts exist.
 
+2026-05-12 implementation slice:
+
+- added `scripts/ops/notifications.py`
+- added `runs/operations/notifications.json`
+- notification scan reads `events.jsonl` and writes a pending outbox
+- the app can scan and send pending macOS notifications
+- sent notification status is persisted back to `notifications.json`
+- routine `job_succeeded` info events are filtered out
+- signal changes, data quality failures, job failures, snapshot conflicts,
+  viz build failures, champion blockers, replacement candidates, and live drift
+  are notifiable
+- explicit `--send` exists for CLI/manual use, but the app should eventually
+  own native notification delivery
+
 Notification events:
 
 - risk state changed
@@ -162,6 +242,32 @@ Acceptance criteria:
 ## Phase 4 — App Dashboard
 
 Build the first useful app surface.
+
+2026-05-12 implementation slice:
+
+- added dashboard shell with Current Signal, Data Status, Active Champion,
+  Notifications, Jobs, Events, and Settings views
+- app reads live status through Tauri command `read_status`
+- app can invoke `run_job`, `scan_notifications`, and `open_viz` once running
+  through Tauri
+- app can manage the daily LaunchAgent from Settings without terminal commands
+- app can show Doctor readiness, including launchd loaded/runs/last-exit state
+- app auto-refreshes status and shows scheduler next-run/last-run details
+- app main view now focuses on a premium, stripped-down Current Signal and a
+  strategy-selection matrix instead of question-style copy
+- app Today view now answers buy/sell/hold, risk on/off, consensus, and which
+  strategy lenses support the current stance
+- app current signal now includes freshness and automation state so stale data
+  or a stopped daily LaunchAgent is visible in the primary view
+- app removed backend-facing alert scan/send controls from the main view; issues
+  that could reduce confidence now live under Checkup
+- app includes a sidebar Viz tab that embeds the existing Montauk visualization
+- app can show risk on/off and best certified strategy at a glance under the
+  main selection metrics: confidence, full history, real era, and modern era
+- app-side metric comparisons are read-only and do not overwrite the official
+  daily strategy review artifact or create replacement-candidate notifications
+- static browser fallback renders a preview status object for design iteration
+- JavaScript and Rust formatting checks pass without installing dependencies
 
 Views:
 
@@ -190,6 +296,14 @@ Acceptance criteria:
 
 Turn the daily snapshots into forward evidence.
 
+2026-05-12 implementation slice:
+
+- added `scripts/ops/live_holdout.py`
+- added `runs/operations/live_holdout.json`
+- current point-in-time snapshot replays cleanly against the current engine
+- report currently tracks latest-date replay; fuller historical replay can be
+  added after more live snapshots accumulate
+
 New command surface:
 
 - `scripts/ops/live_holdout.py`
@@ -217,6 +331,14 @@ Acceptance criteria:
 ## Phase 6 — Recertification And Champion Governance
 
 Add explicit rules for whether the active champion is still deployable.
+
+2026-05-12 implementation slice:
+
+- added `scripts/ops/governance.py`
+- added `runs/operations/governance.json`
+- current governance state is `active_watch`
+- reason: current champion remains Gold, but 7 validation warnings are active
+- live holdout status is included in governance and currently has 0 divergences
 
 Governance states:
 
@@ -247,6 +369,21 @@ Acceptance criteria:
 ## Phase 7 — Research Queue
 
 Create an app-visible queue for strategy testing.
+
+2026-05-12 implementation slice:
+
+- added `scripts/ops/research_queue.py`
+- added `runs/research_queue/queue.json`
+- added four proposed research lanes from current warnings:
+  rebound capture repair, drawdown resilience probe, parsimony challenger, and
+  portability repair
+- proposals are reviewable artifacts; none can mutate the authority leaderboard
+  outside the existing certification path
+- research ideas can now be marked approved, dismissed, or reset from the app
+- review actions update both `queue.json` and the individual idea artifact
+- approved ideas can now be converted into bounded research run artifacts under
+  `runs/research_queue/runs/`
+- a daily approved-research supervisor is included in scheduler status
 
 Research job types:
 
@@ -317,6 +454,17 @@ Acceptance criteria:
 ## Phase 9 — Packaging And Auto-Update
 
 Package the app as a local standalone macOS application.
+
+2026-05-12 implementation slice:
+
+- native app build completed successfully
+- local bundle path:
+  `app/src-tauri/target/release/bundle/macos/Montauk.app`
+- local binary path:
+  `app/src-tauri/target/release/montauk-app`
+- app-side LaunchAgent controls are present, but persistent background
+  activation is explicit and has now been performed for enabled jobs
+- `.gitignore` excludes local app build products and dependency folders
 
 Packaging requirements:
 

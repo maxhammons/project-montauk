@@ -44,11 +44,23 @@ The project remains local-first. Data, signals, validation artifacts, logs, and
 the app state live in the project directory unless a later deployment decision
 explicitly moves them.
 
+App operations must run on the local machine. The app should not depend on
+GitHub Actions, remote runners, hosted queues, or cloud services for daily
+updates, scheduled checks, recertification, or strategy research.
+
 ### Python authority
 
 The Python engine owns signal generation, backtests, validation, certification,
 and artifact creation. The app invokes the engine and displays its artifacts.
 The app does not reimplement strategy logic.
+
+### Code-only intelligence
+
+Montauk should not rely on an AI backend to decide trades, rank strategies, or
+operate the daily process. The intelligence in the product should be versioned,
+inspectable code: Python strategies, validators, schedulers, and structured
+artifacts. AI can help during development, but it is not a runtime dependency
+or decision authority inside the app.
 
 ### Immutable daily memory
 
@@ -125,8 +137,9 @@ static grids. Inputs may include:
 - regime-specific underperformance
 - current market state
 
-Generated ideas should enter a proposal queue with a plain-language rationale,
-expected failure mode, intended validation tier, and test budget.
+Generated ideas should come from deterministic diagnostics and enter a proposal
+queue with a plain-language rationale, expected failure mode, intended
+validation tier, and test budget.
 
 ### Notifications
 
@@ -165,6 +178,8 @@ The app is not allowed to automate:
 - bypassing Gold Status
 - editing historical signal snapshots
 - hiding validation failures behind better-looking summary scores
+- offloading app operations to GitHub Actions or other remote runners
+- depending on an AI service for runtime strategy decisions
 
 ---
 
@@ -251,7 +266,7 @@ These choices can be finalized during implementation:
 - exact promotion-review workflow
 - how much strategy ideation is automated in v1
 - whether the app embeds the HTML viewer or opens it externally
-- whether long-running research stays fully local or can later use remote runs
+- how to budget long-running local research without making the app feel busy
 
 The default bias should be simple, local, inspectable, and aligned with the
 existing Python pipeline.

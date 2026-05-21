@@ -2,3 +2,8 @@
 __pycache__/
 spike/tested-configs.jsonl
 docs/pine-reference/
+app/node_modules/
+app/dist/
+app/src-tauri/target/
+runs/scheduler/locks/
+viz/montauk-bundle.json

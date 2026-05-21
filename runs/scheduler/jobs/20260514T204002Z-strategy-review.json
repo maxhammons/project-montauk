@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "job": "strategy-review",
+  "status": "ok",
+  "started_utc": "2026-05-14T20:40:02Z",
+  "finished_utc": "2026-05-14T20:40:02Z",
+  "command": [
+    "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+    "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/ops/strategy_review.py",
+    "--json"
+  ],
+  "cwd": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk",
+  "returncode": 0,
+  "stdout_tail": "{\n  \"schema_version\": 1,\n  \"generated_utc\": \"2026-05-14T20:40:02Z\",\n  \"status\": \"on_best_certified\",\n  \"on_best_certified\": true,\n  \"selection_metric\": \"confidence\",\n  \"selection_rule\": \"highest composite_confidence among current Gold PASS leaderboard rows\",\n  \"active\": {\n    \"strategy\": \"gc_vjatr_timing_repair\",\n    \"rank\": 1,\n    \"params_hash\": \"18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d\",\n    \"confidence\": 0.7678,\n    \"score_label\": \"composite_confidence\",\n    \"data_end_date\": \"2026-05-14\",\n    \"risk_state\": \"risk_on\"\n  },\n  \"best_certified\": {\n    \"strategy\": \"gc_vjatr_timing_repair\",\n    \"rank\": null,\n    \"display_name\": \"Cerulean Hare #2\",\n    \"params_hash\": \"18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d\",\n    \"confidence\": 0.7678,\n    \"selected_score\": 0.7678,\n    \"score_label\": \"composite_confidence\",\n    \"share_multiple\": 10.0909,\n    \"real_share_multiple\": 1.5469,\n    \"modern_share_multiple\": 2.239\n  },\n  \"leaderboard_count\": 8,\n  \"gold_count\": 8\n}\n",
+  "stderr_tail": "",
+  "lock_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/scheduler/locks/strategy-review.lock",
+  "record_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/scheduler/jobs/20260514T204002Z-strategy-review.json"
+}

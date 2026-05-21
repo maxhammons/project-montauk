@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-01T15:20:02",
+  "generated_at": "2026-05-18T18:30:05",
   "source": "spike/leaderboard.json",
   "gold_rows": 8,
   "confidence_definition": "Overall Confidence combines Future Confidence and Trust. Future Confidence estimates future usefulness; Trust estimates deployability. Legacy family confidence remains available for comparison.",

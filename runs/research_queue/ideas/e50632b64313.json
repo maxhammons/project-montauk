@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "e50632b64313",
+  "created_utc": "2026-05-12T04:33:35Z",
+  "status": "proposed",
+  "kind": "drawdown_resilience_probe",
+  "rationale": "Current champion has downside or drawdown trust pressure.",
+  "validation_tier": "T1",
+  "suggested_tests": [
+    "gold_hybrid_lab",
+    "overlay_champion_matrix",
+    "live_holdout_review"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+}

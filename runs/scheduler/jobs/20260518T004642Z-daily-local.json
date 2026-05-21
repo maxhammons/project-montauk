@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "job": "daily-local",
+  "status": "ok",
+  "started_utc": "2026-05-18T00:46:42Z",
+  "finished_utc": "2026-05-18T00:46:44Z",
+  "command": [
+    "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+    "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/ops/daily.py",
+    "--skip-refresh",
+    "--skip-viz"
+  ],
+  "cwd": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk",
+  "returncode": 0,
+  "stdout_tail": "[data] TECL: 8316 bars, 1993-05-04 to 2026-05-15\n[data] VIX: 8316/8316 dates matched\n[data] TECL: 8316 bars, 1993-05-04 to 2026-05-15\n[data] VIX: 8316/8316 dates matched\nMontauk daily status: ok\nSignal: risk_on through 2026-05-15\n- refresh: skipped\n- manifest: ok\n- data_quality: ok\n- signal_snapshot: unchanged\n- viz: skipped\n- followups: ok\n",
+  "stderr_tail": "",
+  "lock_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/scheduler/locks/daily-local.lock",
+  "record_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/scheduler/jobs/20260518T004642Z-daily-local.json"
+}

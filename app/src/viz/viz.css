@@ -1,0 +1,497 @@
+/* Montauk viz — ported from viz/templates/shell.html, restyled with app tokens.
+ * All selectors are scoped under #viz-shell so they don't leak into the rest
+ * of the Mac app shell. The viz reuses the app's :root variables; no new
+ * palette is defined here. */
+
+#viz-shell {
+  /* viz-internal aliases that map onto the app's synthwave tokens */
+  --viz-accent: var(--cyan);
+  --viz-accent-soft: rgba(99, 199, 214, 0.32);
+  --viz-purple: var(--violet);
+  --viz-synth-tint: rgba(255, 95, 210, 0.06);
+  --viz-tier-t0: var(--text-2);
+  --viz-tier-t1: var(--cyan);
+  --viz-tier-t2: var(--amber);
+  --viz-tier-t3: var(--green);
+
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr) 340px;
+  grid-template-rows: 44px 1fr;
+  height: 78vh;
+  min-height: 640px;
+  background: var(--bg-0);
+  font: 13px/1.4 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 22px 56px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(99, 199, 214, 0.05);
+}
+
+/* Synthwave scanline + grid overlay across the viz center column */
+#viz-shell::before {
+  content: "";
+  position: absolute;
+  inset: 44px 340px 0 280px; /* sits behind the center column */
+  pointer-events: none;
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(99, 199, 214, 0.04) 1px, transparent 1px) 0 0 / 44px 44px,
+    linear-gradient(rgba(66, 214, 154, 0.03) 1px, transparent 1px) 0 0 / 44px 44px,
+    repeating-linear-gradient(0deg, rgba(255, 95, 210, 0.05), rgba(255, 95, 210, 0.05) 1px, transparent 1px, transparent 18px);
+  opacity: 0.55;
+  mix-blend-mode: screen;
+}
+
+#viz-shell > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* ---- Top bar ---- */
+#viz-shell .topbar {
+  grid-column: 1 / -1;
+  background: rgba(13, 17, 21, 0.92);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  gap: 14px;
+  box-shadow: inset 0 -1px 0 rgba(255, 95, 210, 0.12), 0 1px 24px rgba(0, 0, 0, 0.32);
+}
+#viz-shell .topbar .title {
+  font-weight: 720;
+  color: var(--text-0);
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 18px rgba(99, 199, 214, 0.28);
+}
+#viz-shell .topbar .title .sub {
+  color: var(--text-2);
+  font-weight: 400;
+  margin-left: 8px;
+  font-size: 12px;
+  text-shadow: none;
+}
+#viz-shell .topbar .controls {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+#viz-shell .btn {
+  background: #11181d;
+  border: 1px solid var(--line);
+  color: var(--text-1);
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.1s, box-shadow 0.12s, border-color 0.12s, color 0.1s;
+}
+#viz-shell .btn:hover {
+  border-color: var(--magenta);
+  color: var(--text-0);
+  box-shadow: 0 0 16px rgba(255, 95, 210, 0.18);
+}
+#viz-shell .btn.active {
+  background: linear-gradient(90deg, rgba(66, 214, 154, 0.16), rgba(99, 199, 214, 0.18));
+  color: var(--text-0);
+  border-color: var(--cyan);
+  box-shadow: inset 0 0 0 1px rgba(99, 199, 214, 0.32), 0 0 18px rgba(99, 199, 214, 0.18);
+}
+#viz-shell .toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-1);
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+#viz-shell .toggle input { cursor: pointer; accent-color: var(--cyan); }
+
+#viz-shell .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(8, 12, 14, 0.78);
+  border: 1px solid var(--line);
+  padding: 3px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--text-1);
+}
+#viz-shell .badge.ok { color: var(--green); border-color: rgba(66, 214, 154, 0.42); box-shadow: 0 0 12px rgba(66, 214, 154, 0.14); }
+#viz-shell .badge.gold { color: var(--amber); border-color: rgba(215, 168, 74, 0.6); background: rgba(215, 168, 74, 0.08); box-shadow: 0 0 14px rgba(215, 168, 74, 0.16); }
+#viz-shell .badge.warn { color: var(--amber); border-color: rgba(215, 168, 74, 0.42); }
+#viz-shell .badge.fail { color: var(--red); border-color: rgba(240, 102, 102, 0.42); }
+#viz-shell .badge.rg-bull, #viz-shell .badge.rg-recovery { color: var(--green); border-color: rgba(66, 214, 154, 0.4); }
+#viz-shell .badge.rg-bear, #viz-shell .badge.rg-crash { color: var(--red); border-color: rgba(240, 102, 102, 0.4); }
+#viz-shell .badge.rg-chop, #viz-shell .badge.rg-policy { color: var(--amber); border-color: rgba(215, 168, 74, 0.4); }
+#viz-shell .badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+/* ---- Sidebar (left) ---- */
+#viz-shell .sidebar {
+  background: rgba(13, 17, 21, 0.94);
+  border-right: 1px solid var(--line);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+#viz-shell .sidebar h3 {
+  margin: 0;
+  padding: 12px 14px 8px;
+  color: var(--text-2);
+  font-size: 11px;
+  font-weight: 760;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--line-soft);
+}
+#viz-shell .strat-list { padding: 4px 0; }
+#viz-shell .leaderboard-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--line-soft);
+}
+#viz-shell .leaderboard-tab {
+  background: #11181d;
+  color: var(--text-2);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 5px 6px;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.1s, color 0.1s, box-shadow 0.12s;
+}
+#viz-shell .leaderboard-tab:hover { color: var(--text-0); border-color: var(--magenta); box-shadow: 0 0 12px rgba(255, 95, 210, 0.14); }
+#viz-shell .leaderboard-tab.active {
+  background: linear-gradient(90deg, rgba(66, 214, 154, 0.12), rgba(99, 199, 214, 0.18));
+  color: var(--text-0);
+  border-color: var(--cyan);
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px rgba(99, 199, 214, 0.32), 0 0 14px rgba(99, 199, 214, 0.18);
+}
+#viz-shell .sort-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px 8px;
+  font-size: 11px;
+  color: var(--text-3);
+}
+#viz-shell .sort-toolbar label { text-transform: uppercase; letter-spacing: 0.05em; }
+#viz-shell .sort-toolbar select {
+  flex: 1;
+  background: #11181d;
+  color: var(--text-0);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 3px 6px;
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+}
+#viz-shell .sort-toolbar .sort-dir {
+  width: 26px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #11181d;
+  color: var(--text-1);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+#viz-shell .sort-toolbar select:hover,
+#viz-shell .sort-toolbar .sort-dir:hover { border-color: var(--cyan); color: var(--text-0); }
+#viz-shell .sort-toolbar select:focus,
+#viz-shell .sort-toolbar .sort-dir:focus { outline: none; border-color: var(--cyan); }
+#viz-shell .strat {
+  padding: 8px 14px;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  border-bottom: 1px solid var(--line-soft);
+  transition: background 0.08s, box-shadow 0.12s;
+}
+#viz-shell .strat:hover { background: rgba(99, 199, 214, 0.06); }
+#viz-shell .strat.active {
+  background: rgba(66, 214, 154, 0.08);
+  border-left-color: var(--green);
+  box-shadow: inset 3px 0 0 var(--green), 0 0 24px rgba(66, 214, 154, 0.08);
+}
+#viz-shell .strat.stale { opacity: 0.55; }
+#viz-shell .strat .row1 { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+#viz-shell .strat .rank { color: var(--text-3); font-variant-numeric: tabular-nums; font-size: 11px; min-width: 22px; }
+#viz-shell .strat .name { flex: 1; color: var(--text-0); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#viz-shell .strat .metric-col { display: flex; flex-direction: column; align-items: flex-end; gap: 0; }
+#viz-shell .strat .fitness { color: var(--text-0); font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 700; line-height: 1.1; }
+#viz-shell .strat .row2 { display: flex; align-items: center; gap: 6px; margin-top: 3px; padding-left: 22px; color: var(--text-2); font-size: 11px; }
+#viz-shell .strat .mult { color: var(--green); font-variant-numeric: tabular-nums; }
+#viz-shell .strat .mult.bad { color: var(--red); }
+#viz-shell .strat .tier { font-size: 10px; padding: 1px 5px; border-radius: 3px; background: rgba(23, 32, 39, 0.85); }
+#viz-shell .strat .tier.T0 { color: var(--viz-tier-t0); }
+#viz-shell .strat .tier.T1 { color: var(--viz-tier-t1); }
+#viz-shell .strat .tier.T2 { color: var(--viz-tier-t2); }
+#viz-shell .strat .tier.T3 { color: var(--viz-tier-t3); }
+#viz-shell .strat .cert { font-size: 10px; color: var(--green); }
+#viz-shell .strat .cert.gold { color: var(--amber); font-weight: 760; text-shadow: 0 0 8px rgba(215, 168, 74, 0.4); }
+#viz-shell .strat .cert.no { color: var(--text-3); }
+#viz-shell .strat .family { font-size: 9px; padding: 1px 5px; border-radius: 3px; color: var(--amber); border: 1px solid rgba(215, 168, 74, 0.36); }
+#viz-shell .strat .admission { font-size: 9px; padding: 1px 5px; border-radius: 3px; font-weight: 700; letter-spacing: 0.4px; }
+#viz-shell .strat .admission.admitted { background: rgba(66, 214, 154, 0.16); color: var(--green); }
+#viz-shell .strat .admission.watchlist { background: rgba(215, 168, 74, 0.16); color: var(--amber); }
+#viz-shell .strat .admission.research { background: rgba(148, 163, 184, 0.12); color: var(--text-3); }
+#viz-shell .strat .admission.unknown { background: rgba(23, 32, 39, 0.6); color: var(--text-3); }
+#viz-shell .strat .manual-flag { color: var(--amber); font-size: 10px; margin-left: 3px; cursor: help; }
+#viz-shell .strat .orig-rank { color: var(--text-3); font-size: 9px; font-weight: 400; margin-left: 3px; }
+#viz-shell .strat .secondary-mult { display: block; font-size: 10px; color: var(--text-3); font-variant-numeric: tabular-nums; margin-top: 1px; text-align: right; cursor: help; }
+#viz-shell .strat .secondary-mult.bad { color: var(--red); }
+#viz-shell .strat .secondary-mult.missing { color: var(--text-3); opacity: 0.5; }
+
+#viz-shell .secondary-toolbar { display: flex; align-items: center; gap: 8px; padding: 0 14px 8px; font-size: 10px; color: var(--text-3); }
+#viz-shell .toggle-group { display: inline-flex; background: #11181d; border: 1px solid var(--line); border-radius: 5px; overflow: hidden; }
+#viz-shell .toggle-btn { background: transparent; color: var(--text-2); border: none; padding: 2px 8px; font-size: 10px; cursor: pointer; letter-spacing: 0.3px; }
+#viz-shell .toggle-btn:hover { background: rgba(255, 95, 210, 0.12); color: var(--text-0); }
+#viz-shell .toggle-btn.active { background: var(--cyan); color: var(--ink); font-weight: 700; }
+
+/* ---- Center (charts) ---- */
+#viz-shell .center { display: flex; flex-direction: column; background: rgba(8, 10, 13, 0.85); overflow: hidden; }
+#viz-shell .chart-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(13, 17, 21, 0.92);
+  border-bottom: 1px solid var(--line);
+  min-height: 36px;
+  box-shadow: inset 0 -1px 0 rgba(99, 199, 214, 0.14);
+}
+#viz-shell .chart-toolbar .label { color: var(--text-2); font-size: 11px; margin-right: 4px; text-transform: uppercase; letter-spacing: 0.6px; }
+#viz-shell .chart-toolbar .spacer { flex: 1; }
+#viz-shell .chart-area { flex: 1; display: grid; grid-template-rows: 1.45fr 0.9fr 0.55fr; min-height: 0; }
+#viz-shell .pane { position: relative; border-bottom: 1px solid var(--line-soft); min-height: 0; }
+#viz-shell .pane::after {
+  content: "";
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--magenta), var(--cyan), transparent);
+  opacity: 0.42;
+}
+#viz-shell .pane:last-child { border-bottom: none; }
+#viz-shell .pane:last-child::after { display: none; }
+#viz-shell .pane-label {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  z-index: 5;
+  color: var(--text-1);
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  background: rgba(8, 10, 13, 0.78);
+  padding: 3px 7px;
+  border: 1px solid rgba(99, 199, 214, 0.32);
+  border-radius: 4px;
+  pointer-events: none;
+  text-shadow: 0 0 10px rgba(99, 199, 214, 0.32);
+  box-shadow: 0 0 14px rgba(255, 95, 210, 0.1);
+}
+#viz-shell .pane-chart { position: absolute; inset: 0; }
+
+/* ---- Right panel ---- */
+#viz-shell .right {
+  background: rgba(13, 17, 21, 0.94);
+  border-left: 1px solid var(--line);
+  overflow-y: auto;
+}
+#viz-shell .right h3 {
+  margin: 0;
+  padding: 10px 14px 6px;
+  color: var(--text-2);
+  font-size: 11px;
+  font-weight: 760;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--line-soft);
+}
+#viz-shell .right .section { padding: 10px 14px 12px; border-bottom: 1px solid var(--line-soft); }
+#viz-shell .right .strat-name { color: var(--text-0); font-size: 15px; font-weight: 700; margin: 4px 0 2px; text-shadow: 0 0 14px rgba(99, 199, 214, 0.16); }
+#viz-shell .right .strat-codename { color: var(--text-2); font-size: 10px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: 0.02em; margin: 0 0 6px; }
+#viz-shell .right .strat-meta { color: var(--text-2); font-size: 11px; margin-bottom: 4px; display: flex; gap: 6px; flex-wrap: wrap; }
+#viz-shell .metric-row { display: flex; justify-content: space-between; padding: 3px 0; color: var(--text-1); font-size: 12px; }
+#viz-shell .metric-row .k { color: var(--text-2); }
+#viz-shell .metric-row .v { color: var(--text-0); font-variant-numeric: tabular-nums; font-weight: 500; }
+#viz-shell .metric-row .v.pos { color: var(--green); }
+#viz-shell .metric-row .v.neg { color: var(--red); }
+
+/* ---- Era / regime tables ---- */
+#viz-shell .era-section { padding-top: 6px; padding-bottom: 8px; }
+#viz-shell .era-table { width: 100%; border-collapse: collapse; font-size: 11px; font-variant-numeric: tabular-nums; }
+#viz-shell .era-table thead th { text-align: right; color: var(--text-3); font-weight: 400; padding: 2px 6px 4px; border-bottom: 1px solid var(--line); }
+#viz-shell .era-table thead th:first-child { text-align: left; }
+#viz-shell .era-table tbody td { padding: 4px 6px; text-align: right; border-bottom: 1px solid rgba(23, 32, 39, 0.55); }
+#viz-shell .era-table tbody td.era-label { text-align: left; color: var(--text-2); cursor: help; }
+#viz-shell .era-table tbody tr:last-child td { border-bottom: none; }
+#viz-shell .era-table .era-val { color: var(--text-0); font-weight: 500; }
+#viz-shell .era-table .era-val.pos { color: var(--green); }
+#viz-shell .era-table .era-val.neg { color: var(--red); }
+#viz-shell .era-decayed { display: flex; justify-content: space-between; align-items: baseline; margin-top: 8px; padding: 6px 6px 4px; border-top: 1px dashed var(--line); font-size: 11px; color: var(--text-2); cursor: help; }
+#viz-shell .era-decayed .v { color: var(--text-0); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* ---- Scorecards ---- */
+#viz-shell .scorecards { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
+#viz-shell .scorecard {
+  background: rgba(8, 12, 14, 0.78);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex: 1;
+  box-shadow: inset 0 0 0 1px rgba(99, 199, 214, 0.05);
+}
+#viz-shell .scorecard .period { color: var(--text-2); font-size: 10px; letter-spacing: 0.6px; text-transform: uppercase; }
+#viz-shell .scorecard .mult { color: var(--text-0); font-size: 17px; font-weight: 720; font-variant-numeric: tabular-nums; margin: 2px 0; }
+#viz-shell .scorecard .mult.bad { color: var(--red); }
+#viz-shell .scorecard .mult.good { color: var(--green); }
+#viz-shell .scorecard .sub { color: var(--text-2); font-size: 10px; font-variant-numeric: tabular-nums; }
+
+/* ---- TECL Health snapshot in right panel ---- */
+#viz-shell .health-snapshot { display: grid; grid-template-columns: 1fr; gap: 8px; }
+#viz-shell .health-main { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+#viz-shell .health-value { font-size: 26px; line-height: 1; font-weight: 720; font-variant-numeric: tabular-nums; text-shadow: 0 0 18px rgba(99, 199, 214, 0.24); }
+#viz-shell .health-value.strong { color: var(--green); }
+#viz-shell .health-value.positive { color: var(--cyan); }
+#viz-shell .health-value.neutral { color: var(--amber); }
+#viz-shell .health-value.weak { color: var(--red); }
+#viz-shell .health-label { color: var(--text-2); font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; }
+#viz-shell .health-note { color: var(--text-3); font-size: 10px; }
+#viz-shell .health-components { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 12px; }
+#viz-shell .health-component { display: flex; justify-content: space-between; gap: 8px; color: var(--text-1); font-size: 11px; font-variant-numeric: tabular-nums; }
+#viz-shell .health-component .k { color: var(--text-2); }
+#viz-shell .health-component .v.pos { color: var(--green); }
+#viz-shell .health-component .v.mid { color: var(--amber); }
+#viz-shell .health-component .v.neg { color: var(--red); }
+
+/* ---- Validation gates ---- */
+#viz-shell .gates { display: grid; grid-template-columns: 1fr; gap: 3px; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--line-soft); }
+#viz-shell .gate-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-1); word-break: break-word; }
+#viz-shell .gate-row span:first-child { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 10px; color: var(--text-2); }
+#viz-shell .gate-row .gv { font-weight: 700; }
+#viz-shell .gate-row .gv.PASS { color: var(--green); }
+#viz-shell .gate-row .gv.WARN { color: var(--amber); }
+#viz-shell .gate-row .gv.FAIL { color: var(--red); }
+
+#viz-shell .val-summary { display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--text-1); cursor: pointer; user-select: none; padding: 4px 0; }
+#viz-shell .val-summary .vs-caret { color: var(--text-3); font-size: 10px; margin-right: 6px; transition: transform 0.15s ease; display: inline-block; }
+#viz-shell .val-summary.expanded .vs-caret { transform: rotate(90deg); }
+#viz-shell .val-summary .vs-pass { color: var(--green); font-weight: 700; }
+#viz-shell .val-summary .vs-skip { color: var(--text-3); }
+#viz-shell .val-summary .vs-warn { color: var(--amber); font-weight: 700; }
+#viz-shell .val-summary .vs-fail { color: var(--red); font-weight: 700; }
+#viz-shell .gates.collapsed { display: none; }
+
+/* ---- Hover-tip used by .has-tip in viz right panel ---- */
+#viz-shell .has-tip { position: relative; cursor: help; border-bottom: 1px dotted var(--text-3); }
+#viz-shell .has-tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  width: 240px;
+  background: rgba(8, 10, 13, 0.97);
+  border: 1px solid rgba(99, 199, 214, 0.42);
+  border-radius: 6px;
+  padding: 7px 9px;
+  font-size: 11px;
+  color: var(--text-0);
+  line-height: 1.4;
+  white-space: normal;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 200;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 24px rgba(255, 95, 210, 0.12);
+  transition: opacity 0.12s ease;
+}
+#viz-shell .has-tip:hover::after { opacity: 1; }
+
+/* ---- Parameters block ---- */
+#viz-shell .params {
+  background: rgba(8, 12, 14, 0.78);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 8px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  color: var(--text-1);
+  line-height: 1.6;
+  word-break: break-word;
+}
+#viz-shell .params .pk { color: var(--text-2); }
+#viz-shell .params .pv { color: var(--cyan); }
+
+/* ---- Crosshair tooltip ---- */
+#viz-shell .tooltip,
+#viz-shell #tooltip {
+  position: absolute;
+  z-index: 100;
+  pointer-events: none;
+  background: rgba(8, 10, 13, 0.96);
+  border: 1px solid rgba(99, 199, 214, 0.42);
+  border-radius: 5px;
+  padding: 7px 10px;
+  font-size: 11px;
+  color: var(--text-0);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.5;
+  display: none;
+  min-width: 140px;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.36), 0 0 22px rgba(255, 95, 210, 0.14);
+}
+#viz-shell .tooltip .t-date,
+#viz-shell #tooltip .t-date { color: var(--text-2); margin-bottom: 3px; font-size: 10px; }
+#viz-shell .tooltip .t-trade,
+#viz-shell #tooltip .t-trade { margin-top: 4px; padding-top: 4px; border-top: 1px solid var(--line-soft); color: var(--amber); font-size: 11px; }
+
+/* ---- Scrollbars (viz panes only) ---- */
+#viz-shell ::-webkit-scrollbar { width: 8px; height: 8px; }
+#viz-shell ::-webkit-scrollbar-track { background: rgba(13, 17, 21, 0.6); }
+#viz-shell ::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 4px; }
+#viz-shell ::-webkit-scrollbar-thumb:hover { background: rgba(255, 95, 210, 0.32); }
+
+/* ---- Viz-tab affordances added by the app ---- */
+.viz-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 10px;
+}
+.viz-section-head h3 { margin: 0; font-size: 15px; }
+.viz-section-head .panel-label { display: block; }
+.viz-section-head .row-actions { display: flex; gap: 8px; }
+
+.viz-empty {
+  display: grid;
+  place-items: center;
+  min-height: 360px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  color: var(--text-2);
+  background: rgba(13, 17, 21, 0.6);
+  text-align: center;
+  padding: 24px;
+}
+.viz-empty strong { color: var(--text-0); display: block; margin-bottom: 6px; }
+.viz-empty .muted { color: var(--text-3); font-size: 12px; margin-top: 8px; }

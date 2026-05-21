@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "job": "notifications",
+  "status": "ok",
+  "started_utc": "2026-05-13T20:50:02Z",
+  "finished_utc": "2026-05-13T20:50:02Z",
+  "command": [
+    "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+    "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/ops/notifications.py",
+    "--scan"
+  ],
+  "cwd": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk",
+  "returncode": 0,
+  "stdout_tail": "{\n  \"schema_version\": 1,\n  \"generated_utc\": \"2026-05-13T20:50:02Z\",\n  \"pending_count\": 0,\n  \"notifications\": []\n}\n",
+  "stderr_tail": "",
+  "lock_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/scheduler/locks/notifications.lock",
+  "record_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/scheduler/jobs/20260513T205002Z-notifications.json"
+}

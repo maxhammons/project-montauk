@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "id": "c1f5de8333a6",
+  "created_utc": "2026-05-12T04:33:35Z",
+  "status": "proposed",
+  "kind": "portability_repair",
+  "rationale": "Cross-asset portability warning suggests testing more general signal shapes.",
+  "validation_tier": "T1",
+  "suggested_tests": [
+    "cross_asset_recheck",
+    "diversity_prefilter_search"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+}

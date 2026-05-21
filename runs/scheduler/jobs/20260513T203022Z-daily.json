@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "job": "daily",
+  "status": "ok",
+  "started_utc": "2026-05-13T20:30:22Z",
+  "finished_utc": "2026-05-13T20:30:29Z",
+  "command": [
+    "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+    "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/ops/daily.py"
+  ],
+  "cwd": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk",
+  "returncode": 0,
+  "stdout_tail": "[refresh] Updating all local CSVs...\n[refresh] TECL: +3 new bars\n[refresh] VIX: +3 new bars\n[refresh] XLK: +3 new bars\n[refresh] QQQ: +3 new bars\n[refresh] TQQQ: +3 new bars\n[refresh] SGOV: +3 new bars\n[refresh] tbill-3m.csv: +4 new rows\n[refresh] treasury-spread-10y2y.csv: +3 new rows\n[refresh] fed-funds-rate.csv: +6 new rows\n[refresh] Done. TECL: 8314 bars through 2026-05-13\n[data] TECL: 8314 bars, 1993-05-04 to 2026-05-13\n[data] VIX: 8314/8314 dates matched\n[data] TECL: 8314 bars, 1993-05-04 to 2026-05-13\n[data] VIX: 8314/8314 dates matched\nMontauk daily status: ok\nSignal: risk_on through 2026-05-13\n- refresh: ok\n- manifest: ok\n- data_quality: ok\n- signal_snapshot: written\n- viz: ok\n- followups: ok\n",
+  "stderr_tail": "",
+  "lock_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/scheduler/locks/daily.lock",
+  "record_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/scheduler/jobs/20260513T203022Z-daily.json"
+}

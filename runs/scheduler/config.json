@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "jobs": {
+    "daily": {
+      "enabled": true,
+      "job": "daily",
+      "label": "Daily operations",
+      "schedule": {
+        "Hour": 13,
+        "Minute": 30
+      },
+      "description": "Refresh data, verify quality, snapshot signal, and rebuild app-facing status."
+    },
+    "daily-recertify": {
+      "enabled": true,
+      "job": "recertify-leaderboard",
+      "label": "Daily best-strategy test",
+      "schedule": {
+        "Hour": 13,
+        "Minute": 0
+      },
+      "description": "Retest the certified leaderboard and rank it by current confidence before the daily signal."
+    },
+    "daily-governance": {
+      "enabled": true,
+      "job": "governance",
+      "label": "Daily governance check",
+      "schedule": {
+        "Hour": 13,
+        "Minute": 45
+      },
+      "description": "Evaluate whether the active champion is ok, watch, or blocked."
+    },
+    "daily-notifications": {
+      "enabled": true,
+      "job": "notifications",
+      "label": "Daily notification scan",
+      "schedule": {
+        "Hour": 13,
+        "Minute": 50
+      },
+      "description": "Convert important operations events into notification outbox entries."
+    },
+    "daily-research-supervisor": {
+      "enabled": true,
+      "job": "research-approved",
+      "label": "Daily approved research planner",
+      "schedule": {
+        "Hour": 14,
+        "Minute": 10
+      },
+      "description": "Create bounded run artifacts for approved strategy research ideas."
+    },
+    "daily-strategy-review": {
+      "enabled": true,
+      "job": "strategy-review",
+      "label": "Daily best-strategy check",
+      "schedule": {
+        "Hour": 13,
+        "Minute": 40
+      },
+      "description": "Confirm the active strategy is the highest-confidence certified leaderboard strategy."
+    },
+    "weekly-recertify": {
+      "enabled": false,
+      "job": "recertify-leaderboard",
+      "label": "Weekly Gold recertification",
+      "schedule": {
+        "Weekday": 1,
+        "Hour": 18,
+        "Minute": 0
+      },
+      "description": "Revalidate the current Gold leaderboard under current rules."
+    },
+    "weekly-family-confidence": {
+      "enabled": true,
+      "job": "family-confidence",
+      "label": "Weekly family confidence refresh",
+      "schedule": {
+        "Weekday": 1,
+        "Hour": 18,
+        "Minute": 30
+      },
+      "description": "Refresh the one-row-per-family confidence surface."
+    },
+    "monthly-confidence-vintage": {
+      "enabled": false,
+      "job": "confidence-vintage",
+      "label": "Monthly Confidence v2 calibration",
+      "schedule": {
+        "Day": 1,
+        "Hour": 19,
+        "Minute": 0
+      },
+      "description": "Run broader confidence calibration diagnostics when explicitly enabled."
+    }
+  }
+}

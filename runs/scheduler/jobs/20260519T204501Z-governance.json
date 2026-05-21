@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "job": "governance",
+  "status": "ok",
+  "started_utc": "2026-05-19T20:45:01Z",
+  "finished_utc": "2026-05-19T20:45:01Z",
+  "command": [
+    "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+    "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/ops/governance.py"
+  ],
+  "cwd": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk",
+  "returncode": 0,
+  "stdout_tail": "governance: active_watch\n- 7 validation warnings are active\n",
+  "stderr_tail": "",
+  "lock_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/scheduler/locks/governance.lock",
+  "record_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/scheduler/jobs/20260519T204501Z-governance.json"
+}

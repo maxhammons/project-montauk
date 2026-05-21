@@ -56,6 +56,7 @@ LIB_JS = os.path.join(VIZ_DIR, "lightweight-charts.js")
 SHELL_HTML = os.path.join(TEMPLATE_DIR, "shell.html")
 APP_JS = os.path.join(TEMPLATE_DIR, "app.js")
 OUTPUT_HTML = os.path.join(VIZ_DIR, "montauk-viz.html")
+OUTPUT_BUNDLE_JSON = os.path.join(VIZ_DIR, "montauk-bundle.json")
 
 
 # --------------------------------------------------------------------------- #
@@ -954,6 +955,15 @@ def build_bundle() -> dict[str, Any]:
 # HTML emission
 # --------------------------------------------------------------------------- #
 
+def emit_bundle_json(bundle: dict[str, Any]) -> None:
+    """Write the bundle as a stand-alone JSON file (consumed by the Mac app)."""
+    data_json = json.dumps(bundle, separators=(",", ":"), default=str)
+    with open(OUTPUT_BUNDLE_JSON, "w") as f:
+        f.write(data_json)
+    size_mb = os.path.getsize(OUTPUT_BUNDLE_JSON) / (1024 * 1024)
+    print(f"[build_viz] Wrote {OUTPUT_BUNDLE_JSON} ({size_mb:.2f} MB)")
+
+
 def emit_html(bundle: dict[str, Any]) -> None:
     if not os.path.exists(SHELL_HTML):
         raise FileNotFoundError(f"Missing template: {SHELL_HTML}")
@@ -995,10 +1005,22 @@ def emit_html(bundle: dict[str, Any]) -> None:
 
 
 def main() -> int:
+    parser = __import__("argparse").ArgumentParser(description="Build Montauk visualization assets.")
+    parser.add_argument("--bundle-only", action="store_true",
+                        help="Only emit viz/montauk-bundle.json (the Mac app payload). Skip the standalone HTML.")
+    parser.add_argument("--no-bundle", action="store_true",
+                        help="Skip emitting viz/montauk-bundle.json. Standalone HTML only.")
+    args = parser.parse_args()
     try:
         bundle = build_bundle()
-        emit_html(bundle)
-        print(f"[build_viz] Done. Open with: open '{OUTPUT_HTML}'")
+        if not args.bundle_only:
+            emit_html(bundle)
+        if not args.no_bundle:
+            emit_bundle_json(bundle)
+        if args.bundle_only:
+            print(f"[build_viz] Bundle-only mode. Wrote {OUTPUT_BUNDLE_JSON}.")
+        else:
+            print(f"[build_viz] Done. Open with: open '{OUTPUT_HTML}'")
         return 0
     except Exception as exc:  # noqa: BLE001
         print(f"[build_viz] FAILED: {exc}", file=sys.stderr)
