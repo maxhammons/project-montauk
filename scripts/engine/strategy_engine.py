@@ -552,6 +552,7 @@ class Trade:
     exit_reason: str = ""
     pnl_pct: float = 0.0
     bars_held: int = 0
+    distribution_cash: float = 0.0
 
 
 @dataclass
@@ -596,6 +597,8 @@ class BacktestResult:
     # If the column is absent (e.g. raw OHLCV with no provenance), both stay at 0.
     synthetic_trades: int = 0
     real_trades: int = 0
+    distribution_cash: float = 0.0
+    bah_distribution_cash: float = 0.0
 
     @property
     def vs_bah_multiple(self) -> float:
@@ -649,6 +652,7 @@ def _era_share_multiple(
     equity_curve: np.ndarray,
     close: np.ndarray,
     era_start: pd.Timestamp,
+    distributions: np.ndarray | None = None,
 ) -> float:
     """Share-count multiplier computed from `era_start` forward.
 
@@ -675,7 +679,10 @@ def _era_share_multiple(
     if eq0 <= 0 or p0 <= 0:
         return 0.0
     strat_growth = eq1 / eq0
-    bah_growth = p1 / p0
+    distribution_value = 0.0
+    if distributions is not None and len(distributions) == len(close):
+        distribution_value = float(np.sum(distributions[idx + 1:]))
+    bah_growth = (p1 + distribution_value) / p0
     if bah_growth <= 0:
         return 0.0
     return float(strat_growth / bah_growth)
@@ -702,6 +709,28 @@ def _count_synthetic_real_trades(df: pd.DataFrame, trades: list) -> tuple[int, i
             else:
                 n_real += 1
     return (n_syn, n_real)
+
+
+def _distribution_array(df: pd.DataFrame) -> np.ndarray:
+    if "distribution" not in df.columns:
+        return np.zeros(len(df), dtype=np.float64)
+    return (
+        pd.to_numeric(df["distribution"], errors="coerce")
+        .fillna(0.0)
+        .values.astype(np.float64)
+    )
+
+
+def _buy_and_hold_final_equity(
+    close: np.ndarray,
+    distributions: np.ndarray,
+    initial_capital: float,
+) -> tuple[float, float]:
+    if len(close) == 0 or close[0] <= 0:
+        return initial_capital, 0.0
+    shares = initial_capital / close[0]
+    distribution_cash = float(np.sum(distributions[1:]) * shares)
+    return float(shares * close[-1] + distribution_cash), distribution_cash
 
 
 def backtest(df: pd.DataFrame,
@@ -732,6 +761,7 @@ def backtest(df: pd.DataFrame,
     """
     dates = df["date"].values
     cl = df["close"].values.astype(np.float64)
+    distributions = _distribution_array(df)
     n = len(cl)
 
     if exit_labels is None:
@@ -745,9 +775,16 @@ def backtest(df: pd.DataFrame,
     last_sell_bar = -9999
     trades = []
     current_trade = None
+    distribution_cash = 0.0
     bars_in = np.zeros(n)
 
     for i in range(n):
+        if position > 0 and distributions[i] > 0:
+            cash = shares * distributions[i]
+            equity += cash
+            distribution_cash += cash
+            if current_trade:
+                current_trade.distribution_cash += cash
         equity_curve[i] = equity + (shares * (cl[i] - entry_price) if position > 0 else 0)
 
         # Exit
@@ -816,12 +853,20 @@ def backtest(df: pd.DataFrame,
     # Share-count multiplier vs buy-and-hold.
     bah_start = cl[0]
     bah_end = cl[-1]
-    bah_equity = initial_capital * (bah_end / bah_start) if bah_start > 0 else initial_capital
+    bah_distribution_cash = 0.0
+    if bah_start > 0:
+        bah_equity, bah_distribution_cash = _buy_and_hold_final_equity(
+            cl,
+            distributions,
+            initial_capital,
+        )
+    else:
+        bah_equity = initial_capital
     share_multiple = equity_curve[-1] / bah_equity if bah_equity > 0 else 1.0
 
     # Era-sliced share multipliers (2026-04-21) — used by weighted-era fitness.
-    real_sm = _era_share_multiple(dates, equity_curve, cl, REAL_DATA_START)
-    modern_sm = _era_share_multiple(dates, equity_curve, cl, MODERN_ERA_START)
+    real_sm = _era_share_multiple(dates, equity_curve, cl, REAL_DATA_START, distributions)
+    modern_sm = _era_share_multiple(dates, equity_curve, cl, MODERN_ERA_START, distributions)
 
     exit_reasons = {}
     for t in trades:
@@ -848,6 +893,8 @@ def backtest(df: pd.DataFrame,
         strategy_name=strategy_name,
         synthetic_trades=n_syn,
         real_trades=n_real,
+        distribution_cash=round(distribution_cash, 6),
+        bah_distribution_cash=round(bah_distribution_cash, 6),
     )
 
 
@@ -966,6 +1013,10 @@ class StrategyParams:
     # Execution costs are modeled entirely via `slippage_pct`. Retained only
     # for back-compat with older StrategyParams dicts; has no effect on fills.
     commission_pct: float = 0.0
+    # Execution timing:
+    #   "close"     = historical regression baseline, signal and fill on bar close.
+    #   "next_open" = realistic mode for after-close signals, fill at next bar open.
+    execution_timing: str = "close"
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -981,9 +1032,11 @@ def run_montauk_821(df: pd.DataFrame, params: StrategyParams | None = None,
     """Run a full backtest of the canonical Montauk 8.2.1 strategy on OHLCV data.
 
     This is the canonical execution path the regression ledger and the
-    integrity gate run against. It is a faithful bar-by-bar replica of the
-    8.2.1 logic, with `process_orders_on_close=True` semantics (signals and
-    fills happen on the same bar's close).
+    integrity gate run against. By default it is a faithful bar-by-bar replica
+    of the 8.2.1 logic, with `process_orders_on_close=True` semantics (signals
+    and fills happen on the same bar's close). Set
+    `params.execution_timing="next_open"` to audit the realistic workflow where
+    after-close signals fill at the next session's open.
 
     Parameters
     ----------
@@ -1004,12 +1057,18 @@ def run_montauk_821(df: pd.DataFrame, params: StrategyParams | None = None,
 
     if params is None:
         params = StrategyParams()
+    if params.execution_timing not in {"close", "next_open"}:
+        raise ValueError(
+            "StrategyParams.execution_timing must be 'close' or 'next_open'"
+        )
+    next_open_execution = params.execution_timing == "next_open"
 
     dates = df["date"].values
-    op = df["open"].values.astype(np.float64)  # noqa: F841 — kept for symmetry / future use
+    op = df["open"].values.astype(np.float64)
     hi = df["high"].values.astype(np.float64)
     lo = df["low"].values.astype(np.float64)
     cl = df["close"].values.astype(np.float64)
+    distributions = _distribution_array(df)
     vol = df["volume"].values.astype(np.float64) if "volume" in df.columns else np.ones(len(cl))
     n = len(cl)
 
@@ -1039,6 +1098,10 @@ def run_montauk_821(df: pd.DataFrame, params: StrategyParams | None = None,
     trades: list[Trade] = []
     current_trade: Optional[Trade] = None
     bars_in_position = np.zeros(n)
+    pending_entry_signal_bar: Optional[int] = None
+    pending_exit_signal_bar: Optional[int] = None
+    pending_exit_reason = ""
+    distribution_cash = 0.0
 
     # Minimum warmup: only the indicators required for the basic entry signal.
     # Optional filters guard themselves with np.isnan() checks, so they don't
@@ -1048,6 +1111,47 @@ def run_montauk_821(df: pd.DataFrame, params: StrategyParams | None = None,
                  params.atr_period if params.enable_atr_exit else 0) + 5
 
     for i in range(n):
+        if position_size > 0 and distributions[i] > 0:
+            cash = shares * distributions[i]
+            equity += cash
+            distribution_cash += cash
+            if current_trade:
+                current_trade.distribution_cash += cash
+
+        if next_open_execution and pending_exit_signal_bar is not None:
+            if position_size > 0 and current_trade is not None:
+                exit_price = op[i] * (1 - params.slippage_pct / 100)
+                pnl = shares * (exit_price - entry_price)
+                equity += pnl
+                position_size = 0
+                last_sell_bar = i
+                peak_since_entry = np.nan
+                shares = 0.0
+                current_trade.exit_bar = i
+                current_trade.exit_date = str(dates[i])[:10]
+                current_trade.exit_price = exit_price
+                current_trade.exit_reason = pending_exit_reason
+                current_trade.pnl_pct = (exit_price / entry_price - 1) * 100
+                current_trade.bars_held = i - current_trade.entry_bar
+                trades.append(current_trade)
+                current_trade = None
+                entry_price = 0.0
+            pending_exit_signal_bar = None
+            pending_exit_reason = ""
+
+        if next_open_execution and pending_entry_signal_bar is not None:
+            if position_size == 0:
+                entry_price = op[i] * (1 + params.slippage_pct / 100)
+                shares = equity / entry_price
+                position_size = 1
+                peak_since_entry = np.nan
+                current_trade = Trade(
+                    entry_bar=i,
+                    entry_date=str(dates[i])[:10],
+                    entry_price=entry_price,
+                )
+            pending_entry_signal_bar = None
+
         equity_curve[i] = equity + (shares * cl[i] - shares * entry_price if position_size > 0 else 0)
 
         if i < warmup:
@@ -1212,25 +1316,30 @@ def run_montauk_821(df: pd.DataFrame, params: StrategyParams | None = None,
                 exit_reason = "Vol Spike"
 
             if exit_reason:
-                # process_orders_on_close=true: fill at this bar's close.
-                # Slippage: selling fills slightly below close (per-fill model).
-                exit_price = cl[i] * (1 - params.slippage_pct / 100)
-                pnl = shares * (exit_price - entry_price)
-                equity += pnl
-                position_size = 0
-                last_sell_bar = i
-                peak_since_entry = np.nan
-                shares = 0.0
-                if current_trade:
-                    current_trade.exit_bar = i
-                    current_trade.exit_date = str(dates[i])[:10]
-                    current_trade.exit_price = exit_price
-                    current_trade.exit_reason = exit_reason
-                    current_trade.pnl_pct = (exit_price / entry_price - 1) * 100
-                    current_trade.bars_held = i - current_trade.entry_bar
-                    trades.append(current_trade)
-                    current_trade = None
-                entry_price = 0.0
+                if next_open_execution:
+                    if i + 1 < n:
+                        pending_exit_signal_bar = i
+                        pending_exit_reason = exit_reason
+                else:
+                    # process_orders_on_close=true: fill at this bar's close.
+                    # Slippage: selling fills slightly below close (per-fill model).
+                    exit_price = cl[i] * (1 - params.slippage_pct / 100)
+                    pnl = shares * (exit_price - entry_price)
+                    equity += pnl
+                    position_size = 0
+                    last_sell_bar = i
+                    peak_since_entry = np.nan
+                    shares = 0.0
+                    if current_trade:
+                        current_trade.exit_bar = i
+                        current_trade.exit_date = str(dates[i])[:10]
+                        current_trade.exit_price = exit_price
+                        current_trade.exit_reason = exit_reason
+                        current_trade.pnl_pct = (exit_price / entry_price - 1) * 100
+                        current_trade.bars_held = i - current_trade.entry_bar
+                        trades.append(current_trade)
+                        current_trade = None
+                    entry_price = 0.0
 
         # ── Entry with cooldown ──
         if position_size == 0:
@@ -1240,17 +1349,21 @@ def run_montauk_821(df: pd.DataFrame, params: StrategyParams | None = None,
                     can_enter = False
 
             if buy_ok and can_enter:
-                # process_orders_on_close=true: fill at this bar's close.
-                # Slippage: buying fills slightly above close (per-fill model).
-                entry_price = cl[i] * (1 + params.slippage_pct / 100)
-                shares = equity / entry_price
-                position_size = 1
-                peak_since_entry = np.nan
-                current_trade = Trade(
-                    entry_bar=i,
-                    entry_date=str(dates[i])[:10],
-                    entry_price=entry_price,
-                )
+                if next_open_execution:
+                    if i + 1 < n:
+                        pending_entry_signal_bar = i
+                else:
+                    # process_orders_on_close=true: fill at this bar's close.
+                    # Slippage: buying fills slightly above close (per-fill model).
+                    entry_price = cl[i] * (1 + params.slippage_pct / 100)
+                    shares = equity / entry_price
+                    position_size = 1
+                    peak_since_entry = np.nan
+                    current_trade = Trade(
+                        entry_bar=i,
+                        entry_date=str(dates[i])[:10],
+                        entry_price=entry_price,
+                    )
 
         if position_size > 0:
             bars_in_position[i] = 1
@@ -1331,18 +1444,22 @@ def run_montauk_821(df: pd.DataFrame, params: StrategyParams | None = None,
     bah_return_pct = 0.0
     bah_final_equity = params.initial_capital
     share_multiple = 1.0
+    bah_distribution_cash = 0.0
     bah_start_date = str(dates[0])[:10]
     bah_start_price = cl[0]
-    bah_end_price = cl[-1]
     if bah_start_price > 0:
-        bah_return_pct = (bah_end_price / bah_start_price - 1) * 100
-        bah_final_equity = params.initial_capital * (bah_end_price / bah_start_price)
+        bah_final_equity, bah_distribution_cash = _buy_and_hold_final_equity(
+            cl,
+            distributions,
+            params.initial_capital,
+        )
+        bah_return_pct = (bah_final_equity / params.initial_capital - 1) * 100
         if bah_final_equity > 0:
             share_multiple = equity_curve[-1] / bah_final_equity
 
     # Era-sliced share multipliers (2026-04-21)
-    real_sm = _era_share_multiple(dates, equity_curve, cl, REAL_DATA_START)
-    modern_sm = _era_share_multiple(dates, equity_curve, cl, MODERN_ERA_START)
+    real_sm = _era_share_multiple(dates, equity_curve, cl, REAL_DATA_START, distributions)
+    modern_sm = _era_share_multiple(dates, equity_curve, cl, MODERN_ERA_START, distributions)
 
     n_syn, n_real = _count_synthetic_real_trades(df, trades)
 
@@ -1372,4 +1489,6 @@ def run_montauk_821(df: pd.DataFrame, params: StrategyParams | None = None,
         bah_final_equity=round(bah_final_equity, 2),
         synthetic_trades=n_syn,
         real_trades=n_real,
+        distribution_cash=round(distribution_cash, 6),
+        bah_distribution_cash=round(bah_distribution_cash, 6),
     )

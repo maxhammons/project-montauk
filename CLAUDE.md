@@ -31,12 +31,10 @@ Project Montauk/
 │   ├── validation-thresholds.md  # Threshold definitions for validation gates
 │   ├── project-status.md      # Current implementation status + known gaps
 │   ├── pipeline.md            # Visual pipeline diagram (source of truth)
-│   ├── plan.md                # Marker prior + Roth overlay plan
+│   ├── *NEXT/archive/         # Executed plan files
 │   ├── Montauk 2.0/           # Historical record of the Pine/TV excision project
 │   └── research/              # Market research + academic papers
 │       ├── synthesis.md
-│       ├── roadmap.md
-│       ├── checklist.md
 │       ├── sources.csv
 │       └── reports/
 ├── scripts/                   # Python code — grouped by pipeline phase (see scripts/README.md)

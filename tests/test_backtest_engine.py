@@ -17,7 +17,13 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from engine.strategy_engine import StrategyParams, run_montauk_821, _ema as ema
+from engine.strategy_engine import (
+    StrategyParams,
+    backtest,
+    run_montauk_821,
+    _ema as ema,
+)
+from data.loader import _apply_tecl_synthetic_financing_drag
 from data.loader import get_tecl_data
 
 
@@ -114,6 +120,84 @@ def test_ema_cross_exit_fires_on_constructed_reversal():
         "constructed reversal produced no EMA Cross exit — possible regression "
         "in the exit stack priority or crossunder detection"
     )
+
+
+def test_next_open_execution_fills_on_following_open():
+    """Realistic execution mode must fill after-close signals at next open."""
+    close = np.concatenate(
+        [
+            np.full(60, 100.0),
+            np.linspace(100.0, 140.0, 40),
+            np.linspace(140.0, 90.0, 60),
+        ]
+    )
+    df = _ohlcv_from_close(close)
+
+    close_params = _minimal_params()
+    close_result = run_montauk_821(df, close_params, score_regimes=False)
+    assert close_result.trades
+
+    next_params = _minimal_params()
+    next_params.execution_timing = "next_open"
+    next_result = run_montauk_821(df, next_params, score_regimes=False)
+    assert next_result.trades
+
+    close_trade = close_result.trades[0]
+    next_trade = next_result.trades[0]
+
+    assert next_trade.entry_bar == close_trade.entry_bar + 1
+    assert next_trade.entry_date == str(df["date"].iloc[next_trade.entry_bar])[:10]
+    assert next_trade.entry_price == pytest.approx(
+        df["open"].iloc[next_trade.entry_bar]
+    )
+
+    assert next_trade.exit_bar == close_trade.exit_bar + 1
+    assert next_trade.exit_date == str(df["date"].iloc[next_trade.exit_bar])[:10]
+    assert next_trade.exit_price == pytest.approx(
+        df["open"].iloc[next_trade.exit_bar]
+    )
+
+
+def test_distribution_cash_is_credited_to_strategy_and_buy_hold():
+    close = np.array([100.0, 100.0, 100.0, 100.0])
+    df = _ohlcv_from_close(close)
+    df["distribution"] = [0.0, 10.0, 0.0, 0.0]
+
+    entries = np.array([True, False, False, False])
+    exits = np.array([False, False, False, True])
+    result = backtest(
+        df,
+        entries,
+        exits,
+        initial_capital=1000.0,
+        slippage_pct=0.0,
+    )
+
+    assert result.distribution_cash == pytest.approx(100.0)
+    assert result.bah_distribution_cash == pytest.approx(100.0)
+    assert result.total_return_pct == pytest.approx(10.0)
+    assert result.share_multiple == pytest.approx(1.0)
+
+
+def test_synthetic_financing_drag_preserves_seam_and_haircuts_returns():
+    df = pd.DataFrame(
+        {
+            "date": pd.date_range("2000-01-03", periods=4, freq="B"),
+            "open": [100.0, 110.0, 121.0, 121.0],
+            "high": [100.0, 110.0, 121.0, 121.0],
+            "low": [100.0, 110.0, 121.0, 121.0],
+            "close": [100.0, 110.0, 121.0, 121.0],
+            "volume": [0, 0, 0, 1_000_000],
+            "is_synthetic": [True, True, True, False],
+        }
+    )
+
+    adjusted = _apply_tecl_synthetic_financing_drag(df, annual_drag=0.252)
+
+    assert adjusted.loc[2, "close"] == pytest.approx(df.loc[2, "close"])
+    raw_return = df.loc[1, "close"] / df.loc[0, "close"] - 1.0
+    adjusted_return = adjusted.loc[1, "close"] / adjusted.loc[0, "close"] - 1.0
+    assert adjusted_return == pytest.approx(raw_return - 0.252 / 252.0)
 
 
 def test_ema_cross_exit_respects_buffer():

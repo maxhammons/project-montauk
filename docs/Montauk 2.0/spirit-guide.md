@@ -66,6 +66,6 @@ Things we are deliberately **not** doing in this initiative:
 
 ## How to use this document
 
-If you are a model picking up this work, read this file first. It tells you the intent — the shape of what we're trying to become. Then read [Montauk 2.0 - Master Plan.md](./Montauk%202.0%20-%20Master%20Plan.md) for the phased execution steps.
+If you are a model picking up this work, read this file first. It tells you the intent — the shape of what we're trying to become. The phased execution steps are preserved in the archived [Montauk 2.0 - Master Plan.md](../*NEXT/archive/Montauk%202.0/Montauk%202.0%20-%20Master%20Plan.md).
 
 If a task in the master plan seems to conflict with the principles in this spirit guide, trust the spirit guide and flag the conflict. The plan is instructions; this is the compass.

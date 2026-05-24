@@ -1,0 +1,14 @@
+ex_date,record_date,pay_date,amount,income_dividend,short_term_capital_gain,long_term_capital_gain,source
+2021-12-09,2021-12-10,2021-12-16,0.27909,0.27909,0,0,stockanalysis.com/etf/tecl/dividend/
+2022-12-20,2022-12-21,2022-12-28,0.04921,0.04921,0,0,stockanalysis.com/etf/tecl/dividend/
+2023-03-21,2023-03-22,2023-03-28,0.07682,0.07682,0,0,stockanalysis.com/etf/tecl/dividend/
+2023-06-21,2023-06-22,2023-06-28,0.03993,0.03993,0,0,stockanalysis.com/etf/tecl/dividend/
+2023-12-21,2023-12-22,2023-12-29,0.07088,0.07088,0,0,stockanalysis.com/etf/tecl/dividend/
+2024-03-19,2024-03-20,2024-03-26,0.11190,0.11190,0,0,stockanalysis.com/etf/tecl/dividend/
+2024-06-25,2024-06-25,2024-07-02,0.09845,0.09845,0,0,stockanalysis.com/etf/tecl/dividend/
+2024-12-12,2024-12-12,2024-12-19,0.03519,0.03519,0,0,stockanalysis.com/etf/tecl/dividend/
+2024-12-23,2024-12-23,2024-12-31,0.01540,0.01540,0,0,direxion.com/product/daily-technology-bull-bear-3x-etfs
+2025-03-25,2025-03-25,2025-04-01,0.20875,0.20875,0,0,direxion.com/product/daily-technology-bull-bear-3x-etfs
+2025-06-24,2025-06-24,2025-07-01,0.20048,0.20048,0,0,direxion.com/product/daily-technology-bull-bear-3x-etfs
+2025-12-10,2025-12-10,2025-12-17,8.03759,0,8.03759,0,direxion.com/product/daily-technology-bull-bear-3x-etfs
+2026-03-24,2026-03-24,2026-03-31,0.10330,0.10330,0,0,direxion.com/product/daily-technology-bull-bear-3x-etfs

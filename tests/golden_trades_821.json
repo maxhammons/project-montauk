@@ -1,18 +1,21 @@
 {
   "metadata": {
     "generator": "tests/generate_golden_trades.py",
-    "generated_utc": "2026-05-11T18:23:14Z",
+    "generated_utc": "2026-05-22T22:30:53Z",
     "data_file": "data/TECL.csv",
-    "data_rows": 8311,
+    "data_rows": 8321,
     "data_first_date": "1993-05-04",
-    "data_last_date": "2026-05-08",
+    "data_last_date": "2026-05-22",
     "slippage_pct": 0.05,
     "commission_pct": 0.0,
-    "num_trades": 52,
-    "share_multiple": 8.481,
-    "total_return_pct": 164045.1372,
-    "cagr_pct": 25.1414,
-    "max_drawdown_pct": 85.78
+    "num_trades": 51,
+    "share_multiple": 13.475,
+    "total_return_pct": 220330.2212,
+    "cagr_pct": 26.2299,
+    "max_drawdown_pct": 85.93,
+    "distribution_cash": 132087.098042,
+    "bah_distribution_cash": 7025.385231,
+    "synthetic_financing_drag_bps_annual": 189.7
   },
   "params": {
     "short_ema_len": 15,
@@ -64,286 +67,278 @@
     "vol_spike_mult": 2.5,
     "initial_capital": 1000.0,
     "slippage_pct": 0.05,
-    "commission_pct": 0.0
+    "commission_pct": 0.0,
+    "execution_timing": "close"
   },
   "trades": [
     {
       "entry_date": "1995-04-25",
-      "entry_price": 3.174479,
+      "entry_price": 4.114355,
       "exit_date": "1995-05-26",
-      "exit_price": 3.982051,
+      "exit_price": 5.152182,
       "exit_reason": "ATR Exit",
-      "pnl_pct": 25.439527,
+      "pnl_pct": 25.224548,
       "bars_held": 23
     },
     {
       "entry_date": "1995-06-01",
-      "entry_price": 3.860936,
+      "entry_price": 4.994333,
       "exit_date": "1995-07-18",
-      "exit_price": 6.079047,
+      "exit_price": 7.844911,
       "exit_reason": "ATR Exit",
-      "pnl_pct": 57.450083,
+      "pnl_pct": 57.07624,
       "bars_held": 32
     },
     {
       "entry_date": "1995-07-21",
-      "entry_price": 5.045135,
+      "entry_price": 6.509092,
       "exit_date": "1995-08-21",
-      "exit_price": 5.456287,
+      "exit_price": 7.028458,
       "exit_reason": "ATR Exit",
-      "pnl_pct": 8.149476,
+      "pnl_pct": 7.97907,
       "bars_held": 21
     },
     {
       "entry_date": "1995-08-24",
-      "entry_price": 5.602621,
+      "entry_price": 7.215338,
       "exit_date": "1995-10-10",
-      "exit_price": 4.071746,
+      "exit_price": 5.231043,
       "exit_reason": "Quick EMA",
-      "pnl_pct": -27.324252,
+      "pnl_pct": -27.50107,
       "bars_held": 32
     },
     {
       "entry_date": "1995-10-27",
-      "entry_price": 5.439375,
+      "entry_price": 6.981366,
       "exit_date": "1995-12-20",
-      "exit_price": 4.012826,
+      "exit_price": 5.13594,
       "exit_reason": "Quick EMA",
-      "pnl_pct": -26.226338,
+      "pnl_pct": -26.433593,
       "bars_held": 37
     },
     {
       "entry_date": "1996-02-06",
-      "entry_price": 5.25319,
+      "entry_price": 6.707387,
       "exit_date": "1996-03-01",
-      "exit_price": 4.528342,
+      "exit_price": 5.774416,
       "exit_reason": "ATR Exit",
-      "pnl_pct": -13.798255,
+      "pnl_pct": -13.909598,
       "bars_held": 17
     },
     {
       "entry_date": "1996-03-06",
-      "entry_price": 4.376623,
+      "entry_price": 5.579672,
       "exit_date": "1996-07-11",
-      "exit_price": 4.243716,
+      "exit_price": 5.374464,
       "exit_reason": "ATR Exit",
-      "pnl_pct": -3.036753,
+      "pnl_pct": -3.677765,
       "bars_held": 88
     },
     {
-      "entry_date": "1996-08-09",
-      "entry_price": 5.619539,
+      "entry_date": "1996-08-12",
+      "entry_price": 7.077448,
       "exit_date": "1996-12-16",
-      "exit_price": 9.305556,
+      "exit_price": 11.688449,
       "exit_reason": "ATR Exit",
-      "pnl_pct": 65.592886,
-      "bars_held": 89
+      "pnl_pct": 65.150607,
+      "bars_held": 88
     },
     {
       "entry_date": "1996-12-19",
-      "entry_price": 10.893327,
+      "entry_price": 13.679868,
       "exit_date": "1997-02-05",
-      "exit_price": 12.154277,
+      "exit_price": 15.226738,
       "exit_reason": "ATR Exit",
-      "pnl_pct": 11.575432,
+      "pnl_pct": 11.307635,
       "bars_held": 32
     },
     {
       "entry_date": "1997-02-10",
-      "entry_price": 11.471446,
+      "entry_price": 14.367979,
       "exit_date": "1997-02-27",
-      "exit_price": 10.914974,
+      "exit_price": 13.658587,
       "exit_reason": "ATR Exit",
-      "pnl_pct": -4.850926,
+      "pnl_pct": -4.937315,
       "bars_held": 12
     },
     {
       "entry_date": "1997-04-30",
-      "entry_price": 12.776733,
+      "entry_price": 15.936776,
       "exit_date": "1997-06-03",
-      "exit_price": 14.522364,
+      "exit_price": 18.082947,
       "exit_reason": "ATR Exit",
-      "pnl_pct": 13.662582,
+      "pnl_pct": 13.466779,
       "bars_held": 23
     },
     {
       "entry_date": "1997-06-06",
-      "entry_price": 15.358129,
+      "entry_price": 19.119381,
       "exit_date": "1997-08-15",
-      "exit_price": 24.992287,
+      "exit_price": 30.999442,
       "exit_reason": "ATR Exit",
-      "pnl_pct": 62.730018,
+      "pnl_pct": 62.136226,
       "bars_held": 49
     },
     {
       "entry_date": "1997-08-20",
-      "entry_price": 29.940806,
+      "entry_price": 37.129489,
       "exit_date": "1997-10-27",
-      "exit_price": 16.55915,
+      "exit_price": 20.461372,
       "exit_reason": "ATR Exit",
-      "pnl_pct": -44.693707,
+      "pnl_pct": -44.891858,
       "bars_held": 47
     },
     {
       "entry_date": "1998-02-03",
-      "entry_price": 22.107234,
+      "entry_price": 27.17976,
       "exit_date": "1998-03-05",
-      "exit_price": 21.183601,
+      "exit_price": 26.002931,
       "exit_reason": "ATR Exit",
-      "pnl_pct": -4.177967,
+      "pnl_pct": -4.3298,
       "bars_held": 21
     },
     {
       "entry_date": "1998-03-10",
-      "entry_price": 21.385242,
+      "entry_price": 26.244515,
       "exit_date": "1998-08-04",
-      "exit_price": 32.146145,
+      "exit_price": 39.14971,
       "exit_reason": "ATR Exit",
-      "pnl_pct": 50.319298,
+      "pnl_pct": 49.172919,
       "bars_held": 102
     },
     {
       "entry_date": "1998-08-07",
-      "entry_price": 35.810233,
+      "entry_price": 43.60257,
       "exit_date": "1998-08-27",
-      "exit_price": 31.362789,
+      "exit_price": 38.146694,
       "exit_reason": "ATR Exit",
-      "pnl_pct": -12.41948,
+      "pnl_pct": -12.512738,
       "bars_held": 14
     },
     {
       "entry_date": "1998-10-29",
-      "entry_price": 31.758303,
+      "entry_price": 38.499431,
       "exit_date": "1998-11-30",
-      "exit_price": 43.874237,
+      "exit_price": 53.104334,
       "exit_reason": "ATR Exit",
-      "pnl_pct": 38.150445,
+      "pnl_pct": 37.935373,
       "bars_held": 21
     },
     {
       "entry_date": "1998-12-03",
-      "entry_price": 45.638775,
+      "entry_price": 55.22773,
       "exit_date": "1998-12-14",
-      "exit_price": 48.183126,
+      "exit_price": 58.276096,
       "exit_reason": "ATR Exit",
-      "pnl_pct": 5.574975,
+      "pnl_pct": 5.519629,
       "bars_held": 7
     },
     {
       "entry_date": "1998-12-17",
-      "entry_price": 54.489126,
+      "entry_price": 65.888717,
       "exit_date": "1999-07-20",
-      "exit_price": 115.709389,
+      "exit_price": 138.392594,
       "exit_reason": "ATR Exit",
-      "pnl_pct": 112.353172,
+      "pnl_pct": 110.039897,
       "bars_held": 146
     },
     {
       "entry_date": "1999-07-23",
-      "entry_price": 108.651268,
+      "entry_price": 129.920806,
       "exit_date": "2000-01-04",
-      "exit_price": 213.871499,
+      "exit_price": 253.563949,
       "exit_reason": "ATR Exit",
-      "pnl_pct": 96.842157,
+      "pnl_pct": 95.168085,
       "bars_held": 114
     },
     {
       "entry_date": "2000-01-07",
-      "entry_price": 193.830707,
+      "entry_price": 229.750032,
       "exit_date": "2000-04-13",
-      "exit_price": 186.659754,
+      "exit_price": 220.133778,
       "exit_reason": "Quick EMA",
-      "pnl_pct": -3.699596,
+      "pnl_pct": -4.185529,
       "bars_held": 67
     },
     {
       "entry_date": "2000-07-19",
-      "entry_price": 187.550826,
+      "entry_price": 220.084783,
       "exit_date": "2000-08-01",
-      "exit_price": 144.693665,
+      "exit_price": 169.674704,
       "exit_reason": "Quick EMA",
-      "pnl_pct": -22.850958,
+      "pnl_pct": -22.904845,
       "bars_held": 9
     },
     {
       "entry_date": "2000-08-28",
-      "entry_price": 190.900089,
+      "entry_price": 223.543076,
       "exit_date": "2000-09-14",
-      "exit_price": 149.786901,
+      "exit_price": 175.237919,
       "exit_reason": "Quick EMA",
-      "pnl_pct": -21.536495,
+      "pnl_pct": -21.608881,
       "bars_held": 12
     },
     {
       "entry_date": "2001-11-19",
-      "entry_price": 6.973753,
+      "entry_price": 7.977474,
       "exit_date": "2002-02-06",
-      "exit_price": 4.552571,
+      "exit_price": 5.186873,
       "exit_reason": "Quick EMA",
-      "pnl_pct": -34.718488,
+      "pnl_pct": -34.98101,
       "bars_held": 53
     },
     {
       "entry_date": "2002-11-07",
-      "entry_price": 0.967511,
+      "entry_price": 1.086396,
       "exit_date": "2003-01-24",
-      "exit_price": 0.774304,
+      "exit_price": 0.866028,
       "exit_reason": "Quick EMA",
-      "pnl_pct": -19.96948,
+      "pnl_pct": -20.284331,
       "bars_held": 52
     },
     {
       "entry_date": "2003-03-27",
-      "entry_price": 0.773599,
+      "entry_price": 0.862438,
       "exit_date": "2003-09-24",
-      "exit_price": 1.39026,
+      "exit_price": 1.535454,
       "exit_reason": "ATR Exit",
-      "pnl_pct": 79.713359,
+      "pnl_pct": 78.036398,
       "bars_held": 125
     },
     {
       "entry_date": "2003-09-29",
-      "entry_price": 1.403534,
+      "entry_price": 1.549766,
       "exit_date": "2004-12-17",
-      "exit_price": 1.734203,
+      "exit_price": 1.871002,
       "exit_reason": "ATR Exit",
-      "pnl_pct": 23.559681,
+      "pnl_pct": 20.728052,
       "bars_held": 308
     },
     {
       "entry_date": "2004-12-22",
-      "entry_price": 1.77245,
+      "entry_price": 1.911838,
       "exit_date": "2006-11-27",
-      "exit_price": 2.083261,
+      "exit_price": 2.166365,
       "exit_reason": "ATR Exit",
-      "pnl_pct": 17.53562,
+      "pnl_pct": 13.313207,
       "bars_held": 486
     },
     {
       "entry_date": "2006-11-30",
-      "entry_price": 2.172122,
+      "entry_price": 2.258268,
       "exit_date": "2007-11-07",
-      "exit_price": 3.246522,
+      "exit_price": 3.316171,
       "exit_reason": "ATR Exit",
-      "pnl_pct": 49.463163,
+      "pnl_pct": 46.845766,
       "bars_held": 235
     },
     {
-      "entry_date": "2007-12-26",
-      "entry_price": 3.123853,
-      "exit_date": "2008-01-08",
-      "exit_price": 2.151496,
-      "exit_reason": "Quick EMA",
-      "pnl_pct": -31.126855,
-      "bars_held": 8
-    },
-    {
       "entry_date": "2008-04-28",
-      "entry_price": 1.973101,
+      "entry_price": 1.997662,
       "exit_date": "2008-07-03",
-      "exit_price": 1.548938,
+      "exit_price": 1.562648,
       "exit_reason": "Quick EMA",
-      "pnl_pct": -21.497262,
+      "pnl_pct": -21.776174,
       "bars_held": 47
     },
     {
@@ -358,20 +353,20 @@
     {
       "entry_date": "2009-11-25",
       "entry_price": 0.86043,
-      "exit_date": "2010-05-10",
-      "exit_price": 0.91954,
+      "exit_date": "2010-05-07",
+      "exit_price": 0.7996,
       "exit_reason": "EMA Cross",
-      "pnl_pct": 6.869821,
-      "bars_held": 112
+      "pnl_pct": -7.069721,
+      "bars_held": 111
     },
     {
       "entry_date": "2010-09-20",
       "entry_price": 0.82041,
-      "exit_date": "2011-06-20",
-      "exit_price": 0.949525,
+      "exit_date": "2011-06-17",
+      "exit_price": 0.93953,
       "exit_reason": "EMA Cross",
-      "pnl_pct": 15.737863,
-      "bars_held": 189
+      "pnl_pct": 14.519569,
+      "bars_held": 188
     },
     {
       "entry_date": "2011-07-11",
@@ -385,11 +380,11 @@
     {
       "entry_date": "2011-10-17",
       "entry_price": 1.0005,
-      "exit_date": "2011-11-21",
-      "exit_price": 0.87956,
+      "exit_date": "2011-11-18",
+      "exit_price": 0.929535,
       "exit_reason": "EMA Cross",
-      "pnl_pct": -12.087956,
-      "bars_held": 25
+      "pnl_pct": -7.092954,
+      "bars_held": 24
     },
     {
       "entry_date": "2011-12-09",
@@ -529,11 +524,11 @@
     {
       "entry_date": "2026-04-16",
       "entry_price": 128.003972,
-      "exit_date": "2026-05-08",
-      "exit_price": 190.955002,
+      "exit_date": "2026-05-22",
+      "exit_price": 207.850006,
       "exit_reason": "End of Data",
-      "pnl_pct": 49.178965,
-      "bars_held": 16
+      "pnl_pct": 62.377778,
+      "bars_held": 26
     }
   ]
 }

@@ -21,10 +21,12 @@
 ## Other Docs
 
 - **[validation-thresholds.md](validation-thresholds.md)** — Threshold definitions for every validation gate (must stay in sync with `scripts/validation/`)
-- **[plan.md](plan.md)** — Marker prior + Roth overlay implementation plan
-- **[*NEXT/2026-05-12-mac-app-implementation-plan.md](*NEXT/2026-05-12-mac-app-implementation-plan.md)** — Build plan for the macOS app, scheduler, notifications, research queue, and strategy ideation loop
-- **[Montauk 2.0/](Montauk%202.0/)** — Historical record of the Pine/TradingView excision project (seven phases, spirit-guide, master plan)
-- **[research/](research/)** — Market research, optimization roadmap, academic papers
+- **[*NEXT/](*NEXT/)** — Active plans, outstanding work, and near-term design notes. Fully executed plans move to `*NEXT/archive/`.
+- **[*NEXT/2026-05-12-mac-app-implementation-plan.md](*NEXT/2026-05-12-mac-app-implementation-plan.md)** — Active mixed-status build plan for the macOS app, scheduler, notifications, research queue, and strategy ideation loop.
+- **[*NEXT/2026-04-07-validation-pipeline-roadmap.md](*NEXT/2026-04-07-validation-pipeline-roadmap.md)** — Active validation-pipeline roadmap with remaining research hardening work.
+- **[*NEXT/archive/2026-04-13-marker-roth-overlay-plan.md](*NEXT/archive/2026-04-13-marker-roth-overlay-plan.md)** — Archived marker-prior + Roth overlay implementation plan.
+- **[Montauk 2.0/](Montauk%202.0/)** — Historical record of the Pine/TradingView excision project. Executed Montauk 2.0 plan docs are archived under `*NEXT/archive/Montauk 2.0/`.
+- **[research/](research/)** — Market research, academic papers, and synthesis docs.
 
 ## Operating Model
 

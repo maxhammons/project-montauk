@@ -22,6 +22,7 @@ import os
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
+from io import StringIO
 
 # Paths (this file lives at scripts/data/loader.py — 3 levels down from project root)
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -33,6 +34,9 @@ QQQ_CSV = os.path.join(TS_DIR, "QQQ.csv")
 TQQQ_CSV = os.path.join(TS_DIR, "TQQQ.csv")
 SGOV_CSV = os.path.join(TS_DIR, "SGOV.csv")
 TBILL_3M_CSV = os.path.join(TS_DIR, "tbill-3m.csv")
+TECL_DISTRIBUTIONS_CSV = os.path.join(TS_DIR, "TECL_distributions.csv")
+CBOE_VIX_HISTORY_URL = "https://cdn.cboe.com/api/global/us_indices/daily_prices/VIX_History.csv"
+TECL_SYNTHETIC_FINANCING_DRAG_ANNUAL = 0.01897
 
 # Legacy path — migrated to TECL.csv on first load
 _LEGACY_CSV = os.path.join(TS_DIR, "TECL Price History (2-23-26).csv")
@@ -250,6 +254,33 @@ def _fetch_fred_csv(series_id: str, start: str = "1998-01-01") -> pd.DataFrame:
         return pd.DataFrame(columns=["date", "value"])
 
 
+def _fetch_vix_cboe() -> pd.DataFrame:
+    """Fetch official Cboe VIX history and normalize to local VIX.csv schema."""
+    try:
+        import requests
+
+        resp = requests.get(CBOE_VIX_HISTORY_URL, timeout=15)
+        resp.raise_for_status()
+        df = pd.read_csv(StringIO(resp.text))
+        df.columns = [c.lower().strip() for c in df.columns]
+        _require_columns(df, ["date", "open", "high", "low", "close"], "Cboe VIX history")
+        df = df.rename(
+            columns={
+                "open": "vix_open",
+                "high": "vix_high",
+                "low": "vix_low",
+                "close": "vix_close",
+            }
+        )
+        df["vix_volume"] = 0.0
+        df = df[["date", "vix_open", "vix_high", "vix_low", "vix_close", "vix_volume"]]
+        df = _normalize_date_column(df)
+        return df
+    except Exception as e:
+        print(f"[data] Cboe VIX fetch failed: {e}")
+        return pd.DataFrame(columns=["date", "vix_open", "vix_high", "vix_low", "vix_close", "vix_volume"])
+
+
 # ─────────────────────────────────────────────────────────────────────
 # CSV append helper
 # ─────────────────────────────────────────────────────────────────────
@@ -394,36 +425,34 @@ def _append_tecl_bars() -> int:
 
 
 def _append_vix_bars() -> int:
-    """Append new VIX bars from Yahoo and save to VIX.csv."""
-    if not os.path.exists(VIX_CSV):
-        # Full download
-        vix = _fetch_ticker_yahoo("^VIX", start="1990-01-01")
-        if vix.empty:
+    """Refresh official Cboe VIX history and save to VIX.csv.
+
+    VIX is calculated by Cboe, so the official Cboe history is the canonical
+    source. Rewriting the small full file avoids Yahoo-vs-Cboe drift and
+    catches historical revisions deterministically.
+    """
+    fresh = _fetch_vix_cboe()
+    if fresh.empty:
+        return 0
+
+    if os.path.exists(VIX_CSV):
+        existing = pd.read_csv(VIX_CSV, parse_dates=["date"])
+        existing.columns = [c.lower().strip() for c in existing.columns]
+        existing = _normalize_date_column(existing)
+        if existing.equals(fresh):
             return 0
-        vix.columns = ["date", "vix_open", "vix_high", "vix_low", "vix_close", "vix_volume"]
-        vix.to_csv(VIX_CSV, index=False)
-        return len(vix)
+        old_dates = set(existing["date"])
+        new_dates = set(fresh["date"])
+        changed_dates = old_dates ^ new_dates
+        overlap = existing.merge(fresh, on="date", how="inner", suffixes=("_old", "_new"))
+        for col in ("vix_open", "vix_high", "vix_low", "vix_close"):
+            changed_dates.update(overlap.loc[overlap[f"{col}_old"] != overlap[f"{col}_new"], "date"])
+        changed_count = len(changed_dates)
+    else:
+        changed_count = len(fresh)
 
-    df = pd.read_csv(VIX_CSV, parse_dates=["date"])
-    df = df.sort_values("date").reset_index(drop=True)
-    last_date = df["date"].max()
-
-    fresh = _fetch_ticker_yahoo("^VIX", start=(last_date + timedelta(days=1)).strftime("%Y-%m-%d"))
-    if fresh.empty:
-        return 0
-
-    fresh = fresh[fresh["date"] > last_date].reset_index(drop=True)
-    if fresh.empty:
-        return 0
-
-    fresh = fresh.rename(columns={
-        "open": "vix_open", "high": "vix_high", "low": "vix_low",
-        "close": "vix_close", "volume": "vix_volume"
-    })
-    combined = pd.concat([df, fresh[df.columns]], ignore_index=True)
-    combined = _normalize_date_column(combined)
-    combined.to_csv(VIX_CSV, index=False)
-    return len(fresh)
+    fresh.to_csv(VIX_CSV, index=False)
+    return changed_count
 
 
 def _merge_vix_into_tecl():
@@ -439,6 +468,74 @@ def _merge_vix_into_tecl():
     tecl = tecl.merge(vix_slim, on="date", how="left")
     tecl = _normalize_date_column(tecl)
     tecl.to_csv(TECL_CSV, index=False)
+
+
+def _merge_tecl_distributions(df: pd.DataFrame) -> pd.DataFrame:
+    """Attach TECL per-share cash distributions by ex-date."""
+    out = df.copy()
+    if "distribution" in out.columns:
+        out = out.drop(columns=["distribution"])
+    if not os.path.exists(TECL_DISTRIBUTIONS_CSV):
+        out["distribution"] = 0.0
+        return out
+
+    dist = pd.read_csv(TECL_DISTRIBUTIONS_CSV, parse_dates=["ex_date"])
+    dist.columns = [c.lower().strip() for c in dist.columns]
+    if "amount" not in dist.columns:
+        out["distribution"] = 0.0
+        return out
+    dist = dist.rename(columns={"ex_date": "date", "amount": "distribution"})
+    dist = _normalize_date_column(dist[["date", "distribution"]])
+    dist["distribution"] = pd.to_numeric(dist["distribution"], errors="coerce").fillna(0.0)
+    out = out.merge(dist, on="date", how="left")
+    out["distribution"] = out["distribution"].fillna(0.0)
+    return out
+
+
+def _apply_tecl_synthetic_financing_drag(
+    df: pd.DataFrame,
+    annual_drag: float = TECL_SYNTHETIC_FINANCING_DRAG_ANNUAL,
+) -> pd.DataFrame:
+    """Apply observed real-world financing/tracking drag to synthetic TECL rows.
+
+    The persisted TECL.csv keeps the deterministic ideal 3x construction. At
+    load time, default strategy runs use this realism adjustment so synthetic
+    returns are not systematically flattered. The last synthetic bar is held
+    fixed to preserve the real-data seam; prior synthetic prices are solved
+    backward so each forward synthetic return is reduced by the daily drag.
+    """
+    if "is_synthetic" not in df.columns or annual_drag <= 0:
+        return df
+
+    out = df.copy()
+    is_synthetic = out["is_synthetic"].astype("string").str.lower().isin(["true", "1"])
+    idx = np.flatnonzero(is_synthetic.to_numpy())
+    if len(idx) < 2:
+        return out
+
+    close = out["close"].astype(float).to_numpy()
+    adjusted_close = close.copy()
+    daily_drag = annual_drag / 252.0
+
+    for pos in range(len(idx) - 2, -1, -1):
+        i = idx[pos]
+        j = idx[pos + 1]
+        if j != i + 1 or close[i] <= 0:
+            continue
+        raw_ret = close[j] / close[i] - 1.0
+        adjusted_ret = raw_ret - daily_drag
+        if adjusted_ret <= -0.99:
+            adjusted_ret = -0.99
+        adjusted_close[i] = adjusted_close[j] / (1.0 + adjusted_ret)
+
+    ratio = np.ones(len(out))
+    valid = (close > 0) & is_synthetic.to_numpy()
+    ratio[valid] = adjusted_close[valid] / close[valid]
+    for col in ("open", "high", "low", "close"):
+        out.loc[is_synthetic, col] = out.loc[is_synthetic, col].astype(float) * ratio[is_synthetic.to_numpy()]
+    out["synthetic_financing_drag_bps_annual"] = 0.0
+    out.loc[is_synthetic, "synthetic_financing_drag_bps_annual"] = annual_drag * 10_000
+    return out
 
 
 def _refresh_fred(filename: str, series_id: str, col_name: str):
@@ -587,7 +684,11 @@ def _merge_macro_data(df: pd.DataFrame) -> pd.DataFrame:
 # get_tecl_data() — main entry point for the optimizer
 # ─────────────────────────────────────────────────────────────────────
 
-def get_tecl_data(use_yfinance: bool = False) -> pd.DataFrame:
+def get_tecl_data(
+    use_yfinance: bool = False,
+    *,
+    apply_synthetic_drag: bool = True,
+) -> pd.DataFrame:
     """
     Load TECL data from local CSV. No API calls — all data is local.
     Run refresh_all() before the optimizer to update CSVs.
@@ -617,6 +718,9 @@ def get_tecl_data(use_yfinance: bool = False) -> pd.DataFrame:
     for col in ["open", "high", "low", "close", "volume"]:
         assert col in df.columns, f"Missing column: {col}"
 
+    if apply_synthetic_drag:
+        df = _apply_tecl_synthetic_financing_drag(df)
+    df = _merge_tecl_distributions(df)
     df = _merge_macro_data(df)
     return df
 
@@ -703,11 +807,15 @@ def fetch_yahoo(start: str = "2008-12-01", end: str | None = None) -> pd.DataFra
 
 
 def fetch_vix(start: str = "1990-01-01", end: str | None = None) -> pd.DataFrame:
-    """Fetch VIX from Yahoo Finance. Returns date + vix_close."""
-    df = _fetch_ticker_yahoo("^VIX", start=start, end=end)
+    """Fetch VIX from official Cboe history. Returns date + vix_close."""
+    df = _fetch_vix_cboe()
     if df.empty:
         return pd.DataFrame(columns=["date", "vix_close"])
-    return df[["date", "close"]].rename(columns={"close": "vix_close"})
+    if start:
+        df = df[df["date"] >= pd.Timestamp(start)]
+    if end:
+        df = df[df["date"] <= pd.Timestamp(end)]
+    return df[["date", "vix_close"]]
 
 
 def build_synthetic_tecl(start: str = "1998-01-01", end: str | None = None,

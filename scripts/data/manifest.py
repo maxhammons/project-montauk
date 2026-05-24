@@ -31,9 +31,9 @@ MANIFEST_PATH = os.path.join(DATA_DIR, "manifest.json")
 CSV_SPECS = {
     "TECL.csv": {
         "source_real": "Yahoo Finance (TECL)",
-        "source_synthetic": "3x ^SP500-45 (1993-1998) + 3x XLK (1998-2008), 0.95%/yr expense, daily compounded",
+        "source_synthetic": "3x ^SP500-45 (1993-1998) + 3x XLK (1998-2008), 0.95%/yr expense, daily compounded; loader applies a 189.7 bps/yr synthetic financing/tracking drag haircut by default",
         "seam_date": "2008-12-17",
-        "expense_ratio_source": "ProShares 2024 prospectus (TECL: 0.95%/yr)",
+        "expense_ratio_source": "Direxion TECL published expense cap/current fact sheet",
         "synthetic_model_version": "v2-3xTechIdx-0.95%ER-daily",
     },
     "TQQQ.csv": {
@@ -60,9 +60,14 @@ CSV_SPECS = {
         "Price-only index; OHLC degenerates to close.",
     },
     "VIX.csv": {
-        "source_real": "Yahoo Finance (^VIX)",
+        "source_real": "Cboe official VIX history",
         "seam_date": "1990-01-02",
         "notes": "CBOE Volatility Index. Merged into TECL.csv as vix_close column.",
+    },
+    "TECL_distributions.csv": {
+        "source_real": "Direxion TECL distribution table plus historical dividend archive for older rows",
+        "seam_date": "2021-12-09",
+        "notes": "Per-share TECL cash distributions keyed by ex-date. Merged at load time and credited as cash only while the strategy is holding TECL.",
     },
     "SGOV.csv": {
         "source_real": "Yahoo Finance (SGOV)",
