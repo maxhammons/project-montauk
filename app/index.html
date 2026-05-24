@@ -30,6 +30,10 @@
             <span class="nav-glyph">◈</span>
             <span class="nav-label">Viz</span>
           </button>
+          <button class="nav-item" data-view="settings" data-glyph="◌">
+            <span class="nav-glyph">◌</span>
+            <span class="nav-label">Settings</span>
+          </button>
         </nav>
 
         <div class="sidebar-readout" data-tip="The current position state from the latest local signal snapshot.">
@@ -154,6 +158,86 @@
             </summary>
             <div id="doctor-list" class="table readiness-table"></div>
           </details>
+        </section>
+
+        <section id="settings-view" class="view">
+          <section class="surface wide">
+            <div class="section-head">
+              <div>
+                <div class="panel-label">Background jobs</div>
+                <h3>Scheduler</h3>
+              </div>
+              <div class="muted compact">Enable or pause local LaunchAgent-backed jobs.</div>
+            </div>
+            <div id="jobs-list" class="table"></div>
+          </section>
+
+          <section class="surface wide">
+            <div class="section-head">
+              <div>
+                <div class="panel-label">LaunchAgent</div>
+                <h3>Daily task</h3>
+              </div>
+              <div id="agent-message" class="muted compact">--</div>
+            </div>
+            <dl class="kv">
+              <dt>Job</dt>
+              <dd id="agent-job">--</dd>
+              <dt>Installed</dt>
+              <dd id="agent-installed">--</dd>
+              <dt>Loaded</dt>
+              <dd id="agent-loaded">--</dd>
+              <dt>Path</dt>
+              <dd id="agent-path">--</dd>
+            </dl>
+            <div class="button-row">
+              <button class="button small" data-agent-action="install" data-job-key="daily">Install</button>
+              <button class="button small" data-agent-action="load" data-job-key="daily">Load</button>
+              <button class="button small" data-agent-action="unload" data-job-key="daily">Unload</button>
+              <button class="button small danger" data-agent-action="uninstall" data-job-key="daily">Uninstall</button>
+            </div>
+          </section>
+
+          <section class="surface wide">
+            <div class="section-head">
+              <div>
+                <div class="panel-label">LaunchAgents</div>
+                <h3>All enabled tasks</h3>
+              </div>
+              <div id="agents-summary" class="muted compact">--</div>
+            </div>
+            <div class="button-row">
+              <button class="button small" data-agent-action="install" data-job-key="__enabled">Install all</button>
+              <button class="button small" data-agent-action="load" data-job-key="__enabled">Load all</button>
+              <button class="button small" data-agent-action="unload" data-job-key="__enabled">Unload all</button>
+              <button class="button small danger" data-agent-action="uninstall" data-job-key="__enabled">Uninstall all</button>
+            </div>
+          </section>
+
+          <section class="surface wide">
+            <div class="section-head">
+              <div>
+                <div class="panel-label">Runtime</div>
+                <h3>Local app context</h3>
+              </div>
+              <div id="runtime-mode" class="muted compact">--</div>
+            </div>
+            <dl class="kv">
+              <dt>Project root</dt>
+              <dd id="project-root">--</dd>
+            </dl>
+          </section>
+
+          <section class="surface wide">
+            <div class="section-head">
+              <div>
+                <div class="panel-label">Notifications</div>
+                <h3>Preferences</h3>
+              </div>
+              <div id="notification-prefs-state" class="muted compact">--</div>
+            </div>
+            <div id="notification-prefs-list" class="table"></div>
+          </section>
         </section>
 
         <section id="viz-view" class="view">

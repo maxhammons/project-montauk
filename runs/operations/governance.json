@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-05-21T20:45:06Z",
+  "generated_utc": "2026-05-23T23:59:26Z",
   "state": "active_watch",
   "reasons": [
     "7 validation warnings are active"
@@ -9,16 +9,54 @@
   "advisories": [
     "7 validation warnings are active"
   ],
-  "stale_calendar_days": 0,
+  "review_reasons": [],
+  "stale_calendar_days": 1,
   "active_signal": {
-    "data_end_date": "2026-05-21",
+    "data_end_date": "2026-05-22",
     "risk_state": "risk_on",
     "strategy": "gc_vjatr_timing_repair",
     "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d"
   },
   "live_holdout": {
     "status": "ok",
-    "snapshot_count": 8,
-    "diverged_count": 0
+    "snapshot_count": 9,
+    "diverged_count": 0,
+    "confidence_drift": {
+      "start": 0.7594,
+      "latest": 0.7678,
+      "delta": 0.0084
+    },
+    "active_champion_performance_since_live_start": {
+      "start_date": "2026-05-08",
+      "latest_date": "2026-05-22",
+      "strategy": "gc_vjatr_timing_repair",
+      "signal_return_pct": 8.8476,
+      "buy_hold_return_pct": 8.8476,
+      "live_vs_buy_hold_multiple_proxy": 1.0
+    }
+  },
+  "strategy_review": {
+    "status": "on_best_certified",
+    "active": {
+      "strategy": "gc_vjatr_timing_repair",
+      "rank": 1,
+      "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+      "confidence": 0.7678,
+      "score_label": "composite_confidence",
+      "data_end_date": "2026-05-22",
+      "risk_state": "risk_on"
+    },
+    "best_certified": {
+      "strategy": "gc_vjatr_timing_repair",
+      "rank": null,
+      "display_name": "Cerulean Hare #2",
+      "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+      "confidence": 0.7678,
+      "selected_score": 0.7678,
+      "score_label": "composite_confidence",
+      "share_multiple": 10.0909,
+      "real_share_multiple": 1.5469,
+      "modern_share_multiple": 2.239
+    }
   }
 }

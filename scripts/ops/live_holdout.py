@@ -51,6 +51,104 @@ def compute_replay_by_date(champion: dict[str, Any]) -> dict[str, dict[str, Any]
     return {str(replay["data_end_date"]): replay}
 
 
+def _safe_float(value: Any) -> float | None:
+    try:
+        if value is None:
+            return None
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _round_pct(value: float | None) -> float | None:
+    if value is None:
+        return None
+    return round(value * 100.0, 4)
+
+
+def _snapshot_confidence(snapshot: dict[str, Any]) -> float | None:
+    return _safe_float((snapshot.get("validation") or {}).get("composite_confidence"))
+
+
+def execution_proxy(snapshots: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for current, nxt in zip(snapshots, snapshots[1:]):
+        event = None
+        if current.get("buy_event") or current.get("entry_signal"):
+            event = "entry"
+        elif current.get("sell_event") or current.get("exit_signal"):
+            event = "exit"
+        if event is None:
+            continue
+        close = _safe_float(current.get("close"))
+        next_close = _safe_float(nxt.get("close"))
+        proxy_return = None
+        if close and next_close:
+            proxy_return = next_close / close - 1.0
+        rows.append(
+            {
+                "event": event,
+                "signal_date": current.get("data_end_date"),
+                "signal_close": close,
+                "proxy_execution_date": nxt.get("data_end_date"),
+                "proxy_execution_close": next_close,
+                "proxy_return_pct": _round_pct(proxy_return),
+                "note": "Uses the next immutable signal snapshot close as a next-open execution proxy.",
+            }
+        )
+    return rows
+
+
+def live_performance(snapshots: list[dict[str, Any]]) -> dict[str, Any]:
+    if len(snapshots) < 2:
+        return {
+            "live_signal_return_since_start_pct": None,
+            "buy_hold_return_since_start_pct": None,
+            "live_vs_buy_hold_multiple_proxy": None,
+            "backtest_share_multiple": None,
+            "backtest_vs_live_degradation_pct": None,
+            "confidence_start": _snapshot_confidence(snapshots[0]) if snapshots else None,
+            "confidence_latest": _snapshot_confidence(snapshots[-1]) if snapshots else None,
+            "confidence_drift": None,
+        }
+
+    signal_factor = 1.0
+    buy_hold_factor = 1.0
+    for previous, current in zip(snapshots, snapshots[1:]):
+        previous_close = _safe_float(previous.get("close"))
+        current_close = _safe_float(current.get("close"))
+        if not previous_close or not current_close:
+            continue
+        period_factor = current_close / previous_close
+        buy_hold_factor *= period_factor
+        if previous.get("risk_on", previous.get("risk_state") == "risk_on"):
+            signal_factor *= period_factor
+
+    live_multiple = signal_factor / buy_hold_factor if buy_hold_factor else None
+    latest = snapshots[-1]
+    backtest_share = _safe_float(((latest.get("active_champion") or {}).get("metrics") or {}).get("share_multiple"))
+    degradation_pct = None
+    if live_multiple is not None and backtest_share and backtest_share > 0:
+        degradation_pct = (live_multiple / backtest_share - 1.0) * 100.0
+
+    first_confidence = _snapshot_confidence(snapshots[0])
+    latest_confidence = _snapshot_confidence(latest)
+    confidence_delta = None
+    if first_confidence is not None and latest_confidence is not None:
+        confidence_delta = latest_confidence - first_confidence
+
+    return {
+        "live_signal_return_since_start_pct": _round_pct(signal_factor - 1.0),
+        "buy_hold_return_since_start_pct": _round_pct(buy_hold_factor - 1.0),
+        "live_vs_buy_hold_multiple_proxy": round(live_multiple, 4) if live_multiple is not None else None,
+        "backtest_share_multiple": backtest_share,
+        "backtest_vs_live_degradation_pct": round(degradation_pct, 4) if degradation_pct is not None else None,
+        "confidence_start": first_confidence,
+        "confidence_latest": latest_confidence,
+        "confidence_drift": round(confidence_delta, 4) if confidence_delta is not None else None,
+    }
+
+
 def build_live_holdout(
     *,
     signals_dir: Path = SIGNALS_DIR,
@@ -96,6 +194,7 @@ def build_live_holdout(
     close_return_pct = None
     if start_close > 0 and latest_close > 0 and len(snapshots) > 1:
         close_return_pct = round((latest_close / start_close - 1.0) * 100.0, 4)
+    performance = live_performance(snapshots)
 
     report = {
         "schema_version": 1,
@@ -108,6 +207,25 @@ def build_live_holdout(
         "diverged_count": diverged,
         "not_replayed_count": not_replayed,
         "close_return_since_start_pct": close_return_pct,
+        "expected_next_open_execution_proxy": execution_proxy(snapshots),
+        "active_champion_performance_since_live_start": {
+            "start_date": first.get("data_end_date"),
+            "latest_date": latest.get("data_end_date"),
+            "strategy": (latest.get("active_champion") or {}).get("strategy"),
+            "signal_return_pct": performance["live_signal_return_since_start_pct"],
+            "buy_hold_return_pct": performance["buy_hold_return_since_start_pct"],
+            "live_vs_buy_hold_multiple_proxy": performance["live_vs_buy_hold_multiple_proxy"],
+        },
+        "backtest_vs_live_degradation": {
+            "backtest_share_multiple": performance["backtest_share_multiple"],
+            "live_vs_buy_hold_multiple_proxy": performance["live_vs_buy_hold_multiple_proxy"],
+            "degradation_pct": performance["backtest_vs_live_degradation_pct"],
+        },
+        "confidence_drift": {
+            "start": performance["confidence_start"],
+            "latest": performance["confidence_latest"],
+            "delta": performance["confidence_drift"],
+        },
         "comparisons": comparisons,
     }
     _write_json(output_path, report)
@@ -138,4 +256,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

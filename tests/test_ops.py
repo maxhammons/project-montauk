@@ -15,13 +15,21 @@ from ops.daily import (
 )
 from ops.doctor import build_doctor_report
 from ops.events import append_event, read_events
-from ops.governance import evaluate_governance
+from ops.governance import build_governance, evaluate_governance
 from ops.install_launch_agent import build_plist, job_keys, launch_agent_label, launchctl_command, status_for_job
 from ops.live_holdout import build_live_holdout
-from ops.notifications import build_outbox, event_id, is_notifiable, mark_sent, scan_notifications, send_pending_notifications
+from ops.notifications import (
+    build_outbox,
+    event_id,
+    is_notifiable,
+    mark_sent,
+    scan_notifications,
+    send_pending_notifications,
+    set_notification_preference,
+)
 from ops.research_queue import generate_proposals, update_idea_status, write_proposals
 from ops.research_runner import build_research_plan, create_research_run
-from ops.run_job import JobLockedError, acquire_lock, release_lock, run_job
+from ops.run_job import JobLockedError, acquire_lock, output_artifact_paths, release_lock, run_job
 from ops.scheduler import init_config, list_jobs, load_config, next_run_at, scheduler_status, set_enabled
 from ops.strategy_review import build_strategy_review
 
@@ -292,6 +300,9 @@ def test_run_job_writes_record_and_event(tmp_path) -> None:
     assert record["returncode"] == 0
     assert record["command"][0] == "/tmp/python"
     assert record["command"][1].endswith("scripts/ops/status.py")
+    assert "schedule" in record
+    assert record["output_artifact_paths"] == ["runs/operations/latest.json"]
+    assert "runs/operations/latest.json" in output_artifact_paths("daily")
     assert (tmp_path / "events.jsonl").exists()
     assert read_events(events_path=tmp_path / "events.jsonl")[0]["event_type"] == "job_succeeded"
 
@@ -316,6 +327,43 @@ def test_notification_outbox_filters_routine_events() -> None:
     assert is_notifiable(changed) is True
     outbox = build_outbox([routine, changed])
     assert [note["event_type"] for note in outbox] == ["signal_changed"]
+    assert outbox[0]["target_view"] == "current"
+    assert "target" in outbox[0]
+
+
+def test_notification_preferences_are_persisted_and_filter_events(tmp_path) -> None:
+    events_path = tmp_path / "events.jsonl"
+    state_path = tmp_path / "notification_state.json"
+    outbox_path = tmp_path / "notifications.json"
+    append_event(
+        "data_stale",
+        "Data is stale.",
+        severity="warning",
+        events_path=events_path,
+        timestamp_utc="2026-05-09T01:00:00Z",
+    )
+
+    state = set_notification_preference("data_stale", False, state_path=state_path)
+    payload = scan_notifications(
+        events_path=events_path,
+        outbox_path=outbox_path,
+        state_path=state_path,
+    )
+
+    assert state["preferences"]["event_types"]["data_stale"]["enabled"] is False
+    assert payload["pending_count"] == 0
+    assert json.loads(state_path.read_text())["preferences"]["event_types"]["data_stale"]["enabled"] is False
+
+    set_notification_preference("data_stale", True, state_path=state_path)
+    payload = scan_notifications(
+        events_path=events_path,
+        outbox_path=outbox_path,
+        state_path=state_path,
+    )
+
+    assert payload["pending_count"] == 1
+    assert payload["notifications"][0]["target_view"] == "data"
+    assert payload["notifications"][0]["artifact_path"] == "runs/operations/governance.json"
 
 
 def test_notification_scan_respects_sent_state(tmp_path) -> None:
@@ -390,6 +438,164 @@ def test_governance_blocks_non_gold_active_champion() -> None:
     assert "active champion is not Gold Status" in report["blockers"]
 
 
+def test_governance_flags_replacement_candidate_state() -> None:
+    latest = {
+        "active_signal": {
+            "data_end_date": "2026-05-08",
+            "risk_state": "risk_on",
+            "active_champion": {"strategy": "old", "params_hash": "old-hash"},
+            "validation": {"verdict": "PASS", "gold_status": True},
+            "data_quality": {"fail": 0},
+        }
+    }
+    strategy_review = {
+        "status": "switch_candidate",
+        "best_certified": {"strategy": "new", "params_hash": "new-hash"},
+    }
+
+    report = evaluate_governance(
+        latest,
+        {"diverged_count": 0},
+        strategy_review,
+        max_stale_calendar_days=999,
+    )
+
+    assert report["state"] == "replacement_candidate"
+    assert "replacement candidate available: new" in report["reasons"]
+
+
+def test_governance_requires_manual_review_for_trust_deterioration() -> None:
+    latest = {
+        "active_signal": {
+            "data_end_date": "2026-05-08",
+            "risk_state": "risk_on",
+            "active_champion": {"strategy": "active", "params_hash": "hash"},
+            "validation": {"verdict": "PASS", "gold_status": True},
+            "data_quality": {"fail": 0},
+        }
+    }
+    live = {
+        "diverged_count": 0,
+        "confidence_drift": {"delta": -0.08},
+        "active_champion_performance_since_live_start": {
+            "live_vs_buy_hold_multiple_proxy": 0.82,
+        },
+    }
+
+    report = evaluate_governance(
+        latest,
+        live,
+        {"status": "on_best_certified"},
+        max_stale_calendar_days=999,
+    )
+
+    assert report["state"] == "manual_review_required"
+    assert any("confidence drift deteriorated" in reason for reason in report["reasons"])
+    assert any("live trust proxy" in reason for reason in report["reasons"])
+
+
+def test_governance_logs_champion_change_event(tmp_path) -> None:
+    latest_path = tmp_path / "latest.json"
+    live_path = tmp_path / "live.json"
+    strategy_review_path = tmp_path / "strategy_review.json"
+    output_path = tmp_path / "governance.json"
+    events_path = tmp_path / "events.jsonl"
+    output_path.write_text(
+        json.dumps(
+            {
+                "active_signal": {
+                    "data_end_date": "2026-05-07",
+                    "risk_state": "risk_off",
+                    "strategy": "old",
+                    "params_hash": "old-hash",
+                }
+            }
+        )
+    )
+    latest_path.write_text(
+        json.dumps(
+            {
+                "active_signal": {
+                    "data_end_date": "2026-05-08",
+                    "risk_state": "risk_on",
+                    "active_champion": {"strategy": "new", "params_hash": "new-hash"},
+                    "validation": {"verdict": "PASS", "gold_status": True},
+                    "data_quality": {"fail": 0},
+                }
+            }
+        )
+    )
+    live_path.write_text(json.dumps({"diverged_count": 0}))
+    strategy_review_path.write_text(json.dumps({"status": "on_best_certified"}))
+
+    import ops.governance as governance
+
+    old_append = governance.append_event
+
+    def append_with_test_path(event_type: str, message: str, **kwargs) -> dict:
+        kwargs["events_path"] = events_path
+        return old_append(event_type, message, **kwargs)
+
+    governance.append_event = append_with_test_path
+    try:
+        build_governance(
+            latest_path=latest_path,
+            live_holdout_path=live_path,
+            strategy_review_path=strategy_review_path,
+            output_path=output_path,
+        )
+    finally:
+        governance.append_event = old_append
+
+    events = read_events(events_path=events_path)
+    assert events[0]["event_type"] == "champion_changed"
+    assert events[0]["payload"]["previous"]["strategy"] == "old"
+    assert events[0]["payload"]["current"]["strategy"] == "new"
+
+
+def test_governance_emits_stale_data_event(tmp_path) -> None:
+    latest_path = tmp_path / "latest.json"
+    live_path = tmp_path / "live.json"
+    strategy_review_path = tmp_path / "strategy_review.json"
+    events_path = tmp_path / "events.jsonl"
+    latest_path.write_text(
+        json.dumps(
+            {
+                "active_signal": {
+                    "data_end_date": "2026-01-01",
+                    "risk_state": "risk_on",
+                    "validation": {"verdict": "PASS", "gold_status": True},
+                    "data_quality": {"fail": 0},
+                }
+            }
+        )
+    )
+    live_path.write_text(json.dumps({"diverged_count": 0}))
+    strategy_review_path.write_text(json.dumps({"status": "on_best_certified"}))
+
+    import ops.governance as governance
+
+    old_append = governance.append_event
+
+    def append_with_test_path(event_type: str, message: str, **kwargs) -> dict:
+        kwargs["events_path"] = events_path
+        return old_append(event_type, message, **kwargs)
+
+    governance.append_event = append_with_test_path
+    try:
+        report = build_governance(
+            latest_path=latest_path,
+            live_holdout_path=live_path,
+            strategy_review_path=strategy_review_path,
+            output_path=tmp_path / "governance.json",
+        )
+    finally:
+        governance.append_event = old_append
+
+    assert report["state"] == "active_watch"
+    assert read_events(events_path=events_path)[0]["event_type"] == "data_stale"
+
+
 def test_live_holdout_matches_latest_snapshot(tmp_path, monkeypatch) -> None:
     snapshot = _snapshot()
     (tmp_path / "2026-05-08.json").write_text(json.dumps(snapshot))
@@ -404,6 +610,36 @@ def test_live_holdout_matches_latest_snapshot(tmp_path, monkeypatch) -> None:
     assert report["status"] == "ok"
     assert report["matched_count"] == 1
     assert report["diverged_count"] == 0
+
+
+def test_live_holdout_tracks_proxy_performance_and_confidence_drift(tmp_path, monkeypatch) -> None:
+    first = _snapshot(date="2026-05-08")
+    first["buy_event"] = True
+    first["validation"] = {}
+    first["validation"]["composite_confidence"] = 0.7
+    second = _snapshot(date="2026-05-09")
+    second["close"] = 132.0
+    second["validation"] = {}
+    second["validation"]["composite_confidence"] = 0.8
+    second["active_champion"]["metrics"] = {"share_multiple": 30.4933}
+    (tmp_path / "2026-05-08.json").write_text(json.dumps(first))
+    (tmp_path / "2026-05-09.json").write_text(json.dumps(second))
+
+    import ops.live_holdout as live_holdout
+
+    monkeypatch.setattr(live_holdout, "load_active_champion", lambda: {"strategy": "example"})
+    monkeypatch.setattr(
+        live_holdout,
+        "compute_replay_by_date",
+        lambda champion: {"2026-05-08": first, "2026-05-09": second},
+    )
+
+    report = build_live_holdout(signals_dir=tmp_path, output_path=tmp_path / "live.json")
+
+    assert report["expected_next_open_execution_proxy"][0]["event"] == "entry"
+    assert report["active_champion_performance_since_live_start"]["signal_return_pct"] == 6.9259
+    assert report["backtest_vs_live_degradation"]["backtest_share_multiple"] == 30.4933
+    assert report["confidence_drift"]["delta"] == 0.1
 
 
 def test_research_queue_generates_warning_based_proposals(tmp_path) -> None:

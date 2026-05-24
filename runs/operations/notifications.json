@@ -1,15 +1,73 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-05-21T20:50:06Z",
+  "generated_utc": "2026-05-23T23:59:26Z",
   "pending_count": 5,
+  "preferences": {
+    "event_types": {
+      "champion_blocked": {
+        "enabled": true
+      },
+      "champion_changed": {
+        "enabled": true
+      },
+      "data_quality_failed": {
+        "enabled": true
+      },
+      "data_stale": {
+        "enabled": true
+      },
+      "job_failed": {
+        "enabled": true
+      },
+      "live_holdout_drift": {
+        "enabled": true
+      },
+      "manual_review_required": {
+        "enabled": true
+      },
+      "replacement_candidate": {
+        "enabled": true
+      },
+      "signal_changed": {
+        "enabled": true
+      },
+      "signal_snapshot_conflict": {
+        "enabled": true
+      },
+      "viz_build_failed": {
+        "enabled": true
+      }
+    },
+    "severities": {
+      "critical": {
+        "enabled": true
+      },
+      "error": {
+        "enabled": true
+      },
+      "notice": {
+        "enabled": true
+      },
+      "warning": {
+        "enabled": true
+      }
+    }
+  },
   "notifications": [
     {
       "id": "f184da1d7aa827cb",
-      "created_utc": "2026-05-21T20:50:06Z",
+      "created_utc": "2026-05-23T23:59:26Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
       "event_type": "replacement_candidate",
+      "target": {
+        "view": "champion",
+        "artifact_path": "runs/operations/strategy_review.json",
+        "event_id": "f184da1d7aa827cb"
+      },
+      "target_view": "champion",
+      "artifact_path": "runs/operations/strategy_review.json",
       "event": {
         "timestamp_utc": "2026-05-13T22:19:14Z",
         "severity": "notice",
@@ -47,11 +105,18 @@
     },
     {
       "id": "65b518ef99843587",
-      "created_utc": "2026-05-21T20:50:06Z",
+      "created_utc": "2026-05-23T23:59:26Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
       "event_type": "replacement_candidate",
+      "target": {
+        "view": "champion",
+        "artifact_path": "runs/operations/strategy_review.json",
+        "event_id": "65b518ef99843587"
+      },
+      "target_view": "champion",
+      "artifact_path": "runs/operations/strategy_review.json",
       "event": {
         "timestamp_utc": "2026-05-13T22:22:12Z",
         "severity": "notice",
@@ -188,11 +253,18 @@
     },
     {
       "id": "c5a2da4901f0069e",
-      "created_utc": "2026-05-21T20:50:06Z",
+      "created_utc": "2026-05-23T23:59:26Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
       "event_type": "replacement_candidate",
+      "target": {
+        "view": "champion",
+        "artifact_path": "runs/operations/strategy_review.json",
+        "event_id": "c5a2da4901f0069e"
+      },
+      "target_view": "champion",
+      "artifact_path": "runs/operations/strategy_review.json",
       "event": {
         "timestamp_utc": "2026-05-13T22:24:56Z",
         "severity": "notice",
@@ -380,11 +452,18 @@
     },
     {
       "id": "a795804388207584",
-      "created_utc": "2026-05-21T20:50:06Z",
+      "created_utc": "2026-05-23T23:59:26Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
       "event_type": "replacement_candidate",
+      "target": {
+        "view": "champion",
+        "artifact_path": "runs/operations/strategy_review.json",
+        "event_id": "a795804388207584"
+      },
+      "target_view": "champion",
+      "artifact_path": "runs/operations/strategy_review.json",
       "event": {
         "timestamp_utc": "2026-05-13T22:24:57Z",
         "severity": "notice",
@@ -521,11 +600,18 @@
     },
     {
       "id": "d69a59a211166044",
-      "created_utc": "2026-05-21T20:50:06Z",
+      "created_utc": "2026-05-23T23:59:26Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
       "event_type": "replacement_candidate",
+      "target": {
+        "view": "champion",
+        "artifact_path": "runs/operations/strategy_review.json",
+        "event_id": "d69a59a211166044"
+      },
+      "target_view": "champion",
+      "artifact_path": "runs/operations/strategy_review.json",
       "event": {
         "timestamp_utc": "2026-05-13T22:24:59Z",
         "severity": "notice",

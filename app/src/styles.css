@@ -316,6 +316,23 @@ body[data-view="viz"] .nav-glyph {
   font-size: 12px;
 }
 
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.checkbox-row {
+  cursor: pointer;
+}
+
+.checkbox-row input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
 .sidebar-readout {
   position: relative;
   margin-top: auto;
@@ -960,7 +977,7 @@ body[data-freshness="stale"] #automation-state {
   }
 
   .nav {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .command-deck,

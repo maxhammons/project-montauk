@@ -3,6 +3,8 @@ use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use tauri::menu::{Menu, MenuItem};
+use tauri::tray::TrayIconBuilder;
 
 fn project_root() -> Result<PathBuf, String> {
     if let Ok(root) = env::var("MONTAUK_PROJECT_ROOT") {
@@ -60,6 +62,56 @@ fn latest_signal(root: &Path) -> Result<Value, String> {
         Some(path) => read_json(path),
         None => Ok(Value::Null),
     }
+}
+
+fn menu_bar_status_label(root: &Path) -> String {
+    let latest = read_json(&root.join("runs/operations/latest.json")).unwrap_or(Value::Null);
+    let signal = latest
+        .get("active_signal")
+        .or_else(|| latest.get("latest_signal"))
+        .cloned()
+        .unwrap_or_else(|| latest_signal(root).unwrap_or(Value::Null));
+    let governance =
+        read_json(&root.join("runs/operations/governance.json")).unwrap_or(Value::Null);
+    let stale = governance
+        .get("stale_calendar_days")
+        .and_then(|value| value.as_i64())
+        .map(|days| days > 5)
+        .unwrap_or(false);
+
+    if stale {
+        return "stale".to_string();
+    }
+
+    match signal.get("risk_state").and_then(|value| value.as_str()) {
+        Some("risk_on") => "risk_on".to_string(),
+        Some("risk_off") => "risk_off".to_string(),
+        _ => "stale".to_string(),
+    }
+}
+
+fn setup_menu_bar_status(app: &tauri::App) -> tauri::Result<()> {
+    let root = project_root().unwrap_or_else(|_| PathBuf::from("."));
+    let status = menu_bar_status_label(&root);
+    let item = MenuItem::with_id(
+        app,
+        "montauk-status",
+        format!("Project Montauk: {}", status),
+        false,
+        None::<&str>,
+    )?;
+    let menu = Menu::with_items(app, &[&item])?;
+    let mut tray = TrayIconBuilder::with_id("montauk-status")
+        .menu(&menu)
+        .title(format!("Montauk {}", status))
+        .tooltip(format!("Project Montauk: {}", status));
+
+    if let Some(icon) = app.default_window_icon() {
+        tray = tray.icon(icon.clone());
+    }
+
+    tray.build(app)?;
+    Ok(())
 }
 
 fn python_path(root: &Path) -> PathBuf {
@@ -167,6 +219,23 @@ fn read_doctor_report(root: &Path) -> Result<Value, String> {
     run_json_command(root, &[script, "--json"])
 }
 
+fn valid_notification_event_type(event_type: &str) -> bool {
+    matches!(
+        event_type,
+        "champion_blocked"
+            | "champion_changed"
+            | "data_quality_failed"
+            | "data_stale"
+            | "job_failed"
+            | "live_holdout_drift"
+            | "manual_review_required"
+            | "replacement_candidate"
+            | "signal_changed"
+            | "signal_snapshot_conflict"
+            | "viz_build_failed"
+    )
+}
+
 #[tauri::command]
 fn read_status() -> Result<Value, String> {
     let root = project_root()?;
@@ -190,6 +259,7 @@ fn read_status() -> Result<Value, String> {
         "family_leaderboard": read_json(&root.join("runs/family_confidence_leaderboard.json"))?,
         "leaderboard": read_json(&root.join("spike/leaderboard.json"))?,
         "notifications": read_json(&operations.join("notifications.json"))?,
+        "notification_state": read_json(&operations.join("notification_state.json"))?,
         "research_queue": read_json(&root.join("runs/research_queue/queue.json"))?,
         "scheduler": read_json(&scheduler)?,
         "scheduler_detail": scheduler_detail,
@@ -235,6 +305,29 @@ fn send_notifications() -> Result<Value, String> {
         .to_str()
         .ok_or_else(|| "notifications path is not valid UTF-8".to_string())?;
     run_json_command(&root, &[script, "--send", "--json"])
+}
+
+#[tauri::command]
+fn set_notification_preference(event_type: String, enabled: bool) -> Result<Value, String> {
+    if !valid_notification_event_type(&event_type) {
+        return Err(format!("unknown notification event type: {}", event_type));
+    }
+    let root = project_root()?;
+    let notification_script = root.join("scripts/ops/notifications.py");
+    let script = notification_script
+        .to_str()
+        .ok_or_else(|| "notifications path is not valid UTF-8".to_string())?;
+    run_json_command(
+        &root,
+        &[
+            script,
+            "--set-event",
+            &event_type,
+            "--enabled",
+            if enabled { "true" } else { "false" },
+            "--json",
+        ],
+    )
 }
 
 #[tauri::command]
@@ -463,8 +556,11 @@ fn start_maintenance() -> Result<Value, String> {
     if let Some(parent) = status_path.parent() {
         fs::create_dir_all(parent).map_err(|err| err.to_string())?;
     }
-    fs::write(&status_path, serde_json::to_string_pretty(&initial).unwrap())
-        .map_err(|err| err.to_string())?;
+    fs::write(
+        &status_path,
+        serde_json::to_string_pretty(&initial).unwrap(),
+    )
+    .map_err(|err| err.to_string())?;
 
     Command::new(py)
         .arg(script)
@@ -509,11 +605,7 @@ fn read_flip_pressure_history(days: Option<usize>) -> Result<Value, String> {
             .get("data_end_date")
             .and_then(|v| v.as_str())
             .map(String::from)
-            .or_else(|| {
-                path.file_stem()
-                    .and_then(|s| s.to_str())
-                    .map(String::from)
-            });
+            .or_else(|| path.file_stem().and_then(|s| s.to_str()).map(String::from));
         let confidence = payload
             .pointer("/validation/composite_confidence")
             .and_then(|v| v.as_f64());
@@ -616,11 +708,16 @@ fn run_next_research(timeout_seconds: Option<u64>) -> Result<Value, String> {
 
 fn main() {
     tauri::Builder::default()
+        .setup(|app| {
+            setup_menu_bar_status(app)?;
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             read_status,
             run_job,
             scan_notifications,
             send_notifications,
+            set_notification_preference,
             scheduler_status,
             doctor_report,
             set_scheduler_job,

@@ -1018,6 +1018,56 @@ function renderLaunchAgents(agents = {}) {
   text("agents-summary", `${installed}/${jobs.length} background tasks installed`);
 }
 
+const notificationPreferenceOrder = [
+  "signal_changed",
+  "data_stale",
+  "data_quality_failed",
+  "job_failed",
+  "champion_changed",
+  "champion_blocked",
+  "manual_review_required",
+  "replacement_candidate",
+  "live_holdout_drift",
+  "signal_snapshot_conflict",
+  "viz_build_failed",
+];
+
+function renderNotificationPreferences(status = {}) {
+  const node = document.getElementById("notification-prefs-list");
+  if (!node) return;
+  node.innerHTML = "";
+  const preferences =
+    status.notification_state?.preferences?.event_types ||
+    status.notifications?.preferences?.event_types ||
+    {};
+  const keys = notificationPreferenceOrder.filter((key) => preferences[key]).concat(
+    Object.keys(preferences).filter((key) => !notificationPreferenceOrder.includes(key)).sort()
+  );
+  text("notification-prefs-state", keys.length ? `${keys.length} event types persisted` : "No preferences found");
+  if (!keys.length) {
+    node.textContent = "Run a notification scan to initialize preferences.";
+    return;
+  }
+  for (const key of keys) {
+    const pref = preferences[key] || {};
+    const row = document.createElement("label");
+    row.className = "table-row checkbox-row";
+    row.innerHTML = `
+      <span>${escapeHtml(titleCase(key))}</span>
+      <span>${pref.enabled === false ? "off" : "on"}</span>
+      <span><input type="checkbox" data-notification-event="${escapeHtml(key)}" ${
+        pref.enabled === false ? "" : "checked"
+      } /></span>
+    `;
+    node.appendChild(row);
+  }
+  node.querySelectorAll("input[data-notification-event]").forEach((input) => {
+    input.addEventListener("change", () => {
+      setNotificationPreference(input.dataset.notificationEvent, input.checked);
+    });
+  });
+}
+
 function render(status) {
   const signal = status.latest_signal || status.latest_operation?.active_signal || {};
   const mode = riskMode(signal);
@@ -1055,6 +1105,7 @@ function render(status) {
   renderJobs(status);
   renderLaunchAgent(status.launch_agent);
   renderLaunchAgents(status.launch_agents);
+  renderNotificationPreferences(status);
   renderCheckup(status);
   renderResearchQueue(status);
   renderConfidenceLedger(status);
@@ -1171,6 +1222,19 @@ async function setSchedulerJob(jobKey, enabled) {
     text("last-refreshed", error?.message || String(error));
   }
   await refresh();
+}
+
+async function setNotificationPreference(eventType, enabled) {
+  const invoke = tauriInvoke("set_notification_preference", { eventType, enabled });
+  if (!invoke) return;
+  try {
+    const result = await invoke;
+    state.status.notification_state = result;
+    renderNotificationPreferences(state.status);
+    await refresh();
+  } catch (error) {
+    text("notification-prefs-state", error?.message || String(error));
+  }
 }
 
 async function runNextResearch() {
@@ -1830,6 +1894,11 @@ function wireActions() {
   document.getElementById("maintenance-close-btn")?.addEventListener("click", closeMaintenanceModal);
   document.getElementById("maintenance-copy-btn")?.addEventListener("click", copyMaintenanceDebug);
   document.getElementById("action-error-copy")?.addEventListener("click", copyActionError);
+  document.querySelectorAll("button[data-agent-action]").forEach((button) => {
+    button.addEventListener("click", () => {
+      manageAgent(button.dataset.agentAction, button.dataset.jobKey || "daily");
+    });
+  });
 }
 
 function wireTooltips() {

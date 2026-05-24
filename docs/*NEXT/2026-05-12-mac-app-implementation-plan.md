@@ -1,6 +1,14 @@
 # Montauk Mac App Implementation Plan
 
-> Status: implementation plan, 2026-05-12
+> Status: active mixed-status plan, 2026-05-12. Audited 2026-05-22:
+> phases 0-7 are implemented or mostly implemented; phases 8-10 remain
+> outstanding or partial. See
+> [`2026-05-22-app-plan-status-audit.md`](./2026-05-22-app-plan-status-audit.md).
+>
+> Checklist audit: 2026-05-23. Checked items were verified from repository
+> files, current artifacts, Doctor/scheduler status, LaunchAgent status, and
+> `tests/test_ops.py`. Unchecked items are missing, superseded, or not
+> verifiably complete.
 
 This plan turns the app charter into buildable work. The target is a standalone
 macOS app that runs the Montauk Engine in the background, keeps data and signals
@@ -19,12 +27,12 @@ and Python sidecar commands.
 
 2026-05-12 implementation slice:
 
-- chose the Tauri direction for the first app shell
-- scaffolded `app/`
-- added static dashboard assets under `app/src/`
-- added Tauri bridge commands under `app/src-tauri/`
-- installed app dependencies locally
-- verified the Vite app build and native Tauri bundle build
+- [x] chose the Tauri direction for the first app shell
+- [x] scaffolded `app/`
+- [x] added static dashboard assets under `app/src/`
+- [x] added Tauri bridge commands under `app/src-tauri/`
+- [x] installed app dependencies locally
+- [x] verified the Vite app build and native Tauri bundle build
 
 Reason:
 
@@ -38,17 +46,17 @@ than reuse of the current web visualization.
 
 Deliverables:
 
-- create `app/` for the desktop shell
-- document chosen app-shell tradeoffs in `docs/*NEXT/`
-- add a minimal app window that can read a JSON status artifact
-- add a menu bar item showing `risk_on`, `risk_off`, or `stale`
+- [x] create `app/` for the desktop shell
+- [x] document chosen app-shell tradeoffs in `docs/*NEXT/`
+- [x] add a minimal app window that can read a JSON status artifact
+- [x] add a menu bar item showing `risk_on`, `risk_off`, or `stale`
 
 Acceptance criteria:
 
-- app launches locally
-- app can read from the Project Montauk directory
-- app does not need to understand strategy code
-- no engine behavior changes
+- [x] app launches locally
+- [x] app can read from the Project Montauk directory
+- [x] app does not need to understand strategy code
+- [x] no engine behavior changes
 
 ---
 
@@ -58,67 +66,67 @@ Create a stable operations layer before building much UI.
 
 2026-05-12 implementation slice:
 
-- added `scripts/ops/daily.py`
-- added `scripts/ops/status.py`
-- added `scripts/ops/events.py`
-- added `scripts/ops/paths.py`
-- added `tests/test_ops.py`
-- created initial `signals/2026-05-08.json`
-- created initial `runs/operations/latest.json`
-- verified local data quality at 41 PASS / 0 WARN / 0 FAIL with refresh disabled
-- current app-facing status reports `risk_on` through `2026-05-08`
+- [x] added `scripts/ops/daily.py`
+- [x] added `scripts/ops/status.py`
+- [x] added `scripts/ops/events.py`
+- [x] added `scripts/ops/paths.py`
+- [x] added `tests/test_ops.py`
+- [x] created initial `signals/2026-05-08.json`
+- [x] created initial `runs/operations/latest.json`
+- [x] verified local data quality at 41 PASS / 0 WARN / 0 FAIL with refresh disabled
+- [x] current app-facing status reports `risk_on` through `2026-05-08`
 
 2026-05-12 follow-up slice:
 
-- `daily.py` now builds live holdout, governance, and notification artifacts
+- [x] `daily.py` now builds live holdout, governance, and notification artifacts
   after the core daily snapshot unless `--skip-followups` is passed
-- latest hardened local run produced live holdout `ok`, governance
+- [x] latest hardened local run produced live holdout `ok`, governance
   `active_watch`, and notification pending count `0`
 
 New folders:
 
-- `signals/`
-- `runs/operations/`
-- `runs/scheduler/`
-- `runs/research_queue/`
+- [x] `signals/`
+- [x] `runs/operations/`
+- [x] `runs/scheduler/`
+- [x] `runs/research_queue/`
 
 New command surface:
 
-- `scripts/ops/daily.py`
-- `scripts/ops/status.py`
-- `scripts/ops/events.py`
+- [x] `scripts/ops/daily.py`
+- [x] `scripts/ops/status.py`
+- [x] `scripts/ops/events.py`
 
 `daily.py` should run the daily operating sequence:
 
-1. refresh market and macro data
-2. rebuild or verify the data manifest
-3. run consolidated data quality
-4. recompute the active champion signal
-5. write `signals/YYYY-MM-DD.json`
-6. compare against the prior signal snapshot
-7. write `runs/operations/latest.json`
-8. append notable events to `runs/operations/events.jsonl`
-9. rebuild `viz/montauk-viz.html`
+1. [x] refresh market and macro data
+2. [x] rebuild or verify the data manifest
+3. [x] run consolidated data quality
+4. [x] recompute the active champion signal
+5. [x] write `signals/YYYY-MM-DD.json`
+6. [x] compare against the prior signal snapshot
+7. [x] write `runs/operations/latest.json`
+8. [x] append notable events to `runs/operations/events.jsonl`
+9. [x] rebuild `viz/montauk-viz.html`
 
 `signals/YYYY-MM-DD.json` should include:
 
-- generated timestamp
-- data end date
-- active champion identity
-- strategy params hash
-- risk state
-- entry/exit/buy/sell event flags
-- close price used
-- data quality summary
-- certification summary
-- warnings and blockers
+- [x] generated timestamp
+- [x] data end date
+- [x] active champion identity
+- [x] strategy params hash
+- [x] risk state
+- [x] entry/exit/buy/sell event flags
+- [x] close price used
+- [x] data quality summary
+- [x] certification summary
+- [x] warnings and blockers
 
 Acceptance criteria:
 
-- daily command is idempotent for the same date
-- historical signal snapshots are not overwritten without an explicit repair mode
-- app can display `latest.json` without parsing logs
-- tests cover signal snapshot shape and signal-change detection
+- [x] daily command is idempotent for the same date
+- [x] historical signal snapshots are not overwritten without an explicit repair mode
+- [x] app can display `latest.json` without parsing logs
+- [x] tests cover signal snapshot shape and signal-change detection
 
 ---
 
@@ -130,72 +138,72 @@ daemon first.
 
 2026-05-12 implementation slice:
 
-- added `scripts/ops/run_job.py`
-- added `scripts/ops/scheduler.py`
-- added `scripts/ops/install_launch_agent.py`
-- created default scheduler config at `runs/scheduler/config.json`
-- created first lightweight job record under `runs/scheduler/jobs/`
-- verified LaunchAgent plist generation for the `daily` job
-- later implementation installed and loaded the enabled LaunchAgents
+- [x] added `scripts/ops/run_job.py`
+- [x] added `scripts/ops/scheduler.py`
+- [x] added `scripts/ops/install_launch_agent.py`
+- [x] created default scheduler config at `runs/scheduler/config.json`
+- [x] created first lightweight job record under `runs/scheduler/jobs/`
+- [x] verified LaunchAgent plist generation for the `daily` job
+- [x] later implementation installed and loaded the enabled LaunchAgents
 
 2026-05-12 hardening slice:
 
-- `scripts/ops/run_job.py` now uses per-job lock files under
+- [x] `scripts/ops/run_job.py` now uses per-job lock files under
   `runs/scheduler/locks/`
-- stale locks can be recovered after the configured timeout
-- overlapping jobs are recorded as `locked` instead of running concurrently
-- `scripts/ops/install_launch_agent.py` can now generate, install, load,
+- [x] stale locks can be recovered after the configured timeout
+- [x] overlapping jobs are recorded as `locked` instead of running concurrently
+- [x] `scripts/ops/install_launch_agent.py` can now generate, install, load,
   unload, and uninstall LaunchAgent plists
-- LaunchAgent load/unload support is implemented and has been exercised for
+- [x] LaunchAgent load/unload support is implemented and has been exercised for
   enabled jobs
-- the Mac app Settings view can inspect, install, load, unload, and uninstall
+- [x] the Mac app Settings view can inspect, install, load, unload, and uninstall
   the `daily` LaunchAgent through explicit user actions
-- the Mac app Settings view can now install/load/unload/uninstall all enabled
+- [x] the Mac app Settings view can now install/load/unload/uninstall all enabled
   scheduler job LaunchAgents
-- enabled LaunchAgents were installed and loaded on 2026-05-12
-- daily schedule corrected on 2026-05-12 to run the main block at 13:30 local
+- [x] enabled LaunchAgents were installed and loaded on 2026-05-12
+- [x] daily schedule corrected on 2026-05-12 to run the main block at 13:30 local
   time, followed by governance at 13:45, notifications at 13:50, and approved
   research planning at 14:10
-- `scripts/ops/scheduler.py status --json` now returns app-ready scheduler
+- [x] `scripts/ops/scheduler.py status --json` now returns app-ready scheduler
   status with next local run time and latest job result
-- the app Jobs view can enable or disable configured scheduler jobs
-- scheduler config loading merges in newly introduced default jobs without
+- [x] the app Jobs view can enable or disable configured scheduler jobs
+- [x] scheduler config loading merges in newly introduced default jobs without
   clobbering local job settings
-- `daily-research-supervisor` creates bounded run artifacts for approved
+- [x] `daily-research-supervisor` creates bounded run artifacts for approved
   research ideas
-- `scripts/ops/doctor.py` verifies app bundle, core ops artifacts, scheduler,
+- [x] `scripts/ops/doctor.py` verifies app bundle, core ops artifacts, scheduler,
   and enabled LaunchAgent install/load state from one command
 
 Schedules:
 
-- daily operations after market data is expected to settle
-- weekly Gold recertification and family leaderboard refresh
-- monthly Confidence v2 calibration diagnostics
-- optional bounded research windows
+- [x] daily operations after market data is expected to settle
+- [x] weekly Gold recertification and family leaderboard refresh
+- [x] monthly Confidence v2 calibration diagnostics
+- [x] optional bounded research windows
 
 New command surface:
 
-- `scripts/ops/install_launch_agent.py`
-- `scripts/ops/scheduler.py`
-- `scripts/ops/run_job.py`
+- [x] `scripts/ops/install_launch_agent.py`
+- [x] `scripts/ops/scheduler.py`
+- [x] `scripts/ops/run_job.py`
 
 Job records should live under `runs/scheduler/` and include:
 
-- job id
-- schedule
-- command
-- started timestamp
-- finished timestamp
-- status
-- output artifact paths
-- failure summary
+- [x] job id
+- [x] schedule
+- [x] command
+- [x] started timestamp
+- [x] finished timestamp
+- [x] status
+- [x] output artifact paths
+- [x] failure summary
 
 Acceptance criteria:
 
-- scheduled daily job runs when the app is closed
-- app shows next run time and last run result
-- failed jobs create a structured event
-- user can pause background jobs from the app
+- [x] scheduled daily job runs when the app is closed
+- [x] app shows next run time and last run result
+- [x] failed jobs create a structured event
+- [x] user can pause background jobs from the app
 
 ---
 
@@ -205,37 +213,37 @@ Add notification rules after the operations artifacts exist.
 
 2026-05-12 implementation slice:
 
-- added `scripts/ops/notifications.py`
-- added `runs/operations/notifications.json`
-- notification scan reads `events.jsonl` and writes a pending outbox
-- the app can scan and send pending macOS notifications
-- sent notification status is persisted back to `notifications.json`
-- routine `job_succeeded` info events are filtered out
-- signal changes, data quality failures, job failures, snapshot conflicts,
+- [x] added `scripts/ops/notifications.py`
+- [x] added `runs/operations/notifications.json`
+- [x] notification scan reads `events.jsonl` and writes a pending outbox
+- [x] the app can scan and send pending macOS notifications
+- [x] sent notification status is persisted back to `notifications.json`
+- [x] routine `job_succeeded` info events are filtered out
+- [x] signal changes, data quality failures, job failures, snapshot conflicts,
   viz build failures, champion blockers, replacement candidates, and live drift
   are notifiable
-- explicit `--send` exists for CLI/manual use, but the app should eventually
+- [x] explicit `--send` exists for CLI/manual use, but the app should eventually
   own native notification delivery
 
 Notification events:
 
-- risk state changed
-- data is stale
-- data quality failed
-- active champion lost Gold Status
-- current signal has blockers
-- scheduled job failed
-- new review-worthy candidate exists
-- live holdout drift crossed threshold
+- [x] risk state changed
+- [x] data is stale
+- [x] data quality failed
+- [x] active champion lost Gold Status
+- [x] current signal has blockers
+- [x] scheduled job failed
+- [x] new review-worthy candidate exists
+- [x] live holdout drift crossed threshold
 
 Notification data should come from `events.jsonl`, not from ad hoc app logic.
 
 Acceptance criteria:
 
-- app sends a macOS notification for a simulated signal change
-- routine successful daily runs do not notify
-- notification preferences are persisted
-- every notification links back to the relevant app view or artifact
+- [x] app sends a macOS notification for a simulated signal change
+- [x] routine successful daily runs do not notify
+- [x] notification preferences are persisted
+- [x] every notification links back to the relevant app view or artifact
 
 ---
 
@@ -245,50 +253,50 @@ Build the first useful app surface.
 
 2026-05-12 implementation slice:
 
-- added dashboard shell with Current Signal, Data Status, Active Champion,
+- [x] added dashboard shell with Current Signal, Data Status, Active Champion,
   Notifications, Jobs, Events, and Settings views
-- app reads live status through Tauri command `read_status`
-- app can invoke `run_job`, `scan_notifications`, and `open_viz` once running
+- [x] app reads live status through Tauri command `read_status`
+- [x] app can invoke `run_job`, `scan_notifications`, and `open_viz` once running
   through Tauri
-- app can manage the daily LaunchAgent from Settings without terminal commands
-- app can show Doctor readiness, including launchd loaded/runs/last-exit state
-- app auto-refreshes status and shows scheduler next-run/last-run details
-- app main view now focuses on a premium, stripped-down Current Signal and a
+- [x] app can manage the daily LaunchAgent from Settings without terminal commands
+- [x] app can show Doctor readiness, including launchd loaded/runs/last-exit state
+- [x] app auto-refreshes status and shows scheduler next-run/last-run details
+- [x] app main view now focuses on a premium, stripped-down Current Signal and a
   strategy-selection matrix instead of question-style copy
-- app Today view now answers buy/sell/hold, risk on/off, consensus, and which
+- [x] app Today view now answers buy/sell/hold, risk on/off, consensus, and which
   strategy lenses support the current stance
-- app current signal now includes freshness and automation state so stale data
+- [x] app current signal now includes freshness and automation state so stale data
   or a stopped daily LaunchAgent is visible in the primary view
-- app removed backend-facing alert scan/send controls from the main view; issues
+- [x] app removed backend-facing alert scan/send controls from the main view; issues
   that could reduce confidence now live under Checkup
-- app includes a sidebar Viz tab that embeds the existing Montauk visualization
-- app can show risk on/off and best certified strategy at a glance under the
+- [x] app includes a sidebar Viz tab that embeds the existing Montauk visualization
+- [x] app can show risk on/off and best certified strategy at a glance under the
   main selection metrics: confidence, full history, real era, and modern era
-- app-side metric comparisons are read-only and do not overwrite the official
+- [x] app-side metric comparisons are read-only and do not overwrite the official
   daily strategy review artifact or create replacement-candidate notifications
-- static browser fallback renders a preview status object for design iteration
-- JavaScript and Rust formatting checks pass without installing dependencies
+- [x] static browser fallback renders a preview status object for design iteration
+- [x] JavaScript and Rust formatting checks pass without installing dependencies
 
 Views:
 
-- Current Signal
-- Data Status
-- Active Champion
-- Gold Leaderboard
-- Family Leaders
-- Operations Log
-- Scheduled Jobs
-- Settings
+- [x] Current Signal
+- [x] Data Status
+- [x] Active Champion
+- [x] Gold Leaderboard
+- [x] Family Leaders
+- [x] Operations Log
+- [x] Scheduled Jobs
+- [x] Settings
 
 The dashboard should be dense and operational. It should show what changed,
 what is stale, and what needs attention.
 
 Acceptance criteria:
 
-- no terminal is needed to answer the daily status questions
-- stale data and failed jobs are visually obvious
-- leaderboard rows link to their run artifacts
-- existing `viz/montauk-viz.html` can be opened or embedded
+- [x] no terminal is needed to answer the daily status questions
+- [x] stale data and failed jobs are visually obvious
+- [x] leaderboard rows link to their run artifacts
+- [x] existing `viz/montauk-viz.html` can be opened or embedded
 
 ---
 
@@ -298,33 +306,33 @@ Turn the daily snapshots into forward evidence.
 
 2026-05-12 implementation slice:
 
-- added `scripts/ops/live_holdout.py`
-- added `runs/operations/live_holdout.json`
-- current point-in-time snapshot replays cleanly against the current engine
-- report currently tracks latest-date replay; fuller historical replay can be
+- [x] added `scripts/ops/live_holdout.py`
+- [x] added `runs/operations/live_holdout.json`
+- [x] current point-in-time snapshot replays cleanly against the current engine
+- [x] report currently tracks latest-date replay; fuller historical replay can be
   added after more live snapshots accumulate
 
 New command surface:
 
-- `scripts/ops/live_holdout.py`
-- `scripts/ops/reconcile_signals.py`
+- [x] `scripts/ops/live_holdout.py`
+- [x] `scripts/ops/reconcile_signals.py`
 
 Track:
 
-- daily point-in-time signal
-- later replay signal for the same date
-- signal divergence
-- expected next-open execution proxy
-- active champion performance since live tracking began
-- backtest-vs-live degradation
-- confidence drift after data refreshes
+- [x] daily point-in-time signal
+- [x] later replay signal for the same date
+- [x] signal divergence
+- [x] expected next-open execution proxy
+- [x] active champion performance since live tracking began
+- [x] backtest-vs-live degradation
+- [x] confidence drift after data refreshes
 
 Acceptance criteria:
 
-- app shows live holdout start date
-- app shows whether replay still matches the original daily signal
-- app flags material drift
-- historical snapshots remain immutable
+- [x] app shows live holdout start date
+- [x] app shows whether replay still matches the original daily signal
+- [x] app flags material drift
+- [x] historical snapshots remain immutable
 
 ---
 
@@ -334,35 +342,35 @@ Add explicit rules for whether the active champion is still deployable.
 
 2026-05-12 implementation slice:
 
-- added `scripts/ops/governance.py`
-- added `runs/operations/governance.json`
-- current governance state is `active_watch`
-- reason: current champion remains Gold, but 7 validation warnings are active
-- live holdout status is included in governance and currently has 0 divergences
+- [x] added `scripts/ops/governance.py`
+- [x] added `runs/operations/governance.json`
+- [x] current governance state is `active_watch`
+- [x] reason: current champion remains Gold, but 7 validation warnings are active
+- [x] live holdout status is included in governance and currently has 0 divergences
 
 Governance states:
 
-- `active_ok`
-- `active_watch`
-- `active_blocked`
-- `replacement_candidate`
-- `manual_review_required`
+- [x] `active_ok`
+- [x] `active_watch`
+- [x] `active_blocked`
+- [x] `replacement_candidate`
+- [x] `manual_review_required`
 
 Triggers:
 
-- champion lost Gold Status
-- data quality failed
-- live holdout drift exceeded threshold
-- Future Confidence or Trust deteriorated materially
-- a new family leader materially improves trust
-- validation warnings crossed a configured threshold
+- [x] champion lost Gold Status
+- [x] data quality failed
+- [x] live holdout drift exceeded threshold
+- [x] Future Confidence or Trust deteriorated materially
+- [x] a new family leader materially improves trust
+- [x] validation warnings crossed a configured threshold
 
 Acceptance criteria:
 
-- app can explain why the active champion is ok, watch, or blocked
-- no raw research result can become active without Gold Status
-- champion changes are logged as governance events
-- user can see old champion, new candidate, and reason for review
+- [x] app can explain why the active champion is ok, watch, or blocked
+- [x] no raw research result can become active without Gold Status
+- [x] champion changes are logged as governance events
+- [x] user can see old champion, new candidate, and reason for review
 
 ---
 
@@ -372,45 +380,45 @@ Create an app-visible queue for strategy testing.
 
 2026-05-12 implementation slice:
 
-- added `scripts/ops/research_queue.py`
-- added `runs/research_queue/queue.json`
-- added four proposed research lanes from current warnings:
+- [x] added `scripts/ops/research_queue.py`
+- [x] added `runs/research_queue/queue.json`
+- [x] added four proposed research lanes from current warnings:
   rebound capture repair, drawdown resilience probe, parsimony challenger, and
   portability repair
-- proposals are reviewable artifacts; none can mutate the authority leaderboard
+- [x] proposals are reviewable artifacts; none can mutate the authority leaderboard
   outside the existing certification path
-- research ideas can now be marked approved, dismissed, or reset from the app
-- review actions update both `queue.json` and the individual idea artifact
-- approved ideas can now be converted into bounded research run artifacts under
+- [x] research ideas can now be marked approved, dismissed, or reset from the app
+- [x] review actions update both `queue.json` and the individual idea artifact
+- [x] approved ideas can now be converted into bounded research run artifacts under
   `runs/research_queue/runs/`
-- a daily approved-research supervisor is included in scheduler status
+- [x] a daily approved-research supervisor is included in scheduler status
 
 Research job types:
 
-- recertify existing Gold rows
-- focused grid search
-- hybrid lab
-- diversity prefilter
-- near-miss autopsy
-- confidence calibration
-- generated hypothesis test
+- [x] recertify existing Gold rows
+- [ ] focused grid search
+- [x] hybrid lab
+- [x] diversity prefilter
+- [x] near-miss autopsy
+- [x] confidence calibration
+- [ ] generated hypothesis test
 
 Each queued job should include:
 
-- rationale
-- input diagnostics
-- strategy family or idea
-- validation tier
-- time budget
-- expected artifact paths
-- stop conditions
+- [x] rationale
+- [ ] input diagnostics
+- [x] strategy family or idea
+- [x] validation tier
+- [x] time budget
+- [ ] expected artifact paths
+- [ ] stop conditions
 
 Acceptance criteria:
 
-- app can enqueue, start, pause, and inspect jobs
-- long-running research is bounded by budget
-- results are archived as artifacts
-- no research job can directly mutate the authority leaderboard except through
+- [ ] app can enqueue, start, pause, and inspect jobs
+- [x] long-running research is bounded by budget
+- [x] results are archived as artifacts
+- [x] no research job can directly mutate the authority leaderboard except through
   the existing certification path
 
 ---
@@ -424,30 +432,30 @@ authority strategies.
 
 Inputs:
 
-- recent market movement
-- marker timing misses
-- named-window failures
-- near-Gold autopsies
-- live holdout drift
-- family concentration
-- Confidence v2 weak planks
+- [ ] recent market movement
+- [ ] marker timing misses
+- [x] named-window failures
+- [ ] near-Gold autopsies
+- [ ] live holdout drift
+- [ ] family concentration
+- [x] Confidence v2 weak planks
 
 Outputs:
 
-- proposal JSON under `runs/research_queue/ideas/`
-- short rationale
-- candidate family
-- suggested tests
-- expected failure mode
-- validation tier
-- compute budget
+- [x] proposal JSON under `runs/research_queue/ideas/`
+- [x] short rationale
+- [x] candidate family
+- [x] suggested tests
+- [x] expected failure mode
+- [x] validation tier
+- [x] compute budget
 
 Acceptance criteria:
 
-- generated ideas are reviewable before expensive runs
-- app can approve or dismiss ideas
-- accepted ideas become bounded research jobs
-- rejected ideas remain logged
+- [x] generated ideas are reviewable before expensive runs
+- [x] app can approve or dismiss ideas
+- [x] accepted ideas become bounded research jobs
+- [x] rejected ideas remain logged
 
 ---
 
@@ -457,36 +465,36 @@ Package the app as a local standalone macOS application.
 
 2026-05-12 implementation slice:
 
-- native app build completed successfully
-- local bundle path:
+- [x] native app build completed successfully
+- [x] local bundle path:
   `app/src-tauri/target/release/bundle/macos/Montauk.app`
-- local binary path:
+- [x] local binary path:
   `app/src-tauri/target/release/montauk-app`
-- app-side LaunchAgent controls are present, but persistent background
+- [x] app-side LaunchAgent controls are present, but persistent background
   activation is explicit and has now been performed for enabled jobs
-- `.gitignore` excludes local app build products and dependency folders
+- [x] `.gitignore` excludes local app build products and dependency folders
 
 Packaging requirements:
 
-- app bundle can be opened from Finder
-- app can locate or configure the Project Montauk path
-- Python runtime/dependency strategy is documented
-- LaunchAgent is installed through the app
-- app update path is defined
+- [x] app bundle can be opened from Finder
+- [x] app can locate or configure the Project Montauk path
+- [ ] Python runtime/dependency strategy is documented
+- [x] LaunchAgent is installed through the app
+- [ ] app update path is defined
 
 Auto-update should mean:
 
-- the app can update its own app shell when a new signed build exists
-- the app can keep Montauk data current through scheduled refreshes
-- the app does not silently change strategy code or validation rules without
+- [ ] the app can update its own app shell when a new signed build exists
+- [x] the app can keep Montauk data current through scheduled refreshes
+- [ ] the app does not silently change strategy code or validation rules without
   recording the version change
 
 Acceptance criteria:
 
-- clean install works on the local machine
-- app survives reboot and runs scheduled jobs
-- app can be updated without losing settings or signal history
-- version is stamped into operations artifacts
+- [ ] clean install works on the local machine
+- [ ] app survives reboot and runs scheduled jobs
+- [ ] app can be updated without losing settings or signal history
+- [ ] version is stamped into operations artifacts
 
 ---
 
@@ -494,39 +502,39 @@ Acceptance criteria:
 
 Before treating the app as the normal daily surface:
 
-- add crash-safe job locking
-- add stale-lock recovery
-- protect immutable signal snapshots
-- add structured error codes
-- add app-level smoke tests
-- add operations fixtures
-- verify all scheduled jobs can run from a fresh shell environment
-- test with no network, partial network failure, and stale market data
-- test daylight-saving and market-holiday behavior
+- [x] add crash-safe job locking
+- [x] add stale-lock recovery
+- [x] protect immutable signal snapshots
+- [ ] add structured error codes
+- [ ] add app-level smoke tests
+- [ ] add operations fixtures
+- [ ] verify all scheduled jobs can run from a fresh shell environment
+- [ ] test with no network, partial network failure, and stale market data
+- [ ] test daylight-saving and market-holiday behavior
 
 Acceptance criteria:
 
-- failed background jobs do not corrupt artifacts
-- app explains failures without terminal output
-- daily job is repeatable
-- market holidays do not create false alarms
-- stale data creates a clear warning
+- [ ] failed background jobs do not corrupt artifacts
+- [x] app explains failures without terminal output
+- [x] daily job is repeatable
+- [ ] market holidays do not create false alarms
+- [x] stale data creates a clear warning
 
 ---
 
 ## Suggested Build Order
 
-1. Operations artifacts and `scripts/ops/daily.py`
-2. Signal journal and event log
-3. Minimal app shell reading `latest.json`
-4. LaunchAgent scheduler
-5. Notifications
-6. Dashboard views
-7. Live holdout tracking
-8. Governance states
-9. Research queue
-10. Ideation loop
-11. Packaging and auto-update
-12. Hardening
+1. [x] Operations artifacts and `scripts/ops/daily.py`
+2. [x] Signal journal and event log
+3. [x] Minimal app shell reading `latest.json`
+4. [x] LaunchAgent scheduler
+5. [x] Notifications
+6. [x] Dashboard views
+7. [x] Live holdout tracking
+8. [x] Governance states
+9. [x] Research queue
+10. [ ] Ideation loop
+11. [ ] Packaging and auto-update
+12. [ ] Hardening
 
 This order keeps the engine trustworthy before making the app feel automatic.

@@ -1,14 +1,33 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-05-21T20:30:32Z",
+  "generated_utc": "2026-05-23T23:43:54Z",
   "status": "ok",
-  "snapshot_count": 8,
+  "snapshot_count": 9,
   "live_start_date": "2026-05-08",
-  "latest_snapshot_date": "2026-05-21",
+  "latest_snapshot_date": "2026-05-22",
   "matched_count": 1,
   "diverged_count": 0,
-  "not_replayed_count": 7,
-  "close_return_since_start_pct": 5.5851,
+  "not_replayed_count": 8,
+  "close_return_since_start_pct": 8.8476,
+  "expected_next_open_execution_proxy": [],
+  "active_champion_performance_since_live_start": {
+    "start_date": "2026-05-08",
+    "latest_date": "2026-05-22",
+    "strategy": "gc_vjatr_timing_repair",
+    "signal_return_pct": 8.8476,
+    "buy_hold_return_pct": 8.8476,
+    "live_vs_buy_hold_multiple_proxy": 1.0
+  },
+  "backtest_vs_live_degradation": {
+    "backtest_share_multiple": 10.0909,
+    "live_vs_buy_hold_multiple_proxy": 1.0,
+    "degradation_pct": -90.0901
+  },
+  "confidence_drift": {
+    "start": 0.7594,
+    "latest": 0.7678,
+    "delta": 0.0084
+  },
   "comparisons": [
     {
       "date": "2026-05-08",
@@ -47,10 +66,15 @@
     },
     {
       "date": "2026-05-21",
+      "status": "not_replayed",
+      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-05-21.json"
+    },
+    {
+      "date": "2026-05-22",
       "status": "match",
-      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-05-21.json",
+      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-05-22.json",
       "snapshot": {
-        "data_end_date": "2026-05-21",
+        "data_end_date": "2026-05-22",
         "strategy": "gc_vjatr_timing_repair",
         "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
         "risk_state": "risk_on",
@@ -58,10 +82,10 @@
         "exit_signal": false,
         "buy_event": false,
         "sell_event": false,
-        "close": 201.619995
+        "close": 207.850006
       },
       "replay": {
-        "data_end_date": "2026-05-21",
+        "data_end_date": "2026-05-22",
         "strategy": "gc_vjatr_timing_repair",
         "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
         "risk_state": "risk_on",
@@ -69,7 +93,7 @@
         "exit_signal": false,
         "buy_event": false,
         "sell_event": false,
-        "close": 201.619995
+        "close": 207.850006
       },
       "changed_fields": []
     }

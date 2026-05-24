@@ -15,6 +15,7 @@ if str(SCRIPTS_DIR) not in sys.path:
 
 from ops.events import append_event, utc_now_iso
 from ops.paths import EVENTS_PATH, JOB_RECORDS_DIR, LOCKS_DIR, PROJECT_ROOT, ensure_ops_dirs
+from ops.scheduler import load_config
 
 CommandRunner = Callable[[list[str]], subprocess.CompletedProcess]
 
@@ -100,6 +101,7 @@ def job_command(job: str, *, python: str | None = None) -> list[str]:
         ],
         "status": [py, str(scripts / "ops" / "status.py"), "--json"],
         "live-holdout": [py, str(scripts / "ops" / "live_holdout.py")],
+        "reconcile-signals": [py, str(scripts / "ops" / "reconcile_signals.py")],
         "governance": [py, str(scripts / "ops" / "governance.py")],
         "strategy-review": [py, str(scripts / "ops" / "strategy_review.py"), "--json"],
         "research-propose": [py, str(scripts / "ops" / "research_queue.py"), "propose"],
@@ -128,6 +130,48 @@ def job_command(job: str, *, python: str | None = None) -> list[str]:
         known = ", ".join(sorted(commands))
         raise KeyError(f"unknown job '{job}'. Known jobs: {known}")
     return commands[job]
+
+
+def job_schedule(job: str) -> dict[str, Any] | None:
+    config = load_config()
+    for key, item in (config.get("jobs") or {}).items():
+        if item.get("job") == job:
+            return {
+                "key": key,
+                "enabled": bool(item.get("enabled")),
+                "schedule": item.get("schedule") or {},
+            }
+    return None
+
+
+def output_artifact_paths(job: str) -> list[str]:
+    paths = {
+        "daily": [
+            "runs/operations/latest.json",
+            "signals/YYYY-MM-DD.json",
+            "viz/montauk-viz.html",
+            "viz/montauk-bundle.json",
+        ],
+        "daily-local": [
+            "runs/operations/latest.json",
+            "signals/YYYY-MM-DD.json",
+        ],
+        "status": ["runs/operations/latest.json"],
+        "live-holdout": ["runs/operations/live_holdout.json"],
+        "reconcile-signals": ["runs/operations/live_holdout.json"],
+        "governance": ["runs/operations/governance.json"],
+        "strategy-review": ["runs/operations/strategy_review.json"],
+        "research-propose": ["runs/research_queue/queue.json", "runs/research_queue/ideas/*.json"],
+        "research-approved": ["runs/research_queue/runs/*.json"],
+        "notifications": ["runs/operations/notifications.json"],
+        "doctor": ["runs/operations/latest.json"],
+        "build-viz": ["viz/montauk-viz.html", "viz/montauk-bundle.json"],
+        "recertify-leaderboard": ["spike/leaderboard.json"],
+        "family-confidence": ["runs/family_confidence_leaderboard.json"],
+        "confidence-archive": ["runs/confidence_v2/candidate_archive.json"],
+        "confidence-vintage": ["runs/confidence_v2/vintage_trials.json"],
+    }
+    return paths.get(job, [])
 
 
 def _default_runner(command: list[str]) -> subprocess.CompletedProcess:
@@ -167,6 +211,8 @@ def run_job(
         "finished_utc": None,
         "command": command,
         "cwd": str(PROJECT_ROOT),
+        "schedule": job_schedule(job),
+        "output_artifact_paths": output_artifact_paths(job),
         "returncode": None,
         "stdout_tail": "",
         "stderr_tail": "",

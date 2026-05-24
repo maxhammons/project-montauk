@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "updated_utc": "2026-05-23T23:43:54Z",
+  "sent_ids": [],
+  "preferences": {
+    "event_types": {
+      "champion_blocked": {
+        "enabled": true
+      },
+      "champion_changed": {
+        "enabled": true
+      },
+      "data_quality_failed": {
+        "enabled": true
+      },
+      "data_stale": {
+        "enabled": true
+      },
+      "job_failed": {
+        "enabled": true
+      },
+      "live_holdout_drift": {
+        "enabled": true
+      },
+      "manual_review_required": {
+        "enabled": true
+      },
+      "replacement_candidate": {
+        "enabled": true
+      },
+      "signal_changed": {
+        "enabled": true
+      },
+      "signal_snapshot_conflict": {
+        "enabled": true
+      },
+      "viz_build_failed": {
+        "enabled": true
+      }
+    },
+    "severities": {
+      "critical": {
+        "enabled": true
+      },
+      "error": {
+        "enabled": true
+      },
+      "notice": {
+        "enabled": true
+      },
+      "warning": {
+        "enabled": true
+      }
+    }
+  }
+}
