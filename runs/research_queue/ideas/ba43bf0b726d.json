@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "ba43bf0b726d",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "proposed",
+  "kind": "ad_line_divergence",
+  "rationale": "Evaluates if Nasdaq advance-decline divergence against QQQ new highs provides an early exit signal for leveraged holdings.",
+  "validation_tier": "T0/T1",
+  "suggested_tests": [
+    "family_confidence_leaderboard",
+    "near_miss_autopsy",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "Mega-cap tech can drag indices higher for years despite poor breadth, causing massive missed bull runs.",
+  "input_diagnostics": [
+    "runs/family_confidence_leaderboard.json",
+    "runs/near_miss_autopsy.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/family_confidence_leaderboard.json",
+    "runs/near_miss_autopsy.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "no new family leader improves Future Confidence and Trust",
+    "near-Gold candidate repeats known Gold contract failures",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Strategy remains in cash for more than 40% of a known bull market.",
+    "Misses more than 30% of total buy-and-hold upside."
+  ]
+}

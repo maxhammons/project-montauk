@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-05-26T03:55:55Z",
+  "idea_id": "6b252b27a472",
+  "kind": "breadth_thrust_family_probe",
+  "status": "planned",
+  "hypothesis": "If breadth thrust family probe is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Family confidence diagnostics need an independent breadth-thrust style family instead of another EMA or VJATR sibling.",
+  "input_diagnostics": [
+    "runs/family_confidence_leaderboard.json",
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "suggested_tests": [
+    "family_confidence_leaderboard",
+    "diversity_prefilter_search",
+    "focused_grid_search",
+    "generated_hypothesis_test"
+  ],
+  "expected_artifact_paths": [
+    "runs/family_confidence_leaderboard.json",
+    "runs/diversity_prefilter_search.json",
+    "runs/search/*.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "no new family leader improves Future Confidence and Trust",
+    "candidate family remains crowded or redundant",
+    "quick grid has no candidate worth full certification",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "candidate does not improve independence from Gold anchors",
+    "candidate misses rebound participation after breadth thrusts"
+  ],
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+}

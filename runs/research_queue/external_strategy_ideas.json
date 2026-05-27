@@ -1,0 +1,362 @@
+[
+  {
+    "kind": "move_index_regime",
+    "rationale": "Tests whether bond market volatility provides a more accurate exit signal for rate-sensitive tech equities than traditional equity volatility.",
+    "validation_tier": "T1",
+    "suggested_tests": ["diversity_prefilter_search", "cross_asset_recheck", "generated_hypothesis_test"],
+    "expected_failure_mode": "The MOVE index may decouple from tech equities during purely growth-driven selloffs, resulting in missed drawdowns.",
+    "stop_conditions": ["Win rate falls below 40% in the 2022 rate-hike regime holdout.", "Sharpe ratio is lower than a standard VIX-based exit on the QQQ baseline."]
+  },
+  {
+    "kind": "credit_spread_velocity",
+    "rationale": "Evaluates if the rate of change in high-yield corporate credit spreads can front-run systemic liquidity drains affecting leveraged tech ETFs.",
+    "validation_tier": "T2",
+    "suggested_tests": ["cross_asset_recheck", "gold_hybrid_lab", "generated_hypothesis_test"],
+    "expected_failure_mode": "Credit markets may experience isolated shocks that trigger false exits in equities during otherwise strong tech bull runs.",
+    "stop_conditions": ["Generates more than 3 false positive exits per year during the 2010-2019 bull market.", "Drawdown capture is less than 15% better than buy-and-hold."]
+  },
+  {
+    "kind": "overnight_gap_exhaustion",
+    "rationale": "Hypothesizes that three consecutive large overnight gaps down in QQQ indicate structural capitulation, providing a high-probability TECL entry.",
+    "validation_tier": "T0/T1",
+    "suggested_tests": ["focused_grid_search", "named_window_recheck", "generated_hypothesis_test"],
+    "expected_failure_mode": "In severe structural bear markets, consecutive down gaps may merely signal the beginning of a larger volatility expansion.",
+    "stop_conditions": ["Average trade duration exceeds 10 days without achieving profitability.", "Maximum drawdown during the trade window exceeds 15%."]
+  },
+  {
+    "kind": "put_call_panic_reversion",
+    "rationale": "Assesses whether isolated spikes in the equity put/call ratio during an established uptrend serve as reliable mean-reversion entry markers.",
+    "validation_tier": "T1",
+    "suggested_tests": ["diversity_prefilter_search", "near_miss_autopsy", "generated_hypothesis_test"],
+    "expected_failure_mode": "The put/call ratio may remain elevated for extended periods during actual market tops, trapping early buyers.",
+    "stop_conditions": ["The strategy buys into more than 50% of the top-decile drawdowns.", "Fails to beat QQQ buy-and-hold share accumulation over a 3-year rolling window."]
+  },
+  {
+    "kind": "defensive_sector_divergence",
+    "rationale": "Hypothesizes that a sudden spike in Utilities relative to Tech predicts a delayed structural tech selloff.",
+    "validation_tier": "T1",
+    "suggested_tests": ["cross_asset_recheck", "family_confidence_leaderboard", "generated_hypothesis_test"],
+    "expected_failure_mode": "Yield-seeking behavior may drive Utilities up independently of Tech fundamentals, causing premature exits.",
+    "stop_conditions": ["Correlation between Utilities spikes and Tech drops is below 0.3 over a 10-year span.", "Generates excessive portfolio churn over 20 signals per year."]
+  },
+  {
+    "kind": "semi_equipment_lead_lag",
+    "rationale": "Evaluates if semiconductor equipment manufacturers systematically lead broader technology index trend reversals.",
+    "validation_tier": "T0/T1",
+    "suggested_tests": ["overlay_champion_matrix", "focused_grid_search", "generated_hypothesis_test"],
+    "expected_failure_mode": "Semiconductor cycles might decouple from broader software-heavy indices, rendering the lead-lag relationship noisy.",
+    "stop_conditions": ["Lead time is less than 1 trading session on average.", "Signal accuracy degrades significantly post-2020."]
+  },
+  {
+    "kind": "dxy_rejection_catalyst",
+    "rationale": "Tests if sharp rejections at major technical resistance in the US Dollar Index reliably mark tradable bottoms in leveraged tech.",
+    "validation_tier": "T2",
+    "suggested_tests": ["cross_asset_recheck", "gold_hybrid_lab", "generated_hypothesis_test"],
+    "expected_failure_mode": "A falling dollar may sometimes accompany a systemic growth shock, causing both DXY and Tech to fall simultaneously.",
+    "stop_conditions": ["Fails to capture at least 3 major tech rebounds during 2015-2024.", "False positive rate exceeds 40%."]
+  },
+  {
+    "kind": "iv_crush_accumulation",
+    "rationale": "Tests if systematically accumulating shares immediately following major tech earnings implied-volatility crushes outperforms continuous holding.",
+    "validation_tier": "T1",
+    "suggested_tests": ["named_window_recheck", "diversity_prefilter_search", "generated_hypothesis_test"],
+    "expected_failure_mode": "Earnings gaps may dictate new medium-term trends that IV crush ignores, leading to accumulation during persistent selloffs.",
+    "stop_conditions": ["Strategy performance is statistically indistinguishable from a random entry model.", "Fails to outperform QQQ baseline holding during Q2 and Q3."]
+  },
+  {
+    "kind": "consecutive_down_gap_capitulation",
+    "rationale": "Evaluates if buying TECL after three sequential lower opens accurately captures structural crash rebounds.",
+    "validation_tier": "T0",
+    "suggested_tests": ["focused_grid_search", "near_miss_autopsy", "generated_hypothesis_test"],
+    "expected_failure_mode": "In severe shocks, sequential down gaps can persist far longer than the strategy can endure.",
+    "stop_conditions": ["Max drawdown exceeds 40% during execution windows.", "Win rate on rebound trades is below 60%."]
+  },
+  {
+    "kind": "mtf_momentum_conflict",
+    "rationale": "Tests if daily oversold conditions resolving upward while weekly momentum remains overbought creates optimal swing-trade entries.",
+    "validation_tier": "T1",
+    "suggested_tests": ["chimera_generation", "overlay_champion_matrix", "generated_hypothesis_test"],
+    "expected_failure_mode": "The weekly overbought condition may begin deteriorating, turning the daily oversold bounce into a lower-high bull trap.",
+    "stop_conditions": ["The strategy generates more than 5 consecutive losses during a market transition phase.", "Fails to maintain positive expectancy over 50 or more trades."]
+  },
+  {
+    "kind": "dealer_gamma_exposure_flip",
+    "rationale": "Hypothesizes that market-maker net gamma flipping from negative to positive marks the end of a high-volatility drawdown regime.",
+    "validation_tier": "T1",
+    "suggested_tests": ["cross_asset_recheck", "gold_hybrid_lab", "generated_hypothesis_test"],
+    "expected_failure_mode": "Gamma models based on open interest are estimates and may signal flips prematurely due to hidden OTC positioning.",
+    "stop_conditions": ["Signal lag exceeds 2 days from actual price bottoms.", "Produces lower share accumulation than a simple 200 SMA cross."]
+  },
+  {
+    "kind": "sector_rotation_velocity",
+    "rationale": "Tests if the speed of capital moving out of Energy and Materials into Tech serves as a more reliable entry signal than price alone.",
+    "validation_tier": "T1",
+    "suggested_tests": ["diversity_prefilter_search", "recertify_leaderboard", "generated_hypothesis_test"],
+    "expected_failure_mode": "Rapid rotation could be temporary rebalancing rather than a sustained macro regime shift, leading to whipsaws.",
+    "stop_conditions": ["Turnover rate exceeds 100% per month without corresponding profit.", "Correlation with standard momentum strategies exceeds 0.85."]
+  },
+  {
+    "kind": "ad_line_divergence",
+    "rationale": "Evaluates if Nasdaq advance-decline divergence against QQQ new highs provides an early exit signal for leveraged holdings.",
+    "validation_tier": "T0/T1",
+    "suggested_tests": ["family_confidence_leaderboard", "near_miss_autopsy", "generated_hypothesis_test"],
+    "expected_failure_mode": "Mega-cap tech can drag indices higher for years despite poor breadth, causing massive missed bull runs.",
+    "stop_conditions": ["Strategy remains in cash for more than 40% of a known bull market.", "Misses more than 30% of total buy-and-hold upside."]
+  },
+  {
+    "kind": "vix_term_structure_roll",
+    "rationale": "Tests whether limiting TECL exposure to steep VIX-futures contango periods eliminates major drawdowns.",
+    "validation_tier": "T1",
+    "suggested_tests": ["gold_hybrid_lab", "overlay_champion_matrix", "generated_hypothesis_test"],
+    "expected_failure_mode": "Contango can persist during slow grinding bear markets, exposing the strategy to leveraged decay without triggering an exit.",
+    "stop_conditions": ["Drawdown exceeds 25% while the VIX curve remains in contango.", "Fails to accumulate shares during the 2017 low-volatility melt-up."]
+  },
+  {
+    "kind": "central_bank_liquidity_proxy",
+    "rationale": "Hypothesizes that changes in Fed balance sheet and Treasury General Account proxies correlate directly with leveraged tech performance.",
+    "validation_tier": "T2",
+    "suggested_tests": ["cross_asset_recheck", "generated_hypothesis_test"],
+    "expected_failure_mode": "Liquidity data is published with lag, and markets may price balance-sheet operations before the data is available.",
+    "stop_conditions": ["Lagged data causes the strategy to enter trades post-rally.", "Sharpe ratio is lower than buy-and-hold during Quantitative Tightening regimes."]
+  },
+  {
+    "kind": "ma_ribbon_compression",
+    "rationale": "Tests if extreme compression of multiple short-term moving averages in QQQ precedes tradable volatility expansions in TECL.",
+    "validation_tier": "T0",
+    "suggested_tests": ["grid_search_simple_families", "focused_grid_search", "generated_hypothesis_test"],
+    "expected_failure_mode": "Compression often resolves with false breakouts before reversing into the true trend direction.",
+    "stop_conditions": ["False breakout rate exceeds 60%.", "Expected value after compression is negative over a 10-year test."]
+  },
+  {
+    "kind": "hurst_exponent_regime",
+    "rationale": "Evaluates if applying mean-reversion rules only when the Hurst exponent signals anti-persistence improves rebound capture.",
+    "validation_tier": "T1",
+    "suggested_tests": ["chimera_generation", "diversity_prefilter_search", "generated_hypothesis_test"],
+    "expected_failure_mode": "The Hurst exponent is sensitive to lookback windows and may misclassify trends as random walks.",
+    "stop_conditions": ["Parameter sensitivity shows high variance across lookback windows.", "Strategy fails to out-accumulate simple RSI mean reversion."]
+  },
+  {
+    "kind": "fractal_dimension_trend_onset",
+    "rationale": "Tests whether a drop in fractal dimension reliably identifies the onset of a sustained trend for leverage entry.",
+    "validation_tier": "T2",
+    "suggested_tests": ["gold_hybrid_lab", "recertify_leaderboard", "generated_hypothesis_test"],
+    "expected_failure_mode": "Fractal dimension can be unstable on daily data, producing noisy non-actionable state changes.",
+    "stop_conditions": ["Signal flips more than 3 times a week on average.", "Cumulative share accumulation falls behind the moving-average benchmark."]
+  },
+  {
+    "kind": "eom_rebalance_anticipation",
+    "rationale": "Tests if buying TECL in the last three days of a month following a large bond rally captures equity rebalancing flows.",
+    "validation_tier": "T1",
+    "suggested_tests": ["named_window_recheck", "generated_hypothesis_test"],
+    "expected_failure_mode": "End-of-month rebalancing flows can be dwarfed by macro news or unexpected economic data.",
+    "stop_conditions": ["Average return of the 3-day window is lower than a random 3-day window.", "Strategy has negative expectancy in the last 5 years."]
+  },
+  {
+    "kind": "up_down_volume_capitulation",
+    "rationale": "Evaluates if 90%+ down-volume days followed by a higher open mark definitive tradable crash bottoms.",
+    "validation_tier": "T0",
+    "suggested_tests": ["near_miss_autopsy", "focused_grid_search", "generated_hypothesis_test"],
+    "expected_failure_mode": "Bear markets often feature massive down-volume days followed by dead-cat bounces.",
+    "stop_conditions": ["Holding periods generated by the signal produce drawdowns exceeding 20%.", "Signal frequency is less than 1 per year, making it statistically weak."]
+  },
+  {
+    "kind": "hv_cone_breakout",
+    "rationale": "Tests whether realized volatility breaking outside a historical probability cone signals the start of a momentum super-trend.",
+    "validation_tier": "T1",
+    "suggested_tests": ["diversity_prefilter_search", "overlay_champion_matrix", "generated_hypothesis_test"],
+    "expected_failure_mode": "Volatility breaking the cone could be a short-lived shock that reverts immediately, punishing leveraged entries.",
+    "stop_conditions": ["The strategy buys the top of more than 10 major blow-off peaks.", "Fails to accumulate shares during the slow low-volatility uptrend of 2017."]
+  },
+  {
+    "kind": "gold_copper_macro_regime",
+    "rationale": "Hypothesizes that tech exposure should be reduced when the Gold/Copper ratio spikes, signaling deflationary growth fears.",
+    "validation_tier": "T2",
+    "suggested_tests": ["cross_asset_recheck", "gold_hybrid_lab", "generated_hypothesis_test"],
+    "expected_failure_mode": "The Gold/Copper ratio may be driven by commodity-specific supply shocks rather than macro deflation fears.",
+    "stop_conditions": ["Correlation between ratio spikes and QQQ drawdowns falls below 0.4.", "TECL share count is negatively impacted during inflationary tech rallies."]
+  },
+  {
+    "kind": "consecutive_inside_days_expansion",
+    "rationale": "Tests if entering TECL on the breakout of three consecutive inside days captures high-probability volatility expansion.",
+    "validation_tier": "T0",
+    "suggested_tests": ["grid_search_simple_families", "live_holdout_review", "generated_hypothesis_test"],
+    "expected_failure_mode": "Inside days can resolve into a false breakout before violently reversing.",
+    "stop_conditions": ["False breakout trap rate is above 45%.", "Total trades over a 10-year period are too few to pass statistical significance."]
+  },
+  {
+    "kind": "skew_index_extreme_reversion",
+    "rationale": "Tests whether extreme CBOE SKEW readings indicate over-hedged institutional fear and provide a contrarian long entry.",
+    "validation_tier": "T1",
+    "suggested_tests": ["diversity_prefilter_search", "generated_hypothesis_test"],
+    "expected_failure_mode": "SKEW can remain structurally elevated for years due to changing hedging behavior.",
+    "stop_conditions": ["The strategy fails to exit cash for more than 12 consecutive months.", "Share accumulation trails buy-and-hold during the 2020-2021 bull run."]
+  },
+  {
+    "kind": "implied_correlation_spike",
+    "rationale": "Hypothesizes that sharp spikes in index implied correlation mark indiscriminate panic selling and rebound accumulation zones.",
+    "validation_tier": "T1",
+    "suggested_tests": ["family_confidence_leaderboard", "near_miss_autopsy", "generated_hypothesis_test"],
+    "expected_failure_mode": "Implied correlation can rise during a coordinated bear-market transition, turning the buy signal into a value trap.",
+    "stop_conditions": ["Fails to capture the COVID-19 or 2018 market bottoms.", "Average drawdown post-entry exceeds 12%."]
+  },
+  {
+    "kind": "yield_curve_slope_divergence",
+    "rationale": "Evaluates if sudden bull-steepening in the 2s10s yield curve acts as a reliable exit signal for long-duration growth stocks.",
+    "validation_tier": "T2",
+    "suggested_tests": ["cross_asset_recheck", "live_holdout_review", "generated_hypothesis_test"],
+    "expected_failure_mode": "Bull steepening driven by rate-cut expectations might fuel a speculative bid in tech, defeating the exit.",
+    "stop_conditions": ["Strategy goes to cash and misses more than 20% of a subsequent tech rally.", "Win rate of the exit signal is below 45% in confirmed recessions."]
+  },
+  {
+    "kind": "yield_curve_inflection_lead",
+    "rationale": "Tests whether rapid changes in the 10Y-2Y Treasury spread predict regime shifts before they manifest in tech price structure.",
+    "validation_tier": "T1",
+    "suggested_tests": ["cross_asset_recheck", "diversity_prefilter_search", "generated_hypothesis_test"],
+    "expected_failure_mode": "The lag between yield-curve shifts and tech equity impacts varies drastically across cycles.",
+    "stop_conditions": ["Out-of-sample information coefficient falls below 0.05.", "Fails to outperform standard moving-average filters on QQQ in the 2008-2010 window."]
+  },
+  {
+    "kind": "semiconductor_software_decoupling",
+    "rationale": "Tests if relative momentum divergence between semiconductors and software flags early institutional rotation in broad tech leadership.",
+    "validation_tier": "T0/T1",
+    "suggested_tests": ["focused_grid_search", "overlay_champion_matrix", "generated_hypothesis_test"],
+    "expected_failure_mode": "Sub-sector correlations converge during macro liquidations, wiping out granular lead time.",
+    "stop_conditions": ["Tracking error relative to TECL buy-and-hold during uptrends exceeds 15%.", "Alpha contribution drops to zero across non-overlapping 3-year windows."]
+  },
+  {
+    "kind": "volume_weighted_accumulation_divergence",
+    "rationale": "Tests whether cumulative volume-weighted price trends reveal hidden accumulation during extended flat consolidations.",
+    "validation_tier": "T0",
+    "suggested_tests": ["grid_search_simple_families", "family_confidence_leaderboard", "generated_hypothesis_test"],
+    "expected_failure_mode": "High-volume nodes frequently act as magnets rather than launching pads.",
+    "stop_conditions": ["Win rate drops below 45% over a 100-trade sample.", "Maximum consecutive false signals exceeds 7."]
+  },
+  {
+    "kind": "credit_spread_expansion_halt",
+    "rationale": "Tests if deceleration in high-yield credit-spread widening marks reliable macro bottoms for leveraged tech assets.",
+    "validation_tier": "T1",
+    "suggested_tests": ["cross_asset_recheck", "named_window_recheck", "generated_hypothesis_test"],
+    "expected_failure_mode": "Spreads can plateau at elevated levels during prolonged recessions, causing premature entries.",
+    "stop_conditions": ["Drawdown during 2022 exceeds buy-and-hold drawdown by more than 5%.", "Signal fails to trigger within 15 days of major historical troughs."]
+  },
+  {
+    "kind": "equal_weight_tech_outperformance",
+    "rationale": "Tests if equal-weight tech indices outperforming market-cap variants marks broad-based sustainable rally participation.",
+    "validation_tier": "T0/T1",
+    "suggested_tests": ["overlay_champion_matrix", "recertify_leaderboard", "generated_hypothesis_test"],
+    "expected_failure_mode": "Mega-cap concentration can drive sustained rallies alone, causing missed secular advances when breadth is narrow.",
+    "stop_conditions": ["Underperforms TECL buy-and-hold by more than 20% during any secular bull-market year.", "Correlation with existing breadth-thrust families exceeds 0.80."]
+  },
+  {
+    "kind": "institutional_distribution_clustering",
+    "rationale": "Tests whether consecutive high-volume negative closes followed by low-volume rallies flag terminal trend decay.",
+    "validation_tier": "T1",
+    "suggested_tests": ["grid_search_simple_families", "near_miss_autopsy", "generated_hypothesis_test"],
+    "expected_failure_mode": "High-volume selling can represent brief index rebalancing rather than persistent institutional distribution.",
+    "stop_conditions": ["False positive exit rate exceeds 60% in secular bull markets.", "Profit factor drops below 1.25 on a rolling 3-year basis."]
+  },
+  {
+    "kind": "capitulation_volume_climax",
+    "rationale": "Tests if localized volume spikes during steep drawdowns identify high-probability rebound entry windows.",
+    "validation_tier": "T0",
+    "suggested_tests": ["focused_grid_search", "gold_hybrid_lab", "generated_hypothesis_test"],
+    "expected_failure_mode": "Volume climaxes can occur in stages during structural liquidations, repeatedly catching falling knives.",
+    "stop_conditions": ["Average drawdown within 5 days post-entry exceeds 12%.", "Fails to outperform a cash benchmark during a major secular bear market."]
+  },
+  {
+    "kind": "copper_gold_ratio_momentum",
+    "rationale": "Tests whether economic risk-on momentum from the copper/gold ratio provides long-lead filtering for leveraged tech exposure.",
+    "validation_tier": "T1",
+    "suggested_tests": ["cross_asset_recheck", "live_holdout_review", "generated_hypothesis_test"],
+    "expected_failure_mode": "Commodity dynamics can decouple from technology equity trends due to localized supply-chain shocks.",
+    "stop_conditions": ["Rolling 12-month correlation between copper/gold momentum and NDX returns falls below 0.3.", "Total turnover exceeds 24 trades per year."]
+  },
+  {
+    "kind": "rolling_momentum_deceleration",
+    "rationale": "Tests whether decay in long-term momentum functions as an early warning exit before structural price breakdowns.",
+    "validation_tier": "T1",
+    "suggested_tests": ["near_miss_autopsy", "chimera_generation", "generated_hypothesis_test"],
+    "expected_failure_mode": "Rallies frequently show multi-month momentum deceleration while price continues higher, leading to missed gains.",
+    "stop_conditions": ["The strategy exits more than 15% below the cyclical peak on 3 consecutive cycles.", "Calmar ratio falls below buy-and-hold over the full era."]
+  },
+  {
+    "kind": "high_yield_bond_momentum",
+    "rationale": "Tests if positive momentum in speculative corporate debt leads shifts in high-beta tech growth allocation.",
+    "validation_tier": "T1",
+    "suggested_tests": ["cross_asset_recheck", "overlay_champion_matrix", "generated_hypothesis_test"],
+    "expected_failure_mode": "Central-bank interventions can decouple corporate debt markets from tech equity growth trajectories.",
+    "stop_conditions": ["Annualized alpha relative to QQQ drops below 2% over a 5-year rolling window.", "Maximum strategy drawdown exceeds buy-and-hold during credit crunch periods."]
+  },
+  {
+    "kind": "first_structural_higher_low",
+    "rationale": "Tests if waiting for the first weekly higher-low during a deep correction filters out false bear-market relief rallies.",
+    "validation_tier": "T1",
+    "suggested_tests": ["recertify_leaderboard", "live_holdout_review", "generated_hypothesis_test"],
+    "expected_failure_mode": "V-bottom recoveries can leave this family behind entirely due to late entries.",
+    "stop_conditions": ["Misses more than 35% of the initial rebound move on major bottoms.", "Ulcer Index exceeds QQQ buy-and-hold over the full era."]
+  },
+  {
+    "kind": "inside_bar_cascade_breakout",
+    "rationale": "Tests whether multi-day sequential inside bars represent institutional equilibrium before explosive trend-defining expansions.",
+    "validation_tier": "T0",
+    "suggested_tests": ["grid_search_simple_families", "diversity_prefilter_search", "generated_hypothesis_test"],
+    "expected_failure_mode": "Inside-bar cascades often resolve into random low-liquidity whipsaws.",
+    "stop_conditions": ["Average win-to-loss ratio drops below 1.5:1.", "Profitable signal percentage falls below 38% across a 200-sample run."]
+  },
+  {
+    "kind": "distribution_phase_transition",
+    "rationale": "Tests whether a state machine tracking volume-weighted distribution-day velocity can map bull-to-bear regime transitions.",
+    "validation_tier": "T1",
+    "suggested_tests": ["chimera_generation", "recertify_leaderboard", "generated_hypothesis_test"],
+    "expected_failure_mode": "Distribution days can cluster harmlessly during mid-cycle consolidations, producing false exits.",
+    "stop_conditions": ["Annualized turnover exceeds 40 trades per year.", "Maximum missed drawup due to false exits exceeds 25% in a single year."]
+  },
+  {
+    "kind": "put_call_ratio_momentum_flip",
+    "rationale": "Tests whether the rate of change of the equity put/call ratio crossing its moving average signals a structural sentiment flip.",
+    "validation_tier": "T0",
+    "suggested_tests": ["grid_search_simple_families", "family_confidence_leaderboard", "generated_hypothesis_test"],
+    "expected_failure_mode": "Retail options volume dynamics can distort the ratio as a proxy for institutional capital intent.",
+    "stop_conditions": ["Win rate on long entries falls below 45% during choppy regimes.", "Sharpe ratio on a 5-year rolling out-of-sample window drops below 0.4."]
+  },
+  {
+    "kind": "sector_alpha_breadth_divergence",
+    "rationale": "Tests if the percentage of Nasdaq-100 components outperforming the index identifies broad institutional accumulation.",
+    "validation_tier": "T1",
+    "suggested_tests": ["overlay_champion_matrix", "diversity_prefilter_search", "generated_hypothesis_test"],
+    "expected_failure_mode": "Index performance can stay concentrated in a few mega-cap names for years, causing missed advances.",
+    "stop_conditions": ["Underperforms QQQ by more than 15% over any rolling 24-month period.", "Correlation with standard breadth metrics exceeds 0.85."]
+  },
+  {
+    "kind": "foreign_exchange_dollar_inflection",
+    "rationale": "Tests if sudden DXY rate-of-change reversals lead global liquidity allocations into US mega-cap tech.",
+    "validation_tier": "T1",
+    "suggested_tests": ["cross_asset_recheck", "live_holdout_review", "generated_hypothesis_test"],
+    "expected_failure_mode": "Domestic growth factors or tech-specific themes can override global currency trends.",
+    "stop_conditions": ["Information coefficient between weekly DXY changes and NDX returns falls below 0.05.", "Drawdown is 1.2x larger than buy-and-hold during a currency crisis."]
+  },
+  {
+    "kind": "margin_debt_rate_of_change",
+    "rationale": "Tests if rapid multi-month liquidations in margin debt reliably flag ultimate macro capitulation floors.",
+    "validation_tier": "T1",
+    "suggested_tests": ["cross_asset_recheck", "gold_hybrid_lab", "generated_hypothesis_test"],
+    "expected_failure_mode": "Margin debt can keep unwinding or plateau at depressed levels for years after a structural bubble burst.",
+    "stop_conditions": ["The strategy enters more than 30% above the eventual cyclical bear-market bottom.", "Out-of-sample Sharpe ratio drops below 0.35 over a 10-year cycle."]
+  },
+  {
+    "kind": "options_gamma_wall_rebound",
+    "rationale": "Tests if localized options open-interest concentrations function as institutional support during market drawdowns.",
+    "validation_tier": "T1",
+    "suggested_tests": ["focused_grid_search", "overlay_champion_matrix", "generated_hypothesis_test"],
+    "expected_failure_mode": "Gamma walls can break or shift lower as market makers dynamically hedge.",
+    "stop_conditions": ["More than 25% of gamma-wall entries experience immediate breakthroughs exceeding 5%.", "Underperforms a simple 200-day moving-average filter over the long era."]
+  },
+  {
+    "kind": "mean_reversion_volatility_corridor",
+    "rationale": "Tests if price distance from a rolling volatility-adjusted corridor captures deep structural extensions.",
+    "validation_tier": "T0/T1",
+    "suggested_tests": ["grid_search_simple_families", "family_confidence_leaderboard", "generated_hypothesis_test"],
+    "expected_failure_mode": "During strong trends, price can ride the corridor edge indefinitely, causing severe under-exposure or premature exits.",
+    "stop_conditions": ["Underperforms buy-and-hold by more than 25% during a sustained 12-month bull market.", "Maximum drawdown reduction versus buy-and-hold is less than 5%."]
+  }
+]

@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "4f62f7b5e1d7",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "paused",
+  "kind": "put_call_panic_reversion",
+  "rationale": "Assesses whether isolated spikes in the equity put/call ratio during an established uptrend serve as reliable mean-reversion entry markers.",
+  "validation_tier": "T1",
+  "suggested_tests": [
+    "diversity_prefilter_search",
+    "near_miss_autopsy",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "The put/call ratio may remain elevated for extended periods during actual market tops, trapping early buyers.",
+  "input_diagnostics": [
+    "runs/family_confidence_leaderboard.json",
+    "runs/near_miss_autopsy.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/diversity_prefilter_search.json",
+    "runs/near_miss_autopsy.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "candidate family remains crowded or redundant",
+    "near-Gold candidate repeats known Gold contract failures",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "The strategy buys into more than 50% of the top-decile drawdowns.",
+    "Fails to beat QQQ buy-and-hold share accumulation over a 3-year rolling window."
+  ],
+  "reviewed_utc": "2026-05-26T04:10:25Z"
+}

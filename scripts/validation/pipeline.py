@@ -166,6 +166,8 @@ def _build_context(raw_rankings: list[dict]) -> ValidationContext:
 
 
 def _choose_reopt_budget(hours: float, quick: bool) -> tuple[float, int]:
+    if hours <= 0:
+        return 0.0, 0
     if quick or hours <= 0.10:
         return 0.5, 12
     if hours <= 0.50:
@@ -799,11 +801,17 @@ def _gate6_cross_asset(strategy_name: str, params: dict, ctx: ValidationContext,
         if qqq_share < 0.50:
             soft_warnings.append(f"QQQ same-param share_multiple={qqq_share:.3f} < 0.50")
 
-    tier3 = cross_asset_reoptimize(
-        strategy_name,
-        minutes=reopt_minutes,
-        pop_size=reopt_pop_size,
-    )
+    if reopt_minutes <= 0 or reopt_pop_size <= 0:
+        tier3 = {
+            "verdict": "SKIP",
+            "reason": "cross-asset re-optimization skipped by zero-minute validation budget",
+        }
+    else:
+        tier3 = cross_asset_reoptimize(
+            strategy_name,
+            minutes=reopt_minutes,
+            pop_size=reopt_pop_size,
+        )
     if tier3.get("verdict") != "PASS":
         # Demoted from hard-fail to critical warning. Re-opt is a re-tuning
         # sanity check — it's informative, not disqualifying.

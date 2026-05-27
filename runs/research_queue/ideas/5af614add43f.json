@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "5af614add43f",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "paused",
+  "kind": "defensive_sector_divergence",
+  "rationale": "Hypothesizes that a sudden spike in Utilities relative to Tech predicts a delayed structural tech selloff.",
+  "validation_tier": "T1",
+  "suggested_tests": [
+    "cross_asset_recheck",
+    "family_confidence_leaderboard",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "Yield-seeking behavior may drive Utilities up independently of Tech fundamentals, causing premature exits.",
+  "input_diagnostics": [
+    "runs/gold_diversity_report.json",
+    "runs/family_confidence_leaderboard.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/gold_diversity_report.json",
+    "runs/family_confidence_leaderboard.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "same-param portability remains below threshold",
+    "no new family leader improves Future Confidence and Trust",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Correlation between Utilities spikes and Tech drops is below 0.3 over a 10-year span.",
+    "Generates excessive portfolio churn over 20 signals per year."
+  ],
+  "reviewed_utc": "2026-05-26T04:10:25Z"
+}

@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "run_id": "20260526T040930Z-bafa766f58fd",
+  "created_utc": "2026-05-26T04:09:30Z",
+  "version_info": {
+    "schema_version": 1,
+    "generated_utc": "2026-05-26T04:09:30Z",
+    "app_version": "0.1.0",
+    "git_commit": "8a78629",
+    "git_dirty": true,
+    "strategy_code_version": "8a78629"
+  },
+  "status": "ok",
+  "execute": true,
+  "plan": {
+    "schema_version": 1,
+    "idea_id": "bafa766f58fd",
+    "kind": "calendar_turnaround_family_probe",
+    "rationale": "If marker misses cluster near recurring recovery windows, test simple calendar-aware turnaround hypotheses as T0/T1 diagnostics only.",
+    "validation_tier": "T0/T1",
+    "time_budget": "bounded local diagnostic first",
+    "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion",
+    "input_diagnostics": [
+      "runs/cycle_diagnostics.json",
+      "runs/operations/latest.json",
+      "runs/family_confidence_leaderboard.json",
+      "docs/design-guide.md",
+      "runs/research_queue/ideas/<idea_id>.json"
+    ],
+    "expected_artifact_paths": [
+      "runs/cycle_diagnostics.json",
+      "runs/search/*.json",
+      "runs/research_queue/hypotheses/<idea_id>.json"
+    ],
+    "stop_conditions": [
+      "targeted window still fails after timing repair",
+      "simple family fails the named-window or parsimony gates",
+      "hypothesis cannot be mapped to bounded diagnostics",
+      "calendar condition is not robust outside one historical episode",
+      "candidate needs too many exceptions to remain a simple hypothesis"
+    ],
+    "steps": [
+      {
+        "name": "named_window_recheck",
+        "status": "ok",
+        "command": [
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/diagnostics/cycle_diagnostics.py"
+        ],
+        "input_diagnostics": [
+          "runs/cycle_diagnostics.json",
+          "runs/operations/latest.json",
+          "runs/family_confidence_leaderboard.json",
+          "docs/design-guide.md",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/cycle_diagnostics.json",
+          "runs/search/*.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "targeted window still fails after timing repair",
+          "simple family fails the named-window or parsimony gates",
+          "hypothesis cannot be mapped to bounded diagnostics",
+          "calendar condition is not robust outside one historical episode",
+          "candidate needs too many exceptions to remain a simple hypothesis"
+        ],
+        "started_utc": "2026-05-26T04:09:30Z",
+        "finished_utc": "2026-05-26T04:09:31Z",
+        "returncode": 0,
+        "stdout_tail": "[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\nDiagnosing: gold_hybrid_committee (fitness: 3.685294255507053)\n\nCYCLE DIAGNOSTICS: gold_hybrid_committee (share_multiple: 35.2796x)\n=================================================================\nCAGR: 30.0% | MaxDD: 65.0% | Trades: 19 (0.6/yr)\nAvg Bull Capture: 40.1% | Avg Bear Avoidance: 73.1%\nBottleneck: BULL_CAPTURE\n\nWORST BULL CYCLES (lowest capture):\n  Bull #1: 1993-05-04 \u2192 1994-03-17  (+77% move)\n    Captured: 0.0% | Trades: 0 | Gap bars: 222\n    GAP: 1993-05-04 \u2192 1994-03-17 (222 bars) \u2014 missed +76.9% move\n  Bull #3: 1996-01-15 \u2192 1996-05-14  (+116% move)\n    Captured: 0.0% | Trades: 0 | Gap bars: 85\n    GAP: 1996-01-15 \u2192 1996-05-14 (85 bars) \u2014 missed +115.5% move\n  Bull #4: 1996-07-23 \u2192 1997-01-31  (+278% move)\n    Captured: 0.0% | Trades: 0 | Gap bars: 135\n    GAP: 1996-07-23 \u2192 1997-01-31 (135 bars) \u2014 missed +277.8% move\n  Bull #5: 1997-04-02 \u2192 1997-08-06  (+239% move)\n    Captured: 0.0% | Trades: 0 | Gap bars: 89\n    GAP: 1997-04-02 \u2192 1997-08-06 (89 bars) \u2014 missed +239.4% move\n  Bull #6: 1997-12-24 \u2192 1998-07-20  (+221% move)\n    Captured: 0.0% | Trades: 0 | Gap bars: 142\n    GAP: 1997-12-24 \u2192 1998-07-20 (142 bars) \u2014 missed +221.0% move\n\nBEST BEAR AVOIDANCE:\n  Bear #1: 1994-03-17 \u2192 1994-04-20  (-46% drop) \u2014 avoided 100.0%\n  Bear #2: 1995-07-17 \u2192 1996-01-15  (-56% drop) \u2014 avoided 100.0%\n  Bear #3: 1996-05-14 \u2192 1996-07-23  (-43% drop) \u2014 avoided 100.0%\n\nWORST BEAR AVOIDANCE (got caught):\n  Bear #17: 2012-04-02 \u2192 2012-11-15  (-38% drop) \u2014 avoided only 0.0%\n  Bear #21: 2020-09-02 \u2192 2020-10-30  (-37% drop) \u2014 avoided only 0.0%\n  Bear #18: 2015-05-27 \u2192 2015-08-25  (-37% drop) \u2014 avoided only 5.4%\n\nEXIT REASONS IN BULL vs BEAR CYCLES:\n  COM                 :   8 in bulls,  10 in bears (44% during bulls)\n  End of Data         :   1 in bulls,   0 in bears (100% during bulls)\n    ^ THIS EXIT FIRES MOSTLY DURING BULLS \u2014 likely hurting bull capture\n",
+        "stderr_tail": ""
+      },
+      {
+        "name": "grid_search_simple_families",
+        "status": "ok",
+        "command": [
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/search/grid_search.py",
+          "--quick"
+        ],
+        "input_diagnostics": [
+          "runs/cycle_diagnostics.json",
+          "runs/operations/latest.json",
+          "runs/family_confidence_leaderboard.json",
+          "docs/design-guide.md",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/cycle_diagnostics.json",
+          "runs/search/*.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "targeted window still fails after timing repair",
+          "simple family fails the named-window or parsimony gates",
+          "hypothesis cannot be mapped to bounded diagnostics",
+          "calendar condition is not robust outside one historical episode",
+          "candidate needs too many exceptions to remain a simple hypothesis"
+        ],
+        "started_utc": "2026-05-26T04:09:31Z",
+        "finished_utc": "2026-05-26T04:09:35Z",
+        "returncode": 0,
+        "stdout_tail": "fed_funds_pivot                12 combos\n  keltner_squeeze_breakout        9 combos\n  vix_term_proxy                 18 combos\n  macd_qqq_bull                   3 combos\n  vol_donchian_breakout           8 combos\n  sgov_flight_switch              6 combos\n  drawdown_recovery             162 combos\n  vol_compression_breakout      243 combos\n  price_position_regime          36 combos\n  tecl_sgov_rs                   24 combos\n  regime_state_machine            1 combos\n  bounce_breakout                40 combos\n  tri_filter_macd                32 combos\n  momentum_roc_canonical         24 combos\n  adaptive_ema_vol               16 combos\n  fed_macro_primary              24 combos\n  rank_slope_regime              48 combos\n  zscore_return_reversion        48 combos\n  breadth_decay_composite        36 combos\n  vj_or_slope_meta               16 combos\n  TOTAL                         852 combos\n\n[grid] Multicore: 12 workers for 852 combos...\n[grid] Worker chunksize: 8\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n  vix_gc_filter                  0 pass charter  best_fit=0.00  best_share=0.00x\n  treasury_curve_trend           0 pass charter  best_fit=0.00  best_share=0.00x\n  xlk_relative_strength          0 pass charter  best_fit=0.00  best_share=0.00x\n  fed_funds_pivot                0 pass charter  best_fit=0.00  best_share=0.00x\n  keltner_squeeze_breakout       0 pass charter  best_fit=0.00  best_share=0.00x\n  vix_term_proxy                 0 pass charter  best_fit=0.00  best_share=0.00x\n  macd_qqq_bull                  0 pass charter  best_fit=0.00  best_share=0.00x\n  vol_donchian_breakout          0 pass charter  best_fit=0.00  best_share=0.00x\n  sgov_flight_switch             0 pass charter  best_fit=0.00  best_share=0.00x\n  drawdown_recovery              0 pass charter  best_fit=0.00  best_share=0.00x\n  vol_compression_breakout       0 pass charter  best_fit=0.00  best_share=0.00x\n  price_position_regime          0 pass charter  best_fit=0.00  best_share=0.00x\n  tecl_sgov_rs                   0 pass charter  best_fit=0.00  best_share=0.00x\n  regime_state_machine           0 pass charter  best_fit=0.00  best_share=0.00x\n  bounce_breakout                0 pass charter  best_fit=0.00  best_share=0.00x\n  tri_filter_macd                0 pass charter  best_fit=0.00  best_share=0.00x\n  momentum_roc_canonical         0 pass charter  best_fit=0.00  best_share=0.00x\n  adaptive_ema_vol               0 pass charter  best_fit=0.00  best_share=0.00x\n  fed_macro_primary              0 pass charter  best_fit=0.00  best_share=0.00x\n  rank_slope_regime              0 pass charter  best_fit=0.00  best_share=0.00x\n  zscore_return_reversion        0 pass charter  best_fit=0.00  best_share=0.00x\n  breadth_decay_composite        0 pass charter  best_fit=0.00  best_share=0.00x\n  vj_or_slope_meta               0 pass charter  best_fit=0.00  best_share=0.00x\n\n[grid] Search done: 852 combos \u2192 0 pass charter (852 rejected) in 3.7s\n[grid] No candidates passed charter pre-filter. Nothing to validate.\n",
+        "stderr_tail": ""
+      },
+      {
+        "name": "generated_hypothesis_test",
+        "status": "ok",
+        "command": [
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/ops/generated_hypothesis_test.py",
+          "--idea-id",
+          "bafa766f58fd",
+          "--json"
+        ],
+        "input_diagnostics": [
+          "runs/cycle_diagnostics.json",
+          "runs/operations/latest.json",
+          "runs/family_confidence_leaderboard.json",
+          "docs/design-guide.md",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/cycle_diagnostics.json",
+          "runs/search/*.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "targeted window still fails after timing repair",
+          "simple family fails the named-window or parsimony gates",
+          "hypothesis cannot be mapped to bounded diagnostics",
+          "calendar condition is not robust outside one historical episode",
+          "candidate needs too many exceptions to remain a simple hypothesis"
+        ],
+        "started_utc": "2026-05-26T04:09:35Z",
+        "finished_utc": "2026-05-26T04:09:35Z",
+        "returncode": 0,
+        "stdout_tail": "{\n  \"schema_version\": 1,\n  \"generated_utc\": \"2026-05-26T04:09:35Z\",\n  \"idea_id\": \"bafa766f58fd\",\n  \"kind\": \"calendar_turnaround_family_probe\",\n  \"status\": \"planned\",\n  \"hypothesis\": \"If calendar turnaround family probe is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: If marker misses cluster near recurring recovery windows, test simple calendar-aware turnaround hypotheses as T0/T1 diagnostics only.\",\n  \"input_diagnostics\": [\n    \"runs/cycle_diagnostics.json\",\n    \"runs/operations/latest.json\",\n    \"runs/family_confidence_leaderboard.json\",\n    \"docs/design-guide.md\",\n    \"runs/research_queue/ideas/<idea_id>.json\"\n  ],\n  \"suggested_tests\": [\n    \"named_window_recheck\",\n    \"grid_search_simple_families\",\n    \"generated_hypothesis_test\"\n  ],\n  \"expected_artifact_paths\": [\n    \"runs/cycle_diagnostics.json\",\n    \"runs/search/*.json\",\n    \"runs/research_queue/hypotheses/<idea_id>.json\"\n  ],\n  \"stop_conditions\": [\n    \"targeted window still fails after timing repair\",\n    \"simple family fails the named-window or parsimony gates\",\n    \"hypothesis cannot be mapped to bounded diagnostics\",\n    \"calendar condition is not robust outside one historical episode\",\n    \"candidate needs too many exceptions to remain a simple hypothesis\"\n  ],\n  \"expected_failure_mode\": \"fails Gold all-era economics or Future Confidence before promotion\",\n  \"artifact_path\": \"/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/research_queue/hypotheses/bafa766f58fd.json\"\n}\n",
+        "stderr_tail": ""
+      }
+    ]
+  },
+  "finished_utc": "2026-05-26T04:09:35Z"
+}

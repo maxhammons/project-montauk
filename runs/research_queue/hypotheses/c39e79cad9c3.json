@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-05-26T03:50:50Z",
+  "idea_id": "c39e79cad9c3",
+  "kind": "recent_market_movement_stress",
+  "status": "planned",
+  "hypothesis": "If recent market movement stress is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Recent live-window market movement is 8.85%, high enough to stress timing assumptions.",
+  "input_diagnostics": [
+    "runs/operations/live_holdout.json",
+    "signals/*.json",
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "suggested_tests": [
+    "live_holdout_review",
+    "focused_grid_search",
+    "generated_hypothesis_test"
+  ],
+  "expected_artifact_paths": [
+    "runs/operations/live_holdout.json",
+    "runs/search/*.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "drift is not reproducible from point-in-time snapshots",
+    "quick grid has no candidate worth full certification",
+    "hypothesis cannot be mapped to bounded diagnostics"
+  ],
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+}

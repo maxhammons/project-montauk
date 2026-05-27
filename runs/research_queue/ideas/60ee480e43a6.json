@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "60ee480e43a6",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "proposed",
+  "kind": "margin_debt_rate_of_change",
+  "rationale": "Tests if rapid multi-month liquidations in margin debt reliably flag ultimate macro capitulation floors.",
+  "validation_tier": "T1",
+  "suggested_tests": [
+    "cross_asset_recheck",
+    "gold_hybrid_lab",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "Margin debt can keep unwinding or plateau at depressed levels for years after a structural bubble burst.",
+  "input_diagnostics": [
+    "runs/gold_diversity_report.json",
+    "spike/leaderboard.json",
+    "runs/operations/governance.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/gold_diversity_report.json",
+    "runs/gold_hybrid_lab.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "same-param portability remains below threshold",
+    "hybrid candidate fails Gold all-era economics or Future Confidence",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "The strategy enters more than 30% above the eventual cyclical bear-market bottom.",
+    "Out-of-sample Sharpe ratio drops below 0.35 over a 10-year cycle."
+  ]
+}

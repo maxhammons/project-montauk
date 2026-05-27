@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-05-26T04:10:11Z",
+  "idea_id": "4f62f7b5e1d7",
+  "kind": "put_call_panic_reversion",
+  "status": "planned",
+  "hypothesis": "If put call panic reversion is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Assesses whether isolated spikes in the equity put/call ratio during an established uptrend serve as reliable mean-reversion entry markers.",
+  "input_diagnostics": [
+    "runs/family_confidence_leaderboard.json",
+    "runs/near_miss_autopsy.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "suggested_tests": [
+    "diversity_prefilter_search",
+    "near_miss_autopsy",
+    "generated_hypothesis_test"
+  ],
+  "expected_artifact_paths": [
+    "runs/diversity_prefilter_search.json",
+    "runs/near_miss_autopsy.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "candidate family remains crowded or redundant",
+    "near-Gold candidate repeats known Gold contract failures",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "The strategy buys into more than 50% of the top-decile drawdowns.",
+    "Fails to beat QQQ buy-and-hold share accumulation over a 3-year rolling window."
+  ],
+  "expected_failure_mode": "The put/call ratio may remain elevated for extended periods during actual market tops, trapping early buyers."
+}

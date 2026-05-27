@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "95225d0b8a0d",
+  "created_utc": "2026-05-26T03:37:33Z",
+  "status": "paused",
+  "kind": "correlation_regime_switch_family_probe",
+  "rationale": "Gold and Chimera concentration risk justify testing whether TECL behaves differently when tech-risk correlation regimes shift.",
+  "validation_tier": "T1",
+  "suggested_tests": [
+    "cross_asset_recheck",
+    "diversity_prefilter_search",
+    "focused_grid_search",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion",
+  "input_diagnostics": [
+    "runs/gold_diversity_report.json",
+    "runs/family_confidence_leaderboard.json",
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/gold_diversity_report.json",
+    "runs/diversity_prefilter_search.json",
+    "runs/search/*.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "same-param portability remains below threshold",
+    "candidate family remains crowded or redundant",
+    "quick grid has no candidate worth full certification",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "correlation-regime proxy is redundant with QQQ same-parameter behavior",
+    "candidate improves portability but loses TECL share accumulation"
+  ],
+  "reviewed_utc": "2026-05-26T04:10:25Z"
+}

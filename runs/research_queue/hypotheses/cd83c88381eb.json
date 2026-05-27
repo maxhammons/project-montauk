@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-05-26T04:09:52Z",
+  "idea_id": "cd83c88381eb",
+  "kind": "move_index_regime",
+  "status": "planned",
+  "hypothesis": "If move index regime is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Tests whether bond market volatility provides a more accurate exit signal for rate-sensitive tech equities than traditional equity volatility.",
+  "input_diagnostics": [
+    "runs/family_confidence_leaderboard.json",
+    "runs/gold_diversity_report.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "suggested_tests": [
+    "diversity_prefilter_search",
+    "cross_asset_recheck",
+    "generated_hypothesis_test"
+  ],
+  "expected_artifact_paths": [
+    "runs/diversity_prefilter_search.json",
+    "runs/gold_diversity_report.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "candidate family remains crowded or redundant",
+    "same-param portability remains below threshold",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Win rate falls below 40% in the 2022 rate-hike regime holdout.",
+    "Sharpe ratio is lower than a standard VIX-based exit on the QQQ baseline."
+  ],
+  "expected_failure_mode": "The MOVE index may decouple from tech equities during purely growth-driven selloffs, resulting in missed drawdowns."
+}

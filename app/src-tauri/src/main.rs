@@ -219,6 +219,38 @@ fn read_doctor_report(root: &Path) -> Result<Value, String> {
     run_json_command(root, &[script, "--json"])
 }
 
+fn read_app_update_status(root: &Path) -> Result<Value, String> {
+    let update_script = root.join("scripts/ops/app_update.py");
+    let script = update_script
+        .to_str()
+        .ok_or_else(|| "app update path is not valid UTF-8".to_string())?;
+    run_json_command(root, &[script, "--json"])
+}
+
+fn read_research_runs(root: &Path) -> Result<Value, String> {
+    let runs_dir = root.join("runs/research_queue/runs");
+    if !runs_dir.exists() {
+        return Ok(json!({ "runs": [], "run_count": 0 }));
+    }
+    let mut files = fs::read_dir(runs_dir)
+        .map_err(|err| err.to_string())?
+        .filter_map(Result::ok)
+        .map(|entry| entry.path())
+        .filter(|path| path.extension().and_then(|v| v.to_str()) == Some("json"))
+        .collect::<Vec<_>>();
+    files.sort();
+    let start = files.len().saturating_sub(30);
+    let mut runs = Vec::new();
+    for path in &files[start..] {
+        let mut payload = read_json(path)?;
+        if let Some(object) = payload.as_object_mut() {
+            object.insert("record_path".to_string(), json!(path));
+        }
+        runs.push(payload);
+    }
+    Ok(json!({ "runs": runs, "run_count": runs.len() }))
+}
+
 fn valid_notification_event_type(event_type: &str) -> bool {
     matches!(
         event_type,
@@ -261,9 +293,11 @@ fn read_status() -> Result<Value, String> {
         "notifications": read_json(&operations.join("notifications.json"))?,
         "notification_state": read_json(&operations.join("notification_state.json"))?,
         "research_queue": read_json(&root.join("runs/research_queue/queue.json"))?,
+        "research_runs": read_research_runs(&root)?,
         "scheduler": read_json(&scheduler)?,
         "scheduler_detail": scheduler_detail,
         "launch_agents": launch_agents,
+        "app_update": read_app_update_status(&root).unwrap_or_else(|err| json!({"error": err})),
         "doctor": doctor,
         "launch_agent": launch_agent
     }))
@@ -363,7 +397,10 @@ fn research_queue_action(idea_id: String, action: String) -> Result<Value, Strin
     {
         return Err("invalid research idea id".to_string());
     }
-    if !matches!(action.as_str(), "approve" | "dismiss" | "reset") {
+    if !matches!(
+        action.as_str(),
+        "approve" | "dismiss" | "pause" | "resume" | "reset"
+    ) {
         return Err(format!("unknown research action: {}", action));
     }
     let root = project_root()?;
@@ -372,6 +409,16 @@ fn research_queue_action(idea_id: String, action: String) -> Result<Value, Strin
         .to_str()
         .ok_or_else(|| "research queue path is not valid UTF-8".to_string())?;
     run_json_command(&root, &[script, &action, &idea_id, "--json"])
+}
+
+#[tauri::command]
+fn enqueue_research_ideas() -> Result<Value, String> {
+    let root = project_root()?;
+    let research_script = root.join("scripts/ops/research_queue.py");
+    let script = research_script
+        .to_str()
+        .ok_or_else(|| "research queue path is not valid UTF-8".to_string())?;
+    run_json_command(&root, &[script, "propose", "--json"])
 }
 
 #[tauri::command]
@@ -722,6 +769,7 @@ fn main() {
             doctor_report,
             set_scheduler_job,
             research_queue_action,
+            enqueue_research_ideas,
             strategy_metric_signal,
             start_research_run,
             launch_agent_status,

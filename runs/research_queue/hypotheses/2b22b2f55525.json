@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-05-26T04:10:02Z",
+  "idea_id": "2b22b2f55525",
+  "kind": "overnight_gap_exhaustion",
+  "status": "planned",
+  "hypothesis": "If overnight gap exhaustion is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Hypothesizes that three consecutive large overnight gaps down in QQQ indicate structural capitulation, providing a high-probability TECL entry.",
+  "input_diagnostics": [
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "runs/cycle_diagnostics.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "suggested_tests": [
+    "focused_grid_search",
+    "named_window_recheck",
+    "generated_hypothesis_test"
+  ],
+  "expected_artifact_paths": [
+    "runs/search/*.json",
+    "runs/cycle_diagnostics.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "quick grid has no candidate worth full certification",
+    "targeted window still fails after timing repair",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Average trade duration exceeds 10 days without achieving profitability.",
+    "Maximum drawdown during the trade window exceeds 15%."
+  ],
+  "expected_failure_mode": "In severe structural bear markets, consecutive down gaps may merely signal the beginning of a larger volatility expansion."
+}

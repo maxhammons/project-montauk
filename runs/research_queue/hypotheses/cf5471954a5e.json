@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-05-26T04:04:31Z",
+  "idea_id": "cf5471954a5e",
+  "kind": "trend_quality_erosion_family_probe",
+  "status": "planned",
+  "hypothesis": "If trend quality erosion family probe is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Existing Gold rows rely heavily on direction, so test trend-quality erosion signals that exit when trend strength decays before price crosses.",
+  "input_diagnostics": [
+    "runs/family_confidence_leaderboard.json",
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "suggested_tests": [
+    "family_confidence_leaderboard",
+    "focused_grid_search",
+    "diversity_prefilter_search",
+    "generated_hypothesis_test"
+  ],
+  "expected_artifact_paths": [
+    "runs/family_confidence_leaderboard.json",
+    "runs/search/*.json",
+    "runs/diversity_prefilter_search.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "no new family leader improves Future Confidence and Trust",
+    "quick grid has no candidate worth full certification",
+    "candidate family remains crowded or redundant",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "trend-quality signal is redundant with EMA/VJATR exits",
+    "candidate exits early in melt-up or rebound windows"
+  ],
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+}

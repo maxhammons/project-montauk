@@ -14,6 +14,7 @@ if str(SCRIPTS_DIR) not in sys.path:
 
 from ops.events import read_events, utc_now_iso
 from ops.paths import EVENTS_PATH, NOTIFICATION_STATE_PATH, NOTIFICATIONS_PATH
+from ops.versioning import version_info
 
 NOTIFIABLE_EVENT_TYPES = {
     "signal_changed",
@@ -200,6 +201,7 @@ def scan_notifications(
     payload = {
         "schema_version": 1,
         "generated_utc": utc_now_iso(),
+        "version_info": version_info(),
         "pending_count": len(notifications),
         "preferences": preferences,
         "notifications": notifications,

@@ -1,0 +1,241 @@
+{
+  "overlay_strategy": "gc_vjatr_reclaimer",
+  "base_family": "gc_vjatr",
+  "base_count": 4,
+  "candidate_count": 1,
+  "thresholds": {
+    "min_full_retention": 0.8,
+    "min_real_retention": 0.95,
+    "min_modern_retention": 0.95
+  },
+  "rows": [
+    {
+      "base_rank": 1,
+      "base_name": "Marbled Bonobo",
+      "base_strategy": "gc_vjatr",
+      "candidate_rank": 1,
+      "overlay_strategy": "gc_vjatr_reclaimer",
+      "source_rank": 1,
+      "survives": false,
+      "marker_timing_delta": 0.0006,
+      "marker_score_delta": -0.0218,
+      "full_ratio": 18.559,
+      "real_ratio": 0.6622,
+      "modern_ratio": 0.6167,
+      "base_metrics": {
+        "share_multiple": 15.927,
+        "real_share_multiple": 1.1372,
+        "modern_share_multiple": 2.729,
+        "raw_engine": {
+          "share_multiple": 15.927,
+          "real_share_multiple": 1.7446,
+          "modern_share_multiple": 2.1317
+        },
+        "metrics_view": "canonical_standalone",
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3108
+      },
+      "overlay_metrics": {
+        "share_multiple": 295.5886,
+        "real_share_multiple": 0.7531,
+        "modern_share_multiple": 1.6829,
+        "raw_engine": {
+          "share_multiple": 295.5886,
+          "real_share_multiple": 1.0758,
+          "modern_share_multiple": 1.3145
+        },
+        "metrics_view": "canonical_standalone",
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 69.1,
+        "marker_score": 0.6608,
+        "marker_timing": 0.3114
+      },
+      "overlay_params": {
+        "cooldown": 0,
+        "slope_window": 1,
+        "atr_expand": 2.5,
+        "entry_bars": 2,
+        "atr_period": 7,
+        "atr_look": 40,
+        "atr_confirm": 1,
+        "fast_ema": 140,
+        "slow_ema": 160
+      }
+    },
+    {
+      "base_rank": 2,
+      "base_name": "Ember Bonobo",
+      "base_strategy": "gc_vjatr",
+      "candidate_rank": 1,
+      "overlay_strategy": "gc_vjatr_reclaimer",
+      "source_rank": 1,
+      "survives": false,
+      "marker_timing_delta": 0.0006,
+      "marker_score_delta": -0.0218,
+      "full_ratio": 5.6089,
+      "real_ratio": 0.6622,
+      "modern_ratio": 0.6167,
+      "base_metrics": {
+        "share_multiple": 15.927,
+        "real_share_multiple": 1.1372,
+        "modern_share_multiple": 2.729,
+        "raw_engine": {
+          "share_multiple": 15.927,
+          "real_share_multiple": 1.7446,
+          "modern_share_multiple": 2.1317
+        },
+        "metrics_view": "canonical_standalone",
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3108
+      },
+      "overlay_metrics": {
+        "share_multiple": 89.3322,
+        "real_share_multiple": 0.7531,
+        "modern_share_multiple": 1.6829,
+        "raw_engine": {
+          "share_multiple": 89.3322,
+          "real_share_multiple": 1.0758,
+          "modern_share_multiple": 1.3145
+        },
+        "metrics_view": "canonical_standalone",
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 69.1,
+        "marker_score": 0.6608,
+        "marker_timing": 0.3114
+      },
+      "overlay_params": {
+        "cooldown": 0,
+        "slope_window": 1,
+        "atr_expand": 2.5,
+        "entry_bars": 2,
+        "atr_period": 7,
+        "atr_look": 40,
+        "atr_confirm": 2,
+        "fast_ema": 140,
+        "slow_ema": 160
+      }
+    },
+    {
+      "base_rank": 3,
+      "base_name": "Russet Bonobo #2",
+      "base_strategy": "gc_vjatr",
+      "candidate_rank": 1,
+      "overlay_strategy": "gc_vjatr_reclaimer",
+      "source_rank": 1,
+      "survives": false,
+      "marker_timing_delta": 0.0006,
+      "marker_score_delta": -0.0218,
+      "full_ratio": 5.6089,
+      "real_ratio": 0.6622,
+      "modern_ratio": 0.6167,
+      "base_metrics": {
+        "share_multiple": 14.6967,
+        "real_share_multiple": 1.1372,
+        "modern_share_multiple": 2.729,
+        "raw_engine": {
+          "share_multiple": 14.6967,
+          "real_share_multiple": 1.7446,
+          "modern_share_multiple": 2.1317
+        },
+        "metrics_view": "canonical_standalone",
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3108
+      },
+      "overlay_metrics": {
+        "share_multiple": 82.432,
+        "real_share_multiple": 0.7531,
+        "modern_share_multiple": 1.6829,
+        "raw_engine": {
+          "share_multiple": 82.432,
+          "real_share_multiple": 1.0758,
+          "modern_share_multiple": 1.3145
+        },
+        "metrics_view": "canonical_standalone",
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 69.1,
+        "marker_score": 0.6608,
+        "marker_timing": 0.3114
+      },
+      "overlay_params": {
+        "cooldown": 0,
+        "slope_window": 1,
+        "atr_expand": 2.5,
+        "entry_bars": 2,
+        "atr_period": 7,
+        "atr_look": 40,
+        "atr_confirm": 5,
+        "fast_ema": 140,
+        "slow_ema": 160
+      }
+    },
+    {
+      "base_rank": 4,
+      "base_name": "Crimson Bonobo",
+      "base_strategy": "gc_vjatr",
+      "candidate_rank": 1,
+      "overlay_strategy": "gc_vjatr_reclaimer",
+      "source_rank": 1,
+      "survives": false,
+      "marker_timing_delta": 0.0006,
+      "marker_score_delta": -0.0218,
+      "full_ratio": 5.6089,
+      "real_ratio": 0.6622,
+      "modern_ratio": 0.6167,
+      "base_metrics": {
+        "share_multiple": 14.6967,
+        "real_share_multiple": 1.1372,
+        "modern_share_multiple": 2.729,
+        "raw_engine": {
+          "share_multiple": 14.6967,
+          "real_share_multiple": 1.7446,
+          "modern_share_multiple": 2.1317
+        },
+        "metrics_view": "canonical_standalone",
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3108
+      },
+      "overlay_metrics": {
+        "share_multiple": 82.432,
+        "real_share_multiple": 0.7531,
+        "modern_share_multiple": 1.6829,
+        "raw_engine": {
+          "share_multiple": 82.432,
+          "real_share_multiple": 1.0758,
+          "modern_share_multiple": 1.3145
+        },
+        "metrics_view": "canonical_standalone",
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 69.1,
+        "marker_score": 0.6608,
+        "marker_timing": 0.3114
+      },
+      "overlay_params": {
+        "cooldown": 0,
+        "slope_window": 1,
+        "atr_expand": 2.5,
+        "entry_bars": 2,
+        "atr_period": 7,
+        "atr_look": 40,
+        "atr_confirm": 3,
+        "fast_ema": 140,
+        "slow_ema": 160
+      }
+    }
+  ]
+}

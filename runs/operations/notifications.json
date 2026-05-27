@@ -1,7 +1,15 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-05-23T23:59:26Z",
-  "pending_count": 5,
+  "generated_utc": "2026-05-27T20:50:04Z",
+  "version_info": {
+    "schema_version": 1,
+    "generated_utc": "2026-05-27T20:50:04Z",
+    "app_version": "0.1.0",
+    "git_commit": "8a78629",
+    "git_dirty": true,
+    "strategy_code_version": "8a78629"
+  },
+  "pending_count": 11,
   "preferences": {
     "event_types": {
       "champion_blocked": {
@@ -56,7 +64,7 @@
   "notifications": [
     {
       "id": "f184da1d7aa827cb",
-      "created_utc": "2026-05-23T23:59:26Z",
+      "created_utc": "2026-05-27T20:50:04Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -105,7 +113,7 @@
     },
     {
       "id": "65b518ef99843587",
-      "created_utc": "2026-05-23T23:59:26Z",
+      "created_utc": "2026-05-27T20:50:04Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -253,7 +261,7 @@
     },
     {
       "id": "c5a2da4901f0069e",
-      "created_utc": "2026-05-23T23:59:26Z",
+      "created_utc": "2026-05-27T20:50:04Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -452,7 +460,7 @@
     },
     {
       "id": "a795804388207584",
-      "created_utc": "2026-05-23T23:59:26Z",
+      "created_utc": "2026-05-27T20:50:04Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -600,7 +608,7 @@
     },
     {
       "id": "d69a59a211166044",
-      "created_utc": "2026-05-23T23:59:26Z",
+      "created_utc": "2026-05-27T20:50:04Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -793,6 +801,180 @@
             ],
             "blockers": []
           }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "c1ffbea063a46f8b",
+      "created_utc": "2026-05-27T20:50:04Z",
+      "title": "Montauk Warning",
+      "body": "Chimera validation completed.",
+      "severity": "warning",
+      "event_type": "chimera_certification_changed",
+      "target": {
+        "view": "events",
+        "artifact_path": null,
+        "event_id": "c1ffbea063a46f8b"
+      },
+      "target_view": "events",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-05-25T20:55:36Z",
+        "severity": "warning",
+        "event_type": "chimera_certification_changed",
+        "message": "Chimera validation completed.",
+        "payload": {
+          "gold_status": false,
+          "promotion_ready": false,
+          "validation_summary": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/chimera/validation_summary.json",
+          "family_ablation_report": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/chimera/family_ablation_report.json",
+          "correlation_stress_report": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/chimera/correlation_stress_report.json"
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "ddb96a9414741df8",
+      "created_utc": "2026-05-27T20:50:04Z",
+      "title": "Montauk Warning",
+      "body": "Chimera validation completed.",
+      "severity": "warning",
+      "event_type": "chimera_certification_changed",
+      "target": {
+        "view": "events",
+        "artifact_path": null,
+        "event_id": "ddb96a9414741df8"
+      },
+      "target_view": "events",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-05-25T21:01:08Z",
+        "severity": "warning",
+        "event_type": "chimera_certification_changed",
+        "message": "Chimera validation completed.",
+        "payload": {
+          "gold_status": false,
+          "promotion_ready": false,
+          "validation_summary": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/chimera/validation_summary.json",
+          "family_ablation_report": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/chimera/family_ablation_report.json",
+          "correlation_stress_report": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/chimera/correlation_stress_report.json"
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "fcf1b9215960a7bf",
+      "created_utc": "2026-05-27T20:50:04Z",
+      "title": "Montauk Notice",
+      "body": "Chimera validation completed.",
+      "severity": "notice",
+      "event_type": "chimera_certification_changed",
+      "target": {
+        "view": "events",
+        "artifact_path": null,
+        "event_id": "fcf1b9215960a7bf"
+      },
+      "target_view": "events",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-05-26T03:25:03Z",
+        "severity": "notice",
+        "event_type": "chimera_certification_changed",
+        "message": "Chimera validation completed.",
+        "payload": {
+          "gold_status": true,
+          "promotion_ready": true,
+          "validation_summary": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/chimera/validation_summary.json",
+          "family_ablation_report": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/chimera/family_ablation_report.json",
+          "correlation_stress_report": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/chimera/correlation_stress_report.json"
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "fb159d441d5d6e44",
+      "created_utc": "2026-05-27T20:50:04Z",
+      "title": "Montauk Notice",
+      "body": "Chimera validation completed.",
+      "severity": "notice",
+      "event_type": "chimera_certification_changed",
+      "target": {
+        "view": "events",
+        "artifact_path": null,
+        "event_id": "fb159d441d5d6e44"
+      },
+      "target_view": "events",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-05-26T03:30:49Z",
+        "severity": "notice",
+        "event_type": "chimera_certification_changed",
+        "message": "Chimera validation completed.",
+        "payload": {
+          "gold_status": true,
+          "promotion_ready": true,
+          "validation_summary": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/chimera/validation_summary.json",
+          "family_ablation_report": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/chimera/family_ablation_report.json",
+          "correlation_stress_report": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/chimera/correlation_stress_report.json"
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "5b8b452fd24fe171",
+      "created_utc": "2026-05-27T20:50:04Z",
+      "title": "Montauk Notice",
+      "body": "Chimera validation completed.",
+      "severity": "notice",
+      "event_type": "chimera_certification_changed",
+      "target": {
+        "view": "events",
+        "artifact_path": null,
+        "event_id": "5b8b452fd24fe171"
+      },
+      "target_view": "events",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-05-26T03:55:43Z",
+        "severity": "notice",
+        "event_type": "chimera_certification_changed",
+        "message": "Chimera validation completed.",
+        "payload": {
+          "gold_status": true,
+          "promotion_ready": true,
+          "validation_summary": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/chimera/validation_summary.json",
+          "family_ablation_report": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/chimera/family_ablation_report.json",
+          "correlation_stress_report": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/chimera/correlation_stress_report.json"
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "029a9bcc006b5e43",
+      "created_utc": "2026-05-27T20:50:04Z",
+      "title": "Montauk Notice",
+      "body": "Chimera validation completed.",
+      "severity": "notice",
+      "event_type": "chimera_certification_changed",
+      "target": {
+        "view": "events",
+        "artifact_path": null,
+        "event_id": "029a9bcc006b5e43"
+      },
+      "target_view": "events",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-05-26T04:08:44Z",
+        "severity": "notice",
+        "event_type": "chimera_certification_changed",
+        "message": "Chimera validation completed.",
+        "payload": {
+          "gold_status": true,
+          "promotion_ready": true,
+          "validation_summary": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/chimera/validation_summary.json",
+          "family_ablation_report": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/chimera/family_ablation_report.json",
+          "correlation_stress_report": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/chimera/correlation_stress_report.json"
         }
       },
       "status": "pending"

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "c1044e9be0b5",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "proposed",
+  "kind": "implied_correlation_spike",
+  "rationale": "Hypothesizes that sharp spikes in index implied correlation mark indiscriminate panic selling and rebound accumulation zones.",
+  "validation_tier": "T1",
+  "suggested_tests": [
+    "family_confidence_leaderboard",
+    "near_miss_autopsy",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "Implied correlation can rise during a coordinated bear-market transition, turning the buy signal into a value trap.",
+  "input_diagnostics": [
+    "runs/family_confidence_leaderboard.json",
+    "runs/near_miss_autopsy.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/family_confidence_leaderboard.json",
+    "runs/near_miss_autopsy.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "no new family leader improves Future Confidence and Trust",
+    "near-Gold candidate repeats known Gold contract failures",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Fails to capture the COVID-19 or 2018 market bottoms.",
+    "Average drawdown post-entry exceeds 12%."
+  ]
+}

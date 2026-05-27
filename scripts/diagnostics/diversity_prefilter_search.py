@@ -61,6 +61,12 @@ DEFAULT_CONCEPTS = [
     "keltner_squeeze_breakout",
     "vix_term_proxy",
     "macd_qqq_bull",
+    "move_index_regime",
+    "credit_spread_velocity",
+    "overnight_gap_exhaustion",
+    "consecutive_down_gap_capitulation",
+    "put_call_panic_reversion",
+    "defensive_sector_divergence",
     "ensemble_vote_3of5",
 ]
 

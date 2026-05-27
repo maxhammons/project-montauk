@@ -13,6 +13,7 @@ if str(SCRIPTS_DIR) not in sys.path:
 
 from ops.events import append_event, utc_now_iso
 from ops.paths import GOVERNANCE_PATH, LATEST_PATH, LIVE_HOLDOUT_PATH, STRATEGY_REVIEW_PATH, ensure_ops_dirs
+from ops.versioning import version_info
 
 
 def _load_json(path: Path, default: Any) -> Any:
@@ -116,6 +117,7 @@ def evaluate_governance(
     return {
         "schema_version": 1,
         "generated_utc": utc_now_iso(),
+        "version_info": version_info(),
         "state": state,
         "reasons": reasons,
         "blockers": blockers,

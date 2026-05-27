@@ -14,6 +14,7 @@ JOB_RECORDS_DIR = SCHEDULER_DIR / "jobs"
 LOCKS_DIR = SCHEDULER_DIR / "locks"
 RESEARCH_QUEUE_DIR = RUNS_DIR / "research_queue"
 RESEARCH_RUNS_DIR = RESEARCH_QUEUE_DIR / "runs"
+RESEARCH_HYPOTHESES_DIR = RESEARCH_QUEUE_DIR / "hypotheses"
 EVENTS_PATH = OPERATIONS_DIR / "events.jsonl"
 LATEST_PATH = OPERATIONS_DIR / "latest.json"
 NOTIFICATIONS_PATH = OPERATIONS_DIR / "notifications.json"
@@ -36,6 +37,7 @@ def ensure_ops_dirs() -> None:
         LOCKS_DIR,
         RESEARCH_QUEUE_DIR,
         RESEARCH_RUNS_DIR,
+        RESEARCH_HYPOTHESES_DIR,
         IDEAS_DIR,
     ):
         path.mkdir(parents=True, exist_ok=True)

@@ -1,0 +1,15 @@
+{
+  "total_combos": 384,
+  "charter_pass": 354,
+  "rank_by": "fitness",
+  "include_trades": false,
+  "canonical_prefilter": {
+    "enabled": true,
+    "scan_n": 10,
+    "scanned": 10,
+    "passed": 0,
+    "min_share": 1.0,
+    "rejected": 10
+  },
+  "raw_rankings": []
+}

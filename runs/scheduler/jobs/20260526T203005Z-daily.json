@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "job": "daily",
+  "status": "ok",
+  "started_utc": "2026-05-26T20:30:05Z",
+  "finished_utc": "2026-05-26T20:30:26Z",
+  "command": [
+    "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+    "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/ops/daily.py"
+  ],
+  "cwd": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk",
+  "schedule": {
+    "key": "daily",
+    "enabled": true,
+    "schedule": {
+      "Hour": 13,
+      "Minute": 30
+    }
+  },
+  "output_artifact_paths": [
+    "runs/operations/latest.json",
+    "signals/YYYY-MM-DD.json",
+    "viz/montauk-viz.html",
+    "viz/montauk-bundle.json"
+  ],
+  "returncode": 0,
+  "error_code": null,
+  "stdout_tail": "[refresh] Updating all local CSVs...\n[refresh] TECL: +0 new bars\n[refresh] VIX: +0 new bars\n[refresh] XLK: +0 new bars\n[refresh] QQQ: +0 new bars\n[refresh] TQQQ: +0 new bars\n[refresh] SGOV: +0 new bars\n[refresh] tbill-3m.csv: +1 new rows\n[data] FRED fetch failed for T10Y2Y: HTTPSConnectionPool(host='fred.stlouisfed.org', port=443): Read timed out. (read timeout=15)\n[refresh] treasury-spread-10y2y.csv: up to date\n[refresh] fed-funds-rate.csv: +4 new rows\n[refresh] Done. TECL: 8322 bars through 2026-05-26\n[data] TECL: 8322 bars, 1993-05-04 to 2026-05-26\n[data] VIX: 8318/8322 dates matched\n[data] TECL: 8322 bars, 1993-05-04 to 2026-05-26\n[data] VIX: 8318/8322 dates matched\nMontauk daily status: ok\nSignal: risk_on through 2026-05-26\n- refresh: ok\n- manifest: ok\n- data_quality: ok\n- signal_snapshot: unchanged\n- viz: ok\n- followups: ok\n",
+  "stderr_tail": "",
+  "lock_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/scheduler/locks/daily.lock",
+  "record_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/scheduler/jobs/20260526T203005Z-daily.json"
+}

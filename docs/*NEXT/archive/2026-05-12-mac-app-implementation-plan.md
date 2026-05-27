@@ -1,7 +1,7 @@
 # Montauk Mac App Implementation Plan
 
 > Status: active mixed-status plan, 2026-05-12. Audited 2026-05-22:
-> phases 0-7 are implemented or mostly implemented; phases 8-10 remain
+> phases 0-9 are implemented or mostly implemented; phase 10 remains
 > outstanding or partial. See
 > [`2026-05-22-app-plan-status-audit.md`](./2026-05-22-app-plan-status-audit.md).
 >
@@ -392,30 +392,34 @@ Create an app-visible queue for strategy testing.
 - [x] approved ideas can now be converted into bounded research run artifacts under
   `runs/research_queue/runs/`
 - [x] a daily approved-research supervisor is included in scheduler status
+- [x] queue artifacts now include input diagnostics, expected artifacts, and
+  stop conditions
+- [x] app controls can enqueue ideas, start approved runs, pause ideas, and
+  inspect queue metadata plus recent run artifacts
 
 Research job types:
 
 - [x] recertify existing Gold rows
-- [ ] focused grid search
+- [x] focused grid search
 - [x] hybrid lab
 - [x] diversity prefilter
 - [x] near-miss autopsy
 - [x] confidence calibration
-- [ ] generated hypothesis test
+- [x] generated hypothesis test
 
 Each queued job should include:
 
 - [x] rationale
-- [ ] input diagnostics
+- [x] input diagnostics
 - [x] strategy family or idea
 - [x] validation tier
 - [x] time budget
-- [ ] expected artifact paths
-- [ ] stop conditions
+- [x] expected artifact paths
+- [x] stop conditions
 
 Acceptance criteria:
 
-- [ ] app can enqueue, start, pause, and inspect jobs
+- [x] app can enqueue, start, pause, and inspect jobs
 - [x] long-running research is bounded by budget
 - [x] results are archived as artifacts
 - [x] no research job can directly mutate the authority leaderboard except through
@@ -432,12 +436,12 @@ authority strategies.
 
 Inputs:
 
-- [ ] recent market movement
-- [ ] marker timing misses
+- [x] recent market movement
+- [x] marker timing misses
 - [x] named-window failures
-- [ ] near-Gold autopsies
-- [ ] live holdout drift
-- [ ] family concentration
+- [x] near-Gold autopsies
+- [x] live holdout drift
+- [x] family concentration
 - [x] Confidence v2 weak planks
 
 Outputs:
@@ -473,28 +477,34 @@ Package the app as a local standalone macOS application.
 - [x] app-side LaunchAgent controls are present, but persistent background
   activation is explicit and has now been performed for enabled jobs
 - [x] `.gitignore` excludes local app build products and dependency folders
+- [x] added packaging/runtime/update notes at `docs/app-packaging.md`
+- [x] added signed-bundle update inspection/install command at
+  `scripts/ops/app_update.py`
+- [x] operations artifacts now stamp app and strategy-code version metadata
+- [x] signed local candidate was installed to `/Applications/Montauk.app` via the
+  update command and verified with `codesign --verify --deep --strict`
 
 Packaging requirements:
 
 - [x] app bundle can be opened from Finder
 - [x] app can locate or configure the Project Montauk path
-- [ ] Python runtime/dependency strategy is documented
+- [x] Python runtime/dependency strategy is documented
 - [x] LaunchAgent is installed through the app
-- [ ] app update path is defined
+- [x] app update path is defined
 
 Auto-update should mean:
 
-- [ ] the app can update its own app shell when a new signed build exists
+- [x] the app can update its own app shell when a new signed build exists
 - [x] the app can keep Montauk data current through scheduled refreshes
-- [ ] the app does not silently change strategy code or validation rules without
+- [x] the app does not silently change strategy code or validation rules without
   recording the version change
 
 Acceptance criteria:
 
-- [ ] clean install works on the local machine
-- [ ] app survives reboot and runs scheduled jobs
-- [ ] app can be updated without losing settings or signal history
-- [ ] version is stamped into operations artifacts
+- [x] clean install works on the local machine
+- [x] app survives reboot and runs scheduled jobs
+- [x] app can be updated without losing settings or signal history
+- [x] version is stamped into operations artifacts
 
 ---
 
@@ -505,19 +515,19 @@ Before treating the app as the normal daily surface:
 - [x] add crash-safe job locking
 - [x] add stale-lock recovery
 - [x] protect immutable signal snapshots
-- [ ] add structured error codes
-- [ ] add app-level smoke tests
-- [ ] add operations fixtures
-- [ ] verify all scheduled jobs can run from a fresh shell environment
-- [ ] test with no network, partial network failure, and stale market data
-- [ ] test daylight-saving and market-holiday behavior
+- [x] add structured error codes
+- [x] add app-level smoke tests
+- [x] add operations fixtures
+- [x] verify all scheduled jobs can run from a fresh shell environment
+- [x] test with no network, partial network failure, and stale market data
+- [x] test daylight-saving and market-holiday behavior
 
 Acceptance criteria:
 
-- [ ] failed background jobs do not corrupt artifacts
+- [x] failed background jobs do not corrupt artifacts
 - [x] app explains failures without terminal output
 - [x] daily job is repeatable
-- [ ] market holidays do not create false alarms
+- [x] market holidays do not create false alarms
 - [x] stale data creates a clear warning
 
 ---
@@ -533,8 +543,8 @@ Acceptance criteria:
 7. [x] Live holdout tracking
 8. [x] Governance states
 9. [x] Research queue
-10. [ ] Ideation loop
-11. [ ] Packaging and auto-update
-12. [ ] Hardening
+10. [x] Ideation loop
+11. [x] Packaging and auto-update
+12. [x] Hardening
 
 This order keeps the engine trustworthy before making the app feel automatic.

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "a3d8476ec8a9",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "proposed",
+  "kind": "central_bank_liquidity_proxy",
+  "rationale": "Hypothesizes that changes in Fed balance sheet and Treasury General Account proxies correlate directly with leveraged tech performance.",
+  "validation_tier": "T2",
+  "suggested_tests": [
+    "cross_asset_recheck",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "Liquidity data is published with lag, and markets may price balance-sheet operations before the data is available.",
+  "input_diagnostics": [
+    "runs/gold_diversity_report.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/gold_diversity_report.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "same-param portability remains below threshold",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Lagged data causes the strategy to enter trades post-rally.",
+    "Sharpe ratio is lower than buy-and-hold during Quantitative Tightening regimes."
+  ]
+}

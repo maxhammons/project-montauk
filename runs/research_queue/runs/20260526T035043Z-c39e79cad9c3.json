@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "run_id": "20260526T035043Z-c39e79cad9c3",
+  "created_utc": "2026-05-26T03:50:43Z",
+  "version_info": {
+    "schema_version": 1,
+    "generated_utc": "2026-05-26T03:50:43Z",
+    "app_version": "0.1.0",
+    "git_commit": "8a78629",
+    "git_dirty": true,
+    "strategy_code_version": "8a78629"
+  },
+  "status": "ok",
+  "execute": true,
+  "plan": {
+    "schema_version": 1,
+    "idea_id": "c39e79cad9c3",
+    "kind": "recent_market_movement_stress",
+    "rationale": "Recent live-window market movement is 8.85%, high enough to stress timing assumptions.",
+    "validation_tier": "T1",
+    "time_budget": "bounded local diagnostic first",
+    "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion",
+    "input_diagnostics": [
+      "runs/operations/live_holdout.json",
+      "signals/*.json",
+      "runs/operations/latest.json",
+      "docs/design-guide.md",
+      "runs/research_queue/ideas/<idea_id>.json"
+    ],
+    "expected_artifact_paths": [
+      "runs/operations/live_holdout.json",
+      "runs/search/*.json",
+      "runs/research_queue/hypotheses/<idea_id>.json"
+    ],
+    "stop_conditions": [
+      "drift is not reproducible from point-in-time snapshots",
+      "quick grid has no candidate worth full certification",
+      "hypothesis cannot be mapped to bounded diagnostics"
+    ],
+    "steps": [
+      {
+        "name": "live_holdout_review",
+        "status": "ok",
+        "command": [
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/ops/live_holdout.py"
+        ],
+        "input_diagnostics": [
+          "runs/operations/live_holdout.json",
+          "signals/*.json",
+          "runs/operations/latest.json",
+          "docs/design-guide.md",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/operations/live_holdout.json",
+          "runs/search/*.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "drift is not reproducible from point-in-time snapshots",
+          "quick grid has no candidate worth full certification",
+          "hypothesis cannot be mapped to bounded diagnostics"
+        ],
+        "started_utc": "2026-05-26T03:50:43Z",
+        "finished_utc": "2026-05-26T03:50:43Z",
+        "returncode": 0,
+        "stdout_tail": "[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\nlive holdout: ok (1 match, 0 diverged)\n",
+        "stderr_tail": ""
+      },
+      {
+        "name": "focused_grid_search",
+        "status": "ok",
+        "command": [
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/search/grid_search.py",
+          "--quick"
+        ],
+        "input_diagnostics": [
+          "runs/operations/live_holdout.json",
+          "signals/*.json",
+          "runs/operations/latest.json",
+          "docs/design-guide.md",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/operations/live_holdout.json",
+          "runs/search/*.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "drift is not reproducible from point-in-time snapshots",
+          "quick grid has no candidate worth full certification",
+          "hypothesis cannot be mapped to bounded diagnostics"
+        ],
+        "started_utc": "2026-05-26T03:50:43Z",
+        "finished_utc": "2026-05-26T03:50:50Z",
+        "returncode": 0,
+        "stdout_tail": "fed_funds_pivot                12 combos\n  keltner_squeeze_breakout        9 combos\n  vix_term_proxy                 18 combos\n  macd_qqq_bull                   3 combos\n  vol_donchian_breakout           8 combos\n  sgov_flight_switch              6 combos\n  drawdown_recovery             162 combos\n  vol_compression_breakout      243 combos\n  price_position_regime          36 combos\n  tecl_sgov_rs                   24 combos\n  regime_state_machine            1 combos\n  bounce_breakout                40 combos\n  tri_filter_macd                32 combos\n  momentum_roc_canonical         24 combos\n  adaptive_ema_vol               16 combos\n  fed_macro_primary              24 combos\n  rank_slope_regime              48 combos\n  zscore_return_reversion        48 combos\n  breadth_decay_composite        36 combos\n  vj_or_slope_meta               16 combos\n  TOTAL                         852 combos\n\n[grid] Multicore: 12 workers for 852 combos...\n[grid] Worker chunksize: 8\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n  vix_gc_filter                  0 pass charter  best_fit=0.00  best_share=0.00x\n  treasury_curve_trend           0 pass charter  best_fit=0.00  best_share=0.00x\n  xlk_relative_strength          0 pass charter  best_fit=0.00  best_share=0.00x\n  fed_funds_pivot                0 pass charter  best_fit=0.00  best_share=0.00x\n  keltner_squeeze_breakout       0 pass charter  best_fit=0.00  best_share=0.00x\n  vix_term_proxy                 0 pass charter  best_fit=0.00  best_share=0.00x\n  macd_qqq_bull                  0 pass charter  best_fit=0.00  best_share=0.00x\n  vol_donchian_breakout          0 pass charter  best_fit=0.00  best_share=0.00x\n  sgov_flight_switch             0 pass charter  best_fit=0.00  best_share=0.00x\n  drawdown_recovery              0 pass charter  best_fit=0.00  best_share=0.00x\n  vol_compression_breakout       0 pass charter  best_fit=0.00  best_share=0.00x\n  price_position_regime          0 pass charter  best_fit=0.00  best_share=0.00x\n  tecl_sgov_rs                   0 pass charter  best_fit=0.00  best_share=0.00x\n  regime_state_machine           0 pass charter  best_fit=0.00  best_share=0.00x\n  bounce_breakout                0 pass charter  best_fit=0.00  best_share=0.00x\n  tri_filter_macd                0 pass charter  best_fit=0.00  best_share=0.00x\n  momentum_roc_canonical         0 pass charter  best_fit=0.00  best_share=0.00x\n  adaptive_ema_vol               0 pass charter  best_fit=0.00  best_share=0.00x\n  fed_macro_primary              0 pass charter  best_fit=0.00  best_share=0.00x\n  rank_slope_regime              0 pass charter  best_fit=0.00  best_share=0.00x\n  zscore_return_reversion        0 pass charter  best_fit=0.00  best_share=0.00x\n  breadth_decay_composite        0 pass charter  best_fit=0.00  best_share=0.00x\n  vj_or_slope_meta               0 pass charter  best_fit=0.00  best_share=0.00x\n\n[grid] Search done: 852 combos \u2192 0 pass charter (852 rejected) in 5.5s\n[grid] No candidates passed charter pre-filter. Nothing to validate.\n",
+        "stderr_tail": ""
+      },
+      {
+        "name": "generated_hypothesis_test",
+        "status": "ok",
+        "command": [
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/ops/generated_hypothesis_test.py",
+          "--idea-id",
+          "c39e79cad9c3",
+          "--json"
+        ],
+        "input_diagnostics": [
+          "runs/operations/live_holdout.json",
+          "signals/*.json",
+          "runs/operations/latest.json",
+          "docs/design-guide.md",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/operations/live_holdout.json",
+          "runs/search/*.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "drift is not reproducible from point-in-time snapshots",
+          "quick grid has no candidate worth full certification",
+          "hypothesis cannot be mapped to bounded diagnostics"
+        ],
+        "started_utc": "2026-05-26T03:50:50Z",
+        "finished_utc": "2026-05-26T03:50:50Z",
+        "returncode": 0,
+        "stdout_tail": "{\n  \"schema_version\": 1,\n  \"generated_utc\": \"2026-05-26T03:50:50Z\",\n  \"idea_id\": \"c39e79cad9c3\",\n  \"kind\": \"recent_market_movement_stress\",\n  \"status\": \"planned\",\n  \"hypothesis\": \"If recent market movement stress is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Recent live-window market movement is 8.85%, high enough to stress timing assumptions.\",\n  \"input_diagnostics\": [\n    \"runs/operations/live_holdout.json\",\n    \"signals/*.json\",\n    \"runs/operations/latest.json\",\n    \"docs/design-guide.md\",\n    \"runs/research_queue/ideas/<idea_id>.json\"\n  ],\n  \"suggested_tests\": [\n    \"live_holdout_review\",\n    \"focused_grid_search\",\n    \"generated_hypothesis_test\"\n  ],\n  \"expected_artifact_paths\": [\n    \"runs/operations/live_holdout.json\",\n    \"runs/search/*.json\",\n    \"runs/research_queue/hypotheses/<idea_id>.json\"\n  ],\n  \"stop_conditions\": [\n    \"drift is not reproducible from point-in-time snapshots\",\n    \"quick grid has no candidate worth full certification\",\n    \"hypothesis cannot be mapped to bounded diagnostics\"\n  ],\n  \"expected_failure_mode\": \"fails Gold all-era economics or Future Confidence before promotion\",\n  \"artifact_path\": \"/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/research_queue/hypotheses/c39e79cad9c3.json\"\n}\n",
+        "stderr_tail": ""
+      }
+    ]
+  },
+  "finished_utc": "2026-05-26T03:50:50Z"
+}

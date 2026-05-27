@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "id": "7a2049e0fa65",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "proposed",
+  "kind": "skew_index_extreme_reversion",
+  "rationale": "Tests whether extreme CBOE SKEW readings indicate over-hedged institutional fear and provide a contrarian long entry.",
+  "validation_tier": "T1",
+  "suggested_tests": [
+    "diversity_prefilter_search",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "SKEW can remain structurally elevated for years due to changing hedging behavior.",
+  "input_diagnostics": [
+    "runs/family_confidence_leaderboard.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/diversity_prefilter_search.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "candidate family remains crowded or redundant",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "The strategy fails to exit cash for more than 12 consecutive months.",
+    "Share accumulation trails buy-and-hold during the 2020-2021 bull run."
+  ]
+}

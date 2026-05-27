@@ -2,15 +2,36 @@
   "schema_version": 1,
   "id": "ccd484bec821",
   "created_utc": "2026-05-12T04:33:35Z",
-  "status": "proposed",
+  "status": "paused",
   "kind": "rebound_capture_repair",
   "rationale": "Current warnings point to weak rebound participation.",
   "validation_tier": "T1",
   "suggested_tests": [
     "near_miss_autopsy",
     "focused_grid_search",
+    "generated_hypothesis_test",
     "named_window_recheck"
   ],
   "time_budget": "bounded local diagnostic first",
-  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion",
+  "input_diagnostics": [
+    "runs/near_miss_autopsy.json",
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "runs/research_queue/ideas/<idea_id>.json",
+    "runs/cycle_diagnostics.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/near_miss_autopsy.json",
+    "runs/search/*.json",
+    "runs/research_queue/hypotheses/<idea_id>.json",
+    "runs/cycle_diagnostics.json"
+  ],
+  "stop_conditions": [
+    "near-Gold candidate repeats known Gold contract failures",
+    "quick grid has no candidate worth full certification",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "targeted window still fails after timing repair"
+  ],
+  "reviewed_utc": "2026-05-26T03:59:19Z"
 }

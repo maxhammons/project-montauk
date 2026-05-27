@@ -1,6 +1,6 @@
 # Project Montauk — Project Status
 
-> As of 2026-04-29
+> As of 2026-05-25
 
 ---
 
@@ -45,6 +45,10 @@ A validated winner emits a `backtest_certified` signal bundle: the five standard
 - `share_multiple`, `real_share_multiple`, and `modern_share_multiple` all >= 1.0 versus B&H
 
 Rows that are PASS but not artifact-backed, or that lose to B&H in any canonical era, remain research/certification artifacts outside the leaderboard.
+
+### Chimera v1 static committee (2026-05-26)
+
+The prior read-only dynamic Chimera surface has been retired. Chimera now means a versioned, immutable, certified committee strategy. The first version is `chimera_v1_2026_05_26`, formerly the Gold hybrid committee. Its member list, weights, threshold, validation result, and artifact bundle are fixed like any other Gold Status row. Future committees must be generated and certified as new dated versions instead of mutating v1.
 
 ### Timing-repair research lane (2026-04-28)
 

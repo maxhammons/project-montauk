@@ -32,6 +32,18 @@ from ops.research_runner import build_research_plan, create_research_run
 from ops.run_job import JobLockedError, acquire_lock, output_artifact_paths, release_lock, run_job
 from ops.scheduler import init_config, list_jobs, load_config, next_run_at, scheduler_status, set_enabled
 from ops.strategy_review import build_strategy_review
+from ops.generated_hypothesis_test import write_hypothesis
+from ops.app_update import build_update_plan
+from ops.versioning import version_info
+from ops.app_smoke import json_check
+from ops.errors import ERROR_CODES
+from ops.fresh_shell_check import build_fresh_shell_report
+from ops.hardening import (
+    daylight_saving_probe,
+    failed_job_corruption_probe,
+    market_holiday_probe,
+    stale_data_probe,
+)
 
 
 def _snapshot(date: str = "2026-05-08", risk_state: str = "risk_on") -> dict:
@@ -305,6 +317,29 @@ def test_run_job_writes_record_and_event(tmp_path) -> None:
     assert "runs/operations/latest.json" in output_artifact_paths("daily")
     assert (tmp_path / "events.jsonl").exists()
     assert read_events(events_path=tmp_path / "events.jsonl")[0]["event_type"] == "job_succeeded"
+
+
+def test_run_job_failed_record_has_error_code(tmp_path) -> None:
+    def runner(command: list[str]) -> subprocess.CompletedProcess:
+        return subprocess.CompletedProcess(
+            command,
+            2,
+            stdout="",
+            stderr="network connection timed out",
+        )
+
+    record = run_job(
+        "status",
+        record_dir=tmp_path / "jobs",
+        events_path=tmp_path / "events.jsonl",
+        runner=runner,
+        python="/tmp/python",
+    )
+
+    assert record["status"] == "failed"
+    assert record["error_code"] == ERROR_CODES["network_unavailable"]
+    event = read_events(events_path=tmp_path / "events.jsonl")[0]
+    assert event["payload"]["error_code"] == ERROR_CODES["network_unavailable"]
 
 
 def test_notification_outbox_filters_routine_events() -> None:
@@ -654,13 +689,34 @@ def test_research_queue_generates_warning_based_proposals(tmp_path) -> None:
         }
     }
 
-    proposals = generate_proposals(latest, {"state": "active_watch"})
+    live_holdout = {"close_return_since_start_pct": 8.5, "diverged_count": 1, "status": "attention"}
+    family_confidence = {"strategy_family_leaders": [{"family": "gc_vjatr", "family_size": 4}]}
+    near_miss = {"autopsies": [{"strategy": "example"}]}
+    reality_check = {"summary": {"gate_fail": 2}}
+    proposals = generate_proposals(
+        latest,
+        {"state": "active_watch"},
+        live_holdout,
+        family_confidence,
+        near_miss,
+        reality_check,
+    )
     kinds = {item["kind"] for item in proposals}
 
     assert "rebound_capture_repair" in kinds
     assert "drawdown_resilience_probe" in kinds
     assert "parsimony_challenger" in kinds
     assert "portability_repair" in kinds
+    assert "live_drift_repair" in kinds
+    assert "recent_market_movement_stress" in kinds
+    assert "family_concentration_repair" in kinds
+    assert "near_gold_autopsy_retest" in kinds
+    assert "near_open_reality_repair" in kinds
+    assert all(item.get("input_diagnostics") for item in proposals)
+    assert all(item.get("expected_artifact_paths") for item in proposals)
+    assert all(item.get("stop_conditions") for item in proposals)
+    assert any("focused_grid_search" in item["suggested_tests"] for item in proposals)
+    assert any("generated_hypothesis_test" in item["suggested_tests"] for item in proposals)
 
     queue = write_proposals(
         proposals,
@@ -698,6 +754,15 @@ def test_research_queue_review_updates_queue_and_idea_file(tmp_path) -> None:
     assert json.loads((ideas_dir / "abc123.json").read_text())["status"] == "approved"
     assert read_events(events_path=tmp_path / "events.jsonl")[0]["event_type"] == "research_idea_reviewed"
 
+    queue = update_idea_status(
+        "abc123",
+        "paused",
+        queue_path=queue_path,
+        ideas_dir=ideas_dir,
+        events_path=tmp_path / "events.jsonl",
+    )
+    assert queue["ideas"][0]["status"] == "paused"
+
 
 def test_research_runner_creates_bounded_plan_record(tmp_path) -> None:
     idea = {
@@ -706,18 +771,116 @@ def test_research_runner_creates_bounded_plan_record(tmp_path) -> None:
         "rationale": "test",
         "status": "approved",
         "validation_tier": "T0/T1",
-        "suggested_tests": ["family_confidence_leaderboard", "unknown_test"],
+        "suggested_tests": ["generated_hypothesis_test", "family_confidence_leaderboard", "unknown_test"],
         "time_budget": "bounded",
         "expected_failure_mode": "fails validation",
+        "input_diagnostics": ["runs/operations/latest.json"],
+        "expected_artifact_paths": ["runs/research_queue/hypotheses/abc123.json"],
+        "stop_conditions": ["candidate fails validation"],
     }
 
     plan = build_research_plan(idea, python="/tmp/python")
     record = create_research_run(idea, runs_dir=tmp_path, events_path=tmp_path / "events.jsonl")
 
     assert plan["steps"][0]["command"][0] == "/tmp/python"
-    assert plan["steps"][1]["status"] == "manual_review"
+    assert plan["steps"][0]["command"][-2:] == ["abc123", "--json"]
+    assert "abc123" in plan["steps"][0]["command"]
+    assert plan["steps"][2]["status"] == "manual_review"
+    assert plan["expected_artifact_paths"] == ["runs/research_queue/hypotheses/abc123.json"]
     assert record["status"] == "planned"
     assert Path(record["record_path"]).exists()
+
+
+def test_research_runner_routes_native_strategy_ideas_to_concept_grid() -> None:
+    idea = {
+        "id": "native123",
+        "kind": "defensive_sector_divergence",
+        "rationale": "test native routing",
+        "status": "approved",
+        "validation_tier": "T1",
+        "suggested_tests": ["cross_asset_recheck", "generated_hypothesis_test"],
+        "time_budget": "bounded",
+    }
+
+    plan = build_research_plan(idea, python="/tmp/python")
+
+    assert plan["steps"][0]["name"] == "native_concept_grid"
+    assert "--concepts" in plan["steps"][0]["command"]
+    assert "defensive_sector_divergence" in plan["steps"][0]["command"]
+    assert any(arg.endswith("native123-grid.json") for arg in plan["steps"][0]["command"])
+
+
+def test_generated_hypothesis_artifact_writes_metadata(tmp_path) -> None:
+    idea = {
+        "schema_version": 1,
+        "id": "abc123",
+        "kind": "live_drift_repair",
+        "rationale": "Live drift exists.",
+        "suggested_tests": ["live_holdout_review", "generated_hypothesis_test"],
+        "input_diagnostics": ["runs/operations/live_holdout.json"],
+        "expected_artifact_paths": ["runs/research_queue/hypotheses/abc123.json"],
+        "stop_conditions": ["drift is not reproducible"],
+    }
+    ideas_dir = tmp_path / "ideas"
+    ideas_dir.mkdir()
+    (ideas_dir / "abc123.json").write_text(json.dumps(idea))
+
+    payload = write_hypothesis(
+        "abc123",
+        ideas_dir=ideas_dir,
+        queue_path=tmp_path / "queue.json",
+        output_dir=tmp_path / "hypotheses",
+    )
+
+    assert payload["kind"] == "live_drift_repair"
+    assert payload["input_diagnostics"] == ["runs/operations/live_holdout.json"]
+    assert Path(payload["artifact_path"]).exists()
+
+
+def test_version_and_update_plan_are_structured(tmp_path) -> None:
+    root = tmp_path
+    (root / "app/src-tauri").mkdir(parents=True)
+    (root / "app/package.json").write_text(json.dumps({"version": "9.9.9"}))
+    (root / "app/src-tauri/tauri.conf.json").write_text(json.dumps({"version": "9.9.8"}))
+
+    info = version_info(root)
+    assert info["app_version"] == "9.9.9"
+    assert "git_dirty" in info
+
+    plan = build_update_plan(candidate=tmp_path / "Montauk.app", target=tmp_path / "Applications/Montauk.app")
+    assert plan["candidate_exists"] is False
+    assert plan["can_install"] is False
+    assert "runs/" in plan["preserved_paths"]
+
+
+def test_app_smoke_json_check_reports_missing_keys(tmp_path) -> None:
+    path = tmp_path / "latest.json"
+    path.write_text(json.dumps({"schema_version": 1}))
+
+    check = json_check(path, "latest", ["schema_version", "active_signal"])
+
+    assert check["ok"] is False
+    assert check["error_code"] == ERROR_CODES["invalid_json"]
+    assert check["missing_keys"] == ["active_signal"]
+
+
+def test_fresh_shell_report_resolves_enabled_job_commands() -> None:
+    report = build_fresh_shell_report(execute=False, enabled_only=True)
+
+    assert report["schema_version"] == 1
+    assert report["check_count"] >= 1
+    assert all("command" in check or check.get("error_code") for check in report["checks"])
+
+
+def test_hardening_probes_cover_stale_holiday_dst_and_failed_jobs() -> None:
+    fixture = Path("tests/fixtures/ops/latest_stale.json")
+    stale_latest = json.loads(fixture.read_text())
+    failed_record = json.loads(Path("tests/fixtures/ops/job_failed.json").read_text())
+
+    assert stale_data_probe(stale_latest)["ok"] is True
+    assert market_holiday_probe()["ok"] is True
+    assert daylight_saving_probe()["ok"] is True
+    assert failed_job_corruption_probe(failed_record)["ok"] is True
 
 
 def test_doctor_report_has_structured_checks() -> None:

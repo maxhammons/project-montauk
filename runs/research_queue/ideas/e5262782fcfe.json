@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "e5262782fcfe",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "proposed",
+  "kind": "semiconductor_software_decoupling",
+  "rationale": "Tests if relative momentum divergence between semiconductors and software flags early institutional rotation in broad tech leadership.",
+  "validation_tier": "T0/T1",
+  "suggested_tests": [
+    "focused_grid_search",
+    "overlay_champion_matrix",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "Sub-sector correlations converge during macro liquidations, wiping out granular lead time.",
+  "input_diagnostics": [
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "spike/leaderboard.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/search/*.json",
+    "runs/overlay_champion_matrix.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "quick grid has no candidate worth full certification",
+    "overlay worsens drawdown or live-era share multiple",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Tracking error relative to TECL buy-and-hold during uptrends exceeds 15%.",
+    "Alpha contribution drops to zero across non-overlapping 3-year windows."
+  ]
+}

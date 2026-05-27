@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-05-26T04:08:48Z",
+  "idea_id": "9428e1617c1f",
+  "kind": "multi_horizon_vote_family_probe",
+  "status": "planned",
+  "hypothesis": "If multi horizon vote family probe is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Chimera shows ensemble value, so test a simpler single-strategy multi-horizon vote family before relying on member-level ensembles.",
+  "input_diagnostics": [
+    "spike/leaderboard.json",
+    "runs/chimera/member_manifest.json",
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "runs/family_confidence_leaderboard.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "suggested_tests": [
+    "chimera_generation",
+    "focused_grid_search",
+    "family_confidence_leaderboard",
+    "generated_hypothesis_test"
+  ],
+  "expected_artifact_paths": [
+    "runs/chimera/latest.json",
+    "runs/chimera/vote_ledger.json",
+    "runs/chimera/validation_summary.json",
+    "runs/chimera/family_ablation_report.json",
+    "runs/chimera/correlation_stress_report.json",
+    "runs/chimera/candidate_comparison.json",
+    "runs/search/*.json",
+    "runs/family_confidence_leaderboard.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "Chimera fails validation or is dominated by one family",
+    "quick grid has no candidate worth full certification",
+    "no new family leader improves Future Confidence and Trust",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "multi-horizon vote collapses into the existing Gold majority state",
+    "vote threshold improves full history but loses modern-era economics"
+  ],
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+}

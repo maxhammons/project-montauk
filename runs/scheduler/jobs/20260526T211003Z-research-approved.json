@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "job": "research-approved",
+  "status": "ok",
+  "started_utc": "2026-05-26T21:10:03Z",
+  "finished_utc": "2026-05-26T21:10:03Z",
+  "command": [
+    "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+    "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/ops/research_runner.py",
+    "--json"
+  ],
+  "cwd": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk",
+  "schedule": {
+    "key": "daily-research-supervisor",
+    "enabled": true,
+    "schedule": {
+      "Hour": 14,
+      "Minute": 10
+    }
+  },
+  "output_artifact_paths": [
+    "runs/research_queue/runs/*.json"
+  ],
+  "returncode": 0,
+  "error_code": null,
+  "stdout_tail": "{\n  \"schema_version\": 1,\n  \"generated_utc\": \"2026-05-26T21:10:03Z\",\n  \"approved_count\": 0,\n  \"run_count\": 0,\n  \"runs\": []\n}\n",
+  "stderr_tail": "",
+  "lock_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/scheduler/locks/research-approved.lock",
+  "record_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/scheduler/jobs/20260526T211003Z-research-approved.json"
+}

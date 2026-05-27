@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-05-26T04:09:30Z",
+  "idea_id": "ce5a4fb64362",
+  "kind": "volatility_targeted_exposure_family_probe",
+  "status": "planned",
+  "hypothesis": "If volatility targeted exposure family probe is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Chimera still has large drawdown, so test binary timing families that only allow risk-on when realized volatility is in a targetable band.",
+  "input_diagnostics": [
+    "runs/near_miss_autopsy.json",
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "spike/leaderboard.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "suggested_tests": [
+    "near_miss_autopsy",
+    "focused_grid_search",
+    "overlay_champion_matrix",
+    "generated_hypothesis_test"
+  ],
+  "expected_artifact_paths": [
+    "runs/near_miss_autopsy.json",
+    "runs/search/*.json",
+    "runs/overlay_champion_matrix.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "near-Gold candidate repeats known Gold contract failures",
+    "quick grid has no candidate worth full certification",
+    "overlay worsens drawdown or live-era share multiple",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "volatility band is just a disguised calm-market filter",
+    "candidate reduces drawdown but loses share accumulation versus B&H"
+  ],
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+}

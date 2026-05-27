@@ -48,6 +48,8 @@ The authoritative full-run path is:
 5. **Certify + Promote**
    Gate 7 synthesis computes `promotion_ready` (tier-appropriate PASS across all 7 gates), `certified_not_overfit` (promotion-ready plus required anti-overfit certification checks), `backtest_certified` (certified plus complete standardized artifacts), and `gold_status` (certified, artifact-verified, and beating B&H in full / real / modern eras). The leaderboard admits entries that satisfy the canonical Gold Status contract in `scripts/certify/contract.py`. Each entry is tagged with its tier and Gold Status. To re-validate every existing leaderboard entry under current rules: `scripts/certify/recertify_leaderboard.py`.
 
+   Chimera is handled as a certified static strategy snapshot, not an authority shortcut. `chimera_v1_2026_05_26` is the first frozen committee version: its member list, weights, threshold, validation, and artifacts are fixed like any other Gold Status row. Future Chimera versions must be generated, validated, artifact-certified, and admitted as new immutable rows; they do not automatically inherit member Gold Status or live-update from the leaderboard.
+
 6. **Simulate deployment overlay**
    Run the approved Roth account overlay for the validated champion.
 
@@ -106,6 +108,28 @@ A T0 strategy that fails registration discipline (missing timestamp, non-canonic
 ### Research chunk mode
 
 `spike_runner.py --chunk` is a research loop for iterative local work. It is useful for exploration. It is not the canonical leaderboard promotion path unless explicitly brought under the same tier-routed validation rules.
+
+### Research queue native strategy routing
+
+`scripts/ops/research_queue.py` stores proposed strategy ideas under `runs/research_queue/`. `scripts/ops/research_runner.py --execute` turns approved ideas into bounded local runs. When a queued idea has a native strategy implementation in `scripts/strategies/library.py`, the runner routes grid and diversity tests to that exact concept with `--concepts <strategy_name>` and writes idea-specific artifacts under `runs/research_queue/hypotheses/`. This keeps externally generated ideas from being evaluated only by generic diagnostics.
+
+### Leaderboard-grade grid prefilter
+
+`scripts/search/grid_search.py --canonical-prefilter` recomputes standalone full / real / modern era reruns for the top raw candidates before validation. This is the same era interpretation used by Gold Status admission, so repair and family-expansion sweeps can avoid validating candidates that only win on the raw continuous equity curve and cannot reach `spike/leaderboard.json`. Use `--canonical-scan-n` to control how many raw candidates get rerun through the stricter guard, and `--exclude-prefix gc_` when running new-family expansion outside the existing Gold-cross family.
+
+### Chimera Versioned Committee
+
+Chimera is the named collection strategy for combining already certified Gold rows into a reproducible committee. It is intentionally not part of the animal display-name system: animal names identify individual source strategies, while `chimera_vN_YYYY_MM_DD` identifies a frozen certified committee version.
+
+Operational contract:
+
+- membership is stored in the strategy params, not loaded dynamically
+- voters must be registered strategies with fixed params and fixed weights
+- the version id includes both version number and certification date
+- member Gold Status does not transfer; the Chimera version itself must satisfy Gold Status
+- a new leaderboard composition can inspire a future Chimera version, but it cannot mutate an existing certified row
+
+`chimera_v1_2026_05_26` is the first certified static Chimera version and replaces the earlier read-only dynamic `chimera` surface.
 
 ---
 

@@ -414,7 +414,7 @@ def build_lab(
         candidates.append(
             _candidate(
                 f"family_committee_{threshold:.2f}",
-                "gold_hybrid_committee",
+                "chimera_v1_2026_05_26",
                 {"members": members, "threshold": threshold},
                 df,
                 champion,

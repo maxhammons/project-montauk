@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "6554e788962b",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "proposed",
+  "kind": "sector_alpha_breadth_divergence",
+  "rationale": "Tests if the percentage of Nasdaq-100 components outperforming the index identifies broad institutional accumulation.",
+  "validation_tier": "T1",
+  "suggested_tests": [
+    "overlay_champion_matrix",
+    "diversity_prefilter_search",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "Index performance can stay concentrated in a few mega-cap names for years, causing missed advances.",
+  "input_diagnostics": [
+    "spike/leaderboard.json",
+    "runs/family_confidence_leaderboard.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/overlay_champion_matrix.json",
+    "runs/diversity_prefilter_search.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "overlay worsens drawdown or live-era share multiple",
+    "candidate family remains crowded or redundant",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Underperforms QQQ by more than 15% over any rolling 24-month period.",
+    "Correlation with standard breadth metrics exceeds 0.85."
+  ]
+}

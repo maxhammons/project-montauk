@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-05-26T04:09:46Z",
+  "idea_id": "95225d0b8a0d",
+  "kind": "correlation_regime_switch_family_probe",
+  "status": "planned",
+  "hypothesis": "If correlation regime switch family probe is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Gold and Chimera concentration risk justify testing whether TECL behaves differently when tech-risk correlation regimes shift.",
+  "input_diagnostics": [
+    "runs/gold_diversity_report.json",
+    "runs/family_confidence_leaderboard.json",
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "suggested_tests": [
+    "cross_asset_recheck",
+    "diversity_prefilter_search",
+    "focused_grid_search",
+    "generated_hypothesis_test"
+  ],
+  "expected_artifact_paths": [
+    "runs/gold_diversity_report.json",
+    "runs/diversity_prefilter_search.json",
+    "runs/search/*.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "same-param portability remains below threshold",
+    "candidate family remains crowded or redundant",
+    "quick grid has no candidate worth full certification",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "correlation-regime proxy is redundant with QQQ same-parameter behavior",
+    "candidate improves portability but loses TECL share accumulation"
+  ],
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+}

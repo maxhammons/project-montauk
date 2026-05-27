@@ -313,6 +313,61 @@ GRIDS = {
         "slow_ema": [100, 200],
         "cooldown": [5],
     },
+    # ── External idea pack 2026-05-26: native/proxy queue concepts ──
+    "move_index_regime": {  # 2 × 2 × 2 × 2 × 2 = 32 combos
+        "trend_len": [100, 200],
+        "exit_ema": [50, 100],
+        "vol_len": [10, 20],
+        "vol_avg_len": [50, 100],
+        "calm_mult": [0.8, 1.0],
+        "spike_mult": [1.3],
+        "cooldown": [5],
+    },
+    "credit_spread_velocity": {  # 2 × 2 × 2 × 2 = 16 combos
+        "lookback": [10, 20],
+        "trend_len": [100, 200],
+        "exit_ema": [50, 100],
+        "stress_thresh": [0.001, 0.002],
+        "xlk_floor": [-0.03],
+        "cooldown": [5],
+    },
+    "overnight_gap_exhaustion": {  # 2 × 3 × 2 × 2 = 24 combos
+        "gap_streak": [2, 3],
+        "gap_down_pct": [1.0, 2.0, 3.0],
+        "max_hold": [5, 10],
+        "rsi_reclaim": [35.0, 40.0],
+        "rsi_len": [14],
+        "trend_len": [100],
+        "trend_stop": [0.88],
+        "cooldown": [5],
+    },
+    "consecutive_down_gap_capitulation": {  # 2 × 2 × 2 × 2 = 16 combos
+        "gap_streak": [3, 4],
+        "gap_down_pct": [1.0, 2.0],
+        "max_hold": [5, 10],
+        "rsi_reclaim": [35.0, 45.0],
+        "rsi_len": [14],
+        "trend_len": [100],
+        "trend_stop": [0.85],
+        "cooldown": [5],
+    },
+    "put_call_panic_reversion": {  # 2 × 2 × 2 × 2 × 2 = 32 combos
+        "vix_sma_len": [30, 50],
+        "vix_spike_mult": [1.15, 1.30],
+        "rsi_len": [7, 14],
+        "rsi_reclaim": [35.0, 40.0],
+        "exit_rsi": [65.0, 75.0],
+        "trend_len": [200],
+        "exit_ema": [50],
+        "trend_buffer": [0.90],
+        "cooldown": [5],
+    },
+    "defensive_sector_divergence": {  # 3 × 2 × 3 = 18 combos
+        "lookback": [10, 20, 50],
+        "trend_len": [100, 200],
+        "defense_edge": [0.01, 0.02, 0.03],
+        "cooldown": [5],
+    },
     # ── Spike batch 2026-04-14d: golden cross hybrids ──
     "gc_precross": {  # 4 × 2 × 2 = 16 combos (filtered fast < slow)
         "fast_ema": [20, 30, 50, 100],
@@ -1303,6 +1358,38 @@ GRIDS = {
     },
 }
 
+QUICK_RESEARCH_CONCEPTS = [
+    "vix_gc_filter",
+    "treasury_curve_trend",
+    "xlk_relative_strength",
+    "fed_funds_pivot",
+    "keltner_squeeze_breakout",
+    "vix_term_proxy",
+    "macd_qqq_bull",
+    "vol_donchian_breakout",
+    "sgov_flight_switch",
+    "move_index_regime",
+    "credit_spread_velocity",
+    "overnight_gap_exhaustion",
+    "consecutive_down_gap_capitulation",
+    "put_call_panic_reversion",
+    "defensive_sector_divergence",
+    "drawdown_recovery",
+    "vol_compression_breakout",
+    "price_position_regime",
+    "tecl_sgov_rs",
+    "regime_state_machine",
+    "bounce_breakout",
+    "tri_filter_macd",
+    "momentum_roc_canonical",
+    "adaptive_ema_vol",
+    "fed_macro_primary",
+    "rank_slope_regime",
+    "zscore_return_reversion",
+    "breadth_decay_composite",
+    "vj_or_slope_meta",
+]
+
 
 def _grid_combos(grid: dict) -> list[dict]:
     """Expand a grid dict into all parameter combos (Cartesian product)."""
@@ -1400,6 +1487,112 @@ def _attach_canonical_multi_era(
             }
         )
     return reconciliation
+
+
+def _slice_df_for_cutoff(df, cutoff: str | None):
+    if cutoff is None:
+        return df
+    return df[df["date"] >= cutoff].reset_index(drop=True)
+
+
+def _standalone_era_share(df, strategy: str, params: dict, cutoff: str | None) -> dict:
+    df_slice = _slice_df_for_cutoff(df, cutoff)
+    if len(df_slice) < 2:
+        return {"error": "window too short"}
+    fn = STRATEGY_REGISTRY.get(strategy)
+    if fn is None:
+        return {"error": f"strategy {strategy!r} not in STRATEGY_REGISTRY"}
+    try:
+        ind_slice = Indicators(df_slice)
+        entries, exits, labels = fn(ind_slice, params)
+        result = backtest(
+            df_slice,
+            entries,
+            exits,
+            labels,
+            cooldown_bars=params.get("cooldown", 0),
+            strategy_name=strategy,
+        )
+    except Exception as exc:
+        return {"error": f"backtest failed: {exc}"[:200]}
+    return {
+        "share_multiple": float(result.share_multiple),
+        "trades": int(result.num_trades),
+        "start_date": str(df_slice["date"].iloc[0])[:10],
+        "end_date": str(df_slice["date"].iloc[-1])[:10],
+    }
+
+
+def _lightweight_multi_era(entry: dict, df) -> dict:
+    strategy = entry.get("strategy")
+    params = entry.get("params") or {}
+    return {
+        "eras": {
+            "full": _standalone_era_share(df, strategy, params, None),
+            "real": _standalone_era_share(df, strategy, params, "2008-12-17"),
+            "modern": _standalone_era_share(df, strategy, params, "2015-01-01"),
+        }
+    }
+
+
+def _canonical_prefilter_candidates(
+    candidates: list[dict],
+    df,
+    *,
+    scan_n: int,
+    min_share: float = 1.0,
+) -> tuple[list[dict], dict]:
+    """Canonicalize top raw candidates and keep only standalone all-era winners."""
+
+    if not candidates or scan_n <= 0:
+        return candidates, {
+            "enabled": False,
+            "scan_n": scan_n,
+            "scanned": 0,
+            "passed": len(candidates),
+            "min_share": min_share,
+        }
+
+    scanned = []
+    for idx, entry in enumerate(candidates[:scan_n], 1):
+        raw_metrics = dict(entry.get("metrics") or {})
+        entry.setdefault("metrics_raw_engine", raw_metrics)
+        entry["fitness_raw_engine"] = float(entry.get("fitness") or 0.0)
+        entry["multi_era"] = _lightweight_multi_era(entry, df)
+        entry["metrics"] = canonicalize_metrics_with_multi_era(
+            raw_metrics,
+            entry.get("multi_era"),
+        )
+        entry["fitness"] = fitness_from_metrics(
+            entry.get("metrics") or {},
+            multi_era=entry.get("multi_era"),
+        )
+        entry["overall_performance_score"] = all_era_score_from_entry(entry)
+        entry["canonical_prefilter_pass"] = all(
+            float((entry.get("metrics") or {}).get(key, 0.0) or 0.0) >= min_share
+            for key in ("share_multiple", "real_share_multiple", "modern_share_multiple")
+        )
+        scanned.append(entry)
+        if idx % 100 == 0 or idx == scan_n:
+            current_pass = sum(
+                1 for item in scanned if item.get("canonical_prefilter_pass")
+            )
+            print(
+                f"[grid] canonical prefilter progress {idx}/{scan_n} "
+                f"pass={current_pass}",
+                flush=True,
+            )
+
+    passed = [entry for entry in scanned if entry.get("canonical_prefilter_pass")]
+    report = {
+        "enabled": True,
+        "scan_n": scan_n,
+        "scanned": len(scanned),
+        "passed": len(passed),
+        "min_share": min_share,
+        "rejected": len(scanned) - len(passed),
+    }
+    return passed, report
 
 
 def _is_valid_combo(concept: str, params: dict) -> bool:
@@ -1667,6 +1860,7 @@ def _backtest_single(
 
 def run_grid_search(
     concepts: list[str] | None = None,
+    exclude_prefixes: list[str] | None = None,
     dry_run: bool = False,
     top_n: int = 20,
     validate: bool = True,
@@ -1674,6 +1868,9 @@ def run_grid_search(
     rank_by: str = "fitness",
     progress_every: int = 5000,
     include_trades: bool = False,
+    canonical_prefilter: bool = False,
+    canonical_scan_n: int = 0,
+    canonical_min_share: float = 1.0,
 ) -> dict:
     """Run exhaustive grid search over all (or specified) concepts.
 
@@ -1681,6 +1878,9 @@ def run_grid_search(
     """
     if concepts is None:
         concepts = list(GRIDS.keys())
+    if exclude_prefixes:
+        prefixes = tuple(prefix for prefix in exclude_prefixes if prefix)
+        concepts = [concept for concept in concepts if not concept.startswith(prefixes)]
 
     # Load data once (main process — for combo counting + post-search use)
     print("[grid] Loading TECL data...")
@@ -1814,6 +2014,47 @@ def run_grid_search(
         print("[grid] No candidates passed charter pre-filter. Nothing to validate.")
         return {"total_combos": total_combos, "charter_pass": 0}
 
+    raw_charter_pass = len(all_results)
+    canonical_prefilter_report = {
+        "enabled": False,
+        "scan_n": 0,
+        "scanned": 0,
+        "passed": raw_charter_pass,
+        "min_share": canonical_min_share,
+    }
+    if canonical_prefilter:
+        scan_n = canonical_scan_n or max(top_n * 10, 250)
+        scan_n = min(scan_n, len(all_results))
+        print(
+            f"\n[grid] Canonical prefilter: recomputing standalone eras for "
+            f"top {scan_n} raw candidates..."
+        )
+        all_results, canonical_prefilter_report = _canonical_prefilter_candidates(
+            all_results,
+            df,
+            scan_n=scan_n,
+            min_share=canonical_min_share,
+        )
+        all_results.sort(key=lambda e: _rank_value(e, rank_by), reverse=True)
+        for i, e in enumerate(all_results, 1):
+            e["rank"] = i
+        print(
+            f"[grid] Canonical prefilter: "
+            f"{canonical_prefilter_report['passed']}/{canonical_prefilter_report['scanned']} "
+            f"scanned candidates beat B&H in every standalone era"
+        )
+
+    if not all_results:
+        print("[grid] No candidates survived canonical prefilter. Nothing to validate.")
+        return {
+            "total_combos": total_combos,
+            "charter_pass": raw_charter_pass,
+            "rank_by": rank_by,
+            "include_trades": include_trades,
+            "canonical_prefilter": canonical_prefilter_report,
+            "raw_rankings": [],
+        }
+
     # Show top 10 raw
     print(f"\n[grid] Top 10 raw (by {rank_by}):")
     for e in all_results[:10]:
@@ -1828,9 +2069,10 @@ def run_grid_search(
     if not validate:
         return {
             "total_combos": total_combos,
-            "charter_pass": len(all_results),
+            "charter_pass": raw_charter_pass,
             "rank_by": rank_by,
             "include_trades": include_trades,
+            "canonical_prefilter": canonical_prefilter_report,
             "raw_rankings": all_results[:top_n],
         }
 
@@ -1927,10 +2169,11 @@ def run_grid_search(
 
     return {
         "total_combos": total_combos,
-        "charter_pass": len(all_results),
+        "charter_pass": raw_charter_pass,
         "rank_by": rank_by,
         "progress_every": progress_every,
         "include_trades": include_trades,
+        "canonical_prefilter": canonical_prefilter_report,
         "raw_rankings": all_results[:top_n],
         "validation": validation,
         "canonical_metric_reconciliation": canonical_reconciliation,
@@ -1949,10 +2192,21 @@ def main():
         help="Comma-separated concept names (default: all)",
     )
     parser.add_argument(
+        "--exclude-prefix",
+        type=str,
+        default=None,
+        help="Comma-separated strategy prefixes to skip after concept selection.",
+    )
+    parser.add_argument(
         "--dry-run", action="store_true", help="Just show combo counts, don't backtest"
     )
     parser.add_argument(
         "--top-n", type=int, default=20, help="Validate top N candidates (default: 20)"
+    )
+    parser.add_argument(
+        "--quick",
+        action="store_true",
+        help="Bounded research-mode run: validate fewer candidates and never admit to the leaderboard.",
     )
     parser.add_argument(
         "--no-validate", action="store_true", help="Skip validation (just pre-test)"
@@ -1980,6 +2234,23 @@ def main():
         help="Include serialized trade lists in raw grid results; slower for large discovery runs",
     )
     parser.add_argument(
+        "--canonical-prefilter",
+        action="store_true",
+        help="Recompute standalone eras for top raw candidates before validation.",
+    )
+    parser.add_argument(
+        "--canonical-scan-n",
+        type=int,
+        default=0,
+        help="How many raw candidates to standalone-era scan when --canonical-prefilter is set.",
+    )
+    parser.add_argument(
+        "--canonical-min-share",
+        type=float,
+        default=1.0,
+        help="Minimum standalone era share_multiple required by --canonical-prefilter.",
+    )
+    parser.add_argument(
         "--output",
         type=str,
         default=None,
@@ -1987,9 +2258,20 @@ def main():
     )
     args = parser.parse_args()
 
+    if args.quick:
+        if args.top_n == parser.get_default("top_n"):
+            args.top_n = 5
+        args.no_admit = True
+        if args.progress_every == parser.get_default("progress_every"):
+            args.progress_every = 1000
+
     concepts = args.concepts.split(",") if args.concepts else None
+    exclude_prefixes = args.exclude_prefix.split(",") if args.exclude_prefix else None
+    if args.quick and concepts is None:
+        concepts = QUICK_RESEARCH_CONCEPTS
     result = run_grid_search(
         concepts=concepts,
+        exclude_prefixes=exclude_prefixes,
         dry_run=args.dry_run,
         top_n=args.top_n,
         validate=not args.no_validate,
@@ -1997,6 +2279,9 @@ def main():
         rank_by=args.rank_by,
         progress_every=args.progress_every,
         include_trades=args.include_trades,
+        canonical_prefilter=args.canonical_prefilter,
+        canonical_scan_n=args.canonical_scan_n,
+        canonical_min_share=args.canonical_min_share,
     )
     if args.output:
         output_dir = os.path.dirname(os.path.abspath(args.output))

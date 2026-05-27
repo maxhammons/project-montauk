@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "run_id": "20260526T040400Z-97b8cfd07e09",
+  "created_utc": "2026-05-26T04:04:00Z",
+  "version_info": {
+    "schema_version": 1,
+    "generated_utc": "2026-05-26T04:04:00Z",
+    "app_version": "0.1.0",
+    "git_commit": "8a78629",
+    "git_dirty": true,
+    "strategy_code_version": "8a78629"
+  },
+  "status": "ok",
+  "execute": true,
+  "plan": {
+    "schema_version": 1,
+    "idea_id": "97b8cfd07e09",
+    "kind": "drawdown_reclaim_family_probe",
+    "rationale": "Bootstrap downside warnings justify testing drawdown-reclaim entries that wait for repair evidence instead of pure trend recapture.",
+    "validation_tier": "T1",
+    "time_budget": "bounded local diagnostic first",
+    "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion",
+    "input_diagnostics": [
+      "runs/near_miss_autopsy.json",
+      "runs/operations/latest.json",
+      "docs/design-guide.md",
+      "spike/leaderboard.json",
+      "runs/research_queue/ideas/<idea_id>.json"
+    ],
+    "expected_artifact_paths": [
+      "runs/near_miss_autopsy.json",
+      "runs/search/*.json",
+      "runs/overlay_champion_matrix.json",
+      "runs/research_queue/hypotheses/<idea_id>.json"
+    ],
+    "stop_conditions": [
+      "near-Gold candidate repeats known Gold contract failures",
+      "quick grid has no candidate worth full certification",
+      "overlay worsens drawdown or live-era share multiple",
+      "hypothesis cannot be mapped to bounded diagnostics",
+      "reclaim trigger exits too late during bear continuation",
+      "candidate improves drawdown but loses real-era or modern-era economics"
+    ],
+    "steps": [
+      {
+        "name": "near_miss_autopsy",
+        "status": "ok",
+        "command": [
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/diagnostics/near_miss_autopsy.py"
+        ],
+        "input_diagnostics": [
+          "runs/near_miss_autopsy.json",
+          "runs/operations/latest.json",
+          "docs/design-guide.md",
+          "spike/leaderboard.json",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/near_miss_autopsy.json",
+          "runs/search/*.json",
+          "runs/overlay_champion_matrix.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "near-Gold candidate repeats known Gold contract failures",
+          "quick grid has no candidate worth full certification",
+          "overlay worsens drawdown or live-era share multiple",
+          "hypothesis cannot be mapped to bounded diagnostics",
+          "reclaim trigger exits too late during bear continuation",
+          "candidate improves drawdown but loses real-era or modern-era economics"
+        ],
+        "started_utc": "2026-05-26T04:04:00Z",
+        "finished_utc": "2026-05-26T04:04:04Z",
+        "returncode": 0,
+        "stdout_tail": "2023_rebound     share= 0.340 trades=  3 maxDD= 55.5% regime=0.709\n  2020_meltup      share= 0.660 trades=  3 maxDD= 39.5% regime=0.627\n  2024_onward      share= 1.264 trades=  3 maxDD= 49.7% regime=0.628\n  2021_2022_bear   share= 2.057 trades=  3 maxDD= 50.0% regime=0.558\nWorst calendar years:\n  2011 share= 0.658 strategy= -48.79% bh= -22.22% exposure=61.5%\n  2024 share= 0.690 strategy=   1.44% bh=  47.02% exposure=59.1%\n  2023 share= 0.702 strategy= 117.87% bh= 210.57% exposure=90.8%\n  2009 share= 0.717 strategy=  86.70% bh= 160.53% exposure=58.7%\n  2019 share= 0.726 strategy= 106.56% bh= 184.47% exposure=86.5%\nWorst marker misses:\n  buy  2009-03-02 nearest=2009-06-03 dist=65 mag=5.1304 score=0.0\n  buy  2002-10-07 nearest=2003-05-30 dist=162 mag=3.6241 score=0.0\n  buy  2018-12-28 nearest=2019-02-21 dist=36 mag=2.6505 score=0.0\n  buy  1999-10-27 nearest=2000-05-11 dist=136 mag=2.5429 score=0.0\n  sell 2000-03-23 nearest=2000-05-11 dist=34 mag=0.9747 score=0.0\n\nRSI_REGIME_CANONICAL\n----------------------------------------------------------------------------------------------------------------\nwfit=0.4561 full=1.8290 real=0.3156 modern=0.3757 trades=24 tpy=0.7 maxDD=94.5%\nGold failures: real_era_below_bh, modern_era_below_bh\ndiversity=0.9590 max_corr=0.0684 entry_overlap=0.0000 exit_overlap=0.0000\nmarker=0.5301 state=0.5796 timing_mag=0.1180\nparams={\"cooldown\": 10, \"entry_rsi\": 35.0, \"exit_rsi\": 75.0, \"panic_rsi\": 15.0, \"rsi_len\": 14, \"trend_len\": 200}\n\nWorst named windows:\n  2020_meltup      share= 0.280 trades=  4 maxDD= 65.8% regime=0.528\n  2023_rebound     share= 0.365 trades=  4 maxDD= 27.6% regime=0.574\n  2024_onward      share= 0.970 trades=  4 maxDD= 63.3% regime=0.385\n  2021_2022_bear   share= 1.976 trades=  4 maxDD= 65.8% regime=0.578\nWorst calendar years:\n  2023 share= 0.398 strategy=  23.48% bh= 210.57% exposure=28.0%\n  2017 share= 0.536 strategy=  17.06% bh= 118.29% exposure=11.6%\n  2026 share= 0.638 strategy=  12.20% bh=  75.91% exposure=74.5%\n  2009 share= 0.737 strategy=  92.01% bh= 160.53% exposure=55.6%\n  2019 share= 0.855 strategy= 143.26% bh= 184.47% exposure=73.4%\nWorst marker misses:\n  buy  2009-03-02 nearest=2009-07-24 dist=101 mag=5.1304 score=0.0\n  buy  2002-10-07 nearest=2005-01-18 dist=574 mag=3.6241 score=0.0\n  buy  2018-12-28 nearest=2019-03-19 dist=54 mag=2.6505 score=0.0\n  buy  2023-01-12 nearest=2023-08-14 dist=146 mag=2.3582 score=0.0\n  buy  2025-04-24 nearest=2025-09-23 dist=104 mag=1.8473 score=0.0\n\nATR_RATIO_VIX\n----------------------------------------------------------------------------------------------------------------\nwfit=0.6387 full=12.9414 real=0.2351 modern=0.4565 trades=34 tpy=1.0 maxDD=62.9%\nGold failures: real_era_below_bh, modern_era_below_bh\ndiversity=0.5807 max_corr=0.5457 entry_overlap=0.1838 exit_overlap=0.2757\nmarker=0.5087 state=0.7764 timing_mag=0.2421\nparams={\"atr_long\": 50, \"atr_short\": 14, \"cooldown\": 5, \"fast_ema\": 30, \"slow_ema\": 100}\n\nWorst named windows:\n  2023_rebound     share= 0.611 trades=  3 maxDD= 38.8% regime=0.526\n  2020_meltup      share= 0.696 trades=  4 maxDD= 47.3% regime=0.619\n  2024_onward      share= 0.834 trades=  5 maxDD= 50.7% regime=0.537\n  2021_2022_bear   share= 1.720 trades=  3 maxDD= 47.3% regime=0.549\nWorst calendar years:\n  2023 share= 0.592 strategy=  83.71% bh= 210.57% exposure=80.0%\n  2026 share= 0.680 strategy=  19.56% bh=  75.91% exposure=48.0%\n  2019 share= 0.706 strategy= 100.90% bh= 184.47% exposure=82.9%\n  2024 share= 0.744 strategy=   9.33% bh=  47.02% exposure=83.7%\n  2016 share= 0.801 strategy=  14.50% bh=  42.98% exposure=81.3%\nWorst marker misses:\n  buy  2009-03-02 nearest=2009-05-27 dist=60 mag=5.1304 score=0.0\n  buy  2002-10-07 nearest=2003-05-12 dist=149 mag=3.6241 score=0.0\n  buy  2018-12-28 nearest=2018-10-24 dist=44 mag=2.6505 score=0.0\n  buy  1999-10-27 nearest=2000-05-05 dist=132 mag=2.5429 score=0.0\n  buy  2025-04-24 nearest=2025-06-11 dist=33 mag=1.8473 score=0.0\n\n\n[near-miss-autopsy] wrote runs/near_miss_autopsy.json\n",
+        "stderr_tail": ""
+      },
+      {
+        "name": "focused_grid_search",
+        "status": "ok",
+        "command": [
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/search/grid_search.py",
+          "--quick"
+        ],
+        "input_diagnostics": [
+          "runs/near_miss_autopsy.json",
+          "runs/operations/latest.json",
+          "docs/design-guide.md",
+          "spike/leaderboard.json",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/near_miss_autopsy.json",
+          "runs/search/*.json",
+          "runs/overlay_champion_matrix.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "near-Gold candidate repeats known Gold contract failures",
+          "quick grid has no candidate worth full certification",
+          "overlay worsens drawdown or live-era share multiple",
+          "hypothesis cannot be mapped to bounded diagnostics",
+          "reclaim trigger exits too late during bear continuation",
+          "candidate improves drawdown but loses real-era or modern-era economics"
+        ],
+        "started_utc": "2026-05-26T04:04:04Z",
+        "finished_utc": "2026-05-26T04:04:09Z",
+        "returncode": 0,
+        "stdout_tail": "fed_funds_pivot                12 combos\n  keltner_squeeze_breakout        9 combos\n  vix_term_proxy                 18 combos\n  macd_qqq_bull                   3 combos\n  vol_donchian_breakout           8 combos\n  sgov_flight_switch              6 combos\n  drawdown_recovery             162 combos\n  vol_compression_breakout      243 combos\n  price_position_regime          36 combos\n  tecl_sgov_rs                   24 combos\n  regime_state_machine            1 combos\n  bounce_breakout                40 combos\n  tri_filter_macd                32 combos\n  momentum_roc_canonical         24 combos\n  adaptive_ema_vol               16 combos\n  fed_macro_primary              24 combos\n  rank_slope_regime              48 combos\n  zscore_return_reversion        48 combos\n  breadth_decay_composite        36 combos\n  vj_or_slope_meta               16 combos\n  TOTAL                         852 combos\n\n[grid] Multicore: 12 workers for 852 combos...\n[grid] Worker chunksize: 8\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n  vix_gc_filter                  0 pass charter  best_fit=0.00  best_share=0.00x\n  treasury_curve_trend           0 pass charter  best_fit=0.00  best_share=0.00x\n  xlk_relative_strength          0 pass charter  best_fit=0.00  best_share=0.00x\n  fed_funds_pivot                0 pass charter  best_fit=0.00  best_share=0.00x\n  keltner_squeeze_breakout       0 pass charter  best_fit=0.00  best_share=0.00x\n  vix_term_proxy                 0 pass charter  best_fit=0.00  best_share=0.00x\n  macd_qqq_bull                  0 pass charter  best_fit=0.00  best_share=0.00x\n  vol_donchian_breakout          0 pass charter  best_fit=0.00  best_share=0.00x\n  sgov_flight_switch             0 pass charter  best_fit=0.00  best_share=0.00x\n  drawdown_recovery              0 pass charter  best_fit=0.00  best_share=0.00x\n  vol_compression_breakout       0 pass charter  best_fit=0.00  best_share=0.00x\n  price_position_regime          0 pass charter  best_fit=0.00  best_share=0.00x\n  tecl_sgov_rs                   0 pass charter  best_fit=0.00  best_share=0.00x\n  regime_state_machine           0 pass charter  best_fit=0.00  best_share=0.00x\n  bounce_breakout                0 pass charter  best_fit=0.00  best_share=0.00x\n  tri_filter_macd                0 pass charter  best_fit=0.00  best_share=0.00x\n  momentum_roc_canonical         0 pass charter  best_fit=0.00  best_share=0.00x\n  adaptive_ema_vol               0 pass charter  best_fit=0.00  best_share=0.00x\n  fed_macro_primary              0 pass charter  best_fit=0.00  best_share=0.00x\n  rank_slope_regime              0 pass charter  best_fit=0.00  best_share=0.00x\n  zscore_return_reversion        0 pass charter  best_fit=0.00  best_share=0.00x\n  breadth_decay_composite        0 pass charter  best_fit=0.00  best_share=0.00x\n  vj_or_slope_meta               0 pass charter  best_fit=0.00  best_share=0.00x\n\n[grid] Search done: 852 combos \u2192 0 pass charter (852 rejected) in 3.7s\n[grid] No candidates passed charter pre-filter. Nothing to validate.\n",
+        "stderr_tail": ""
+      },
+      {
+        "name": "overlay_champion_matrix",
+        "status": "ok",
+        "command": [
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/diagnostics/overlay_champion_matrix.py",
+          "--overlay",
+          "gc_vjatr_reclaimer",
+          "--params-json",
+          "{}",
+          "--output",
+          "runs/overlay_champion_matrix.json"
+        ],
+        "input_diagnostics": [
+          "runs/near_miss_autopsy.json",
+          "runs/operations/latest.json",
+          "docs/design-guide.md",
+          "spike/leaderboard.json",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/near_miss_autopsy.json",
+          "runs/search/*.json",
+          "runs/overlay_champion_matrix.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "near-Gold candidate repeats known Gold contract failures",
+          "quick grid has no candidate worth full certification",
+          "overlay worsens drawdown or live-era share multiple",
+          "hypothesis cannot be mapped to bounded diagnostics",
+          "reclaim trigger exits too late during bear continuation",
+          "candidate improves drawdown but loses real-era or modern-era economics"
+        ],
+        "started_utc": "2026-05-26T04:04:09Z",
+        "finished_utc": "2026-05-26T04:04:12Z",
+        "returncode": 0,
+        "stdout_tail": "[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\nOVERLAY MATRIX: gc_vjatr_reclaimer\n================================================================================================\nbase | cand | pass | dTiming | dMarker | fullR | realR | modernR | overlay full/real/modern\nMarbled Bonobo         |    1 | no  |  0.0006 | -0.0218 | 18.56 |  0.66 |    0.62 | 295.59/0.75/1.68\nEmber Bonobo           |    1 | no  |  0.0006 | -0.0218 |  5.61 |  0.66 |    0.62 | 89.33/0.75/1.68\nRusset Bonobo #2       |    1 | no  |  0.0006 | -0.0218 |  5.61 |  0.66 |    0.62 | 82.43/0.75/1.68\nCrimson Bonobo         |    1 | no  |  0.0006 | -0.0218 |  5.61 |  0.66 |    0.62 | 82.43/0.75/1.68\n\n[overlay-matrix] wrote runs/overlay_champion_matrix.json\n",
+        "stderr_tail": ""
+      },
+      {
+        "name": "generated_hypothesis_test",
+        "status": "ok",
+        "command": [
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/ops/generated_hypothesis_test.py",
+          "--idea-id",
+          "97b8cfd07e09",
+          "--json"
+        ],
+        "input_diagnostics": [
+          "runs/near_miss_autopsy.json",
+          "runs/operations/latest.json",
+          "docs/design-guide.md",
+          "spike/leaderboard.json",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/near_miss_autopsy.json",
+          "runs/search/*.json",
+          "runs/overlay_champion_matrix.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "near-Gold candidate repeats known Gold contract failures",
+          "quick grid has no candidate worth full certification",
+          "overlay worsens drawdown or live-era share multiple",
+          "hypothesis cannot be mapped to bounded diagnostics",
+          "reclaim trigger exits too late during bear continuation",
+          "candidate improves drawdown but loses real-era or modern-era economics"
+        ],
+        "started_utc": "2026-05-26T04:04:12Z",
+        "finished_utc": "2026-05-26T04:04:12Z",
+        "returncode": 0,
+        "stdout_tail": "{\n  \"schema_version\": 1,\n  \"generated_utc\": \"2026-05-26T04:04:12Z\",\n  \"idea_id\": \"97b8cfd07e09\",\n  \"kind\": \"drawdown_reclaim_family_probe\",\n  \"status\": \"planned\",\n  \"hypothesis\": \"If drawdown reclaim family probe is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Bootstrap downside warnings justify testing drawdown-reclaim entries that wait for repair evidence instead of pure trend recapture.\",\n  \"input_diagnostics\": [\n    \"runs/near_miss_autopsy.json\",\n    \"runs/operations/latest.json\",\n    \"docs/design-guide.md\",\n    \"spike/leaderboard.json\",\n    \"runs/research_queue/ideas/<idea_id>.json\"\n  ],\n  \"suggested_tests\": [\n    \"near_miss_autopsy\",\n    \"focused_grid_search\",\n    \"overlay_champion_matrix\",\n    \"generated_hypothesis_test\"\n  ],\n  \"expected_artifact_paths\": [\n    \"runs/near_miss_autopsy.json\",\n    \"runs/search/*.json\",\n    \"runs/overlay_champion_matrix.json\",\n    \"runs/research_queue/hypotheses/<idea_id>.json\"\n  ],\n  \"stop_conditions\": [\n    \"near-Gold candidate repeats known Gold contract failures\",\n    \"quick grid has no candidate worth full certification\",\n    \"overlay worsens drawdown or live-era share multiple\",\n    \"hypothesis cannot be mapped to bounded diagnostics\",\n    \"reclaim trigger exits too late during bear continuation\",\n    \"candidate improves drawdown but loses real-era or modern-era economics\"\n  ],\n  \"expected_failure_mode\": \"fails Gold all-era economics or Future Confidence before promotion\",\n  \"artifact_path\": \"/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/research_queue/hypotheses/97b8cfd07e09.json\"\n}\n",
+        "stderr_tail": ""
+      }
+    ]
+  },
+  "finished_utc": "2026-05-26T04:04:12Z"
+}

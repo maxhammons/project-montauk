@@ -606,7 +606,7 @@
       "gate6": {
         "verdict": "PASS",
         "same_params": {
-          "strategy": "gold_hybrid_committee",
+          "strategy": "chimera_v1_2026_05_26",
           "params": {
             "members": [
               {
@@ -714,7 +714,7 @@
           }
         },
         "tier3_reopt": {
-          "strategy": "gold_hybrid_committee",
+          "strategy": "chimera_v1_2026_05_26",
           "asset": "TQQQ",
           "best_fitness": 0.2312,
           "best_params": {},

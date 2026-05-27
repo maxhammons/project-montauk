@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "cca1cc13d4e7",
   "created_utc": "2026-05-12T04:33:35Z",
-  "status": "proposed",
+  "status": "paused",
   "kind": "parsimony_challenger",
   "rationale": "Current champion is complex enough to justify a simpler challenger lane.",
   "validation_tier": "T0/T1",
@@ -11,5 +11,18 @@
     "grid_search_simple_families"
   ],
   "time_budget": "bounded local diagnostic first",
-  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion",
+  "input_diagnostics": [
+    "runs/family_confidence_leaderboard.json",
+    "docs/design-guide.md"
+  ],
+  "expected_artifact_paths": [
+    "runs/family_confidence_leaderboard.json",
+    "runs/search/*.json"
+  ],
+  "stop_conditions": [
+    "no new family leader improves Future Confidence and Trust",
+    "simple family fails the named-window or parsimony gates"
+  ],
+  "reviewed_utc": "2026-05-26T03:56:29Z"
 }

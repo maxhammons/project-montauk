@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "00a22268c4ac",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "proposed",
+  "kind": "rolling_momentum_deceleration",
+  "rationale": "Tests whether decay in long-term momentum functions as an early warning exit before structural price breakdowns.",
+  "validation_tier": "T1",
+  "suggested_tests": [
+    "near_miss_autopsy",
+    "chimera_generation",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "Rallies frequently show multi-month momentum deceleration while price continues higher, leading to missed gains.",
+  "input_diagnostics": [
+    "runs/near_miss_autopsy.json",
+    "spike/leaderboard.json",
+    "runs/chimera/member_manifest.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/near_miss_autopsy.json",
+    "runs/chimera/latest.json",
+    "runs/chimera/vote_ledger.json",
+    "runs/chimera/validation_summary.json",
+    "runs/chimera/family_ablation_report.json",
+    "runs/chimera/correlation_stress_report.json",
+    "runs/chimera/candidate_comparison.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "near-Gold candidate repeats known Gold contract failures",
+    "Chimera fails validation or is dominated by one family",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "The strategy exits more than 15% below the cyclical peak on 3 consecutive cycles.",
+    "Calmar ratio falls below buy-and-hold over the full era."
+  ]
+}

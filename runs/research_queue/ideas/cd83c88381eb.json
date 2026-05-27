@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "cd83c88381eb",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "paused",
+  "kind": "move_index_regime",
+  "rationale": "Tests whether bond market volatility provides a more accurate exit signal for rate-sensitive tech equities than traditional equity volatility.",
+  "validation_tier": "T1",
+  "suggested_tests": [
+    "diversity_prefilter_search",
+    "cross_asset_recheck",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "The MOVE index may decouple from tech equities during purely growth-driven selloffs, resulting in missed drawdowns.",
+  "input_diagnostics": [
+    "runs/family_confidence_leaderboard.json",
+    "runs/gold_diversity_report.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/diversity_prefilter_search.json",
+    "runs/gold_diversity_report.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "candidate family remains crowded or redundant",
+    "same-param portability remains below threshold",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Win rate falls below 40% in the 2022 rate-hike regime holdout.",
+    "Sharpe ratio is lower than a standard VIX-based exit on the QQQ baseline."
+  ],
+  "reviewed_utc": "2026-05-26T04:10:25Z"
+}

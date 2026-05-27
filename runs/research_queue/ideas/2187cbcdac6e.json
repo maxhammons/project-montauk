@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "2187cbcdac6e",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "proposed",
+  "kind": "ma_ribbon_compression",
+  "rationale": "Tests if extreme compression of multiple short-term moving averages in QQQ precedes tradable volatility expansions in TECL.",
+  "validation_tier": "T0",
+  "suggested_tests": [
+    "grid_search_simple_families",
+    "focused_grid_search",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "Compression often resolves with false breakouts before reversing into the true trend direction.",
+  "input_diagnostics": [
+    "runs/family_confidence_leaderboard.json",
+    "docs/design-guide.md",
+    "runs/operations/latest.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/search/*.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "simple family fails the named-window or parsimony gates",
+    "quick grid has no candidate worth full certification",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "False breakout rate exceeds 60%.",
+    "Expected value after compression is negative over a 10-year test."
+  ]
+}

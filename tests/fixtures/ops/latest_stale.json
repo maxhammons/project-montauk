@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "active_signal": {
+    "data_end_date": "2026-01-01",
+    "risk_state": "risk_on",
+    "validation": {
+      "verdict": "PASS",
+      "gold_status": true
+    },
+    "data_quality": {
+      "fail": 0
+    }
+  }
+}

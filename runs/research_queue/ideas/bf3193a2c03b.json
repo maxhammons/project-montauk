@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "bf3193a2c03b",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "proposed",
+  "kind": "distribution_phase_transition",
+  "rationale": "Tests whether a state machine tracking volume-weighted distribution-day velocity can map bull-to-bear regime transitions.",
+  "validation_tier": "T1",
+  "suggested_tests": [
+    "chimera_generation",
+    "recertify_leaderboard",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "Distribution days can cluster harmlessly during mid-cycle consolidations, producing false exits.",
+  "input_diagnostics": [
+    "spike/leaderboard.json",
+    "runs/chimera/member_manifest.json",
+    "docs/validation-thresholds.md",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/chimera/latest.json",
+    "runs/chimera/vote_ledger.json",
+    "runs/chimera/validation_summary.json",
+    "runs/chimera/family_ablation_report.json",
+    "runs/chimera/correlation_stress_report.json",
+    "runs/chimera/candidate_comparison.json",
+    "spike/leaderboard.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "Chimera fails validation or is dominated by one family",
+    "candidate fails the authority certification gates",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Annualized turnover exceeds 40 trades per year.",
+    "Maximum missed drawup due to false exits exceeds 25% in a single year."
+  ]
+}

@@ -1,0 +1,721 @@
+{
+  "concepts": [
+    "move_index_regime",
+    "credit_spread_velocity",
+    "overnight_gap_exhaustion",
+    "consecutive_down_gap_capitulation",
+    "put_call_panic_reversion",
+    "defensive_sector_divergence"
+  ],
+  "anchors": [
+    {
+      "name": "Cerulean Hare #1",
+      "strategy": "gold_hybrid_committee",
+      "rank": 1
+    },
+    {
+      "name": "Ivory Hare",
+      "strategy": "gc_vjatr_timing_repair",
+      "rank": 6
+    },
+    {
+      "name": "Marbled Bonobo",
+      "strategy": "gc_vjatr",
+      "rank": 2
+    }
+  ],
+  "thresholds": {
+    "min_weighted_era_fitness": 1.0,
+    "max_anchor_corr": 0.85,
+    "max_entry_overlap": 0.85,
+    "max_exit_overlap": 0.85,
+    "min_diversity_score": 0.1,
+    "trade_overlap_tolerance_bars": 5
+  },
+  "total_combos": 138,
+  "workers": 8,
+  "survivors": 0,
+  "rejects": {
+    "exception": 0,
+    "weighted_era_fitness_below_min": 138,
+    "trades<5": 0,
+    "trades_per_year>5": 0,
+    "diversity": 0
+  },
+  "concept_summary": [
+    {
+      "strategy": "consecutive_down_gap_capitulation",
+      "combos": 16,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.36
+    },
+    {
+      "strategy": "credit_spread_velocity",
+      "combos": 16,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.0396
+    },
+    {
+      "strategy": "defensive_sector_divergence",
+      "combos": 18,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.072
+    },
+    {
+      "strategy": "move_index_regime",
+      "combos": 32,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.0482
+    },
+    {
+      "strategy": "overnight_gap_exhaustion",
+      "combos": 24,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.1787
+    },
+    {
+      "strategy": "put_call_panic_reversion",
+      "combos": 32,
+      "survivors": 0,
+      "best_weighted_era_fitness": 0.018
+    }
+  ],
+  "near_misses": [
+    {
+      "strategy": "consecutive_down_gap_capitulation",
+      "weighted_era_fitness": 0.36,
+      "params": {
+        "gap_streak": 3,
+        "gap_down_pct": 2.0,
+        "max_hold": 10,
+        "rsi_reclaim": 45.0,
+        "rsi_len": 14,
+        "trend_len": 100,
+        "trend_stop": 0.85,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 31,
+        "trades_yr": 0.9,
+        "share_multiple": 0.7473,
+        "real_share_multiple": 0.1029,
+        "modern_share_multiple": 0.5055,
+        "max_dd": 58.2
+      }
+    },
+    {
+      "strategy": "consecutive_down_gap_capitulation",
+      "weighted_era_fitness": 0.3324,
+      "params": {
+        "gap_streak": 3,
+        "gap_down_pct": 2.0,
+        "max_hold": 10,
+        "rsi_reclaim": 35.0,
+        "rsi_len": 14,
+        "trend_len": 100,
+        "trend_stop": 0.85,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 48,
+        "trades_yr": 1.5,
+        "share_multiple": 0.4056,
+        "real_share_multiple": 0.1043,
+        "modern_share_multiple": 0.5127,
+        "max_dd": 97.1
+      }
+    },
+    {
+      "strategy": "consecutive_down_gap_capitulation",
+      "weighted_era_fitness": 0.2668,
+      "params": {
+        "gap_streak": 3,
+        "gap_down_pct": 2.0,
+        "max_hold": 5,
+        "rsi_reclaim": 45.0,
+        "rsi_len": 14,
+        "trend_len": 100,
+        "trend_stop": 0.85,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 33,
+        "trades_yr": 1.0,
+        "share_multiple": 0.2153,
+        "real_share_multiple": 0.0845,
+        "modern_share_multiple": 0.4544,
+        "max_dd": 60.5
+      }
+    },
+    {
+      "strategy": "consecutive_down_gap_capitulation",
+      "weighted_era_fitness": 0.2042,
+      "params": {
+        "gap_streak": 3,
+        "gap_down_pct": 2.0,
+        "max_hold": 5,
+        "rsi_reclaim": 35.0,
+        "rsi_len": 14,
+        "trend_len": 100,
+        "trend_stop": 0.85,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 52,
+        "trades_yr": 1.6,
+        "share_multiple": 0.1021,
+        "real_share_multiple": 0.0704,
+        "modern_share_multiple": 0.3785,
+        "max_dd": 97.1
+      }
+    },
+    {
+      "strategy": "overnight_gap_exhaustion",
+      "weighted_era_fitness": 0.1787,
+      "params": {
+        "gap_streak": 3,
+        "gap_down_pct": 2.0,
+        "max_hold": 10,
+        "rsi_reclaim": 40.0,
+        "rsi_len": 14,
+        "trend_len": 100,
+        "trend_stop": 0.88,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 39,
+        "trades_yr": 1.2,
+        "share_multiple": 0.366,
+        "real_share_multiple": 0.0512,
+        "modern_share_multiple": 0.2514,
+        "max_dd": 67.9
+      }
+    },
+    {
+      "strategy": "overnight_gap_exhaustion",
+      "weighted_era_fitness": 0.1577,
+      "params": {
+        "gap_streak": 3,
+        "gap_down_pct": 2.0,
+        "max_hold": 10,
+        "rsi_reclaim": 35.0,
+        "rsi_len": 14,
+        "trend_len": 100,
+        "trend_stop": 0.88,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 48,
+        "trades_yr": 1.5,
+        "share_multiple": 0.3342,
+        "real_share_multiple": 0.0449,
+        "modern_share_multiple": 0.2205,
+        "max_dd": 97.1
+      }
+    },
+    {
+      "strategy": "overnight_gap_exhaustion",
+      "weighted_era_fitness": 0.1135,
+      "params": {
+        "gap_streak": 3,
+        "gap_down_pct": 2.0,
+        "max_hold": 5,
+        "rsi_reclaim": 40.0,
+        "rsi_len": 14,
+        "trend_len": 100,
+        "trend_stop": 0.88,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 42,
+        "trades_yr": 1.3,
+        "share_multiple": 0.077,
+        "real_share_multiple": 0.0371,
+        "modern_share_multiple": 0.1992,
+        "max_dd": 71.1
+      }
+    },
+    {
+      "strategy": "overnight_gap_exhaustion",
+      "weighted_era_fitness": 0.0971,
+      "params": {
+        "gap_streak": 3,
+        "gap_down_pct": 2.0,
+        "max_hold": 5,
+        "rsi_reclaim": 35.0,
+        "rsi_len": 14,
+        "trend_len": 100,
+        "trend_stop": 0.88,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 51,
+        "trades_yr": 1.5,
+        "share_multiple": 0.0987,
+        "real_share_multiple": 0.0295,
+        "modern_share_multiple": 0.1588,
+        "max_dd": 97.1
+      }
+    },
+    {
+      "strategy": "defensive_sector_divergence",
+      "weighted_era_fitness": 0.072,
+      "params": {
+        "lookback": 10,
+        "trend_len": 100,
+        "defense_edge": 0.03,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 28,
+        "trades_yr": 0.8,
+        "share_multiple": 0.0556,
+        "real_share_multiple": 0.0156,
+        "modern_share_multiple": 0.1453,
+        "max_dd": 46.7
+      }
+    },
+    {
+      "strategy": "overnight_gap_exhaustion",
+      "weighted_era_fitness": 0.0629,
+      "params": {
+        "gap_streak": 2,
+        "gap_down_pct": 1.0,
+        "max_hold": 10,
+        "rsi_reclaim": 35.0,
+        "rsi_len": 14,
+        "trend_len": 100,
+        "trend_stop": 0.88,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 262,
+        "trades_yr": 7.9,
+        "share_multiple": 0.7945,
+        "real_share_multiple": 0.0231,
+        "modern_share_multiple": 0.0506,
+        "max_dd": 77.3
+      }
+    },
+    {
+      "strategy": "overnight_gap_exhaustion",
+      "weighted_era_fitness": 0.0582,
+      "params": {
+        "gap_streak": 2,
+        "gap_down_pct": 1.0,
+        "max_hold": 10,
+        "rsi_reclaim": 40.0,
+        "rsi_len": 14,
+        "trend_len": 100,
+        "trend_stop": 0.88,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 237,
+        "trades_yr": 7.2,
+        "share_multiple": 0.2063,
+        "real_share_multiple": 0.0323,
+        "modern_share_multiple": 0.0542,
+        "max_dd": 95.6
+      }
+    },
+    {
+      "strategy": "overnight_gap_exhaustion",
+      "weighted_era_fitness": 0.054,
+      "params": {
+        "gap_streak": 3,
+        "gap_down_pct": 3.0,
+        "max_hold": 5,
+        "rsi_reclaim": 35.0,
+        "rsi_len": 14,
+        "trend_len": 100,
+        "trend_stop": 0.88,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 20,
+        "trades_yr": 0.6,
+        "share_multiple": 0.1411,
+        "real_share_multiple": 0.0092,
+        "modern_share_multiple": 0.0857,
+        "max_dd": 77.7
+      }
+    },
+    {
+      "strategy": "overnight_gap_exhaustion",
+      "weighted_era_fitness": 0.0524,
+      "params": {
+        "gap_streak": 3,
+        "gap_down_pct": 3.0,
+        "max_hold": 10,
+        "rsi_reclaim": 35.0,
+        "rsi_len": 14,
+        "trend_len": 100,
+        "trend_stop": 0.88,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 19,
+        "trades_yr": 0.6,
+        "share_multiple": 0.1155,
+        "real_share_multiple": 0.0092,
+        "modern_share_multiple": 0.0857,
+        "max_dd": 77.7
+      }
+    },
+    {
+      "strategy": "move_index_regime",
+      "weighted_era_fitness": 0.0482,
+      "params": {
+        "trend_len": 200,
+        "exit_ema": 50,
+        "vol_len": 10,
+        "vol_avg_len": 50,
+        "calm_mult": 0.8,
+        "spike_mult": 1.3,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 146,
+        "trades_yr": 4.4,
+        "share_multiple": 0.0481,
+        "real_share_multiple": 0.0157,
+        "modern_share_multiple": 0.0769,
+        "max_dd": 78.6
+      }
+    },
+    {
+      "strategy": "overnight_gap_exhaustion",
+      "weighted_era_fitness": 0.0475,
+      "params": {
+        "gap_streak": 2,
+        "gap_down_pct": 2.0,
+        "max_hold": 10,
+        "rsi_reclaim": 40.0,
+        "rsi_len": 14,
+        "trend_len": 100,
+        "trend_stop": 0.88,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 133,
+        "trades_yr": 4.0,
+        "share_multiple": 0.0678,
+        "real_share_multiple": 0.0121,
+        "modern_share_multiple": 0.0768,
+        "max_dd": 97.4
+      }
+    },
+    {
+      "strategy": "overnight_gap_exhaustion",
+      "weighted_era_fitness": 0.0474,
+      "params": {
+        "gap_streak": 3,
+        "gap_down_pct": 3.0,
+        "max_hold": 5,
+        "rsi_reclaim": 40.0,
+        "rsi_len": 14,
+        "trend_len": 100,
+        "trend_stop": 0.88,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 17,
+        "trades_yr": 0.5,
+        "share_multiple": 0.0591,
+        "real_share_multiple": 0.0092,
+        "modern_share_multiple": 0.0857,
+        "max_dd": 77.7
+      }
+    },
+    {
+      "strategy": "overnight_gap_exhaustion",
+      "weighted_era_fitness": 0.046,
+      "params": {
+        "gap_streak": 3,
+        "gap_down_pct": 3.0,
+        "max_hold": 10,
+        "rsi_reclaim": 40.0,
+        "rsi_len": 14,
+        "trend_len": 100,
+        "trend_stop": 0.88,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 16,
+        "trades_yr": 0.5,
+        "share_multiple": 0.0484,
+        "real_share_multiple": 0.0092,
+        "modern_share_multiple": 0.0857,
+        "max_dd": 77.7
+      }
+    },
+    {
+      "strategy": "overnight_gap_exhaustion",
+      "weighted_era_fitness": 0.0446,
+      "params": {
+        "gap_streak": 3,
+        "gap_down_pct": 1.0,
+        "max_hold": 10,
+        "rsi_reclaim": 40.0,
+        "rsi_len": 14,
+        "trend_len": 100,
+        "trend_stop": 0.88,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 86,
+        "trades_yr": 2.6,
+        "share_multiple": 0.0189,
+        "real_share_multiple": 0.0192,
+        "modern_share_multiple": 0.0785,
+        "max_dd": 98.1
+      }
+    },
+    {
+      "strategy": "defensive_sector_divergence",
+      "weighted_era_fitness": 0.0446,
+      "params": {
+        "lookback": 10,
+        "trend_len": 100,
+        "defense_edge": 0.02,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 37,
+        "trades_yr": 1.1,
+        "share_multiple": 0.034,
+        "real_share_multiple": 0.0095,
+        "modern_share_multiple": 0.0889,
+        "max_dd": 52.0
+      }
+    },
+    {
+      "strategy": "move_index_regime",
+      "weighted_era_fitness": 0.0433,
+      "params": {
+        "trend_len": 200,
+        "exit_ema": 50,
+        "vol_len": 20,
+        "vol_avg_len": 50,
+        "calm_mult": 0.8,
+        "spike_mult": 1.3,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 91,
+        "trades_yr": 2.8,
+        "share_multiple": 0.0511,
+        "real_share_multiple": 0.0127,
+        "modern_share_multiple": 0.0693,
+        "max_dd": 68.2
+      }
+    },
+    {
+      "strategy": "move_index_regime",
+      "weighted_era_fitness": 0.0432,
+      "params": {
+        "trend_len": 200,
+        "exit_ema": 50,
+        "vol_len": 10,
+        "vol_avg_len": 100,
+        "calm_mult": 1.0,
+        "spike_mult": 1.3,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 195,
+        "trades_yr": 5.9,
+        "share_multiple": 0.0591,
+        "real_share_multiple": 0.0153,
+        "modern_share_multiple": 0.0616,
+        "max_dd": 61.1
+      }
+    },
+    {
+      "strategy": "defensive_sector_divergence",
+      "weighted_era_fitness": 0.0425,
+      "params": {
+        "lookback": 10,
+        "trend_len": 200,
+        "defense_edge": 0.03,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 31,
+        "trades_yr": 0.9,
+        "share_multiple": 0.0319,
+        "real_share_multiple": 0.0089,
+        "modern_share_multiple": 0.0833,
+        "max_dd": 49.1
+      }
+    },
+    {
+      "strategy": "move_index_regime",
+      "weighted_era_fitness": 0.0407,
+      "params": {
+        "trend_len": 100,
+        "exit_ema": 50,
+        "vol_len": 10,
+        "vol_avg_len": 50,
+        "calm_mult": 0.8,
+        "spike_mult": 1.3,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 144,
+        "trades_yr": 4.4,
+        "share_multiple": 0.0216,
+        "real_share_multiple": 0.0161,
+        "modern_share_multiple": 0.0702,
+        "max_dd": 90.5
+      }
+    },
+    {
+      "strategy": "credit_spread_velocity",
+      "weighted_era_fitness": 0.0396,
+      "params": {
+        "lookback": 10,
+        "trend_len": 200,
+        "exit_ema": 100,
+        "stress_thresh": 0.001,
+        "xlk_floor": -0.03,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 34,
+        "trades_yr": 1.0,
+        "share_multiple": 0.0291,
+        "real_share_multiple": 0.0081,
+        "modern_share_multiple": 0.0759,
+        "max_dd": 51.9
+      }
+    },
+    {
+      "strategy": "overnight_gap_exhaustion",
+      "weighted_era_fitness": 0.0388,
+      "params": {
+        "gap_streak": 3,
+        "gap_down_pct": 1.0,
+        "max_hold": 5,
+        "rsi_reclaim": 40.0,
+        "rsi_len": 14,
+        "trend_len": 100,
+        "trend_stop": 0.88,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 92,
+        "trades_yr": 2.8,
+        "share_multiple": 0.0024,
+        "real_share_multiple": 0.0163,
+        "modern_share_multiple": 0.0783,
+        "max_dd": 98.3
+      }
+    },
+    {
+      "strategy": "overnight_gap_exhaustion",
+      "weighted_era_fitness": 0.0363,
+      "params": {
+        "gap_streak": 2,
+        "gap_down_pct": 2.0,
+        "max_hold": 10,
+        "rsi_reclaim": 35.0,
+        "rsi_len": 14,
+        "trend_len": 100,
+        "trend_stop": 0.88,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 159,
+        "trades_yr": 4.8,
+        "share_multiple": 0.0707,
+        "real_share_multiple": 0.0082,
+        "modern_share_multiple": 0.0526,
+        "max_dd": 85.7
+      }
+    },
+    {
+      "strategy": "credit_spread_velocity",
+      "weighted_era_fitness": 0.0362,
+      "params": {
+        "lookback": 10,
+        "trend_len": 200,
+        "exit_ema": 100,
+        "stress_thresh": 0.002,
+        "xlk_floor": -0.03,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 34,
+        "trades_yr": 1.0,
+        "share_multiple": 0.0257,
+        "real_share_multiple": 0.0072,
+        "modern_share_multiple": 0.0673,
+        "max_dd": 51.9
+      }
+    },
+    {
+      "strategy": "move_index_regime",
+      "weighted_era_fitness": 0.0358,
+      "params": {
+        "trend_len": 100,
+        "exit_ema": 50,
+        "vol_len": 10,
+        "vol_avg_len": 100,
+        "calm_mult": 1.0,
+        "spike_mult": 1.3,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 183,
+        "trades_yr": 5.5,
+        "share_multiple": 0.0336,
+        "real_share_multiple": 0.0159,
+        "modern_share_multiple": 0.0509,
+        "max_dd": 77.0
+      }
+    },
+    {
+      "strategy": "credit_spread_velocity",
+      "weighted_era_fitness": 0.0356,
+      "params": {
+        "lookback": 10,
+        "trend_len": 100,
+        "exit_ema": 50,
+        "stress_thresh": 0.001,
+        "xlk_floor": -0.03,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 39,
+        "trades_yr": 1.2,
+        "share_multiple": 0.0252,
+        "real_share_multiple": 0.0071,
+        "modern_share_multiple": 0.0658,
+        "max_dd": 56.3
+      }
+    },
+    {
+      "strategy": "defensive_sector_divergence",
+      "weighted_era_fitness": 0.0353,
+      "params": {
+        "lookback": 50,
+        "trend_len": 200,
+        "defense_edge": 0.03,
+        "cooldown": 5
+      },
+      "metrics": {
+        "trades": 18,
+        "trades_yr": 0.5,
+        "share_multiple": 0.0249,
+        "real_share_multiple": 0.007,
+        "modern_share_multiple": 0.0652,
+        "max_dd": 52.4
+      }
+    }
+  ],
+  "exception_examples": [],
+  "rankings": [],
+  "elapsed_seconds": 1.86
+}

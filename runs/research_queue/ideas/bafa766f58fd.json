@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "id": "bafa766f58fd",
+  "created_utc": "2026-05-26T03:37:33Z",
+  "status": "paused",
+  "kind": "calendar_turnaround_family_probe",
+  "rationale": "If marker misses cluster near recurring recovery windows, test simple calendar-aware turnaround hypotheses as T0/T1 diagnostics only.",
+  "validation_tier": "T0/T1",
+  "suggested_tests": [
+    "named_window_recheck",
+    "grid_search_simple_families",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion",
+  "input_diagnostics": [
+    "runs/cycle_diagnostics.json",
+    "runs/operations/latest.json",
+    "runs/family_confidence_leaderboard.json",
+    "docs/design-guide.md",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/cycle_diagnostics.json",
+    "runs/search/*.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "targeted window still fails after timing repair",
+    "simple family fails the named-window or parsimony gates",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "calendar condition is not robust outside one historical episode",
+    "candidate needs too many exceptions to remain a simple hypothesis"
+  ],
+  "reviewed_utc": "2026-05-26T04:10:25Z"
+}

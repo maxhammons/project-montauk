@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "97b8cfd07e09",
+  "created_utc": "2026-05-26T03:34:00Z",
+  "status": "paused",
+  "kind": "drawdown_reclaim_family_probe",
+  "rationale": "Bootstrap downside warnings justify testing drawdown-reclaim entries that wait for repair evidence instead of pure trend recapture.",
+  "validation_tier": "T1",
+  "suggested_tests": [
+    "near_miss_autopsy",
+    "focused_grid_search",
+    "overlay_champion_matrix",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion",
+  "input_diagnostics": [
+    "runs/near_miss_autopsy.json",
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "spike/leaderboard.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/near_miss_autopsy.json",
+    "runs/search/*.json",
+    "runs/overlay_champion_matrix.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "near-Gold candidate repeats known Gold contract failures",
+    "quick grid has no candidate worth full certification",
+    "overlay worsens drawdown or live-era share multiple",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "reclaim trigger exits too late during bear continuation",
+    "candidate improves drawdown but loses real-era or modern-era economics"
+  ],
+  "reviewed_utc": "2026-05-26T04:10:24Z"
+}

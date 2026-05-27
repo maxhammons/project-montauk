@@ -823,6 +823,58 @@ body[data-risk="risk_on"] .action-main {
   text-align: right;
 }
 
+.chimera-grid {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.42fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.chimera-call,
+.chimera-stats > div,
+.chimera-family {
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+  background: rgba(8, 12, 14, 0.76);
+  padding: 12px;
+}
+
+.chimera-call span,
+.chimera-call small,
+.chimera-stats span,
+.chimera-family span {
+  display: block;
+  color: var(--text-2);
+  font-size: 12px;
+}
+
+.chimera-call strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 42px;
+  line-height: 1;
+}
+
+.chimera-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.chimera-stats strong,
+.chimera-family strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--text-0);
+  font-size: 20px;
+}
+
+.chimera-families {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
 .metric-row {
   grid-template-columns: 1fr 1.3fr 0.65fr 0.72fr 0.82fr;
 }
@@ -1015,6 +1067,9 @@ body[data-freshness="stale"] #automation-state {
   .confidence-stack,
   .stat-strip,
   .summary-grid,
+  .chimera-grid,
+  .chimera-stats,
+  .chimera-families,
   .consensus-list,
   .signal-list li,
   .leader-row,
@@ -1228,6 +1283,10 @@ body[data-freshness="stale"] #automation-state {
     rgba(4, 6, 9, 0.78);
   backdrop-filter: blur(8px);
   animation: modal-in 200ms ease-out;
+}
+
+.maintenance-modal[hidden] {
+  display: none !important;
 }
 
 @keyframes modal-in {

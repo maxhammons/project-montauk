@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "07f7b4f60ea0",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "proposed",
+  "kind": "high_yield_bond_momentum",
+  "rationale": "Tests if positive momentum in speculative corporate debt leads shifts in high-beta tech growth allocation.",
+  "validation_tier": "T1",
+  "suggested_tests": [
+    "cross_asset_recheck",
+    "overlay_champion_matrix",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "Central-bank interventions can decouple corporate debt markets from tech equity growth trajectories.",
+  "input_diagnostics": [
+    "runs/gold_diversity_report.json",
+    "spike/leaderboard.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/gold_diversity_report.json",
+    "runs/overlay_champion_matrix.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "same-param portability remains below threshold",
+    "overlay worsens drawdown or live-era share multiple",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Annualized alpha relative to QQQ drops below 2% over a 5-year rolling window.",
+    "Maximum strategy drawdown exceeds buy-and-hold during credit crunch periods."
+  ]
+}

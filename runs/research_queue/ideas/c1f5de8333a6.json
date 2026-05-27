@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "c1f5de8333a6",
   "created_utc": "2026-05-12T04:33:35Z",
-  "status": "proposed",
+  "status": "paused",
   "kind": "portability_repair",
   "rationale": "Cross-asset portability warning suggests testing more general signal shapes.",
   "validation_tier": "T1",
@@ -11,5 +11,18 @@
     "diversity_prefilter_search"
   ],
   "time_budget": "bounded local diagnostic first",
-  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion",
+  "input_diagnostics": [
+    "runs/gold_diversity_report.json",
+    "runs/family_confidence_leaderboard.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/gold_diversity_report.json",
+    "runs/diversity_prefilter_search.json"
+  ],
+  "stop_conditions": [
+    "same-param portability remains below threshold",
+    "candidate family remains crowded or redundant"
+  ],
+  "reviewed_utc": "2026-05-26T03:56:29Z"
 }

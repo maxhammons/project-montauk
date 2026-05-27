@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "run_id": "20260526T040437Z-9428e1617c1f",
+  "created_utc": "2026-05-26T04:04:37Z",
+  "version_info": {
+    "schema_version": 1,
+    "generated_utc": "2026-05-26T04:04:37Z",
+    "app_version": "0.1.0",
+    "git_commit": "8a78629",
+    "git_dirty": true,
+    "strategy_code_version": "8a78629"
+  },
+  "status": "ok",
+  "execute": true,
+  "plan": {
+    "schema_version": 1,
+    "idea_id": "9428e1617c1f",
+    "kind": "multi_horizon_vote_family_probe",
+    "rationale": "Chimera shows ensemble value, so test a simpler single-strategy multi-horizon vote family before relying on member-level ensembles.",
+    "validation_tier": "T0/T1",
+    "time_budget": "bounded local diagnostic first",
+    "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion",
+    "input_diagnostics": [
+      "spike/leaderboard.json",
+      "runs/chimera/member_manifest.json",
+      "runs/operations/latest.json",
+      "docs/design-guide.md",
+      "runs/family_confidence_leaderboard.json",
+      "runs/research_queue/ideas/<idea_id>.json"
+    ],
+    "expected_artifact_paths": [
+      "runs/chimera/latest.json",
+      "runs/chimera/vote_ledger.json",
+      "runs/chimera/validation_summary.json",
+      "runs/chimera/family_ablation_report.json",
+      "runs/chimera/correlation_stress_report.json",
+      "runs/chimera/candidate_comparison.json",
+      "runs/search/*.json",
+      "runs/family_confidence_leaderboard.json",
+      "runs/research_queue/hypotheses/<idea_id>.json"
+    ],
+    "stop_conditions": [
+      "Chimera fails validation or is dominated by one family",
+      "quick grid has no candidate worth full certification",
+      "no new family leader improves Future Confidence and Trust",
+      "hypothesis cannot be mapped to bounded diagnostics",
+      "multi-horizon vote collapses into the existing Gold majority state",
+      "vote threshold improves full history but loses modern-era economics"
+    ],
+    "steps": [
+      {
+        "name": "chimera_generation",
+        "status": "ok",
+        "command": [
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/ops/chimera.py",
+          "--validate",
+          "--json"
+        ],
+        "input_diagnostics": [
+          "spike/leaderboard.json",
+          "runs/chimera/member_manifest.json",
+          "runs/operations/latest.json",
+          "docs/design-guide.md",
+          "runs/family_confidence_leaderboard.json",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/chimera/latest.json",
+          "runs/chimera/vote_ledger.json",
+          "runs/chimera/validation_summary.json",
+          "runs/chimera/family_ablation_report.json",
+          "runs/chimera/correlation_stress_report.json",
+          "runs/chimera/candidate_comparison.json",
+          "runs/search/*.json",
+          "runs/family_confidence_leaderboard.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "Chimera fails validation or is dominated by one family",
+          "quick grid has no candidate worth full certification",
+          "no new family leader improves Future Confidence and Trust",
+          "hypothesis cannot be mapped to bounded diagnostics",
+          "multi-horizon vote collapses into the existing Gold majority state",
+          "vote threshold improves full history but loses modern-era economics"
+        ],
+        "started_utc": "2026-05-26T04:04:37Z",
+        "finished_utc": "2026-05-26T04:08:44Z",
+        "returncode": 0,
+        "stdout_tail": "true,\n          \"repaint_safe\": true\n        },\n        \"engine_integrity\": {\n          \"passed\": true,\n          \"status\": \"pass\",\n          \"checks\": {\n            \"slippage_pct_default\": 0.05,\n            \"slippage_active\": true,\n            \"bar_close_execution\": true,\n            \"lookahead_safe\": true,\n            \"repaint_safe\": true\n          },\n          \"errors\": []\n        },\n        \"golden_regression\": {\n          \"passed\": true,\n          \"status\": \"pass\",\n          \"fixture_path\": \"/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/tests/golden_trades_821.json\",\n          \"trade_count\": 51,\n          \"mismatches\": []\n        },\n        \"shadow_comparator\": {\n          \"passed\": true,\n          \"status\": \"pass\",\n          \"trade_count_ours\": 21,\n          \"trade_count_shadow\": 21,\n          \"issues\": []\n        },\n        \"data_quality\": {\n          \"passed\": true,\n          \"status\": \"pass\",\n          \"summary\": {\n            \"total\": 41,\n            \"pass\": 41,\n            \"warn\": 0,\n            \"fail\": 0,\n            \"skip\": 0\n          },\n          \"failing_checks\": []\n        },\n        \"strategies\": {\n          \"chimera\": {\n            \"in_registry\": true,\n            \"charter_compatible\": true\n          }\n        },\n        \"errors\": []\n      },\n      \"null\": {\n        \"beta_alpha\": 17.23,\n        \"beta_beta\": 14.79,\n        \"expected_max_regime_score\": 0.7607,\n        \"n_eff\": 300\n      },\n      \"champion\": {\n        \"strategy\": \"chimera\",\n        \"fitness\": 35.2796,\n        \"composite_confidence\": 0.7584\n      }\n    },\n    \"family_ablation\": {\n      \"status\": \"pass\",\n      \"failures\": [],\n      \"artifact_path\": \"/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/chimera/family_ablation_report.json\"\n    },\n    \"correlation_stress\": {\n      \"status\": \"pass\",\n      \"failures\": [],\n      \"artifact_path\": \"/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/chimera/correlation_stress_report.json\"\n    },\n    \"candidate_comparison\": {\n      \"artifact_path\": \"/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/chimera/candidate_comparison.json\",\n      \"comparisons\": [\n        {\n          \"label\": \"active_champion\",\n          \"strategy\": \"gc_vjatr_timing_repair\",\n          \"display_name\": null,\n          \"comparison\": {\n            \"share_multiple\": {\n              \"chimera\": 35.2796,\n              \"other\": 10.0909,\n              \"ratio\": 3.49618\n            },\n            \"real_share_multiple\": {\n              \"chimera\": 1.8418,\n              \"other\": 1.5469,\n              \"ratio\": 1.190639\n            },\n            \"modern_share_multiple\": {\n              \"chimera\": 2.5094,\n              \"other\": 2.239,\n              \"ratio\": 1.120768\n            },\n            \"max_drawdown_pct\": {\n              \"chimera\": 65.0,\n              \"other\": 98.2,\n              \"ratio\": 0.661914\n            },\n            \"trades\": {\n              \"chimera\": 19,\n              \"other\": 44,\n              \"ratio\": 0.431818\n            }\n          }\n        },\n        {\n          \"label\": \"best_single_certified\",\n          \"strategy\": \"gc_vjatr_timing_repair\",\n          \"display_name\": \"Cerulean Hare #2\",\n          \"comparison\": {\n            \"share_multiple\": {\n              \"chimera\": 35.2796,\n              \"other\": 10.0909,\n              \"ratio\": 3.49618\n            },\n            \"real_share_multiple\": {\n              \"chimera\": 1.8418,\n              \"other\": 1.5469,\n              \"ratio\": 1.190639\n            },\n            \"modern_share_multiple\": {\n              \"chimera\": 2.5094,\n              \"other\": 2.239,\n              \"ratio\": 1.120768\n            },\n            \"max_drawdown_pct\": {\n              \"chimera\": 65.0,\n              \"other\": null,\n              \"ratio\": null\n            },\n            \"trades\": {\n              \"chimera\": 19,\n              \"other\": null,\n              \"ratio\": null\n            }\n          }\n        }\n      ]\n    },\n    \"gold_status_blockers\": []\n  }\n}\n",
+        "stderr_tail": "\nBacktest.run:   0%|          | 0/1808 [00:00<?, ?bar/s]\n                                                       \n/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/engine/strategy_engine.py:124: RuntimeWarning: divide by zero encountered in divide\n  rs = np.where(avg_loss > 0, avg_gain / avg_loss, 100.0)\n/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/engine/strategy_engine.py:124: RuntimeWarning: divide by zero encountered in divide\n  rs = np.where(avg_loss > 0, avg_gain / avg_loss, 100.0)\n/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/engine/strategy_engine.py:124: RuntimeWarning: divide by zero encountered in divide\n  rs = np.where(avg_loss > 0, avg_gain / avg_loss, 100.0)\n/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/engine/strategy_engine.py:124: RuntimeWarning: divide by zero encountered in divide\n  rs = np.where(avg_loss > 0, avg_gain / avg_loss, 100.0)\n/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/engine/strategy_engine.py:124: RuntimeWarning: divide by zero encountered in divide\n  rs = np.where(avg_loss > 0, avg_gain / avg_loss, 100.0)\n/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/engine/strategy_engine.py:124: RuntimeWarning: divide by zero encountered in divide\n  rs = np.where(avg_loss > 0, avg_gain / avg_loss, 100.0)\n/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/engine/strategy_engine.py:124: RuntimeWarning: divide by zero encountered in divide\n  rs = np.where(avg_loss > 0, avg_gain / avg_loss, 100.0)\n/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/engine/strategy_engine.py:124: RuntimeWarning: divide by zero encountered in divide\n  rs = np.where(avg_loss > 0, avg_gain / avg_loss, 100.0)\n/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/engine/strategy_engine.py:124: RuntimeWarning: divide by zero encountered in divide\n  rs = np.where(avg_loss > 0, avg_gain / avg_loss, 100.0)\n/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/engine/strategy_engine.py:124: RuntimeWarning: divide by zero encountered in divide\n  rs = np.where(avg_loss > 0, avg_gain / avg_loss, 100.0)\n"
+      },
+      {
+        "name": "focused_grid_search",
+        "status": "ok",
+        "command": [
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/search/grid_search.py",
+          "--quick"
+        ],
+        "input_diagnostics": [
+          "spike/leaderboard.json",
+          "runs/chimera/member_manifest.json",
+          "runs/operations/latest.json",
+          "docs/design-guide.md",
+          "runs/family_confidence_leaderboard.json",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/chimera/latest.json",
+          "runs/chimera/vote_ledger.json",
+          "runs/chimera/validation_summary.json",
+          "runs/chimera/family_ablation_report.json",
+          "runs/chimera/correlation_stress_report.json",
+          "runs/chimera/candidate_comparison.json",
+          "runs/search/*.json",
+          "runs/family_confidence_leaderboard.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "Chimera fails validation or is dominated by one family",
+          "quick grid has no candidate worth full certification",
+          "no new family leader improves Future Confidence and Trust",
+          "hypothesis cannot be mapped to bounded diagnostics",
+          "multi-horizon vote collapses into the existing Gold majority state",
+          "vote threshold improves full history but loses modern-era economics"
+        ],
+        "started_utc": "2026-05-26T04:08:44Z",
+        "finished_utc": "2026-05-26T04:08:48Z",
+        "returncode": 0,
+        "stdout_tail": "fed_funds_pivot                12 combos\n  keltner_squeeze_breakout        9 combos\n  vix_term_proxy                 18 combos\n  macd_qqq_bull                   3 combos\n  vol_donchian_breakout           8 combos\n  sgov_flight_switch              6 combos\n  drawdown_recovery             162 combos\n  vol_compression_breakout      243 combos\n  price_position_regime          36 combos\n  tecl_sgov_rs                   24 combos\n  regime_state_machine            1 combos\n  bounce_breakout                40 combos\n  tri_filter_macd                32 combos\n  momentum_roc_canonical         24 combos\n  adaptive_ema_vol               16 combos\n  fed_macro_primary              24 combos\n  rank_slope_regime              48 combos\n  zscore_return_reversion        48 combos\n  breadth_decay_composite        36 combos\n  vj_or_slope_meta               16 combos\n  TOTAL                         852 combos\n\n[grid] Multicore: 12 workers for 852 combos...\n[grid] Worker chunksize: 8\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\n  vix_gc_filter                  0 pass charter  best_fit=0.00  best_share=0.00x\n  treasury_curve_trend           0 pass charter  best_fit=0.00  best_share=0.00x\n  xlk_relative_strength          0 pass charter  best_fit=0.00  best_share=0.00x\n  fed_funds_pivot                0 pass charter  best_fit=0.00  best_share=0.00x\n  keltner_squeeze_breakout       0 pass charter  best_fit=0.00  best_share=0.00x\n  vix_term_proxy                 0 pass charter  best_fit=0.00  best_share=0.00x\n  macd_qqq_bull                  0 pass charter  best_fit=0.00  best_share=0.00x\n  vol_donchian_breakout          0 pass charter  best_fit=0.00  best_share=0.00x\n  sgov_flight_switch             0 pass charter  best_fit=0.00  best_share=0.00x\n  drawdown_recovery              0 pass charter  best_fit=0.00  best_share=0.00x\n  vol_compression_breakout       0 pass charter  best_fit=0.00  best_share=0.00x\n  price_position_regime          0 pass charter  best_fit=0.00  best_share=0.00x\n  tecl_sgov_rs                   0 pass charter  best_fit=0.00  best_share=0.00x\n  regime_state_machine           0 pass charter  best_fit=0.00  best_share=0.00x\n  bounce_breakout                0 pass charter  best_fit=0.00  best_share=0.00x\n  tri_filter_macd                0 pass charter  best_fit=0.00  best_share=0.00x\n  momentum_roc_canonical         0 pass charter  best_fit=0.00  best_share=0.00x\n  adaptive_ema_vol               0 pass charter  best_fit=0.00  best_share=0.00x\n  fed_macro_primary              0 pass charter  best_fit=0.00  best_share=0.00x\n  rank_slope_regime              0 pass charter  best_fit=0.00  best_share=0.00x\n  zscore_return_reversion        0 pass charter  best_fit=0.00  best_share=0.00x\n  breadth_decay_composite        0 pass charter  best_fit=0.00  best_share=0.00x\n  vj_or_slope_meta               0 pass charter  best_fit=0.00  best_share=0.00x\n\n[grid] Search done: 852 combos \u2192 0 pass charter (852 rejected) in 3.5s\n[grid] No candidates passed charter pre-filter. Nothing to validate.\n",
+        "stderr_tail": ""
+      },
+      {
+        "name": "family_confidence_leaderboard",
+        "status": "ok",
+        "command": [
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/diagnostics/family_confidence_leaderboard.py"
+        ],
+        "input_diagnostics": [
+          "spike/leaderboard.json",
+          "runs/chimera/member_manifest.json",
+          "runs/operations/latest.json",
+          "docs/design-guide.md",
+          "runs/family_confidence_leaderboard.json",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/chimera/latest.json",
+          "runs/chimera/vote_ledger.json",
+          "runs/chimera/validation_summary.json",
+          "runs/chimera/family_ablation_report.json",
+          "runs/chimera/correlation_stress_report.json",
+          "runs/chimera/candidate_comparison.json",
+          "runs/search/*.json",
+          "runs/family_confidence_leaderboard.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "Chimera fails validation or is dominated by one family",
+          "quick grid has no candidate worth full certification",
+          "no new family leader improves Future Confidence and Trust",
+          "hypothesis cannot be mapped to bounded diagnostics",
+          "multi-horizon vote collapses into the existing Gold majority state",
+          "vote threshold improves full history but loses modern-era economics"
+        ],
+        "started_utc": "2026-05-26T04:08:48Z",
+        "finished_utc": "2026-05-26T04:08:48Z",
+        "returncode": 0,
+        "stdout_tail": "STRATEGY FAMILY CONFIDENCE LEADERBOARD\n============================================================================================================\nGold rows: 8\nrank family                         leader                overall future trust legacy valid allera fit   full  real modern n\n   1 gold_hybrid_committee          Cerulean Hare #1          66.1   60.6  77.7   66.4  75.9   5.129 3.685  30.49  1.33   3.32  1\n   2 gc_vjatr                       Marbled Bonobo            62.8   57.6  73.6   69.9  73.5   3.429 2.651  13.13  1.13   2.71  4\n   3 gc_vjatr_timing_repair         Cerulean Hare #2          15.1   39.2   2.6   19.5  76.8   3.270 2.559  10.09  1.55   2.24  3\n\n[family-confidence] wrote /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/family_confidence_leaderboard.json\n",
+        "stderr_tail": ""
+      },
+      {
+        "name": "generated_hypothesis_test",
+        "status": "ok",
+        "command": [
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/ops/generated_hypothesis_test.py",
+          "--idea-id",
+          "9428e1617c1f",
+          "--json"
+        ],
+        "input_diagnostics": [
+          "spike/leaderboard.json",
+          "runs/chimera/member_manifest.json",
+          "runs/operations/latest.json",
+          "docs/design-guide.md",
+          "runs/family_confidence_leaderboard.json",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/chimera/latest.json",
+          "runs/chimera/vote_ledger.json",
+          "runs/chimera/validation_summary.json",
+          "runs/chimera/family_ablation_report.json",
+          "runs/chimera/correlation_stress_report.json",
+          "runs/chimera/candidate_comparison.json",
+          "runs/search/*.json",
+          "runs/family_confidence_leaderboard.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "Chimera fails validation or is dominated by one family",
+          "quick grid has no candidate worth full certification",
+          "no new family leader improves Future Confidence and Trust",
+          "hypothesis cannot be mapped to bounded diagnostics",
+          "multi-horizon vote collapses into the existing Gold majority state",
+          "vote threshold improves full history but loses modern-era economics"
+        ],
+        "started_utc": "2026-05-26T04:08:48Z",
+        "finished_utc": "2026-05-26T04:08:48Z",
+        "returncode": 0,
+        "stdout_tail": "{\n  \"schema_version\": 1,\n  \"generated_utc\": \"2026-05-26T04:08:48Z\",\n  \"idea_id\": \"9428e1617c1f\",\n  \"kind\": \"multi_horizon_vote_family_probe\",\n  \"status\": \"planned\",\n  \"hypothesis\": \"If multi horizon vote family probe is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Chimera shows ensemble value, so test a simpler single-strategy multi-horizon vote family before relying on member-level ensembles.\",\n  \"input_diagnostics\": [\n    \"spike/leaderboard.json\",\n    \"runs/chimera/member_manifest.json\",\n    \"runs/operations/latest.json\",\n    \"docs/design-guide.md\",\n    \"runs/family_confidence_leaderboard.json\",\n    \"runs/research_queue/ideas/<idea_id>.json\"\n  ],\n  \"suggested_tests\": [\n    \"chimera_generation\",\n    \"focused_grid_search\",\n    \"family_confidence_leaderboard\",\n    \"generated_hypothesis_test\"\n  ],\n  \"expected_artifact_paths\": [\n    \"runs/chimera/latest.json\",\n    \"runs/chimera/vote_ledger.json\",\n    \"runs/chimera/validation_summary.json\",\n    \"runs/chimera/family_ablation_report.json\",\n    \"runs/chimera/correlation_stress_report.json\",\n    \"runs/chimera/candidate_comparison.json\",\n    \"runs/search/*.json\",\n    \"runs/family_confidence_leaderboard.json\",\n    \"runs/research_queue/hypotheses/<idea_id>.json\"\n  ],\n  \"stop_conditions\": [\n    \"Chimera fails validation or is dominated by one family\",\n    \"quick grid has no candidate worth full certification\",\n    \"no new family leader improves Future Confidence and Trust\",\n    \"hypothesis cannot be mapped to bounded diagnostics\",\n    \"multi-horizon vote collapses into the existing Gold majority state\",\n    \"vote threshold improves full history but loses modern-era economics\"\n  ],\n  \"expected_failure_mode\": \"fails Gold all-era economics or Future Confidence before promotion\",\n  \"artifact_path\": \"/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/research_queue/hypotheses/9428e1617c1f.json\"\n}\n",
+        "stderr_tail": ""
+      }
+    ]
+  },
+  "finished_utc": "2026-05-26T04:08:48Z"
+}

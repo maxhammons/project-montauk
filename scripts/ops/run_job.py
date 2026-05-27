@@ -14,6 +14,7 @@ if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
 from ops.events import append_event, utc_now_iso
+from ops.errors import ERROR_CODES, classify_process_failure
 from ops.paths import EVENTS_PATH, JOB_RECORDS_DIR, LOCKS_DIR, PROJECT_ROOT, ensure_ops_dirs
 from ops.scheduler import load_config
 
@@ -214,6 +215,7 @@ def run_job(
         "schedule": job_schedule(job),
         "output_artifact_paths": output_artifact_paths(job),
         "returncode": None,
+        "error_code": None,
         "stdout_tail": "",
         "stderr_tail": "",
     }
@@ -228,6 +230,7 @@ def run_job(
         except JobLockedError as exc:
             record["finished_utc"] = utc_now_iso()
             record["status"] = "locked"
+            record["error_code"] = ERROR_CODES["job_locked"]
             record["lock_path"] = str(exc.lock_path)
             record["lock"] = exc.payload
             record["record_path"] = str(record_path)
@@ -249,6 +252,11 @@ def run_job(
         record["stdout_tail"] = (completed.stdout or "")[-8000:]
         record["stderr_tail"] = (completed.stderr or "")[-8000:]
         record["status"] = "ok" if completed.returncode == 0 else "failed"
+        record["error_code"] = None if completed.returncode == 0 else classify_process_failure(
+            completed.returncode,
+            completed.stderr or "",
+            completed.stdout or "",
+        )
         record["record_path"] = str(record_path)
         _write_json(record_path, record)
     finally:
@@ -272,6 +280,7 @@ def run_job(
                 "job": job,
                 "record_path": str(record_path),
                 "returncode": completed.returncode,
+                "error_code": record.get("error_code"),
             },
             events_path=events_path,
         )

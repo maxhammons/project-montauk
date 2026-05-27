@@ -3,9 +3,9 @@
   "generated_utc": "2026-05-12T04:05:57Z",
   "data_end_date": "2026-05-08",
   "active_champion": {
-    "strategy": "gold_hybrid_committee",
+    "strategy": "chimera_v1_2026_05_26",
     "rank": 1,
-    "date": "2026-04-30",
+    "date": "2026-05-26",
     "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
     "params": {
       "members": [
@@ -82,7 +82,10 @@
       "modern_share_multiple": 3.32,
       "max_dd": 65.8,
       "trades": 19
-    }
+    },
+    "display_name": "Chimera v1 - 2026-05-26",
+    "chimera_version": "v1",
+    "chimera_version_date": "2026-05-26"
   },
   "risk_state": "risk_on",
   "risk_on": true,

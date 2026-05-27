@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "e50632b64313",
   "created_utc": "2026-05-12T04:33:35Z",
-  "status": "proposed",
+  "status": "paused",
   "kind": "drawdown_resilience_probe",
   "rationale": "Current champion has downside or drawdown trust pressure.",
   "validation_tier": "T1",
@@ -12,5 +12,22 @@
     "live_holdout_review"
   ],
   "time_budget": "bounded local diagnostic first",
-  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion",
+  "input_diagnostics": [
+    "spike/leaderboard.json",
+    "runs/operations/governance.json",
+    "runs/operations/live_holdout.json",
+    "signals/*.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/gold_hybrid_lab.json",
+    "runs/overlay_champion_matrix.json",
+    "runs/operations/live_holdout.json"
+  ],
+  "stop_conditions": [
+    "hybrid candidate fails Gold all-era economics or Future Confidence",
+    "overlay worsens drawdown or live-era share multiple",
+    "drift is not reproducible from point-in-time snapshots"
+  ],
+  "reviewed_utc": "2026-05-26T03:59:19Z"
 }

@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "1cf88775b8a8",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "proposed",
+  "kind": "iv_crush_accumulation",
+  "rationale": "Tests if systematically accumulating shares immediately following major tech earnings implied-volatility crushes outperforms continuous holding.",
+  "validation_tier": "T1",
+  "suggested_tests": [
+    "named_window_recheck",
+    "diversity_prefilter_search",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "Earnings gaps may dictate new medium-term trends that IV crush ignores, leading to accumulation during persistent selloffs.",
+  "input_diagnostics": [
+    "runs/cycle_diagnostics.json",
+    "runs/operations/latest.json",
+    "runs/family_confidence_leaderboard.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/cycle_diagnostics.json",
+    "runs/diversity_prefilter_search.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "targeted window still fails after timing repair",
+    "candidate family remains crowded or redundant",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Strategy performance is statistically indistinguishable from a random entry model.",
+    "Fails to outperform QQQ baseline holding during Q2 and Q3."
+  ]
+}

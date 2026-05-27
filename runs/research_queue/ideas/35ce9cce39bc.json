@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "35ce9cce39bc",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "proposed",
+  "kind": "options_gamma_wall_rebound",
+  "rationale": "Tests if localized options open-interest concentrations function as institutional support during market drawdowns.",
+  "validation_tier": "T1",
+  "suggested_tests": [
+    "focused_grid_search",
+    "overlay_champion_matrix",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "Gamma walls can break or shift lower as market makers dynamically hedge.",
+  "input_diagnostics": [
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "spike/leaderboard.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/search/*.json",
+    "runs/overlay_champion_matrix.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "quick grid has no candidate worth full certification",
+    "overlay worsens drawdown or live-era share multiple",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "More than 25% of gamma-wall entries experience immediate breakthroughs exceeding 5%.",
+    "Underperforms a simple 200-day moving-average filter over the long era."
+  ]
+}

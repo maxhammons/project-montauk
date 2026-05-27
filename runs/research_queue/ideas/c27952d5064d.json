@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "c27952d5064d",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "proposed",
+  "kind": "inside_bar_cascade_breakout",
+  "rationale": "Tests whether multi-day sequential inside bars represent institutional equilibrium before explosive trend-defining expansions.",
+  "validation_tier": "T0",
+  "suggested_tests": [
+    "grid_search_simple_families",
+    "diversity_prefilter_search",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "Inside-bar cascades often resolve into random low-liquidity whipsaws.",
+  "input_diagnostics": [
+    "runs/family_confidence_leaderboard.json",
+    "docs/design-guide.md",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/search/*.json",
+    "runs/diversity_prefilter_search.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "simple family fails the named-window or parsimony gates",
+    "candidate family remains crowded or redundant",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Average win-to-loss ratio drops below 1.5:1.",
+    "Profitable signal percentage falls below 38% across a 200-sample run."
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-05-26T04:03:44Z",
+  "idea_id": "bda5a9fc2b1e",
+  "kind": "relative_strength_rotation_family_probe",
+  "status": "planned",
+  "hypothesis": "If relative strength rotation family probe is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: QQQ portability softness suggests testing relative-strength rotation signals rather than TECL-only trend timing.",
+  "input_diagnostics": [
+    "runs/gold_diversity_report.json",
+    "runs/family_confidence_leaderboard.json",
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "suggested_tests": [
+    "cross_asset_recheck",
+    "diversity_prefilter_search",
+    "focused_grid_search",
+    "generated_hypothesis_test"
+  ],
+  "expected_artifact_paths": [
+    "runs/gold_diversity_report.json",
+    "runs/diversity_prefilter_search.json",
+    "runs/search/*.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "same-param portability remains below threshold",
+    "candidate family remains crowded or redundant",
+    "quick grid has no candidate worth full certification",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "same-parameter QQQ/TQQQ portability stays below the warning threshold",
+    "relative-strength filter is redundant with existing Gold risk states"
+  ],
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+}

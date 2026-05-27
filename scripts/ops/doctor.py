@@ -14,6 +14,7 @@ if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
 from ops.install_launch_agent import status_for_job
+from ops.errors import ERROR_CODES
 from ops.paths import GOVERNANCE_PATH, LATEST_PATH, LIVE_HOLDOUT_PATH, NOTIFICATIONS_PATH, PROJECT_ROOT
 from ops.scheduler import scheduler_status
 
@@ -28,10 +29,12 @@ def _load_json(path: Path) -> Any:
 
 
 def check_file(path: Path, label: str) -> dict[str, Any]:
+    ok = path.exists()
     return {
         "label": label,
         "path": str(path),
-        "ok": path.exists(),
+        "ok": ok,
+        "error_code": None if ok else ERROR_CODES["missing_artifact"],
     }
 
 
@@ -72,6 +75,13 @@ def launch_agent_check(job_key: str) -> dict[str, Any]:
         "ok": bool(item["installed"]) and launchd.get("loaded") is not False,
         "installed": bool(item["installed"]),
         "launchd": launchd,
+        "error_code": None
+        if bool(item["installed"]) and launchd.get("loaded") is not False
+        else (
+            ERROR_CODES["launch_agent_missing"]
+            if not item.get("installed")
+            else ERROR_CODES["launch_agent_not_loaded"]
+        ),
     }
 
 

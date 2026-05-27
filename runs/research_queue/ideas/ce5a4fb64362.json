@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "ce5a4fb64362",
+  "created_utc": "2026-05-26T03:37:33Z",
+  "status": "paused",
+  "kind": "volatility_targeted_exposure_family_probe",
+  "rationale": "Chimera still has large drawdown, so test binary timing families that only allow risk-on when realized volatility is in a targetable band.",
+  "validation_tier": "T1",
+  "suggested_tests": [
+    "near_miss_autopsy",
+    "focused_grid_search",
+    "overlay_champion_matrix",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion",
+  "input_diagnostics": [
+    "runs/near_miss_autopsy.json",
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "spike/leaderboard.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/near_miss_autopsy.json",
+    "runs/search/*.json",
+    "runs/overlay_champion_matrix.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "near-Gold candidate repeats known Gold contract failures",
+    "quick grid has no candidate worth full certification",
+    "overlay worsens drawdown or live-era share multiple",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "volatility band is just a disguised calm-market filter",
+    "candidate reduces drawdown but loses share accumulation versus B&H"
+  ],
+  "reviewed_utc": "2026-05-26T04:10:25Z"
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-05-26T04:09:08Z",
+  "idea_id": "b581bb625024",
+  "kind": "range_expansion_followthrough_family_probe",
+  "status": "planned",
+  "hypothesis": "If range expansion followthrough family probe is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Weak rebound capture suggests testing range-expansion follow-through entries that require a large up day to persist instead of fade.",
+  "input_diagnostics": [
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "runs/cycle_diagnostics.json",
+    "runs/near_miss_autopsy.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "suggested_tests": [
+    "focused_grid_search",
+    "named_window_recheck",
+    "near_miss_autopsy",
+    "generated_hypothesis_test"
+  ],
+  "expected_artifact_paths": [
+    "runs/search/*.json",
+    "runs/cycle_diagnostics.json",
+    "runs/near_miss_autopsy.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "quick grid has no candidate worth full certification",
+    "targeted window still fails after timing repair",
+    "near-Gold candidate repeats known Gold contract failures",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "range expansion buys exhaustion instead of durable rebounds",
+    "candidate passes one rebound window but fails all-era economics"
+  ],
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+}

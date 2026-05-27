@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "id": "2b22b2f55525",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "paused",
+  "kind": "overnight_gap_exhaustion",
+  "rationale": "Hypothesizes that three consecutive large overnight gaps down in QQQ indicate structural capitulation, providing a high-probability TECL entry.",
+  "validation_tier": "T0/T1",
+  "suggested_tests": [
+    "focused_grid_search",
+    "named_window_recheck",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "In severe structural bear markets, consecutive down gaps may merely signal the beginning of a larger volatility expansion.",
+  "input_diagnostics": [
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "runs/cycle_diagnostics.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/search/*.json",
+    "runs/cycle_diagnostics.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "quick grid has no candidate worth full certification",
+    "targeted window still fails after timing repair",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Average trade duration exceeds 10 days without achieving profitability.",
+    "Maximum drawdown during the trade window exceeds 15%."
+  ],
+  "reviewed_utc": "2026-05-26T04:10:25Z"
+}

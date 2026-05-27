@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "a5f8b76ce008",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "proposed",
+  "kind": "fractal_dimension_trend_onset",
+  "rationale": "Tests whether a drop in fractal dimension reliably identifies the onset of a sustained trend for leverage entry.",
+  "validation_tier": "T2",
+  "suggested_tests": [
+    "gold_hybrid_lab",
+    "recertify_leaderboard",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "Fractal dimension can be unstable on daily data, producing noisy non-actionable state changes.",
+  "input_diagnostics": [
+    "spike/leaderboard.json",
+    "runs/operations/governance.json",
+    "docs/validation-thresholds.md",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/gold_hybrid_lab.json",
+    "spike/leaderboard.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "hybrid candidate fails Gold all-era economics or Future Confidence",
+    "candidate fails the authority certification gates",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Signal flips more than 3 times a week on average.",
+    "Cumulative share accumulation falls behind the moving-average benchmark."
+  ]
+}

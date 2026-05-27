@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "run_id": "20260526T035024Z-e50632b64313",
+  "created_utc": "2026-05-26T03:50:24Z",
+  "version_info": {
+    "schema_version": 1,
+    "generated_utc": "2026-05-26T03:50:24Z",
+    "app_version": "0.1.0",
+    "git_commit": "8a78629",
+    "git_dirty": true,
+    "strategy_code_version": "8a78629"
+  },
+  "status": "failed",
+  "execute": true,
+  "plan": {
+    "schema_version": 1,
+    "idea_id": "e50632b64313",
+    "kind": "drawdown_resilience_probe",
+    "rationale": "Current champion has downside or drawdown trust pressure.",
+    "validation_tier": "T1",
+    "time_budget": "bounded local diagnostic first",
+    "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion",
+    "input_diagnostics": [
+      "spike/leaderboard.json",
+      "runs/operations/governance.json",
+      "runs/operations/live_holdout.json",
+      "signals/*.json"
+    ],
+    "expected_artifact_paths": [
+      "runs/gold_hybrid_lab.json",
+      "runs/overlay_champion_matrix.json",
+      "runs/operations/live_holdout.json"
+    ],
+    "stop_conditions": [
+      "hybrid candidate fails Gold all-era economics or Future Confidence",
+      "overlay worsens drawdown or live-era share multiple",
+      "drift is not reproducible from point-in-time snapshots"
+    ],
+    "steps": [
+      {
+        "name": "gold_hybrid_lab",
+        "status": "ok",
+        "command": [
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/diagnostics/gold_hybrid_lab.py"
+        ],
+        "input_diagnostics": [
+          "spike/leaderboard.json",
+          "runs/operations/governance.json",
+          "runs/operations/live_holdout.json",
+          "signals/*.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/gold_hybrid_lab.json",
+          "runs/overlay_champion_matrix.json",
+          "runs/operations/live_holdout.json"
+        ],
+        "stop_conditions": [
+          "hybrid candidate fails Gold all-era economics or Future Confidence",
+          "overlay worsens drawdown or live-era share multiple",
+          "drift is not reproducible from point-in-time snapshots"
+        ],
+        "started_utc": "2026-05-26T03:50:24Z",
+        "finished_utc": "2026-05-26T03:50:27Z",
+        "returncode": 0,
+        "stdout_tail": "[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\nGOLD HYBRID LAB\n================================================================================================================\nChampion: Cerulean Hare #1 full=30.49 real=1.33 modern=3.32\n\nENTRY SPECIALISTS\nrank name                     entry  timing conf  full/real/modern\n   1 Ivory Hare               0.528  0.279  0.767 10.63/1.55/2.24\n   2 Cerulean Hare #2         0.527  0.279  0.768 10.09/1.55/2.24\n   3 Sable Hare               0.527  0.279  0.768 10.09/1.55/2.24\n   4 Marbled Bonobo           0.415  0.119  0.735 13.13/1.13/2.71\n   5 Ember Bonobo             0.415  0.119  0.734 13.13/1.13/2.71\n   6 Russet Bonobo #2         0.413  0.119  0.734 12.12/1.13/2.71\n   7 Crimson Bonobo           0.413  0.119  0.734 12.12/1.13/2.71\n\nEXIT SPECIALISTS\nrank name                     exit   timing conf  full/real/modern\n   1 Marbled Bonobo           0.416  0.193  0.735 13.13/1.13/2.71\n   2 Ember Bonobo             0.416  0.193  0.734 13.13/1.13/2.71\n   3 Russet Bonobo #2         0.416  0.193  0.734 12.12/1.13/2.71\n   4 Crimson Bonobo           0.416  0.193  0.734 12.12/1.13/2.71\n   5 Cerulean Hare #2         0.375  0.176  0.768 10.09/1.55/2.24\n   6 Sable Hare               0.375  0.176  0.768 10.09/1.55/2.24\n   7 Ivory Hare               0.374  0.176  0.767 10.63/1.55/2.24\n\nHYBRID CANDIDATES\nlabel                              ok  overall fit   full  real modern trades dd    marker vsChamp full/real/modern\nfamily_committee_0.60              yes  4.483 3.593  17.50  1.46   3.52     18  65.0  0.308  0.57/1.10/1.06\nfamily_committee_0.67              yes  4.483 3.593  17.50  1.46   3.52     18  65.0  0.308  0.57/1.10/1.06\nswitchboard_top_entry_exit         yes  3.630 2.340  21.16  1.32   1.71     34  98.8  0.447  0.69/0.99/0.52\nchampion_overlay_top_entry_exit    yes  3.630 2.340  21.16  1.32   1.71     34  98.8  0.447  0.69/0.99/0.52\nfamily_committee_0.50              yes  3.302 2.533  10.95  1.51   2.18     42  98.8  0.446  0.36/1.13/0.66\n\n[gold-hybrid-lab] wrote /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/gold_hybrid_lab.json\n",
+        "stderr_tail": ""
+      },
+      {
+        "name": "overlay_champion_matrix",
+        "status": "failed",
+        "command": [
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/diagnostics/overlay_champion_matrix.py"
+        ],
+        "input_diagnostics": [
+          "spike/leaderboard.json",
+          "runs/operations/governance.json",
+          "runs/operations/live_holdout.json",
+          "signals/*.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/gold_hybrid_lab.json",
+          "runs/overlay_champion_matrix.json",
+          "runs/operations/live_holdout.json"
+        ],
+        "stop_conditions": [
+          "hybrid candidate fails Gold all-era economics or Future Confidence",
+          "overlay worsens drawdown or live-era share multiple",
+          "drift is not reproducible from point-in-time snapshots"
+        ],
+        "started_utc": "2026-05-26T03:50:27Z",
+        "finished_utc": "2026-05-26T03:50:28Z",
+        "returncode": 2,
+        "stdout_tail": "",
+        "stderr_tail": "usage: overlay_champion_matrix.py [-h] --overlay OVERLAY [--grid GRID]\n                                  [--params-json PARAMS_JSON]\n                                  [--base-family BASE_FAMILY]\n                                  [--top-bases TOP_BASES]\n                                  [--top-candidates TOP_CANDIDATES]\n                                  [--min-full-retention MIN_FULL_RETENTION]\n                                  [--min-real-retention MIN_REAL_RETENTION]\n                                  [--min-modern-retention MIN_MODERN_RETENTION]\n                                  [--output OUTPUT]\noverlay_champion_matrix.py: error: the following arguments are required: --overlay\n"
+      },
+      {
+        "name": "live_holdout_review",
+        "status": "ok",
+        "command": [
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+          "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/ops/live_holdout.py"
+        ],
+        "input_diagnostics": [
+          "spike/leaderboard.json",
+          "runs/operations/governance.json",
+          "runs/operations/live_holdout.json",
+          "signals/*.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/gold_hybrid_lab.json",
+          "runs/overlay_champion_matrix.json",
+          "runs/operations/live_holdout.json"
+        ],
+        "stop_conditions": [
+          "hybrid candidate fails Gold all-era economics or Future Confidence",
+          "overlay worsens drawdown or live-era share multiple",
+          "drift is not reproducible from point-in-time snapshots"
+        ],
+        "started_utc": "2026-05-26T03:50:28Z",
+        "finished_utc": "2026-05-26T03:50:28Z",
+        "returncode": 0,
+        "stdout_tail": "[data] TECL: 8321 bars, 1993-05-04 to 2026-05-22\n[data] VIX: 8318/8321 dates matched\nlive holdout: ok (1 match, 0 diverged)\n",
+        "stderr_tail": ""
+      }
+    ]
+  },
+  "finished_utc": "2026-05-26T03:50:28Z"
+}

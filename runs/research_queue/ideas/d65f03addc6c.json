@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "d65f03addc6c",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "proposed",
+  "kind": "hurst_exponent_regime",
+  "rationale": "Evaluates if applying mean-reversion rules only when the Hurst exponent signals anti-persistence improves rebound capture.",
+  "validation_tier": "T1",
+  "suggested_tests": [
+    "chimera_generation",
+    "diversity_prefilter_search",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "The Hurst exponent is sensitive to lookback windows and may misclassify trends as random walks.",
+  "input_diagnostics": [
+    "spike/leaderboard.json",
+    "runs/chimera/member_manifest.json",
+    "runs/family_confidence_leaderboard.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/chimera/latest.json",
+    "runs/chimera/vote_ledger.json",
+    "runs/chimera/validation_summary.json",
+    "runs/chimera/family_ablation_report.json",
+    "runs/chimera/correlation_stress_report.json",
+    "runs/chimera/candidate_comparison.json",
+    "runs/diversity_prefilter_search.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "Chimera fails validation or is dominated by one family",
+    "candidate family remains crowded or redundant",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Parameter sensitivity shows high variance across lookback windows.",
+    "Strategy fails to out-accumulate simple RSI mean reversion."
+  ]
+}

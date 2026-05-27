@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "367fe212d850",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "proposed",
+  "kind": "mean_reversion_volatility_corridor",
+  "rationale": "Tests if price distance from a rolling volatility-adjusted corridor captures deep structural extensions.",
+  "validation_tier": "T0/T1",
+  "suggested_tests": [
+    "grid_search_simple_families",
+    "family_confidence_leaderboard",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "During strong trends, price can ride the corridor edge indefinitely, causing severe under-exposure or premature exits.",
+  "input_diagnostics": [
+    "runs/family_confidence_leaderboard.json",
+    "docs/design-guide.md",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/search/*.json",
+    "runs/family_confidence_leaderboard.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "simple family fails the named-window or parsimony gates",
+    "no new family leader improves Future Confidence and Trust",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Underperforms buy-and-hold by more than 25% during a sustained 12-month bull market.",
+    "Maximum drawdown reduction versus buy-and-hold is less than 5%."
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-05-26T04:08:58Z",
+  "idea_id": "f18705e79203",
+  "kind": "cash_relative_strength_family_probe",
+  "status": "planned",
+  "hypothesis": "If cash relative strength family probe is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Rate and cash-proxy data can test whether TECL should stand down when cash strength beats risk-asset recovery.",
+  "input_diagnostics": [
+    "runs/gold_diversity_report.json",
+    "runs/family_confidence_leaderboard.json",
+    "docs/design-guide.md",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "suggested_tests": [
+    "cross_asset_recheck",
+    "grid_search_simple_families",
+    "diversity_prefilter_search",
+    "generated_hypothesis_test"
+  ],
+  "expected_artifact_paths": [
+    "runs/gold_diversity_report.json",
+    "runs/search/*.json",
+    "runs/diversity_prefilter_search.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "same-param portability remains below threshold",
+    "simple family fails the named-window or parsimony gates",
+    "candidate family remains crowded or redundant",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "cash-relative signal is too defensive in 2020 or 2023 rebound",
+    "candidate fails to add independence from Gold anchor states"
+  ],
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+}

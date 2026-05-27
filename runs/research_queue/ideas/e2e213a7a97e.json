@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "e2e213a7a97e",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "proposed",
+  "kind": "volume_weighted_accumulation_divergence",
+  "rationale": "Tests whether cumulative volume-weighted price trends reveal hidden accumulation during extended flat consolidations.",
+  "validation_tier": "T0",
+  "suggested_tests": [
+    "grid_search_simple_families",
+    "family_confidence_leaderboard",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "High-volume nodes frequently act as magnets rather than launching pads.",
+  "input_diagnostics": [
+    "runs/family_confidence_leaderboard.json",
+    "docs/design-guide.md",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/search/*.json",
+    "runs/family_confidence_leaderboard.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "simple family fails the named-window or parsimony gates",
+    "no new family leader improves Future Confidence and Trust",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Win rate drops below 45% over a 100-trade sample.",
+    "Maximum consecutive false signals exceeds 7."
+  ]
+}

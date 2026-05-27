@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "4e1d18d69628",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "proposed",
+  "kind": "semi_equipment_lead_lag",
+  "rationale": "Evaluates if semiconductor equipment manufacturers systematically lead broader technology index trend reversals.",
+  "validation_tier": "T0/T1",
+  "suggested_tests": [
+    "overlay_champion_matrix",
+    "focused_grid_search",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "Semiconductor cycles might decouple from broader software-heavy indices, rendering the lead-lag relationship noisy.",
+  "input_diagnostics": [
+    "spike/leaderboard.json",
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/overlay_champion_matrix.json",
+    "runs/search/*.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "overlay worsens drawdown or live-era share multiple",
+    "quick grid has no candidate worth full certification",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Lead time is less than 1 trading session on average.",
+    "Signal accuracy degrades significantly post-2020."
+  ]
+}

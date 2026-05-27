@@ -20,6 +20,7 @@ from ops.paths import (
     SIGNALS_DIR,
     ensure_ops_dirs,
 )
+from ops.versioning import version_info
 
 
 def _load_json(path: Path) -> Any:
@@ -370,6 +371,7 @@ def run_daily(
         "schema_version": 1,
         "generated_utc": generated_utc,
         "status": status,
+        "version_info": version_info(),
         "active_signal": stored_snapshot if write_status == "existing_differs" else snapshot,
         "computed_signal": snapshot,
         "steps": steps,

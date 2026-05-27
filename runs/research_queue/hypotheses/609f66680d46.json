@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-05-26T04:09:57Z",
+  "idea_id": "609f66680d46",
+  "kind": "credit_spread_velocity",
+  "status": "planned",
+  "hypothesis": "If credit spread velocity is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Evaluates if the rate of change in high-yield corporate credit spreads can front-run systemic liquidity drains affecting leveraged tech ETFs.",
+  "input_diagnostics": [
+    "runs/gold_diversity_report.json",
+    "spike/leaderboard.json",
+    "runs/operations/governance.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "suggested_tests": [
+    "cross_asset_recheck",
+    "gold_hybrid_lab",
+    "generated_hypothesis_test"
+  ],
+  "expected_artifact_paths": [
+    "runs/gold_diversity_report.json",
+    "runs/gold_hybrid_lab.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "same-param portability remains below threshold",
+    "hybrid candidate fails Gold all-era economics or Future Confidence",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Generates more than 3 false positive exits per year during the 2010-2019 bull market.",
+    "Drawdown capture is less than 15% better than buy-and-hold."
+  ],
+  "expected_failure_mode": "Credit markets may experience isolated shocks that trigger false exits in equities during otherwise strong tech bull runs."
+}

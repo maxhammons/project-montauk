@@ -195,9 +195,9 @@ def main(argv: list[str] | None = None) -> int:
                 status, "research",
                 status="empty",
                 finished_utc=utc_now_iso(),
-                detail="Queue empty. Ask an AI session to top up runs/research_queue/queue.json (see docs/ai-research-playbook.md).",
+                detail="No approved strategy ideas are queued. Research was skipped; the app is ready to use.",
             )
-            research_summary = {"status": "empty"}
+            research_summary = {"status": "empty", "reason": "no_approved_strategy_ideas"}
         else:
             research_result = _run_step(
                 [

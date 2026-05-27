@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "id": "6b252b27a472",
+  "created_utc": "2026-05-26T03:34:00Z",
+  "status": "paused",
+  "kind": "breadth_thrust_family_probe",
+  "rationale": "Family confidence diagnostics need an independent breadth-thrust style family instead of another EMA or VJATR sibling.",
+  "validation_tier": "T1",
+  "suggested_tests": [
+    "family_confidence_leaderboard",
+    "diversity_prefilter_search",
+    "focused_grid_search",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion",
+  "input_diagnostics": [
+    "runs/family_confidence_leaderboard.json",
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/family_confidence_leaderboard.json",
+    "runs/diversity_prefilter_search.json",
+    "runs/search/*.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "no new family leader improves Future Confidence and Trust",
+    "candidate family remains crowded or redundant",
+    "quick grid has no candidate worth full certification",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "candidate does not improve independence from Gold anchors",
+    "candidate misses rebound participation after breadth thrusts"
+  ],
+  "reviewed_utc": "2026-05-26T03:56:29Z"
+}

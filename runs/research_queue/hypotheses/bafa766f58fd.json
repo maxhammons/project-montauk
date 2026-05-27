@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-05-26T04:09:35Z",
+  "idea_id": "bafa766f58fd",
+  "kind": "calendar_turnaround_family_probe",
+  "status": "planned",
+  "hypothesis": "If calendar turnaround family probe is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: If marker misses cluster near recurring recovery windows, test simple calendar-aware turnaround hypotheses as T0/T1 diagnostics only.",
+  "input_diagnostics": [
+    "runs/cycle_diagnostics.json",
+    "runs/operations/latest.json",
+    "runs/family_confidence_leaderboard.json",
+    "docs/design-guide.md",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "suggested_tests": [
+    "named_window_recheck",
+    "grid_search_simple_families",
+    "generated_hypothesis_test"
+  ],
+  "expected_artifact_paths": [
+    "runs/cycle_diagnostics.json",
+    "runs/search/*.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "targeted window still fails after timing repair",
+    "simple family fails the named-window or parsimony gates",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "calendar condition is not robust outside one historical episode",
+    "candidate needs too many exceptions to remain a simple hypothesis"
+  ],
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+}

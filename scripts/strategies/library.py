@@ -2624,6 +2624,213 @@ def sgov_flight_switch(ind, p):
     return entries, exits, labels
 
 
+# ── External idea pack 2026-05-26: native/proxy queue concepts ──
+# These turn externally generated research ideas into actual bounded strategy
+# families. Some feeds are not in the local data set yet, so the functions use
+# explicit proxies from available series rather than silently pretending the
+# original feed exists.
+
+
+def _roc_series(series: np.ndarray, length: int) -> np.ndarray:
+    out = np.full(len(series), np.nan)
+    for i in range(length, len(series)):
+        if not np.isnan(series[i]) and not np.isnan(series[i - length]) and series[i - length] > 0:
+            out[i] = series[i] / series[i - length] - 1.0
+    return out
+
+
+def _diff_std(series: np.ndarray, length: int) -> np.ndarray:
+    diffs = np.full(len(series), np.nan)
+    for i in range(1, len(series)):
+        if not np.isnan(series[i]) and not np.isnan(series[i - 1]):
+            diffs[i] = series[i] - series[i - 1]
+    out = np.full(len(series), np.nan)
+    for i in range(length, len(series)):
+        window = diffs[i - length + 1:i + 1]
+        valid = window[~np.isnan(window)]
+        if len(valid) >= max(3, length // 2):
+            out[i] = float(np.std(valid))
+    return out
+
+
+def move_index_regime(ind, p):
+    """MOVE-style bond-volatility exit using Treasury-spread volatility as proxy.
+
+    Entry requires an equity trend plus calm/declining rate volatility. Exit
+    fires when the proxy rate-vol regime spikes or the equity trend fails.
+    """
+    n = ind.n
+    spread = ind.treasury_spread
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    if spread is None:
+        return entries, exits, labels
+    trend_len = int(p.get("trend_len", 100))
+    exit_len = int(p.get("exit_ema", 50))
+    vol_len = int(p.get("vol_len", 20))
+    vol_avg_len = int(p.get("vol_avg_len", 100))
+    calm_mult = float(p.get("calm_mult", 1.0))
+    spike_mult = float(p.get("spike_mult", 1.5))
+    trend = ind.ema(trend_len)
+    exit_ema = ind.ema(exit_len)
+    rate_vol = _diff_std(spread, vol_len)
+    rate_vol_avg = _sma(rate_vol, vol_avg_len)
+    for i in range(max(trend_len, vol_len + vol_avg_len) + 1, n):
+        if np.isnan(trend[i]) or np.isnan(exit_ema[i]) or np.isnan(rate_vol[i]) or np.isnan(rate_vol_avg[i]):
+            continue
+        calm = rate_vol[i] <= rate_vol_avg[i] * calm_mult
+        if ind.close[i] > trend[i] and calm:
+            entries[i] = True
+        if ind.close[i] < exit_ema[i]:
+            exits[i] = True
+            labels[i] = "T"
+        elif rate_vol[i] > rate_vol_avg[i] * spike_mult:
+            exits[i] = True
+            labels[i] = "MOVE"
+    return entries, exits, labels
+
+
+def credit_spread_velocity(ind, p):
+    """Credit-spread velocity proxy using SGOV risk-off flow and XLK weakness.
+
+    Without HY spread data, SGOV acceleration plus XLK underperformance acts as
+    the bounded liquidity-stress proxy.
+    """
+    n = ind.n
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    if ind.sgov_close is None or ind.xlk_close is None:
+        return entries, exits, labels
+    look = int(p.get("lookback", 20))
+    trend_len = int(p.get("trend_len", 100))
+    stress_thresh = float(p.get("stress_thresh", 0.002))
+    xlk_floor = float(p.get("xlk_floor", -0.03))
+    sgov_roc = _roc_series(ind.sgov_close, look)
+    xlk_roc = _roc_series(ind.xlk_close, look)
+    trend = ind.ema(trend_len)
+    exit_ema = ind.ema(int(p.get("exit_ema", 50)))
+    for i in range(max(look, trend_len) + 1, n):
+        if np.isnan(sgov_roc[i]) or np.isnan(xlk_roc[i]) or np.isnan(trend[i]) or np.isnan(exit_ema[i]):
+            continue
+        stress = sgov_roc[i] > stress_thresh and xlk_roc[i] < xlk_floor
+        if ind.close[i] > trend[i] and not stress and xlk_roc[i] > 0:
+            entries[i] = True
+        if stress:
+            exits[i] = True
+            labels[i] = "CR"
+        elif ind.close[i] < exit_ema[i]:
+            exits[i] = True
+            labels[i] = "T"
+    return entries, exits, labels
+
+
+def overnight_gap_exhaustion(ind, p):
+    """Capitulation entry after repeated overnight gap-down opens."""
+    n = ind.n
+    op = ind.open
+    cl = ind.close
+    rsi = ind.rsi(int(p.get("rsi_len", 14)))
+    trend = ind.ema(int(p.get("trend_len", 100)))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    streak_needed = int(p.get("gap_streak", 3))
+    gap_pct = float(p.get("gap_down_pct", 2.0)) / 100.0
+    max_hold = int(p.get("max_hold", 10))
+    rsi_reclaim = float(p.get("rsi_reclaim", 35.0))
+    in_trade = False
+    hold = 0
+    for i in range(streak_needed + 1, n):
+        streak = 0
+        for j in range(i - streak_needed + 1, i + 1):
+            if cl[j - 1] > 0 and op[j] / cl[j - 1] - 1.0 <= -gap_pct:
+                streak += 1
+        reversal = cl[i] > op[i] or (not np.isnan(rsi[i]) and rsi[i] >= rsi_reclaim)
+        if streak >= streak_needed and reversal and not in_trade:
+            entries[i] = True
+            in_trade = True
+            hold = 0
+        if in_trade:
+            hold += 1
+            if hold >= max_hold:
+                exits[i] = True
+                labels[i] = "TIME"
+                in_trade = False
+            elif not np.isnan(trend[i]) and cl[i] < trend[i] * float(p.get("trend_stop", 0.88)):
+                exits[i] = True
+                labels[i] = "STOP"
+                in_trade = False
+    return entries, exits, labels
+
+
+def put_call_panic_reversion(ind, p):
+    """Put/call panic proxy using VIX spike plus RSI reclaim."""
+    n = ind.n
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    if ind.vix is None:
+        return entries, exits, labels
+    vix_avg = ind.vix_sma(int(p.get("vix_sma_len", 50)))
+    rsi = ind.rsi(int(p.get("rsi_len", 14)))
+    trend = ind.ema(int(p.get("trend_len", 200)))
+    exit_ema = ind.ema(int(p.get("exit_ema", 50)))
+    spike_mult = float(p.get("vix_spike_mult", 1.25))
+    rsi_reclaim = float(p.get("rsi_reclaim", 40.0))
+    for i in range(1, n):
+        if np.isnan(ind.vix[i]) or np.isnan(vix_avg[i]) or np.isnan(rsi[i]) or np.isnan(rsi[i - 1]):
+            continue
+        panic = ind.vix[i] > vix_avg[i] * spike_mult
+        reclaim = rsi[i - 1] < rsi_reclaim <= rsi[i]
+        trend_ok = np.isnan(trend[i]) or ind.close[i] > trend[i] * float(p.get("trend_buffer", 0.90))
+        if panic and reclaim and trend_ok:
+            entries[i] = True
+        if rsi[i] > float(p.get("exit_rsi", 70.0)):
+            exits[i] = True
+            labels[i] = "R"
+        elif not np.isnan(exit_ema[i]) and ind.close[i] < exit_ema[i]:
+            exits[i] = True
+            labels[i] = "T"
+    return entries, exits, labels
+
+
+def defensive_sector_divergence(ind, p):
+    """Defensive-rotation proxy from SGOV strength vs XLK/TECL risk appetite."""
+    n = ind.n
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n)
+    if ind.sgov_close is None or ind.xlk_close is None:
+        return entries, exits, labels
+    look = int(p.get("lookback", 20))
+    trend_len = int(p.get("trend_len", 100))
+    defense_edge = float(p.get("defense_edge", 0.03))
+    sgov_roc = _roc_series(ind.sgov_close, look)
+    xlk_roc = _roc_series(ind.xlk_close, look)
+    tecl_roc = ind.roc(look)
+    trend = ind.ema(trend_len)
+    xlk_trend = _ema(ind.xlk_close, trend_len)
+    for i in range(max(look, trend_len) + 1, n):
+        if (
+            np.isnan(sgov_roc[i])
+            or np.isnan(xlk_roc[i])
+            or np.isnan(tecl_roc[i])
+            or np.isnan(trend[i])
+            or np.isnan(xlk_trend[i])
+        ):
+            continue
+        defensive_bid = (sgov_roc[i] - xlk_roc[i]) > defense_edge and tecl_roc[i] < 0
+        risk_participation = ind.close[i] > trend[i] and ind.xlk_close[i] > xlk_trend[i] and not defensive_bid
+        if risk_participation:
+            entries[i] = True
+        if defensive_bid:
+            exits[i] = True
+            labels[i] = "DEF"
+    return entries, exits, labels
+
+
 # ── Spike batch 2026-04-14d: golden cross hybrids ──
 # Pre-cross entry, asymmetric pairs, spread-based regime, and multi-confirmation hybrids.
 # These exploit two prototyped innovations: pre-cross entry (enter BEFORE golden cross
@@ -6392,7 +6599,7 @@ def _member_signals(ind, strategy_name: str, params: dict) -> tuple[np.ndarray, 
     if strategy_name in {
         "gold_hybrid_switchboard",
         "gold_hybrid_champion_overlay",
-        "gold_hybrid_committee",
+        "chimera_v1_2026_05_26",
     }:
         raise ValueError(f"hybrid strategy cannot recursively include {strategy_name}")
     fn = globals().get(strategy_name)
@@ -6493,8 +6700,8 @@ def gold_hybrid_champion_overlay(ind, p):
     return entries, exits, labels
 
 
-def gold_hybrid_committee(ind, p):
-    """Gold-only weighted long/flat committee.
+def _static_gold_committee(ind, p):
+    """Gold-only weighted long/flat committee implementation.
 
     Params:
       members: [{strategy, params, weight}, ...]
@@ -6525,6 +6732,15 @@ def gold_hybrid_committee(ind, p):
     scores = np.sum(state_arr * weights_arr[:, None], axis=0) / float(np.sum(weights_arr))
     threshold = float(p.get("threshold", 0.50))
     return _state_to_events(scores >= threshold, "COM")
+
+
+def chimera_v1_2026_05_26(ind, p):
+    """Static certified Chimera v1 snapshot, dated 2026-05-26.
+
+    This is a frozen weighted committee of Gold Status members. Membership and
+    weights are supplied in params so the certified signal remains reproducible.
+    """
+    return _static_gold_committee(ind, p)
 
 
 def ensemble_vote_3of5(ind, p):
@@ -7107,6 +7323,13 @@ STRATEGY_REGISTRY = {
     "dual_tema_breakout":       dual_tema_breakout,
     "vol_donchian_breakout":    vol_donchian_breakout,
     "sgov_flight_switch":       sgov_flight_switch,
+    # ── External idea pack 2026-05-26: native/proxy queue concepts ──
+    "move_index_regime":        move_index_regime,
+    "credit_spread_velocity":   credit_spread_velocity,
+    "overnight_gap_exhaustion": overnight_gap_exhaustion,
+    "consecutive_down_gap_capitulation": overnight_gap_exhaustion,
+    "put_call_panic_reversion": put_call_panic_reversion,
+    "defensive_sector_divergence": defensive_sector_divergence,
     # ── T1 grid-searchable: Spike batch 2026-04-14d (golden cross hybrids) ──
     "gc_precross":              gc_precross,
     "gc_asym_fast_entry":       gc_asym_fast_entry,
@@ -7228,7 +7451,7 @@ STRATEGY_REGISTRY = {
     "gc_vjatr_reclaimer_timing": gc_vjatr_reclaimer_timing, # D8: reclaimer plus narrow timing repair
     "gold_hybrid_switchboard":  gold_hybrid_switchboard,    # H1: best Gold entry + best Gold exit
     "gold_hybrid_champion_overlay": gold_hybrid_champion_overlay, # H2: Gold champion plus specialists
-    "gold_hybrid_committee":     gold_hybrid_committee,      # H3: weighted Gold family/state committee
+    "chimera_v1_2026_05_26":     chimera_v1_2026_05_26,      # Static certified Chimera v1 snapshot
     "ensemble_vote_3of5":       ensemble_vote_3of5,         # B12
     "fed_macro_primary":        fed_macro_primary,          # B13
     "slope_only_200":           slope_only_200,             # B16
@@ -7313,6 +7536,12 @@ STRATEGY_TIERS = {
     "dual_tema_breakout":       "T1",
     "vol_donchian_breakout":    "T1",
     "sgov_flight_switch":       "T1",
+    "move_index_regime":        "T1",
+    "credit_spread_velocity":   "T1",
+    "overnight_gap_exhaustion": "T1",
+    "consecutive_down_gap_capitulation": "T1",
+    "put_call_panic_reversion": "T1",
+    "defensive_sector_divergence": "T1",
     # ── T1 grid-searchable: Spike batch 2026-04-14d (golden cross hybrids) ──
     "gc_precross":              "T1",
     "gc_asym_fast_entry":       "T1",
@@ -7378,7 +7607,7 @@ STRATEGY_TIERS = {
     "gc_vjatr_reclaimer_timing": "T1",
     "gold_hybrid_switchboard":  "T2",
     "gold_hybrid_champion_overlay": "T2",
-    "gold_hybrid_committee":    "T2",
+    "chimera_v1_2026_05_26":    "T2",
     "ensemble_vote_3of5":       "T1",
     "fed_macro_primary":        "T1",
     "slope_only_200":           "T1",
@@ -7743,6 +7972,60 @@ STRATEGY_PARAMS = {
         "slow_ema":       (100, 300, 50, int),
         "cooldown":       (2, 10, 3, int),
     },
+    "move_index_regime": {
+        "trend_len":      (100, 200, 50, int),
+        "exit_ema":       (50, 100, 50, int),
+        "vol_len":        (10, 20, 10, int),
+        "vol_avg_len":    (50, 100, 50, int),
+        "calm_mult":      (0.8, 1.0, 0.2, float),
+        "spike_mult":     (1.3, 1.5, 0.2, float),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "credit_spread_velocity": {
+        "lookback":       (10, 20, 10, int),
+        "trend_len":      (100, 200, 50, int),
+        "exit_ema":       (50, 100, 50, int),
+        "stress_thresh":  (0.001, 0.003, 0.001, float),
+        "xlk_floor":      (-0.05, -0.01, 0.02, float),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "overnight_gap_exhaustion": {
+        "gap_streak":     (2, 4, 1, int),
+        "gap_down_pct":   (1.0, 3.0, 1.0, float),
+        "max_hold":       (5, 10, 5, int),
+        "rsi_reclaim":    (35.0, 45.0, 5.0, float),
+        "rsi_len":        (7, 14, 7, int),
+        "trend_len":      (100, 200, 100, int),
+        "trend_stop":     (0.85, 0.90, 0.05, float),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "consecutive_down_gap_capitulation": {
+        "gap_streak":     (3, 4, 1, int),
+        "gap_down_pct":   (1.0, 2.0, 1.0, float),
+        "max_hold":       (5, 10, 5, int),
+        "rsi_reclaim":    (35.0, 45.0, 5.0, float),
+        "rsi_len":        (7, 14, 7, int),
+        "trend_len":      (100, 200, 100, int),
+        "trend_stop":     (0.85, 0.90, 0.05, float),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "put_call_panic_reversion": {
+        "vix_sma_len":    (30, 50, 20, int),
+        "vix_spike_mult": (1.15, 1.30, 0.15, float),
+        "rsi_len":        (7, 14, 7, int),
+        "rsi_reclaim":    (35.0, 45.0, 5.0, float),
+        "exit_rsi":       (65.0, 75.0, 5.0, float),
+        "trend_len":      (100, 200, 100, int),
+        "exit_ema":       (50, 100, 50, int),
+        "trend_buffer":   (0.85, 0.95, 0.05, float),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "defensive_sector_divergence": {
+        "lookback":       (10, 50, 10, int),
+        "trend_len":      (100, 200, 50, int),
+        "defense_edge":   (0.01, 0.03, 0.01, float),
+        "cooldown":       (2, 10, 3, int),
+    },
     # ── T1 grid-searchable: Spike batch 2026-04-14d (golden cross hybrids) ──
     "gc_precross": {
         "fast_ema":       (20, 100, 10, int),
@@ -8080,7 +8363,7 @@ STRATEGY_PARAMS = {
     # frozen nested configs, not by random GA mutation.
     "gold_hybrid_switchboard": {},
     "gold_hybrid_champion_overlay": {},
-    "gold_hybrid_committee": {},
+    "chimera_v1_2026_05_26": {},
     # ── T1: Spike batch 2026-04-15b (diagnostic-informed) ──
     "gc_atr_trail": {
         "fast_ema":       (20, 100, 10, int),

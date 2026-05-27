@@ -89,7 +89,10 @@ Append ideas to `runs/research_queue/queue.json`. The file's shape:
   "validation_tier": "T0" | "T0/T1" | "T1" | "T2",
   "suggested_tests": [ "<test_name>", ... ],
   "time_budget": "<short freeform; usually 'bounded local diagnostic first'>",
-  "expected_failure_mode": "<one sentence; how this idea probably fails>"
+  "expected_failure_mode": "<one sentence; how this idea probably fails>",
+  "input_diagnostics": [ "<path-or-pattern>", ... ],
+  "expected_artifact_paths": [ "<path-or-pattern>", ... ],
+  "stop_conditions": [ "<falsifiable stopping rule>", ... ]
 }
 ```
 
@@ -112,6 +115,7 @@ Append ideas to `runs/research_queue/queue.json`. The file's shape:
 | `focused_grid_search` | `scripts/search/grid_search.py --quick` |
 | `grid_search_simple_families` | `scripts/search/grid_search.py --quick` |
 | `named_window_recheck` | `scripts/diagnostics/cycle_diagnostics.py` |
+| `generated_hypothesis_test` | `scripts/ops/generated_hypothesis_test.py --idea-id <id> --json` |
 
 You may use test names outside this list, but each unknown test produces a `manual_review` step instead of executing. Prefer known names.
 
@@ -187,7 +191,19 @@ User asks: "Queue up a few ideas, the live holdout is starting to drift."
     "focused_grid_search"
   ],
   "time_budget": "bounded local diagnostic first",
-  "expected_failure_mode": "either replay drift is data noise (not strategy drift), or the repair candidate fails the recertify_leaderboard step"
+  "expected_failure_mode": "either replay drift is data noise (not strategy drift), or the repair candidate fails the recertify_leaderboard step",
+  "input_diagnostics": [
+    "runs/operations/live_holdout.json",
+    "signals/*.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/operations/live_holdout.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "drift is not reproducible from point-in-time snapshots",
+    "hypothesis cannot be mapped to bounded diagnostics"
+  ]
 }
 ```
 

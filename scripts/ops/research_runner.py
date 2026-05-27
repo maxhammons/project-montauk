@@ -14,11 +14,20 @@ if str(SCRIPTS_DIR) not in sys.path:
 from ops.events import append_event, utc_now_iso
 from ops.paths import EVENTS_PATH, PROJECT_ROOT, RESEARCH_QUEUE_PATH, RESEARCH_RUNS_DIR, ensure_ops_dirs
 from ops.run_job import default_python
+from ops.versioning import version_info
 
 TEST_COMMANDS = {
     "family_confidence_leaderboard": ["scripts/diagnostics/family_confidence_leaderboard.py"],
     "gold_hybrid_lab": ["scripts/diagnostics/gold_hybrid_lab.py"],
-    "overlay_champion_matrix": ["scripts/diagnostics/overlay_champion_matrix.py"],
+    "overlay_champion_matrix": [
+        "scripts/diagnostics/overlay_champion_matrix.py",
+        "--overlay",
+        "gc_vjatr_reclaimer",
+        "--params-json",
+        "{}",
+        "--output",
+        "runs/overlay_champion_matrix.json",
+    ],
     "near_miss_autopsy": ["scripts/diagnostics/near_miss_autopsy.py"],
     "diversity_prefilter_search": ["scripts/diagnostics/diversity_prefilter_search.py"],
     "recertify_leaderboard": ["scripts/certify/recertify_leaderboard.py"],
@@ -27,7 +36,67 @@ TEST_COMMANDS = {
     "focused_grid_search": ["scripts/search/grid_search.py", "--quick"],
     "grid_search_simple_families": ["scripts/search/grid_search.py", "--quick"],
     "named_window_recheck": ["scripts/diagnostics/cycle_diagnostics.py"],
+    "generated_hypothesis_test": ["scripts/ops/generated_hypothesis_test.py", "--idea-id", "{idea_id}", "--json"],
 }
+
+NATIVE_STRATEGY_BY_KIND = {
+    "move_index_regime": "move_index_regime",
+    "credit_spread_velocity": "credit_spread_velocity",
+    "overnight_gap_exhaustion": "overnight_gap_exhaustion",
+    "consecutive_down_gap_capitulation": "consecutive_down_gap_capitulation",
+    "put_call_panic_reversion": "put_call_panic_reversion",
+    "defensive_sector_divergence": "defensive_sector_divergence",
+}
+
+
+def _native_artifact_path(idea_id: str, suffix: str) -> str:
+    return str(PROJECT_ROOT / "runs" / "research_queue" / "hypotheses" / f"{idea_id}-{suffix}.json")
+
+
+def _command_for_test(test_name: str, idea: dict[str, Any], py: str) -> list[str] | None:
+    idea_id = str(idea.get("id") or "")
+    native_concept = NATIVE_STRATEGY_BY_KIND.get(str(idea.get("kind") or ""))
+    if test_name == "native_concept_grid" and native_concept:
+        return [
+            py,
+            str(PROJECT_ROOT / "scripts/search/grid_search.py"),
+            "--quick",
+            "--concepts",
+            native_concept,
+            "--no-validate",
+            "--no-admit",
+            "--output",
+            _native_artifact_path(idea_id, "grid"),
+        ]
+    if test_name in {"focused_grid_search", "grid_search_simple_families"} and native_concept:
+        return [
+            py,
+            str(PROJECT_ROOT / "scripts/search/grid_search.py"),
+            "--quick",
+            "--concepts",
+            native_concept,
+            "--no-validate",
+            "--no-admit",
+            "--output",
+            _native_artifact_path(idea_id, "grid"),
+        ]
+    if test_name == "diversity_prefilter_search" and native_concept:
+        return [
+            py,
+            str(PROJECT_ROOT / "scripts/diagnostics/diversity_prefilter_search.py"),
+            "--concepts",
+            native_concept,
+            "--output",
+            _native_artifact_path(idea_id, "diversity"),
+        ]
+    relative = TEST_COMMANDS.get(test_name)
+    if not relative:
+        return None
+    return [
+        py,
+        str(PROJECT_ROOT / relative[0]),
+        *[arg.replace("{idea_id}", idea_id) for arg in relative[1:]],
+    ]
 
 
 def _load_json(path: Path, default: Any) -> Any:
@@ -56,10 +125,18 @@ def approved_ideas(queue: dict[str, Any], idea_id: str | None = None) -> list[di
 
 def build_research_plan(idea: dict[str, Any], *, python: str | None = None) -> dict[str, Any]:
     py = python or default_python()
+    idea_id = str(idea.get("id") or "")
+    tests = list(idea.get("suggested_tests") or [])
+    native_concept = NATIVE_STRATEGY_BY_KIND.get(str(idea.get("kind") or ""))
+    if native_concept and not any(
+        test_name in tests
+        for test_name in ("native_concept_grid", "focused_grid_search", "grid_search_simple_families", "diversity_prefilter_search")
+    ):
+        tests = ["native_concept_grid", *tests]
     steps = []
-    for test_name in idea.get("suggested_tests") or []:
-        relative = TEST_COMMANDS.get(test_name)
-        if not relative:
+    for test_name in tests:
+        command = _command_for_test(test_name, idea, py)
+        if not command:
             steps.append(
                 {
                     "name": test_name,
@@ -72,7 +149,10 @@ def build_research_plan(idea: dict[str, Any], *, python: str | None = None) -> d
             {
                 "name": test_name,
                 "status": "planned",
-                "command": [py, str(PROJECT_ROOT / relative[0]), *relative[1:]],
+                "command": command,
+                "input_diagnostics": idea.get("input_diagnostics") or [],
+                "expected_artifact_paths": idea.get("expected_artifact_paths") or [],
+                "stop_conditions": idea.get("stop_conditions") or [],
             }
         )
     return {
@@ -83,6 +163,9 @@ def build_research_plan(idea: dict[str, Any], *, python: str | None = None) -> d
         "validation_tier": idea.get("validation_tier"),
         "time_budget": idea.get("time_budget"),
         "expected_failure_mode": idea.get("expected_failure_mode"),
+        "input_diagnostics": idea.get("input_diagnostics") or [],
+        "expected_artifact_paths": idea.get("expected_artifact_paths") or [],
+        "stop_conditions": idea.get("stop_conditions") or [],
         "steps": steps,
     }
 
@@ -133,6 +216,7 @@ def create_research_run(
         "schema_version": 1,
         "run_id": run_id,
         "created_utc": generated,
+        "version_info": version_info(),
         "status": "planned",
         "execute": execute,
         "plan": build_research_plan(idea),

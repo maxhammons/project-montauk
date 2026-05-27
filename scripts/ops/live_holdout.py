@@ -13,6 +13,7 @@ if str(SCRIPTS_DIR) not in sys.path:
 from ops.daily import comparable_signal, compute_current_signal, load_active_champion
 from ops.events import append_event, utc_now_iso
 from ops.paths import LIVE_HOLDOUT_PATH, SIGNALS_DIR, ensure_ops_dirs
+from ops.versioning import version_info
 
 
 def _load_json(path: Path) -> Any:
@@ -199,6 +200,7 @@ def build_live_holdout(
     report = {
         "schema_version": 1,
         "generated_utc": utc_now_iso(),
+        "version_info": version_info(),
         "status": "attention" if diverged else "ok",
         "snapshot_count": len(snapshots),
         "live_start_date": first.get("data_end_date"),

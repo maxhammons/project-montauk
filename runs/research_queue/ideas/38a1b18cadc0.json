@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "id": "38a1b18cadc0",
+  "created_utc": "2026-05-26T03:37:33Z",
+  "status": "paused",
+  "kind": "gap_reversal_family_probe",
+  "rationale": "Recent and historical shock windows justify testing gap-reversal logic that distinguishes panic exhaustion from trend failure.",
+  "validation_tier": "T1",
+  "suggested_tests": [
+    "near_miss_autopsy",
+    "focused_grid_search",
+    "named_window_recheck",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion",
+  "input_diagnostics": [
+    "runs/near_miss_autopsy.json",
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "runs/cycle_diagnostics.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/near_miss_autopsy.json",
+    "runs/search/*.json",
+    "runs/cycle_diagnostics.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "near-Gold candidate repeats known Gold contract failures",
+    "quick grid has no candidate worth full certification",
+    "targeted window still fails after timing repair",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "gap reversal trigger overfits isolated crash lows",
+    "candidate improves rebound windows but worsens bear avoidance"
+  ],
+  "reviewed_utc": "2026-05-26T04:10:25Z"
+}

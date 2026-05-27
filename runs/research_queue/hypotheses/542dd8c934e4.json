@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-05-26T03:51:22Z",
+  "idea_id": "542dd8c934e4",
+  "kind": "near_open_reality_repair",
+  "status": "planned",
+  "hypothesis": "If near open reality repair is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Reality check reports 4 gate failures in current candidate behavior.",
+  "input_diagnostics": [
+    "runs/near_miss_autopsy.json",
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "runs/research_queue/ideas/<idea_id>.json",
+    "runs/reality_check/latest.json"
+  ],
+  "suggested_tests": [
+    "near_miss_autopsy",
+    "focused_grid_search",
+    "generated_hypothesis_test"
+  ],
+  "expected_artifact_paths": [
+    "runs/near_miss_autopsy.json",
+    "runs/search/*.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "near-Gold candidate repeats known Gold contract failures",
+    "quick grid has no candidate worth full certification",
+    "hypothesis cannot be mapped to bounded diagnostics"
+  ],
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+}

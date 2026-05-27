@@ -129,8 +129,12 @@
                 <div class="panel-label">Research queue</div>
                 <h3>Strategy proposals</h3>
               </div>
-              <div id="research-queue-summary" class="muted compact">--</div>
+              <div class="button-row">
+                <button id="research-enqueue-btn" class="button small">Enqueue</button>
+                <button id="doctor-next-research-btn" class="button small primary">Run next</button>
+              </div>
             </div>
+            <div id="research-queue-summary" class="muted compact" style="margin-bottom: 10px;">--</div>
             <div id="research-queue-list" class="leaderboard"></div>
             <div id="research-queue-last" class="muted compact" style="margin-top: 10px;"></div>
           </section>
@@ -359,7 +363,7 @@
         <div class="maintenance-bar"><div id="maintenance-bar-fill" class="maintenance-bar-fill"></div></div>
         <ol id="maintenance-steps" class="maintenance-steps"></ol>
         <div class="maintenance-actions">
-          <button id="maintenance-close-btn" class="button" hidden>Close</button>
+          <button id="maintenance-close-btn" class="button" data-maintenance-close hidden>Close</button>
           <button id="maintenance-copy-btn" class="button small" hidden>Copy Debug</button>
         </div>
       </div>

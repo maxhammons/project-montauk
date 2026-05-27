@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-05-26T04:09:18Z",
+  "idea_id": "3c1931904fbd",
+  "kind": "failed_breakdown_reclaim_family_probe",
+  "status": "planned",
+  "hypothesis": "If failed breakdown reclaim family probe is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Bear-to-recovery transitions can be tested with failed-breakdown reclaim logic rather than pure momentum recapture.",
+  "input_diagnostics": [
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "runs/cycle_diagnostics.json",
+    "runs/family_confidence_leaderboard.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "suggested_tests": [
+    "focused_grid_search",
+    "named_window_recheck",
+    "diversity_prefilter_search",
+    "generated_hypothesis_test"
+  ],
+  "expected_artifact_paths": [
+    "runs/search/*.json",
+    "runs/cycle_diagnostics.json",
+    "runs/diversity_prefilter_search.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "quick grid has no candidate worth full certification",
+    "targeted window still fails after timing repair",
+    "candidate family remains crowded or redundant",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "failed-breakdown trigger fires repeatedly in chop",
+    "candidate cannot retain bear avoidance while improving rebound capture"
+  ],
+  "expected_failure_mode": "fails Gold all-era economics or Future Confidence before promotion"
+}

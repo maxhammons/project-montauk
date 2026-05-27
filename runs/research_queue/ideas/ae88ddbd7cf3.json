@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "id": "ae88ddbd7cf3",
+  "created_utc": "2026-05-26T03:47:08Z",
+  "status": "proposed",
+  "kind": "equal_weight_tech_outperformance",
+  "rationale": "Tests if equal-weight tech indices outperforming market-cap variants marks broad-based sustainable rally participation.",
+  "validation_tier": "T0/T1",
+  "suggested_tests": [
+    "overlay_champion_matrix",
+    "recertify_leaderboard",
+    "generated_hypothesis_test"
+  ],
+  "time_budget": "bounded local diagnostic first",
+  "expected_failure_mode": "Mega-cap concentration can drive sustained rallies alone, causing missed secular advances when breadth is narrow.",
+  "input_diagnostics": [
+    "spike/leaderboard.json",
+    "docs/validation-thresholds.md",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "expected_artifact_paths": [
+    "runs/overlay_champion_matrix.json",
+    "spike/leaderboard.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "overlay worsens drawdown or live-era share multiple",
+    "candidate fails the authority certification gates",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Underperforms TECL buy-and-hold by more than 20% during any secular bull-market year.",
+    "Correlation with existing breadth-thrust families exceeds 0.80."
+  ]
+}

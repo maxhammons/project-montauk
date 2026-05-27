@@ -57,6 +57,7 @@ const fallbackStatus = {
     ],
   },
   notifications: { pending_count: 0, notifications: [] },
+  research_runs: { runs: [], run_count: 0 },
   governance: { state: "active_watch", reasons: ["Static preview"] },
   live_holdout: { status: "ok", snapshot_count: 4, diverged_count: 0 },
   strategy_review: {
@@ -113,8 +114,8 @@ const fallbackStatus = {
   },
   leaderboard: [
     {
-      display_name: "Cerulean Hare #1",
-      strategy: "gold_hybrid_committee",
+      display_name: "Chimera v1 - 2026-05-26",
+      strategy: "chimera_v1_2026_05_26",
       validation: { composite_confidence: 0.7594 },
       metrics: { share_multiple: 30.4933, real_share_multiple: 1.3324, modern_share_multiple: 3.32, max_dd: 65.8 },
     },
@@ -170,6 +171,7 @@ const fallbackStatus = {
   },
   launch_agents: { jobs: [] },
   doctor: { status: "preview", checks: [], failure_count: 0 },
+  app_update: { can_install: false, candidate_exists: false },
   recent_events: [],
 };
 
@@ -1278,6 +1280,41 @@ async function runNextResearch() {
   }
 }
 
+async function enqueueResearchIdeas() {
+  const invoke = tauriInvoke("enqueue_research_ideas");
+  if (!invoke) {
+    text("research-queue-last", "Enqueue only works in the Mac app.");
+    return;
+  }
+  const reset = setButtonBusy("research-enqueue-btn", true, "Queuing");
+  try {
+    const result = await invoke;
+    const count = result?.idea_count ?? result?.ideas?.length ?? 0;
+    text("research-queue-last", `Queue refreshed with ${count} ideas.`);
+    await refresh();
+  } catch (error) {
+    text("research-queue-last", error?.message || String(error));
+  } finally {
+    reset();
+  }
+}
+
+async function startResearchIdea(ideaId) {
+  const invoke = tauriInvoke("start_research_run", { ideaId });
+  if (!invoke) {
+    text("research-queue-last", "Start only works in the Mac app.");
+    return;
+  }
+  try {
+    const result = await invoke;
+    const run = Array.isArray(result?.runs) ? result.runs[0] : null;
+    text("research-queue-last", run?.record_path ? `Planned run: ${run.record_path}` : `Planned run for ${ideaId}.`);
+    await refresh();
+  } catch (error) {
+    text("research-queue-last", error?.message || String(error));
+  }
+}
+
 async function setResearchIdeaStatus(ideaId, action) {
   const invoke = tauriInvoke("research_queue_action", { ideaId, action });
   if (!invoke) {
@@ -1292,18 +1329,32 @@ async function setResearchIdeaStatus(ideaId, action) {
   }
 }
 
+function inspectResearchIdea(item) {
+  const runs = state.status?.research_runs?.runs || [];
+  const related = runs
+    .filter((run) => run.idea_id === item.id || run.plan?.idea_id === item.id)
+    .slice(-3)
+    .map((run) => run.record_path || run.run_id)
+    .filter(Boolean);
+  const diagnostics = Array.isArray(item.input_diagnostics) ? item.input_diagnostics.join(", ") : "none";
+  const artifacts = Array.isArray(item.expected_artifact_paths) ? item.expected_artifact_paths.join(", ") : "none";
+  const stops = Array.isArray(item.stop_conditions) ? item.stop_conditions.join("; ") : "none";
+  const runText = related.length ? ` Recent runs: ${related.join(" | ")}.` : "";
+  text("research-queue-last", `Inputs: ${diagnostics}. Artifacts: ${artifacts}. Stop: ${stops}.${runText}`);
+}
+
 function renderResearchQueue(status = state.status) {
   const queue = status.research_queue || {};
   const ideas = Array.isArray(queue.ideas) ? queue.ideas : [];
   const summary = document.getElementById("research-queue-summary");
   if (summary) {
-    const counts = { approved: 0, proposed: 0, dismissed: 0 };
+    const counts = { approved: 0, proposed: 0, paused: 0, dismissed: 0 };
     for (const item of ideas) {
       const key = (item.status || "proposed").toLowerCase();
       if (counts[key] != null) counts[key] += 1;
     }
     summary.textContent = ideas.length
-      ? `${counts.approved} approved · ${counts.proposed} proposed · ${counts.dismissed} dismissed`
+      ? `${counts.approved} approved · ${counts.proposed} proposed · ${counts.paused} paused · ${counts.dismissed} dismissed`
       : "Empty queue. Have an AI session populate runs/research_queue/queue.json.";
   }
 
@@ -1334,11 +1385,19 @@ function renderResearchQueue(status = state.status) {
     row.dataset.tip = item.rationale || "";
     const tests = Array.isArray(item.suggested_tests) ? item.suggested_tests.join(", ") : "";
     const buttons = ideaStatus === "approved"
-      ? `<button class="button small" data-research-id="${escapeHtml(item.id)}" data-research-action="dismiss">Dismiss</button>`
+      ? `<button class="button small primary" data-research-id="${escapeHtml(item.id)}" data-research-action="start">Start</button>
+         <button class="button small" data-research-id="${escapeHtml(item.id)}" data-research-action="pause">Pause</button>
+         <button class="button small" data-research-id="${escapeHtml(item.id)}" data-research-action="inspect">Inspect</button>`
+      : ideaStatus === "paused"
+        ? `<button class="button small primary" data-research-id="${escapeHtml(item.id)}" data-research-action="resume">Resume</button>
+           <button class="button small" data-research-id="${escapeHtml(item.id)}" data-research-action="dismiss">Dismiss</button>
+           <button class="button small" data-research-id="${escapeHtml(item.id)}" data-research-action="inspect">Inspect</button>`
       : ideaStatus === "dismissed"
-        ? `<button class="button small" data-research-id="${escapeHtml(item.id)}" data-research-action="reset">Reopen</button>`
+        ? `<button class="button small" data-research-id="${escapeHtml(item.id)}" data-research-action="reset">Reopen</button>
+           <button class="button small" data-research-id="${escapeHtml(item.id)}" data-research-action="inspect">Inspect</button>`
         : `<button class="button small primary" data-research-id="${escapeHtml(item.id)}" data-research-action="approve">Approve</button>
-           <button class="button small" data-research-id="${escapeHtml(item.id)}" data-research-action="dismiss">Dismiss</button>`;
+           <button class="button small" data-research-id="${escapeHtml(item.id)}" data-research-action="dismiss">Dismiss</button>
+           <button class="button small" data-research-id="${escapeHtml(item.id)}" data-research-action="inspect">Inspect</button>`;
     row.innerHTML = `
       <span>${escapeHtml(ideaStatus)}</span>
       <span><strong>${escapeHtml(titleCase(item.kind || "?"))}</strong><small>${escapeHtml(item.id || "")}</small></span>
@@ -1354,7 +1413,11 @@ function renderResearchQueue(status = state.status) {
     btn.addEventListener("click", () => {
       const ideaId = btn.dataset.researchId;
       const action = btn.dataset.researchAction;
-      if (ideaId && action) setResearchIdeaStatus(ideaId, action);
+      const item = ideas.find((candidate) => candidate.id === ideaId);
+      if (!ideaId || !action) return;
+      if (action === "inspect" && item) inspectResearchIdea(item);
+      else if (action === "start") startResearchIdea(ideaId);
+      else setResearchIdeaStatus(ideaId, action);
     });
   });
 }
@@ -1508,11 +1571,20 @@ const maintenanceState = {
 
 function setMaintenanceModalOpen(open) {
   const modal = document.getElementById("maintenance-modal");
-  if (modal) modal.hidden = !open;
+  if (modal) {
+    modal.hidden = !open;
+    modal.setAttribute("aria-hidden", open ? "false" : "true");
+    modal.classList.toggle("is-open", open);
+  }
   document.body.classList.toggle("modal-open", open);
 }
 
 function closeMaintenanceModal() {
+  if (maintenanceState.pollHandle && isMaintenanceTerminal(maintenanceState.lastStatus)) {
+    clearInterval(maintenanceState.pollHandle);
+    maintenanceState.pollHandle = null;
+    maintenanceState.running = false;
+  }
   setMaintenanceModalOpen(false);
 }
 
@@ -1524,12 +1596,30 @@ function copyMaintenanceDebug() {
   });
 }
 
+function maintenancePhases(status) {
+  return Array.isArray(status?.phases) ? status.phases : [];
+}
+
+function isMaintenanceTerminal(status) {
+  const phases = maintenancePhases(status);
+  const phaseTerminal = phases.length > 0 && phases.every((phase) =>
+    ["ok", "failed", "empty", "skipped"].includes(phase.status)
+  );
+  return status?.status === "ok" || status?.status === "failed" || phaseTerminal;
+}
+
+function hasEmptyResearchQueue(status) {
+  return maintenancePhases(status).some((phase) =>
+    phase.key === "research" && phase.status === "empty"
+  ) || status?.summary?.research?.status === "empty";
+}
+
 function renderMaintenanceModal(status) {
   maintenanceState.lastStatus = status;
   const list = document.getElementById("maintenance-steps");
   if (list) {
     list.innerHTML = "";
-    const phases = Array.isArray(status?.phases) ? status.phases : [];
+    const phases = maintenancePhases(status);
     for (const phase of phases) {
       const li = document.createElement("li");
       li.className = `step step-${phase.status || "pending"}`;
@@ -1554,29 +1644,40 @@ function renderMaintenanceModal(status) {
     }
   }
   // Title + progress bar
-  const phases = Array.isArray(status?.phases) ? status.phases : [];
+  const phases = maintenancePhases(status);
   const total = Math.max(phases.length, 1);
-  const done = phases.filter((p) => ["ok", "failed", "empty"].includes(p.status)).length;
+  const done = phases.filter((p) => ["ok", "failed", "empty", "skipped"].includes(p.status)).length;
   const current = phases.find((p) => p.status === "running") || phases.find((p) => ["ok", "failed", "empty"].includes(p.status));
+  const emptyQueue = hasEmptyResearchQueue(status);
+  const terminal = isMaintenanceTerminal(status);
   const titleText = status?.status === "ok"
-    ? "Maintenance complete"
+    ? emptyQueue ? "Maintenance complete — no research queued" : "Maintenance complete"
     : status?.status === "failed"
       ? "Maintenance failed"
+      : terminal && emptyQueue
+        ? "Maintenance complete — no research queued"
       : status?.status === "starting"
         ? "Starting maintenance…"
         : current?.label || "Working…";
   text("maintenance-phase-title", titleText);
-  text("maintenance-phase-detail", current?.detail || "");
+  text(
+    "maintenance-phase-detail",
+    emptyQueue && terminal
+      ? "Data refresh and health checks finished. No approved strategy ideas are queued, so research was skipped."
+      : current?.detail || ""
+  );
   const fill = document.getElementById("maintenance-bar-fill");
   if (fill) {
-    const ratio = status?.status === "ok" ? 1 : done / total;
+    const ratio = terminal ? 1 : done / total;
     fill.style.width = `${Math.max(6, Math.min(100, ratio * 100))}%`;
   }
   // Show Close + Copy Debug at the end
   const closeBtn = document.getElementById("maintenance-close-btn");
   const copyBtn = document.getElementById("maintenance-copy-btn");
-  const terminal = status?.status === "ok" || status?.status === "failed";
-  if (closeBtn) closeBtn.hidden = !terminal;
+  if (closeBtn) {
+    closeBtn.hidden = !terminal;
+    closeBtn.textContent = emptyQueue && status?.status !== "failed" ? "Continue" : "Close";
+  }
   if (copyBtn) copyBtn.hidden = !(status?.status === "failed");
 }
 
@@ -1639,7 +1740,7 @@ async function runMaintenance(opts = {}) {
   const tick = async () => {
     const status = await pollMaintenance();
     if (status) renderMaintenanceModal(status);
-    const terminal = status?.status === "ok" || status?.status === "failed";
+    const terminal = isMaintenanceTerminal(status);
     if (terminal) {
       clearInterval(maintenanceState.pollHandle);
       maintenanceState.pollHandle = null;
@@ -1890,8 +1991,21 @@ function wireNav() {
 
 function wireActions() {
   document.getElementById("maintenance-btn")?.addEventListener("click", runMaintenance);
+  document.getElementById("research-enqueue-btn")?.addEventListener("click", enqueueResearchIdeas);
+  document.getElementById("doctor-next-research-btn")?.addEventListener("click", runNextResearch);
   document.getElementById("viz-popout-btn")?.addEventListener("click", popoutViz);
   document.getElementById("maintenance-close-btn")?.addEventListener("click", closeMaintenanceModal);
+  document.getElementById("maintenance-modal")?.addEventListener("click", (event) => {
+    const closeTarget = event.target.closest?.("#maintenance-close-btn, [data-maintenance-close]");
+    if (closeTarget || (event.target.id === "maintenance-modal" && isMaintenanceTerminal(maintenanceState.lastStatus))) {
+      closeMaintenanceModal();
+    }
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && isMaintenanceTerminal(maintenanceState.lastStatus)) {
+      closeMaintenanceModal();
+    }
+  });
   document.getElementById("maintenance-copy-btn")?.addEventListener("click", copyMaintenanceDebug);
   document.getElementById("action-error-copy")?.addEventListener("click", copyActionError);
   document.querySelectorAll("button[data-agent-action]").forEach((button) => {
