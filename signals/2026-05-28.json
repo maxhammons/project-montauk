@@ -1,0 +1,110 @@
+{
+  "snapshot_schema_version": 1,
+  "generated_utc": "2026-05-28T20:30:07Z",
+  "data_end_date": "2026-05-28",
+  "active_champion": {
+    "strategy": "gc_vjatr_timing_repair",
+    "rank": 1,
+    "date": "2026-04-29",
+    "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+    "params": {
+      "fast_ema": 140,
+      "slow_ema": 160,
+      "slope_window": 1,
+      "entry_bars": 2,
+      "cooldown": 0,
+      "atr_period": 16,
+      "atr_look": 50,
+      "atr_expand": 2.0,
+      "atr_confirm": 3,
+      "repair_len": 30,
+      "rsi_len": 7,
+      "drawdown_lookback": 40,
+      "drawdown_pct": 25.0,
+      "repair_slope": 3,
+      "rsi_floor": 35.0,
+      "vix_ceiling": 50.0
+    },
+    "metrics": {
+      "share_multiple": 10.0909,
+      "real_share_multiple": 1.5469,
+      "modern_share_multiple": 2.239,
+      "max_dd": 98.2,
+      "trades": 44
+    }
+  },
+  "risk_state": "risk_on",
+  "risk_on": true,
+  "entry_signal": false,
+  "exit_signal": false,
+  "exit_label": "",
+  "buy_event": false,
+  "sell_event": false,
+  "close": 230.25,
+  "validation": {
+    "verdict": "PASS",
+    "promotion_ready": true,
+    "certified_not_overfit": true,
+    "backtest_certified": true,
+    "gold_status": true,
+    "composite_confidence": 0.7678,
+    "tier": "T2",
+    "warnings": [
+      "walk-forward dispersion 0.71 > 0.65",
+      "2023_rebound: share_multiple=0.565",
+      "QQQ same-param share_multiple=0.478 < 0.50",
+      "walk-forward: WF 2024-2025: OOS/IS regime ratio 0.58 < 0.65",
+      "morris warning: max_swing=0.15 sigma_ratio=2.81",
+      "bootstrap downside probability 0.77 > 0.50",
+      "TQQQ same-param share_multiple=0.487 < 0.50"
+    ],
+    "hard_fail_reasons": [],
+    "certification_checks": {
+      "engine_integrity": {
+        "passed": true,
+        "status": "pass"
+      },
+      "golden_regression": {
+        "passed": true,
+        "status": "pass"
+      },
+      "shadow_comparator": {
+        "passed": true,
+        "status": "pass"
+      },
+      "data_quality_precheck": {
+        "passed": true,
+        "status": "pass"
+      },
+      "artifact_completeness": {
+        "passed": true,
+        "status": "pass"
+      }
+    }
+  },
+  "warnings": [
+    "walk-forward dispersion 0.71 > 0.65",
+    "2023_rebound: share_multiple=0.565",
+    "QQQ same-param share_multiple=0.478 < 0.50",
+    "walk-forward: WF 2024-2025: OOS/IS regime ratio 0.58 < 0.65",
+    "morris warning: max_swing=0.15 sigma_ratio=2.81",
+    "bootstrap downside probability 0.77 > 0.50",
+    "TQQQ same-param share_multiple=0.487 < 0.50"
+  ],
+  "blockers": [],
+  "signal_changed": false,
+  "signal_change": {
+    "changed": false,
+    "reason": "unchanged",
+    "changed_fields": [],
+    "previous_data_end_date": "2026-05-27",
+    "previous_risk_state": "risk_on"
+  },
+  "data_quality": {
+    "total": 41,
+    "pass": 41,
+    "warn": 0,
+    "fail": 0,
+    "skip": 0
+  }
+}

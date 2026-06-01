@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-05-27T20:40:03Z",
+  "generated_utc": "2026-05-28T20:40:05Z",
   "status": "on_best_certified",
   "on_best_certified": true,
   "selection_metric": "confidence",
@@ -11,7 +11,7 @@
     "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
     "confidence": 0.7678,
     "score_label": "composite_confidence",
-    "data_end_date": "2026-05-27",
+    "data_end_date": "2026-05-28",
     "risk_state": "risk_on"
   },
   "best_certified": {

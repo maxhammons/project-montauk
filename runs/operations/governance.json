@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-05-27T20:45:00Z",
+  "generated_utc": "2026-05-28T20:45:01Z",
   "version_info": {
     "schema_version": 1,
-    "generated_utc": "2026-05-27T20:45:00Z",
+    "generated_utc": "2026-05-28T20:45:01Z",
     "app_version": "0.1.0",
-    "git_commit": "8a78629",
+    "git_commit": "572df86",
     "git_dirty": true,
-    "strategy_code_version": "8a78629"
+    "strategy_code_version": "572df86"
   },
   "state": "active_watch",
   "reasons": [
@@ -20,14 +20,14 @@
   "review_reasons": [],
   "stale_calendar_days": 0,
   "active_signal": {
-    "data_end_date": "2026-05-27",
+    "data_end_date": "2026-05-28",
     "risk_state": "risk_on",
     "strategy": "gc_vjatr_timing_repair",
     "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d"
   },
   "live_holdout": {
     "status": "ok",
-    "snapshot_count": 11,
+    "snapshot_count": 12,
     "diverged_count": 0,
     "confidence_drift": {
       "start": 0.7594,
@@ -36,10 +36,10 @@
     },
     "active_champion_performance_since_live_start": {
       "start_date": "2026-05-08",
-      "latest_date": "2026-05-27",
+      "latest_date": "2026-05-28",
       "strategy": "gc_vjatr_timing_repair",
-      "signal_return_pct": 15.7707,
-      "buy_hold_return_pct": 15.7707,
+      "signal_return_pct": 20.5781,
+      "buy_hold_return_pct": 20.5781,
       "live_vs_buy_hold_multiple_proxy": 1.0
     }
   },
@@ -51,7 +51,7 @@
       "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
       "confidence": 0.7678,
       "score_label": "composite_confidence",
-      "data_end_date": "2026-05-27",
+      "data_end_date": "2026-05-28",
       "risk_state": "risk_on"
     },
     "best_certified": {
