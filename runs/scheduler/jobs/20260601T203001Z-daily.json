@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "job": "daily",
+  "status": "ok",
+  "started_utc": "2026-06-01T20:30:01Z",
+  "finished_utc": "2026-06-01T20:30:09Z",
+  "command": [
+    "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/.venv/bin/python",
+    "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/scripts/ops/daily.py"
+  ],
+  "cwd": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk",
+  "schedule": {
+    "key": "daily",
+    "enabled": true,
+    "schedule": {
+      "Hour": 13,
+      "Minute": 30
+    }
+  },
+  "output_artifact_paths": [
+    "runs/operations/latest.json",
+    "signals/YYYY-MM-DD.json",
+    "viz/montauk-viz.html",
+    "viz/montauk-bundle.json"
+  ],
+  "returncode": 0,
+  "error_code": null,
+  "stdout_tail": "[refresh] Updating all local CSVs...\n[refresh] TECL: +2 new bars\n[refresh] VIX: +2 new bars\n[refresh] XLK: +2 new bars\n[refresh] QQQ: +2 new bars\n[refresh] TQQQ: +2 new bars\n[refresh] SGOV: +2 new bars\n[refresh] tbill-3m.csv: +2 new rows\n[refresh] treasury-spread-10y2y.csv: +2 new rows\n[refresh] fed-funds-rate.csv: +2 new rows\n[refresh] Done. TECL: 8326 bars through 2026-06-01\n[data] TECL: 8326 bars, 1993-05-04 to 2026-06-01\n[data] VIX: 8322/8326 dates matched\n[data] TECL: 8326 bars, 1993-05-04 to 2026-06-01\n[data] VIX: 8322/8326 dates matched\nMontauk daily status: ok\nSignal: risk_on through 2026-06-01\n- refresh: ok\n- manifest: ok\n- data_quality: ok\n- signal_snapshot: written\n- viz: ok\n- followups: ok\n",
+  "stderr_tail": "",
+  "lock_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/scheduler/locks/daily.lock",
+  "record_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/scheduler/jobs/20260601T203001Z-daily.json"
+}
