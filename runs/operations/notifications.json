@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-06-01T20:30:09Z",
+  "generated_utc": "2026-06-03T20:50:05Z",
   "version_info": {
     "schema_version": 1,
-    "generated_utc": "2026-06-01T20:30:09Z",
+    "generated_utc": "2026-06-03T20:50:05Z",
     "app_version": "0.1.0",
-    "git_commit": "27d2331",
+    "git_commit": "c28c2cb",
     "git_dirty": true,
-    "strategy_code_version": "27d2331"
+    "strategy_code_version": "c28c2cb"
   },
   "pending_count": 11,
   "preferences": {
@@ -64,7 +64,7 @@
   "notifications": [
     {
       "id": "f184da1d7aa827cb",
-      "created_utc": "2026-06-01T20:30:09Z",
+      "created_utc": "2026-06-03T20:50:05Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -113,7 +113,7 @@
     },
     {
       "id": "65b518ef99843587",
-      "created_utc": "2026-06-01T20:30:09Z",
+      "created_utc": "2026-06-03T20:50:05Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -261,7 +261,7 @@
     },
     {
       "id": "c5a2da4901f0069e",
-      "created_utc": "2026-06-01T20:30:09Z",
+      "created_utc": "2026-06-03T20:50:05Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -460,7 +460,7 @@
     },
     {
       "id": "a795804388207584",
-      "created_utc": "2026-06-01T20:30:09Z",
+      "created_utc": "2026-06-03T20:50:05Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -608,7 +608,7 @@
     },
     {
       "id": "d69a59a211166044",
-      "created_utc": "2026-06-01T20:30:09Z",
+      "created_utc": "2026-06-03T20:50:05Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -807,7 +807,7 @@
     },
     {
       "id": "c1ffbea063a46f8b",
-      "created_utc": "2026-06-01T20:30:09Z",
+      "created_utc": "2026-06-03T20:50:05Z",
       "title": "Montauk Warning",
       "body": "Chimera validation completed.",
       "severity": "warning",
@@ -836,7 +836,7 @@
     },
     {
       "id": "ddb96a9414741df8",
-      "created_utc": "2026-06-01T20:30:09Z",
+      "created_utc": "2026-06-03T20:50:05Z",
       "title": "Montauk Warning",
       "body": "Chimera validation completed.",
       "severity": "warning",
@@ -865,7 +865,7 @@
     },
     {
       "id": "fcf1b9215960a7bf",
-      "created_utc": "2026-06-01T20:30:09Z",
+      "created_utc": "2026-06-03T20:50:05Z",
       "title": "Montauk Notice",
       "body": "Chimera validation completed.",
       "severity": "notice",
@@ -894,7 +894,7 @@
     },
     {
       "id": "fb159d441d5d6e44",
-      "created_utc": "2026-06-01T20:30:09Z",
+      "created_utc": "2026-06-03T20:50:05Z",
       "title": "Montauk Notice",
       "body": "Chimera validation completed.",
       "severity": "notice",
@@ -923,7 +923,7 @@
     },
     {
       "id": "5b8b452fd24fe171",
-      "created_utc": "2026-06-01T20:30:09Z",
+      "created_utc": "2026-06-03T20:50:05Z",
       "title": "Montauk Notice",
       "body": "Chimera validation completed.",
       "severity": "notice",
@@ -952,7 +952,7 @@
     },
     {
       "id": "029a9bcc006b5e43",
-      "created_utc": "2026-06-01T20:30:09Z",
+      "created_utc": "2026-06-03T20:50:05Z",
       "title": "Montauk Notice",
       "body": "Chimera validation completed.",
       "severity": "notice",

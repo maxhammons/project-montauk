@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "built_utc": "2026-06-01T20:30:05+00:00",
+    "built_utc": "2026-06-03T20:30:08+00:00",
     "schema_version": 1
   },
   "files": {
@@ -10,10 +10,10 @@
       "seam_date": "2008-12-17",
       "expense_ratio_source": "Direxion TECL published expense cap/current fact sheet",
       "synthetic_model_version": "v2-3xTechIdx-0.95%ER-daily",
-      "rows": 8326,
-      "sha256": "54ce35615f07be64fe628df033375498a35bbf8b6361a37c38fa6afb4177f442",
-      "bytes": 820232,
-      "built_utc": "2026-06-01T20:30:05+00:00"
+      "rows": 8328,
+      "sha256": "490f0371af4a4099a8b2d1f5725f29d383e283c56533a3c1ac0c854ec30afdaa",
+      "bytes": 820478,
+      "built_utc": "2026-06-03T20:30:08+00:00"
     },
     "TQQQ.csv": {
       "source_real": "Yahoo Finance (TQQQ)",
@@ -21,28 +21,28 @@
       "seam_date": "2010-02-11",
       "expense_ratio_source": "ProShares prospectus (TQQQ: 0.75%/yr)",
       "synthetic_model_version": "v1-3xQQQ-0.75%ER-daily",
-      "rows": 8326,
-      "sha256": "f2787027700412e45ba0c08054058695bd478934339f35dbdfa09e50f735a5f5",
-      "bytes": 962826,
-      "built_utc": "2026-06-01T20:30:05+00:00"
+      "rows": 8328,
+      "sha256": "276ba01e14241893a4bbc07ca8caada93fe2a8a4ac3af96de3f6ccfd038ecc14",
+      "bytes": 963094,
+      "built_utc": "2026-06-03T20:30:08+00:00"
     },
     "XLK.csv": {
       "source_real": "Yahoo Finance (XLK)",
       "seam_date": "1998-12-22",
       "notes": "Underlying ETF for TECL synthetic period (1998-12-22 onward).",
-      "rows": 6901,
-      "sha256": "028cf4cf0159aca94760fb380b2953bda5bcde6f4fdf54da252a52a9e3fcc8b5",
-      "bytes": 724078,
-      "built_utc": "2026-06-01T20:30:05+00:00"
+      "rows": 6903,
+      "sha256": "7d2f8ea9658c68ed0f17c61676c8b102ddd4bb96a7dcbe28254afdac95f47187",
+      "bytes": 724298,
+      "built_utc": "2026-06-03T20:30:08+00:00"
     },
     "QQQ.csv": {
       "source_real": "Yahoo Finance (QQQ; pre-1999 backfilled by Yahoo)",
       "seam_date": "1999-03-10",
       "notes": "Underlying ETF for TQQQ synthetic period (full pre-2010 coverage).",
-      "rows": 8326,
-      "sha256": "206818349d10665824fd637c6c0f8953e75d7edb65b4e3d72fb5d69f8c6f8c3f",
-      "bytes": 823049,
-      "built_utc": "2026-06-01T20:30:05+00:00"
+      "rows": 8328,
+      "sha256": "cf88e1367a448bf2888ab6a97fc25bf3019f01f97bdb32e72a5e1e9dde1ada91",
+      "bytes": 823265,
+      "built_utc": "2026-06-03T20:30:08+00:00"
     },
     "SP500-45.csv": {
       "source_real": "Yahoo Finance (^SP500-45 \u2014 S&P 500 Information Technology Sector index)",
@@ -51,16 +51,16 @@
       "rows": 3946,
       "sha256": "a1394f8ca5419dba6e0f2218d756a1d259551a32fd81891a98272d989eb1e929",
       "bytes": 420775,
-      "built_utc": "2026-06-01T20:30:05+00:00"
+      "built_utc": "2026-06-03T20:30:08+00:00"
     },
     "VIX.csv": {
       "source_real": "Cboe official VIX history",
       "seam_date": "1990-01-02",
       "notes": "CBOE Volatility Index. Merged into TECL.csv as vix_close column.",
-      "rows": 9196,
-      "sha256": "55b934424bdc993a9bcc77ee764d30c3d485712d3d8d918257a2ab88feb5031d",
-      "bytes": 354847,
-      "built_utc": "2026-06-01T20:30:05+00:00"
+      "rows": 9198,
+      "sha256": "45c9e3591c571ee12191c65a35c712668cbace13438090b04424b5b7380bbc1b",
+      "bytes": 354925,
+      "built_utc": "2026-06-03T20:30:08+00:00"
     },
     "TECL_distributions.csv": {
       "source_real": "Direxion TECL distribution table plus historical dividend archive for older rows",
@@ -69,43 +69,43 @@
       "rows": 13,
       "sha256": "89893749b26d4476a8b07b83b845e7b6871b727a3e44d8326fc4cc2717f9e88b",
       "bytes": 1371,
-      "built_utc": "2026-06-01T20:30:05+00:00"
+      "built_utc": "2026-06-03T20:30:08+00:00"
     },
     "SGOV.csv": {
       "source_real": "Yahoo Finance (SGOV)",
       "seam_date": "2020-05-26",
       "notes": "iShares 0-3 Month Treasury Bond ETF. Used by Roth overlay strategies.",
-      "rows": 1508,
-      "sha256": "361ca4801eab614a29e2c9f219f20e934de5e54a404114c015fc99cb7b147c93",
-      "bytes": 165932,
-      "built_utc": "2026-06-01T20:30:05+00:00"
+      "rows": 1510,
+      "sha256": "15f0096aac5641fe8bb11f19b6f471f9cc2063a990e30d844ee6fcc39dcd159c",
+      "bytes": 166159,
+      "built_utc": "2026-06-03T20:30:08+00:00"
     },
     "treasury-spread-10y2y.csv": {
       "source_real": "FRED (T10Y2Y \u2014 10Y minus 2Y Treasury constant maturity)",
       "seam_date": "1976-06-01",
       "notes": "Recession indicator. Forward-filled into trading calendar.",
-      "rows": 7106,
-      "sha256": "1ae1c59d37ceea74626099ae80db7b2ef76409ce6a7305a86dd1c928584d9fad",
-      "bytes": 114084,
-      "built_utc": "2026-06-01T20:30:05+00:00"
+      "rows": 7108,
+      "sha256": "051cae73d3e7ad65b093dd37da270e1b67a353de320fda93f6dc3f7fe5c2e0a3",
+      "bytes": 114116,
+      "built_utc": "2026-06-03T20:30:08+00:00"
     },
     "fed-funds-rate.csv": {
       "source_real": "FRED (DFF \u2014 Effective Federal Funds Rate)",
       "seam_date": "1954-07-01",
       "notes": "Monetary policy regime. Forward-filled into trading calendar.",
-      "rows": 10376,
-      "sha256": "8e9d38a1be65a31d4b772e690a32921044ceea10273ed61e874ad253ebe51169",
-      "bytes": 164954,
-      "built_utc": "2026-06-01T20:30:05+00:00"
+      "rows": 10380,
+      "sha256": "5aa5490f07e0c7428df15e4eeaca55ca17e779c54fbed2b0e4af1176d70858d6",
+      "bytes": 165018,
+      "built_utc": "2026-06-03T20:30:08+00:00"
     },
     "tbill-3m.csv": {
       "source_real": "FRED (DTB3 \u2014 3-Month Treasury Bill: Secondary Market Rate)",
       "seam_date": "1954-01-04",
       "notes": "Risk-free rate proxy.",
-      "rows": 7106,
-      "sha256": "271d79ab55e8c9cac74b3ef1b5d24c070ddadb46be09edc6a85d8842033214b2",
-      "bytes": 113038,
-      "built_utc": "2026-06-01T20:30:05+00:00"
+      "rows": 7108,
+      "sha256": "439bb6752604893652b0f2041fe2d07109af3cef4b1591f74782ed13804f1cfe",
+      "bytes": 113070,
+      "built_utc": "2026-06-03T20:30:08+00:00"
     }
   }
 }
