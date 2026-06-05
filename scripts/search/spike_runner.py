@@ -81,10 +81,13 @@ def _risk_state_from_trades(
             int(trade.exit_bar) if getattr(trade, "exit_bar", -1) >= 0 else (n_bars - 1)
         )
         exit_bar = min(n_bars - 1, max(entry_bar, exit_bar))
-        for idx in range(entry_bar, exit_bar + 1):
+        forced_end = getattr(trade, "exit_reason", "") == "End of Data"
+        state_end = exit_bar + 1 if forced_end else exit_bar
+        for idx in range(entry_bar, min(n_bars, state_end)):
             risk_on[idx] = True
         buy_events[entry_bar] = True
-        sell_events[exit_bar] = True
+        if not forced_end:
+            sell_events[exit_bar] = True
     return risk_on, buy_events, sell_events
 
 

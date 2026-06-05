@@ -288,6 +288,7 @@ fn read_status() -> Result<Value, String> {
         "live_holdout": read_json(&operations.join("live_holdout.json"))?,
         "governance": read_json(&operations.join("governance.json"))?,
         "strategy_review": read_json(&operations.join("strategy_review.json"))?,
+        "maintenance_status": read_json(&operations.join("maintenance_status.json"))?,
         "family_leaderboard": read_json(&root.join("runs/family_confidence_leaderboard.json"))?,
         "leaderboard": read_json(&root.join("spike/leaderboard.json"))?,
         "notifications": read_json(&operations.join("notifications.json"))?,

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Backfill missing dashboard artifacts for leaderboard entries.
+"""Backfill missing or stale dashboard artifacts for leaderboard entries.
 
 This keeps the visualization build path read-only: `viz/build_viz.py` still
-only reads precomputed run artifacts, but this helper can materialize missing
-`dashboard_data.json` bundles for the current top-N leaderboard entries.
+only reads precomputed run artifacts, but this helper can materialize missing or
+out-of-date `dashboard_data.json` bundles for the current top-N leaderboard
+entries.
 """
 
 from __future__ import annotations
@@ -40,6 +41,17 @@ def _load_json(path: str) -> Any:
         return json.load(f)
 
 
+def _artifact_end_date(path: str) -> str | None:
+    try:
+        payload = _load_json(path)
+    except (OSError, json.JSONDecodeError):
+        return None
+    curve = payload.get("equity_curve") or []
+    if not curve:
+        return None
+    return curve[-1].get("date")
+
+
 def _index_existing_runs() -> dict[tuple[str, str], str]:
     index: dict[tuple[str, str], str] = {}
     if not os.path.isdir(RUNS_DIR):
@@ -58,7 +70,10 @@ def _index_existing_runs() -> dict[tuple[str, str], str]:
         params = payload.get("params") or {}
         if not strategy:
             continue
-        index[(strategy, _params_key(params))] = run_path
+        key = (strategy, _params_key(params))
+        previous = index.get(key)
+        if previous is None or os.path.getmtime(run_path) >= os.path.getmtime(previous):
+            index[key] = run_path
     return index
 
 
@@ -88,7 +103,12 @@ def _normalize_leaderboard_entry(entry: dict[str, Any], rank: int) -> dict[str, 
     return sync_entry_contract(normalized)
 
 
-def backfill_leaderboard_dashboard_artifacts(*, top_n: int = 20) -> tuple[int, int]:
+def backfill_leaderboard_dashboard_artifacts(
+    *,
+    top_n: int = 20,
+    refresh_stale: bool = False,
+    force: bool = False,
+) -> tuple[int, int]:
     if not os.path.exists(LEADERBOARD_PATH):
         raise FileNotFoundError(f"Missing leaderboard: {LEADERBOARD_PATH}")
 
@@ -97,6 +117,10 @@ def backfill_leaderboard_dashboard_artifacts(*, top_n: int = 20) -> tuple[int, i
         raise ValueError("leaderboard.json must contain a list")
 
     existing = _index_existing_runs()
+    from data.loader import get_tecl_data
+
+    df = get_tecl_data(use_yfinance=False)
+    latest_date = str(df.iloc[-1]["date"])[:10] if not df.empty else None
     created = 0
     skipped = 0
 
@@ -104,9 +128,15 @@ def backfill_leaderboard_dashboard_artifacts(*, top_n: int = 20) -> tuple[int, i
         strategy = entry.get("strategy")
         params = entry.get("params") or {}
         key = (strategy, _params_key(params))
-        if key in existing:
+        existing_path = existing.get(key)
+        if existing_path and not refresh_stale and not force:
             skipped += 1
             continue
+        if existing_path and refresh_stale and not force:
+            artifact_end = _artifact_end_date(existing_path)
+            if latest_date is None or (artifact_end is not None and artifact_end >= latest_date):
+                skipped += 1
+                continue
 
         champion = _normalize_leaderboard_entry(entry, rank)
         eligible, reason = is_leaderboard_eligible(champion)
@@ -131,8 +161,8 @@ def backfill_leaderboard_dashboard_artifacts(*, top_n: int = 20) -> tuple[int, i
         _refresh_final_artifact_views(results, artifacts)
         created += 1
         print(
-            f"[backfill] created {os.path.relpath(run_dir, PROJECT_ROOT)} "
-            f"for #{rank} {strategy}"
+            f"[backfill] {'refreshed' if existing_path else 'created'} "
+            f"{os.path.relpath(run_dir, PROJECT_ROOT)} for #{rank} {strategy}"
         )
 
     return created, skipped
@@ -140,7 +170,7 @@ def backfill_leaderboard_dashboard_artifacts(*, top_n: int = 20) -> tuple[int, i
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Backfill missing dashboard artifacts for leaderboard entries."
+        description="Backfill missing or stale dashboard artifacts for leaderboard entries."
     )
     parser.add_argument(
         "--top",
@@ -148,11 +178,25 @@ def main() -> int:
         default=20,
         help="Backfill the top N leaderboard entries (default: 20).",
     )
+    parser.add_argument(
+        "--refresh-stale",
+        action="store_true",
+        help="Create fresh artifacts when the newest matching run ends before the latest TECL bar.",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Create fresh artifacts even when a current matching run exists.",
+    )
     args = parser.parse_args()
 
-    created, skipped = backfill_leaderboard_dashboard_artifacts(top_n=args.top)
+    created, skipped = backfill_leaderboard_dashboard_artifacts(
+        top_n=args.top,
+        refresh_stale=args.refresh_stale,
+        force=args.force,
+    )
     print(
-        f"[backfill] complete: created {created}, already-present {skipped}, "
+        f"[backfill] complete: created_or_refreshed {created}, skipped {skipped}, "
         f"targeted {min(args.top, created + skipped)}"
     )
     return 0

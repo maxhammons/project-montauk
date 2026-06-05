@@ -356,6 +356,28 @@ def run_daily(
     if skip_viz:
         steps["viz"] = {"status": "skipped"}
     else:
+        try:
+            from certify.backfill_artifacts import backfill_leaderboard_dashboard_artifacts
+
+            created, skipped = backfill_leaderboard_dashboard_artifacts(
+                top_n=20,
+                refresh_stale=True,
+            )
+            steps["artifact_backfill"] = {
+                "status": "ok",
+                "created_or_refreshed": created,
+                "skipped": skipped,
+            }
+        except Exception as exc:  # noqa: BLE001
+            status = "attention"
+            steps["artifact_backfill"] = {"status": "fail", "error": str(exc)}
+            events.append(append_event(
+                "viz_build_failed",
+                "Strategy artifact refresh failed before visualization rebuild.",
+                severity="warning",
+                payload=steps["artifact_backfill"],
+            ))
+
         viz = run_viz_build()
         steps["viz"] = {"status": "ok" if viz["ok"] else "fail", **viz}
         if not viz["ok"]:

@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-06-03T20:45:05Z",
+  "generated_utc": "2026-06-05T21:00:53Z",
   "version_info": {
     "schema_version": 1,
-    "generated_utc": "2026-06-03T20:45:05Z",
+    "generated_utc": "2026-06-05T21:00:53Z",
     "app_version": "0.1.0",
-    "git_commit": "c28c2cb",
+    "git_commit": "bdd3c5f",
     "git_dirty": true,
-    "strategy_code_version": "c28c2cb"
+    "strategy_code_version": "bdd3c5f"
   },
   "state": "active_watch",
   "reasons": [
@@ -20,14 +20,14 @@
   "review_reasons": [],
   "stale_calendar_days": 0,
   "active_signal": {
-    "data_end_date": "2026-06-03",
-    "risk_state": "risk_on",
+    "data_end_date": "2026-06-05",
+    "risk_state": "risk_off",
     "strategy": "gc_vjatr_timing_repair",
     "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d"
   },
   "live_holdout": {
     "status": "ok",
-    "snapshot_count": 15,
+    "snapshot_count": 17,
     "diverged_count": 0,
     "confidence_drift": {
       "start": 0.7594,
@@ -36,10 +36,10 @@
     },
     "active_champion_performance_since_live_start": {
       "start_date": "2026-05-08",
-      "latest_date": "2026-06-03",
+      "latest_date": "2026-06-05",
       "strategy": "gc_vjatr_timing_repair",
-      "signal_return_pct": 38.8285,
-      "buy_hold_return_pct": 38.8285,
+      "signal_return_pct": 6.0931,
+      "buy_hold_return_pct": 6.0931,
       "live_vs_buy_hold_multiple_proxy": 1.0
     }
   },
@@ -51,8 +51,8 @@
       "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
       "confidence": 0.7678,
       "score_label": "composite_confidence",
-      "data_end_date": "2026-06-03",
-      "risk_state": "risk_on"
+      "data_end_date": "2026-06-05",
+      "risk_state": "risk_off"
     },
     "best_certified": {
       "strategy": "gc_vjatr_timing_repair",

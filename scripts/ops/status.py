@@ -16,6 +16,7 @@ from ops.paths import (
     GOVERNANCE_PATH,
     LATEST_PATH,
     LIVE_HOLDOUT_PATH,
+    OPERATIONS_DIR,
     NOTIFICATIONS_PATH,
     RESEARCH_QUEUE_PATH,
     SCHEDULER_CONFIG_PATH,
@@ -52,6 +53,9 @@ def build_status(
         "latest_signal": signal,
         "live_holdout": _load_json(LIVE_HOLDOUT_PATH) if LIVE_HOLDOUT_PATH.exists() else None,
         "governance": _load_json(GOVERNANCE_PATH) if GOVERNANCE_PATH.exists() else None,
+        "maintenance_status": _load_json(OPERATIONS_DIR / "maintenance_status.json")
+        if (OPERATIONS_DIR / "maintenance_status.json").exists()
+        else None,
         "notifications": _load_json(NOTIFICATIONS_PATH) if NOTIFICATIONS_PATH.exists() else None,
         "scheduler": _load_json(SCHEDULER_CONFIG_PATH) if SCHEDULER_CONFIG_PATH.exists() else None,
         "research_queue": _load_json(RESEARCH_QUEUE_PATH) if RESEARCH_QUEUE_PATH.exists() else None,

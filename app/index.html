@@ -9,49 +9,16 @@
   </head>
   <body>
     <div id="app">
-      <aside class="sidebar">
-        <div class="brand">
-          <div class="wordmark">
-            <span class="wordmark-line wordmark-line-1">PROJECT</span>
-            <span class="wordmark-line wordmark-line-2">MONTAUK</span>
-          </div>
-        </div>
-
-        <nav class="nav">
-          <button class="nav-item active" data-view="dashboard" data-glyph="◆">
-            <span class="nav-glyph">◆</span>
-            <span class="nav-label">Today</span>
-          </button>
-          <button class="nav-item" data-view="doctor" data-glyph="◇">
-            <span class="nav-glyph">◇</span>
-            <span class="nav-label">Doctor</span>
-          </button>
-          <button class="nav-item" data-view="viz" data-glyph="◈">
-            <span class="nav-glyph">◈</span>
-            <span class="nav-label">Viz</span>
-          </button>
-          <button class="nav-item" data-view="settings" data-glyph="◌">
-            <span class="nav-glyph">◌</span>
-            <span class="nav-label">Settings</span>
-          </button>
-        </nav>
-
-        <div class="sidebar-readout" data-tip="The current position state from the latest local signal snapshot.">
-          <span>Now</span>
-          <strong id="sidebar-position">--</strong>
-          <small id="sidebar-family">--</small>
-        </div>
-      </aside>
-
       <main class="main">
         <header class="topbar">
           <div>
-            <div class="eyebrow">Today</div>
+            <div class="eyebrow">Project Montauk</div>
             <h2 id="signal-title">--</h2>
             <div id="last-refreshed" class="muted compact">--</div>
           </div>
           <div class="actions">
-            <button id="maintenance-btn" class="button primary big-button" data-tip="Run the full local maintenance sequence: refresh data, verify integrity, recompute the signal, rebuild the viz bundle, run health checks, and drain ONE approved research idea from the queue.">Run Maintenance</button>
+            <button id="viz-popout-btn" class="button big-button">Open Viz</button>
+            <button id="maintenance-btn" class="button primary big-button" data-tip="Refresh local data, recompute the current signal, update strategy artifacts, rebuild the viz bundle, and run health checks.">Refresh</button>
           </div>
         </header>
 
@@ -64,29 +31,21 @@
         </section>
 
         <section id="dashboard-view" class="view active">
-          <section class="command-deck">
+          <section class="dashboard-grid">
             <div class="surface command-panel">
-              <div class="panel-label">TECL</div>
+              <div class="panel-label">Position status</div>
               <div id="action-main" class="action-main">--</div>
-              <p id="decision-help" class="signal-copy">--</p>
-
-              <div class="confidence-stack">
-                <div class="meter-block" data-tip="How much trust the current certified strategy has after validation and current checks. Higher means Montauk has more reason to trust this position.">
-                  <div class="meter-head">
-                    <span>Confidence</span>
-                    <strong id="confidence-state">--</strong>
-                  </div>
-                  <div class="meter"><div id="confidence-meter" class="meter-fill"></div></div>
-                </div>
-                <div class="meter-block" data-tip="Flip pressure over the last 60 days. Higher means closer to a new entry or exit.">
-                  <div class="meter-head">
-                    <span>Flip pressure · 60d</span>
-                    <strong id="pressure-state">--</strong>
-                  </div>
-                  <canvas id="pressure-spark" class="sparkline" width="320" height="48"></canvas>
-                </div>
-              </div>
+              <div id="position-label" class="position-label">--</div>
             </div>
+
+            <section class="surface doctor-hero">
+              <div class="ledger">
+                <div class="panel-label">How sure are we?</div>
+                <div id="confidence-big" class="ledger-number">--</div>
+                <div id="confidence-narrative" class="ledger-narrative">--</div>
+              </div>
+              <div id="ledger-pills" class="ledger-pills"></div>
+            </section>
 
             <aside class="surface family-card">
               <div class="panel-label">Active family</div>
@@ -98,269 +57,45 @@
                   <strong id="data-end">--</strong>
                   <small id="freshness-state">--</small>
                 </div>
-                <div data-tip="Gold strategies currently available for selection.">
-                  <span>Universe</span>
-                  <strong id="engine-gold">--</strong>
-                  <small>Gold rows</small>
-                </div>
-                <div data-tip="How many of the four route lenses agree with the displayed position state.">
-                  <span>Routes</span>
-                  <strong id="consensus-main">--</strong>
-                  <small id="consensus-meta">--</small>
-                </div>
               </div>
             </aside>
-          </section>
-        </section>
 
-        <section id="doctor-view" class="view">
-          <section class="surface doctor-hero">
-            <div class="ledger">
-              <div class="panel-label">How sure are we?</div>
-              <div id="confidence-big" class="ledger-number">--</div>
-              <div id="confidence-narrative" class="ledger-narrative">--</div>
+            <div class="surface meter-block health-card">
+              <div class="meter-head">
+                <span>TECL Health</span>
+                <strong id="tecl-health-state">--</strong>
+              </div>
+              <canvas id="health-spark" class="sparkline tall" width="420" height="96"></canvas>
+              <div id="tecl-health-meta" class="muted compact">--</div>
             </div>
-            <div id="ledger-pills" class="ledger-pills"></div>
-          </section>
 
-          <section class="surface wide">
-            <div class="section-head">
+            <div class="surface meter-block pressure-card">
+              <div class="meter-head">
+                <span>Flip pressure</span>
+                <strong id="pressure-state">--</strong>
+              </div>
+              <canvas id="pressure-spark" class="sparkline tall" width="420" height="96"></canvas>
+            </div>
+
+            <section id="issue-panel" class="surface issue-panel" hidden>
               <div>
-                <div class="panel-label">Research queue</div>
-                <h3>Strategy proposals</h3>
+                <div class="panel-label">Issue code</div>
+                <div id="issue-code" class="issue-code">--</div>
+                <div id="issue-summary" class="muted compact">--</div>
               </div>
-              <div class="button-row">
-                <button id="research-enqueue-btn" class="button small">Enqueue</button>
-                <button id="doctor-next-research-btn" class="button small primary">Run next</button>
-              </div>
-            </div>
-            <div id="research-queue-summary" class="muted compact" style="margin-bottom: 10px;">--</div>
-            <div id="research-queue-list" class="leaderboard"></div>
-            <div id="research-queue-last" class="muted compact" style="margin-top: 10px;"></div>
+              <button id="issue-copy-btn" class="button small">Copy Debug</button>
+            </section>
           </section>
-
-          <details class="surface wide accordion">
-            <summary>
-              <span class="panel-label">Strategy board</span>
-              <span class="accordion-hint">expand</span>
-            </summary>
-            <div id="leaderboard-list" class="leaderboard"></div>
-          </details>
-
-          <details class="surface wide accordion">
-            <summary>
-              <span class="panel-label">Route votes</span>
-              <span class="accordion-hint">expand</span>
-            </summary>
-            <div id="metric-grid" class="metric-grid" aria-live="polite"></div>
-          </details>
-
-          <details class="surface wide accordion">
-            <summary>
-              <span class="panel-label">Readiness detail</span>
-              <span class="accordion-hint">expand</span>
-            </summary>
-            <div id="doctor-list" class="table readiness-table"></div>
-          </details>
-        </section>
-
-        <section id="settings-view" class="view">
-          <section class="surface wide">
-            <div class="section-head">
-              <div>
-                <div class="panel-label">Background jobs</div>
-                <h3>Scheduler</h3>
-              </div>
-              <div class="muted compact">Enable or pause local LaunchAgent-backed jobs.</div>
-            </div>
-            <div id="jobs-list" class="table"></div>
-          </section>
-
-          <section class="surface wide">
-            <div class="section-head">
-              <div>
-                <div class="panel-label">LaunchAgent</div>
-                <h3>Daily task</h3>
-              </div>
-              <div id="agent-message" class="muted compact">--</div>
-            </div>
-            <dl class="kv">
-              <dt>Job</dt>
-              <dd id="agent-job">--</dd>
-              <dt>Installed</dt>
-              <dd id="agent-installed">--</dd>
-              <dt>Loaded</dt>
-              <dd id="agent-loaded">--</dd>
-              <dt>Path</dt>
-              <dd id="agent-path">--</dd>
-            </dl>
-            <div class="button-row">
-              <button class="button small" data-agent-action="install" data-job-key="daily">Install</button>
-              <button class="button small" data-agent-action="load" data-job-key="daily">Load</button>
-              <button class="button small" data-agent-action="unload" data-job-key="daily">Unload</button>
-              <button class="button small danger" data-agent-action="uninstall" data-job-key="daily">Uninstall</button>
-            </div>
-          </section>
-
-          <section class="surface wide">
-            <div class="section-head">
-              <div>
-                <div class="panel-label">LaunchAgents</div>
-                <h3>All enabled tasks</h3>
-              </div>
-              <div id="agents-summary" class="muted compact">--</div>
-            </div>
-            <div class="button-row">
-              <button class="button small" data-agent-action="install" data-job-key="__enabled">Install all</button>
-              <button class="button small" data-agent-action="load" data-job-key="__enabled">Load all</button>
-              <button class="button small" data-agent-action="unload" data-job-key="__enabled">Unload all</button>
-              <button class="button small danger" data-agent-action="uninstall" data-job-key="__enabled">Uninstall all</button>
-            </div>
-          </section>
-
-          <section class="surface wide">
-            <div class="section-head">
-              <div>
-                <div class="panel-label">Runtime</div>
-                <h3>Local app context</h3>
-              </div>
-              <div id="runtime-mode" class="muted compact">--</div>
-            </div>
-            <dl class="kv">
-              <dt>Project root</dt>
-              <dd id="project-root">--</dd>
-            </dl>
-          </section>
-
-          <section class="surface wide">
-            <div class="section-head">
-              <div>
-                <div class="panel-label">Notifications</div>
-                <h3>Preferences</h3>
-              </div>
-              <div id="notification-prefs-state" class="muted compact">--</div>
-            </div>
-            <div id="notification-prefs-list" class="table"></div>
-          </section>
-        </section>
-
-        <section id="viz-view" class="view">
-          <div id="viz-shell" class="viz-shell">
-            <div id="viz-empty" class="viz-empty">
-              <strong>Loading Montauk viz…</strong>
-              <span class="muted">First run pulls the bundle from <code>viz/montauk-bundle.json</code>.</span>
-              <span class="muted">If this hangs, run Maintenance from any tab to rebuild.</span>
-            </div>
-            <div class="topbar" hidden id="viz-topbar">
-              <div class="title">Montauk <span class="sub">deep dive</span></div>
-              <span id="provenance-badge" class="badge ok"><span class="dot"></span><span id="prov-text">manifest verified</span></span>
-              <span id="generated-badge" class="badge"></span>
-              <div class="controls">
-                <label class="toggle"><input type="checkbox" id="toggle-indexed" checked> Index to viewport</label>
-                <label class="toggle"><input type="checkbox" id="toggle-northstar"> North-star markers</label>
-                <button class="btn" data-range="1Y">1Y</button>
-                <button class="btn" data-range="5Y">5Y</button>
-                <button class="btn active" data-range="ALL">ALL</button>
-                <button id="viz-popout-btn" class="btn" data-tip="Open viz/montauk-viz.html in a separate window.">Pop out</button>
-              </div>
-            </div>
-            <div class="sidebar" hidden id="viz-sidebar">
-              <h3>Leaderboard</h3>
-              <div class="leaderboard-tabs" id="leaderboard-tabs">
-                <button class="leaderboard-tab active" type="button" data-view="full">Full leaderboard</button>
-                <button class="leaderboard-tab" type="button" data-view="family">Family leaders</button>
-              </div>
-              <div class="sort-toolbar">
-                <label for="leaderboard-sort">Sort</label>
-                <select id="leaderboard-sort" title="Choose the leaderboard ranking field">
-                  <option value="allEra">All-era score</option>
-                  <option value="fitness">Fitness</option>
-                  <option value="confidence">Overall confidence</option>
-                  <option value="future">Future confidence</option>
-                  <option value="trust">Trust</option>
-                  <option value="full">Full share</option>
-                  <option value="real">Real share</option>
-                  <option value="modern">Modern share</option>
-                  <option value="marker">Marker timing</option>
-                  <option value="drawdown">Drawdown</option>
-                  <option value="canonical">Canonical rank</option>
-                </select>
-                <button class="sort-dir" id="leaderboard-sort-dir" type="button" title="Sort descending" aria-label="Sort descending">↓</button>
-              </div>
-              <div class="secondary-toolbar">
-                <span class="secondary-label">Share multiple:</span>
-                <div class="toggle-group" id="secondary-toggle">
-                  <button class="toggle-btn active" data-source="real" title="Share multiplier on real TECL data only (post-2008-12-17). Matches the Real-only row in the right-panel era breakdown.">Real</button>
-                  <button class="toggle-btn" data-source="modern" title="Share multiplier on the modern era (post-2015). Matches the Modern (2015→) row in the right-panel era breakdown.">Modern</button>
-                </div>
-              </div>
-              <div class="strat-list" id="strat-list"></div>
-            </div>
-            <div class="center" hidden id="viz-center">
-              <div class="chart-toolbar">
-                <span class="label">Active</span>
-                <span id="active-name" style="color: var(--text-0); font-weight: 500;">—</span>
-                <span class="spacer"></span>
-                <span id="hover-readout" style="color: var(--text-2); font-size: 11px; font-variant-numeric: tabular-nums;"></span>
-              </div>
-              <div class="chart-area">
-                <div class="pane" id="pane-price">
-                  <div class="pane-label">TECL — price + trades</div>
-                  <div class="pane-chart" id="chart-price"></div>
-                </div>
-                <div class="pane" id="pane-equity">
-                  <div class="pane-label">Equity — strategy vs B&amp;H</div>
-                  <div class="pane-chart" id="chart-equity"></div>
-                </div>
-                <div class="pane" id="pane-health">
-                  <div class="pane-label">TECL Health — diagnostic only</div>
-                  <div class="pane-chart" id="chart-health"></div>
-                </div>
-              </div>
-            </div>
-            <div class="right" hidden id="viz-right">
-              <div class="section">
-                <div class="strat-name" id="r-name">—</div>
-                <div class="strat-codename" id="r-codename"></div>
-                <div class="strat-meta" id="r-meta"></div>
-              </div>
-              <h3>TECL Health <span style="font-weight:400;color:var(--text-3);font-size:11px;">diagnostic only</span></h3>
-              <div class="section">
-                <div class="health-snapshot" id="r-health"></div>
-              </div>
-              <h3>Last 5 years</h3>
-              <div class="section">
-                <div class="scorecards" id="r-scorecards"></div>
-                <div style="color: var(--text-3); font-size: 10px; margin-top: 6px;">Diagnostic only · not in fitness</div>
-              </div>
-              <h3>Primary metrics</h3>
-              <div class="section" id="r-metrics"></div>
-              <h3 id="r-era-header" style="display:none;">Era breakdown <span style="font-weight:400;color:var(--text-3);font-size:11px;">crash insurance vs modern market</span></h3>
-              <div class="section era-section" id="r-era-breakdown" style="display:none;"></div>
-              <h3 id="r-regime-header" style="display:none;">Regime scoring <span style="font-weight:400;color:var(--text-3);font-size:11px;">named bull, bear, crash, and policy windows</span></h3>
-              <div class="section era-section" id="r-market-regimes" style="display:none;"></div>
-              <h3>Validation</h3>
-              <div class="section">
-                <div class="val-summary" id="r-val-summary"></div>
-                <div class="gates collapsed" id="r-gates"></div>
-              </div>
-              <h3>Parameters</h3>
-              <div class="section">
-                <div class="params" id="r-params"></div>
-              </div>
-            </div>
-            <div id="tooltip" class="tooltip"></div>
-          </div>
         </section>
       </main>
     </div>
 
     <div id="maintenance-modal" class="maintenance-modal" hidden>
       <div class="maintenance-card">
-        <div class="maintenance-eyebrow">Running maintenance</div>
-        <div id="maintenance-phase-title" class="maintenance-title">Spinning up…</div>
+        <div class="maintenance-eyebrow">Refreshing</div>
+        <div id="maintenance-phase-title" class="maintenance-title">Updating Montauk</div>
         <div id="maintenance-phase-detail" class="maintenance-detail">—</div>
-        <div class="maintenance-bar"><div id="maintenance-bar-fill" class="maintenance-bar-fill"></div></div>
+        <div id="maintenance-bar" class="maintenance-bar is-indeterminate"><div id="maintenance-bar-fill" class="maintenance-bar-fill"></div></div>
         <ol id="maintenance-steps" class="maintenance-steps"></ol>
         <div class="maintenance-actions">
           <button id="maintenance-close-btn" class="button" data-maintenance-close hidden>Close</button>

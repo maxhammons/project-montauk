@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
   "status": "ok",
-  "started_utc": "2026-05-26T18:40:31Z",
-  "finished_utc": "2026-05-26T18:40:36Z",
+  "started_utc": "2026-06-05T21:00:01Z",
+  "finished_utc": "2026-06-05T21:00:54Z",
   "phases": [
     {
       "key": "daily",
       "label": "Refresh data & recompute signal",
       "detail": "scripts/ops/daily.py \u2014 pull TECL/VIX/macro, verify manifest, write a fresh signal snapshot, rebuild the viz bundle.",
       "status": "ok",
-      "started_utc": "2026-05-26T18:40:31Z",
-      "finished_utc": "2026-05-26T18:40:36Z",
+      "started_utc": "2026-06-05T21:00:01Z",
+      "finished_utc": "2026-06-05T21:00:54Z",
       "returncode": 0,
       "stderr_tail": ""
     },
@@ -19,8 +19,8 @@
       "label": "Run health checks",
       "detail": "scripts/ops/doctor.py \u2014 verify app bundle, ops artifacts, scheduler config, and local launchd state.",
       "status": "ok",
-      "started_utc": "2026-05-26T18:40:36Z",
-      "finished_utc": "2026-05-26T18:40:36Z",
+      "started_utc": "2026-06-05T21:00:54Z",
+      "finished_utc": "2026-06-05T21:00:54Z",
       "returncode": 0,
       "stderr_tail": ""
     },
@@ -29,8 +29,8 @@
       "label": "Drain one approved research idea",
       "detail": "No approved strategy ideas are queued. Research was skipped; the app is ready to use.",
       "status": "empty",
-      "started_utc": "2026-05-26T18:40:36Z",
-      "finished_utc": "2026-05-26T18:40:36Z"
+      "started_utc": "2026-06-05T21:00:54Z",
+      "finished_utc": "2026-06-05T21:00:54Z"
     }
   ],
   "current_phase": "research",

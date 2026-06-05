@@ -188,7 +188,10 @@ const state = {
   status: fallbackStatus,
   metricReviews: {},
   lastActionError: null,
+  lastIssueReport: null,
 };
+
+const healthState = { points: [], latest: null, source: null };
 
 const metricDefinitions = [
   { key: "confidence", label: "Main route", short: "Main" },
@@ -248,7 +251,7 @@ function escapeHtml(value) {
 }
 
 function errorPayload(action, command, error, detail = {}) {
-  return {
+  const payload = {
     action,
     command,
     detail,
@@ -259,11 +262,13 @@ function errorPayload(action, command, error, detail = {}) {
     project_root: state.status?.project_root || null,
     timestamp_local: new Date().toISOString(),
   };
+  payload.error_code = issueCodeFor(payload, "ERR");
+  return payload;
 }
 
 function showActionError(payload) {
   state.lastActionError = payload;
-  text("action-error-title", `${payload.action} failed`);
+  text("action-error-title", `${payload.action} failed · ${payload.error_code}`);
   text(
     "action-error-body",
     `${payload.command}: ${payload.message}`
@@ -285,6 +290,25 @@ async function copyActionError() {
   } catch {
     text("action-error-body", debugText);
   }
+}
+
+function stableHash(value) {
+  const stableStringify = (input) => {
+    if (input === null || typeof input !== "object") return JSON.stringify(input);
+    if (Array.isArray(input)) return `[${input.map(stableStringify).join(",")}]`;
+    return `{${Object.keys(input).sort().map((key) => `${JSON.stringify(key)}:${stableStringify(input[key])}`).join(",")}}`;
+  };
+  const raw = typeof value === "string" ? value : stableStringify(value);
+  let hash = 2166136261;
+  for (let i = 0; i < raw.length; i += 1) {
+    hash ^= raw.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0").toUpperCase();
+}
+
+function issueCodeFor(payload, prefix = "ISSUE") {
+  return `MONTAUK-${prefix}-${stableHash(payload).slice(0, 8)}`;
 }
 
 function formatSchedule(schedule = {}) {
@@ -505,6 +529,261 @@ function pressureLabel(score) {
   if (score < 34) return "Low";
   if (score < 67) return "Rising";
   return "High";
+}
+
+function positionStatus(signal = {}) {
+  const isOn = signal.risk_state === "risk_on" || signal.risk_on === true;
+  const isOff = signal.risk_state === "risk_off" || signal.risk_on === false;
+  if (isOn) return "In";
+  if (isOff) return "Out";
+  return "--";
+}
+
+function researchQueueCounts(queue = {}) {
+  const counts = { approved: 0, proposed: 0, paused: 0, dismissed: 0, total: 0 };
+  for (const item of queue.ideas || []) {
+    const key = String(item?.status || "proposed").toLowerCase();
+    counts.total += 1;
+    if (Object.hasOwn(counts, key)) counts[key] += 1;
+  }
+  return counts;
+}
+
+function failedResearchRuns(status = state.status) {
+  const runs = status.research_runs?.runs || [];
+  return runs.filter((run) => ["failed", "timeout", "manual_review"].includes(String(run?.status || "").toLowerCase()));
+}
+
+function schedulerJobIssues(status = state.status) {
+  const jobs = status.scheduler_detail?.jobs || [];
+  return jobs.filter((job) => {
+    if (!job?.enabled) return false;
+    const lastStatus = String(job.last_run?.status || "").toLowerCase();
+    return lastStatus && !["ok", "success", "succeeded"].includes(lastStatus);
+  });
+}
+
+function recentAgentEvents(status = state.status) {
+  const actionableSeverities = new Set(["warning", "error", "critical"]);
+  return (status.recent_events || []).filter((event) =>
+    actionableSeverities.has(String(event?.severity || "").toLowerCase())
+  ).slice(-5);
+}
+
+function collectIssues(status = state.status) {
+  const signal = status.latest_signal || status.latest_operation?.active_signal || {};
+  const quality = signal.data_quality || status.latest_operation?.steps?.data_quality?.summary || {};
+  const governance = status.governance || {};
+  const doctor = status.doctor || {};
+  const latestOperation = status.latest_operation || {};
+  const maintenance = status.maintenance_status || {};
+  const strategyReview = status.strategy_review || {};
+  const live = status.live_holdout || governance.live_holdout || {};
+  const automation = automationText(status);
+  const researchCounts = researchQueueCounts(status.research_queue || {});
+  const researchFailures = failedResearchRuns(status);
+  const schedulerFailures = schedulerJobIssues(status);
+  const eventIssues = recentAgentEvents(status);
+  const appUpdate = status.app_update || {};
+  const fresh = freshnessText(signal);
+  const issues = [];
+
+  if (latestOperation.status && latestOperation.status !== "ok") {
+    issues.push({ area: "latest_operation", status: latestOperation.status, detail: "Daily operation did not finish cleanly." });
+  }
+  if (fresh.stale) {
+    issues.push({ area: "signal_freshness", status: fresh.label, detail: fresh.help });
+  }
+  if ((quality.fail ?? 0) > 0) {
+    issues.push({ area: "data_quality", status: "fail", detail: `${quality.fail} failed checks` });
+  }
+  for (const [stepName, step] of Object.entries(latestOperation.steps || {})) {
+    const stepStatus = String(step?.status || "").toLowerCase();
+    if (["fail", "failed", "error"].includes(stepStatus)) {
+      issues.push({
+        area: `maintenance.${stepName}`,
+        status: stepStatus,
+        detail: step.error || step.stderr_tail || `${stepName} step failed during daily upkeep.`,
+      });
+    }
+  }
+  if (maintenance.status === "failed") {
+    issues.push({
+      area: "maintenance",
+      status: "failed",
+      detail: maintenance.error || "Startup maintenance did not finish cleanly.",
+    });
+  }
+  for (const phase of maintenance.phases || []) {
+    if (phase?.status === "failed") {
+      issues.push({
+        area: `maintenance.${phase.key || "phase"}`,
+        status: "failed",
+        detail: phase.stderr_tail || phase.detail || "Maintenance phase failed.",
+      });
+    }
+  }
+  if (doctor.status && !["ok", "preview"].includes(doctor.status) && Number(doctor.failure_count ?? 0) > 0) {
+    issues.push({ area: "doctor", status: doctor.status, detail: `${doctor.failure_count} failed checks` });
+  }
+  for (const check of doctor.checks || []) {
+    if (check?.ok === false) {
+      issues.push({
+        area: `doctor.${check.label || "check"}`,
+        status: "fail",
+        detail: check.path || check.error || "Doctor check failed.",
+      });
+    }
+  }
+  if (governance.state && !["active_ok", "active_watch"].includes(governance.state)) {
+    issues.push({
+      area: "governance",
+      status: governance.state,
+      detail: (governance.reasons || []).join(" | ") || "Governance requires review.",
+    });
+  }
+  for (const blocker of signal.blockers || []) {
+    issues.push({ area: "signal_blocker", status: "blocked", detail: String(blocker) });
+  }
+  if (live.status && live.status !== "ok") {
+    issues.push({
+      area: "live_holdout",
+      status: live.status,
+      detail: `${live.diverged_count ?? 0} drift, ${live.not_replayed_count ?? 0} not replayed`,
+    });
+  }
+  if (strategyReview.status === "no_certified_strategy") {
+    issues.push({
+      area: "strategy_upkeep",
+      status: "no_certified_strategy",
+      detail: "No certified strategy is available. Generate, validate, and certify a replacement.",
+    });
+  } else if (strategyReview.status === "switch_candidate") {
+    const best = strategyReview.best_certified || {};
+    issues.push({
+      area: "strategy_upkeep",
+      status: "replacement_ready",
+      detail: `${best.display_name || best.strategy || "A replacement"} is available for review.`,
+    });
+  }
+  if (automation.label !== "Armed") {
+    issues.push({
+      area: "automation",
+      status: automation.label,
+      detail: automation.help,
+    });
+  }
+  for (const job of schedulerFailures) {
+    issues.push({
+      area: `scheduler.${job.key || job.job || "job"}`,
+      status: job.last_run?.status || "failed",
+      detail: job.last_run?.stderr_tail || job.last_run?.stdout_tail || `${job.label || job.job || "Scheduled job"} needs maintenance.`,
+    });
+  }
+  if (appUpdate.error) {
+    issues.push({
+      area: "app_update",
+      status: "error",
+      detail: appUpdate.error,
+    });
+  }
+  if (researchFailures.length) {
+    const failed = researchFailures[researchFailures.length - 1];
+    issues.push({
+      area: "research_run",
+      status: failed.status || "failed",
+      detail: `${failed.idea_id || "unknown idea"} ${failed.kind || ""}`.trim() || "Strategy research run needs review.",
+    });
+  }
+  if (researchCounts.approved === 0) {
+    const maintenanceResearchEmpty =
+      (maintenance.summary?.research?.status === "empty") ||
+      (maintenance.phases || []).some((phase) => phase?.key === "research" && phase?.status === "empty");
+    if (researchCounts.proposed > 0) {
+      issues.push({
+        area: "research_generation",
+        status: "needs_review",
+        detail: `${researchCounts.proposed} proposed strategy ideas need AI triage or approval.`,
+      });
+    } else if (researchCounts.total === 0 || maintenanceResearchEmpty) {
+      issues.push({
+        area: "research_generation",
+        status: "empty",
+        detail: "No approved strategy ideas are queued. Generate and approve bounded strategy research.",
+      });
+    }
+  }
+  for (const event of eventIssues) {
+    issues.push({
+      area: `event.${event.event_type || "unknown"}`,
+      status: event.severity || "warning",
+      detail: event.message || "Recent operations event needs review.",
+    });
+  }
+  return issues;
+}
+
+function buildIssueReport(status = state.status) {
+  const signal = status.latest_signal || status.latest_operation?.active_signal || {};
+  const researchCounts = researchQueueCounts(status.research_queue || {});
+  const schedulerFailures = schedulerJobIssues(status);
+  const eventIssues = recentAgentEvents(status);
+  const issues = collectIssues(status);
+  const report = {
+    schema_version: 2,
+    purpose: "agent_maintenance_request",
+    instructions: "Investigate and resolve the listed Montauk maintenance, strategy research, automation, data, signal, or upkeep issues. Use the project files referenced in this payload as the source of truth.",
+    artifacts: {
+      latest_operation: "runs/operations/latest.json",
+      maintenance_status: "runs/operations/maintenance_status.json",
+      current_signal: signal.data_end_date ? `signals/${signal.data_end_date}.json` : "signals/",
+      governance: "runs/operations/governance.json",
+      strategy_review: "runs/operations/strategy_review.json",
+      research_queue: "runs/research_queue/queue.json",
+      research_runs: "runs/research_queue/runs/",
+      events: "runs/operations/events.jsonl",
+      viz_bundle: "viz/montauk-bundle.json",
+      app_source: "app/",
+    },
+    issue_count: issues.length,
+    issues,
+    signal: {
+      data_end_date: signal.data_end_date,
+      risk_state: signal.risk_state,
+      entry_signal: Boolean(signal.entry_signal),
+      exit_signal: Boolean(signal.exit_signal),
+      buy_event: Boolean(signal.buy_event),
+      sell_event: Boolean(signal.sell_event),
+      strategy: signal.active_champion?.strategy,
+      params_hash: signal.active_champion?.params_hash,
+    },
+    latest_operation_status: status.latest_operation?.status,
+    maintenance_status: status.maintenance_status?.status,
+    maintenance_summary: status.maintenance_status?.summary,
+    research_queue: researchCounts,
+    scheduler_issue_count: schedulerFailures.length,
+    recent_actionable_events: eventIssues,
+    strategy_review_status: status.strategy_review?.status,
+    live_holdout_status: status.live_holdout?.status,
+    app_update_status: status.app_update?.error ? "error" : "ok",
+    doctor_status: status.doctor?.status,
+    governance_state: status.governance?.state,
+    generated_local: new Date().toISOString(),
+  };
+  report.error_code = issues.length ? issueCodeFor({
+    issues: issues.map((issue) => `${issue.area}:${issue.status}:${issue.detail}`),
+    signal: report.signal,
+    latest_operation_status: report.latest_operation_status,
+    maintenance_status: report.maintenance_status,
+    strategy_review_status: report.strategy_review_status,
+    live_holdout_status: report.live_holdout_status,
+    research_queue: report.research_queue,
+    scheduler_issue_count: report.scheduler_issue_count,
+    app_update_status: report.app_update_status,
+    doctor_status: report.doctor_status,
+    governance_state: report.governance_state,
+  }) : null;
+  return report;
 }
 
 function strategyStatus(review = {}) {
@@ -879,7 +1158,6 @@ function renderCheckup(status = state.status) {
   const signal = status.latest_signal || status.latest_operation?.active_signal || {};
   const quality = signal.data_quality || status.latest_operation?.steps?.data_quality?.summary || {};
   const governance = status.governance || {};
-  const notifications = status.notifications || {};
   const checks = report.checks || [];
   const fresh = freshnessText(signal);
   const automation = automationText(status);
@@ -906,9 +1184,6 @@ function renderCheckup(status = state.status) {
   }
   for (const blocker of signal.blockers || []) {
     addIssue(issues, "fix", "Strategy", "Blocked", cleanIssueText(blocker));
-  }
-  if ((notifications.pending_count ?? 0) > 0) {
-    addIssue(issues, "review", "Notices", `${notifications.pending_count} pending`, "Pending notices.");
   }
 
   text("doctor-status", issues.length ? `${issues.length} items need review` : "Clean");
@@ -946,6 +1221,38 @@ function renderCheckup(status = state.status) {
       <span>${escapeHtml(issue.detail)}</span>
     `;
     node.appendChild(row);
+  }
+}
+
+function renderIssuePanel(status = state.status) {
+  const report = buildIssueReport(status);
+  state.lastIssueReport = report;
+  const panel = document.getElementById("issue-panel");
+  if (!panel) return;
+  if (!report.issue_count) {
+    panel.hidden = true;
+    return;
+  }
+  panel.hidden = false;
+  text("issue-code", report.error_code);
+  const first = report.issues[0];
+  const rest = report.issue_count - 1;
+  text(
+    "issue-summary",
+    rest > 0
+      ? `${first.area}: ${first.detail} (+${rest} more)`
+      : `${first.area}: ${first.detail}`
+  );
+}
+
+async function copyIssueDebug() {
+  if (!state.lastIssueReport) return;
+  const debugText = JSON.stringify(state.lastIssueReport, null, 2);
+  try {
+    await navigator.clipboard?.writeText(debugText);
+    text("issue-summary", "Debug payload copied.");
+  } catch {
+    text("issue-summary", debugText);
   }
 }
 
@@ -1078,10 +1385,11 @@ function render(status) {
   const family = activeFamilyName(status);
   const displayName = activeDisplayName(status);
   const runtimeMode = window.__TAURI__?.core ? "tauri bridge" : "static fallback";
+  const position = positionStatus(signal);
 
-  text("signal-title", mode.action);
-  text("action-main", mode.action);
-  text("position-label", mode.position);
+  text("signal-title", position === "--" ? "Position unknown" : `Position ${position}`);
+  text("action-main", position);
+  text("position-label", mode.sell_event || signal.sell_event || signal.exit_signal ? "Exit fired today" : mode.buy_event || signal.buy_event || signal.entry_signal ? "Entry fired today" : mode.position);
   text("decision-help", `${family}: ${mode.help}`);
   text("confidence-state", formatConfidence(confidence));
   text("pressure-state", `${pressureLabel(pressure)} ${Math.round(pressure)}%`);
@@ -1111,6 +1419,8 @@ function render(status) {
   renderCheckup(status);
   renderResearchQueue(status);
   renderConfidenceLedger(status);
+  renderIssuePanel(status);
+  renderTeclHealthCard();
   drawFlipPressureSparkline();
 }
 
@@ -1121,8 +1431,8 @@ async function refresh() {
     state.metricReviews = {};
     render(state.status);
     text("last-refreshed", `Refreshed ${new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`);
-    loadMetricMatrix();
     loadFlipPressureHistory();
+    loadTeclHealth();
   } catch (error) {
     showActionError(errorPayload("Refresh", "read_status", error, {
       tauri_bridge: Boolean(window.__TAURI__?.core),
@@ -1619,57 +1929,38 @@ function renderMaintenanceModal(status) {
   const list = document.getElementById("maintenance-steps");
   if (list) {
     list.innerHTML = "";
-    const phases = maintenancePhases(status);
-    for (const phase of phases) {
-      const li = document.createElement("li");
-      li.className = `step step-${phase.status || "pending"}`;
-      const icon =
-        phase.status === "ok"
-          ? "✓"
-          : phase.status === "failed"
-            ? "✕"
-            : phase.status === "running"
-              ? "▸"
-              : phase.status === "empty"
-                ? "·"
-                : "○";
-      li.innerHTML = `
-        <span class="step-icon">${icon}</span>
-        <span class="step-body">
-          <strong>${escapeHtml(phase.label || phase.key)}</strong>
-          <small>${escapeHtml(phase.detail || "")}</small>
-        </span>
-      `;
-      list.appendChild(li);
-    }
+    list.hidden = true;
   }
   // Title + progress bar
   const phases = maintenancePhases(status);
-  const total = Math.max(phases.length, 1);
-  const done = phases.filter((p) => ["ok", "failed", "empty", "skipped"].includes(p.status)).length;
   const current = phases.find((p) => p.status === "running") || phases.find((p) => ["ok", "failed", "empty"].includes(p.status));
   const emptyQueue = hasEmptyResearchQueue(status);
   const terminal = isMaintenanceTerminal(status);
   const titleText = status?.status === "ok"
-    ? emptyQueue ? "Maintenance complete — no research queued" : "Maintenance complete"
+    ? "Refresh complete"
     : status?.status === "failed"
-      ? "Maintenance failed"
+      ? "Refresh failed"
       : terminal && emptyQueue
-        ? "Maintenance complete — no research queued"
+        ? "Refresh complete"
       : status?.status === "starting"
-        ? "Starting maintenance…"
-        : current?.label || "Working…";
+        ? "Updating Montauk"
+        : "Updating Montauk";
   text("maintenance-phase-title", titleText);
   text(
     "maintenance-phase-detail",
-    emptyQueue && terminal
-      ? "Data refresh and health checks finished. No approved strategy ideas are queued, so research was skipped."
-      : current?.detail || ""
+    status?.status === "failed"
+      ? (status.error || current?.detail || "Copy debug and hand it to an AI agent.")
+      : terminal
+        ? "Current data, signal, health checks, and viz artifacts are ready."
+        : current?.label || "Refresh in progress."
   );
   const fill = document.getElementById("maintenance-bar-fill");
+  const bar = document.getElementById("maintenance-bar");
+  if (bar) {
+    bar.classList.toggle("is-indeterminate", !terminal);
+  }
   if (fill) {
-    const ratio = terminal ? 1 : done / total;
-    fill.style.width = `${Math.max(6, Math.min(100, ratio * 100))}%`;
+    fill.style.width = terminal ? "100%" : "38%";
   }
   // Show Close + Copy Debug at the end
   const closeBtn = document.getElementById("maintenance-close-btn");
@@ -1717,9 +2008,9 @@ async function runMaintenance(opts = {}) {
   renderMaintenanceModal({
     status: "starting",
     phases: [
-      { key: "daily", label: "Refresh data & recompute signal", detail: "Preparing…", status: "pending" },
-      { key: "doctor", label: "Run health checks", detail: "Preparing…", status: "pending" },
-      { key: "research", label: "Drain one approved research idea", detail: "Preparing…", status: "pending" },
+      { key: "daily", label: "Refreshing data and signal", detail: "Preparing", status: "pending" },
+      { key: "doctor", label: "Checking health", detail: "Preparing", status: "pending" },
+      { key: "research", label: "Updating research queue", detail: "Preparing", status: "pending" },
     ],
   });
   try {
@@ -1969,7 +2260,112 @@ function drawFlipPressureSparkline() {
   ctx.stroke();
 }
 
-window.addEventListener("resize", () => drawFlipPressureSparkline());
+async function loadTeclHealth() {
+  const invoke = tauriInvoke("read_viz_bundle", { rebuild: false });
+  if (!invoke) {
+    text("tecl-health-state", "--");
+    text("tecl-health-meta", "Mac app required");
+    return;
+  }
+  try {
+    const bundle = await invoke;
+    const health = bundle?.tecl_health || {};
+    healthState.latest = health.latest || null;
+    healthState.points = Array.isArray(health.series) ? health.series : [];
+    healthState.source = bundle?.generated || null;
+    renderTeclHealthCard();
+  } catch (error) {
+    text("tecl-health-state", "--");
+    text("tecl-health-meta", error?.message || String(error));
+  }
+}
+
+function renderTeclHealthCard() {
+  const latest = healthState.latest || {};
+  const score = Number(latest.composite);
+  text("tecl-health-state", Number.isFinite(score) ? score.toFixed(1) : "--");
+  text(
+    "tecl-health-meta",
+    latest.date
+      ? `${latest.status || "diagnostic"} · ${latest.date}`
+      : "No health payload loaded"
+  );
+  drawHealthSparkline();
+}
+
+function drawHealthSparkline() {
+  const canvas = document.getElementById("health-spark");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  const dpr = window.devicePixelRatio || 1;
+  const cssWidth = canvas.clientWidth || canvas.width;
+  const cssHeight = canvas.clientHeight || canvas.height;
+  if (canvas.width !== cssWidth * dpr) canvas.width = cssWidth * dpr;
+  if (canvas.height !== cssHeight * dpr) canvas.height = cssHeight * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, cssWidth, cssHeight);
+
+  const points = healthState.points
+    .map((point) => ({ date: point.date, value: Number(point.composite) }))
+    .filter((point) => Number.isFinite(point.value))
+    .slice(-180);
+  if (!points.length) {
+    ctx.fillStyle = "rgba(127, 144, 141, 0.6)";
+    ctx.font = "11px Inter, ui-sans-serif, system-ui, sans-serif";
+    ctx.textBaseline = "middle";
+    ctx.fillText("health series loading", 8, cssHeight / 2);
+    return;
+  }
+  const padX = 8;
+  const padY = 8;
+  const w = cssWidth - padX * 2;
+  const h = cssHeight - padY * 2;
+  const step = points.length > 1 ? w / (points.length - 1) : 0;
+  const xy = points.map((point, i) => [
+    padX + i * step,
+    padY + (1 - Math.max(0, Math.min(100, point.value)) / 100) * h,
+  ]);
+
+  for (const level of [75, 50, 25]) {
+    const y = padY + (1 - level / 100) * h;
+    ctx.strokeStyle = "rgba(127, 144, 141, 0.18)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(padX, y);
+    ctx.lineTo(padX + w, y);
+    ctx.stroke();
+  }
+
+  const grad = ctx.createLinearGradient(0, padY, 0, padY + h);
+  grad.addColorStop(0, "rgba(66, 214, 154, 0.28)");
+  grad.addColorStop(0.55, "rgba(99, 199, 214, 0.15)");
+  grad.addColorStop(1, "rgba(99, 199, 214, 0)");
+  ctx.beginPath();
+  ctx.moveTo(xy[0][0], padY + h);
+  xy.forEach(([x, y]) => ctx.lineTo(x, y));
+  ctx.lineTo(xy[xy.length - 1][0], padY + h);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  ctx.strokeStyle = "#42d69a";
+  ctx.lineWidth = 1.8;
+  ctx.shadowBlur = 8;
+  ctx.shadowColor = "rgba(66, 214, 154, 0.45)";
+  ctx.beginPath();
+  xy.forEach(([x, y], i) => {
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+}
+
+window.addEventListener("resize", () => {
+  drawFlipPressureSparkline();
+  drawHealthSparkline();
+});
 
 function showView(viewName) {
   document.querySelectorAll(".nav-item").forEach((item) => {
@@ -2008,6 +2404,7 @@ function wireActions() {
   });
   document.getElementById("maintenance-copy-btn")?.addEventListener("click", copyMaintenanceDebug);
   document.getElementById("action-error-copy")?.addEventListener("click", copyActionError);
+  document.getElementById("issue-copy-btn")?.addEventListener("click", copyIssueDebug);
   document.querySelectorAll("button[data-agent-action]").forEach((button) => {
     button.addEventListener("click", () => {
       manageAgent(button.dataset.agentAction, button.dataset.jobKey || "daily");

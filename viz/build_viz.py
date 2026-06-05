@@ -633,7 +633,7 @@ def index_run_artifacts() -> dict[tuple[str, str], dict[str, Any]]:
         key = (strat, params_key(params))
         mtime = os.path.getmtime(run_path)
         prev = index.get(key)
-        if prev is None or mtime > prev["mtime"]:
+        if prev is None or mtime >= prev["mtime"]:
             index[key] = {"path": run_path, "payload": payload, "mtime": mtime}
     return index
 
@@ -927,13 +927,28 @@ def build_bundle() -> dict[str, Any]:
 
     strategies: list[dict[str, Any]] = []
     matched = 0
+    latest_price_date = tecl["dates"][-1] if tecl.get("dates") else None
     for i, entry in enumerate(leaderboard, start=1):
         key = (entry.get("strategy"), params_key(entry.get("params") or {}))
         run = runs.get(key)
         if run:
             matched += 1
         c2 = confidence_v2_by_key.get(strategy_key(entry.get("strategy"), entry.get("params") or {}))
-        strategies.append(build_strategy_entry(i, entry, run, c2))
+        strategy = build_strategy_entry(i, entry, run, c2)
+        artifact_end_date = (
+            strategy["equity_curve"][-1].get("date")
+            if strategy.get("equity_curve")
+            else None
+        )
+        strategy["artifact_end_date"] = artifact_end_date
+        strategy["price_end_date"] = latest_price_date
+        if latest_price_date and (not artifact_end_date or artifact_end_date < latest_price_date):
+            strategy["stale"] = True
+            strategy["stale_reason"] = (
+                f"strategy artifact ends {artifact_end_date or 'unknown'}; "
+                f"price data ends {latest_price_date}"
+            )
+        strategies.append(strategy)
     print(f"[build_viz] Matched {matched}/{len(leaderboard)} leaderboard entries to run artifacts")
 
     tecl_out = dict(tecl)
