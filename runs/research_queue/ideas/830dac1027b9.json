@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "830dac1027b9",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "paused",
   "kind": "yield_curve_inflection_lead",
   "rationale": "Tests whether rapid changes in the 10Y-2Y Treasury spread predict regime shifts before they manifest in tech price structure.",
   "validation_tier": "T1",
@@ -29,5 +29,26 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Out-of-sample information coefficient falls below 0.05.",
     "Fails to outperform standard moving-average filters on QQQ in the 2008-2010 window."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T20:01:02Z",
+  "last_run": {
+    "run_id": "20260607T193617Z-830dac1027b9",
+    "status": "ok",
+    "finished_utc": "2026-06-07T19:36:47Z",
+    "record_path": null,
+    "steps": [
+      {
+        "name": "cross_asset_recheck",
+        "status": "ok"
+      },
+      {
+        "name": "diversity_prefilter_search",
+        "status": "ok"
+      },
+      {
+        "name": "generated_hypothesis_test",
+        "status": "ok"
+      }
+    ]
+  }
 }

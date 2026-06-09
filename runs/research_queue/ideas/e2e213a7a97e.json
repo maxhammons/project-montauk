@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "e2e213a7a97e",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "paused",
   "kind": "volume_weighted_accumulation_divergence",
   "rationale": "Tests whether cumulative volume-weighted price trends reveal hidden accumulation during extended flat consolidations.",
   "validation_tier": "T0",
@@ -29,5 +29,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Win rate drops below 45% over a 100-trade sample.",
     "Maximum consecutive false signals exceeds 7."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:29Z"
 }

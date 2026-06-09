@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "35ce9cce39bc",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "dismissed",
   "kind": "options_gamma_wall_rebound",
   "rationale": "Tests if localized options open-interest concentrations function as institutional support during market drawdowns.",
   "validation_tier": "T1",
@@ -30,5 +30,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "More than 25% of gamma-wall entries experience immediate breakthroughs exceeding 5%.",
     "Underperforms a simple 200-day moving-average filter over the long era."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:30Z"
 }

@@ -88,7 +88,13 @@ def launch_agent_check(job_key: str) -> dict[str, Any]:
 def build_doctor_report() -> dict[str, Any]:
     scheduler = scheduler_status()
     enabled_jobs = [job for job in scheduler.get("jobs") or [] if job.get("enabled")]
+    # Launch agents are opt-in local automation (the project's execution model is
+    # manual). A fresh install legitimately has none installed, so their absence
+    # is advisory — surfaced in the Doctor panel but not a hard failure that
+    # fails the whole maintenance run.
     launch_agents = [launch_agent_check(job["key"]) for job in enabled_jobs]
+    for agent in launch_agents:
+        agent["advisory"] = True
     checks = [
         check_file(APP_BUNDLE, "mac_app_bundle"),
         check_file(LATEST_PATH, "latest_operations"),
@@ -98,12 +104,22 @@ def build_doctor_report() -> dict[str, Any]:
     ]
     checks.extend(launch_agents)
     failures = [check for check in checks if not check.get("ok")]
+    critical_failures = [check for check in failures if not check.get("advisory")]
+    advisories = [check for check in failures if check.get("advisory")]
+    if critical_failures:
+        status = "needs_attention"
+    elif advisories:
+        status = "advisory"
+    else:
+        status = "ok"
     return {
         "schema_version": 1,
-        "status": "ok" if not failures else "needs_attention",
+        "status": status,
         "checks": checks,
-        "failure_count": len(failures),
+        "failure_count": len(critical_failures),
+        "advisory_count": len(advisories),
         "failures": failures,
+        "critical_failures": critical_failures,
         "scheduler": scheduler,
     }
 
@@ -117,11 +133,18 @@ def main(argv: list[str] | None = None) -> int:
     if args.json:
         print(json.dumps(report, indent=2, default=str))
     else:
-        print(f"doctor: {report['status']} ({report['failure_count']} failures)")
+        print(
+            f"doctor: {report['status']} "
+            f"({report['failure_count']} failures, {report.get('advisory_count', 0)} advisories)"
+        )
         for check in report["checks"]:
-            state = "ok" if check["ok"] else "missing"
+            if check["ok"]:
+                state = "ok"
+            else:
+                state = "advisory" if check.get("advisory") else "missing"
             print(f"- {state}: {check['label']} {check['path']}")
-    return 0 if report["status"] == "ok" else 1
+    # Advisories (e.g. opt-in launch agents not installed) do not fail the run.
+    return 1 if report["status"] == "needs_attention" else 0
 
 
 if __name__ == "__main__":

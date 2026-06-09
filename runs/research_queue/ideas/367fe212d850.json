@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "367fe212d850",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "paused",
   "kind": "mean_reversion_volatility_corridor",
   "rationale": "Tests if price distance from a rolling volatility-adjusted corridor captures deep structural extensions.",
   "validation_tier": "T0/T1",
@@ -29,5 +29,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Underperforms buy-and-hold by more than 25% during a sustained 12-month bull market.",
     "Maximum drawdown reduction versus buy-and-hold is less than 5%."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:29Z"
 }

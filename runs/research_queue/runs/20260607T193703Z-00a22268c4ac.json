@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "run_id": "20260607T193703Z-00a22268c4ac",
+  "created_utc": "2026-06-07T19:37:03Z",
+  "version_info": {
+    "schema_version": 1,
+    "generated_utc": "2026-06-07T19:37:03Z",
+    "app_version": "0.1.0",
+    "git_commit": "76c51dc",
+    "git_dirty": true,
+    "strategy_code_version": "76c51dc"
+  },
+  "status": "ok",
+  "execute": true,
+  "plan": {
+    "schema_version": 1,
+    "idea_id": "00a22268c4ac",
+    "kind": "rolling_momentum_deceleration",
+    "rationale": "Tests whether decay in long-term momentum functions as an early warning exit before structural price breakdowns.",
+    "validation_tier": "T1",
+    "time_budget": "bounded local diagnostic first",
+    "expected_failure_mode": "Rallies frequently show multi-month momentum deceleration while price continues higher, leading to missed gains.",
+    "input_diagnostics": [
+      "runs/near_miss_autopsy.json",
+      "spike/leaderboard.json",
+      "runs/chimera/member_manifest.json",
+      "runs/research_queue/ideas/<idea_id>.json"
+    ],
+    "expected_artifact_paths": [
+      "runs/near_miss_autopsy.json",
+      "runs/chimera/latest.json",
+      "runs/chimera/vote_ledger.json",
+      "runs/chimera/validation_summary.json",
+      "runs/chimera/family_ablation_report.json",
+      "runs/chimera/correlation_stress_report.json",
+      "runs/chimera/candidate_comparison.json",
+      "runs/research_queue/hypotheses/<idea_id>.json"
+    ],
+    "stop_conditions": [
+      "near-Gold candidate repeats known Gold contract failures",
+      "Chimera fails validation or is dominated by one family",
+      "hypothesis cannot be mapped to bounded diagnostics",
+      "The strategy exits more than 15% below the cyclical peak on 3 consecutive cycles.",
+      "Calmar ratio falls below buy-and-hold over the full era."
+    ],
+    "steps": [
+      {
+        "name": "near_miss_autopsy",
+        "status": "ok",
+        "command": [
+          "/Users/maxhammons/Documents/Projects/Project Montauk/.venv/bin/python",
+          "/Users/maxhammons/Documents/Projects/Project Montauk/scripts/diagnostics/near_miss_autopsy.py"
+        ],
+        "input_diagnostics": [
+          "runs/near_miss_autopsy.json",
+          "spike/leaderboard.json",
+          "runs/chimera/member_manifest.json",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/near_miss_autopsy.json",
+          "runs/chimera/latest.json",
+          "runs/chimera/vote_ledger.json",
+          "runs/chimera/validation_summary.json",
+          "runs/chimera/family_ablation_report.json",
+          "runs/chimera/correlation_stress_report.json",
+          "runs/chimera/candidate_comparison.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "near-Gold candidate repeats known Gold contract failures",
+          "Chimera fails validation or is dominated by one family",
+          "hypothesis cannot be mapped to bounded diagnostics",
+          "The strategy exits more than 15% below the cyclical peak on 3 consecutive cycles.",
+          "Calmar ratio falls below buy-and-hold over the full era."
+        ],
+        "started_utc": "2026-06-07T19:37:03Z",
+        "finished_utc": "2026-06-07T19:37:11Z",
+        "returncode": 0,
+        "stdout_tail": "2023_rebound     share= 0.340 trades=  3 maxDD= 55.5% regime=0.709\n  2020_meltup      share= 0.660 trades=  3 maxDD= 39.5% regime=0.627\n  2024_onward      share= 1.262 trades=  3 maxDD= 49.7% regime=0.636\n  2021_2022_bear   share= 2.057 trades=  3 maxDD= 50.0% regime=0.558\nWorst calendar years:\n  2011 share= 0.658 strategy= -48.79% bh= -22.22% exposure=61.5%\n  2024 share= 0.690 strategy=   1.44% bh=  47.02% exposure=59.1%\n  2023 share= 0.702 strategy= 117.87% bh= 210.57% exposure=90.8%\n  2009 share= 0.717 strategy=  86.70% bh= 160.53% exposure=58.7%\n  2019 share= 0.726 strategy= 106.56% bh= 184.47% exposure=86.5%\nWorst marker misses:\n  buy  2009-03-02 nearest=2009-06-03 dist=65 mag=5.1304 score=0.0\n  buy  2002-10-07 nearest=2003-05-30 dist=162 mag=3.6241 score=0.0\n  buy  2018-12-28 nearest=2019-02-21 dist=36 mag=2.6505 score=0.0\n  buy  1999-10-27 nearest=2000-05-11 dist=136 mag=2.5429 score=0.0\n  sell 2000-03-23 nearest=2000-05-11 dist=34 mag=0.9747 score=0.0\n\nRSI_REGIME_CANONICAL\n----------------------------------------------------------------------------------------------------------------\nwfit=0.4674 full=1.8744 real=0.3234 modern=0.3851 trades=24 tpy=0.7 maxDD=94.5%\nGold failures: real_era_below_bh, modern_era_below_bh\ndiversity=0.9596 max_corr=0.0674 entry_overlap=0.0000 exit_overlap=0.0000\nmarker=0.5301 state=0.5796 timing_mag=0.1181\nparams={\"cooldown\": 10, \"entry_rsi\": 35.0, \"exit_rsi\": 75.0, \"panic_rsi\": 15.0, \"rsi_len\": 14, \"trend_len\": 200}\n\nWorst named windows:\n  2020_meltup      share= 0.280 trades=  4 maxDD= 65.8% regime=0.528\n  2023_rebound     share= 0.365 trades=  4 maxDD= 27.6% regime=0.574\n  2024_onward      share= 0.994 trades=  4 maxDD= 63.3% regime=0.379\n  2021_2022_bear   share= 1.976 trades=  4 maxDD= 65.8% regime=0.578\nWorst calendar years:\n  2023 share= 0.398 strategy=  23.48% bh= 210.57% exposure=28.0%\n  2017 share= 0.536 strategy=  17.06% bh= 118.29% exposure=11.6%\n  2026 share= 0.654 strategy=  12.20% bh=  71.45% exposure=68.2%\n  2009 share= 0.737 strategy=  92.01% bh= 160.53% exposure=55.6%\n  2019 share= 0.855 strategy= 143.26% bh= 184.47% exposure=73.4%\nWorst marker misses:\n  buy  2009-03-02 nearest=2009-07-24 dist=101 mag=5.1304 score=0.0\n  buy  2002-10-07 nearest=2005-01-18 dist=574 mag=3.6241 score=0.0\n  buy  2018-12-28 nearest=2019-03-19 dist=54 mag=2.6505 score=0.0\n  buy  2023-01-12 nearest=2023-08-14 dist=146 mag=2.3582 score=0.0\n  buy  2025-04-24 nearest=2025-09-23 dist=104 mag=1.8473 score=0.0\n\nATR_RATIO_VIX\n----------------------------------------------------------------------------------------------------------------\nwfit=0.6379 full=12.9270 real=0.2348 modern=0.4560 trades=34 tpy=1.0 maxDD=62.9%\nGold failures: real_era_below_bh, modern_era_below_bh\ndiversity=0.5805 max_corr=0.5460 entry_overlap=0.1838 exit_overlap=0.2757\nmarker=0.5087 state=0.7764 timing_mag=0.2422\nparams={\"atr_long\": 50, \"atr_short\": 14, \"cooldown\": 5, \"fast_ema\": 30, \"slow_ema\": 100}\n\nWorst named windows:\n  2023_rebound     share= 0.611 trades=  3 maxDD= 38.8% regime=0.526\n  2020_meltup      share= 0.696 trades=  4 maxDD= 47.3% regime=0.619\n  2024_onward      share= 0.833 trades=  5 maxDD= 50.7% regime=0.544\n  2021_2022_bear   share= 1.720 trades=  3 maxDD= 47.3% regime=0.549\nWorst calendar years:\n  2023 share= 0.592 strategy=  83.71% bh= 210.57% exposure=80.0%\n  2026 share= 0.680 strategy=  16.53% bh=  71.45% exposure=52.3%\n  2019 share= 0.706 strategy= 100.90% bh= 184.47% exposure=82.9%\n  2024 share= 0.744 strategy=   9.33% bh=  47.02% exposure=83.7%\n  2016 share= 0.801 strategy=  14.50% bh=  42.98% exposure=81.3%\nWorst marker misses:\n  buy  2009-03-02 nearest=2009-05-27 dist=60 mag=5.1304 score=0.0\n  buy  2002-10-07 nearest=2003-05-12 dist=149 mag=3.6241 score=0.0\n  buy  2018-12-28 nearest=2018-10-24 dist=44 mag=2.6505 score=0.0\n  buy  1999-10-27 nearest=2000-05-05 dist=132 mag=2.5429 score=0.0\n  buy  2025-04-24 nearest=2025-06-11 dist=33 mag=1.8473 score=0.0\n\n\n[near-miss-autopsy] wrote runs/near_miss_autopsy.json\n",
+        "stderr_tail": ""
+      },
+      {
+        "name": "chimera_generation",
+        "status": "manual_review",
+        "reason": "No bounded command is registered for this test yet."
+      },
+      {
+        "name": "generated_hypothesis_test",
+        "status": "ok",
+        "command": [
+          "/Users/maxhammons/Documents/Projects/Project Montauk/.venv/bin/python",
+          "/Users/maxhammons/Documents/Projects/Project Montauk/scripts/ops/generated_hypothesis_test.py",
+          "--idea-id",
+          "00a22268c4ac",
+          "--json"
+        ],
+        "input_diagnostics": [
+          "runs/near_miss_autopsy.json",
+          "spike/leaderboard.json",
+          "runs/chimera/member_manifest.json",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/near_miss_autopsy.json",
+          "runs/chimera/latest.json",
+          "runs/chimera/vote_ledger.json",
+          "runs/chimera/validation_summary.json",
+          "runs/chimera/family_ablation_report.json",
+          "runs/chimera/correlation_stress_report.json",
+          "runs/chimera/candidate_comparison.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "near-Gold candidate repeats known Gold contract failures",
+          "Chimera fails validation or is dominated by one family",
+          "hypothesis cannot be mapped to bounded diagnostics",
+          "The strategy exits more than 15% below the cyclical peak on 3 consecutive cycles.",
+          "Calmar ratio falls below buy-and-hold over the full era."
+        ],
+        "started_utc": "2026-06-07T19:37:11Z",
+        "finished_utc": "2026-06-07T19:37:11Z",
+        "returncode": 0,
+        "stdout_tail": "{\n  \"schema_version\": 1,\n  \"generated_utc\": \"2026-06-07T19:37:11Z\",\n  \"idea_id\": \"00a22268c4ac\",\n  \"kind\": \"rolling_momentum_deceleration\",\n  \"status\": \"planned\",\n  \"hypothesis\": \"If rolling momentum deceleration is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Tests whether decay in long-term momentum functions as an early warning exit before structural price breakdowns.\",\n  \"input_diagnostics\": [\n    \"runs/near_miss_autopsy.json\",\n    \"spike/leaderboard.json\",\n    \"runs/chimera/member_manifest.json\",\n    \"runs/research_queue/ideas/<idea_id>.json\"\n  ],\n  \"suggested_tests\": [\n    \"near_miss_autopsy\",\n    \"chimera_generation\",\n    \"generated_hypothesis_test\"\n  ],\n  \"expected_artifact_paths\": [\n    \"runs/near_miss_autopsy.json\",\n    \"runs/chimera/latest.json\",\n    \"runs/chimera/vote_ledger.json\",\n    \"runs/chimera/validation_summary.json\",\n    \"runs/chimera/family_ablation_report.json\",\n    \"runs/chimera/correlation_stress_report.json\",\n    \"runs/chimera/candidate_comparison.json\",\n    \"runs/research_queue/hypotheses/<idea_id>.json\"\n  ],\n  \"stop_conditions\": [\n    \"near-Gold candidate repeats known Gold contract failures\",\n    \"Chimera fails validation or is dominated by one family\",\n    \"hypothesis cannot be mapped to bounded diagnostics\",\n    \"The strategy exits more than 15% below the cyclical peak on 3 consecutive cycles.\",\n    \"Calmar ratio falls below buy-and-hold over the full era.\"\n  ],\n  \"expected_failure_mode\": \"Rallies frequently show multi-month momentum deceleration while price continues higher, leading to missed gains.\",\n  \"artifact_path\": \"/Users/maxhammons/Documents/Projects/Project Montauk/runs/research_queue/hypotheses/00a22268c4ac.json\"\n}\n",
+        "stderr_tail": ""
+      }
+    ]
+  },
+  "finished_utc": "2026-06-07T19:37:11Z"
+}

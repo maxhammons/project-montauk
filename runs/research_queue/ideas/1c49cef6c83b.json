@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "1c49cef6c83b",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "paused",
   "kind": "mtf_momentum_conflict",
   "rationale": "Tests if daily oversold conditions resolving upward while weekly momentum remains overbought creates optimal swing-trade entries.",
   "validation_tier": "T1",
@@ -34,5 +34,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "The strategy generates more than 5 consecutive losses during a market transition phase.",
     "Fails to maintain positive expectancy over 50 or more trades."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:29Z"
 }

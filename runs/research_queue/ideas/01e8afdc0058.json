@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "01e8afdc0058",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "paused",
   "kind": "capitulation_volume_climax",
   "rationale": "Tests if localized volume spikes during steep drawdowns identify high-probability rebound entry windows.",
   "validation_tier": "T0",
@@ -31,5 +31,26 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Average drawdown within 5 days post-entry exceeds 12%.",
     "Fails to outperform a cash benchmark during a major secular bear market."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T20:01:02Z",
+  "last_run": {
+    "run_id": "20260607T195024Z-01e8afdc0058",
+    "status": "ok",
+    "finished_utc": "2026-06-07T19:50:46Z",
+    "record_path": null,
+    "steps": [
+      {
+        "name": "focused_grid_search",
+        "status": "ok"
+      },
+      {
+        "name": "gold_hybrid_lab",
+        "status": "ok"
+      },
+      {
+        "name": "generated_hypothesis_test",
+        "status": "ok"
+      }
+    ]
+  }
 }

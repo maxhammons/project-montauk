@@ -1,4 +1,15 @@
-/* Montauk Viz — Lightweight-Charts frontend (app-embedded build) */
+/* Montauk Viz — the single shared Lightweight-Charts frontend engine.
+ *
+ * ONE source of truth for both viz surfaces:
+ *   - the Mac app loads this file directly (/lib/viz-engine.js) for its in-app
+ *     "viz" view, and
+ *   - viz/build_viz.py embeds this same file into the standalone
+ *     viz/montauk-viz.html and calls boot(window.__MONTAUK_DATA__).
+ *
+ * The app is the quick glance; the standalone viz is the in-depth graphical
+ * view of the SAME data (one bundle from build_viz.py, one leaderboard, one
+ * Montauk Score). Do not fork this file — edit it once and both surfaces update.
+ */
 window.__MONTAUK_VIZ__ = window.__MONTAUK_VIZ__ || { booted: false };
 
 /* Reset path: disposes the live charts and event listeners attached by boot(),
@@ -438,7 +449,8 @@ window.__MONTAUK_VIZ__.boot = function bootMontaukViz(D) {
     renderRightPanel(strat);
 
     // Active name in toolbar
-    document.getElementById("active-name").textContent = `${strat.name} · fitness ${fmtNum(strat.fitness, 3)}`;
+    document.getElementById("active-name").textContent =
+      `${strat.name} · Montauk ${fmtNum((strat.montauk_score ?? 0) * 100, 1)}`;
 
     // Sidebar highlight
     document.querySelectorAll(".strat").forEach((el) => {
@@ -464,88 +476,49 @@ window.__MONTAUK_VIZ__.boot = function bootMontaukViz(D) {
   }
 
   /* ---- Leaderboard ranking ---- */
-  // The leaderboard is a certified set first. Within that set, rows are
-  // ordered by all-era performance so the top of the board reflects the
-  // strongest certified strategy across full / real / modern history.
-  const CONFIDENCE_KEY = {
-    label: "Overall Confidence (0–100; Future Confidence + Trust)",
-    extract: (s) => (s.overall_confidence != null ? s.overall_confidence : s.edge_confidence ?? s.composite_confidence ?? null),
+  // ONE headline score: the Montauk Score (Conviction 0.55 × Performance 0.30 ×
+  // Durability 0.15, geometric). The leaderboard is a certified (Gold) set
+  // first; within it, rows rank by Montauk Score and the top row is the active
+  // strategy. The handful of alternate sorts below just re-rank that same set
+  // by a single pillar.
+  const MONTAUK_KEY = {
+    label: "Montauk Score (0–100; Conviction 0.55 × Performance 0.30 × Durability 0.15)",
+    extract: (s) => (s.montauk_score != null ? s.montauk_score : s.overall_confidence ?? s.composite_confidence ?? null),
     format: (v) => (v == null ? "—" : `${(v * 100).toFixed(1)}`),
   };
+  const CONFIDENCE_KEY = MONTAUK_KEY; // back-compat alias for existing references
   const SORT_OPTIONS = {
-    allEra: {
-      label: "All-era score",
-      title: "Balanced geometric score across canonical full, real, and modern eras",
-      extract: (s) => s.overall_performance_score,
+    montauk: {
+      label: "Montauk Score",
+      title: "Headline score — Conviction 0.55 × Performance 0.30 × Durability 0.15 (geometric). The top row is the active strategy.",
+      extract: (s) => s.montauk_score,
       direction: "desc",
     },
-    fitness: {
-      label: "Fitness",
-      title: "Optimizer fitness: full^0.15, real^0.25, modern^0.60",
-      extract: (s) => s.fitness,
+    performance: {
+      label: "Performance",
+      title: "Era-weighted share accumulation vs B&H (modern > real > synthetic), squashed to 0–100.",
+      extract: (s) => s.performance,
       direction: "desc",
     },
-    confidence: {
-      label: "Overall confidence",
-      title: CONFIDENCE_KEY.label,
-      extract: CONFIDENCE_KEY.extract,
-      direction: "desc",
-    },
-    future: {
-      label: "Future confidence",
-      title: "Future Confidence: calibrated/provisional estimate of future usefulness",
-      extract: (s) => s.future_confidence ?? s.edge_confidence,
-      direction: "desc",
-    },
-    trust: {
-      label: "Trust",
-      title: "Trust: deployability after future confidence, including drawdown, redundancy, parsimony, artifacts, and live degradation",
-      extract: (s) => s.trust ?? s.capital_readiness,
-      direction: "desc",
-    },
-    full: {
-      label: "Full share",
-      title: "Canonical full-history share multiple versus buy-and-hold",
-      extract: (s) => s.multi_era?.eras?.full?.share_multiple ?? s.metrics?.share_multiple,
-      direction: "desc",
-    },
-    real: {
-      label: "Real share",
-      title: "Canonical real-era share multiple from 2008-12-17 forward",
-      extract: (s) => s.multi_era?.eras?.real?.share_multiple ?? s.metrics?.real_share_multiple,
-      direction: "desc",
-    },
-    modern: {
-      label: "Modern share",
-      title: "Canonical modern-era share multiple from 2015 forward",
-      extract: (s) => s.multi_era?.eras?.modern?.share_multiple ?? s.metrics?.modern_share_multiple,
-      direction: "desc",
-    },
-    marker: {
-      label: "Marker timing",
-      title: "State agreement with the hand-marked buy/sell cycle file",
-      extract: (s) => s.metrics?.marker_alignment,
+    durability: {
+      label: "Durability",
+      title: "Livability — drawdown resilience, parameter parsimony, portfolio non-redundancy, clean artifacts.",
+      extract: (s) => s.durability,
       direction: "desc",
     },
     drawdown: {
-      label: "Drawdown",
-      title: "Maximum drawdown, lower is better",
+      label: "Max drawdown",
+      title: "Maximum drawdown, lower is better.",
       extract: (s) => s.metrics?.max_dd,
       direction: "asc",
     },
-    canonical: {
-      label: "Canonical rank",
-      title: "Persisted leaderboard rank from the certification pipeline",
-      extract: (s) => s.rank,
-      direction: "asc",
-    },
   };
-  let _leaderboardSort = "allEra";
+  let _leaderboardSort = "montauk";
   let _leaderboardSortDir = SORT_OPTIONS[_leaderboardSort].direction;
   let _leaderboardView = "full";
 
   function numericSortValue(strategy, sortKey) {
-    const def = SORT_OPTIONS[sortKey] || SORT_OPTIONS.allEra;
+    const def = SORT_OPTIONS[sortKey] || SORT_OPTIONS.montauk;
     const value = def.extract(strategy);
     const n = Number(value);
     return Number.isFinite(n) ? n : null;
@@ -560,11 +533,11 @@ window.__MONTAUK_VIZ__.boot = function bootMontaukViz(D) {
       return _leaderboardSortDir === "asc" ? av - bv : bv - av;
     }
 
-    const tieKeys = _leaderboardSort === "allEra"
-      ? ["fitness", "confidence", "canonical"]
-      : ["allEra", "fitness", "confidence", "canonical"];
+    const tieKeys = _leaderboardSort === "montauk"
+      ? ["performance", "durability", "drawdown"]
+      : ["montauk", "performance", "durability"];
     for (const key of tieKeys) {
-      const def = SORT_OPTIONS[key] || SORT_OPTIONS.allEra;
+      const def = SORT_OPTIONS[key] || SORT_OPTIONS.montauk;
       const direction = def.direction;
       const at = numericSortValue(a, key);
       const bt = numericSortValue(b, key);
@@ -668,11 +641,14 @@ window.__MONTAUK_VIZ__.boot = function bootMontaukViz(D) {
     btn.setAttribute("aria-label", btn.title);
   }
 
-  function admissionLabel(confidence) {
-    if (confidence == null) return { tag: "—", cls: "unknown" };
-    if (confidence >= 0.80) return { tag: "CAPITAL?", cls: "admitted" };
-    if (confidence >= 0.65) return { tag: "STRONG", cls: "watchlist" };
-    return { tag: "PROVISIONAL", cls: "research" };
+  // Montauk Score bands for the sidebar tag (every row here is already Gold —
+  // certified and beats B&H in every era; the band just grades how much trust
+  // the score carries on top of that floor).
+  function admissionLabel(score) {
+    if (score == null) return { tag: "—", cls: "unknown" };
+    if (score >= 0.65) return { tag: "TRUSTED", cls: "admitted" };
+    if (score >= 0.50) return { tag: "SOLID", cls: "watchlist" };
+    return { tag: "WATCH", cls: "research" };
   }
 
   function familyConfidenceLabel(confidence) {
@@ -840,16 +816,17 @@ window.__MONTAUK_VIZ__.boot = function bootMontaukViz(D) {
     tierBadge.dataset.tip = "Validation tier. T0 = hand-authored canonical params (light pipeline). T1 = hand-authored + canonical grid (medium). T2 = GA-tuned or optimizer-discovered (full statistical stack).";
     meta.appendChild(tierBadge);
     meta.appendChild(makeBadge(s.gold_status ? "Gold Status" : "Not Gold", s.gold_status ? "ok gold" : "warn"));
-    if (s.overall_confidence != null) {
-      meta.appendChild(makeBadge(`overall ${fmtNum(s.overall_confidence * 100, 1)}`, s.overall_confidence >= 0.65 ? "ok" : "warn"));
+    if (s.montauk_score != null) {
+      meta.appendChild(makeBadge(`Montauk ${fmtNum(s.montauk_score * 100, 1)}`, s.montauk_score >= 0.60 ? "ok gold" : s.montauk_score >= 0.40 ? "ok" : "warn"));
     }
-    if ((s.future_confidence ?? s.edge_confidence) != null) {
-      const future = s.future_confidence ?? s.edge_confidence;
-      meta.appendChild(makeBadge(`future ${fmtNum(future * 100, 1)}`, future >= 0.65 ? "ok" : "warn"));
+    if (s.conviction != null) {
+      meta.appendChild(makeBadge(`conviction ${fmtNum(s.conviction * 100, 1)}`, s.conviction >= 0.60 ? "ok" : "warn"));
     }
-    if ((s.trust ?? s.capital_readiness) != null) {
-      const trust = s.trust ?? s.capital_readiness;
-      meta.appendChild(makeBadge(`trust ${fmtNum(trust * 100, 1)}`, trust >= 0.65 ? "ok" : "warn"));
+    if (s.performance != null) {
+      meta.appendChild(makeBadge(`performance ${fmtNum(s.performance * 100, 1)}`, s.performance >= 0.60 ? "ok" : "warn"));
+    }
+    if (s.durability != null) {
+      meta.appendChild(makeBadge(`durability ${fmtNum(s.durability * 100, 1)}`, s.durability >= 0.60 ? "ok" : "warn"));
     }
     if (s.family_size && s.family_size > 1) {
       meta.appendChild(makeBadge(`family ${s.family_rank}/${s.family_size}`, s.family_leader ? "ok" : "warn"));
@@ -881,10 +858,11 @@ window.__MONTAUK_VIZ__.boot = function bootMontaukViz(D) {
     addMetric(metricsEl, "Bear avoidance", fmtPct(m.bear_avoidance * 100));
     addMetric(metricsEl, "Marker alignment", fmtNum(m.marker_alignment, 3), "", "State-agreement % vs the hand-marked buy/sell cycle file (north-star). 1 = perfectly mirrors Max's hindsight-perfect timing.");
     addMetric(metricsEl, "HHI (concentration)", fmtNum(m.hhi, 3), "", "Herfindahl index of per-trade PnL contribution. Low (0.05-0.15) = diversified across many trades. High (>0.3) = one lucky trade carries the result. Lower is better.");
-    addMetric(metricsEl, "Overall Confidence", s.overall_confidence == null ? "—" : fmtNum(s.overall_confidence * 100, 1), "", "Confidence v2 super score combining Future Confidence and Trust. Diagnostic-only; Gold Status still controls leaderboard admission.");
-    addMetric(metricsEl, "Future Confidence", (s.future_confidence ?? s.edge_confidence) == null ? "—" : fmtNum((s.future_confidence ?? s.edge_confidence) * 100, 1), "", "Estimate of future usefulness based on validation quality, forward-edge evidence, robustness, charter fit, search deflation, and calibration.");
-    addMetric(metricsEl, "Trust", (s.trust ?? s.capital_readiness) == null ? "—" : fmtNum((s.trust ?? s.capital_readiness) * 100, 1), "", "Deployment suitability after future confidence: drawdown, redundancy, parameter parsimony, artifact cleanliness, and live degradation.");
-    addMetric(metricsEl, "Validation Composite", s.composite_confidence == null ? "—" : fmtNum(s.composite_confidence * 100, 1), "", "Legacy validation-stack composite. Kept as a diagnostic, not the Confidence v2 capital metric.");
+    addMetric(metricsEl, "Montauk Score", s.montauk_score == null ? "—" : fmtNum(s.montauk_score * 100, 1), s.montauk_score == null ? "" : s.montauk_score >= 0.60 ? "pos" : s.montauk_score >= 0.40 ? "" : "neg", "Headline ranking / active-strategy score: Conviction 0.55 × Performance 0.30 × Durability 0.15 (geometric). The leaderboard sorts by this and the top row is the active strategy.");
+    addMetric(metricsEl, "· Conviction", s.conviction == null ? "—" : fmtNum(s.conviction * 100, 1), "", "Trust the edge is real and will persist out-of-sample: validation quality, robustness, charter fit, search deflation, calibration. The number you hold through a scary drawdown — it is about trust, not last week's price.");
+    addMetric(metricsEl, "· Performance", s.performance == null ? "—" : fmtNum(s.performance * 100, 1), "", "Era-weighted share accumulation vs B&H (full^0.15 × real^0.25 × modern^0.60), squashed so it saturates once you clearly beat B&H.");
+    addMetric(metricsEl, "· Durability", s.durability == null ? "—" : fmtNum(s.durability * 100, 1), "", "Livability: drawdown resilience, parameter parsimony, portfolio non-redundancy, clean artifacts. A broken pillar here (e.g. a 98% drawdown) drags the whole Montauk Score down.");
+    addMetric(metricsEl, "Validation composite", s.composite_confidence == null ? "—" : fmtNum(s.composite_confidence * 100, 1), "", "Internal validation-stack composite that drives PASS/WARN/FAIL certification. Feeds the Conviction pillar; not a headline score.");
 
     // Era breakdown — dual view for "crash insurance vs modern participation"
 	    // See spirit-memory/decisions.md 2026-04-20 for why this exists.
@@ -1364,7 +1342,13 @@ window.__MONTAUK_VIZ__.boot = function bootMontaukViz(D) {
   fitAll();
 
   if (D.strategies && D.strategies.length) {
-    loadStrategy(getSidebarStrategies()[0]);
+    // The active strategy is ALWAYS the Montauk Score leader, independent of the
+    // current sidebar sort or view.
+    const montaukLeader = D.strategies.reduce(
+      (best, s) => ((s.montauk_score ?? -1) > (best.montauk_score ?? -1) ? s : best),
+      D.strategies[0],
+    );
+    loadStrategy(montaukLeader || getSidebarStrategies()[0]);
   }
   applyRange("ALL");
 

@@ -89,11 +89,15 @@ Project Montauk/
 │   ├── generate_golden_trades.py
 │   ├── test_backtest_engine.py
 │   └── test_shadow_comparator.py  # Dev-only second-opinion vs backtesting.py / vectorbt
-├── viz/                       # Native HTML visualization tool
-│   ├── build_viz.py           # Reads spike/runs/NNN/dashboard_data.json, assembles shell, writes HTML
-│   ├── templates/             # HTML shell + inline JS/CSS
+├── viz/                       # Native HTML visualization tool (the in-depth view)
+│   ├── build_viz.py           # Reads dashboard_data.json + embeds the shared engine, writes HTML
+│   ├── templates/             # shell.html (DOM scaffold + payload placeholders)
 │   ├── lightweight-charts.js  # Vendored TradingView Lightweight Charts (OSS, MIT-style)
 │   └── montauk-viz.html       # Self-contained viewer (open with `open viz/montauk-viz.html`)
+├── app/                       # Mac/Tauri app (the quick-glance ops dashboard)
+│   ├── src/main.js            # Ops dashboard: signal, top strategies, governance
+│   └── public/lib/viz-engine.js  # THE single shared viz engine — used by BOTH the app's
+│                              #   "viz" view and build_viz's standalone HTML. Edit once.
 └── .claude/skills/            # Claude Code skills
     ├── spike.md               # /spike — interactive creative loop
     ├── spike-focus.md         # /spike-focus — GH Actions deep search
@@ -134,7 +138,7 @@ Phase 7 (engine consolidation) collapsed the previous two-engine setup: the mono
 - **Cooldown logic**: After every exit, a configurable cooldown (bars) prevents immediate re-entry
 - **Slippage**: 5 bps applied on both entry and exit fills (unified in Phase 1c, single engine since Phase 7)
 - **Execution**: Python emits a daily `risk_on` / `risk_off` signal; execution happens manually in a brokerage account. No broker API, no auto-deploy.
-- **Visualization**: `viz/montauk-viz.html` is a self-contained HTML viewer — no server, no install. Rebuilt from `spike/runs/NNN/dashboard_data.json` via `viz/build_viz.py`.
+- **Visualization**: two surfaces, one data source and one render engine. The **Mac app** (`app/`, Tauri) is the quick-glance ops dashboard; the **standalone** `viz/montauk-viz.html` is the in-depth graphical view (the app's "Open Viz" opens it). Both render the same bundle from `viz/build_viz.py` and rank by the same Montauk Score off `spike/leaderboard.json`. **There is one shared render engine** — `app/public/lib/viz-engine.js` (`window.__MONTAUK_VIZ__.boot(D)`): the app loads it directly; `build_viz.py` embeds it into the standalone HTML and calls `boot()`. Edit it once and both update (the old `viz/templates/app.js` fork was retired). The active strategy is always the Montauk Score leader across every surface (`ops/daily.py::load_active_champion`, `ops/strategy_review.py`, the top-5 bar, and both viz renderers).
 
 ## Run Artifacts
 
@@ -214,13 +218,28 @@ Marker shape alignment (state agreement % vs `TECL-markers.csv`, plus median tra
 
 | Metric | Role |
 |--------|------|
-| **Share-count multiplier vs B&H** (`share_multiple`) | **Primary optimization target** — must be > 1.0 |
+| **Montauk Score** (`montauk_score`) | **Single headline score** — ranks the leaderboard and picks the active strategy. See below. |
+| **Share-count multiplier vs B&H** (`share_multiple`) | **Primary optimization target** for the GA — must be > 1.0 |
 | **Marker shape alignment** | First-class diagnostic at every tier |
 | vs B&H (dollars) | Sanity check on the share-count metric |
 | CAGR | Return path quality |
 | Max Drawdown | Risk |
 | MAR Ratio (CAGR/MaxDD) | Risk-adjusted return |
 | Avg Bars Held | High (50+) — trend system, not scalper |
+
+> **The Montauk Score** (`scripts/search/montauk_score.py`, locked 2026-06-07) collapses the
+> old score zoo (`fitness`, `composite_confidence`, `overall_performance_score`, `future_confidence`,
+> `trust`, `overall_confidence`) into ONE number on [0,1] (shown 0–100):
+> **`Conviction^0.55 × Performance^0.30 × Durability^0.15`** (geometric).
+> **Conviction** = trust the edge is real and will persist (validation quality, robustness, charter
+> fit, search-deflation, calibration) — the number you hold through a scary drawdown.
+> **Performance** = era-weighted share accumulation vs B&H (`full^0.15 × real^0.25 × modern^0.60`,
+> squashed so it saturates once you clearly beat B&H). **Durability** = livability (drawdown
+> resilience, parameter parsimony, portfolio non-redundancy, clean artifacts). Geometric blend so a
+> single broken pillar (e.g. a 98%-drawdown strategy) drags the whole score down instead of being
+> masked. `fitness` (GA target) and `composite_confidence` (PASS/WARN/FAIL verdict) survive as
+> internal plumbing; the confidence_v2 future/trust scores now feed the Conviction and Durability
+> pillars rather than being parallel headline scores.
 
 > **Note (2026-04-13, updated 2026-04-15 by Phase 7):** `share_multiple` is the only Python attribute name. The deprecated `vs_bah_multiple` alias was retired in Phase 7 (engine consolidation). Older `spike/leaderboard.json` entries persisted under the JSON key `vs_bah` are still readable via `report.py::_share_mult`.
 
@@ -269,9 +288,14 @@ Skipped gates drop out and remaining weights renormalize.
 `backtest_certified` = `certified_not_overfit` plus complete standardized artifacts.
 `gold_status` = `certified_not_overfit` + `backtest_certified` + beats B&H in the full, real, and modern eras.
 
-**Leaderboard admission is Gold Status only.** Confidence and fitness rank rows
-only after the Gold contract is satisfied. The viz UI (`viz/montauk-viz.html`)
-shows Gold Status strategy rows from `spike/leaderboard.json`.
+**Leaderboard admission is Gold Status only — that is the floor.** Gold guarantees
+correctness plus beating B&H in every era, so every ranked row is already a real
+winner. **Within the Gold set, rows rank by Montauk Score, and the top row is the
+active strategy** (the one whose daily `risk_on` / `risk_off` you execute). The
+Montauk Score is stamped on every row by `certify/contract.py::sync_entry_contract`
+and surfaced by the viz UI (`viz/montauk-viz.html`), which sorts by it and reads the
+three pillars from `spike/leaderboard.json`. The alternate viz sorts (Performance,
+Durability, Max drawdown) re-rank that same Gold set by a single pillar.
 
 ## Reference Files
 

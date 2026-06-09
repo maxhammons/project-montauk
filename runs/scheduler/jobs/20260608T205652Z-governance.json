@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "job": "governance",
+  "status": "ok",
+  "started_utc": "2026-06-08T20:56:52Z",
+  "finished_utc": "2026-06-08T20:56:52Z",
+  "command": [
+    "/Users/maxhammons/Documents/Projects/Project Montauk/.venv/bin/python",
+    "/Users/maxhammons/Documents/Projects/Project Montauk/scripts/ops/governance.py"
+  ],
+  "cwd": "/Users/maxhammons/Documents/Projects/Project Montauk",
+  "schedule": {
+    "key": "daily-governance",
+    "enabled": true,
+    "schedule": {
+      "Hour": 13,
+      "Minute": 45
+    }
+  },
+  "output_artifact_paths": [
+    "runs/operations/governance.json"
+  ],
+  "returncode": 0,
+  "error_code": null,
+  "stdout_tail": "governance: replacement_candidate\n- replacement candidate available: chimera_v1_2026_05_26\n",
+  "stderr_tail": "",
+  "lock_path": "/Users/maxhammons/Documents/Projects/Project Montauk/runs/scheduler/locks/governance.lock",
+  "record_path": "/Users/maxhammons/Documents/Projects/Project Montauk/runs/scheduler/jobs/20260608T205652Z-governance.json"
+}

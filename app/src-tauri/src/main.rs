@@ -3,8 +3,6 @@ use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use tauri::menu::{Menu, MenuItem};
-use tauri::tray::TrayIconBuilder;
 
 fn project_root() -> Result<PathBuf, String> {
     if let Ok(root) = env::var("MONTAUK_PROJECT_ROOT") {
@@ -62,56 +60,6 @@ fn latest_signal(root: &Path) -> Result<Value, String> {
         Some(path) => read_json(path),
         None => Ok(Value::Null),
     }
-}
-
-fn menu_bar_status_label(root: &Path) -> String {
-    let latest = read_json(&root.join("runs/operations/latest.json")).unwrap_or(Value::Null);
-    let signal = latest
-        .get("active_signal")
-        .or_else(|| latest.get("latest_signal"))
-        .cloned()
-        .unwrap_or_else(|| latest_signal(root).unwrap_or(Value::Null));
-    let governance =
-        read_json(&root.join("runs/operations/governance.json")).unwrap_or(Value::Null);
-    let stale = governance
-        .get("stale_calendar_days")
-        .and_then(|value| value.as_i64())
-        .map(|days| days > 5)
-        .unwrap_or(false);
-
-    if stale {
-        return "stale".to_string();
-    }
-
-    match signal.get("risk_state").and_then(|value| value.as_str()) {
-        Some("risk_on") => "risk_on".to_string(),
-        Some("risk_off") => "risk_off".to_string(),
-        _ => "stale".to_string(),
-    }
-}
-
-fn setup_menu_bar_status(app: &tauri::App) -> tauri::Result<()> {
-    let root = project_root().unwrap_or_else(|_| PathBuf::from("."));
-    let status = menu_bar_status_label(&root);
-    let item = MenuItem::with_id(
-        app,
-        "montauk-status",
-        format!("Project Montauk: {}", status),
-        false,
-        None::<&str>,
-    )?;
-    let menu = Menu::with_items(app, &[&item])?;
-    let mut tray = TrayIconBuilder::with_id("montauk-status")
-        .menu(&menu)
-        .title(format!("Montauk {}", status))
-        .tooltip(format!("Project Montauk: {}", status));
-
-    if let Some(icon) = app.default_window_icon() {
-        tray = tray.icon(icon.clone());
-    }
-
-    tray.build(app)?;
-    Ok(())
 }
 
 fn python_path(root: &Path) -> PathBuf {
@@ -295,6 +243,7 @@ fn read_status() -> Result<Value, String> {
         "notification_state": read_json(&operations.join("notification_state.json"))?,
         "research_queue": read_json(&root.join("runs/research_queue/queue.json"))?,
         "research_runs": read_research_runs(&root)?,
+        "top_strategies": read_json(&operations.join("top_strategies.json")).unwrap_or(Value::Null),
         "scheduler": read_json(&scheduler)?,
         "scheduler_detail": scheduler_detail,
         "launch_agents": launch_agents,
@@ -584,10 +533,13 @@ fn read_viz_bundle(rebuild: Option<bool>) -> Result<Value, String> {
 }
 
 #[tauri::command]
-fn start_maintenance() -> Result<Value, String> {
+fn start_maintenance(force: Option<bool>) -> Result<Value, String> {
     let root = project_root()?;
     let py = python_path(&root);
     let script = root.join("scripts/ops/maintenance.py");
+    // Manual "Refresh" forces a data pull; the once-per-day gate only applies
+    // to the automatic launch refresh.
+    let force_refresh = force.unwrap_or(false);
 
     // Reset the status file so the frontend doesn't show stale data while we boot.
     let status_path = root.join("runs/operations/maintenance_status.json");
@@ -610,21 +562,31 @@ fn start_maintenance() -> Result<Value, String> {
     )
     .map_err(|err| err.to_string())?;
 
-    Command::new(py)
-        .arg(script)
+    let mut command = Command::new(py);
+    command.arg(script);
+    if force_refresh {
+        command.arg("--force-refresh");
+    }
+    command
         .current_dir(&root)
         .stdin(std::process::Stdio::null())
         .stdout(std::process::Stdio::null())
         .stderr(std::process::Stdio::null())
         .spawn()
         .map_err(|err| err.to_string())?;
-    Ok(json!({ "status": "started" }))
+    Ok(json!({ "status": "started", "force_refresh": force_refresh }))
 }
 
 #[tauri::command]
 fn read_maintenance_status() -> Result<Value, String> {
     let root = project_root()?;
     read_json(&root.join("runs/operations/maintenance_status.json"))
+}
+
+#[tauri::command]
+fn read_agent_inbox() -> Result<Value, String> {
+    let root = project_root()?;
+    read_json(&root.join("runs/operations/agent_inbox.json"))
 }
 
 #[tauri::command]
@@ -671,17 +633,23 @@ fn read_flip_pressure_history(days: Option<usize>) -> Result<Value, String> {
             .pointer("/signal_change/changed")
             .and_then(|v| v.as_bool())
             .unwrap_or(false);
-        // Match the live JS flip-pressure heuristic.
-        let mut pressure = match confidence {
-            Some(c) => (1.0 - c) * 100.0,
-            None => 48.0,
+        // Prefer the Monte-Carlo flip likelihood if present; else fall back
+        // to the legacy confidence/warning heuristic.
+        let likelihood = payload.get("flip_likelihood").and_then(|v| v.as_f64());
+        let pressure = if let Some(lk) = likelihood {
+            (lk * 100.0).clamp(0.0, 99.0)
+        } else {
+            let mut pressure = match confidence {
+                Some(c) => (1.0 - c) * 100.0,
+                None => 48.0,
+            };
+            pressure += (warnings_count as f64 * 2.0).min(14.0);
+            pressure += (blockers_count as f64 * 15.0).min(30.0);
+            if signal_changed {
+                pressure += 8.0;
+            }
+            pressure.clamp(0.0, 99.0)
         };
-        pressure += (warnings_count as f64 * 2.0).min(14.0);
-        pressure += (blockers_count as f64 * 15.0).min(30.0);
-        if signal_changed {
-            pressure += 8.0;
-        }
-        let pressure = pressure.clamp(0.0, 99.0);
         points.push(json!({
             "date": date,
             "pressure": pressure,
@@ -754,12 +722,47 @@ fn run_next_research(timeout_seconds: Option<u64>) -> Result<Value, String> {
     }))
 }
 
+#[tauri::command]
+fn run_all_research(timeout_seconds: Option<u64>) -> Result<Value, String> {
+    let root = project_root()?;
+    let queue = read_json(&root.join("runs/research_queue/queue.json"))?;
+    let approved = queue
+        .get("ideas")
+        .and_then(|v| v.as_array())
+        .map(|ideas| {
+            ideas
+                .iter()
+                .filter(|item| {
+                    item.get("status").and_then(|v| v.as_str()) == Some("approved")
+                })
+                .count()
+        })
+        .unwrap_or(0);
+    if approved == 0 {
+        return Ok(json!({
+            "status": "empty",
+            "message": "No approved research ideas in the queue.",
+        }));
+    }
+    // research_runner.py with no --idea-id executes every approved idea in order.
+    let runner_script = root.join("scripts/ops/research_runner.py");
+    let script = runner_script
+        .to_str()
+        .ok_or_else(|| "research runner path is not valid UTF-8".to_string())?;
+    let timeout = timeout_seconds.unwrap_or(15 * 60).to_string();
+    let result = run_json_command(
+        &root,
+        &[script, "--execute", "--timeout-seconds", &timeout, "--json"],
+    )?;
+    Ok(json!({
+        "status": "ok",
+        "approved_count": approved,
+        "result": result,
+    }))
+}
+
 fn main() {
     tauri::Builder::default()
-        .setup(|app| {
-            setup_menu_bar_status(app)?;
-            Ok(())
-        })
         .invoke_handler(tauri::generate_handler![
             read_status,
             run_job,
@@ -779,6 +782,8 @@ fn main() {
             read_viz_html,
             read_viz_bundle,
             run_next_research,
+            run_all_research,
+            read_agent_inbox,
             start_maintenance,
             read_maintenance_status,
             read_flip_pressure_history

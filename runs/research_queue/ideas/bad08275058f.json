@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "bad08275058f",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "dismissed",
   "kind": "put_call_ratio_momentum_flip",
   "rationale": "Tests whether the rate of change of the equity put/call ratio crossing its moving average signals a structural sentiment flip.",
   "validation_tier": "T0",
@@ -29,5 +29,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Win rate on long entries falls below 45% during choppy regimes.",
     "Sharpe ratio on a 5-year rolling out-of-sample window drops below 0.4."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:30Z"
 }

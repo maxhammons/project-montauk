@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "f92af4f30b78",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "dismissed",
   "kind": "gold_copper_macro_regime",
   "rationale": "Hypothesizes that tech exposure should be reduced when the Gold/Copper ratio spikes, signaling deflationary growth fears.",
   "validation_tier": "T2",
@@ -30,5 +30,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Correlation between ratio spikes and QQQ drawdowns falls below 0.4.",
     "TECL share count is negatively impacted during inflationary tech rallies."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:30Z"
 }

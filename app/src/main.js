@@ -17,26 +17,21 @@ const fallbackStatus = {
     signal_changed: false,
     signal_change: { changed: false, reason: "unchanged", previous_risk_state: "risk_on" },
     active_champion: {
-      strategy: "gc_vjatr_timing_repair",
+      strategy: "chimera_v1_2026_05_26",
+      display_name: "Jade Bonobo",
+      montauk_score: 0.6516,
       metrics: {
-        share_multiple: 10.0909,
-        real_share_multiple: 1.5469,
-        modern_share_multiple: 2.239,
-        max_dd: 98.2,
-        trades: 44,
+        share_multiple: 30.4933,
+        real_share_multiple: 1.3324,
+        modern_share_multiple: 3.32,
+        max_dd: 65.8,
+        trades: 53,
       },
-      params: {
-        fast_ema: 140,
-        slow_ema: 160,
-        atr_confirm: 3,
-        repair_len: 30,
-        rsi_floor: 35,
-        vix_ceiling: 50,
-      },
+      params: { members: 7 },
     },
     validation: {
       verdict: "PASS",
-      composite_confidence: 0.7678,
+      composite_confidence: 0.7594,
       warnings: ["Static preview. Launch through Tauri to read live ops artifacts."],
     },
     warnings: ["Static preview. Launch through Tauri to read live ops artifacts."],
@@ -63,23 +58,27 @@ const fallbackStatus = {
   strategy_review: {
     status: "on_best_certified",
     on_best_certified: true,
-    selection_metric: "confidence",
+    selection_metric: "montauk",
     active: {
-      strategy: "gc_vjatr_timing_repair",
-      confidence: 0.7678,
+      strategy: "chimera_v1_2026_05_26",
+      display_name: "Jade Bonobo",
+      montauk_score: 0.6516,
+      confidence: 0.7594,
       data_end_date: null,
-      risk_state: "risk_on",
+      risk_state: "risk_off",
     },
     best_certified: {
-      strategy: "gc_vjatr_timing_repair",
-      display_name: "Cerulean Hare #2",
-      confidence: 0.7678,
-      share_multiple: 10.0909,
-      real_share_multiple: 1.5469,
-      modern_share_multiple: 2.239,
+      strategy: "chimera_v1_2026_05_26",
+      display_name: "Jade Bonobo",
+      montauk_score: 0.6516,
+      selected_score: 0.6516,
+      confidence: 0.7594,
+      share_multiple: 30.4933,
+      real_share_multiple: 1.3324,
+      modern_share_multiple: 3.32,
     },
-    leaderboard_count: 8,
-    gold_count: 8,
+    leaderboard_count: 20,
+    gold_count: 20,
   },
   metric_reviews: {
     confidence: null,
@@ -92,13 +91,15 @@ const fallbackStatus = {
     strategy_family_leaders: [
       {
         rank: 1,
-        family: "gc_vjatr_timing_repair",
-        display_name: "Cerulean Hare #2",
-        strategy: "gc_vjatr_timing_repair",
-        confidence: 0.7678,
-        future_confidence: 0.6058,
-        trust: 0.7767,
-        metrics: { share_multiple: 10.0909, real_share_multiple: 1.5469, modern_share_multiple: 2.239, max_dd: 98.2 },
+        family: "chimera_v1_2026_05_26",
+        display_name: "Jade Bonobo",
+        strategy: "chimera_v1_2026_05_26",
+        montauk_score: 0.6516,
+        conviction: 0.593,
+        performance: 0.766,
+        durability: 0.667,
+        confidence: 0.7594,
+        metrics: { share_multiple: 30.4933, real_share_multiple: 1.3324, modern_share_multiple: 3.32, max_dd: 65.8 },
       },
       {
         rank: 2,
@@ -189,12 +190,14 @@ const state = {
   metricReviews: {},
   lastActionError: null,
   lastIssueReport: null,
+  inbox: null,
 };
 
 const healthState = { points: [], latest: null, source: null };
 
 const metricDefinitions = [
-  { key: "confidence", label: "Main route", short: "Main" },
+  { key: "montauk", label: "Main route", short: "Montauk" },
+  { key: "confidence", label: "Validation", short: "Conf" },
   { key: "share_multiple", label: "Long run", short: "History" },
   { key: "real_share_multiple", label: "Live era", short: "Live" },
   { key: "modern_share_multiple", label: "Modern tape", short: "Modern" },
@@ -513,6 +516,12 @@ function confidenceValue(status = state.status, signal = {}) {
 }
 
 function pressureScore(status = state.status, signal = {}) {
+  // Prefer the Monte-Carlo flip likelihood computed by the engine each day.
+  const likelihood = Number(signal.flip_likelihood);
+  if (Number.isFinite(likelihood)) {
+    return Math.max(0, Math.min(99, likelihood * 100));
+  }
+  // Fallback: legacy confidence/warning heuristic.
   const confidence = confidenceValue(status, signal);
   let pressure = Number.isFinite(confidence) ? (1 - confidence) * 100 : 48;
   const warnings = signal.warnings || signal.validation?.warnings || [];
@@ -522,6 +531,29 @@ function pressureScore(status = state.status, signal = {}) {
   pressure += Math.min(30, blockers.length * 15);
   if (signal.signal_changed) pressure += 8;
   return Math.max(0, Math.min(99, pressure));
+}
+
+function flipPressureHelp(signal = {}, mode = {}) {
+  const lk = Number(signal.flip_likelihood);
+  // Monte-Carlo likelihood the position flips within the horizon.
+  if (Number.isFinite(lk)) {
+    const pct = Math.round(lk * 100);
+    const h = Number(signal.flip_horizon) || 21;
+    const verb = mode.key === "risk_on" ? "exit" : "re-entry";
+    if (pct <= 0) {
+      return `Essentially no ${verb} likely within ~${h} trading days, given how TECL has been moving.`;
+    }
+    const days = Number(signal.flip_days);
+    const move = Number(signal.flip_move_pct);
+    let detail = "";
+    if (Number.isFinite(days)) detail = ` — typically ~${days} trading days out`;
+    if (Number.isFinite(move)) detail += `${detail ? "," : " —"} around a ${move >= 0 ? "+" : ""}${move.toFixed(1)}% move`;
+    return `~${pct}% chance of a ${verb} within ~${h} trading days${detail}. From simulated TECL paths.`;
+  }
+  // Fallback heuristic wording.
+  return mode.key === "risk_on"
+    ? "How close we are to exiting. Low = the position is stable; higher means an exit may be near."
+    : "How close we are to a re-entry. Low = comfortably out; higher means a buy may be near.";
 }
 
 function pressureLabel(score) {
@@ -565,8 +597,14 @@ function schedulerJobIssues(status = state.status) {
 
 function recentAgentEvents(status = state.status) {
   const actionableSeverities = new Set(["warning", "error", "critical"]);
+  // `maintenance_run` events are already surfaced authoritatively via
+  // maintenance.status / latest_operation steps below. Re-listing them here
+  // just leaves stale "Maintenance failed" warnings from earlier runs hanging
+  // around after a later run has succeeded, so exclude them.
+  const surfacedElsewhere = new Set(["maintenance_run"]);
   return (status.recent_events || []).filter((event) =>
-    actionableSeverities.has(String(event?.severity || "").toLowerCase())
+    actionableSeverities.has(String(event?.severity || "").toLowerCase()) &&
+    !surfacedElsewhere.has(String(event?.event_type || "").toLowerCase())
   ).slice(-5);
 }
 
@@ -627,7 +665,9 @@ function collectIssues(status = state.status) {
     issues.push({ area: "doctor", status: doctor.status, detail: `${doctor.failure_count} failed checks` });
   }
   for (const check of doctor.checks || []) {
-    if (check?.ok === false) {
+    // Advisory checks (e.g. opt-in launch agents not installed) have their own
+    // management surface and shouldn't show as hard failures here.
+    if (check?.ok === false && !check.advisory) {
       issues.push({
         area: `doctor.${check.label || "check"}`,
         status: "fail",
@@ -1224,6 +1264,90 @@ function renderCheckup(status = state.status) {
   }
 }
 
+async function loadAgentInbox() {
+  const invoke = tauriInvoke("read_agent_inbox");
+  if (!invoke) return state.inbox;
+  try {
+    const inbox = await invoke;
+    return inbox && Array.isArray(inbox.requests) ? inbox : null;
+  } catch {
+    return state.inbox;
+  }
+}
+
+function renderTopStrategies(status = state.status) {
+  const node = document.getElementById("top-strategies-list");
+  if (!node) return;
+  const rows = status.top_strategies?.strategies || [];
+  node.innerHTML = "";
+  if (!rows.length) {
+    node.innerHTML = `<div class="ts-empty">No strategy data yet — run a refresh.</div>`;
+    return;
+  }
+  for (const r of rows) {
+    const pos = String(r.position || "unknown");
+    const posLabel = pos === "in" ? "In" : pos === "out" ? "Out" : "—";
+    const flip = Number(r.flip_likelihood);
+    const flipPct = Number.isFinite(flip) ? Math.round(flip * 100) : null;
+    const score = Number(r.montauk_score ?? r.composite_confidence);
+    const compPct = Number.isFinite(score) ? Math.round(score * 100) : null;
+    const row = document.createElement("div");
+    row.className = "ts-row" + (r.active ? " ts-active" : "");
+    row.innerHTML = `
+      <span class="ts-name">${escapeHtml(r.display_name || r.strategy || "?")}${r.active ? ' <span class="ts-badge">ACTIVE</span>' : ""}</span>
+      <span class="ts-pos ${pos}">${posLabel}</span>
+      <span class="ts-flip"><span class="ts-flip-bar"><span style="width:${flipPct == null ? 0 : flipPct}%"></span></span><small>${flipPct == null ? "—" : flipPct + "%"}</small></span>
+      <span class="ts-comp">${compPct == null ? "—" : compPct + "%"}</span>
+    `;
+    node.appendChild(row);
+  }
+}
+
+function renderInboxAlert(inbox = state.inbox) {
+  const alert = document.getElementById("inbox-alert");
+  if (!alert) return;
+  const requests = Array.isArray(inbox?.requests) ? inbox.requests : [];
+  if (!requests.length) {
+    alert.hidden = true;
+    return;
+  }
+  alert.hidden = false;
+  const sev = inbox.summary?.by_severity || {};
+  const actionable = Boolean(inbox.summary?.actionable);
+  alert.dataset.severity = inbox.summary?.highest_severity || "info";
+  const n = requests.length;
+  text(
+    "inbox-alert-title",
+    actionable
+      ? `${n} item${n === 1 ? "" : "s"} need${n === 1 ? "s" : ""} attention`
+      : `${n} inbox note${n === 1 ? "" : "s"} · nothing urgent`
+  );
+  const parts = [];
+  for (const key of ["critical", "warning", "advisory", "info"]) {
+    if (sev[key]) parts.push(`${sev[key]} ${key}`);
+  }
+  text(
+    "inbox-alert-detail",
+    `${parts.join(" · ") || "review needed"}${inbox.ticket ? ` · ${inbox.ticket}` : ""}`
+  );
+}
+
+async function copyInboxForLlm() {
+  const payload = (await loadAgentInbox()) || state.inbox;
+  if (!payload) {
+    text("inbox-alert-detail", "No inbox found — open the app / run maintenance first.");
+    return;
+  }
+  state.inbox = payload;
+  const debugText = JSON.stringify(payload, null, 2);
+  try {
+    await navigator.clipboard?.writeText(debugText);
+    text("inbox-alert-detail", "Copied inbox for LLM — paste it into the chat.");
+  } catch {
+    text("inbox-alert-detail", "Copy failed; read runs/operations/agent_inbox.json directly.");
+  }
+}
+
 function renderIssuePanel(status = state.status) {
   const report = buildIssueReport(status);
   state.lastIssueReport = report;
@@ -1246,8 +1370,18 @@ function renderIssuePanel(status = state.status) {
 }
 
 async function copyIssueDebug() {
-  if (!state.lastIssueReport) return;
-  const debugText = JSON.stringify(state.lastIssueReport, null, 2);
+  // Prefer the canonical Python-generated agent inbox (categorized: errors,
+  // maintenance, service, data, signal, research, automation, governance).
+  let payload = state.lastIssueReport;
+  const invoke = tauriInvoke("read_agent_inbox");
+  if (invoke) {
+    try {
+      const inbox = await invoke;
+      if (inbox && Array.isArray(inbox.requests)) payload = inbox;
+    } catch { /* fall back to the JS-built report */ }
+  }
+  if (!payload) return;
+  const debugText = JSON.stringify(payload, null, 2);
   try {
     await navigator.clipboard?.writeText(debugText);
     text("issue-summary", "Debug payload copied.");
@@ -1394,7 +1528,7 @@ function render(status) {
   text("confidence-state", formatConfidence(confidence));
   text("pressure-state", `${pressureLabel(pressure)} ${Math.round(pressure)}%`);
   text("confidence-help", "Higher means Montauk has more reason to trust this position.");
-  text("pressure-help", mode.key === "risk_on" ? "Lower is more stable." : "Higher means closer to a new entry.");
+  text("pressure-help", flipPressureHelp(signal, mode));
   text("champion-family", family);
   text("champion-name", displayName);
   text("sidebar-position", mode.short);
@@ -1419,7 +1553,8 @@ function render(status) {
   renderCheckup(status);
   renderResearchQueue(status);
   renderConfidenceLedger(status);
-  renderIssuePanel(status);
+  renderInboxAlert(state.inbox);
+  renderTopStrategies(status);
   renderTeclHealthCard();
   drawFlipPressureSparkline();
 }
@@ -1428,6 +1563,7 @@ async function refresh() {
   try {
     clearActionError();
     state.status = await readStatus();
+    state.inbox = await loadAgentInbox();
     state.metricReviews = {};
     render(state.status);
     text("last-refreshed", `Refreshed ${new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`);
@@ -1590,6 +1726,51 @@ async function runNextResearch() {
   }
 }
 
+async function runAllResearch() {
+  const invoke = tauriInvoke("run_all_research", { timeout_seconds: 15 * 60 });
+  if (!invoke) {
+    showActionError(errorPayload("Run All Strategies", "run_all_research", "Tauri bridge is unavailable.", {
+      expected_context: "Use /Applications/Montauk.app, not the browser-only dev preview.",
+      local_command: ".venv/bin/python scripts/ops/research_runner.py --execute --json",
+    }));
+    return;
+  }
+  const reset = setButtonBusy("run-all-research-btn", true, "Running all…");
+  text("research-queue-last", "Running all approved backtests… (skip any first to exclude them)");
+  try {
+    clearActionError();
+    const result = await invoke;
+    if (result?.status === "empty") {
+      text("research-queue-last", "No approved backtests to run. Approve ideas below, then Run All.");
+    } else if (result?.status === "ok") {
+      const ran = result.result?.run_count ?? result.approved_count ?? 0;
+      text("research-queue-last", `Ran ${ran} approved backtest(s).`);
+    } else {
+      text("research-queue-last", `Runner returned status ${result?.status || "?"}.`);
+    }
+    await refresh();
+  } catch (error) {
+    showActionError(errorPayload("Run All Strategies", "run_all_research", error, {
+      python_entry: "scripts/ops/research_runner.py --execute",
+      local_command: ".venv/bin/python scripts/ops/research_runner.py --execute --json",
+      reads: ["runs/research_queue/queue.json"],
+      writes: ["runs/research_queue/runs/*.json", "runs/operations/events.jsonl"],
+    }));
+  } finally {
+    reset();
+  }
+}
+
+function setBacktestsModalOpen(open) {
+  const modal = document.getElementById("backtests-modal");
+  if (modal) {
+    modal.hidden = !open;
+    modal.classList.toggle("is-open", open);
+  }
+  document.body.classList.toggle("modal-open", open);
+  if (open) renderResearchQueue(state.status);
+}
+
 async function enqueueResearchIdeas() {
   const invoke = tauriInvoke("enqueue_research_ideas");
   if (!invoke) {
@@ -1695,8 +1876,8 @@ function renderResearchQueue(status = state.status) {
     row.dataset.tip = item.rationale || "";
     const tests = Array.isArray(item.suggested_tests) ? item.suggested_tests.join(", ") : "";
     const buttons = ideaStatus === "approved"
-      ? `<button class="button small primary" data-research-id="${escapeHtml(item.id)}" data-research-action="start">Start</button>
-         <button class="button small" data-research-id="${escapeHtml(item.id)}" data-research-action="pause">Pause</button>
+      ? `<button class="button small primary" data-research-id="${escapeHtml(item.id)}" data-research-action="start">Run</button>
+         <button class="button small" data-research-id="${escapeHtml(item.id)}" data-research-action="pause">Skip</button>
          <button class="button small" data-research-id="${escapeHtml(item.id)}" data-research-action="inspect">Inspect</button>`
       : ideaStatus === "paused"
         ? `<button class="button small primary" data-research-id="${escapeHtml(item.id)}" data-research-action="resume">Resume</button>
@@ -1924,45 +2105,127 @@ function hasEmptyResearchQueue(status) {
   ) || status?.summary?.research?.status === "empty";
 }
 
+const MAINTENANCE_DONE_STATES = ["ok", "failed", "empty", "skipped"];
+const MAINTENANCE_STEP_ICONS = {
+  ok: "✓",
+  failed: "✕",
+  empty: "○",
+  skipped: "–",
+  running: "◌",
+  pending: "○",
+};
+
+// Phase-based progress: completed phases count fully, a running phase counts
+// half so the bar advances the moment a step starts. Returns the fraction
+// [0,1], how many phases are done, the total, and the index of the phase the
+// run is currently on (running phase, else first not-yet-done phase).
+function maintenanceProgress(status) {
+  const phases = maintenancePhases(status);
+  if (phases.length === 0) {
+    return { fraction: 0, done: 0, total: 0, currentIndex: -1 };
+  }
+  let done = 0;
+  let running = 0;
+  let currentIndex = -1;
+  phases.forEach((phase, idx) => {
+    const s = String(phase?.status || "pending").toLowerCase();
+    if (MAINTENANCE_DONE_STATES.includes(s)) {
+      done += 1;
+    } else if (s === "running" && currentIndex === -1) {
+      running += 1;
+      currentIndex = idx;
+    }
+  });
+  if (currentIndex === -1) {
+    const firstPending = phases.findIndex(
+      (p) => !MAINTENANCE_DONE_STATES.includes(String(p?.status || "pending").toLowerCase())
+    );
+    currentIndex = firstPending === -1 ? phases.length - 1 : firstPending;
+  }
+  const fraction = Math.min(1, (done + running * 0.5) / phases.length);
+  return { fraction, done, total: phases.length, currentIndex };
+}
+
 function renderMaintenanceModal(status) {
   maintenanceState.lastStatus = status;
+  const phases = maintenancePhases(status);
+  const emptyQueue = hasEmptyResearchQueue(status);
+  const terminal = isMaintenanceTerminal(status);
+  const progress = maintenanceProgress(status);
+  const current = phases[progress.currentIndex];
+
+  // Step checklist — one row per phase with live status icons.
   const list = document.getElementById("maintenance-steps");
   if (list) {
     list.innerHTML = "";
-    list.hidden = true;
+    list.hidden = phases.length === 0;
+    phases.forEach((phase) => {
+      const phaseStatus = String(phase?.status || "pending").toLowerCase();
+      const li = document.createElement("li");
+      li.className = `step step-${phaseStatus}`;
+      const icon = document.createElement("span");
+      icon.className = "step-icon";
+      icon.textContent = MAINTENANCE_STEP_ICONS[phaseStatus] || "○";
+      const body = document.createElement("div");
+      const strong = document.createElement("strong");
+      strong.textContent = phase?.label || phase?.key || "Step";
+      body.appendChild(strong);
+      const detail = phase?.detail || (phaseStatus === "failed" ? phase?.stderr_tail : "");
+      if (detail) {
+        const small = document.createElement("small");
+        small.textContent = detail;
+        body.appendChild(small);
+      }
+      li.appendChild(icon);
+      li.appendChild(body);
+      list.appendChild(li);
+    });
   }
-  // Title + progress bar
-  const phases = maintenancePhases(status);
-  const current = phases.find((p) => p.status === "running") || phases.find((p) => ["ok", "failed", "empty"].includes(p.status));
-  const emptyQueue = hasEmptyResearchQueue(status);
-  const terminal = isMaintenanceTerminal(status);
-  const titleText = status?.status === "ok"
-    ? "Refresh complete"
-    : status?.status === "failed"
-      ? "Refresh failed"
-      : terminal && emptyQueue
-        ? "Refresh complete"
-      : status?.status === "starting"
-        ? "Updating Montauk"
-        : "Updating Montauk";
+
+  // Title.
+  const titleText = status?.status === "failed"
+    ? "Refresh failed"
+    : terminal
+      ? "Refresh complete"
+      : "Updating Montauk";
   text("maintenance-phase-title", titleText);
-  text(
-    "maintenance-phase-detail",
-    status?.status === "failed"
-      ? (status.error || current?.detail || "Copy debug and hand it to an AI agent.")
-      : terminal
-        ? "Current data, signal, health checks, and viz artifacts are ready."
-        : current?.label || "Refresh in progress."
-  );
+
+  // Detail line — "Step X of Y · <label>" while running.
+  let detailText;
+  if (status?.status === "failed") {
+    detailText = status.error || current?.detail || "Copy debug and hand it to an AI agent.";
+  } else if (terminal) {
+    detailText = "Current data, signal, health checks, and viz artifacts are ready.";
+  } else if (progress.total > 0) {
+    const stepNum = Math.min(progress.done + 1, progress.total);
+    detailText = `Step ${stepNum} of ${progress.total} · ${current?.label || "Refresh in progress."}`;
+  } else {
+    detailText = "Starting refresh…";
+  }
+  text("maintenance-phase-detail", detailText);
+
+  // Determinate progress bar. Indeterminate only during spin-up, before the
+  // backend has reported any phases at all.
   const fill = document.getElementById("maintenance-bar-fill");
   const bar = document.getElementById("maintenance-bar");
+  const indeterminate = !terminal && progress.total === 0;
   if (bar) {
-    bar.classList.toggle("is-indeterminate", !terminal);
+    bar.classList.toggle("is-indeterminate", indeterminate);
+    // Subtle gradient sweep keeps a long-running phase visibly alive without
+    // faking forward progress.
+    bar.classList.toggle("is-active", !terminal && !indeterminate);
   }
   if (fill) {
-    fill.style.width = terminal ? "100%" : "38%";
+    if (indeterminate) {
+      fill.style.width = "38%";
+    } else {
+      const pct = terminal ? 100 : Math.max(6, Math.round(progress.fraction * 100));
+      fill.style.width = `${pct}%`;
+      fill.style.transform = "translateX(0)";
+    }
   }
-  // Show Close + Copy Debug at the end
+
+  // Show Close + Copy Debug at the end.
   const closeBtn = document.getElementById("maintenance-close-btn");
   const copyBtn = document.getElementById("maintenance-copy-btn");
   if (closeBtn) {
@@ -1987,7 +2250,10 @@ async function runMaintenance(opts = {}) {
     setMaintenanceModalOpen(true);
     return;
   }
-  const start = tauriInvoke("start_maintenance");
+  // Both auto-launch and the manual Refresh button respect the once-per-day
+  // gate: if data + signal already refreshed today, the daily phase is skipped
+  // (health checks + research still run). Force is reserved for the CLI.
+  const start = tauriInvoke("start_maintenance", { force: false });
   if (!start) {
     if (!opts.autoLaunched) {
       showActionError(errorPayload("Run Maintenance", "start_maintenance",
@@ -2087,15 +2353,8 @@ function deriveConfidencePills(status = state.status) {
       : "No live snapshots yet — backtest only.",
   });
 
-  const champion = review.best_certified || review.active || {};
-  const conf = Number(champion.confidence);
-  pills.push({
-    key: "validation",
-    label: "Validation composite",
-    value: Number.isFinite(conf) ? `${(conf * 100).toFixed(1)}%` : "—",
-    level: !Number.isFinite(conf) ? "warn" : conf >= 0.7 ? "ok" : conf >= 0.4 ? "warn" : "fail",
-    detail: `Champion ${champion.display_name || champion.strategy || "?"} composite confidence.`,
-  });
+  // Validation composite is the headline "How sure are we?" number (see
+  // renderConfidenceLedger), so it is intentionally not repeated as a pill.
 
   const govState = governance.state || "unknown";
   const govLevel = govState === "active_ok" ? "ok" : govState === "active_blocked" ? "fail" : "warn";
@@ -2145,10 +2404,15 @@ function overallConfidence(pills) {
 
 function renderConfidenceLedger(status = state.status) {
   const pills = deriveConfidencePills(status);
-  const score = overallConfidence(pills);
+  // Headline = the champion's validation composite confidence (the real metric
+  // from the validation pipeline). Fall back to the pill rollup if absent.
+  const review = status.strategy_review || {};
+  const champion = review.best_certified || review.active || {};
+  const conf = Number(champion.confidence);
+  const score = Number.isFinite(conf) ? Math.round(conf * 100) : overallConfidence(pills);
   const number = document.getElementById("confidence-big");
   if (number) {
-    number.textContent = score == null ? "—" : `${score}`;
+    number.innerHTML = score == null ? "—" : `${score}<span class="ledger-pct">%</span>`;
     number.dataset.level = score == null ? "warn" : score >= 70 ? "ok" : score >= 40 ? "warn" : "fail";
   }
   text(
@@ -2156,10 +2420,10 @@ function renderConfidenceLedger(status = state.status) {
     score == null
       ? "Confidence not yet derived."
       : score >= 70
-        ? "Position is supported by the active checks."
+        ? "Validation composite — the checks below support this position."
         : score >= 40
-          ? "Some checks are soft. Review the pills below before re-deploying capital."
-          : "Multiple checks are failing. Treat the current position as research-only.",
+          ? "Validation composite is soft. Review the checks below before re-deploying capital."
+          : "Validation composite is failing. Treat the current position as research-only.",
   );
   const host = document.getElementById("ledger-pills");
   if (!host) return;
@@ -2284,11 +2548,10 @@ function renderTeclHealthCard() {
   const latest = healthState.latest || {};
   const score = Number(latest.composite);
   text("tecl-health-state", Number.isFinite(score) ? score.toFixed(1) : "--");
+  // Date is already shown in Position status; keep this to just the health word.
   text(
     "tecl-health-meta",
-    latest.date
-      ? `${latest.status || "diagnostic"} · ${latest.date}`
-      : "No health payload loaded"
+    latest.status ? titleCase(latest.status) : (latest.date ? "Diagnostic" : "No health payload loaded")
   );
   drawHealthSparkline();
 }
@@ -2386,9 +2649,17 @@ function wireNav() {
 }
 
 function wireActions() {
-  document.getElementById("maintenance-btn")?.addEventListener("click", runMaintenance);
+  document.getElementById("maintenance-btn")?.addEventListener("click", () => runMaintenance({ autoLaunched: false }));
   document.getElementById("research-enqueue-btn")?.addEventListener("click", enqueueResearchIdeas);
   document.getElementById("doctor-next-research-btn")?.addEventListener("click", runNextResearch);
+  document.getElementById("run-all-research-btn")?.addEventListener("click", runAllResearch);
+  document.getElementById("backtests-btn")?.addEventListener("click", () => setBacktestsModalOpen(true));
+  document.getElementById("backtests-close-btn")?.addEventListener("click", () => setBacktestsModalOpen(false));
+  document.getElementById("backtests-modal")?.addEventListener("click", (event) => {
+    if (event.target.id === "backtests-modal" || event.target.closest?.("[data-backtests-close]")) {
+      setBacktestsModalOpen(false);
+    }
+  });
   document.getElementById("viz-popout-btn")?.addEventListener("click", popoutViz);
   document.getElementById("maintenance-close-btn")?.addEventListener("click", closeMaintenanceModal);
   document.getElementById("maintenance-modal")?.addEventListener("click", (event) => {
@@ -2405,6 +2676,7 @@ function wireActions() {
   document.getElementById("maintenance-copy-btn")?.addEventListener("click", copyMaintenanceDebug);
   document.getElementById("action-error-copy")?.addEventListener("click", copyActionError);
   document.getElementById("issue-copy-btn")?.addEventListener("click", copyIssueDebug);
+  document.getElementById("inbox-alert-copy")?.addEventListener("click", copyInboxForLlm);
   document.querySelectorAll("button[data-agent-action]").forEach((button) => {
     button.addEventListener("click", () => {
       manageAgent(button.dataset.agentAction, button.dataset.jobKey || "daily");

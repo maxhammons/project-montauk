@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "run_id": "20260607T195024Z-01e8afdc0058",
+  "created_utc": "2026-06-07T19:50:24Z",
+  "version_info": {
+    "schema_version": 1,
+    "generated_utc": "2026-06-07T19:50:24Z",
+    "app_version": "0.1.0",
+    "git_commit": "76c51dc",
+    "git_dirty": true,
+    "strategy_code_version": "76c51dc"
+  },
+  "status": "ok",
+  "execute": true,
+  "plan": {
+    "schema_version": 1,
+    "idea_id": "01e8afdc0058",
+    "kind": "capitulation_volume_climax",
+    "rationale": "Tests if localized volume spikes during steep drawdowns identify high-probability rebound entry windows.",
+    "validation_tier": "T0",
+    "time_budget": "bounded local diagnostic first",
+    "expected_failure_mode": "Volume climaxes can occur in stages during structural liquidations, repeatedly catching falling knives.",
+    "input_diagnostics": [
+      "runs/operations/latest.json",
+      "docs/design-guide.md",
+      "spike/leaderboard.json",
+      "runs/operations/governance.json",
+      "runs/research_queue/ideas/<idea_id>.json"
+    ],
+    "expected_artifact_paths": [
+      "runs/search/*.json",
+      "runs/gold_hybrid_lab.json",
+      "runs/research_queue/hypotheses/<idea_id>.json"
+    ],
+    "stop_conditions": [
+      "quick grid has no candidate worth full certification",
+      "hybrid candidate fails Gold all-era economics or Future Confidence",
+      "hypothesis cannot be mapped to bounded diagnostics",
+      "Average drawdown within 5 days post-entry exceeds 12%.",
+      "Fails to outperform a cash benchmark during a major secular bear market."
+    ],
+    "steps": [
+      {
+        "name": "focused_grid_search",
+        "status": "ok",
+        "command": [
+          "/Users/maxhammons/Documents/Projects/Project Montauk/.venv/bin/python",
+          "/Users/maxhammons/Documents/Projects/Project Montauk/scripts/search/grid_search.py",
+          "--quick"
+        ],
+        "input_diagnostics": [
+          "runs/operations/latest.json",
+          "docs/design-guide.md",
+          "spike/leaderboard.json",
+          "runs/operations/governance.json",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/search/*.json",
+          "runs/gold_hybrid_lab.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "quick grid has no candidate worth full certification",
+          "hybrid candidate fails Gold all-era economics or Future Confidence",
+          "hypothesis cannot be mapped to bounded diagnostics",
+          "Average drawdown within 5 days post-entry exceeds 12%.",
+          "Fails to outperform a cash benchmark during a major secular bear market."
+        ],
+        "started_utc": "2026-06-07T19:50:24Z",
+        "finished_utc": "2026-06-07T19:50:32Z",
+        "returncode": 0,
+        "stdout_tail": "ergence    18 combos\n  drawdown_recovery             162 combos\n  vol_compression_breakout      243 combos\n  price_position_regime          36 combos\n  tecl_sgov_rs                   24 combos\n  regime_state_machine            1 combos\n  bounce_breakout                40 combos\n  tri_filter_macd                32 combos\n  momentum_roc_canonical         24 combos\n  adaptive_ema_vol               16 combos\n  fed_macro_primary              24 combos\n  rank_slope_regime              48 combos\n  zscore_return_reversion        48 combos\n  breadth_decay_composite        36 combos\n  vj_or_slope_meta               16 combos\n  TOTAL                         990 combos\n\n[grid] Multicore: 9 workers for 990 combos...\n[grid] Worker chunksize: 8\n[data] TECL: 8330 bars, 1993-05-04 to 2026-06-05\n[data] VIX: 8327/8330 dates matched\n[data] TECL: 8330 bars, 1993-05-04 to 2026-06-05\n[data] VIX: 8327/8330 dates matched\n[data] TECL: 8330 bars, 1993-05-04 to 2026-06-05\n[data] VIX: 8327/8330 dates matched\n[data] TECL: 8330 bars, 1993-05-04 to 2026-06-05\n[data] VIX: 8327/8330 dates matched\n[data] TECL: 8330 bars, 1993-05-04 to 2026-06-05\n[data] VIX: 8327/8330 dates matched\n[data] TECL: 8330 bars, 1993-05-04 to 2026-06-05\n[data] VIX: 8327/8330 dates matched\n[data] TECL: 8330 bars, 1993-05-04 to 2026-06-05\n[data] VIX: 8327/8330 dates matched\n[data] TECL: 8330 bars, 1993-05-04 to 2026-06-05\n[data] VIX: 8327/8330 dates matched\n[data] TECL: 8330 bars, 1993-05-04 to 2026-06-05\n[data] VIX: 8327/8330 dates matched\n  vix_gc_filter                  0 pass charter  best_fit=0.00  best_share=0.00x\n  treasury_curve_trend           0 pass charter  best_fit=0.00  best_share=0.00x\n  xlk_relative_strength          0 pass charter  best_fit=0.00  best_share=0.00x\n  fed_funds_pivot                0 pass charter  best_fit=0.00  best_share=0.00x\n  keltner_squeeze_breakout       0 pass charter  best_fit=0.00  best_share=0.00x\n  vix_term_proxy                 0 pass charter  best_fit=0.00  best_share=0.00x\n  macd_qqq_bull                  0 pass charter  best_fit=0.00  best_share=0.00x\n  vol_donchian_breakout          0 pass charter  best_fit=0.00  best_share=0.00x\n  sgov_flight_switch             0 pass charter  best_fit=0.00  best_share=0.00x\n  move_index_regime              0 pass charter  best_fit=0.00  best_share=0.00x\n  credit_spread_velocity         0 pass charter  best_fit=0.00  best_share=0.00x\n  overnight_gap_exhaustion       0 pass charter  best_fit=0.00  best_share=0.00x\n  consecutive_down_gap_capitulation   0 pass charter  best_fit=0.00  best_share=0.00x\n  put_call_panic_reversion       0 pass charter  best_fit=0.00  best_share=0.00x\n  defensive_sector_divergence    0 pass charter  best_fit=0.00  best_share=0.00x\n  drawdown_recovery              0 pass charter  best_fit=0.00  best_share=0.00x\n  vol_compression_breakout       0 pass charter  best_fit=0.00  best_share=0.00x\n  price_position_regime          0 pass charter  best_fit=0.00  best_share=0.00x\n  tecl_sgov_rs                   0 pass charter  best_fit=0.00  best_share=0.00x\n  regime_state_machine           0 pass charter  best_fit=0.00  best_share=0.00x\n  bounce_breakout                0 pass charter  best_fit=0.00  best_share=0.00x\n  tri_filter_macd                0 pass charter  best_fit=0.00  best_share=0.00x\n  momentum_roc_canonical         0 pass charter  best_fit=0.00  best_share=0.00x\n  adaptive_ema_vol               0 pass charter  best_fit=0.00  best_share=0.00x\n  fed_macro_primary              0 pass charter  best_fit=0.00  best_share=0.00x\n  rank_slope_regime              0 pass charter  best_fit=0.00  best_share=0.00x\n  zscore_return_reversion        0 pass charter  best_fit=0.00  best_share=0.00x\n  breadth_decay_composite        0 pass charter  best_fit=0.00  best_share=0.00x\n  vj_or_slope_meta               0 pass charter  best_fit=0.00  best_share=0.00x\n\n[grid] Search done: 990 combos \u2192 0 pass charter (990 rejected) in 7.6s\n[grid] No candidates passed charter pre-filter. Nothing to validate.\n",
+        "stderr_tail": ""
+      },
+      {
+        "name": "gold_hybrid_lab",
+        "status": "ok",
+        "command": [
+          "/Users/maxhammons/Documents/Projects/Project Montauk/.venv/bin/python",
+          "/Users/maxhammons/Documents/Projects/Project Montauk/scripts/diagnostics/gold_hybrid_lab.py"
+        ],
+        "input_diagnostics": [
+          "runs/operations/latest.json",
+          "docs/design-guide.md",
+          "spike/leaderboard.json",
+          "runs/operations/governance.json",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/search/*.json",
+          "runs/gold_hybrid_lab.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "quick grid has no candidate worth full certification",
+          "hybrid candidate fails Gold all-era economics or Future Confidence",
+          "hypothesis cannot be mapped to bounded diagnostics",
+          "Average drawdown within 5 days post-entry exceeds 12%.",
+          "Fails to outperform a cash benchmark during a major secular bear market."
+        ],
+        "started_utc": "2026-06-07T19:50:32Z",
+        "finished_utc": "2026-06-07T19:50:46Z",
+        "returncode": 0,
+        "stdout_tail": "[data] TECL: 8330 bars, 1993-05-04 to 2026-06-05\n[data] VIX: 8327/8330 dates matched\nGOLD HYBRID LAB\n================================================================================================================\nChampion: Chimera v1 - 2026-05-26 full=30.49 real=1.33 modern=3.32\n\nENTRY SPECIALISTS\nrank name                     entry  timing conf  full/real/modern\n   1 Ivory Hare               0.528  0.279  0.767 10.63/1.55/2.24\n   2 Cerulean Hare #2         0.527  0.279  0.768 10.09/1.55/2.24\n   3 Sable Hare               0.527  0.279  0.768 10.09/1.55/2.24\n   4 Sable Osprey             0.458  0.157  0.745 40.34/1.38/1.80\n   5 Brindled Osprey          0.458  0.157  0.745 40.34/1.38/1.80\n   6 Velvet Osprey            0.458  0.157  0.745 40.34/1.38/1.80\n   7 Amber Osprey             0.458  0.157  0.745 40.34/1.38/1.80\n   8 Copper Osprey            0.438  0.119  0.742 47.69/1.21/1.59\n\nEXIT SPECIALISTS\nrank name                     exit   timing conf  full/real/modern\n   1 Copper Osprey            0.417  0.176  0.742 47.69/1.21/1.59\n   2 Cobalt Osprey            0.417  0.176  0.742 47.69/1.21/1.59\n   3 Slate Osprey             0.416  0.176  0.742 47.69/1.21/1.59\n   4 Indigo Osprey            0.416  0.176  0.742 47.69/1.21/1.59\n   5 Pewter Osprey            0.416  0.176  0.741 47.69/1.21/1.59\n   6 Ivory Osprey             0.416  0.176  0.741 47.69/1.21/1.59\n   7 Crimson Osprey           0.416  0.176  0.741 47.69/1.21/1.59\n   8 Midnight Osprey          0.416  0.176  0.741 47.69/1.21/1.59\n\nHYBRID CANDIDATES\nlabel                              ok  overall fit   full  real modern trades dd    marker vsChamp full/real/modern\nfamily_committee_0.50              yes  4.795 2.780  41.30  1.43   1.87     21  59.2  0.306  1.35/1.07/0.56\nfamily_committee_0.60              yes  4.795 2.780  41.30  1.43   1.87     21  59.2  0.306  1.35/1.07/0.56\nfamily_committee_0.67              yes  4.795 2.780  41.30  1.43   1.87     21  59.2  0.306  1.35/1.07/0.56\nswitchboard_top_entry_exit         yes  3.296 2.529  10.94  1.50   2.18     42  98.8  0.447  0.36/1.13/0.66\nchampion_overlay_top_entry_exit    yes  2.676 2.048   8.96  1.22   1.76     42  98.8  0.447  0.29/0.91/0.53\n\n[gold-hybrid-lab] wrote /Users/maxhammons/Documents/Projects/Project Montauk/runs/gold_hybrid_lab.json\n",
+        "stderr_tail": ""
+      },
+      {
+        "name": "generated_hypothesis_test",
+        "status": "ok",
+        "command": [
+          "/Users/maxhammons/Documents/Projects/Project Montauk/.venv/bin/python",
+          "/Users/maxhammons/Documents/Projects/Project Montauk/scripts/ops/generated_hypothesis_test.py",
+          "--idea-id",
+          "01e8afdc0058",
+          "--json"
+        ],
+        "input_diagnostics": [
+          "runs/operations/latest.json",
+          "docs/design-guide.md",
+          "spike/leaderboard.json",
+          "runs/operations/governance.json",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/search/*.json",
+          "runs/gold_hybrid_lab.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "quick grid has no candidate worth full certification",
+          "hybrid candidate fails Gold all-era economics or Future Confidence",
+          "hypothesis cannot be mapped to bounded diagnostics",
+          "Average drawdown within 5 days post-entry exceeds 12%.",
+          "Fails to outperform a cash benchmark during a major secular bear market."
+        ],
+        "started_utc": "2026-06-07T19:50:46Z",
+        "finished_utc": "2026-06-07T19:50:46Z",
+        "returncode": 0,
+        "stdout_tail": "{\n  \"schema_version\": 1,\n  \"generated_utc\": \"2026-06-07T19:50:46Z\",\n  \"idea_id\": \"01e8afdc0058\",\n  \"kind\": \"capitulation_volume_climax\",\n  \"status\": \"planned\",\n  \"hypothesis\": \"If capitulation volume climax is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Tests if localized volume spikes during steep drawdowns identify high-probability rebound entry windows.\",\n  \"input_diagnostics\": [\n    \"runs/operations/latest.json\",\n    \"docs/design-guide.md\",\n    \"spike/leaderboard.json\",\n    \"runs/operations/governance.json\",\n    \"runs/research_queue/ideas/<idea_id>.json\"\n  ],\n  \"suggested_tests\": [\n    \"focused_grid_search\",\n    \"gold_hybrid_lab\",\n    \"generated_hypothesis_test\"\n  ],\n  \"expected_artifact_paths\": [\n    \"runs/search/*.json\",\n    \"runs/gold_hybrid_lab.json\",\n    \"runs/research_queue/hypotheses/<idea_id>.json\"\n  ],\n  \"stop_conditions\": [\n    \"quick grid has no candidate worth full certification\",\n    \"hybrid candidate fails Gold all-era economics or Future Confidence\",\n    \"hypothesis cannot be mapped to bounded diagnostics\",\n    \"Average drawdown within 5 days post-entry exceeds 12%.\",\n    \"Fails to outperform a cash benchmark during a major secular bear market.\"\n  ],\n  \"expected_failure_mode\": \"Volume climaxes can occur in stages during structural liquidations, repeatedly catching falling knives.\",\n  \"artifact_path\": \"/Users/maxhammons/Documents/Projects/Project Montauk/runs/research_queue/hypotheses/01e8afdc0058.json\"\n}\n",
+        "stderr_tail": ""
+      }
+    ]
+  },
+  "finished_utc": "2026-06-07T19:50:46Z"
+}

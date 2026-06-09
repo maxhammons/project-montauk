@@ -13,10 +13,11 @@
     "windows": [
       {
         "title": "Montauk",
-        "width": 1180,
-        "height": 760,
-        "minWidth": 900,
-        "minHeight": 620
+        "width": 1280,
+        "height": 880,
+        "minWidth": 1024,
+        "minHeight": 700,
+        "center": true
       }
     ],
     "security": {

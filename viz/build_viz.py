@@ -39,6 +39,7 @@ if SCRIPTS_DIR not in sys.path:
 
 from certify.contract import compute_gold_status, sync_validation_contract
 from engine.strategy_engine import Indicators, _sma
+from search.montauk_score import compute_montauk_score, default_context
 from search.share_metric import read_share_multiple
 
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
@@ -54,7 +55,11 @@ MARKERS_CSV = os.path.join(DATA_DIR, "markers", "TECL-markers.csv")
 MANIFEST_JSON = os.path.join(DATA_DIR, "manifest.json")
 LIB_JS = os.path.join(VIZ_DIR, "lightweight-charts.js")
 SHELL_HTML = os.path.join(TEMPLATE_DIR, "shell.html")
-APP_JS = os.path.join(TEMPLATE_DIR, "app.js")
+# Single shared viz engine — the SAME file the Mac app loads. The standalone
+# HTML embeds it and calls boot(); the app loads it directly via /lib/. There is
+# no separate standalone frontend (the old viz/templates/app.js was retired when
+# the two were unified). Edit the engine once; both surfaces update.
+ENGINE_JS = os.path.join(PROJECT_ROOT, "app", "public", "lib", "viz-engine.js")
 OUTPUT_HTML = os.path.join(VIZ_DIR, "montauk-viz.html")
 OUTPUT_BUNDLE_JSON = os.path.join(VIZ_DIR, "montauk-bundle.json")
 
@@ -792,10 +797,25 @@ def build_strategy_entry(rank: int,
     gold_status = bool(entry.get("gold_status") or gold.get("gold_status"))
     tier = entry.get("tier") or validation.get("tier") or "T0"
 
+    # Montauk Score — the single headline ranking / active-strategy score.
+    # Recomputed fresh (calibrated, via the cached default context) so even an
+    # older leaderboard vintage renders the current three-pillar score.
+    montauk = compute_montauk_score(entry, context=default_context())
+
     out: dict[str, Any] = {
         "id": f"s{rank:02d}",
         "rank": rank,
         "name": name,
+        "montauk_score": montauk["montauk_score"],
+        "montauk_score_100": montauk["montauk_score_100"],
+        "conviction": montauk["conviction"],
+        "conviction_100": montauk["conviction_100"],
+        "performance": montauk["performance"],
+        "performance_100": montauk["performance_100"],
+        "durability": montauk["durability"],
+        "durability_100": montauk["durability_100"],
+        "montauk_calibration_state": montauk["calibration_state"],
+        "montauk_pillars": montauk["pillars"],
         "display_name_base": entry.get("display_name_base") or name,
         "codename": codename,
         "family_rank": entry.get("family_rank"),
@@ -982,8 +1002,11 @@ def emit_bundle_json(bundle: dict[str, Any]) -> None:
 def emit_html(bundle: dict[str, Any]) -> None:
     if not os.path.exists(SHELL_HTML):
         raise FileNotFoundError(f"Missing template: {SHELL_HTML}")
-    if not os.path.exists(APP_JS):
-        raise FileNotFoundError(f"Missing app.js: {APP_JS}")
+    if not os.path.exists(ENGINE_JS):
+        raise FileNotFoundError(
+            f"Missing shared viz engine: {ENGINE_JS}\n"
+            f"This is the same file the Mac app loads from app/public/lib/viz-engine.js."
+        )
     if not os.path.exists(LIB_JS):
         raise FileNotFoundError(
             f"Missing Lightweight Charts library at {LIB_JS}.\n"
@@ -992,8 +1015,11 @@ def emit_html(bundle: dict[str, Any]) -> None:
 
     with open(SHELL_HTML) as f:
         shell = f.read()
-    with open(APP_JS) as f:
-        app_js = f.read()
+    with open(ENGINE_JS) as f:
+        engine_js = f.read()
+    # The shared engine exposes window.__MONTAUK_VIZ__.boot(D) instead of
+    # auto-running. The standalone injects the data global (below) and boots it.
+    app_js = engine_js + "\n;window.__MONTAUK_VIZ__.boot(window.__MONTAUK_DATA__);\n"
     with open(LIB_JS) as f:
         lib_js = f.read()
 

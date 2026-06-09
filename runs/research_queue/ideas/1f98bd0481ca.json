@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "1f98bd0481ca",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "dismissed",
   "kind": "dxy_rejection_catalyst",
   "rationale": "Tests if sharp rejections at major technical resistance in the US Dollar Index reliably mark tradable bottoms in leveraged tech.",
   "validation_tier": "T2",
@@ -30,5 +30,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Fails to capture at least 3 major tech rebounds during 2015-2024.",
     "False positive rate exceeds 40%."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:29Z"
 }

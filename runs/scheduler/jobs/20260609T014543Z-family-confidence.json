@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "job": "family-confidence",
+  "status": "ok",
+  "started_utc": "2026-06-09T01:45:43Z",
+  "finished_utc": "2026-06-09T01:45:43Z",
+  "command": [
+    "/Users/maxhammons/Documents/Projects/Project Montauk/.venv/bin/python",
+    "/Users/maxhammons/Documents/Projects/Project Montauk/scripts/diagnostics/family_confidence_leaderboard.py"
+  ],
+  "cwd": "/Users/maxhammons/Documents/Projects/Project Montauk",
+  "schedule": {
+    "key": "weekly-family-confidence",
+    "enabled": true,
+    "schedule": {
+      "Weekday": 1,
+      "Hour": 18,
+      "Minute": 30
+    }
+  },
+  "output_artifact_paths": [
+    "runs/family_confidence_leaderboard.json"
+  ],
+  "returncode": 0,
+  "error_code": null,
+  "stdout_tail": "STRATEGY FAMILY CONFIDENCE LEADERBOARD\n============================================================================================================\nGold rows: 20\nrank family                         leader                overall future trust legacy valid allera fit   full  real modern n\n   1 gc_vjatr                       Marbled Bonobo            62.8   57.6  73.6   69.9  73.5   3.429 2.651  13.13  1.13   2.71  4\n   2 gc_vjatr_timing_repair         Cerulean Hare #2          15.1   39.2   2.6   19.5  76.8   3.270 2.559  10.09  1.55   2.24  3\n   3 gc_vjatr_reclaimer             Sable Osprey               0.0    0.0   0.0   74.1  74.5   4.642 2.685  40.34  1.38   1.80 12\n   4 chimera_v1_2026_05_26          Jade Bonobo                0.0    0.0   0.0   66.2  75.9   5.259 3.657  35.22  1.29   3.21  1\n\n[family-confidence] wrote /Users/maxhammons/Documents/Projects/Project Montauk/runs/family_confidence_leaderboard.json\n",
+  "stderr_tail": "",
+  "lock_path": "/Users/maxhammons/Documents/Projects/Project Montauk/runs/scheduler/locks/family-confidence.lock",
+  "record_path": "/Users/maxhammons/Documents/Projects/Project Montauk/runs/scheduler/jobs/20260609T014543Z-family-confidence.json"
+}

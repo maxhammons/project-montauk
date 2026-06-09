@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "7a2049e0fa65",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "dismissed",
   "kind": "skew_index_extreme_reversion",
   "rationale": "Tests whether extreme CBOE SKEW readings indicate over-hedged institutional fear and provide a contrarian long entry.",
   "validation_tier": "T1",
@@ -25,5 +25,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "The strategy fails to exit cash for more than 12 consecutive months.",
     "Share accumulation trails buy-and-hold during the 2020-2021 bull run."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:30Z"
 }

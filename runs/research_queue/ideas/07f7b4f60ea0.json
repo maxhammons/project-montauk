@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "07f7b4f60ea0",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "dismissed",
   "kind": "high_yield_bond_momentum",
   "rationale": "Tests if positive momentum in speculative corporate debt leads shifts in high-beta tech growth allocation.",
   "validation_tier": "T1",
@@ -29,5 +29,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Annualized alpha relative to QQQ drops below 2% over a 5-year rolling window.",
     "Maximum strategy drawdown exceeds buy-and-hold during credit crunch periods."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:30Z"
 }

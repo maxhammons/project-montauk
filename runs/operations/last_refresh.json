@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "date": "2026-06-08",
+  "refreshed_utc": "2026-06-08T20:57:07Z",
+  "updated": true,
+  "total_new_bars": 7,
+  "new_bars": {
+    "TECL": 1,
+    "VIX": 0,
+    "XLK": 1,
+    "QQQ": 1,
+    "TQQQ": 1,
+    "SGOV": 1,
+    "DTB3": 1,
+    "T10Y2Y": 0,
+    "DFF": 1
+  },
+  "data_end_date": "2026-06-08"
+}

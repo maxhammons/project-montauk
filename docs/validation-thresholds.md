@@ -10,10 +10,49 @@
 Validation has two layers (see `validation-philosophy.md` §4):
 
 - **Layer 1 — Correctness**: binary, hard-fail, no weights. A strategy that fails any Layer 1 check is disqualified regardless of confidence.
-- **Layer 2 — Validation composite**: `composite_confidence` score on [0, 1]. It summarizes the tier-applicable validation stack and still drives PASS/WARN/FAIL. It is not the capital-allocation confidence metric.
-- **Confidence v2 diagnostics**: Gold rows can also carry `overall_confidence`, `future_confidence`, and `trust`. These are diagnostic-only until the vintage calibration harness has enough evidence to replace heuristic ranking.
+- **Layer 2 — Validation composite**: `composite_confidence` score on [0, 1]. It summarizes the tier-applicable validation stack and still drives PASS/WARN/FAIL. It is not the ranking score.
+- **Layer 3 — Montauk Score (ranking + active strategy)**: the single headline score that ranks the Gold leaderboard and selects the active strategy. See [Montauk Score](#layer-3--montauk-score) below. `composite_confidence` feeds it (via the Conviction pillar); it does not compete with it.
 
 No gate in Layer 2 has veto power on its own. Every sub-score contributes weighted partial credit.
+
+---
+
+## Layer 3 — Montauk Score
+
+> Source of truth: `scripts/search/montauk_score.py` (weights locked 2026-06-07).
+> Stamped on every leaderboard row by `certify/contract.py::sync_entry_contract`.
+
+ONE headline score on [0, 1] (shown 0–100) that collapses the old score zoo
+(`fitness`, `composite_confidence`, `overall_performance_score`,
+`future_confidence`, `trust`, `overall_confidence`) into three orthogonal pillars:
+
+```
+Montauk Score = Conviction^0.55 × Performance^0.30 × Durability^0.15   (geometric)
+```
+
+| Pillar | Weight | Meaning | Built from |
+|---|:-:|---|---|
+| **Conviction** | 0.55 | Trust the edge is real and will persist out-of-sample — the number you hold through a scary drawdown. | confidence_v2 "future confidence" recipe **minus** its raw-performance term, then calibrated: `validation_quality` (0.70·composite + 0.30·evidence_floor), `robustness`, `charter_fit`, `search_deflation`. |
+| **Performance** | 0.30 | Era-weighted share accumulation vs B&H, modern > real > synthetic. | `weighted_era_fitness(full, real, modern)` = `full^0.15 × real^0.25 × modern^0.60`, squashed via anchors `0.6→0.0, 1.0→0.5, 6.0→1.0` so it saturates once you clearly beat B&H. |
+| **Durability** | 0.15 | Livability — can you actually run it. | confidence_v2 "trust" recipe **minus** its future-confidence term: `drawdown_resilience`, `parameter_parsimony`, `portfolio_redundancy`, `family_crowding`, `artifact_cleanliness`. |
+
+**Geometric blend** so a single broken pillar (e.g. a 98%-drawdown strategy whose
+`drawdown_resilience` craters) drags the whole score down instead of being masked
+by a strong pillar. The pillars are orthogonal — raw performance lives only in the
+Performance pillar (removed from Conviction), and forward-survival trust lives only
+in Conviction (removed from Durability) — so there is no double counting.
+
+**Ranking + active strategy.** Gold Status is the admission floor (correctness +
+beats B&H in every era). Within the Gold set, rows rank by Montauk Score
+(tiebreaks: `overall_performance_score`, then `fitness`), and the top row is the
+active strategy. The validation pipeline's champion is likewise the highest-Montauk
+PASS candidate.
+
+**Calibration.** When `runs/confidence_v2/calibration_model.json` is present and
+`calibrated`, the Conviction pillar is nudged toward observed forward-survival
+(`calibration_state = "calibrated"`); otherwise it uses the raw score
+(`provisional_uncalibrated`). The stamp uses a process-cached context so every
+call site produces the identical, calibrated value.
 
 ---
 
@@ -122,14 +161,22 @@ across eras, and not merely duplicate an already-crowded signal cluster.
 
 ### Confidence v2
 
+> **Superseded as a headline by the Montauk Score (Layer 3).** The confidence_v2
+> harness still runs to produce the calibration model and score timeseries, and
+> its recipes are reused by the Montauk pillars — `future_confidence` (minus its
+> raw-performance term) is the basis of **Conviction**, and `trust` (minus its
+> future-confidence term) is the basis of **Durability**. These fields are no
+> longer surfaced as parallel headline scores; the viz shows the Montauk Score and
+> its three pillars.
+
 Confidence v2 separates four concepts:
 
 | Concept | Field | Meaning |
 |---|---|---|
 | Gold Status | `gold_status` | Binary leaderboard eligibility |
-| Future Confidence | `future_confidence` | Calibration-assisted estimate that the strategy remains useful over the next 1-3 years |
-| Trust | `trust` | Deployment suitability after future confidence: drawdown, redundancy, parameter parsimony, artifacts, and live degradation |
-| Overall Confidence | `overall_confidence` | Super score combining Future Confidence and Trust |
+| Future Confidence | `future_confidence` | Calibration-assisted estimate that the strategy remains useful over the next 1-3 years; basis of the Conviction pillar |
+| Trust | `trust` | Deployment suitability: drawdown, redundancy, parameter parsimony, artifacts, live degradation; basis of the Durability pillar |
+| Overall Confidence | `overall_confidence` | Legacy super score combining Future Confidence and Trust (predecessor of the Montauk Score) |
 
 Confidence v2 artifacts live under `runs/confidence_v2/`:
 

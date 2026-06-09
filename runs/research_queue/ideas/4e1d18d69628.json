@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "4e1d18d69628",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "dismissed",
   "kind": "semi_equipment_lead_lag",
   "rationale": "Evaluates if semiconductor equipment manufacturers systematically lead broader technology index trend reversals.",
   "validation_tier": "T0/T1",
@@ -30,5 +30,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Lead time is less than 1 trading session on average.",
     "Signal accuracy degrades significantly post-2020."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:29Z"
 }

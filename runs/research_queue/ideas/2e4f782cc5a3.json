@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "2e4f782cc5a3",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "dismissed",
   "kind": "foreign_exchange_dollar_inflection",
   "rationale": "Tests if sudden DXY rate-of-change reversals lead global liquidity allocations into US mega-cap tech.",
   "validation_tier": "T1",
@@ -30,5 +30,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Information coefficient between weekly DXY changes and NDX returns falls below 0.05.",
     "Drawdown is 1.2x larger than buy-and-hold during a currency crisis."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:30Z"
 }

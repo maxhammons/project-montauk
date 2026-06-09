@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "bf3193a2c03b",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "paused",
   "kind": "distribution_phase_transition",
   "rationale": "Tests whether a state machine tracking volume-weighted distribution-day velocity can map bull-to-bear regime transitions.",
   "validation_tier": "T1",
@@ -35,5 +35,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Annualized turnover exceeds 40 trades per year.",
     "Maximum missed drawup due to false exits exceeds 25% in a single year."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:29Z"
 }

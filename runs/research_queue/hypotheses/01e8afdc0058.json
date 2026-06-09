@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-06-07T19:50:46Z",
+  "idea_id": "01e8afdc0058",
+  "kind": "capitulation_volume_climax",
+  "status": "planned",
+  "hypothesis": "If capitulation volume climax is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Tests if localized volume spikes during steep drawdowns identify high-probability rebound entry windows.",
+  "input_diagnostics": [
+    "runs/operations/latest.json",
+    "docs/design-guide.md",
+    "spike/leaderboard.json",
+    "runs/operations/governance.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "suggested_tests": [
+    "focused_grid_search",
+    "gold_hybrid_lab",
+    "generated_hypothesis_test"
+  ],
+  "expected_artifact_paths": [
+    "runs/search/*.json",
+    "runs/gold_hybrid_lab.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "quick grid has no candidate worth full certification",
+    "hybrid candidate fails Gold all-era economics or Future Confidence",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Average drawdown within 5 days post-entry exceeds 12%.",
+    "Fails to outperform a cash benchmark during a major secular bear market."
+  ],
+  "expected_failure_mode": "Volume climaxes can occur in stages during structural liquidations, repeatedly catching falling knives."
+}

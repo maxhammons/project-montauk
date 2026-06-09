@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-05-26T04:10:25Z",
+  "generated_utc": "2026-06-07T20:01:02Z",
   "version_info": {
     "schema_version": 1,
-    "generated_utc": "2026-05-26T04:10:25Z",
+    "generated_utc": "2026-06-07T20:01:02Z",
     "app_version": "0.1.0",
-    "git_commit": "8a78629",
+    "git_commit": "76c51dc",
     "git_dirty": true,
-    "strategy_code_version": "8a78629"
+    "strategy_code_version": "76c51dc"
   },
   "idea_count": 70,
   "ideas": [
@@ -1106,7 +1106,7 @@
       "schema_version": 1,
       "id": "4e1d18d69628",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "semi_equipment_lead_lag",
       "rationale": "Evaluates if semiconductor equipment manufacturers systematically lead broader technology index trend reversals.",
       "validation_tier": "T0/T1",
@@ -1134,13 +1134,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Lead time is less than 1 trading session on average.",
         "Signal accuracy degrades significantly post-2020."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:29Z"
     },
     {
       "schema_version": 1,
       "id": "1f98bd0481ca",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "dxy_rejection_catalyst",
       "rationale": "Tests if sharp rejections at major technical resistance in the US Dollar Index reliably mark tradable bottoms in leveraged tech.",
       "validation_tier": "T2",
@@ -1168,13 +1169,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Fails to capture at least 3 major tech rebounds during 2015-2024.",
         "False positive rate exceeds 40%."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:29Z"
     },
     {
       "schema_version": 1,
       "id": "1cf88775b8a8",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "iv_crush_accumulation",
       "rationale": "Tests if systematically accumulating shares immediately following major tech earnings implied-volatility crushes outperforms continuous holding.",
       "validation_tier": "T1",
@@ -1202,13 +1204,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Strategy performance is statistically indistinguishable from a random entry model.",
         "Fails to outperform QQQ baseline holding during Q2 and Q3."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:29Z"
     },
     {
       "schema_version": 1,
       "id": "957d1a46cc1d",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "paused",
       "kind": "consecutive_down_gap_capitulation",
       "rationale": "Evaluates if buying TECL after three sequential lower opens accurately captures structural crash rebounds.",
       "validation_tier": "T0",
@@ -1236,13 +1239,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Max drawdown exceeds 40% during execution windows.",
         "Win rate on rebound trades is below 60%."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:29Z"
     },
     {
       "schema_version": 1,
       "id": "1c49cef6c83b",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "paused",
       "kind": "mtf_momentum_conflict",
       "rationale": "Tests if daily oversold conditions resolving upward while weekly momentum remains overbought creates optimal swing-trade entries.",
       "validation_tier": "T1",
@@ -1274,13 +1278,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "The strategy generates more than 5 consecutive losses during a market transition phase.",
         "Fails to maintain positive expectancy over 50 or more trades."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:29Z"
     },
     {
       "schema_version": 1,
       "id": "1c846e2f2025",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "dealer_gamma_exposure_flip",
       "rationale": "Hypothesizes that market-maker net gamma flipping from negative to positive marks the end of a high-volatility drawdown regime.",
       "validation_tier": "T1",
@@ -1308,13 +1313,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Signal lag exceeds 2 days from actual price bottoms.",
         "Produces lower share accumulation than a simple 200 SMA cross."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:29Z"
     },
     {
       "schema_version": 1,
       "id": "c268c47db466",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "sector_rotation_velocity",
       "rationale": "Tests if the speed of capital moving out of Energy and Materials into Tech serves as a more reliable entry signal than price alone.",
       "validation_tier": "T1",
@@ -1342,13 +1348,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Turnover rate exceeds 100% per month without corresponding profit.",
         "Correlation with standard momentum strategies exceeds 0.85."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:29Z"
     },
     {
       "schema_version": 1,
       "id": "ba43bf0b726d",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "ad_line_divergence",
       "rationale": "Evaluates if Nasdaq advance-decline divergence against QQQ new highs provides an early exit signal for leveraged holdings.",
       "validation_tier": "T0/T1",
@@ -1375,13 +1382,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Strategy remains in cash for more than 40% of a known bull market.",
         "Misses more than 30% of total buy-and-hold upside."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:29Z"
     },
     {
       "schema_version": 1,
       "id": "c55094a7ec68",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "vix_term_structure_roll",
       "rationale": "Tests whether limiting TECL exposure to steep VIX-futures contango periods eliminates major drawdowns.",
       "validation_tier": "T1",
@@ -1408,13 +1416,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Drawdown exceeds 25% while the VIX curve remains in contango.",
         "Fails to accumulate shares during the 2017 low-volatility melt-up."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:30Z"
     },
     {
       "schema_version": 1,
       "id": "a3d8476ec8a9",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "central_bank_liquidity_proxy",
       "rationale": "Hypothesizes that changes in Fed balance sheet and Treasury General Account proxies correlate directly with leveraged tech performance.",
       "validation_tier": "T2",
@@ -1437,13 +1446,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Lagged data causes the strategy to enter trades post-rally.",
         "Sharpe ratio is lower than buy-and-hold during Quantitative Tightening regimes."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:30Z"
     },
     {
       "schema_version": 1,
       "id": "2187cbcdac6e",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "paused",
       "kind": "ma_ribbon_compression",
       "rationale": "Tests if extreme compression of multiple short-term moving averages in QQQ precedes tradable volatility expansions in TECL.",
       "validation_tier": "T0",
@@ -1470,13 +1480,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "False breakout rate exceeds 60%.",
         "Expected value after compression is negative over a 10-year test."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:29Z"
     },
     {
       "schema_version": 1,
       "id": "d65f03addc6c",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "paused",
       "kind": "hurst_exponent_regime",
       "rationale": "Evaluates if applying mean-reversion rules only when the Hurst exponent signals anti-persistence improves rebound capture.",
       "validation_tier": "T1",
@@ -1509,13 +1520,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Parameter sensitivity shows high variance across lookback windows.",
         "Strategy fails to out-accumulate simple RSI mean reversion."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:29Z"
     },
     {
       "schema_version": 1,
       "id": "a5f8b76ce008",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "paused",
       "kind": "fractal_dimension_trend_onset",
       "rationale": "Tests whether a drop in fractal dimension reliably identifies the onset of a sustained trend for leverage entry.",
       "validation_tier": "T2",
@@ -1543,13 +1555,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Signal flips more than 3 times a week on average.",
         "Cumulative share accumulation falls behind the moving-average benchmark."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:29Z"
     },
     {
       "schema_version": 1,
       "id": "60defaf93228",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "eom_rebalance_anticipation",
       "rationale": "Tests if buying TECL in the last three days of a month following a large bond rally captures equity rebalancing flows.",
       "validation_tier": "T1",
@@ -1573,13 +1586,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Average return of the 3-day window is lower than a random 3-day window.",
         "Strategy has negative expectancy in the last 5 years."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:30Z"
     },
     {
       "schema_version": 1,
       "id": "d957a0171966",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "up_down_volume_capitulation",
       "rationale": "Evaluates if 90%+ down-volume days followed by a higher open mark definitive tradable crash bottoms.",
       "validation_tier": "T0",
@@ -1607,13 +1621,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Holding periods generated by the signal produce drawdowns exceeding 20%.",
         "Signal frequency is less than 1 per year, making it statistically weak."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:30Z"
     },
     {
       "schema_version": 1,
       "id": "1c8c95b41559",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "paused",
       "kind": "hv_cone_breakout",
       "rationale": "Tests whether realized volatility breaking outside a historical probability cone signals the start of a momentum super-trend.",
       "validation_tier": "T1",
@@ -1640,13 +1655,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "The strategy buys the top of more than 10 major blow-off peaks.",
         "Fails to accumulate shares during the slow low-volatility uptrend of 2017."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:29Z"
     },
     {
       "schema_version": 1,
       "id": "f92af4f30b78",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "gold_copper_macro_regime",
       "rationale": "Hypothesizes that tech exposure should be reduced when the Gold/Copper ratio spikes, signaling deflationary growth fears.",
       "validation_tier": "T2",
@@ -1674,13 +1690,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Correlation between ratio spikes and QQQ drawdowns falls below 0.4.",
         "TECL share count is negatively impacted during inflationary tech rallies."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:30Z"
     },
     {
       "schema_version": 1,
       "id": "5dbb71acc4bf",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "paused",
       "kind": "consecutive_inside_days_expansion",
       "rationale": "Tests if entering TECL on the breakout of three consecutive inside days captures high-probability volatility expansion.",
       "validation_tier": "T0",
@@ -1709,13 +1726,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "False breakout trap rate is above 45%.",
         "Total trades over a 10-year period are too few to pass statistical significance."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:29Z"
     },
     {
       "schema_version": 1,
       "id": "7a2049e0fa65",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "skew_index_extreme_reversion",
       "rationale": "Tests whether extreme CBOE SKEW readings indicate over-hedged institutional fear and provide a contrarian long entry.",
       "validation_tier": "T1",
@@ -1738,13 +1756,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "The strategy fails to exit cash for more than 12 consecutive months.",
         "Share accumulation trails buy-and-hold during the 2020-2021 bull run."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:30Z"
     },
     {
       "schema_version": 1,
       "id": "c1044e9be0b5",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "implied_correlation_spike",
       "rationale": "Hypothesizes that sharp spikes in index implied correlation mark indiscriminate panic selling and rebound accumulation zones.",
       "validation_tier": "T1",
@@ -1771,13 +1790,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Fails to capture the COVID-19 or 2018 market bottoms.",
         "Average drawdown post-entry exceeds 12%."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:30Z"
     },
     {
       "schema_version": 1,
       "id": "1dbb63136205",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "paused",
       "kind": "yield_curve_slope_divergence",
       "rationale": "Evaluates if sudden bull-steepening in the 2s10s yield curve acts as a reliable exit signal for long-duration growth stocks.",
       "validation_tier": "T2",
@@ -1805,13 +1825,34 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Strategy goes to cash and misses more than 20% of a subsequent tech rally.",
         "Win rate of the exit signal is below 45% in confirmed recessions."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T20:01:02Z",
+      "last_run": {
+        "run_id": "20260607T194322Z-1dbb63136205",
+        "status": "ok",
+        "finished_utc": "2026-06-07T19:43:34Z",
+        "record_path": null,
+        "steps": [
+          {
+            "name": "cross_asset_recheck",
+            "status": "ok"
+          },
+          {
+            "name": "live_holdout_review",
+            "status": "ok"
+          },
+          {
+            "name": "generated_hypothesis_test",
+            "status": "ok"
+          }
+        ]
+      }
     },
     {
       "schema_version": 1,
       "id": "830dac1027b9",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "paused",
       "kind": "yield_curve_inflection_lead",
       "rationale": "Tests whether rapid changes in the 10Y-2Y Treasury spread predict regime shifts before they manifest in tech price structure.",
       "validation_tier": "T1",
@@ -1838,13 +1879,34 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Out-of-sample information coefficient falls below 0.05.",
         "Fails to outperform standard moving-average filters on QQQ in the 2008-2010 window."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T20:01:02Z",
+      "last_run": {
+        "run_id": "20260607T193617Z-830dac1027b9",
+        "status": "ok",
+        "finished_utc": "2026-06-07T19:36:47Z",
+        "record_path": null,
+        "steps": [
+          {
+            "name": "cross_asset_recheck",
+            "status": "ok"
+          },
+          {
+            "name": "diversity_prefilter_search",
+            "status": "ok"
+          },
+          {
+            "name": "generated_hypothesis_test",
+            "status": "ok"
+          }
+        ]
+      }
     },
     {
       "schema_version": 1,
       "id": "e5262782fcfe",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "semiconductor_software_decoupling",
       "rationale": "Tests if relative momentum divergence between semiconductors and software flags early institutional rotation in broad tech leadership.",
       "validation_tier": "T0/T1",
@@ -1872,13 +1934,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Tracking error relative to TECL buy-and-hold during uptrends exceeds 15%.",
         "Alpha contribution drops to zero across non-overlapping 3-year windows."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:30Z"
     },
     {
       "schema_version": 1,
       "id": "e2e213a7a97e",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "paused",
       "kind": "volume_weighted_accumulation_divergence",
       "rationale": "Tests whether cumulative volume-weighted price trends reveal hidden accumulation during extended flat consolidations.",
       "validation_tier": "T0",
@@ -1905,13 +1968,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Win rate drops below 45% over a 100-trade sample.",
         "Maximum consecutive false signals exceeds 7."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:29Z"
     },
     {
       "schema_version": 1,
       "id": "573511bdb332",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "credit_spread_expansion_halt",
       "rationale": "Tests if deceleration in high-yield credit-spread widening marks reliable macro bottoms for leveraged tech assets.",
       "validation_tier": "T1",
@@ -1939,13 +2003,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Drawdown during 2022 exceeds buy-and-hold drawdown by more than 5%.",
         "Signal fails to trigger within 15 days of major historical troughs."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:30Z"
     },
     {
       "schema_version": 1,
       "id": "ae88ddbd7cf3",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "equal_weight_tech_outperformance",
       "rationale": "Tests if equal-weight tech indices outperforming market-cap variants marks broad-based sustainable rally participation.",
       "validation_tier": "T0/T1",
@@ -1972,13 +2037,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Underperforms TECL buy-and-hold by more than 20% during any secular bull-market year.",
         "Correlation with existing breadth-thrust families exceeds 0.80."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:30Z"
     },
     {
       "schema_version": 1,
       "id": "b11ff9186821",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "paused",
       "kind": "institutional_distribution_clustering",
       "rationale": "Tests whether consecutive high-volume negative closes followed by low-volume rallies flag terminal trend decay.",
       "validation_tier": "T1",
@@ -2006,13 +2072,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "False positive exit rate exceeds 60% in secular bull markets.",
         "Profit factor drops below 1.25 on a rolling 3-year basis."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:29Z"
     },
     {
       "schema_version": 1,
       "id": "01e8afdc0058",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "paused",
       "kind": "capitulation_volume_climax",
       "rationale": "Tests if localized volume spikes during steep drawdowns identify high-probability rebound entry windows.",
       "validation_tier": "T0",
@@ -2041,13 +2108,34 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Average drawdown within 5 days post-entry exceeds 12%.",
         "Fails to outperform a cash benchmark during a major secular bear market."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T20:01:02Z",
+      "last_run": {
+        "run_id": "20260607T195024Z-01e8afdc0058",
+        "status": "ok",
+        "finished_utc": "2026-06-07T19:50:46Z",
+        "record_path": null,
+        "steps": [
+          {
+            "name": "focused_grid_search",
+            "status": "ok"
+          },
+          {
+            "name": "gold_hybrid_lab",
+            "status": "ok"
+          },
+          {
+            "name": "generated_hypothesis_test",
+            "status": "ok"
+          }
+        ]
+      }
     },
     {
       "schema_version": 1,
       "id": "f6efcb8fc437",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "copper_gold_ratio_momentum",
       "rationale": "Tests whether economic risk-on momentum from the copper/gold ratio provides long-lead filtering for leveraged tech exposure.",
       "validation_tier": "T1",
@@ -2075,13 +2163,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Rolling 12-month correlation between copper/gold momentum and NDX returns falls below 0.3.",
         "Total turnover exceeds 24 trades per year."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:30Z"
     },
     {
       "schema_version": 1,
       "id": "00a22268c4ac",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "paused",
       "kind": "rolling_momentum_deceleration",
       "rationale": "Tests whether decay in long-term momentum functions as an early warning exit before structural price breakdowns.",
       "validation_tier": "T1",
@@ -2114,13 +2203,34 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "The strategy exits more than 15% below the cyclical peak on 3 consecutive cycles.",
         "Calmar ratio falls below buy-and-hold over the full era."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T20:01:02Z",
+      "last_run": {
+        "run_id": "20260607T193703Z-00a22268c4ac",
+        "status": "ok",
+        "finished_utc": "2026-06-07T19:37:11Z",
+        "record_path": null,
+        "steps": [
+          {
+            "name": "near_miss_autopsy",
+            "status": "ok"
+          },
+          {
+            "name": "chimera_generation",
+            "status": "manual_review"
+          },
+          {
+            "name": "generated_hypothesis_test",
+            "status": "ok"
+          }
+        ]
+      }
     },
     {
       "schema_version": 1,
       "id": "07f7b4f60ea0",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "high_yield_bond_momentum",
       "rationale": "Tests if positive momentum in speculative corporate debt leads shifts in high-beta tech growth allocation.",
       "validation_tier": "T1",
@@ -2147,13 +2257,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Annualized alpha relative to QQQ drops below 2% over a 5-year rolling window.",
         "Maximum strategy drawdown exceeds buy-and-hold during credit crunch periods."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:30Z"
     },
     {
       "schema_version": 1,
       "id": "790e8156cb16",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "paused",
       "kind": "first_structural_higher_low",
       "rationale": "Tests if waiting for the first weekly higher-low during a deep correction filters out false bear-market relief rallies.",
       "validation_tier": "T1",
@@ -2182,13 +2293,34 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Misses more than 35% of the initial rebound move on major bottoms.",
         "Ulcer Index exceeds QQQ buy-and-hold over the full era."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T20:01:02Z",
+      "last_run": {
+        "run_id": "20260607T193711Z-790e8156cb16",
+        "status": "ok",
+        "finished_utc": "2026-06-07T19:47:11Z",
+        "record_path": null,
+        "steps": [
+          {
+            "name": "recertify_leaderboard",
+            "status": "ok"
+          },
+          {
+            "name": "live_holdout_review",
+            "status": "ok"
+          },
+          {
+            "name": "generated_hypothesis_test",
+            "status": "ok"
+          }
+        ]
+      }
     },
     {
       "schema_version": 1,
       "id": "c27952d5064d",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "paused",
       "kind": "inside_bar_cascade_breakout",
       "rationale": "Tests whether multi-day sequential inside bars represent institutional equilibrium before explosive trend-defining expansions.",
       "validation_tier": "T0",
@@ -2215,13 +2347,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Average win-to-loss ratio drops below 1.5:1.",
         "Profitable signal percentage falls below 38% across a 200-sample run."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:29Z"
     },
     {
       "schema_version": 1,
       "id": "bf3193a2c03b",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "paused",
       "kind": "distribution_phase_transition",
       "rationale": "Tests whether a state machine tracking volume-weighted distribution-day velocity can map bull-to-bear regime transitions.",
       "validation_tier": "T1",
@@ -2254,13 +2387,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Annualized turnover exceeds 40 trades per year.",
         "Maximum missed drawup due to false exits exceeds 25% in a single year."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:29Z"
     },
     {
       "schema_version": 1,
       "id": "bad08275058f",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "put_call_ratio_momentum_flip",
       "rationale": "Tests whether the rate of change of the equity put/call ratio crossing its moving average signals a structural sentiment flip.",
       "validation_tier": "T0",
@@ -2287,13 +2421,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Win rate on long entries falls below 45% during choppy regimes.",
         "Sharpe ratio on a 5-year rolling out-of-sample window drops below 0.4."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:30Z"
     },
     {
       "schema_version": 1,
       "id": "6554e788962b",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "sector_alpha_breadth_divergence",
       "rationale": "Tests if the percentage of Nasdaq-100 components outperforming the index identifies broad institutional accumulation.",
       "validation_tier": "T1",
@@ -2320,13 +2455,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Underperforms QQQ by more than 15% over any rolling 24-month period.",
         "Correlation with standard breadth metrics exceeds 0.85."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:30Z"
     },
     {
       "schema_version": 1,
       "id": "2e4f782cc5a3",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "foreign_exchange_dollar_inflection",
       "rationale": "Tests if sudden DXY rate-of-change reversals lead global liquidity allocations into US mega-cap tech.",
       "validation_tier": "T1",
@@ -2354,13 +2490,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Information coefficient between weekly DXY changes and NDX returns falls below 0.05.",
         "Drawdown is 1.2x larger than buy-and-hold during a currency crisis."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:30Z"
     },
     {
       "schema_version": 1,
       "id": "60ee480e43a6",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "margin_debt_rate_of_change",
       "rationale": "Tests if rapid multi-month liquidations in margin debt reliably flag ultimate macro capitulation floors.",
       "validation_tier": "T1",
@@ -2388,13 +2525,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "The strategy enters more than 30% above the eventual cyclical bear-market bottom.",
         "Out-of-sample Sharpe ratio drops below 0.35 over a 10-year cycle."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:30Z"
     },
     {
       "schema_version": 1,
       "id": "35ce9cce39bc",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "dismissed",
       "kind": "options_gamma_wall_rebound",
       "rationale": "Tests if localized options open-interest concentrations function as institutional support during market drawdowns.",
       "validation_tier": "T1",
@@ -2422,13 +2560,14 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "More than 25% of gamma-wall entries experience immediate breakthroughs exceeding 5%.",
         "Underperforms a simple 200-day moving-average filter over the long era."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:30Z"
     },
     {
       "schema_version": 1,
       "id": "367fe212d850",
       "created_utc": "2026-05-26T03:47:08Z",
-      "status": "proposed",
+      "status": "paused",
       "kind": "mean_reversion_volatility_corridor",
       "rationale": "Tests if price distance from a rolling volatility-adjusted corridor captures deep structural extensions.",
       "validation_tier": "T0/T1",
@@ -2455,7 +2594,8 @@
         "hypothesis cannot be mapped to bounded diagnostics",
         "Underperforms buy-and-hold by more than 25% during a sustained 12-month bull market.",
         "Maximum drawdown reduction versus buy-and-hold is less than 5%."
-      ]
+      ],
+      "reviewed_utc": "2026-06-07T02:12:29Z"
     }
   ]
 }

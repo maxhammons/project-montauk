@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "c55094a7ec68",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "dismissed",
   "kind": "vix_term_structure_roll",
   "rationale": "Tests whether limiting TECL exposure to steep VIX-futures contango periods eliminates major drawdowns.",
   "validation_tier": "T1",
@@ -29,5 +29,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Drawdown exceeds 25% while the VIX curve remains in contango.",
     "Fails to accumulate shares during the 2017 low-volatility melt-up."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:30Z"
 }

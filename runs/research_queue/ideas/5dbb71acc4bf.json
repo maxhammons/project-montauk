@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "5dbb71acc4bf",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "paused",
   "kind": "consecutive_inside_days_expansion",
   "rationale": "Tests if entering TECL on the breakout of three consecutive inside days captures high-probability volatility expansion.",
   "validation_tier": "T0",
@@ -31,5 +31,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "False breakout trap rate is above 45%.",
     "Total trades over a 10-year period are too few to pass statistical significance."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:29Z"
 }

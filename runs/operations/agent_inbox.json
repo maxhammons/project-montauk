@@ -1,0 +1,48 @@
+{
+  "schema_version": 3,
+  "purpose": "agent_intervention_request",
+  "instructions": "Work order for an LLM agent. These are not only errors \u2014 they include maintenance, service, data, signal, research, automation, and governance requests. Each item carries a category, severity, suggested_action, and the relevant artifact paths. Resolve actionable (warning+) items using the referenced project files as the source of truth; info/advisory items are optional. The project's Python engine is authoritative for all strategy logic.",
+  "generated_utc": "2026-06-09T03:07:53Z",
+  "generated_local": "2026-06-08T20:07:53-07:00",
+  "ticket": null,
+  "summary": {
+    "request_count": 0,
+    "actionable": false,
+    "highest_severity": "none",
+    "by_category": {},
+    "by_severity": {}
+  },
+  "context": {
+    "signal": {
+      "data_end_date": "2026-06-08",
+      "risk_state": "risk_off",
+      "age_days": 0,
+      "strategy": "chimera_v1_2026_05_26"
+    },
+    "latest_operation_status": "ok",
+    "maintenance_status": "ok",
+    "doctor_status": "ok",
+    "governance_state": "active_watch",
+    "strategy_review_status": "on_best_certified",
+    "live_holdout_status": "ok",
+    "research_queue": {
+      "approved": 0,
+      "proposed": 0,
+      "paused": 47,
+      "dismissed": 23,
+      "total": 70
+    }
+  },
+  "artifacts": {
+    "latest_operation": "runs/operations/latest.json",
+    "maintenance_status": "runs/operations/maintenance_status.json",
+    "governance": "runs/operations/governance.json",
+    "strategy_review": "runs/operations/strategy_review.json",
+    "live_holdout": "runs/operations/live_holdout.json",
+    "research_queue": "runs/research_queue/queue.json",
+    "events": "runs/operations/events.jsonl",
+    "design_guide": "docs/design-guide.md",
+    "app_source": "app/"
+  },
+  "requests": []
+}

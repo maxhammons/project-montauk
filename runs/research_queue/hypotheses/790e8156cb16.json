@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-06-07T19:47:11Z",
+  "idea_id": "790e8156cb16",
+  "kind": "first_structural_higher_low",
+  "status": "planned",
+  "hypothesis": "If first structural higher low is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Tests if waiting for the first weekly higher-low during a deep correction filters out false bear-market relief rallies.",
+  "input_diagnostics": [
+    "spike/leaderboard.json",
+    "docs/validation-thresholds.md",
+    "runs/operations/live_holdout.json",
+    "signals/*.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "suggested_tests": [
+    "recertify_leaderboard",
+    "live_holdout_review",
+    "generated_hypothesis_test"
+  ],
+  "expected_artifact_paths": [
+    "spike/leaderboard.json",
+    "runs/operations/live_holdout.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "candidate fails the authority certification gates",
+    "drift is not reproducible from point-in-time snapshots",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Misses more than 35% of the initial rebound move on major bottoms.",
+    "Ulcer Index exceeds QQQ buy-and-hold over the full era."
+  ],
+  "expected_failure_mode": "V-bottom recoveries can leave this family behind entirely due to late entries."
+}

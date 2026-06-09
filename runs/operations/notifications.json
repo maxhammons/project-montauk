@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-06-05T21:00:53Z",
+  "generated_utc": "2026-06-09T03:00:55Z",
   "version_info": {
     "schema_version": 1,
-    "generated_utc": "2026-06-05T21:00:53Z",
+    "generated_utc": "2026-06-09T03:00:55Z",
     "app_version": "0.1.0",
-    "git_commit": "bdd3c5f",
+    "git_commit": "76c51dc",
     "git_dirty": true,
-    "strategy_code_version": "bdd3c5f"
+    "strategy_code_version": "76c51dc"
   },
-  "pending_count": 17,
+  "pending_count": 44,
   "preferences": {
     "event_types": {
       "champion_blocked": {
@@ -64,7 +64,7 @@
   "notifications": [
     {
       "id": "f184da1d7aa827cb",
-      "created_utc": "2026-06-05T21:00:53Z",
+      "created_utc": "2026-06-09T03:00:55Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -113,7 +113,7 @@
     },
     {
       "id": "65b518ef99843587",
-      "created_utc": "2026-06-05T21:00:53Z",
+      "created_utc": "2026-06-09T03:00:55Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -261,7 +261,7 @@
     },
     {
       "id": "c5a2da4901f0069e",
-      "created_utc": "2026-06-05T21:00:53Z",
+      "created_utc": "2026-06-09T03:00:55Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -460,7 +460,7 @@
     },
     {
       "id": "a795804388207584",
-      "created_utc": "2026-06-05T21:00:53Z",
+      "created_utc": "2026-06-09T03:00:55Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -608,7 +608,7 @@
     },
     {
       "id": "d69a59a211166044",
-      "created_utc": "2026-06-05T21:00:53Z",
+      "created_utc": "2026-06-09T03:00:55Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -807,7 +807,7 @@
     },
     {
       "id": "c1ffbea063a46f8b",
-      "created_utc": "2026-06-05T21:00:53Z",
+      "created_utc": "2026-06-09T03:00:55Z",
       "title": "Montauk Warning",
       "body": "Chimera validation completed.",
       "severity": "warning",
@@ -836,7 +836,7 @@
     },
     {
       "id": "ddb96a9414741df8",
-      "created_utc": "2026-06-05T21:00:53Z",
+      "created_utc": "2026-06-09T03:00:55Z",
       "title": "Montauk Warning",
       "body": "Chimera validation completed.",
       "severity": "warning",
@@ -865,7 +865,7 @@
     },
     {
       "id": "fcf1b9215960a7bf",
-      "created_utc": "2026-06-05T21:00:53Z",
+      "created_utc": "2026-06-09T03:00:55Z",
       "title": "Montauk Notice",
       "body": "Chimera validation completed.",
       "severity": "notice",
@@ -894,7 +894,7 @@
     },
     {
       "id": "fb159d441d5d6e44",
-      "created_utc": "2026-06-05T21:00:53Z",
+      "created_utc": "2026-06-09T03:00:55Z",
       "title": "Montauk Notice",
       "body": "Chimera validation completed.",
       "severity": "notice",
@@ -923,7 +923,7 @@
     },
     {
       "id": "5b8b452fd24fe171",
-      "created_utc": "2026-06-05T21:00:53Z",
+      "created_utc": "2026-06-09T03:00:55Z",
       "title": "Montauk Notice",
       "body": "Chimera validation completed.",
       "severity": "notice",
@@ -952,7 +952,7 @@
     },
     {
       "id": "029a9bcc006b5e43",
-      "created_utc": "2026-06-05T21:00:53Z",
+      "created_utc": "2026-06-09T03:00:55Z",
       "title": "Montauk Notice",
       "body": "Chimera validation completed.",
       "severity": "notice",
@@ -981,7 +981,7 @@
     },
     {
       "id": "42a15f5b8933cc33",
-      "created_utc": "2026-06-05T21:00:53Z",
+      "created_utc": "2026-06-09T03:00:55Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1028,7 +1028,7 @@
     },
     {
       "id": "627c962b0ef5f9ef",
-      "created_utc": "2026-06-05T21:00:53Z",
+      "created_utc": "2026-06-09T03:00:55Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1075,7 +1075,7 @@
     },
     {
       "id": "37bd1aabfd312323",
-      "created_utc": "2026-06-05T21:00:53Z",
+      "created_utc": "2026-06-09T03:00:55Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1122,7 +1122,7 @@
     },
     {
       "id": "e5201e4de5614c63",
-      "created_utc": "2026-06-05T21:00:53Z",
+      "created_utc": "2026-06-09T03:00:55Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1169,7 +1169,7 @@
     },
     {
       "id": "c5def9ddbb42dd2a",
-      "created_utc": "2026-06-05T21:00:53Z",
+      "created_utc": "2026-06-09T03:00:55Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1216,7 +1216,7 @@
     },
     {
       "id": "53925cebcb08b3ba",
-      "created_utc": "2026-06-05T21:00:53Z",
+      "created_utc": "2026-06-09T03:00:55Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1256,6 +1256,1210 @@
             "buy_event": false,
             "sell_event": true,
             "close": 202.589996
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "2c1a1a90fd1b3fe7",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Warning",
+      "body": "Maintenance failed.",
+      "severity": "warning",
+      "event_type": "maintenance_run",
+      "target": {
+        "view": "events",
+        "artifact_path": null,
+        "event_id": "2c1a1a90fd1b3fe7"
+      },
+      "target_view": "events",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-06T22:55:04Z",
+        "severity": "warning",
+        "event_type": "maintenance_run",
+        "message": "Maintenance failed.",
+        "payload": {
+          "summary": {
+            "daily_ok": false,
+            "doctor_ok": false,
+            "research": {
+              "status": "empty",
+              "reason": "no_approved_strategy_ideas"
+            }
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "110d1fbdb8e938b6",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Montauk signal changed to risk_off.",
+      "severity": "notice",
+      "event_type": "signal_changed",
+      "target": {
+        "view": "current",
+        "artifact_path": null,
+        "event_id": "110d1fbdb8e938b6"
+      },
+      "target_view": "current",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-06T22:57:26Z",
+        "severity": "notice",
+        "event_type": "signal_changed",
+        "message": "Montauk signal changed to risk_off.",
+        "payload": {
+          "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-05.json",
+          "change": {
+            "changed": true,
+            "reason": "field_change",
+            "changed_fields": [
+              "risk_state",
+              "sell_event",
+              "exit_signal"
+            ],
+            "previous_data_end_date": "2026-06-04",
+            "previous_risk_state": "risk_on"
+          },
+          "signal": {
+            "data_end_date": "2026-06-05",
+            "strategy": "gc_vjatr_timing_repair",
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "risk_state": "risk_off",
+            "entry_signal": false,
+            "exit_signal": true,
+            "buy_event": false,
+            "sell_event": true,
+            "close": 202.589996
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "3eade09923547837",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Warning",
+      "body": "Maintenance failed.",
+      "severity": "warning",
+      "event_type": "maintenance_run",
+      "target": {
+        "view": "events",
+        "artifact_path": null,
+        "event_id": "3eade09923547837"
+      },
+      "target_view": "events",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-06T22:57:35Z",
+        "severity": "warning",
+        "event_type": "maintenance_run",
+        "message": "Maintenance failed.",
+        "payload": {
+          "summary": {
+            "daily_ok": true,
+            "doctor_ok": false,
+            "research": {
+              "status": "empty",
+              "reason": "no_approved_strategy_ideas"
+            }
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "049ca5134dc2fe76",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Montauk signal changed to risk_off.",
+      "severity": "notice",
+      "event_type": "signal_changed",
+      "target": {
+        "view": "current",
+        "artifact_path": null,
+        "event_id": "049ca5134dc2fe76"
+      },
+      "target_view": "current",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-07T01:50:08Z",
+        "severity": "notice",
+        "event_type": "signal_changed",
+        "message": "Montauk signal changed to risk_off.",
+        "payload": {
+          "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-05.json",
+          "change": {
+            "changed": true,
+            "reason": "field_change",
+            "changed_fields": [
+              "risk_state",
+              "sell_event",
+              "exit_signal"
+            ],
+            "previous_data_end_date": "2026-06-04",
+            "previous_risk_state": "risk_on"
+          },
+          "signal": {
+            "data_end_date": "2026-06-05",
+            "strategy": "gc_vjatr_timing_repair",
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "risk_state": "risk_off",
+            "entry_signal": false,
+            "exit_signal": true,
+            "buy_event": false,
+            "sell_event": true,
+            "close": 202.589996
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "0d96871e63cd8fbf",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Warning",
+      "body": "Maintenance failed.",
+      "severity": "warning",
+      "event_type": "maintenance_run",
+      "target": {
+        "view": "events",
+        "artifact_path": null,
+        "event_id": "0d96871e63cd8fbf"
+      },
+      "target_view": "events",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-07T01:50:17Z",
+        "severity": "warning",
+        "event_type": "maintenance_run",
+        "message": "Maintenance failed.",
+        "payload": {
+          "summary": {
+            "daily_ok": true,
+            "doctor_ok": false,
+            "research": {
+              "status": "empty",
+              "reason": "no_approved_strategy_ideas"
+            }
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "ffebfd8f6677ea39",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Montauk signal changed to risk_off.",
+      "severity": "notice",
+      "event_type": "signal_changed",
+      "target": {
+        "view": "current",
+        "artifact_path": null,
+        "event_id": "ffebfd8f6677ea39"
+      },
+      "target_view": "current",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-07T01:54:41Z",
+        "severity": "notice",
+        "event_type": "signal_changed",
+        "message": "Montauk signal changed to risk_off.",
+        "payload": {
+          "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-05.json",
+          "change": {
+            "changed": true,
+            "reason": "field_change",
+            "changed_fields": [
+              "risk_state",
+              "sell_event",
+              "exit_signal"
+            ],
+            "previous_data_end_date": "2026-06-04",
+            "previous_risk_state": "risk_on"
+          },
+          "signal": {
+            "data_end_date": "2026-06-05",
+            "strategy": "gc_vjatr_timing_repair",
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "risk_state": "risk_off",
+            "entry_signal": false,
+            "exit_signal": true,
+            "buy_event": false,
+            "sell_event": true,
+            "close": 202.589996
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "c41533158c2bb731",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Montauk signal changed to risk_off.",
+      "severity": "notice",
+      "event_type": "signal_changed",
+      "target": {
+        "view": "current",
+        "artifact_path": null,
+        "event_id": "c41533158c2bb731"
+      },
+      "target_view": "current",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-07T01:54:54Z",
+        "severity": "notice",
+        "event_type": "signal_changed",
+        "message": "Montauk signal changed to risk_off.",
+        "payload": {
+          "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-05.json",
+          "change": {
+            "changed": true,
+            "reason": "field_change",
+            "changed_fields": [
+              "risk_state",
+              "sell_event",
+              "exit_signal"
+            ],
+            "previous_data_end_date": "2026-06-04",
+            "previous_risk_state": "risk_on"
+          },
+          "signal": {
+            "data_end_date": "2026-06-05",
+            "strategy": "gc_vjatr_timing_repair",
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "risk_state": "risk_off",
+            "entry_signal": false,
+            "exit_signal": true,
+            "buy_event": false,
+            "sell_event": true,
+            "close": 202.589996
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "860dcf94fc22175d",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Montauk signal changed to risk_off.",
+      "severity": "notice",
+      "event_type": "signal_changed",
+      "target": {
+        "view": "current",
+        "artifact_path": null,
+        "event_id": "860dcf94fc22175d"
+      },
+      "target_view": "current",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-07T01:55:56Z",
+        "severity": "notice",
+        "event_type": "signal_changed",
+        "message": "Montauk signal changed to risk_off.",
+        "payload": {
+          "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-05.json",
+          "change": {
+            "changed": true,
+            "reason": "field_change",
+            "changed_fields": [
+              "risk_state",
+              "sell_event",
+              "exit_signal"
+            ],
+            "previous_data_end_date": "2026-06-04",
+            "previous_risk_state": "risk_on"
+          },
+          "signal": {
+            "data_end_date": "2026-06-05",
+            "strategy": "gc_vjatr_timing_repair",
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "risk_state": "risk_off",
+            "entry_signal": false,
+            "exit_signal": true,
+            "buy_event": false,
+            "sell_event": true,
+            "close": 202.589996
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "4907f76c8e152a82",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Montauk signal changed to risk_off.",
+      "severity": "notice",
+      "event_type": "signal_changed",
+      "target": {
+        "view": "current",
+        "artifact_path": null,
+        "event_id": "4907f76c8e152a82"
+      },
+      "target_view": "current",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-07T01:55:57Z",
+        "severity": "notice",
+        "event_type": "signal_changed",
+        "message": "Montauk signal changed to risk_off.",
+        "payload": {
+          "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-05.json",
+          "change": {
+            "changed": true,
+            "reason": "field_change",
+            "changed_fields": [
+              "risk_state",
+              "sell_event",
+              "exit_signal"
+            ],
+            "previous_data_end_date": "2026-06-04",
+            "previous_risk_state": "risk_on"
+          },
+          "signal": {
+            "data_end_date": "2026-06-05",
+            "strategy": "gc_vjatr_timing_repair",
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "risk_state": "risk_off",
+            "entry_signal": false,
+            "exit_signal": true,
+            "buy_event": false,
+            "sell_event": true,
+            "close": 202.589996
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "8efa2f2ddefc7bd6",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Montauk signal changed to risk_off.",
+      "severity": "notice",
+      "event_type": "signal_changed",
+      "target": {
+        "view": "current",
+        "artifact_path": null,
+        "event_id": "8efa2f2ddefc7bd6"
+      },
+      "target_view": "current",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-07T01:56:45Z",
+        "severity": "notice",
+        "event_type": "signal_changed",
+        "message": "Montauk signal changed to risk_off.",
+        "payload": {
+          "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-05.json",
+          "change": {
+            "changed": true,
+            "reason": "field_change",
+            "changed_fields": [
+              "risk_state",
+              "sell_event",
+              "exit_signal"
+            ],
+            "previous_data_end_date": "2026-06-04",
+            "previous_risk_state": "risk_on"
+          },
+          "signal": {
+            "data_end_date": "2026-06-05",
+            "strategy": "gc_vjatr_timing_repair",
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "risk_state": "risk_off",
+            "entry_signal": false,
+            "exit_signal": true,
+            "buy_event": false,
+            "sell_event": true,
+            "close": 202.589996
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "307004f9a568baef",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Montauk signal changed to risk_off.",
+      "severity": "notice",
+      "event_type": "signal_changed",
+      "target": {
+        "view": "current",
+        "artifact_path": null,
+        "event_id": "307004f9a568baef"
+      },
+      "target_view": "current",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-07T02:00:53Z",
+        "severity": "notice",
+        "event_type": "signal_changed",
+        "message": "Montauk signal changed to risk_off.",
+        "payload": {
+          "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-05.json",
+          "change": {
+            "changed": true,
+            "reason": "field_change",
+            "changed_fields": [
+              "risk_state",
+              "sell_event",
+              "exit_signal"
+            ],
+            "previous_data_end_date": "2026-06-04",
+            "previous_risk_state": "risk_on"
+          },
+          "signal": {
+            "data_end_date": "2026-06-05",
+            "strategy": "gc_vjatr_timing_repair",
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "risk_state": "risk_off",
+            "entry_signal": false,
+            "exit_signal": true,
+            "buy_event": false,
+            "sell_event": true,
+            "close": 202.589996
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "926c60db2283654e",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Warning",
+      "body": "Maintenance failed.",
+      "severity": "warning",
+      "event_type": "maintenance_run",
+      "target": {
+        "view": "events",
+        "artifact_path": null,
+        "event_id": "926c60db2283654e"
+      },
+      "target_view": "events",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-07T02:01:02Z",
+        "severity": "warning",
+        "event_type": "maintenance_run",
+        "message": "Maintenance failed.",
+        "payload": {
+          "summary": {
+            "daily_ok": true,
+            "doctor_ok": false,
+            "research": {
+              "status": "empty",
+              "reason": "no_approved_strategy_ideas"
+            }
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "b5eb1d0ae8bf703c",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Montauk signal changed to risk_off.",
+      "severity": "notice",
+      "event_type": "signal_changed",
+      "target": {
+        "view": "current",
+        "artifact_path": null,
+        "event_id": "b5eb1d0ae8bf703c"
+      },
+      "target_view": "current",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-07T02:05:03Z",
+        "severity": "notice",
+        "event_type": "signal_changed",
+        "message": "Montauk signal changed to risk_off.",
+        "payload": {
+          "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-05.json",
+          "change": {
+            "changed": true,
+            "reason": "field_change",
+            "changed_fields": [
+              "risk_state",
+              "sell_event",
+              "exit_signal"
+            ],
+            "previous_data_end_date": "2026-06-04",
+            "previous_risk_state": "risk_on"
+          },
+          "signal": {
+            "data_end_date": "2026-06-05",
+            "strategy": "gc_vjatr_timing_repair",
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "risk_state": "risk_off",
+            "entry_signal": false,
+            "exit_signal": true,
+            "buy_event": false,
+            "sell_event": true,
+            "close": 202.589996
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "c8d4ca2bf117bfd2",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Montauk signal changed to risk_off.",
+      "severity": "notice",
+      "event_type": "signal_changed",
+      "target": {
+        "view": "current",
+        "artifact_path": null,
+        "event_id": "c8d4ca2bf117bfd2"
+      },
+      "target_view": "current",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-07T02:05:38Z",
+        "severity": "notice",
+        "event_type": "signal_changed",
+        "message": "Montauk signal changed to risk_off.",
+        "payload": {
+          "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-05.json",
+          "change": {
+            "changed": true,
+            "reason": "field_change",
+            "changed_fields": [
+              "risk_state",
+              "sell_event",
+              "exit_signal"
+            ],
+            "previous_data_end_date": "2026-06-04",
+            "previous_risk_state": "risk_on"
+          },
+          "signal": {
+            "data_end_date": "2026-06-05",
+            "strategy": "gc_vjatr_timing_repair",
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "risk_state": "risk_off",
+            "entry_signal": false,
+            "exit_signal": true,
+            "buy_event": false,
+            "sell_event": true,
+            "close": 202.589996
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "0dc70367a4b9f797",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Montauk signal changed to risk_off.",
+      "severity": "notice",
+      "event_type": "signal_changed",
+      "target": {
+        "view": "current",
+        "artifact_path": null,
+        "event_id": "0dc70367a4b9f797"
+      },
+      "target_view": "current",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-07T02:22:29Z",
+        "severity": "notice",
+        "event_type": "signal_changed",
+        "message": "Montauk signal changed to risk_off.",
+        "payload": {
+          "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-05.json",
+          "change": {
+            "changed": true,
+            "reason": "field_change",
+            "changed_fields": [
+              "risk_state",
+              "sell_event",
+              "exit_signal"
+            ],
+            "previous_data_end_date": "2026-06-04",
+            "previous_risk_state": "risk_on"
+          },
+          "signal": {
+            "data_end_date": "2026-06-05",
+            "strategy": "gc_vjatr_timing_repair",
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "risk_state": "risk_off",
+            "entry_signal": false,
+            "exit_signal": true,
+            "buy_event": false,
+            "sell_event": true,
+            "close": 202.589996
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "c255b2246ee37a2f",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Montauk signal changed to risk_off.",
+      "severity": "notice",
+      "event_type": "signal_changed",
+      "target": {
+        "view": "current",
+        "artifact_path": null,
+        "event_id": "c255b2246ee37a2f"
+      },
+      "target_view": "current",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-07T02:35:23Z",
+        "severity": "notice",
+        "event_type": "signal_changed",
+        "message": "Montauk signal changed to risk_off.",
+        "payload": {
+          "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-05.json",
+          "change": {
+            "changed": true,
+            "reason": "field_change",
+            "changed_fields": [
+              "risk_state",
+              "sell_event",
+              "exit_signal"
+            ],
+            "previous_data_end_date": "2026-06-04",
+            "previous_risk_state": "risk_on"
+          },
+          "signal": {
+            "data_end_date": "2026-06-05",
+            "strategy": "gc_vjatr_timing_repair",
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "risk_state": "risk_off",
+            "entry_signal": false,
+            "exit_signal": true,
+            "buy_event": false,
+            "sell_event": true,
+            "close": 202.589996
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "6051a3d5a8745cc5",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Montauk signal changed to risk_off.",
+      "severity": "notice",
+      "event_type": "signal_changed",
+      "target": {
+        "view": "current",
+        "artifact_path": null,
+        "event_id": "6051a3d5a8745cc5"
+      },
+      "target_view": "current",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-07T04:15:38Z",
+        "severity": "notice",
+        "event_type": "signal_changed",
+        "message": "Montauk signal changed to risk_off.",
+        "payload": {
+          "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-05.json",
+          "change": {
+            "changed": true,
+            "reason": "field_change",
+            "changed_fields": [
+              "risk_state",
+              "sell_event",
+              "exit_signal"
+            ],
+            "previous_data_end_date": "2026-06-04",
+            "previous_risk_state": "risk_on"
+          },
+          "signal": {
+            "data_end_date": "2026-06-05",
+            "strategy": "gc_vjatr_timing_repair",
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "risk_state": "risk_off",
+            "entry_signal": false,
+            "exit_signal": true,
+            "buy_event": false,
+            "sell_event": true,
+            "close": 202.589996
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "08e1d6e293eaf504",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Montauk signal changed to risk_off.",
+      "severity": "notice",
+      "event_type": "signal_changed",
+      "target": {
+        "view": "current",
+        "artifact_path": null,
+        "event_id": "08e1d6e293eaf504"
+      },
+      "target_view": "current",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-07T04:21:45Z",
+        "severity": "notice",
+        "event_type": "signal_changed",
+        "message": "Montauk signal changed to risk_off.",
+        "payload": {
+          "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-05.json",
+          "change": {
+            "changed": true,
+            "reason": "field_change",
+            "changed_fields": [
+              "risk_state",
+              "sell_event",
+              "exit_signal"
+            ],
+            "previous_data_end_date": "2026-06-04",
+            "previous_risk_state": "risk_on"
+          },
+          "signal": {
+            "data_end_date": "2026-06-05",
+            "strategy": "gc_vjatr_timing_repair",
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "risk_state": "risk_off",
+            "entry_signal": false,
+            "exit_signal": true,
+            "buy_event": false,
+            "sell_event": true,
+            "close": 202.589996
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "77eb1e3078b47ac1",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Montauk signal changed to risk_off.",
+      "severity": "notice",
+      "event_type": "signal_changed",
+      "target": {
+        "view": "current",
+        "artifact_path": null,
+        "event_id": "77eb1e3078b47ac1"
+      },
+      "target_view": "current",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-07T04:48:22Z",
+        "severity": "notice",
+        "event_type": "signal_changed",
+        "message": "Montauk signal changed to risk_off.",
+        "payload": {
+          "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-05.json",
+          "change": {
+            "changed": true,
+            "reason": "field_change",
+            "changed_fields": [
+              "risk_state",
+              "sell_event",
+              "exit_signal"
+            ],
+            "previous_data_end_date": "2026-06-04",
+            "previous_risk_state": "risk_on"
+          },
+          "signal": {
+            "data_end_date": "2026-06-05",
+            "strategy": "gc_vjatr_timing_repair",
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "risk_state": "risk_off",
+            "entry_signal": false,
+            "exit_signal": true,
+            "buy_event": false,
+            "sell_event": true,
+            "close": 202.589996
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "4724f536fc2aca43",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Montauk signal changed to risk_off.",
+      "severity": "notice",
+      "event_type": "signal_changed",
+      "target": {
+        "view": "current",
+        "artifact_path": null,
+        "event_id": "4724f536fc2aca43"
+      },
+      "target_view": "current",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-07T18:00:38Z",
+        "severity": "notice",
+        "event_type": "signal_changed",
+        "message": "Montauk signal changed to risk_off.",
+        "payload": {
+          "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-05.json",
+          "change": {
+            "changed": true,
+            "reason": "field_change",
+            "changed_fields": [
+              "risk_state",
+              "sell_event",
+              "exit_signal"
+            ],
+            "previous_data_end_date": "2026-06-04",
+            "previous_risk_state": "risk_on"
+          },
+          "signal": {
+            "data_end_date": "2026-06-05",
+            "strategy": "gc_vjatr_timing_repair",
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "risk_state": "risk_off",
+            "entry_signal": false,
+            "exit_signal": true,
+            "buy_event": false,
+            "sell_event": true,
+            "close": 202.589996
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "e292081d59af1d2a",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Montauk signal changed to risk_off.",
+      "severity": "notice",
+      "event_type": "signal_changed",
+      "target": {
+        "view": "current",
+        "artifact_path": null,
+        "event_id": "e292081d59af1d2a"
+      },
+      "target_view": "current",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-07T19:32:34Z",
+        "severity": "notice",
+        "event_type": "signal_changed",
+        "message": "Montauk signal changed to risk_off.",
+        "payload": {
+          "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-05.json",
+          "change": {
+            "changed": true,
+            "reason": "field_change",
+            "changed_fields": [
+              "risk_state",
+              "sell_event",
+              "exit_signal"
+            ],
+            "previous_data_end_date": "2026-06-04",
+            "previous_risk_state": "risk_on"
+          },
+          "signal": {
+            "data_end_date": "2026-06-05",
+            "strategy": "gc_vjatr_timing_repair",
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "risk_state": "risk_off",
+            "entry_signal": false,
+            "exit_signal": true,
+            "buy_event": false,
+            "sell_event": true,
+            "close": 202.589996
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "c553a889628aa5fa",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Montauk signal changed to risk_off.",
+      "severity": "notice",
+      "event_type": "signal_changed",
+      "target": {
+        "view": "current",
+        "artifact_path": null,
+        "event_id": "c553a889628aa5fa"
+      },
+      "target_view": "current",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-07T20:31:26Z",
+        "severity": "notice",
+        "event_type": "signal_changed",
+        "message": "Montauk signal changed to risk_off.",
+        "payload": {
+          "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-05.json",
+          "change": {
+            "changed": true,
+            "reason": "field_change",
+            "changed_fields": [
+              "risk_state",
+              "sell_event",
+              "exit_signal"
+            ],
+            "previous_data_end_date": "2026-06-04",
+            "previous_risk_state": "risk_on"
+          },
+          "signal": {
+            "data_end_date": "2026-06-05",
+            "strategy": "gc_vjatr_timing_repair",
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "risk_state": "risk_off",
+            "entry_signal": false,
+            "exit_signal": true,
+            "buy_event": false,
+            "sell_event": true,
+            "close": 202.589996
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "e5d484a86e17b532",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Montauk signal changed to risk_off.",
+      "severity": "notice",
+      "event_type": "signal_changed",
+      "target": {
+        "view": "current",
+        "artifact_path": null,
+        "event_id": "e5d484a86e17b532"
+      },
+      "target_view": "current",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-07T22:38:26Z",
+        "severity": "notice",
+        "event_type": "signal_changed",
+        "message": "Montauk signal changed to risk_off.",
+        "payload": {
+          "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-05.json",
+          "change": {
+            "changed": true,
+            "reason": "field_change",
+            "changed_fields": [
+              "risk_state",
+              "sell_event",
+              "exit_signal"
+            ],
+            "previous_data_end_date": "2026-06-04",
+            "previous_risk_state": "risk_on"
+          },
+          "signal": {
+            "data_end_date": "2026-06-05",
+            "strategy": "gc_vjatr_timing_repair",
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "risk_state": "risk_off",
+            "entry_signal": false,
+            "exit_signal": true,
+            "buy_event": false,
+            "sell_event": true,
+            "close": 202.589996
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "d44bb3eb356235a5",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "A higher-confidence certified strategy is available for review.",
+      "severity": "notice",
+      "event_type": "replacement_candidate",
+      "target": {
+        "view": "champion",
+        "artifact_path": "runs/operations/strategy_review.json",
+        "event_id": "d44bb3eb356235a5"
+      },
+      "target_view": "champion",
+      "artifact_path": "runs/operations/strategy_review.json",
+      "event": {
+        "timestamp_utc": "2026-06-08T20:40:20Z",
+        "severity": "notice",
+        "event_type": "replacement_candidate",
+        "message": "A higher-confidence certified strategy is available for review.",
+        "payload": {
+          "schema_version": 1,
+          "generated_utc": "2026-06-08T20:40:20Z",
+          "status": "switch_candidate",
+          "on_best_certified": false,
+          "selection_metric": "montauk",
+          "selection_rule": "highest Montauk Score among current Gold PASS leaderboard rows",
+          "active": {
+            "strategy": "gc_vjatr_timing_repair",
+            "rank": 1,
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+            "confidence": 0.7678,
+            "score_label": "composite_confidence",
+            "data_end_date": "2026-06-05",
+            "risk_state": "risk_off"
+          },
+          "best_certified": {
+            "strategy": "chimera_v1_2026_05_26",
+            "rank": null,
+            "display_name": "Jade Bonobo",
+            "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
+            "montauk_score": 0.6516,
+            "confidence": 0.7594,
+            "selected_score": 0.6516,
+            "score_label": "Montauk Score",
+            "share_multiple": 35.2227,
+            "real_share_multiple": 1.2872,
+            "modern_share_multiple": 3.2073
+          },
+          "leaderboard_count": 20,
+          "gold_count": 20
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "bfce618aea8ecfe6",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Montauk signal changed to risk_off.",
+      "severity": "notice",
+      "event_type": "signal_changed",
+      "target": {
+        "view": "current",
+        "artifact_path": null,
+        "event_id": "bfce618aea8ecfe6"
+      },
+      "target_view": "current",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-08T20:57:39Z",
+        "severity": "notice",
+        "event_type": "signal_changed",
+        "message": "Montauk signal changed to risk_off.",
+        "payload": {
+          "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-08.json",
+          "change": {
+            "changed": true,
+            "reason": "field_change",
+            "changed_fields": [
+              "sell_event",
+              "exit_signal"
+            ],
+            "previous_data_end_date": "2026-06-05",
+            "previous_risk_state": "risk_off"
+          },
+          "signal": {
+            "data_end_date": "2026-06-08",
+            "strategy": "chimera_v1_2026_05_26",
+            "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
+            "risk_state": "risk_off",
+            "entry_signal": false,
+            "exit_signal": false,
+            "buy_event": false,
+            "sell_event": false,
+            "close": 215.360001
+          }
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "58b4ff0f26fe36c0",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Active champion changed.",
+      "severity": "notice",
+      "event_type": "champion_changed",
+      "target": {
+        "view": "champion",
+        "artifact_path": "runs/operations/governance.json",
+        "event_id": "58b4ff0f26fe36c0"
+      },
+      "target_view": "champion",
+      "artifact_path": "runs/operations/governance.json",
+      "event": {
+        "timestamp_utc": "2026-06-08T21:27:51Z",
+        "severity": "notice",
+        "event_type": "champion_changed",
+        "message": "Active champion changed.",
+        "payload": {
+          "previous": {
+            "data_end_date": "2026-06-05",
+            "risk_state": "risk_off",
+            "strategy": "gc_vjatr_timing_repair",
+            "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d"
+          },
+          "current": {
+            "data_end_date": "2026-06-08",
+            "risk_state": "risk_off",
+            "strategy": "chimera_v1_2026_05_26",
+            "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1"
+          },
+          "governance_state": "replacement_candidate"
+        }
+      },
+      "status": "pending"
+    },
+    {
+      "id": "877ee111a92a4ad7",
+      "created_utc": "2026-06-09T03:00:55Z",
+      "title": "Montauk Notice",
+      "body": "Montauk signal changed to risk_off.",
+      "severity": "notice",
+      "event_type": "signal_changed",
+      "target": {
+        "view": "current",
+        "artifact_path": null,
+        "event_id": "877ee111a92a4ad7"
+      },
+      "target_view": "current",
+      "artifact_path": null,
+      "event": {
+        "timestamp_utc": "2026-06-09T03:00:35Z",
+        "severity": "notice",
+        "event_type": "signal_changed",
+        "message": "Montauk signal changed to risk_off.",
+        "payload": {
+          "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-08.json",
+          "change": {
+            "changed": true,
+            "reason": "field_change",
+            "changed_fields": [
+              "sell_event",
+              "exit_signal"
+            ],
+            "previous_data_end_date": "2026-06-05",
+            "previous_risk_state": "risk_off"
+          },
+          "signal": {
+            "data_end_date": "2026-06-08",
+            "strategy": "chimera_v1_2026_05_26",
+            "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
+            "risk_state": "risk_off",
+            "entry_signal": false,
+            "exit_signal": false,
+            "buy_event": false,
+            "sell_event": false,
+            "close": 215.360001
           }
         }
       },

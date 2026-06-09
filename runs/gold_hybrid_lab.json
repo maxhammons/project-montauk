@@ -1,7 +1,7 @@
 {
   "champion": {
-    "display_name": "Cerulean Hare #1",
-    "strategy": "gold_hybrid_committee",
+    "display_name": "Chimera v1 - 2026-05-26",
+    "strategy": "chimera_v1_2026_05_26",
     "metrics": {
       "trades": 19,
       "trades_yr": 0.6,
@@ -24,16 +24,16 @@
     }
   },
   "base_source": {
-    "display_name": "Marbled Bonobo",
-    "strategy": "gc_vjatr"
+    "display_name": "Sable Osprey",
+    "strategy": "gc_vjatr_reclaimer"
   },
   "source_policy": {
     "include_hybrids_as_sources": false,
-    "source_gold_rows": 7
+    "source_gold_rows": 20
   },
   "entry_leaderboard": [
     {
-      "leaderboard_rank": 6,
+      "leaderboard_rank": 18,
       "display_name": "Ivory Hare",
       "strategy": "gc_vjatr_timing_repair",
       "params": {
@@ -83,12 +83,12 @@
       "entry_timing": 0.2786,
       "exit_timing": 0.1762,
       "marker_score": 0.4607,
-      "marker_timing": 0.4462,
+      "marker_timing": 0.4465,
       "candidate_buy_count": 32,
       "candidate_sell_count": 32
     },
     {
-      "leaderboard_rank": 7,
+      "leaderboard_rank": 19,
       "display_name": "Cerulean Hare #2",
       "strategy": "gc_vjatr_timing_repair",
       "params": {
@@ -138,12 +138,12 @@
       "entry_timing": 0.2786,
       "exit_timing": 0.1762,
       "marker_score": 0.4607,
-      "marker_timing": 0.4462,
+      "marker_timing": 0.4465,
       "candidate_buy_count": 32,
       "candidate_sell_count": 32
     },
     {
-      "leaderboard_rank": 8,
+      "leaderboard_rank": 20,
       "display_name": "Sable Hare",
       "strategy": "gc_vjatr_timing_repair",
       "params": {
@@ -193,12 +193,800 @@
       "entry_timing": 0.2786,
       "exit_timing": 0.1762,
       "marker_score": 0.4607,
-      "marker_timing": 0.4462,
+      "marker_timing": 0.4465,
       "candidate_buy_count": 32,
       "candidate_sell_count": 32
     },
     {
       "leaderboard_rank": 2,
+      "display_name": "Sable Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 10,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 30.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.85
+      },
+      "confidence": 0.7449,
+      "overall_performance_score": 4.6421,
+      "metrics": {
+        "trades": 21,
+        "trades_yr": 0.6,
+        "n_params": 17,
+        "share_multiple": 40.3368,
+        "real_share_multiple": 1.3769,
+        "modern_share_multiple": 1.8011,
+        "cagr": 30.49,
+        "max_dd": 60.6,
+        "mar": 0.503,
+        "regime_score": 0.5679,
+        "hhi": 0.0823,
+        "bull_capture": 0.365,
+        "bear_avoidance": 0.7708,
+        "win_rate": 71.4,
+        "exit_reasons": {
+          "A": 9,
+          "D": 8,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4582,
+      "exit_score": 0.4126,
+      "entry_timing": 0.1571,
+      "exit_timing": 0.1738,
+      "marker_score": 0.6492,
+      "marker_timing": 0.3058,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 3,
+      "display_name": "Brindled Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 10,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 35.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.85
+      },
+      "confidence": 0.7449,
+      "overall_performance_score": 4.6421,
+      "metrics": {
+        "trades": 21,
+        "trades_yr": 0.6,
+        "n_params": 17,
+        "share_multiple": 40.3368,
+        "real_share_multiple": 1.3769,
+        "modern_share_multiple": 1.8011,
+        "cagr": 30.49,
+        "max_dd": 60.6,
+        "mar": 0.503,
+        "regime_score": 0.5679,
+        "hhi": 0.0823,
+        "bull_capture": 0.365,
+        "bear_avoidance": 0.7708,
+        "win_rate": 71.4,
+        "exit_reasons": {
+          "A": 9,
+          "D": 8,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4582,
+      "exit_score": 0.4126,
+      "entry_timing": 0.1571,
+      "exit_timing": 0.1738,
+      "marker_score": 0.6492,
+      "marker_timing": 0.3058,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 4,
+      "display_name": "Velvet Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 10,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 20.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.85
+      },
+      "confidence": 0.7448,
+      "overall_performance_score": 4.6421,
+      "metrics": {
+        "trades": 21,
+        "trades_yr": 0.6,
+        "n_params": 17,
+        "share_multiple": 40.3368,
+        "real_share_multiple": 1.3769,
+        "modern_share_multiple": 1.8011,
+        "cagr": 30.49,
+        "max_dd": 60.6,
+        "mar": 0.503,
+        "regime_score": 0.5679,
+        "hhi": 0.0823,
+        "bull_capture": 0.365,
+        "bear_avoidance": 0.7708,
+        "win_rate": 71.4,
+        "exit_reasons": {
+          "A": 9,
+          "D": 8,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4582,
+      "exit_score": 0.4126,
+      "entry_timing": 0.1571,
+      "exit_timing": 0.1738,
+      "marker_score": 0.6492,
+      "marker_timing": 0.3058,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 5,
+      "display_name": "Amber Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 10,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 25.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.85
+      },
+      "confidence": 0.7448,
+      "overall_performance_score": 4.6421,
+      "metrics": {
+        "trades": 21,
+        "trades_yr": 0.6,
+        "n_params": 17,
+        "share_multiple": 40.3368,
+        "real_share_multiple": 1.3769,
+        "modern_share_multiple": 1.8011,
+        "cagr": 30.49,
+        "max_dd": 60.6,
+        "mar": 0.503,
+        "regime_score": 0.5679,
+        "hhi": 0.0823,
+        "bull_capture": 0.365,
+        "bear_avoidance": 0.7708,
+        "win_rate": 71.4,
+        "exit_reasons": {
+          "A": 9,
+          "D": 8,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4582,
+      "exit_score": 0.4126,
+      "entry_timing": 0.1571,
+      "exit_timing": 0.1738,
+      "marker_score": 0.6492,
+      "marker_timing": 0.3058,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 6,
+      "display_name": "Copper Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 30,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 30.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.9
+      },
+      "confidence": 0.7418,
+      "overall_performance_score": 4.5078,
+      "metrics": {
+        "trades": 22,
+        "trades_yr": 0.7,
+        "n_params": 17,
+        "share_multiple": 47.6868,
+        "real_share_multiple": 1.2118,
+        "modern_share_multiple": 1.5851,
+        "cagr": 31.15,
+        "max_dd": 58.5,
+        "mar": 0.532,
+        "regime_score": 0.5406,
+        "hhi": 0.0809,
+        "bull_capture": 0.3778,
+        "bear_avoidance": 0.7033,
+        "win_rate": 68.2,
+        "exit_reasons": {
+          "A": 11,
+          "D": 7,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4384,
+      "exit_score": 0.4166,
+      "entry_timing": 0.1191,
+      "exit_timing": 0.1762,
+      "marker_score": 0.6479,
+      "marker_timing": 0.3062,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 7,
+      "display_name": "Cobalt Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 30,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 35.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.9
+      },
+      "confidence": 0.7418,
+      "overall_performance_score": 4.5078,
+      "metrics": {
+        "trades": 22,
+        "trades_yr": 0.7,
+        "n_params": 17,
+        "share_multiple": 47.6868,
+        "real_share_multiple": 1.2118,
+        "modern_share_multiple": 1.5851,
+        "cagr": 31.15,
+        "max_dd": 58.5,
+        "mar": 0.532,
+        "regime_score": 0.5406,
+        "hhi": 0.0809,
+        "bull_capture": 0.3778,
+        "bear_avoidance": 0.7033,
+        "win_rate": 68.2,
+        "exit_reasons": {
+          "A": 11,
+          "D": 7,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4384,
+      "exit_score": 0.4166,
+      "entry_timing": 0.1191,
+      "exit_timing": 0.1762,
+      "marker_score": 0.6479,
+      "marker_timing": 0.3062,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 8,
+      "display_name": "Slate Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 30,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 30.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.95
+      },
+      "confidence": 0.7415,
+      "overall_performance_score": 4.5078,
+      "metrics": {
+        "trades": 22,
+        "trades_yr": 0.7,
+        "n_params": 17,
+        "share_multiple": 47.6868,
+        "real_share_multiple": 1.2118,
+        "modern_share_multiple": 1.5851,
+        "cagr": 31.15,
+        "max_dd": 58.5,
+        "mar": 0.532,
+        "regime_score": 0.5406,
+        "hhi": 0.0809,
+        "bull_capture": 0.3778,
+        "bear_avoidance": 0.7033,
+        "win_rate": 68.2,
+        "exit_reasons": {
+          "A": 11,
+          "D": 7,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4384,
+      "exit_score": 0.4165,
+      "entry_timing": 0.1191,
+      "exit_timing": 0.1762,
+      "marker_score": 0.6479,
+      "marker_timing": 0.3062,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 9,
+      "display_name": "Indigo Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 30,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 35.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.95
+      },
+      "confidence": 0.7415,
+      "overall_performance_score": 4.5078,
+      "metrics": {
+        "trades": 22,
+        "trades_yr": 0.7,
+        "n_params": 17,
+        "share_multiple": 47.6868,
+        "real_share_multiple": 1.2118,
+        "modern_share_multiple": 1.5851,
+        "cagr": 31.15,
+        "max_dd": 58.5,
+        "mar": 0.532,
+        "regime_score": 0.5406,
+        "hhi": 0.0809,
+        "bull_capture": 0.3778,
+        "bear_avoidance": 0.7033,
+        "win_rate": 68.2,
+        "exit_reasons": {
+          "A": 11,
+          "D": 7,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4384,
+      "exit_score": 0.4165,
+      "entry_timing": 0.1191,
+      "exit_timing": 0.1762,
+      "marker_score": 0.6479,
+      "marker_timing": 0.3062,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 10,
+      "display_name": "Pewter Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 30,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 20.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.9
+      },
+      "confidence": 0.7413,
+      "overall_performance_score": 4.5078,
+      "metrics": {
+        "trades": 22,
+        "trades_yr": 0.7,
+        "n_params": 17,
+        "share_multiple": 47.6868,
+        "real_share_multiple": 1.2118,
+        "modern_share_multiple": 1.5851,
+        "cagr": 31.15,
+        "max_dd": 58.5,
+        "mar": 0.532,
+        "regime_score": 0.5406,
+        "hhi": 0.0809,
+        "bull_capture": 0.3778,
+        "bear_avoidance": 0.7033,
+        "win_rate": 68.2,
+        "exit_reasons": {
+          "A": 11,
+          "D": 7,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4384,
+      "exit_score": 0.4165,
+      "entry_timing": 0.1191,
+      "exit_timing": 0.1762,
+      "marker_score": 0.6479,
+      "marker_timing": 0.3062,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 11,
+      "display_name": "Ivory Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 30,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 25.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.9
+      },
+      "confidence": 0.7413,
+      "overall_performance_score": 4.5078,
+      "metrics": {
+        "trades": 22,
+        "trades_yr": 0.7,
+        "n_params": 17,
+        "share_multiple": 47.6868,
+        "real_share_multiple": 1.2118,
+        "modern_share_multiple": 1.5851,
+        "cagr": 31.15,
+        "max_dd": 58.5,
+        "mar": 0.532,
+        "regime_score": 0.5406,
+        "hhi": 0.0809,
+        "bull_capture": 0.3778,
+        "bear_avoidance": 0.7033,
+        "win_rate": 68.2,
+        "exit_reasons": {
+          "A": 11,
+          "D": 7,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4384,
+      "exit_score": 0.4165,
+      "entry_timing": 0.1191,
+      "exit_timing": 0.1762,
+      "marker_score": 0.6479,
+      "marker_timing": 0.3062,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 12,
+      "display_name": "Crimson Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 30,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 20.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.95
+      },
+      "confidence": 0.7411,
+      "overall_performance_score": 4.5078,
+      "metrics": {
+        "trades": 22,
+        "trades_yr": 0.7,
+        "n_params": 17,
+        "share_multiple": 47.6868,
+        "real_share_multiple": 1.2118,
+        "modern_share_multiple": 1.5851,
+        "cagr": 31.15,
+        "max_dd": 58.5,
+        "mar": 0.532,
+        "regime_score": 0.5406,
+        "hhi": 0.0809,
+        "bull_capture": 0.3778,
+        "bear_avoidance": 0.7033,
+        "win_rate": 68.2,
+        "exit_reasons": {
+          "A": 11,
+          "D": 7,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4383,
+      "exit_score": 0.4165,
+      "entry_timing": 0.1191,
+      "exit_timing": 0.1762,
+      "marker_score": 0.6479,
+      "marker_timing": 0.3062,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 13,
+      "display_name": "Midnight Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 30,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 25.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.95
+      },
+      "confidence": 0.7411,
+      "overall_performance_score": 4.5078,
+      "metrics": {
+        "trades": 22,
+        "trades_yr": 0.7,
+        "n_params": 17,
+        "share_multiple": 47.6868,
+        "real_share_multiple": 1.2118,
+        "modern_share_multiple": 1.5851,
+        "cagr": 31.15,
+        "max_dd": 58.5,
+        "mar": 0.532,
+        "regime_score": 0.5406,
+        "hhi": 0.0809,
+        "bull_capture": 0.3778,
+        "bear_avoidance": 0.7033,
+        "win_rate": 68.2,
+        "exit_reasons": {
+          "A": 11,
+          "D": 7,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4383,
+      "exit_score": 0.4165,
+      "entry_timing": 0.1191,
+      "exit_timing": 0.1762,
+      "marker_score": 0.6479,
+      "marker_timing": 0.3062,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 1,
+      "display_name": "Chimera v1 - 2026-05-26",
+      "strategy": "chimera_v1_2026_05_26",
+      "params": {
+        "members": [
+          {
+            "display_name": "Dusky Osprey",
+            "strategy": "gc_vjatr_reclaimer",
+            "params": {
+              "fast_ema": 140,
+              "slow_ema": 160,
+              "slope_window": 1,
+              "entry_bars": 2,
+              "cooldown": 0,
+              "atr_period": 16,
+              "atr_look": 50,
+              "atr_expand": 2.0,
+              "atr_confirm": 3,
+              "rsi_len": 14,
+              "fast_len": 50,
+              "trend_len": 100,
+              "vol_short": 20,
+              "vol_long": 60,
+              "drawdown_lookback": 80,
+              "drawdown_pct": 25.0,
+              "rsi_reclaim": 45.0,
+              "vol_ratio_max": 0.85
+            },
+            "weight": 3.540446
+          },
+          {
+            "display_name": "Marbled Bonobo",
+            "strategy": "gc_vjatr",
+            "params": {
+              "fast_ema": 140,
+              "slow_ema": 160,
+              "slope_window": 1,
+              "entry_bars": 2,
+              "cooldown": 0,
+              "atr_period": 7,
+              "atr_look": 40,
+              "atr_expand": 2.5,
+              "atr_confirm": 1
+            },
+            "weight": 2.51853
+          },
+          {
+            "display_name": "Ivory Hare",
+            "strategy": "gc_vjatr_timing_repair",
+            "params": {
+              "fast_ema": 140,
+              "slow_ema": 160,
+              "slope_window": 1,
+              "entry_bars": 2,
+              "cooldown": 0,
+              "atr_period": 16,
+              "atr_look": 50,
+              "atr_expand": 2.0,
+              "atr_confirm": 3,
+              "repair_len": 30,
+              "rsi_len": 7,
+              "drawdown_lookback": 40,
+              "drawdown_pct": 25.0,
+              "repair_slope": 3,
+              "rsi_floor": 45.0,
+              "vix_ceiling": 50.0
+            },
+            "weight": 2.551391
+          }
+        ],
+        "threshold": 0.5
+      },
+      "confidence": 0.7594,
+      "overall_performance_score": 5.1285,
+      "metrics": {
+        "trades": 19,
+        "trades_yr": 0.6,
+        "n_params": 53,
+        "share_multiple": 30.4933,
+        "real_share_multiple": 1.3324,
+        "modern_share_multiple": 3.32,
+        "cagr": 28.76,
+        "max_dd": 65.8,
+        "mar": 0.437,
+        "regime_score": 0.5555,
+        "hhi": 0.0872,
+        "bull_capture": 0.27,
+        "bear_avoidance": 0.841,
+        "win_rate": 68.4,
+        "exit_reasons": {
+          "COM": 18,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4337,
+      "exit_score": 0.4063,
+      "entry_timing": 0.1191,
+      "exit_timing": 0.169,
+      "marker_score": 0.6538,
+      "marker_timing": 0.3052,
+      "candidate_buy_count": 16,
+      "candidate_sell_count": 16
+    },
+    {
+      "leaderboard_rank": 14,
       "display_name": "Marbled Bonobo",
       "strategy": "gc_vjatr",
       "params": {
@@ -241,12 +1029,12 @@
       "entry_timing": 0.1191,
       "exit_timing": 0.1929,
       "marker_score": 0.6826,
-      "marker_timing": 0.3108,
+      "marker_timing": 0.311,
       "candidate_buy_count": 15,
       "candidate_sell_count": 14
     },
     {
-      "leaderboard_rank": 3,
+      "leaderboard_rank": 15,
       "display_name": "Ember Bonobo",
       "strategy": "gc_vjatr",
       "params": {
@@ -289,12 +1077,12 @@
       "entry_timing": 0.1191,
       "exit_timing": 0.1929,
       "marker_score": 0.6826,
-      "marker_timing": 0.3108,
+      "marker_timing": 0.311,
       "candidate_buy_count": 15,
       "candidate_sell_count": 14
     },
     {
-      "leaderboard_rank": 4,
+      "leaderboard_rank": 16,
       "display_name": "Russet Bonobo #2",
       "strategy": "gc_vjatr",
       "params": {
@@ -337,12 +1125,12 @@
       "entry_timing": 0.1191,
       "exit_timing": 0.1929,
       "marker_score": 0.6826,
-      "marker_timing": 0.3108,
+      "marker_timing": 0.311,
       "candidate_buy_count": 15,
       "candidate_sell_count": 14
     },
     {
-      "leaderboard_rank": 5,
+      "leaderboard_rank": 17,
       "display_name": "Crimson Bonobo",
       "strategy": "gc_vjatr",
       "params": {
@@ -385,14 +1173,470 @@
       "entry_timing": 0.1191,
       "exit_timing": 0.1929,
       "marker_score": 0.6826,
-      "marker_timing": 0.3108,
+      "marker_timing": 0.311,
       "candidate_buy_count": 15,
       "candidate_sell_count": 14
     }
   ],
   "exit_leaderboard": [
     {
-      "leaderboard_rank": 2,
+      "leaderboard_rank": 6,
+      "display_name": "Copper Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 30,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 30.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.9
+      },
+      "confidence": 0.7418,
+      "overall_performance_score": 4.5078,
+      "metrics": {
+        "trades": 22,
+        "trades_yr": 0.7,
+        "n_params": 17,
+        "share_multiple": 47.6868,
+        "real_share_multiple": 1.2118,
+        "modern_share_multiple": 1.5851,
+        "cagr": 31.15,
+        "max_dd": 58.5,
+        "mar": 0.532,
+        "regime_score": 0.5406,
+        "hhi": 0.0809,
+        "bull_capture": 0.3778,
+        "bear_avoidance": 0.7033,
+        "win_rate": 68.2,
+        "exit_reasons": {
+          "A": 11,
+          "D": 7,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4384,
+      "exit_score": 0.4166,
+      "entry_timing": 0.1191,
+      "exit_timing": 0.1762,
+      "marker_score": 0.6479,
+      "marker_timing": 0.3062,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 7,
+      "display_name": "Cobalt Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 30,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 35.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.9
+      },
+      "confidence": 0.7418,
+      "overall_performance_score": 4.5078,
+      "metrics": {
+        "trades": 22,
+        "trades_yr": 0.7,
+        "n_params": 17,
+        "share_multiple": 47.6868,
+        "real_share_multiple": 1.2118,
+        "modern_share_multiple": 1.5851,
+        "cagr": 31.15,
+        "max_dd": 58.5,
+        "mar": 0.532,
+        "regime_score": 0.5406,
+        "hhi": 0.0809,
+        "bull_capture": 0.3778,
+        "bear_avoidance": 0.7033,
+        "win_rate": 68.2,
+        "exit_reasons": {
+          "A": 11,
+          "D": 7,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4384,
+      "exit_score": 0.4166,
+      "entry_timing": 0.1191,
+      "exit_timing": 0.1762,
+      "marker_score": 0.6479,
+      "marker_timing": 0.3062,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 8,
+      "display_name": "Slate Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 30,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 30.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.95
+      },
+      "confidence": 0.7415,
+      "overall_performance_score": 4.5078,
+      "metrics": {
+        "trades": 22,
+        "trades_yr": 0.7,
+        "n_params": 17,
+        "share_multiple": 47.6868,
+        "real_share_multiple": 1.2118,
+        "modern_share_multiple": 1.5851,
+        "cagr": 31.15,
+        "max_dd": 58.5,
+        "mar": 0.532,
+        "regime_score": 0.5406,
+        "hhi": 0.0809,
+        "bull_capture": 0.3778,
+        "bear_avoidance": 0.7033,
+        "win_rate": 68.2,
+        "exit_reasons": {
+          "A": 11,
+          "D": 7,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4384,
+      "exit_score": 0.4165,
+      "entry_timing": 0.1191,
+      "exit_timing": 0.1762,
+      "marker_score": 0.6479,
+      "marker_timing": 0.3062,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 9,
+      "display_name": "Indigo Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 30,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 35.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.95
+      },
+      "confidence": 0.7415,
+      "overall_performance_score": 4.5078,
+      "metrics": {
+        "trades": 22,
+        "trades_yr": 0.7,
+        "n_params": 17,
+        "share_multiple": 47.6868,
+        "real_share_multiple": 1.2118,
+        "modern_share_multiple": 1.5851,
+        "cagr": 31.15,
+        "max_dd": 58.5,
+        "mar": 0.532,
+        "regime_score": 0.5406,
+        "hhi": 0.0809,
+        "bull_capture": 0.3778,
+        "bear_avoidance": 0.7033,
+        "win_rate": 68.2,
+        "exit_reasons": {
+          "A": 11,
+          "D": 7,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4384,
+      "exit_score": 0.4165,
+      "entry_timing": 0.1191,
+      "exit_timing": 0.1762,
+      "marker_score": 0.6479,
+      "marker_timing": 0.3062,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 10,
+      "display_name": "Pewter Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 30,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 20.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.9
+      },
+      "confidence": 0.7413,
+      "overall_performance_score": 4.5078,
+      "metrics": {
+        "trades": 22,
+        "trades_yr": 0.7,
+        "n_params": 17,
+        "share_multiple": 47.6868,
+        "real_share_multiple": 1.2118,
+        "modern_share_multiple": 1.5851,
+        "cagr": 31.15,
+        "max_dd": 58.5,
+        "mar": 0.532,
+        "regime_score": 0.5406,
+        "hhi": 0.0809,
+        "bull_capture": 0.3778,
+        "bear_avoidance": 0.7033,
+        "win_rate": 68.2,
+        "exit_reasons": {
+          "A": 11,
+          "D": 7,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4384,
+      "exit_score": 0.4165,
+      "entry_timing": 0.1191,
+      "exit_timing": 0.1762,
+      "marker_score": 0.6479,
+      "marker_timing": 0.3062,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 11,
+      "display_name": "Ivory Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 30,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 25.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.9
+      },
+      "confidence": 0.7413,
+      "overall_performance_score": 4.5078,
+      "metrics": {
+        "trades": 22,
+        "trades_yr": 0.7,
+        "n_params": 17,
+        "share_multiple": 47.6868,
+        "real_share_multiple": 1.2118,
+        "modern_share_multiple": 1.5851,
+        "cagr": 31.15,
+        "max_dd": 58.5,
+        "mar": 0.532,
+        "regime_score": 0.5406,
+        "hhi": 0.0809,
+        "bull_capture": 0.3778,
+        "bear_avoidance": 0.7033,
+        "win_rate": 68.2,
+        "exit_reasons": {
+          "A": 11,
+          "D": 7,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4384,
+      "exit_score": 0.4165,
+      "entry_timing": 0.1191,
+      "exit_timing": 0.1762,
+      "marker_score": 0.6479,
+      "marker_timing": 0.3062,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 12,
+      "display_name": "Crimson Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 30,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 20.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.95
+      },
+      "confidence": 0.7411,
+      "overall_performance_score": 4.5078,
+      "metrics": {
+        "trades": 22,
+        "trades_yr": 0.7,
+        "n_params": 17,
+        "share_multiple": 47.6868,
+        "real_share_multiple": 1.2118,
+        "modern_share_multiple": 1.5851,
+        "cagr": 31.15,
+        "max_dd": 58.5,
+        "mar": 0.532,
+        "regime_score": 0.5406,
+        "hhi": 0.0809,
+        "bull_capture": 0.3778,
+        "bear_avoidance": 0.7033,
+        "win_rate": 68.2,
+        "exit_reasons": {
+          "A": 11,
+          "D": 7,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4383,
+      "exit_score": 0.4165,
+      "entry_timing": 0.1191,
+      "exit_timing": 0.1762,
+      "marker_score": 0.6479,
+      "marker_timing": 0.3062,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 13,
+      "display_name": "Midnight Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 30,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 25.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.95
+      },
+      "confidence": 0.7411,
+      "overall_performance_score": 4.5078,
+      "metrics": {
+        "trades": 22,
+        "trades_yr": 0.7,
+        "n_params": 17,
+        "share_multiple": 47.6868,
+        "real_share_multiple": 1.2118,
+        "modern_share_multiple": 1.5851,
+        "cagr": 31.15,
+        "max_dd": 58.5,
+        "mar": 0.532,
+        "regime_score": 0.5406,
+        "hhi": 0.0809,
+        "bull_capture": 0.3778,
+        "bear_avoidance": 0.7033,
+        "win_rate": 68.2,
+        "exit_reasons": {
+          "A": 11,
+          "D": 7,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4383,
+      "exit_score": 0.4165,
+      "entry_timing": 0.1191,
+      "exit_timing": 0.1762,
+      "marker_score": 0.6479,
+      "marker_timing": 0.3062,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 14,
       "display_name": "Marbled Bonobo",
       "strategy": "gc_vjatr",
       "params": {
@@ -435,12 +1679,12 @@
       "entry_timing": 0.1191,
       "exit_timing": 0.1929,
       "marker_score": 0.6826,
-      "marker_timing": 0.3108,
+      "marker_timing": 0.311,
       "candidate_buy_count": 15,
       "candidate_sell_count": 14
     },
     {
-      "leaderboard_rank": 3,
+      "leaderboard_rank": 15,
       "display_name": "Ember Bonobo",
       "strategy": "gc_vjatr",
       "params": {
@@ -483,12 +1727,12 @@
       "entry_timing": 0.1191,
       "exit_timing": 0.1929,
       "marker_score": 0.6826,
-      "marker_timing": 0.3108,
+      "marker_timing": 0.311,
       "candidate_buy_count": 15,
       "candidate_sell_count": 14
     },
     {
-      "leaderboard_rank": 4,
+      "leaderboard_rank": 16,
       "display_name": "Russet Bonobo #2",
       "strategy": "gc_vjatr",
       "params": {
@@ -531,12 +1775,12 @@
       "entry_timing": 0.1191,
       "exit_timing": 0.1929,
       "marker_score": 0.6826,
-      "marker_timing": 0.3108,
+      "marker_timing": 0.311,
       "candidate_buy_count": 15,
       "candidate_sell_count": 14
     },
     {
-      "leaderboard_rank": 5,
+      "leaderboard_rank": 17,
       "display_name": "Crimson Bonobo",
       "strategy": "gc_vjatr",
       "params": {
@@ -579,12 +1823,344 @@
       "entry_timing": 0.1191,
       "exit_timing": 0.1929,
       "marker_score": 0.6826,
-      "marker_timing": 0.3108,
+      "marker_timing": 0.311,
       "candidate_buy_count": 15,
       "candidate_sell_count": 14
     },
     {
-      "leaderboard_rank": 7,
+      "leaderboard_rank": 2,
+      "display_name": "Sable Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 10,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 30.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.85
+      },
+      "confidence": 0.7449,
+      "overall_performance_score": 4.6421,
+      "metrics": {
+        "trades": 21,
+        "trades_yr": 0.6,
+        "n_params": 17,
+        "share_multiple": 40.3368,
+        "real_share_multiple": 1.3769,
+        "modern_share_multiple": 1.8011,
+        "cagr": 30.49,
+        "max_dd": 60.6,
+        "mar": 0.503,
+        "regime_score": 0.5679,
+        "hhi": 0.0823,
+        "bull_capture": 0.365,
+        "bear_avoidance": 0.7708,
+        "win_rate": 71.4,
+        "exit_reasons": {
+          "A": 9,
+          "D": 8,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4582,
+      "exit_score": 0.4126,
+      "entry_timing": 0.1571,
+      "exit_timing": 0.1738,
+      "marker_score": 0.6492,
+      "marker_timing": 0.3058,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 3,
+      "display_name": "Brindled Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 10,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 35.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.85
+      },
+      "confidence": 0.7449,
+      "overall_performance_score": 4.6421,
+      "metrics": {
+        "trades": 21,
+        "trades_yr": 0.6,
+        "n_params": 17,
+        "share_multiple": 40.3368,
+        "real_share_multiple": 1.3769,
+        "modern_share_multiple": 1.8011,
+        "cagr": 30.49,
+        "max_dd": 60.6,
+        "mar": 0.503,
+        "regime_score": 0.5679,
+        "hhi": 0.0823,
+        "bull_capture": 0.365,
+        "bear_avoidance": 0.7708,
+        "win_rate": 71.4,
+        "exit_reasons": {
+          "A": 9,
+          "D": 8,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4582,
+      "exit_score": 0.4126,
+      "entry_timing": 0.1571,
+      "exit_timing": 0.1738,
+      "marker_score": 0.6492,
+      "marker_timing": 0.3058,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 4,
+      "display_name": "Velvet Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 10,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 20.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.85
+      },
+      "confidence": 0.7448,
+      "overall_performance_score": 4.6421,
+      "metrics": {
+        "trades": 21,
+        "trades_yr": 0.6,
+        "n_params": 17,
+        "share_multiple": 40.3368,
+        "real_share_multiple": 1.3769,
+        "modern_share_multiple": 1.8011,
+        "cagr": 30.49,
+        "max_dd": 60.6,
+        "mar": 0.503,
+        "regime_score": 0.5679,
+        "hhi": 0.0823,
+        "bull_capture": 0.365,
+        "bear_avoidance": 0.7708,
+        "win_rate": 71.4,
+        "exit_reasons": {
+          "A": 9,
+          "D": 8,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4582,
+      "exit_score": 0.4126,
+      "entry_timing": 0.1571,
+      "exit_timing": 0.1738,
+      "marker_score": 0.6492,
+      "marker_timing": 0.3058,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 5,
+      "display_name": "Amber Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 10,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 25.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.85
+      },
+      "confidence": 0.7448,
+      "overall_performance_score": 4.6421,
+      "metrics": {
+        "trades": 21,
+        "trades_yr": 0.6,
+        "n_params": 17,
+        "share_multiple": 40.3368,
+        "real_share_multiple": 1.3769,
+        "modern_share_multiple": 1.8011,
+        "cagr": 30.49,
+        "max_dd": 60.6,
+        "mar": 0.503,
+        "regime_score": 0.5679,
+        "hhi": 0.0823,
+        "bull_capture": 0.365,
+        "bear_avoidance": 0.7708,
+        "win_rate": 71.4,
+        "exit_reasons": {
+          "A": 9,
+          "D": 8,
+          "V": 3,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4582,
+      "exit_score": 0.4126,
+      "entry_timing": 0.1571,
+      "exit_timing": 0.1738,
+      "marker_score": 0.6492,
+      "marker_timing": 0.3058,
+      "candidate_buy_count": 17,
+      "candidate_sell_count": 17
+    },
+    {
+      "leaderboard_rank": 1,
+      "display_name": "Chimera v1 - 2026-05-26",
+      "strategy": "chimera_v1_2026_05_26",
+      "params": {
+        "members": [
+          {
+            "display_name": "Dusky Osprey",
+            "strategy": "gc_vjatr_reclaimer",
+            "params": {
+              "fast_ema": 140,
+              "slow_ema": 160,
+              "slope_window": 1,
+              "entry_bars": 2,
+              "cooldown": 0,
+              "atr_period": 16,
+              "atr_look": 50,
+              "atr_expand": 2.0,
+              "atr_confirm": 3,
+              "rsi_len": 14,
+              "fast_len": 50,
+              "trend_len": 100,
+              "vol_short": 20,
+              "vol_long": 60,
+              "drawdown_lookback": 80,
+              "drawdown_pct": 25.0,
+              "rsi_reclaim": 45.0,
+              "vol_ratio_max": 0.85
+            },
+            "weight": 3.540446
+          },
+          {
+            "display_name": "Marbled Bonobo",
+            "strategy": "gc_vjatr",
+            "params": {
+              "fast_ema": 140,
+              "slow_ema": 160,
+              "slope_window": 1,
+              "entry_bars": 2,
+              "cooldown": 0,
+              "atr_period": 7,
+              "atr_look": 40,
+              "atr_expand": 2.5,
+              "atr_confirm": 1
+            },
+            "weight": 2.51853
+          },
+          {
+            "display_name": "Ivory Hare",
+            "strategy": "gc_vjatr_timing_repair",
+            "params": {
+              "fast_ema": 140,
+              "slow_ema": 160,
+              "slope_window": 1,
+              "entry_bars": 2,
+              "cooldown": 0,
+              "atr_period": 16,
+              "atr_look": 50,
+              "atr_expand": 2.0,
+              "atr_confirm": 3,
+              "repair_len": 30,
+              "rsi_len": 7,
+              "drawdown_lookback": 40,
+              "drawdown_pct": 25.0,
+              "repair_slope": 3,
+              "rsi_floor": 45.0,
+              "vix_ceiling": 50.0
+            },
+            "weight": 2.551391
+          }
+        ],
+        "threshold": 0.5
+      },
+      "confidence": 0.7594,
+      "overall_performance_score": 5.1285,
+      "metrics": {
+        "trades": 19,
+        "trades_yr": 0.6,
+        "n_params": 53,
+        "share_multiple": 30.4933,
+        "real_share_multiple": 1.3324,
+        "modern_share_multiple": 3.32,
+        "cagr": 28.76,
+        "max_dd": 65.8,
+        "mar": 0.437,
+        "regime_score": 0.5555,
+        "hhi": 0.0872,
+        "bull_capture": 0.27,
+        "bear_avoidance": 0.841,
+        "win_rate": 68.4,
+        "exit_reasons": {
+          "COM": 18,
+          "End of Data": 1
+        }
+      },
+      "entry_score": 0.4337,
+      "exit_score": 0.4063,
+      "entry_timing": 0.1191,
+      "exit_timing": 0.169,
+      "marker_score": 0.6538,
+      "marker_timing": 0.3052,
+      "candidate_buy_count": 16,
+      "candidate_sell_count": 16
+    },
+    {
+      "leaderboard_rank": 19,
       "display_name": "Cerulean Hare #2",
       "strategy": "gc_vjatr_timing_repair",
       "params": {
@@ -634,12 +2210,12 @@
       "entry_timing": 0.2786,
       "exit_timing": 0.1762,
       "marker_score": 0.4607,
-      "marker_timing": 0.4462,
+      "marker_timing": 0.4465,
       "candidate_buy_count": 32,
       "candidate_sell_count": 32
     },
     {
-      "leaderboard_rank": 8,
+      "leaderboard_rank": 20,
       "display_name": "Sable Hare",
       "strategy": "gc_vjatr_timing_repair",
       "params": {
@@ -689,12 +2265,12 @@
       "entry_timing": 0.2786,
       "exit_timing": 0.1762,
       "marker_score": 0.4607,
-      "marker_timing": 0.4462,
+      "marker_timing": 0.4465,
       "candidate_buy_count": 32,
       "candidate_sell_count": 32
     },
     {
-      "leaderboard_rank": 6,
+      "leaderboard_rank": 18,
       "display_name": "Ivory Hare",
       "strategy": "gc_vjatr_timing_repair",
       "params": {
@@ -744,12 +2320,37 @@
       "entry_timing": 0.2786,
       "exit_timing": 0.1762,
       "marker_score": 0.4607,
-      "marker_timing": 0.4462,
+      "marker_timing": 0.4465,
       "candidate_buy_count": 32,
       "candidate_sell_count": 32
     }
   ],
   "family_members": [
+    {
+      "display_name": "Sable Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "params": {
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "rsi_len": 21,
+        "fast_len": 70,
+        "trend_len": 100,
+        "vol_short": 10,
+        "vol_long": 60,
+        "drawdown_lookback": 80,
+        "drawdown_pct": 30.0,
+        "rsi_reclaim": 50.0,
+        "vol_ratio_max": 0.85
+      },
+      "weight": 3.457895
+    },
     {
       "display_name": "Marbled Bonobo",
       "strategy": "gc_vjatr",
@@ -792,10 +2393,128 @@
   ],
   "candidates": [
     {
-      "label": "family_committee_0.60",
-      "strategy": "gold_hybrid_committee",
+      "label": "family_committee_0.50",
+      "strategy": "chimera_v1_2026_05_26",
       "params": {
         "members": [
+          {
+            "display_name": "Sable Osprey",
+            "strategy": "gc_vjatr_reclaimer",
+            "params": {
+              "fast_ema": 140,
+              "slow_ema": 160,
+              "slope_window": 1,
+              "entry_bars": 2,
+              "cooldown": 0,
+              "atr_period": 16,
+              "atr_look": 50,
+              "atr_expand": 2.0,
+              "atr_confirm": 3,
+              "rsi_len": 21,
+              "fast_len": 70,
+              "trend_len": 100,
+              "vol_short": 10,
+              "vol_long": 60,
+              "drawdown_lookback": 80,
+              "drawdown_pct": 30.0,
+              "rsi_reclaim": 50.0,
+              "vol_ratio_max": 0.85
+            },
+            "weight": 3.457895
+          },
+          {
+            "display_name": "Marbled Bonobo",
+            "strategy": "gc_vjatr",
+            "params": {
+              "fast_ema": 140,
+              "slow_ema": 160,
+              "slope_window": 1,
+              "entry_bars": 2,
+              "cooldown": 0,
+              "atr_period": 7,
+              "atr_look": 40,
+              "atr_expand": 2.5,
+              "atr_confirm": 1
+            },
+            "weight": 2.51853
+          },
+          {
+            "display_name": "Ivory Hare",
+            "strategy": "gc_vjatr_timing_repair",
+            "params": {
+              "fast_ema": 140,
+              "slow_ema": 160,
+              "slope_window": 1,
+              "entry_bars": 2,
+              "cooldown": 0,
+              "atr_period": 16,
+              "atr_look": 50,
+              "atr_expand": 2.0,
+              "atr_confirm": 3,
+              "repair_len": 30,
+              "rsi_len": 7,
+              "drawdown_lookback": 40,
+              "drawdown_pct": 25.0,
+              "repair_slope": 3,
+              "rsi_floor": 45.0,
+              "vix_ceiling": 50.0
+            },
+            "weight": 2.551391
+          }
+        ],
+        "threshold": 0.5
+      },
+      "all_era_ok": true,
+      "metrics": {
+        "fitness": 2.7799,
+        "overall_performance_score": 4.7949,
+        "share_multiple": 41.3001,
+        "real_share_multiple": 1.4285,
+        "modern_share_multiple": 1.8686,
+        "trades": 21,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 59.2,
+        "marker_score": 0.6432,
+        "marker_timing": 0.3058,
+        "entry_timing": 0.11905,
+        "exit_timing": 0.17380714285714285
+      },
+      "vs_champion": {
+        "full_ratio": 1.3544,
+        "real_ratio": 1.0721,
+        "modern_ratio": 0.5628
+      }
+    },
+    {
+      "label": "family_committee_0.60",
+      "strategy": "chimera_v1_2026_05_26",
+      "params": {
+        "members": [
+          {
+            "display_name": "Sable Osprey",
+            "strategy": "gc_vjatr_reclaimer",
+            "params": {
+              "fast_ema": 140,
+              "slow_ema": 160,
+              "slope_window": 1,
+              "entry_bars": 2,
+              "cooldown": 0,
+              "atr_period": 16,
+              "atr_look": 50,
+              "atr_expand": 2.0,
+              "atr_confirm": 3,
+              "rsi_len": 21,
+              "fast_len": 70,
+              "trend_len": 100,
+              "vol_short": 10,
+              "vol_long": 60,
+              "drawdown_lookback": 80,
+              "drawdown_pct": 30.0,
+              "rsi_reclaim": 50.0,
+              "vol_ratio_max": 0.85
+            },
+            "weight": 3.457895
+          },
           {
             "display_name": "Marbled Bonobo",
             "strategy": "gc_vjatr",
@@ -840,30 +2559,55 @@
       },
       "all_era_ok": true,
       "metrics": {
-        "fitness": 3.5931,
-        "overall_performance_score": 4.4831,
-        "share_multiple": 17.4992,
-        "real_share_multiple": 1.4648,
-        "modern_share_multiple": 3.5152,
-        "trades": 18,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 65.0,
-        "marker_score": 0.6637,
-        "marker_timing": 0.3085,
+        "fitness": 2.7799,
+        "overall_performance_score": 4.7949,
+        "share_multiple": 41.3001,
+        "real_share_multiple": 1.4285,
+        "modern_share_multiple": 1.8686,
+        "trades": 21,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 59.2,
+        "marker_score": 0.6432,
+        "marker_timing": 0.3058,
         "entry_timing": 0.11905,
-        "exit_timing": 0.19999285714285714
+        "exit_timing": 0.17380714285714285
       },
       "vs_champion": {
-        "full_ratio": 0.5739,
-        "real_ratio": 1.0994,
-        "modern_ratio": 1.0588
+        "full_ratio": 1.3544,
+        "real_ratio": 1.0721,
+        "modern_ratio": 0.5628
       }
     },
     {
       "label": "family_committee_0.67",
-      "strategy": "gold_hybrid_committee",
+      "strategy": "chimera_v1_2026_05_26",
       "params": {
         "members": [
+          {
+            "display_name": "Sable Osprey",
+            "strategy": "gc_vjatr_reclaimer",
+            "params": {
+              "fast_ema": 140,
+              "slow_ema": 160,
+              "slope_window": 1,
+              "entry_bars": 2,
+              "cooldown": 0,
+              "atr_period": 16,
+              "atr_look": 50,
+              "atr_expand": 2.0,
+              "atr_confirm": 3,
+              "rsi_len": 21,
+              "fast_len": 70,
+              "trend_len": 100,
+              "vol_short": 10,
+              "vol_long": 60,
+              "drawdown_lookback": 80,
+              "drawdown_pct": 30.0,
+              "rsi_reclaim": 50.0,
+              "vol_ratio_max": 0.85
+            },
+            "weight": 3.457895
+          },
           {
             "display_name": "Marbled Bonobo",
             "strategy": "gc_vjatr",
@@ -908,23 +2652,23 @@
       },
       "all_era_ok": true,
       "metrics": {
-        "fitness": 3.5931,
-        "overall_performance_score": 4.4831,
-        "share_multiple": 17.4992,
-        "real_share_multiple": 1.4648,
-        "modern_share_multiple": 3.5152,
-        "trades": 18,
-        "trades_per_year": 0.5,
-        "max_drawdown_pct": 65.0,
-        "marker_score": 0.6637,
-        "marker_timing": 0.3085,
+        "fitness": 2.7799,
+        "overall_performance_score": 4.7949,
+        "share_multiple": 41.3001,
+        "real_share_multiple": 1.4285,
+        "modern_share_multiple": 1.8686,
+        "trades": 21,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 59.2,
+        "marker_score": 0.6432,
+        "marker_timing": 0.3058,
         "entry_timing": 0.11905,
-        "exit_timing": 0.19999285714285714
+        "exit_timing": 0.17380714285714285
       },
       "vs_champion": {
-        "full_ratio": 0.5739,
-        "real_ratio": 1.0994,
-        "modern_ratio": 1.0588
+        "full_ratio": 1.3544,
+        "real_ratio": 1.0721,
+        "modern_ratio": 0.5628
       }
     },
     {
@@ -950,55 +2694,73 @@
           "rsi_floor": 45.0,
           "vix_ceiling": 50.0
         },
-        "exit_strategy": "gc_vjatr",
+        "exit_strategy": "gc_vjatr_reclaimer",
         "exit_params": {
           "fast_ema": 140,
           "slow_ema": 160,
           "slope_window": 1,
           "entry_bars": 2,
           "cooldown": 0,
-          "atr_period": 7,
-          "atr_look": 40,
-          "atr_expand": 2.5,
-          "atr_confirm": 1
+          "atr_period": 16,
+          "atr_look": 50,
+          "atr_expand": 2.0,
+          "atr_confirm": 3,
+          "rsi_len": 21,
+          "fast_len": 70,
+          "trend_len": 100,
+          "vol_short": 30,
+          "vol_long": 60,
+          "drawdown_lookback": 80,
+          "drawdown_pct": 30.0,
+          "rsi_reclaim": 50.0,
+          "vol_ratio_max": 0.9
         }
       },
       "all_era_ok": true,
       "metrics": {
-        "fitness": 2.3401,
-        "overall_performance_score": 3.6303,
-        "share_multiple": 21.1634,
-        "real_share_multiple": 1.3197,
-        "modern_share_multiple": 1.7131,
-        "trades": 34,
-        "trades_per_year": 1.0,
+        "fitness": 2.5289,
+        "overall_performance_score": 3.2965,
+        "share_multiple": 10.9365,
+        "real_share_multiple": 1.5043,
+        "modern_share_multiple": 2.1774,
+        "trades": 42,
+        "trades_per_year": 1.3,
         "max_drawdown_pct": 98.8,
-        "marker_score": 0.4734,
-        "marker_timing": 0.4469,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4465,
         "entry_timing": 0.2785785714285714,
-        "exit_timing": 0.2261928571428571
+        "exit_timing": 0.1761857142857143
       },
       "vs_champion": {
-        "full_ratio": 0.694,
-        "real_ratio": 0.9905,
-        "modern_ratio": 0.516
+        "full_ratio": 0.3587,
+        "real_ratio": 1.129,
+        "modern_ratio": 0.6558
       }
     },
     {
       "label": "champion_overlay_top_entry_exit",
       "strategy": "gold_hybrid_champion_overlay",
       "params": {
-        "base_strategy": "gc_vjatr",
+        "base_strategy": "gc_vjatr_reclaimer",
         "base_params": {
           "fast_ema": 140,
           "slow_ema": 160,
           "slope_window": 1,
           "entry_bars": 2,
           "cooldown": 0,
-          "atr_period": 7,
-          "atr_look": 40,
-          "atr_expand": 2.5,
-          "atr_confirm": 1
+          "atr_period": 16,
+          "atr_look": 50,
+          "atr_expand": 2.0,
+          "atr_confirm": 3,
+          "rsi_len": 21,
+          "fast_len": 70,
+          "trend_len": 100,
+          "vol_short": 10,
+          "vol_long": 60,
+          "drawdown_lookback": 80,
+          "drawdown_pct": 30.0,
+          "rsi_reclaim": 50.0,
+          "vol_ratio_max": 0.85
         },
         "entry_strategy": "gc_vjatr_timing_repair",
         "entry_params": {
@@ -1019,45 +2781,84 @@
           "rsi_floor": 45.0,
           "vix_ceiling": 50.0
         },
-        "exit_strategy": "gc_vjatr",
+        "exit_strategy": "gc_vjatr_reclaimer",
         "exit_params": {
           "fast_ema": 140,
           "slow_ema": 160,
           "slope_window": 1,
           "entry_bars": 2,
           "cooldown": 0,
-          "atr_period": 7,
-          "atr_look": 40,
-          "atr_expand": 2.5,
-          "atr_confirm": 1
+          "atr_period": 16,
+          "atr_look": 50,
+          "atr_expand": 2.0,
+          "atr_confirm": 3,
+          "rsi_len": 21,
+          "fast_len": 70,
+          "trend_len": 100,
+          "vol_short": 30,
+          "vol_long": 60,
+          "drawdown_lookback": 80,
+          "drawdown_pct": 30.0,
+          "rsi_reclaim": 50.0,
+          "vol_ratio_max": 0.9
         }
       },
       "all_era_ok": true,
       "metrics": {
-        "fitness": 2.3401,
-        "overall_performance_score": 3.6303,
-        "share_multiple": 21.1634,
-        "real_share_multiple": 1.3197,
-        "modern_share_multiple": 1.7131,
-        "trades": 34,
-        "trades_per_year": 1.0,
+        "fitness": 2.0483,
+        "overall_performance_score": 2.6764,
+        "share_multiple": 8.9579,
+        "real_share_multiple": 1.216,
+        "modern_share_multiple": 1.7601,
+        "trades": 42,
+        "trades_per_year": 1.3,
         "max_drawdown_pct": 98.8,
-        "marker_score": 0.4734,
-        "marker_timing": 0.4469,
-        "entry_timing": 0.2785785714285714,
-        "exit_timing": 0.2261928571428571
+        "marker_score": 0.4666,
+        "marker_timing": 0.4465,
+        "entry_timing": 0.31667142857142855,
+        "exit_timing": 0.1761857142857143
       },
       "vs_champion": {
-        "full_ratio": 0.694,
-        "real_ratio": 0.9905,
-        "modern_ratio": 0.516
+        "full_ratio": 0.2938,
+        "real_ratio": 0.9126,
+        "modern_ratio": 0.5302
       }
-    },
+    }
+  ],
+  "skipped_candidates": [],
+  "raw_rankings": [
     {
-      "label": "family_committee_0.50",
-      "strategy": "gold_hybrid_committee",
+      "strategy": "chimera_v1_2026_05_26",
+      "rank": 1,
+      "fitness": 1.0937,
+      "tier": "T2",
       "params": {
         "members": [
+          {
+            "display_name": "Sable Osprey",
+            "strategy": "gc_vjatr_reclaimer",
+            "params": {
+              "fast_ema": 140,
+              "slow_ema": 160,
+              "slope_window": 1,
+              "entry_bars": 2,
+              "cooldown": 0,
+              "atr_period": 16,
+              "atr_look": 50,
+              "atr_expand": 2.0,
+              "atr_confirm": 3,
+              "rsi_len": 21,
+              "fast_len": 70,
+              "trend_len": 100,
+              "vol_short": 10,
+              "vol_long": 60,
+              "drawdown_lookback": 80,
+              "drawdown_pct": 30.0,
+              "rsi_reclaim": 50.0,
+              "vol_ratio_max": 0.85
+            },
+            "weight": 3.457895
+          },
           {
             "display_name": "Marbled Bonobo",
             "strategy": "gc_vjatr",
@@ -1100,36 +2901,679 @@
         ],
         "threshold": 0.5
       },
-      "all_era_ok": true,
-      "metrics": {
-        "fitness": 2.5331,
-        "overall_performance_score": 3.3019,
-        "share_multiple": 10.9542,
-        "real_share_multiple": 1.5068,
-        "modern_share_multiple": 2.181,
-        "trades": 42,
-        "trades_per_year": 1.3,
-        "max_drawdown_pct": 98.8,
-        "marker_score": 0.4607,
-        "marker_timing": 0.4462,
-        "entry_timing": 0.2785785714285714,
-        "exit_timing": 0.1761857142857143
+      "marker_alignment_score": 0.6432,
+      "marker_alignment_detail": {
+        "score": 0.6432,
+        "state_accuracy": 0.7935,
+        "precision": 0.9048,
+        "recall": 0.7965,
+        "f1": 0.8472,
+        "transition_timing_score": 0.1464,
+        "timing_magnitude_weighted": 0.3058,
+        "transition_count_score": 0.7857,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 17,
+        "candidate_sell_count": 17,
+        "buy_transition_matches": [
+          {
+            "target_bar": 1638,
+            "nearest_bar": 2541,
+            "distance_bars": 903,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2001,
+            "nearest_bar": 2541,
+            "distance_bars": 540,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2376,
+            "nearest_bar": 2541,
+            "distance_bars": 165,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2841,
+            "nearest_bar": 2880,
+            "distance_bars": 39,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3333,
+            "nearest_bar": 3359,
+            "distance_bars": 26,
+            "score": 0.1333
+          },
+          {
+            "target_bar": 3986,
+            "nearest_bar": 4038,
+            "distance_bars": 52,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4695,
+            "nearest_bar": 4707,
+            "distance_bars": 12,
+            "score": 0.6
+          },
+          {
+            "target_bar": 6461,
+            "nearest_bar": 6497,
+            "distance_bars": 36,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6772,
+            "nearest_bar": 6814,
+            "distance_bars": 42,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7158,
+            "nearest_bar": 7494,
+            "distance_bars": 336,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7478,
+            "nearest_bar": 7494,
+            "distance_bars": 16,
+            "score": 0.4667
+          },
+          {
+            "target_bar": 7798,
+            "nearest_bar": 7901,
+            "distance_bars": 103,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7869,
+            "nearest_bar": 7901,
+            "distance_bars": 32,
+            "score": 0.0
+          },
+          {
+            "target_bar": 8049,
+            "nearest_bar": 8065,
+            "distance_bars": 16,
+            "score": 0.4667
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 1740,
+            "nearest_bar": 1688,
+            "distance_bars": 52,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2033,
+            "nearest_bar": 1688,
+            "distance_bars": 345,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2700,
+            "nearest_bar": 2827,
+            "distance_bars": 127,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3256,
+            "nearest_bar": 3304,
+            "distance_bars": 48,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3650,
+            "nearest_bar": 3596,
+            "distance_bars": 54,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4477,
+            "nearest_bar": 4501,
+            "distance_bars": 24,
+            "score": 0.2
+          },
+          {
+            "target_bar": 6402,
+            "nearest_bar": 6236,
+            "distance_bars": 166,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6749,
+            "nearest_bar": 6749,
+            "distance_bars": 0,
+            "score": 1.0
+          },
+          {
+            "target_bar": 7131,
+            "nearest_bar": 7229,
+            "distance_bars": 98,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7218,
+            "nearest_bar": 7229,
+            "distance_bars": 11,
+            "score": 0.6333
+          },
+          {
+            "target_bar": 7763,
+            "nearest_bar": 7868,
+            "distance_bars": 105,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7854,
+            "nearest_bar": 7868,
+            "distance_bars": 14,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 8004,
+            "nearest_bar": 8032,
+            "distance_bars": 28,
+            "score": 0.0667
+          },
+          {
+            "target_bar": 8180,
+            "nearest_bar": 8032,
+            "distance_bars": 148,
+            "score": 0.0
+          }
+        ],
+        "magnitude_weighted_matches": [
+          {
+            "target_bar": 1638,
+            "nearest_bar": 1688,
+            "distance_bars": 50,
+            "magnitude": 2.5429,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1740,
+            "nearest_bar": 1688,
+            "distance_bars": 52,
+            "magnitude": 0.9747,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2001,
+            "nearest_bar": 1688,
+            "distance_bars": 313,
+            "magnitude": 0.8009,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2033,
+            "nearest_bar": 1688,
+            "distance_bars": 345,
+            "magnitude": 0.9724,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2376,
+            "nearest_bar": 2541,
+            "distance_bars": 165,
+            "magnitude": 3.6241,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2700,
+            "nearest_bar": 2827,
+            "distance_bars": 127,
+            "magnitude": 0.4919,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2841,
+            "nearest_bar": 2827,
+            "distance_bars": 14,
+            "magnitude": 0.7357,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 3256,
+            "nearest_bar": 3304,
+            "distance_bars": 48,
+            "magnitude": 0.3694,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3333,
+            "nearest_bar": 3359,
+            "distance_bars": 26,
+            "magnitude": 1.6453,
+            "score": 0.1333
+          },
+          {
+            "target_bar": 3650,
+            "nearest_bar": 3681,
+            "distance_bars": 31,
+            "magnitude": 0.9347,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3986,
+            "nearest_bar": 4038,
+            "distance_bars": 52,
+            "magnitude": 5.1304,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4477,
+            "nearest_bar": 4501,
+            "distance_bars": 24,
+            "magnitude": 0.3475,
+            "score": 0.2
+          },
+          {
+            "target_bar": 4695,
+            "nearest_bar": 4707,
+            "distance_bars": 12,
+            "magnitude": 17.5978,
+            "score": 0.6
+          },
+          {
+            "target_bar": 6402,
+            "nearest_bar": 6497,
+            "distance_bars": 95,
+            "magnitude": 0.5167,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6461,
+            "nearest_bar": 6497,
+            "distance_bars": 36,
+            "magnitude": 2.6505,
+            "score": 0.0
+          },
+          {
+            "target_bar": 6749,
+            "nearest_bar": 6749,
+            "distance_bars": 0,
+            "magnitude": 0.6476,
+            "score": 1.0
+          },
+          {
+            "target_bar": 6772,
+            "nearest_bar": 6749,
+            "distance_bars": 23,
+            "magnitude": 5.1541,
+            "score": 0.2333
+          },
+          {
+            "target_bar": 7131,
+            "nearest_bar": 7229,
+            "distance_bars": 98,
+            "magnitude": 0.1242,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7158,
+            "nearest_bar": 7229,
+            "distance_bars": 71,
+            "magnitude": 0.5266,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7218,
+            "nearest_bar": 7229,
+            "distance_bars": 11,
+            "magnitude": 0.714,
+            "score": 0.6333
+          },
+          {
+            "target_bar": 7478,
+            "nearest_bar": 7494,
+            "distance_bars": 16,
+            "magnitude": 2.3582,
+            "score": 0.4667
+          },
+          {
+            "target_bar": 7763,
+            "nearest_bar": 7868,
+            "distance_bars": 105,
+            "magnitude": 0.2069,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7798,
+            "nearest_bar": 7868,
+            "distance_bars": 70,
+            "magnitude": 0.6035,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7854,
+            "nearest_bar": 7868,
+            "distance_bars": 14,
+            "magnitude": 0.4174,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 7869,
+            "nearest_bar": 7868,
+            "distance_bars": 1,
+            "magnitude": 0.5807,
+            "score": 0.9667
+          },
+          {
+            "target_bar": 8004,
+            "nearest_bar": 8032,
+            "distance_bars": 28,
+            "magnitude": 0.4745,
+            "score": 0.0667
+          },
+          {
+            "target_bar": 8049,
+            "nearest_bar": 8065,
+            "distance_bars": 16,
+            "magnitude": 1.8473,
+            "score": 0.4667
+          },
+          {
+            "target_bar": 8180,
+            "nearest_bar": 8065,
+            "distance_bars": 115,
+            "magnitude": 0.3749,
+            "score": 0.0
+          }
+        ]
       },
-      "vs_champion": {
-        "full_ratio": 0.3592,
-        "real_ratio": 1.1309,
-        "modern_ratio": 0.6569
-      }
-    }
-  ],
-  "raw_rankings": [
+      "metrics": {
+        "trades": 21,
+        "trades_yr": 0.6,
+        "n_params": 53,
+        "share_multiple": 41.3001,
+        "real_share_multiple": 1.4285,
+        "modern_share_multiple": 1.4597,
+        "cagr": 30.44,
+        "max_dd": 59.2,
+        "mar": 0.515,
+        "regime_score": 0.584,
+        "hhi": 0.0805,
+        "bull_capture": 0.3647,
+        "bear_avoidance": 0.8034,
+        "win_rate": 71.4,
+        "exit_reasons": {
+          "COM": 21
+        }
+      },
+      "trades": [
+        {
+          "entry_bar": 322,
+          "exit_bar": 522,
+          "entry_date": "1994-08-11",
+          "exit_date": "1995-05-26",
+          "entry_price": 1.729574832637095,
+          "exit_price": 5.152181995840314,
+          "pnl_pct": 197.88719739779896,
+          "bars_held": 200,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 638,
+          "exit_bar": 926,
+          "entry_date": "1995-11-09",
+          "exit_date": "1996-12-31",
+          "entry_price": 7.532726839773217,
+          "exit_price": 12.172394463345599,
+          "pnl_pct": 61.59346704402817,
+          "bars_held": 288,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 1488,
+          "exit_bar": 1687,
+          "entry_date": "1999-03-25",
+          "exit_date": "2000-01-06",
+          "entry_price": 98.84121597443506,
+          "exit_price": 218.12218170703017,
+          "pnl_pct": 120.67937909975402,
+          "bars_held": 199,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 2541,
+          "exit_bar": 2826,
+          "entry_date": "2003-06-04",
+          "exit_date": "2004-07-22",
+          "entry_price": 1.3143653281788428,
+          "exit_price": 1.5024079447495522,
+          "pnl_pct": 14.306723750181183,
+          "bars_held": 285,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 2880,
+          "exit_bar": 2980,
+          "entry_date": "2004-10-07",
+          "exit_date": "2005-03-02",
+          "entry_price": 1.6134994788567107,
+          "exit_price": 1.6344448803851728,
+          "pnl_pct": 1.2981350042519768,
+          "bars_held": 100,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 3038,
+          "exit_bar": 3303,
+          "entry_date": "2005-05-24",
+          "exit_date": "2006-06-13",
+          "entry_price": 1.6155654773517514,
+          "exit_price": 1.3601590220598558,
+          "pnl_pct": -15.809105781992816,
+          "bars_held": 265,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 3359,
+          "exit_bar": 3595,
+          "entry_date": "2006-08-31",
+          "exit_date": "2007-08-10",
+          "entry_price": 1.6822296334478086,
+          "exit_price": 2.635903428886228,
+          "pnl_pct": 56.691059084711306,
+          "bars_held": 236,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 3681,
+          "exit_bar": 3716,
+          "entry_date": "2007-12-12",
+          "exit_date": "2008-02-04",
+          "entry_price": 3.0903180688622007,
+          "exit_price": 1.878873718845249,
+          "pnl_pct": -39.20128359029994,
+          "bars_held": 35,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 3787,
+          "exit_bar": 3805,
+          "entry_date": "2008-05-15",
+          "exit_date": "2008-06-11",
+          "entry_price": 2.3508921882558993,
+          "exit_price": 1.9320437313847572,
+          "pnl_pct": -17.816574446226785,
+          "bars_held": 18,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 4038,
+          "exit_bar": 4284,
+          "entry_date": "2009-05-14",
+          "exit_date": "2010-05-06",
+          "entry_price": 0.42021,
+          "exit_price": 0.8595700000000001,
+          "pnl_pct": 104.55724518693037,
+          "bars_held": 246,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 4380,
+          "exit_bar": 4500,
+          "entry_date": "2010-09-22",
+          "exit_date": "2011-03-15",
+          "entry_price": 0.8004,
+          "exit_price": 1.129435,
+          "pnl_pct": 41.108820589705154,
+          "bars_held": 120,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 4651,
+          "exit_bar": 4674,
+          "entry_date": "2011-10-18",
+          "exit_date": "2011-11-18",
+          "entry_price": 1.030515,
+          "exit_price": 0.9295350000000001,
+          "pnl_pct": -9.798984003144051,
+          "bars_held": 23,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 4707,
+          "exit_bar": 5618,
+          "entry_date": "2012-01-09",
+          "exit_date": "2015-08-24",
+          "entry_price": 0.9904949999999999,
+          "exit_price": 2.628685,
+          "pnl_pct": 165.391041852811,
+          "bars_held": 911,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 5658,
+          "exit_bar": 5724,
+          "entry_date": "2015-10-20",
+          "exit_date": "2016-01-26",
+          "entry_price": 3.4617299999999998,
+          "exit_price": 2.97851,
+          "pnl_pct": -13.958916495509467,
+          "bars_held": 66,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 5751,
+          "exit_bar": 6235,
+          "entry_date": "2016-03-04",
+          "exit_date": "2018-02-05",
+          "entry_price": 3.4016999999999995,
+          "exit_price": 10.944525,
+          "pnl_pct": 221.73692565481971,
+          "bars_held": 484,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 6497,
+          "exit_bar": 6748,
+          "entry_date": "2019-02-21",
+          "exit_date": "2020-02-20",
+          "entry_price": 11.705849999999998,
+          "exit_price": 32.36381,
+          "pnl_pct": 176.47552292229958,
+          "bars_held": 251,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 6814,
+          "exit_bar": 7228,
+          "entry_date": "2020-05-26",
+          "exit_date": "2022-01-13",
+          "entry_price": 18.679335000000002,
+          "exit_price": 72.36380000000001,
+          "pnl_pct": 287.40030092077694,
+          "bars_held": 414,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 7494,
+          "exit_bar": 7867,
+          "entry_date": "2023-02-06",
+          "exit_date": "2024-08-01",
+          "entry_price": 30.705345,
+          "exit_price": 75.44226,
+          "pnl_pct": 145.69748361400926,
+          "bars_held": 373,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 7901,
+          "exit_bar": 8031,
+          "entry_date": "2024-09-19",
+          "exit_date": "2025-03-28",
+          "entry_price": 84.572265,
+          "exit_price": 58.400785000000006,
+          "pnl_pct": -30.945700697504076,
+          "bars_held": 130,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 8065,
+          "exit_bar": 8195,
+          "entry_date": "2025-05-16",
+          "exit_date": "2025-11-20",
+          "entry_price": 76.07802,
+          "exit_price": 107.28633,
+          "pnl_pct": 41.02145402837773,
+          "bars_held": 130,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 8229,
+          "exit_bar": 8329,
+          "entry_date": "2026-01-12",
+          "exit_date": "2026-06-05",
+          "entry_price": 124.03198499999999,
+          "exit_price": 202.48870133972173,
+          "pnl_pct": 63.255229156996684,
+          "bars_held": 100,
+          "exit_reason": "COM"
+        }
+      ]
+    },
     {
-      "strategy": "gold_hybrid_committee",
-      "rank": 1,
-      "fitness": 1.3673,
+      "strategy": "chimera_v1_2026_05_26",
+      "rank": 2,
+      "fitness": 1.0937,
       "tier": "T2",
       "params": {
         "members": [
+          {
+            "display_name": "Sable Osprey",
+            "strategy": "gc_vjatr_reclaimer",
+            "params": {
+              "fast_ema": 140,
+              "slow_ema": 160,
+              "slope_window": 1,
+              "entry_bars": 2,
+              "cooldown": 0,
+              "atr_period": 16,
+              "atr_look": 50,
+              "atr_expand": 2.0,
+              "atr_confirm": 3,
+              "rsi_len": 21,
+              "fast_len": 70,
+              "trend_len": 100,
+              "vol_short": 10,
+              "vol_long": 60,
+              "drawdown_lookback": 80,
+              "drawdown_pct": 30.0,
+              "rsi_reclaim": 50.0,
+              "vol_ratio_max": 0.85
+            },
+            "weight": 3.457895
+          },
           {
             "display_name": "Marbled Bonobo",
             "strategy": "gc_vjatr",
@@ -1172,23 +3616,23 @@
         ],
         "threshold": 0.6
       },
-      "marker_alignment_score": 0.6637,
+      "marker_alignment_score": 0.6432,
       "marker_alignment_detail": {
-        "score": 0.6637,
-        "state_accuracy": 0.7741,
-        "precision": 0.9119,
-        "recall": 0.759,
-        "f1": 0.8285,
-        "transition_timing_score": 0.1595,
-        "timing_magnitude_weighted": 0.3085,
-        "transition_count_score": 0.8929,
+        "score": 0.6432,
+        "state_accuracy": 0.7935,
+        "precision": 0.9048,
+        "recall": 0.7965,
+        "f1": 0.8472,
+        "transition_timing_score": 0.1464,
+        "timing_magnitude_weighted": 0.3058,
+        "transition_count_score": 0.7857,
         "tolerance_bars": 30,
         "overlap_start": "1999-10-27",
         "overlap_end": "2025-10-30",
         "target_buy_count": 14,
         "target_sell_count": 14,
-        "candidate_buy_count": 16,
-        "candidate_sell_count": 15,
+        "candidate_buy_count": 17,
+        "candidate_sell_count": 17,
         "buy_transition_matches": [
           {
             "target_bar": 1638,
@@ -1222,8 +3666,8 @@
           },
           {
             "target_bar": 3986,
-            "nearest_bar": 4053,
-            "distance_bars": 67,
+            "nearest_bar": 4038,
+            "distance_bars": 52,
             "score": 0.0
           },
           {
@@ -1258,14 +3702,14 @@
           },
           {
             "target_bar": 7798,
-            "nearest_bar": 8065,
-            "distance_bars": 267,
+            "nearest_bar": 7901,
+            "distance_bars": 103,
             "score": 0.0
           },
           {
             "target_bar": 7869,
-            "nearest_bar": 8065,
-            "distance_bars": 196,
+            "nearest_bar": 7901,
+            "distance_bars": 32,
             "score": 0.0
           },
           {
@@ -1278,14 +3722,14 @@
         "sell_transition_matches": [
           {
             "target_bar": 1740,
-            "nearest_bar": 2827,
-            "distance_bars": 1087,
+            "nearest_bar": 1688,
+            "distance_bars": 52,
             "score": 0.0
           },
           {
             "target_bar": 2033,
-            "nearest_bar": 2827,
-            "distance_bars": 794,
+            "nearest_bar": 1688,
+            "distance_bars": 345,
             "score": 0.0
           },
           {
@@ -1308,9 +3752,9 @@
           },
           {
             "target_bar": 4477,
-            "nearest_bar": 4491,
-            "distance_bars": 14,
-            "score": 0.5333
+            "nearest_bar": 4501,
+            "distance_bars": 24,
+            "score": 0.2
           },
           {
             "target_bar": 6402,
@@ -1326,15 +3770,15 @@
           },
           {
             "target_bar": 7131,
-            "nearest_bar": 7210,
-            "distance_bars": 79,
+            "nearest_bar": 7229,
+            "distance_bars": 98,
             "score": 0.0
           },
           {
             "target_bar": 7218,
-            "nearest_bar": 7210,
-            "distance_bars": 8,
-            "score": 0.7333
+            "nearest_bar": 7229,
+            "distance_bars": 11,
+            "score": 0.6333
           },
           {
             "target_bar": 7763,
@@ -1350,43 +3794,43 @@
           },
           {
             "target_bar": 8004,
-            "nearest_bar": 7868,
-            "distance_bars": 136,
-            "score": 0.0
+            "nearest_bar": 8032,
+            "distance_bars": 28,
+            "score": 0.0667
           },
           {
             "target_bar": 8180,
-            "nearest_bar": 7868,
-            "distance_bars": 312,
+            "nearest_bar": 8032,
+            "distance_bars": 148,
             "score": 0.0
           }
         ],
         "magnitude_weighted_matches": [
           {
             "target_bar": 1638,
-            "nearest_bar": 2541,
-            "distance_bars": 903,
+            "nearest_bar": 1688,
+            "distance_bars": 50,
             "magnitude": 2.5429,
             "score": 0.0
           },
           {
             "target_bar": 1740,
-            "nearest_bar": 2541,
-            "distance_bars": 801,
+            "nearest_bar": 1688,
+            "distance_bars": 52,
             "magnitude": 0.9747,
             "score": 0.0
           },
           {
             "target_bar": 2001,
-            "nearest_bar": 2541,
-            "distance_bars": 540,
+            "nearest_bar": 1688,
+            "distance_bars": 313,
             "magnitude": 0.8009,
             "score": 0.0
           },
           {
             "target_bar": 2033,
-            "nearest_bar": 2541,
-            "distance_bars": 508,
+            "nearest_bar": 1688,
+            "distance_bars": 345,
             "magnitude": 0.9724,
             "score": 0.0
           },
@@ -1434,17 +3878,17 @@
           },
           {
             "target_bar": 3986,
-            "nearest_bar": 4053,
-            "distance_bars": 67,
+            "nearest_bar": 4038,
+            "distance_bars": 52,
             "magnitude": 5.1304,
             "score": 0.0
           },
           {
             "target_bar": 4477,
-            "nearest_bar": 4491,
-            "distance_bars": 14,
+            "nearest_bar": 4501,
+            "distance_bars": 24,
             "magnitude": 0.3475,
-            "score": 0.5333
+            "score": 0.2
           },
           {
             "target_bar": 4695,
@@ -1483,24 +3927,24 @@
           },
           {
             "target_bar": 7131,
-            "nearest_bar": 7210,
-            "distance_bars": 79,
+            "nearest_bar": 7229,
+            "distance_bars": 98,
             "magnitude": 0.1242,
             "score": 0.0
           },
           {
             "target_bar": 7158,
-            "nearest_bar": 7210,
-            "distance_bars": 52,
+            "nearest_bar": 7229,
+            "distance_bars": 71,
             "magnitude": 0.5266,
             "score": 0.0
           },
           {
             "target_bar": 7218,
-            "nearest_bar": 7210,
-            "distance_bars": 8,
+            "nearest_bar": 7229,
+            "distance_bars": 11,
             "magnitude": 0.714,
-            "score": 0.7333
+            "score": 0.6333
           },
           {
             "target_bar": 7478,
@@ -1539,10 +3983,10 @@
           },
           {
             "target_bar": 8004,
-            "nearest_bar": 8065,
-            "distance_bars": 61,
+            "nearest_bar": 8032,
+            "distance_bars": 28,
             "magnitude": 0.4745,
-            "score": 0.0
+            "score": 0.0667
           },
           {
             "target_bar": 8049,
@@ -1555,41 +3999,62 @@
             "target_bar": 8180,
             "nearest_bar": 8065,
             "distance_bars": 115,
-            "magnitude": 0.4106,
+            "magnitude": 0.3749,
             "score": 0.0
           }
         ]
       },
       "metrics": {
-        "trades": 18,
-        "trades_yr": 0.5,
-        "n_params": 32,
-        "share_multiple": 17.4992,
-        "real_share_multiple": 2.2473,
-        "modern_share_multiple": 2.7459,
-        "cagr": 27.23,
-        "max_dd": 65.0,
-        "mar": 0.419,
-        "regime_score": 0.5427,
-        "hhi": 0.094,
-        "bull_capture": 0.1322,
-        "bear_avoidance": 0.9533,
-        "win_rate": 72.2,
+        "trades": 21,
+        "trades_yr": 0.6,
+        "n_params": 53,
+        "share_multiple": 41.3001,
+        "real_share_multiple": 1.4285,
+        "modern_share_multiple": 1.4597,
+        "cagr": 30.44,
+        "max_dd": 59.2,
+        "mar": 0.515,
+        "regime_score": 0.584,
+        "hhi": 0.0805,
+        "bull_capture": 0.3647,
+        "bear_avoidance": 0.8034,
+        "win_rate": 71.4,
         "exit_reasons": {
-          "COM": 17,
-          "End of Data": 1
+          "COM": 21
         }
       },
       "trades": [
         {
           "entry_bar": 322,
-          "exit_bar": 516,
+          "exit_bar": 522,
           "entry_date": "1994-08-11",
-          "exit_date": "1995-05-18",
+          "exit_date": "1995-05-26",
           "entry_price": 1.729574832637095,
-          "exit_price": 4.948338831796386,
-          "pnl_pct": 186.10145906503615,
-          "bars_held": 194,
+          "exit_price": 5.152181995840314,
+          "pnl_pct": 197.88719739779896,
+          "bars_held": 200,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 638,
+          "exit_bar": 926,
+          "entry_date": "1995-11-09",
+          "exit_date": "1996-12-31",
+          "entry_price": 7.532726839773217,
+          "exit_price": 12.172394463345599,
+          "pnl_pct": 61.59346704402817,
+          "bars_held": 288,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 1488,
+          "exit_bar": 1687,
+          "entry_date": "1999-03-25",
+          "exit_date": "2000-01-06",
+          "entry_price": 98.84121597443506,
+          "exit_price": 218.12218170703017,
+          "pnl_pct": 120.67937909975402,
+          "bars_held": 199,
           "exit_reason": "COM"
         },
         {
@@ -1659,25 +4124,25 @@
           "exit_reason": "COM"
         },
         {
-          "entry_bar": 4053,
+          "entry_bar": 4038,
           "exit_bar": 4284,
-          "entry_date": "2009-06-05",
+          "entry_date": "2009-05-14",
           "exit_date": "2010-05-06",
-          "entry_price": 0.56028,
+          "entry_price": 0.42021,
           "exit_price": 0.8595700000000001,
-          "pnl_pct": 53.41793389019778,
-          "bars_held": 231,
+          "pnl_pct": 104.55724518693037,
+          "bars_held": 246,
           "exit_reason": "COM"
         },
         {
           "entry_bar": 4380,
-          "exit_bar": 4490,
+          "exit_bar": 4500,
           "entry_date": "2010-09-22",
-          "exit_date": "2011-03-01",
+          "exit_date": "2011-03-15",
           "entry_price": 0.8004,
-          "exit_price": 1.25937,
-          "pnl_pct": 57.3425787106447,
-          "bars_held": 110,
+          "exit_price": 1.129435,
+          "pnl_pct": 41.108820589705154,
+          "bars_held": 120,
           "exit_reason": "COM"
         },
         {
@@ -1737,13 +4202,13 @@
         },
         {
           "entry_bar": 6814,
-          "exit_bar": 7209,
+          "exit_bar": 7228,
           "entry_date": "2020-05-26",
-          "exit_date": "2021-12-16",
+          "exit_date": "2022-01-13",
           "entry_price": 18.679335000000002,
-          "exit_price": 79.210375,
-          "pnl_pct": 324.05350618745257,
-          "bars_held": 395,
+          "exit_price": 72.36380000000001,
+          "pnl_pct": 287.40030092077694,
+          "bars_held": 414,
           "exit_reason": "COM"
         },
         {
@@ -1758,6 +4223,17 @@
           "exit_reason": "COM"
         },
         {
+          "entry_bar": 7901,
+          "exit_bar": 8031,
+          "entry_date": "2024-09-19",
+          "exit_date": "2025-03-28",
+          "entry_price": 84.572265,
+          "exit_price": 58.400785000000006,
+          "pnl_pct": -30.945700697504076,
+          "bars_held": 130,
+          "exit_reason": "COM"
+        },
+        {
           "entry_bar": 8065,
           "exit_bar": 8195,
           "entry_date": "2025-05-16",
@@ -1769,25 +4245,50 @@
           "exit_reason": "COM"
         },
         {
-          "entry_bar": 8288,
-          "exit_bar": 8320,
-          "entry_date": "2026-04-08",
-          "exit_date": "2026-05-22",
-          "entry_price": 104.1320418319702,
-          "exit_price": 207.8500061035156,
-          "pnl_pct": 99.60235336488171,
-          "bars_held": 32,
-          "exit_reason": "End of Data"
+          "entry_bar": 8229,
+          "exit_bar": 8329,
+          "entry_date": "2026-01-12",
+          "exit_date": "2026-06-05",
+          "entry_price": 124.03198499999999,
+          "exit_price": 202.48870133972173,
+          "pnl_pct": 63.255229156996684,
+          "bars_held": 100,
+          "exit_reason": "COM"
         }
       ]
     },
     {
-      "strategy": "gold_hybrid_committee",
-      "rank": 2,
-      "fitness": 1.3673,
+      "strategy": "chimera_v1_2026_05_26",
+      "rank": 3,
+      "fitness": 1.0937,
       "tier": "T2",
       "params": {
         "members": [
+          {
+            "display_name": "Sable Osprey",
+            "strategy": "gc_vjatr_reclaimer",
+            "params": {
+              "fast_ema": 140,
+              "slow_ema": 160,
+              "slope_window": 1,
+              "entry_bars": 2,
+              "cooldown": 0,
+              "atr_period": 16,
+              "atr_look": 50,
+              "atr_expand": 2.0,
+              "atr_confirm": 3,
+              "rsi_len": 21,
+              "fast_len": 70,
+              "trend_len": 100,
+              "vol_short": 10,
+              "vol_long": 60,
+              "drawdown_lookback": 80,
+              "drawdown_pct": 30.0,
+              "rsi_reclaim": 50.0,
+              "vol_ratio_max": 0.85
+            },
+            "weight": 3.457895
+          },
           {
             "display_name": "Marbled Bonobo",
             "strategy": "gc_vjatr",
@@ -1830,23 +4331,23 @@
         ],
         "threshold": 0.67
       },
-      "marker_alignment_score": 0.6637,
+      "marker_alignment_score": 0.6432,
       "marker_alignment_detail": {
-        "score": 0.6637,
-        "state_accuracy": 0.7741,
-        "precision": 0.9119,
-        "recall": 0.759,
-        "f1": 0.8285,
-        "transition_timing_score": 0.1595,
-        "timing_magnitude_weighted": 0.3085,
-        "transition_count_score": 0.8929,
+        "score": 0.6432,
+        "state_accuracy": 0.7935,
+        "precision": 0.9048,
+        "recall": 0.7965,
+        "f1": 0.8472,
+        "transition_timing_score": 0.1464,
+        "timing_magnitude_weighted": 0.3058,
+        "transition_count_score": 0.7857,
         "tolerance_bars": 30,
         "overlap_start": "1999-10-27",
         "overlap_end": "2025-10-30",
         "target_buy_count": 14,
         "target_sell_count": 14,
-        "candidate_buy_count": 16,
-        "candidate_sell_count": 15,
+        "candidate_buy_count": 17,
+        "candidate_sell_count": 17,
         "buy_transition_matches": [
           {
             "target_bar": 1638,
@@ -1880,8 +4381,8 @@
           },
           {
             "target_bar": 3986,
-            "nearest_bar": 4053,
-            "distance_bars": 67,
+            "nearest_bar": 4038,
+            "distance_bars": 52,
             "score": 0.0
           },
           {
@@ -1916,14 +4417,14 @@
           },
           {
             "target_bar": 7798,
-            "nearest_bar": 8065,
-            "distance_bars": 267,
+            "nearest_bar": 7901,
+            "distance_bars": 103,
             "score": 0.0
           },
           {
             "target_bar": 7869,
-            "nearest_bar": 8065,
-            "distance_bars": 196,
+            "nearest_bar": 7901,
+            "distance_bars": 32,
             "score": 0.0
           },
           {
@@ -1936,14 +4437,14 @@
         "sell_transition_matches": [
           {
             "target_bar": 1740,
-            "nearest_bar": 2827,
-            "distance_bars": 1087,
+            "nearest_bar": 1688,
+            "distance_bars": 52,
             "score": 0.0
           },
           {
             "target_bar": 2033,
-            "nearest_bar": 2827,
-            "distance_bars": 794,
+            "nearest_bar": 1688,
+            "distance_bars": 345,
             "score": 0.0
           },
           {
@@ -1966,9 +4467,9 @@
           },
           {
             "target_bar": 4477,
-            "nearest_bar": 4491,
-            "distance_bars": 14,
-            "score": 0.5333
+            "nearest_bar": 4501,
+            "distance_bars": 24,
+            "score": 0.2
           },
           {
             "target_bar": 6402,
@@ -1984,15 +4485,15 @@
           },
           {
             "target_bar": 7131,
-            "nearest_bar": 7210,
-            "distance_bars": 79,
+            "nearest_bar": 7229,
+            "distance_bars": 98,
             "score": 0.0
           },
           {
             "target_bar": 7218,
-            "nearest_bar": 7210,
-            "distance_bars": 8,
-            "score": 0.7333
+            "nearest_bar": 7229,
+            "distance_bars": 11,
+            "score": 0.6333
           },
           {
             "target_bar": 7763,
@@ -2008,43 +4509,43 @@
           },
           {
             "target_bar": 8004,
-            "nearest_bar": 7868,
-            "distance_bars": 136,
-            "score": 0.0
+            "nearest_bar": 8032,
+            "distance_bars": 28,
+            "score": 0.0667
           },
           {
             "target_bar": 8180,
-            "nearest_bar": 7868,
-            "distance_bars": 312,
+            "nearest_bar": 8032,
+            "distance_bars": 148,
             "score": 0.0
           }
         ],
         "magnitude_weighted_matches": [
           {
             "target_bar": 1638,
-            "nearest_bar": 2541,
-            "distance_bars": 903,
+            "nearest_bar": 1688,
+            "distance_bars": 50,
             "magnitude": 2.5429,
             "score": 0.0
           },
           {
             "target_bar": 1740,
-            "nearest_bar": 2541,
-            "distance_bars": 801,
+            "nearest_bar": 1688,
+            "distance_bars": 52,
             "magnitude": 0.9747,
             "score": 0.0
           },
           {
             "target_bar": 2001,
-            "nearest_bar": 2541,
-            "distance_bars": 540,
+            "nearest_bar": 1688,
+            "distance_bars": 313,
             "magnitude": 0.8009,
             "score": 0.0
           },
           {
             "target_bar": 2033,
-            "nearest_bar": 2541,
-            "distance_bars": 508,
+            "nearest_bar": 1688,
+            "distance_bars": 345,
             "magnitude": 0.9724,
             "score": 0.0
           },
@@ -2092,17 +4593,17 @@
           },
           {
             "target_bar": 3986,
-            "nearest_bar": 4053,
-            "distance_bars": 67,
+            "nearest_bar": 4038,
+            "distance_bars": 52,
             "magnitude": 5.1304,
             "score": 0.0
           },
           {
             "target_bar": 4477,
-            "nearest_bar": 4491,
-            "distance_bars": 14,
+            "nearest_bar": 4501,
+            "distance_bars": 24,
             "magnitude": 0.3475,
-            "score": 0.5333
+            "score": 0.2
           },
           {
             "target_bar": 4695,
@@ -2141,24 +4642,24 @@
           },
           {
             "target_bar": 7131,
-            "nearest_bar": 7210,
-            "distance_bars": 79,
+            "nearest_bar": 7229,
+            "distance_bars": 98,
             "magnitude": 0.1242,
             "score": 0.0
           },
           {
             "target_bar": 7158,
-            "nearest_bar": 7210,
-            "distance_bars": 52,
+            "nearest_bar": 7229,
+            "distance_bars": 71,
             "magnitude": 0.5266,
             "score": 0.0
           },
           {
             "target_bar": 7218,
-            "nearest_bar": 7210,
-            "distance_bars": 8,
+            "nearest_bar": 7229,
+            "distance_bars": 11,
             "magnitude": 0.714,
-            "score": 0.7333
+            "score": 0.6333
           },
           {
             "target_bar": 7478,
@@ -2197,10 +4698,10 @@
           },
           {
             "target_bar": 8004,
-            "nearest_bar": 8065,
-            "distance_bars": 61,
+            "nearest_bar": 8032,
+            "distance_bars": 28,
             "magnitude": 0.4745,
-            "score": 0.0
+            "score": 0.0667
           },
           {
             "target_bar": 8049,
@@ -2213,41 +4714,62 @@
             "target_bar": 8180,
             "nearest_bar": 8065,
             "distance_bars": 115,
-            "magnitude": 0.4106,
+            "magnitude": 0.3749,
             "score": 0.0
           }
         ]
       },
       "metrics": {
-        "trades": 18,
-        "trades_yr": 0.5,
-        "n_params": 32,
-        "share_multiple": 17.4992,
-        "real_share_multiple": 2.2473,
-        "modern_share_multiple": 2.7459,
-        "cagr": 27.23,
-        "max_dd": 65.0,
-        "mar": 0.419,
-        "regime_score": 0.5427,
-        "hhi": 0.094,
-        "bull_capture": 0.1322,
-        "bear_avoidance": 0.9533,
-        "win_rate": 72.2,
+        "trades": 21,
+        "trades_yr": 0.6,
+        "n_params": 53,
+        "share_multiple": 41.3001,
+        "real_share_multiple": 1.4285,
+        "modern_share_multiple": 1.4597,
+        "cagr": 30.44,
+        "max_dd": 59.2,
+        "mar": 0.515,
+        "regime_score": 0.584,
+        "hhi": 0.0805,
+        "bull_capture": 0.3647,
+        "bear_avoidance": 0.8034,
+        "win_rate": 71.4,
         "exit_reasons": {
-          "COM": 17,
-          "End of Data": 1
+          "COM": 21
         }
       },
       "trades": [
         {
           "entry_bar": 322,
-          "exit_bar": 516,
+          "exit_bar": 522,
           "entry_date": "1994-08-11",
-          "exit_date": "1995-05-18",
+          "exit_date": "1995-05-26",
           "entry_price": 1.729574832637095,
-          "exit_price": 4.948338831796386,
-          "pnl_pct": 186.10145906503615,
-          "bars_held": 194,
+          "exit_price": 5.152181995840314,
+          "pnl_pct": 197.88719739779896,
+          "bars_held": 200,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 638,
+          "exit_bar": 926,
+          "entry_date": "1995-11-09",
+          "exit_date": "1996-12-31",
+          "entry_price": 7.532726839773217,
+          "exit_price": 12.172394463345599,
+          "pnl_pct": 61.59346704402817,
+          "bars_held": 288,
+          "exit_reason": "COM"
+        },
+        {
+          "entry_bar": 1488,
+          "exit_bar": 1687,
+          "entry_date": "1999-03-25",
+          "exit_date": "2000-01-06",
+          "entry_price": 98.84121597443506,
+          "exit_price": 218.12218170703017,
+          "pnl_pct": 120.67937909975402,
+          "bars_held": 199,
           "exit_reason": "COM"
         },
         {
@@ -2317,25 +4839,25 @@
           "exit_reason": "COM"
         },
         {
-          "entry_bar": 4053,
+          "entry_bar": 4038,
           "exit_bar": 4284,
-          "entry_date": "2009-06-05",
+          "entry_date": "2009-05-14",
           "exit_date": "2010-05-06",
-          "entry_price": 0.56028,
+          "entry_price": 0.42021,
           "exit_price": 0.8595700000000001,
-          "pnl_pct": 53.41793389019778,
-          "bars_held": 231,
+          "pnl_pct": 104.55724518693037,
+          "bars_held": 246,
           "exit_reason": "COM"
         },
         {
           "entry_bar": 4380,
-          "exit_bar": 4490,
+          "exit_bar": 4500,
           "entry_date": "2010-09-22",
-          "exit_date": "2011-03-01",
+          "exit_date": "2011-03-15",
           "entry_price": 0.8004,
-          "exit_price": 1.25937,
-          "pnl_pct": 57.3425787106447,
-          "bars_held": 110,
+          "exit_price": 1.129435,
+          "pnl_pct": 41.108820589705154,
+          "bars_held": 120,
           "exit_reason": "COM"
         },
         {
@@ -2395,13 +4917,13 @@
         },
         {
           "entry_bar": 6814,
-          "exit_bar": 7209,
+          "exit_bar": 7228,
           "entry_date": "2020-05-26",
-          "exit_date": "2021-12-16",
+          "exit_date": "2022-01-13",
           "entry_price": 18.679335000000002,
-          "exit_price": 79.210375,
-          "pnl_pct": 324.05350618745257,
-          "bars_held": 395,
+          "exit_price": 72.36380000000001,
+          "pnl_pct": 287.40030092077694,
+          "bars_held": 414,
           "exit_reason": "COM"
         },
         {
@@ -2416,6 +4938,17 @@
           "exit_reason": "COM"
         },
         {
+          "entry_bar": 7901,
+          "exit_bar": 8031,
+          "entry_date": "2024-09-19",
+          "exit_date": "2025-03-28",
+          "entry_price": 84.572265,
+          "exit_price": 58.400785000000006,
+          "pnl_pct": -30.945700697504076,
+          "bars_held": 130,
+          "exit_reason": "COM"
+        },
+        {
           "entry_bar": 8065,
           "exit_bar": 8195,
           "entry_date": "2025-05-16",
@@ -2427,861 +4960,24 @@
           "exit_reason": "COM"
         },
         {
-          "entry_bar": 8288,
-          "exit_bar": 8320,
-          "entry_date": "2026-04-08",
-          "exit_date": "2026-05-22",
-          "entry_price": 104.1320418319702,
-          "exit_price": 207.8500061035156,
-          "pnl_pct": 99.60235336488171,
-          "bars_held": 32,
-          "exit_reason": "End of Data"
+          "entry_bar": 8229,
+          "exit_bar": 8329,
+          "entry_date": "2026-01-12",
+          "exit_date": "2026-06-05",
+          "entry_price": 124.03198499999999,
+          "exit_price": 202.48870133972173,
+          "pnl_pct": 63.255229156996684,
+          "bars_held": 100,
+          "exit_reason": "COM"
         }
       ]
     },
     {
       "strategy": "gold_hybrid_switchboard",
-      "rank": 3,
-      "fitness": 0.5147,
-      "tier": "T2",
-      "params": {
-        "entry_strategy": "gc_vjatr_timing_repair",
-        "entry_params": {
-          "fast_ema": 140,
-          "slow_ema": 160,
-          "slope_window": 1,
-          "entry_bars": 2,
-          "cooldown": 0,
-          "atr_period": 16,
-          "atr_look": 50,
-          "atr_expand": 2.0,
-          "atr_confirm": 3,
-          "repair_len": 30,
-          "rsi_len": 7,
-          "drawdown_lookback": 40,
-          "drawdown_pct": 25.0,
-          "repair_slope": 3,
-          "rsi_floor": 45.0,
-          "vix_ceiling": 50.0
-        },
-        "exit_strategy": "gc_vjatr",
-        "exit_params": {
-          "fast_ema": 140,
-          "slow_ema": 160,
-          "slope_window": 1,
-          "entry_bars": 2,
-          "cooldown": 0,
-          "atr_period": 7,
-          "atr_look": 40,
-          "atr_expand": 2.5,
-          "atr_confirm": 1
-        }
-      },
-      "marker_alignment_score": 0.4734,
-      "marker_alignment_detail": {
-        "score": 0.4734,
-        "state_accuracy": 0.784,
-        "precision": 0.8159,
-        "recall": 0.9032,
-        "f1": 0.8574,
-        "transition_timing_score": 0.2524,
-        "timing_magnitude_weighted": 0.4469,
-        "transition_count_score": 0.0,
-        "tolerance_bars": 30,
-        "overlap_start": "1999-10-27",
-        "overlap_end": "2025-10-30",
-        "target_buy_count": 14,
-        "target_sell_count": 14,
-        "candidate_buy_count": 29,
-        "candidate_sell_count": 29,
-        "buy_transition_matches": [
-          {
-            "target_bar": 1638,
-            "nearest_bar": 1699,
-            "distance_bars": 61,
-            "score": 0.0
-          },
-          {
-            "target_bar": 2001,
-            "nearest_bar": 2044,
-            "distance_bars": 43,
-            "score": 0.0
-          },
-          {
-            "target_bar": 2376,
-            "nearest_bar": 2044,
-            "distance_bars": 332,
-            "score": 0.0
-          },
-          {
-            "target_bar": 2841,
-            "nearest_bar": 2880,
-            "distance_bars": 39,
-            "score": 0.0
-          },
-          {
-            "target_bar": 3333,
-            "nearest_bar": 3346,
-            "distance_bars": 13,
-            "score": 0.5667
-          },
-          {
-            "target_bar": 3986,
-            "nearest_bar": 3970,
-            "distance_bars": 16,
-            "score": 0.4667
-          },
-          {
-            "target_bar": 4695,
-            "nearest_bar": 4707,
-            "distance_bars": 12,
-            "score": 0.6
-          },
-          {
-            "target_bar": 6461,
-            "nearest_bar": 6477,
-            "distance_bars": 16,
-            "score": 0.4667
-          },
-          {
-            "target_bar": 6772,
-            "nearest_bar": 6787,
-            "distance_bars": 15,
-            "score": 0.5
-          },
-          {
-            "target_bar": 7158,
-            "nearest_bar": 7355,
-            "distance_bars": 197,
-            "score": 0.0
-          },
-          {
-            "target_bar": 7478,
-            "nearest_bar": 7483,
-            "distance_bars": 5,
-            "score": 0.8333
-          },
-          {
-            "target_bar": 7798,
-            "nearest_bar": 7901,
-            "distance_bars": 103,
-            "score": 0.0
-          },
-          {
-            "target_bar": 7869,
-            "nearest_bar": 7901,
-            "distance_bars": 32,
-            "score": 0.0
-          },
-          {
-            "target_bar": 8049,
-            "nearest_bar": 8065,
-            "distance_bars": 16,
-            "score": 0.4667
-          }
-        ],
-        "sell_transition_matches": [
-          {
-            "target_bar": 1740,
-            "nearest_bar": 1686,
-            "distance_bars": 54,
-            "score": 0.0
-          },
-          {
-            "target_bar": 2033,
-            "nearest_bar": 1866,
-            "distance_bars": 167,
-            "score": 0.0
-          },
-          {
-            "target_bar": 2700,
-            "nearest_bar": 2827,
-            "distance_bars": 127,
-            "score": 0.0
-          },
-          {
-            "target_bar": 3256,
-            "nearest_bar": 3304,
-            "distance_bars": 48,
-            "score": 0.0
-          },
-          {
-            "target_bar": 3650,
-            "nearest_bar": 3717,
-            "distance_bars": 67,
-            "score": 0.0
-          },
-          {
-            "target_bar": 4477,
-            "nearest_bar": 4491,
-            "distance_bars": 14,
-            "score": 0.5333
-          },
-          {
-            "target_bar": 6402,
-            "nearest_bar": 6420,
-            "distance_bars": 18,
-            "score": 0.4
-          },
-          {
-            "target_bar": 6749,
-            "nearest_bar": 6750,
-            "distance_bars": 1,
-            "score": 0.9667
-          },
-          {
-            "target_bar": 7131,
-            "nearest_bar": 7210,
-            "distance_bars": 79,
-            "score": 0.0
-          },
-          {
-            "target_bar": 7218,
-            "nearest_bar": 7210,
-            "distance_bars": 8,
-            "score": 0.7333
-          },
-          {
-            "target_bar": 7763,
-            "nearest_bar": 7870,
-            "distance_bars": 107,
-            "score": 0.0
-          },
-          {
-            "target_bar": 7854,
-            "nearest_bar": 7870,
-            "distance_bars": 16,
-            "score": 0.4667
-          },
-          {
-            "target_bar": 8004,
-            "nearest_bar": 8032,
-            "distance_bars": 28,
-            "score": 0.0667
-          },
-          {
-            "target_bar": 8180,
-            "nearest_bar": 8032,
-            "distance_bars": 148,
-            "score": 0.0
-          }
-        ],
-        "magnitude_weighted_matches": [
-          {
-            "target_bar": 1638,
-            "nearest_bar": 1686,
-            "distance_bars": 48,
-            "magnitude": 2.5429,
-            "score": 0.0
-          },
-          {
-            "target_bar": 1740,
-            "nearest_bar": 1699,
-            "distance_bars": 41,
-            "magnitude": 0.9747,
-            "score": 0.0
-          },
-          {
-            "target_bar": 2001,
-            "nearest_bar": 2044,
-            "distance_bars": 43,
-            "magnitude": 0.8009,
-            "score": 0.0
-          },
-          {
-            "target_bar": 2033,
-            "nearest_bar": 2044,
-            "distance_bars": 11,
-            "magnitude": 0.9724,
-            "score": 0.6333
-          },
-          {
-            "target_bar": 2376,
-            "nearest_bar": 2044,
-            "distance_bars": 332,
-            "magnitude": 3.6241,
-            "score": 0.0
-          },
-          {
-            "target_bar": 2700,
-            "nearest_bar": 2827,
-            "distance_bars": 127,
-            "magnitude": 0.4919,
-            "score": 0.0
-          },
-          {
-            "target_bar": 2841,
-            "nearest_bar": 2827,
-            "distance_bars": 14,
-            "magnitude": 0.7357,
-            "score": 0.5333
-          },
-          {
-            "target_bar": 3256,
-            "nearest_bar": 3304,
-            "distance_bars": 48,
-            "magnitude": 0.3694,
-            "score": 0.0
-          },
-          {
-            "target_bar": 3333,
-            "nearest_bar": 3346,
-            "distance_bars": 13,
-            "magnitude": 1.6453,
-            "score": 0.5667
-          },
-          {
-            "target_bar": 3650,
-            "nearest_bar": 3717,
-            "distance_bars": 67,
-            "magnitude": 0.9347,
-            "score": 0.0
-          },
-          {
-            "target_bar": 3986,
-            "nearest_bar": 3970,
-            "distance_bars": 16,
-            "magnitude": 5.1304,
-            "score": 0.4667
-          },
-          {
-            "target_bar": 4477,
-            "nearest_bar": 4491,
-            "distance_bars": 14,
-            "magnitude": 0.3475,
-            "score": 0.5333
-          },
-          {
-            "target_bar": 4695,
-            "nearest_bar": 4707,
-            "distance_bars": 12,
-            "magnitude": 17.5978,
-            "score": 0.6
-          },
-          {
-            "target_bar": 6402,
-            "nearest_bar": 6420,
-            "distance_bars": 18,
-            "magnitude": 0.5167,
-            "score": 0.4
-          },
-          {
-            "target_bar": 6461,
-            "nearest_bar": 6477,
-            "distance_bars": 16,
-            "magnitude": 2.6505,
-            "score": 0.4667
-          },
-          {
-            "target_bar": 6749,
-            "nearest_bar": 6750,
-            "distance_bars": 1,
-            "magnitude": 0.6476,
-            "score": 0.9667
-          },
-          {
-            "target_bar": 6772,
-            "nearest_bar": 6787,
-            "distance_bars": 15,
-            "magnitude": 5.1541,
-            "score": 0.5
-          },
-          {
-            "target_bar": 7131,
-            "nearest_bar": 7210,
-            "distance_bars": 79,
-            "magnitude": 0.1242,
-            "score": 0.0
-          },
-          {
-            "target_bar": 7158,
-            "nearest_bar": 7210,
-            "distance_bars": 52,
-            "magnitude": 0.5266,
-            "score": 0.0
-          },
-          {
-            "target_bar": 7218,
-            "nearest_bar": 7210,
-            "distance_bars": 8,
-            "magnitude": 0.714,
-            "score": 0.7333
-          },
-          {
-            "target_bar": 7478,
-            "nearest_bar": 7483,
-            "distance_bars": 5,
-            "magnitude": 2.3582,
-            "score": 0.8333
-          },
-          {
-            "target_bar": 7763,
-            "nearest_bar": 7870,
-            "distance_bars": 107,
-            "magnitude": 0.2069,
-            "score": 0.0
-          },
-          {
-            "target_bar": 7798,
-            "nearest_bar": 7870,
-            "distance_bars": 72,
-            "magnitude": 0.6035,
-            "score": 0.0
-          },
-          {
-            "target_bar": 7854,
-            "nearest_bar": 7870,
-            "distance_bars": 16,
-            "magnitude": 0.4174,
-            "score": 0.4667
-          },
-          {
-            "target_bar": 7869,
-            "nearest_bar": 7870,
-            "distance_bars": 1,
-            "magnitude": 0.5807,
-            "score": 0.9667
-          },
-          {
-            "target_bar": 8004,
-            "nearest_bar": 8032,
-            "distance_bars": 28,
-            "magnitude": 0.4745,
-            "score": 0.0667
-          },
-          {
-            "target_bar": 8049,
-            "nearest_bar": 8065,
-            "distance_bars": 16,
-            "magnitude": 1.8473,
-            "score": 0.4667
-          },
-          {
-            "target_bar": 8180,
-            "nearest_bar": 8065,
-            "distance_bars": 115,
-            "magnitude": 0.4106,
-            "score": 0.0
-          }
-        ]
-      },
-      "metrics": {
-        "trades": 34,
-        "trades_yr": 1.0,
-        "n_params": 27,
-        "share_multiple": 21.1634,
-        "real_share_multiple": 1.3711,
-        "modern_share_multiple": 1.3381,
-        "cagr": 27.97,
-        "max_dd": 98.8,
-        "mar": 0.283,
-        "regime_score": 0.5159,
-        "hhi": 0.0877,
-        "bull_capture": 0.7779,
-        "bear_avoidance": 0.2539,
-        "win_rate": 52.9,
-        "exit_reasons": {
-          "D": 20,
-          "A": 8,
-          "V": 5,
-          "End of Data": 1
-        }
-      },
-      "trades": [
-        {
-          "entry_bar": 112,
-          "exit_bar": 305,
-          "entry_date": "1993-10-12",
-          "exit_date": "1994-07-19",
-          "entry_price": 1.4281708471012897,
-          "exit_price": 1.3861850981963215,
-          "pnl_pct": -2.9398267714388138,
-          "bars_held": 193,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 322,
-          "exit_bar": 516,
-          "entry_date": "1994-08-11",
-          "exit_date": "1995-05-18",
-          "entry_price": 1.729574832637095,
-          "exit_price": 4.948338831796386,
-          "pnl_pct": 186.10145906503615,
-          "bars_held": 194,
-          "exit_reason": "A"
-        },
-        {
-          "entry_bar": 561,
-          "exit_bar": 814,
-          "entry_date": "1995-07-24",
-          "exit_date": "1996-07-23",
-          "entry_price": 7.13922847012264,
-          "exit_price": 4.623641220167872,
-          "pnl_pct": -35.236121949064824,
-          "bars_held": 253,
-          "exit_reason": "A"
-        },
-        {
-          "entry_bar": 843,
-          "exit_bar": 1435,
-          "entry_date": "1996-09-03",
-          "exit_date": "1999-01-07",
-          "entry_price": 6.578159762047637,
-          "exit_price": 96.42076244887221,
-          "pnl_pct": 1365.7710657191237,
-          "bars_held": 592,
-          "exit_reason": "A"
-        },
-        {
-          "entry_bar": 1480,
-          "exit_bar": 1685,
-          "entry_date": "1999-03-15",
-          "exit_date": "2000-01-04",
-          "entry_price": 95.95179307126318,
-          "exit_price": 253.56394895563665,
-          "pnl_pct": 164.2618140208336,
-          "bars_held": 205,
-          "exit_reason": "A"
-        },
-        {
-          "entry_bar": 1699,
-          "exit_bar": 1865,
-          "entry_date": "2000-01-25",
-          "exit_date": "2000-09-20",
-          "entry_price": 253.90364374376452,
-          "exit_price": 174.93394860478875,
-          "pnl_pct": -31.10222995408082,
-          "bars_held": 166,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 2044,
-          "exit_bar": 2826,
-          "entry_date": "2001-06-07",
-          "exit_date": "2004-07-22",
-          "entry_price": 16.520305593455667,
-          "exit_price": 1.5024079447495522,
-          "pnl_pct": -90.90568914569768,
-          "bars_held": 782,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 2880,
-          "exit_bar": 2980,
-          "entry_date": "2004-10-07",
-          "exit_date": "2005-03-02",
-          "entry_price": 1.6134994788567107,
-          "exit_price": 1.6344448803851728,
-          "pnl_pct": 1.2981350042519768,
-          "bars_held": 100,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 3031,
-          "exit_bar": 3303,
-          "entry_date": "2005-05-13",
-          "exit_date": "2006-06-13",
-          "entry_price": 1.4249379323161788,
-          "exit_price": 1.3601590220598558,
-          "pnl_pct": -4.54608644960609,
-          "bars_held": 272,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 3346,
-          "exit_bar": 3716,
-          "entry_date": "2006-08-14",
-          "exit_date": "2008-02-04",
-          "entry_price": 1.3957134721753204,
-          "exit_price": 1.878873718845249,
-          "pnl_pct": 34.61743805602795,
-          "bars_held": 370,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 3787,
-          "exit_bar": 3805,
-          "entry_date": "2008-05-15",
-          "exit_date": "2008-06-11",
-          "entry_price": 2.3508921882558993,
-          "exit_price": 1.9320437313847572,
-          "pnl_pct": -17.816574446226785,
-          "bars_held": 18,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 3856,
-          "exit_bar": 3861,
-          "entry_date": "2008-08-22",
-          "exit_date": "2008-08-29",
-          "entry_price": 1.7319258869016214,
-          "exit_price": 1.605546142186498,
-          "pnl_pct": -7.297064249164498,
-          "bars_held": 5,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 3970,
-          "exit_bar": 4284,
-          "entry_date": "2009-02-05",
-          "exit_date": "2010-05-06",
-          "entry_price": 0.35017499999999996,
-          "exit_price": 0.8595700000000001,
-          "pnl_pct": 145.46869422431647,
-          "bars_held": 314,
-          "exit_reason": "V"
-        },
-        {
-          "entry_bar": 4337,
-          "exit_bar": 4338,
-          "entry_date": "2010-07-22",
-          "exit_date": "2010-07-23",
-          "entry_price": 0.78039,
-          "exit_price": 0.7996000000000001,
-          "pnl_pct": 2.461589717961532,
-          "bars_held": 1,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 4371,
-          "exit_bar": 4372,
-          "entry_date": "2010-09-09",
-          "exit_date": "2010-09-10",
-          "entry_price": 0.7003499999999999,
-          "exit_price": 0.69965,
-          "pnl_pct": -0.09995002498749406,
-          "bars_held": 1,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 4380,
-          "exit_bar": 4490,
-          "entry_date": "2010-09-22",
-          "exit_date": "2011-03-01",
-          "entry_price": 0.8004,
-          "exit_price": 1.25937,
-          "pnl_pct": 57.3425787106447,
-          "bars_held": 110,
-          "exit_reason": "A"
-        },
-        {
-          "entry_bar": 4575,
-          "exit_bar": 4601,
-          "entry_date": "2011-06-30",
-          "exit_date": "2011-08-08",
-          "entry_price": 1.1005500000000001,
-          "exit_price": 0.7596200000000001,
-          "pnl_pct": -30.978147289991366,
-          "bars_held": 26,
-          "exit_reason": "V"
-        },
-        {
-          "entry_bar": 4645,
-          "exit_bar": 4674,
-          "entry_date": "2011-10-10",
-          "exit_date": "2011-11-18",
-          "entry_price": 0.930465,
-          "exit_price": 0.9295350000000001,
-          "pnl_pct": -0.09995002498749406,
-          "bars_held": 29,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 4707,
-          "exit_bar": 5618,
-          "entry_date": "2012-01-09",
-          "exit_date": "2015-08-24",
-          "entry_price": 0.9904949999999999,
-          "exit_price": 2.628685,
-          "pnl_pct": 165.391041852811,
-          "bars_held": 911,
-          "exit_reason": "V"
-        },
-        {
-          "entry_bar": 5658,
-          "exit_bar": 5724,
-          "entry_date": "2015-10-20",
-          "exit_date": "2016-01-26",
-          "entry_price": 3.4617299999999998,
-          "exit_price": 2.97851,
-          "pnl_pct": -13.958916495509467,
-          "bars_held": 66,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 5744,
-          "exit_bar": 5745,
-          "entry_date": "2016-02-24",
-          "exit_date": "2016-02-25",
-          "entry_price": 3.06153,
-          "exit_price": 3.168415,
-          "pnl_pct": 3.491228242088118,
-          "bars_held": 1,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 5751,
-          "exit_bar": 6235,
-          "entry_date": "2016-03-04",
-          "exit_date": "2018-02-05",
-          "entry_price": 3.4016999999999995,
-          "exit_price": 10.944525,
-          "pnl_pct": 221.73692565481971,
-          "bars_held": 484,
-          "exit_reason": "V"
-        },
-        {
-          "entry_bar": 6253,
-          "exit_bar": 6419,
-          "entry_date": "2018-03-02",
-          "exit_date": "2018-10-26",
-          "entry_price": 12.836414999999999,
-          "exit_price": 11.924035,
-          "pnl_pct": -7.107747762907312,
-          "bars_held": 166,
-          "exit_reason": "A"
-        },
-        {
-          "entry_bar": 6477,
-          "exit_bar": 6478,
-          "entry_date": "2019-01-23",
-          "exit_date": "2019-01-24",
-          "entry_price": 9.354674999999999,
-          "exit_price": 9.585205,
-          "pnl_pct": 2.464329332659898,
-          "bars_held": 1,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 6497,
-          "exit_bar": 6749,
-          "entry_date": "2019-02-21",
-          "exit_date": "2020-02-21",
-          "entry_price": 11.705849999999998,
-          "exit_price": 30.174905000000003,
-          "pnl_pct": 157.7762827987716,
-          "bars_held": 252,
-          "exit_reason": "A"
-        },
-        {
-          "entry_bar": 6787,
-          "exit_bar": 6795,
-          "entry_date": "2020-04-16",
-          "exit_date": "2020-04-28",
-          "entry_price": 14.687339999999999,
-          "exit_price": 14.53273,
-          "pnl_pct": -1.0526752972287556,
-          "bars_held": 8,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 6799,
-          "exit_bar": 6800,
-          "entry_date": "2020-05-04",
-          "exit_date": "2020-05-05",
-          "entry_price": 15.30765,
-          "exit_price": 16.021985,
-          "pnl_pct": 4.666522947676488,
-          "bars_held": 1,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 6814,
-          "exit_bar": 7209,
-          "entry_date": "2020-05-26",
-          "exit_date": "2021-12-16",
-          "entry_price": 18.679335000000002,
-          "exit_price": 79.210375,
-          "pnl_pct": 324.05350618745257,
-          "bars_held": 395,
-          "exit_reason": "A"
-        },
-        {
-          "entry_bar": 7355,
-          "exit_bar": 7356,
-          "entry_date": "2022-07-19",
-          "exit_date": "2022-07-20",
-          "entry_price": 33.316649999999996,
-          "exit_price": 34.892545,
-          "pnl_pct": 4.730052391221817,
-          "bars_held": 1,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 7424,
-          "exit_bar": 7425,
-          "entry_date": "2022-10-25",
-          "exit_date": "2022-10-26",
-          "entry_price": 26.303144999999997,
-          "exit_price": 24.507740000000002,
-          "pnl_pct": -6.825818737645228,
-          "bars_held": 1,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 7449,
-          "exit_bar": 7465,
-          "entry_date": "2022-11-30",
-          "exit_date": "2022-12-22",
-          "entry_price": 29.444715,
-          "exit_price": 22.288850000000004,
-          "pnl_pct": -24.302714426001394,
-          "bars_held": 16,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 7483,
-          "exit_bar": 7869,
-          "entry_date": "2023-01-20",
-          "exit_date": "2024-08-05",
-          "entry_price": 25.622805,
-          "exit_price": 62.26885,
-          "pnl_pct": 143.02120708486052,
-          "bars_held": 386,
-          "exit_reason": "V"
-        },
-        {
-          "entry_bar": 7901,
-          "exit_bar": 8031,
-          "entry_date": "2024-09-19",
-          "exit_date": "2025-03-28",
-          "entry_price": 84.572265,
-          "exit_price": 58.400785000000006,
-          "pnl_pct": -30.945700697504076,
-          "bars_held": 130,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 8065,
-          "exit_bar": 8320,
-          "entry_date": "2025-05-16",
-          "exit_date": "2026-05-22",
-          "entry_price": 76.07802,
-          "exit_price": 207.8500061035156,
-          "pnl_pct": 173.20638221593518,
-          "bars_held": 255,
-          "exit_reason": "End of Data"
-        }
-      ]
-    },
-    {
-      "strategy": "gold_hybrid_champion_overlay",
       "rank": 4,
-      "fitness": 0.5147,
+      "fitness": 0.6134,
       "tier": "T2",
       "params": {
-        "base_strategy": "gc_vjatr",
-        "base_params": {
-          "fast_ema": 140,
-          "slow_ema": 160,
-          "slope_window": 1,
-          "entry_bars": 2,
-          "cooldown": 0,
-          "atr_period": 7,
-          "atr_look": 40,
-          "atr_expand": 2.5,
-          "atr_confirm": 1
-        },
         "entry_strategy": "gc_vjatr_timing_repair",
         "entry_params": {
           "fast_ema": 140,
@@ -3301,854 +4997,27 @@
           "rsi_floor": 45.0,
           "vix_ceiling": 50.0
         },
-        "exit_strategy": "gc_vjatr",
+        "exit_strategy": "gc_vjatr_reclaimer",
         "exit_params": {
           "fast_ema": 140,
           "slow_ema": 160,
           "slope_window": 1,
           "entry_bars": 2,
           "cooldown": 0,
-          "atr_period": 7,
-          "atr_look": 40,
-          "atr_expand": 2.5,
-          "atr_confirm": 1
+          "atr_period": 16,
+          "atr_look": 50,
+          "atr_expand": 2.0,
+          "atr_confirm": 3,
+          "rsi_len": 21,
+          "fast_len": 70,
+          "trend_len": 100,
+          "vol_short": 30,
+          "vol_long": 60,
+          "drawdown_lookback": 80,
+          "drawdown_pct": 30.0,
+          "rsi_reclaim": 50.0,
+          "vol_ratio_max": 0.9
         }
-      },
-      "marker_alignment_score": 0.4734,
-      "marker_alignment_detail": {
-        "score": 0.4734,
-        "state_accuracy": 0.784,
-        "precision": 0.8159,
-        "recall": 0.9032,
-        "f1": 0.8574,
-        "transition_timing_score": 0.2524,
-        "timing_magnitude_weighted": 0.4469,
-        "transition_count_score": 0.0,
-        "tolerance_bars": 30,
-        "overlap_start": "1999-10-27",
-        "overlap_end": "2025-10-30",
-        "target_buy_count": 14,
-        "target_sell_count": 14,
-        "candidate_buy_count": 29,
-        "candidate_sell_count": 29,
-        "buy_transition_matches": [
-          {
-            "target_bar": 1638,
-            "nearest_bar": 1699,
-            "distance_bars": 61,
-            "score": 0.0
-          },
-          {
-            "target_bar": 2001,
-            "nearest_bar": 2044,
-            "distance_bars": 43,
-            "score": 0.0
-          },
-          {
-            "target_bar": 2376,
-            "nearest_bar": 2044,
-            "distance_bars": 332,
-            "score": 0.0
-          },
-          {
-            "target_bar": 2841,
-            "nearest_bar": 2880,
-            "distance_bars": 39,
-            "score": 0.0
-          },
-          {
-            "target_bar": 3333,
-            "nearest_bar": 3346,
-            "distance_bars": 13,
-            "score": 0.5667
-          },
-          {
-            "target_bar": 3986,
-            "nearest_bar": 3970,
-            "distance_bars": 16,
-            "score": 0.4667
-          },
-          {
-            "target_bar": 4695,
-            "nearest_bar": 4707,
-            "distance_bars": 12,
-            "score": 0.6
-          },
-          {
-            "target_bar": 6461,
-            "nearest_bar": 6477,
-            "distance_bars": 16,
-            "score": 0.4667
-          },
-          {
-            "target_bar": 6772,
-            "nearest_bar": 6787,
-            "distance_bars": 15,
-            "score": 0.5
-          },
-          {
-            "target_bar": 7158,
-            "nearest_bar": 7355,
-            "distance_bars": 197,
-            "score": 0.0
-          },
-          {
-            "target_bar": 7478,
-            "nearest_bar": 7483,
-            "distance_bars": 5,
-            "score": 0.8333
-          },
-          {
-            "target_bar": 7798,
-            "nearest_bar": 7901,
-            "distance_bars": 103,
-            "score": 0.0
-          },
-          {
-            "target_bar": 7869,
-            "nearest_bar": 7901,
-            "distance_bars": 32,
-            "score": 0.0
-          },
-          {
-            "target_bar": 8049,
-            "nearest_bar": 8065,
-            "distance_bars": 16,
-            "score": 0.4667
-          }
-        ],
-        "sell_transition_matches": [
-          {
-            "target_bar": 1740,
-            "nearest_bar": 1686,
-            "distance_bars": 54,
-            "score": 0.0
-          },
-          {
-            "target_bar": 2033,
-            "nearest_bar": 1866,
-            "distance_bars": 167,
-            "score": 0.0
-          },
-          {
-            "target_bar": 2700,
-            "nearest_bar": 2827,
-            "distance_bars": 127,
-            "score": 0.0
-          },
-          {
-            "target_bar": 3256,
-            "nearest_bar": 3304,
-            "distance_bars": 48,
-            "score": 0.0
-          },
-          {
-            "target_bar": 3650,
-            "nearest_bar": 3717,
-            "distance_bars": 67,
-            "score": 0.0
-          },
-          {
-            "target_bar": 4477,
-            "nearest_bar": 4491,
-            "distance_bars": 14,
-            "score": 0.5333
-          },
-          {
-            "target_bar": 6402,
-            "nearest_bar": 6420,
-            "distance_bars": 18,
-            "score": 0.4
-          },
-          {
-            "target_bar": 6749,
-            "nearest_bar": 6750,
-            "distance_bars": 1,
-            "score": 0.9667
-          },
-          {
-            "target_bar": 7131,
-            "nearest_bar": 7210,
-            "distance_bars": 79,
-            "score": 0.0
-          },
-          {
-            "target_bar": 7218,
-            "nearest_bar": 7210,
-            "distance_bars": 8,
-            "score": 0.7333
-          },
-          {
-            "target_bar": 7763,
-            "nearest_bar": 7870,
-            "distance_bars": 107,
-            "score": 0.0
-          },
-          {
-            "target_bar": 7854,
-            "nearest_bar": 7870,
-            "distance_bars": 16,
-            "score": 0.4667
-          },
-          {
-            "target_bar": 8004,
-            "nearest_bar": 8032,
-            "distance_bars": 28,
-            "score": 0.0667
-          },
-          {
-            "target_bar": 8180,
-            "nearest_bar": 8032,
-            "distance_bars": 148,
-            "score": 0.0
-          }
-        ],
-        "magnitude_weighted_matches": [
-          {
-            "target_bar": 1638,
-            "nearest_bar": 1686,
-            "distance_bars": 48,
-            "magnitude": 2.5429,
-            "score": 0.0
-          },
-          {
-            "target_bar": 1740,
-            "nearest_bar": 1699,
-            "distance_bars": 41,
-            "magnitude": 0.9747,
-            "score": 0.0
-          },
-          {
-            "target_bar": 2001,
-            "nearest_bar": 2044,
-            "distance_bars": 43,
-            "magnitude": 0.8009,
-            "score": 0.0
-          },
-          {
-            "target_bar": 2033,
-            "nearest_bar": 2044,
-            "distance_bars": 11,
-            "magnitude": 0.9724,
-            "score": 0.6333
-          },
-          {
-            "target_bar": 2376,
-            "nearest_bar": 2044,
-            "distance_bars": 332,
-            "magnitude": 3.6241,
-            "score": 0.0
-          },
-          {
-            "target_bar": 2700,
-            "nearest_bar": 2827,
-            "distance_bars": 127,
-            "magnitude": 0.4919,
-            "score": 0.0
-          },
-          {
-            "target_bar": 2841,
-            "nearest_bar": 2827,
-            "distance_bars": 14,
-            "magnitude": 0.7357,
-            "score": 0.5333
-          },
-          {
-            "target_bar": 3256,
-            "nearest_bar": 3304,
-            "distance_bars": 48,
-            "magnitude": 0.3694,
-            "score": 0.0
-          },
-          {
-            "target_bar": 3333,
-            "nearest_bar": 3346,
-            "distance_bars": 13,
-            "magnitude": 1.6453,
-            "score": 0.5667
-          },
-          {
-            "target_bar": 3650,
-            "nearest_bar": 3717,
-            "distance_bars": 67,
-            "magnitude": 0.9347,
-            "score": 0.0
-          },
-          {
-            "target_bar": 3986,
-            "nearest_bar": 3970,
-            "distance_bars": 16,
-            "magnitude": 5.1304,
-            "score": 0.4667
-          },
-          {
-            "target_bar": 4477,
-            "nearest_bar": 4491,
-            "distance_bars": 14,
-            "magnitude": 0.3475,
-            "score": 0.5333
-          },
-          {
-            "target_bar": 4695,
-            "nearest_bar": 4707,
-            "distance_bars": 12,
-            "magnitude": 17.5978,
-            "score": 0.6
-          },
-          {
-            "target_bar": 6402,
-            "nearest_bar": 6420,
-            "distance_bars": 18,
-            "magnitude": 0.5167,
-            "score": 0.4
-          },
-          {
-            "target_bar": 6461,
-            "nearest_bar": 6477,
-            "distance_bars": 16,
-            "magnitude": 2.6505,
-            "score": 0.4667
-          },
-          {
-            "target_bar": 6749,
-            "nearest_bar": 6750,
-            "distance_bars": 1,
-            "magnitude": 0.6476,
-            "score": 0.9667
-          },
-          {
-            "target_bar": 6772,
-            "nearest_bar": 6787,
-            "distance_bars": 15,
-            "magnitude": 5.1541,
-            "score": 0.5
-          },
-          {
-            "target_bar": 7131,
-            "nearest_bar": 7210,
-            "distance_bars": 79,
-            "magnitude": 0.1242,
-            "score": 0.0
-          },
-          {
-            "target_bar": 7158,
-            "nearest_bar": 7210,
-            "distance_bars": 52,
-            "magnitude": 0.5266,
-            "score": 0.0
-          },
-          {
-            "target_bar": 7218,
-            "nearest_bar": 7210,
-            "distance_bars": 8,
-            "magnitude": 0.714,
-            "score": 0.7333
-          },
-          {
-            "target_bar": 7478,
-            "nearest_bar": 7483,
-            "distance_bars": 5,
-            "magnitude": 2.3582,
-            "score": 0.8333
-          },
-          {
-            "target_bar": 7763,
-            "nearest_bar": 7870,
-            "distance_bars": 107,
-            "magnitude": 0.2069,
-            "score": 0.0
-          },
-          {
-            "target_bar": 7798,
-            "nearest_bar": 7870,
-            "distance_bars": 72,
-            "magnitude": 0.6035,
-            "score": 0.0
-          },
-          {
-            "target_bar": 7854,
-            "nearest_bar": 7870,
-            "distance_bars": 16,
-            "magnitude": 0.4174,
-            "score": 0.4667
-          },
-          {
-            "target_bar": 7869,
-            "nearest_bar": 7870,
-            "distance_bars": 1,
-            "magnitude": 0.5807,
-            "score": 0.9667
-          },
-          {
-            "target_bar": 8004,
-            "nearest_bar": 8032,
-            "distance_bars": 28,
-            "magnitude": 0.4745,
-            "score": 0.0667
-          },
-          {
-            "target_bar": 8049,
-            "nearest_bar": 8065,
-            "distance_bars": 16,
-            "magnitude": 1.8473,
-            "score": 0.4667
-          },
-          {
-            "target_bar": 8180,
-            "nearest_bar": 8065,
-            "distance_bars": 115,
-            "magnitude": 0.4106,
-            "score": 0.0
-          }
-        ]
-      },
-      "metrics": {
-        "trades": 34,
-        "trades_yr": 1.0,
-        "n_params": 37,
-        "share_multiple": 21.1634,
-        "real_share_multiple": 1.3711,
-        "modern_share_multiple": 1.3381,
-        "cagr": 27.97,
-        "max_dd": 98.8,
-        "mar": 0.283,
-        "regime_score": 0.5159,
-        "hhi": 0.0877,
-        "bull_capture": 0.7779,
-        "bear_avoidance": 0.2539,
-        "win_rate": 52.9,
-        "exit_reasons": {
-          "D": 20,
-          "A": 8,
-          "V": 5,
-          "End of Data": 1
-        }
-      },
-      "trades": [
-        {
-          "entry_bar": 112,
-          "exit_bar": 305,
-          "entry_date": "1993-10-12",
-          "exit_date": "1994-07-19",
-          "entry_price": 1.4281708471012897,
-          "exit_price": 1.3861850981963215,
-          "pnl_pct": -2.9398267714388138,
-          "bars_held": 193,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 322,
-          "exit_bar": 516,
-          "entry_date": "1994-08-11",
-          "exit_date": "1995-05-18",
-          "entry_price": 1.729574832637095,
-          "exit_price": 4.948338831796386,
-          "pnl_pct": 186.10145906503615,
-          "bars_held": 194,
-          "exit_reason": "A"
-        },
-        {
-          "entry_bar": 561,
-          "exit_bar": 814,
-          "entry_date": "1995-07-24",
-          "exit_date": "1996-07-23",
-          "entry_price": 7.13922847012264,
-          "exit_price": 4.623641220167872,
-          "pnl_pct": -35.236121949064824,
-          "bars_held": 253,
-          "exit_reason": "A"
-        },
-        {
-          "entry_bar": 843,
-          "exit_bar": 1435,
-          "entry_date": "1996-09-03",
-          "exit_date": "1999-01-07",
-          "entry_price": 6.578159762047637,
-          "exit_price": 96.42076244887221,
-          "pnl_pct": 1365.7710657191237,
-          "bars_held": 592,
-          "exit_reason": "A"
-        },
-        {
-          "entry_bar": 1480,
-          "exit_bar": 1685,
-          "entry_date": "1999-03-15",
-          "exit_date": "2000-01-04",
-          "entry_price": 95.95179307126318,
-          "exit_price": 253.56394895563665,
-          "pnl_pct": 164.2618140208336,
-          "bars_held": 205,
-          "exit_reason": "A"
-        },
-        {
-          "entry_bar": 1699,
-          "exit_bar": 1865,
-          "entry_date": "2000-01-25",
-          "exit_date": "2000-09-20",
-          "entry_price": 253.90364374376452,
-          "exit_price": 174.93394860478875,
-          "pnl_pct": -31.10222995408082,
-          "bars_held": 166,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 2044,
-          "exit_bar": 2826,
-          "entry_date": "2001-06-07",
-          "exit_date": "2004-07-22",
-          "entry_price": 16.520305593455667,
-          "exit_price": 1.5024079447495522,
-          "pnl_pct": -90.90568914569768,
-          "bars_held": 782,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 2880,
-          "exit_bar": 2980,
-          "entry_date": "2004-10-07",
-          "exit_date": "2005-03-02",
-          "entry_price": 1.6134994788567107,
-          "exit_price": 1.6344448803851728,
-          "pnl_pct": 1.2981350042519768,
-          "bars_held": 100,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 3031,
-          "exit_bar": 3303,
-          "entry_date": "2005-05-13",
-          "exit_date": "2006-06-13",
-          "entry_price": 1.4249379323161788,
-          "exit_price": 1.3601590220598558,
-          "pnl_pct": -4.54608644960609,
-          "bars_held": 272,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 3346,
-          "exit_bar": 3716,
-          "entry_date": "2006-08-14",
-          "exit_date": "2008-02-04",
-          "entry_price": 1.3957134721753204,
-          "exit_price": 1.878873718845249,
-          "pnl_pct": 34.61743805602795,
-          "bars_held": 370,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 3787,
-          "exit_bar": 3805,
-          "entry_date": "2008-05-15",
-          "exit_date": "2008-06-11",
-          "entry_price": 2.3508921882558993,
-          "exit_price": 1.9320437313847572,
-          "pnl_pct": -17.816574446226785,
-          "bars_held": 18,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 3856,
-          "exit_bar": 3861,
-          "entry_date": "2008-08-22",
-          "exit_date": "2008-08-29",
-          "entry_price": 1.7319258869016214,
-          "exit_price": 1.605546142186498,
-          "pnl_pct": -7.297064249164498,
-          "bars_held": 5,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 3970,
-          "exit_bar": 4284,
-          "entry_date": "2009-02-05",
-          "exit_date": "2010-05-06",
-          "entry_price": 0.35017499999999996,
-          "exit_price": 0.8595700000000001,
-          "pnl_pct": 145.46869422431647,
-          "bars_held": 314,
-          "exit_reason": "V"
-        },
-        {
-          "entry_bar": 4337,
-          "exit_bar": 4338,
-          "entry_date": "2010-07-22",
-          "exit_date": "2010-07-23",
-          "entry_price": 0.78039,
-          "exit_price": 0.7996000000000001,
-          "pnl_pct": 2.461589717961532,
-          "bars_held": 1,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 4371,
-          "exit_bar": 4372,
-          "entry_date": "2010-09-09",
-          "exit_date": "2010-09-10",
-          "entry_price": 0.7003499999999999,
-          "exit_price": 0.69965,
-          "pnl_pct": -0.09995002498749406,
-          "bars_held": 1,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 4380,
-          "exit_bar": 4490,
-          "entry_date": "2010-09-22",
-          "exit_date": "2011-03-01",
-          "entry_price": 0.8004,
-          "exit_price": 1.25937,
-          "pnl_pct": 57.3425787106447,
-          "bars_held": 110,
-          "exit_reason": "A"
-        },
-        {
-          "entry_bar": 4575,
-          "exit_bar": 4601,
-          "entry_date": "2011-06-30",
-          "exit_date": "2011-08-08",
-          "entry_price": 1.1005500000000001,
-          "exit_price": 0.7596200000000001,
-          "pnl_pct": -30.978147289991366,
-          "bars_held": 26,
-          "exit_reason": "V"
-        },
-        {
-          "entry_bar": 4645,
-          "exit_bar": 4674,
-          "entry_date": "2011-10-10",
-          "exit_date": "2011-11-18",
-          "entry_price": 0.930465,
-          "exit_price": 0.9295350000000001,
-          "pnl_pct": -0.09995002498749406,
-          "bars_held": 29,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 4707,
-          "exit_bar": 5618,
-          "entry_date": "2012-01-09",
-          "exit_date": "2015-08-24",
-          "entry_price": 0.9904949999999999,
-          "exit_price": 2.628685,
-          "pnl_pct": 165.391041852811,
-          "bars_held": 911,
-          "exit_reason": "V"
-        },
-        {
-          "entry_bar": 5658,
-          "exit_bar": 5724,
-          "entry_date": "2015-10-20",
-          "exit_date": "2016-01-26",
-          "entry_price": 3.4617299999999998,
-          "exit_price": 2.97851,
-          "pnl_pct": -13.958916495509467,
-          "bars_held": 66,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 5744,
-          "exit_bar": 5745,
-          "entry_date": "2016-02-24",
-          "exit_date": "2016-02-25",
-          "entry_price": 3.06153,
-          "exit_price": 3.168415,
-          "pnl_pct": 3.491228242088118,
-          "bars_held": 1,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 5751,
-          "exit_bar": 6235,
-          "entry_date": "2016-03-04",
-          "exit_date": "2018-02-05",
-          "entry_price": 3.4016999999999995,
-          "exit_price": 10.944525,
-          "pnl_pct": 221.73692565481971,
-          "bars_held": 484,
-          "exit_reason": "V"
-        },
-        {
-          "entry_bar": 6253,
-          "exit_bar": 6419,
-          "entry_date": "2018-03-02",
-          "exit_date": "2018-10-26",
-          "entry_price": 12.836414999999999,
-          "exit_price": 11.924035,
-          "pnl_pct": -7.107747762907312,
-          "bars_held": 166,
-          "exit_reason": "A"
-        },
-        {
-          "entry_bar": 6477,
-          "exit_bar": 6478,
-          "entry_date": "2019-01-23",
-          "exit_date": "2019-01-24",
-          "entry_price": 9.354674999999999,
-          "exit_price": 9.585205,
-          "pnl_pct": 2.464329332659898,
-          "bars_held": 1,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 6497,
-          "exit_bar": 6749,
-          "entry_date": "2019-02-21",
-          "exit_date": "2020-02-21",
-          "entry_price": 11.705849999999998,
-          "exit_price": 30.174905000000003,
-          "pnl_pct": 157.7762827987716,
-          "bars_held": 252,
-          "exit_reason": "A"
-        },
-        {
-          "entry_bar": 6787,
-          "exit_bar": 6795,
-          "entry_date": "2020-04-16",
-          "exit_date": "2020-04-28",
-          "entry_price": 14.687339999999999,
-          "exit_price": 14.53273,
-          "pnl_pct": -1.0526752972287556,
-          "bars_held": 8,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 6799,
-          "exit_bar": 6800,
-          "entry_date": "2020-05-04",
-          "exit_date": "2020-05-05",
-          "entry_price": 15.30765,
-          "exit_price": 16.021985,
-          "pnl_pct": 4.666522947676488,
-          "bars_held": 1,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 6814,
-          "exit_bar": 7209,
-          "entry_date": "2020-05-26",
-          "exit_date": "2021-12-16",
-          "entry_price": 18.679335000000002,
-          "exit_price": 79.210375,
-          "pnl_pct": 324.05350618745257,
-          "bars_held": 395,
-          "exit_reason": "A"
-        },
-        {
-          "entry_bar": 7355,
-          "exit_bar": 7356,
-          "entry_date": "2022-07-19",
-          "exit_date": "2022-07-20",
-          "entry_price": 33.316649999999996,
-          "exit_price": 34.892545,
-          "pnl_pct": 4.730052391221817,
-          "bars_held": 1,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 7424,
-          "exit_bar": 7425,
-          "entry_date": "2022-10-25",
-          "exit_date": "2022-10-26",
-          "entry_price": 26.303144999999997,
-          "exit_price": 24.507740000000002,
-          "pnl_pct": -6.825818737645228,
-          "bars_held": 1,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 7449,
-          "exit_bar": 7465,
-          "entry_date": "2022-11-30",
-          "exit_date": "2022-12-22",
-          "entry_price": 29.444715,
-          "exit_price": 22.288850000000004,
-          "pnl_pct": -24.302714426001394,
-          "bars_held": 16,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 7483,
-          "exit_bar": 7869,
-          "entry_date": "2023-01-20",
-          "exit_date": "2024-08-05",
-          "entry_price": 25.622805,
-          "exit_price": 62.26885,
-          "pnl_pct": 143.02120708486052,
-          "bars_held": 386,
-          "exit_reason": "V"
-        },
-        {
-          "entry_bar": 7901,
-          "exit_bar": 8031,
-          "entry_date": "2024-09-19",
-          "exit_date": "2025-03-28",
-          "entry_price": 84.572265,
-          "exit_price": 58.400785000000006,
-          "pnl_pct": -30.945700697504076,
-          "bars_held": 130,
-          "exit_reason": "D"
-        },
-        {
-          "entry_bar": 8065,
-          "exit_bar": 8320,
-          "entry_date": "2025-05-16",
-          "exit_date": "2026-05-22",
-          "entry_price": 76.07802,
-          "exit_price": 207.8500061035156,
-          "pnl_pct": 173.20638221593518,
-          "bars_held": 255,
-          "exit_reason": "End of Data"
-        }
-      ]
-    },
-    {
-      "strategy": "gold_hybrid_committee",
-      "rank": 5,
-      "fitness": 0.6143,
-      "tier": "T2",
-      "params": {
-        "members": [
-          {
-            "display_name": "Marbled Bonobo",
-            "strategy": "gc_vjatr",
-            "params": {
-              "fast_ema": 140,
-              "slow_ema": 160,
-              "slope_window": 1,
-              "entry_bars": 2,
-              "cooldown": 0,
-              "atr_period": 7,
-              "atr_look": 40,
-              "atr_expand": 2.5,
-              "atr_confirm": 1
-            },
-            "weight": 2.51853
-          },
-          {
-            "display_name": "Ivory Hare",
-            "strategy": "gc_vjatr_timing_repair",
-            "params": {
-              "fast_ema": 140,
-              "slow_ema": 160,
-              "slope_window": 1,
-              "entry_bars": 2,
-              "cooldown": 0,
-              "atr_period": 16,
-              "atr_look": 50,
-              "atr_expand": 2.0,
-              "atr_confirm": 3,
-              "repair_len": 30,
-              "rsi_len": 7,
-              "drawdown_lookback": 40,
-              "drawdown_pct": 25.0,
-              "repair_slope": 3,
-              "rsi_floor": 45.0,
-              "vix_ceiling": 50.0
-            },
-            "weight": 2.551391
-          }
-        ],
-        "threshold": 0.5
       },
       "marker_alignment_score": 0.4607,
       "marker_alignment_detail": {
@@ -4158,7 +5027,7 @@
         "recall": 0.8824,
         "f1": 0.846,
         "transition_timing_score": 0.2274,
-        "timing_magnitude_weighted": 0.4462,
+        "timing_magnitude_weighted": 0.4465,
         "transition_count_score": 0.0,
         "tolerance_bars": 30,
         "overlap_start": "1999-10-27",
@@ -4533,7 +5402,7 @@
             "target_bar": 8180,
             "nearest_bar": 8065,
             "distance_bars": 115,
-            "magnitude": 0.4106,
+            "magnitude": 0.3749,
             "score": 0.0
           }
         ]
@@ -4541,21 +5410,22 @@
       "metrics": {
         "trades": 42,
         "trades_yr": 1.3,
-        "n_params": 32,
-        "share_multiple": 10.9542,
-        "real_share_multiple": 1.5655,
-        "modern_share_multiple": 1.7036,
-        "cagr": 25.44,
+        "n_params": 36,
+        "share_multiple": 10.9365,
+        "real_share_multiple": 1.5629,
+        "modern_share_multiple": 1.7009,
+        "cagr": 25.31,
         "max_dd": 98.8,
-        "mar": 0.258,
+        "mar": 0.256,
         "regime_score": 0.6168,
         "hhi": 0.0708,
         "bull_capture": 0.6408,
         "bear_avoidance": 0.5927,
         "win_rate": 57.1,
         "exit_reasons": {
-          "COM": 41,
-          "End of Data": 1
+          "A": 18,
+          "D": 20,
+          "V": 4
         }
       },
       "trades": [
@@ -4568,7 +5438,7 @@
           "exit_price": 1.5985710200012875,
           "pnl_pct": 11.931357739576697,
           "bars_held": 24,
-          "exit_reason": "COM"
+          "exit_reason": "A"
         },
         {
           "entry_bar": 304,
@@ -4579,7 +5449,7 @@
           "exit_price": 1.3861850981963215,
           "pnl_pct": -5.34710971469824,
           "bars_held": 1,
-          "exit_reason": "COM"
+          "exit_reason": "D"
         },
         {
           "entry_bar": 322,
@@ -4590,7 +5460,7 @@
           "exit_price": 5.152181995840314,
           "pnl_pct": 197.88719739779896,
           "bars_held": 200,
-          "exit_reason": "COM"
+          "exit_reason": "A"
         },
         {
           "entry_bar": 561,
@@ -4601,7 +5471,7 @@
           "exit_price": 7.433867525766957,
           "pnl_pct": 4.127043375588402,
           "bars_held": 4,
-          "exit_reason": "COM"
+          "exit_reason": "A"
         },
         {
           "entry_bar": 582,
@@ -4612,7 +5482,7 @@
           "exit_price": 7.469696166068148,
           "pnl_pct": -0.13092449412862583,
           "bars_held": 1,
-          "exit_reason": "COM"
+          "exit_reason": "A"
         },
         {
           "entry_bar": 638,
@@ -4623,7 +5493,7 @@
           "exit_price": 12.172394463345599,
           "pnl_pct": 61.59346704402817,
           "bars_held": 288,
-          "exit_reason": "COM"
+          "exit_reason": "A"
         },
         {
           "entry_bar": 1035,
@@ -4634,7 +5504,7 @@
           "exit_price": 24.482790685508668,
           "pnl_pct": 28.052216687906206,
           "bars_held": 311,
-          "exit_reason": "COM"
+          "exit_reason": "A"
         },
         {
           "entry_bar": 1380,
@@ -4645,7 +5515,7 @@
           "exit_price": 92.15150772412679,
           "pnl_pct": 190.87695996977268,
           "bars_held": 59,
-          "exit_reason": "COM"
+          "exit_reason": "A"
         },
         {
           "entry_bar": 1480,
@@ -4656,7 +5526,7 @@
           "exit_price": 218.12218170703017,
           "pnl_pct": 127.32475832424655,
           "bars_held": 207,
-          "exit_reason": "COM"
+          "exit_reason": "A"
         },
         {
           "entry_bar": 1699,
@@ -4667,7 +5537,7 @@
           "exit_price": 228.7125094122005,
           "pnl_pct": -9.921533208474365,
           "bars_held": 1,
-          "exit_reason": "COM"
+          "exit_reason": "A"
         },
         {
           "entry_bar": 1719,
@@ -4678,7 +5548,7 @@
           "exit_price": 174.93394860478875,
           "pnl_pct": -36.938460116584984,
           "bars_held": 146,
-          "exit_reason": "COM"
+          "exit_reason": "D"
         },
         {
           "entry_bar": 2044,
@@ -4689,7 +5559,7 @@
           "exit_price": 1.5024079447495522,
           "pnl_pct": -90.90568914569768,
           "bars_held": 782,
-          "exit_reason": "COM"
+          "exit_reason": "D"
         },
         {
           "entry_bar": 2880,
@@ -4700,7 +5570,7 @@
           "exit_price": 1.6344448803851728,
           "pnl_pct": 1.2981350042519768,
           "bars_held": 100,
-          "exit_reason": "COM"
+          "exit_reason": "D"
         },
         {
           "entry_bar": 3031,
@@ -4711,7 +5581,7 @@
           "exit_price": 1.3601590220598558,
           "pnl_pct": -4.54608644960609,
           "bars_held": 272,
-          "exit_reason": "COM"
+          "exit_reason": "D"
         },
         {
           "entry_bar": 3346,
@@ -4722,7 +5592,7 @@
           "exit_price": 2.635903428886228,
           "pnl_pct": 88.85705995070623,
           "bars_held": 249,
-          "exit_reason": "COM"
+          "exit_reason": "A"
         },
         {
           "entry_bar": 3681,
@@ -4733,7 +5603,7 @@
           "exit_price": 1.878873718845249,
           "pnl_pct": -39.20128359029994,
           "bars_held": 35,
-          "exit_reason": "COM"
+          "exit_reason": "D"
         },
         {
           "entry_bar": 3787,
@@ -4744,7 +5614,7 @@
           "exit_price": 1.9320437313847572,
           "pnl_pct": -17.816574446226785,
           "bars_held": 18,
-          "exit_reason": "COM"
+          "exit_reason": "D"
         },
         {
           "entry_bar": 3856,
@@ -4755,7 +5625,7 @@
           "exit_price": 1.605546142186498,
           "pnl_pct": -7.297064249164498,
           "bars_held": 5,
-          "exit_reason": "COM"
+          "exit_reason": "D"
         },
         {
           "entry_bar": 3970,
@@ -4766,7 +5636,7 @@
           "exit_price": 0.8595700000000001,
           "pnl_pct": 145.46869422431647,
           "bars_held": 314,
-          "exit_reason": "COM"
+          "exit_reason": "V"
         },
         {
           "entry_bar": 4337,
@@ -4777,7 +5647,7 @@
           "exit_price": 0.7996000000000001,
           "pnl_pct": 2.461589717961532,
           "bars_held": 1,
-          "exit_reason": "COM"
+          "exit_reason": "D"
         },
         {
           "entry_bar": 4371,
@@ -4788,7 +5658,7 @@
           "exit_price": 0.69965,
           "pnl_pct": -0.09995002498749406,
           "bars_held": 1,
-          "exit_reason": "COM"
+          "exit_reason": "D"
         },
         {
           "entry_bar": 4380,
@@ -4799,7 +5669,7 @@
           "exit_price": 1.129435,
           "pnl_pct": 41.108820589705154,
           "bars_held": 120,
-          "exit_reason": "COM"
+          "exit_reason": "A"
         },
         {
           "entry_bar": 4575,
@@ -4810,7 +5680,7 @@
           "exit_price": 0.7596200000000001,
           "pnl_pct": -30.978147289991366,
           "bars_held": 26,
-          "exit_reason": "COM"
+          "exit_reason": "V"
         },
         {
           "entry_bar": 4645,
@@ -4821,7 +5691,7 @@
           "exit_price": 0.9295350000000001,
           "pnl_pct": -0.09995002498749406,
           "bars_held": 29,
-          "exit_reason": "COM"
+          "exit_reason": "D"
         },
         {
           "entry_bar": 4707,
@@ -4832,7 +5702,7 @@
           "exit_price": 2.628685,
           "pnl_pct": 165.391041852811,
           "bars_held": 911,
-          "exit_reason": "COM"
+          "exit_reason": "V"
         },
         {
           "entry_bar": 5658,
@@ -4843,7 +5713,7 @@
           "exit_price": 2.97851,
           "pnl_pct": -13.958916495509467,
           "bars_held": 66,
-          "exit_reason": "COM"
+          "exit_reason": "D"
         },
         {
           "entry_bar": 5744,
@@ -4854,7 +5724,7 @@
           "exit_price": 3.168415,
           "pnl_pct": 3.491228242088118,
           "bars_held": 1,
-          "exit_reason": "COM"
+          "exit_reason": "D"
         },
         {
           "entry_bar": 5751,
@@ -4865,7 +5735,7 @@
           "exit_price": 10.944525,
           "pnl_pct": 221.73692565481971,
           "bars_held": 484,
-          "exit_reason": "COM"
+          "exit_reason": "V"
         },
         {
           "entry_bar": 6253,
@@ -4876,7 +5746,7 @@
           "exit_price": 14.062965000000002,
           "pnl_pct": 9.555237969479812,
           "bars_held": 8,
-          "exit_reason": "COM"
+          "exit_reason": "A"
         },
         {
           "entry_bar": 6297,
@@ -4887,7 +5757,7 @@
           "exit_price": 11.404295000000001,
           "pnl_pct": -8.297701511271704,
           "bars_held": 133,
-          "exit_reason": "COM"
+          "exit_reason": "A"
         },
         {
           "entry_bar": 6477,
@@ -4898,7 +5768,7 @@
           "exit_price": 9.585205,
           "pnl_pct": 2.464329332659898,
           "bars_held": 1,
-          "exit_reason": "COM"
+          "exit_reason": "D"
         },
         {
           "entry_bar": 6497,
@@ -4909,7 +5779,7 @@
           "exit_price": 32.36381,
           "pnl_pct": 176.47552292229958,
           "bars_held": 251,
-          "exit_reason": "COM"
+          "exit_reason": "A"
         },
         {
           "entry_bar": 6787,
@@ -4920,7 +5790,7 @@
           "exit_price": 14.53273,
           "pnl_pct": -1.0526752972287556,
           "bars_held": 8,
-          "exit_reason": "COM"
+          "exit_reason": "D"
         },
         {
           "entry_bar": 6799,
@@ -4931,7 +5801,7 @@
           "exit_price": 16.021985,
           "pnl_pct": 4.666522947676488,
           "bars_held": 1,
-          "exit_reason": "COM"
+          "exit_reason": "D"
         },
         {
           "entry_bar": 6814,
@@ -4942,7 +5812,7 @@
           "exit_price": 72.36380000000001,
           "pnl_pct": 287.40030092077694,
           "bars_held": 414,
-          "exit_reason": "COM"
+          "exit_reason": "A"
         },
         {
           "entry_bar": 7355,
@@ -4953,7 +5823,7 @@
           "exit_price": 34.892545,
           "pnl_pct": 4.730052391221817,
           "bars_held": 1,
-          "exit_reason": "COM"
+          "exit_reason": "D"
         },
         {
           "entry_bar": 7424,
@@ -4964,7 +5834,7 @@
           "exit_price": 24.507740000000002,
           "pnl_pct": -6.825818737645228,
           "bars_held": 1,
-          "exit_reason": "COM"
+          "exit_reason": "D"
         },
         {
           "entry_bar": 7449,
@@ -4975,7 +5845,7 @@
           "exit_price": 22.288850000000004,
           "pnl_pct": -24.302714426001394,
           "bars_held": 16,
-          "exit_reason": "COM"
+          "exit_reason": "D"
         },
         {
           "entry_bar": 7483,
@@ -4986,7 +5856,7 @@
           "exit_price": 75.44226,
           "pnl_pct": 194.43404030120828,
           "bars_held": 384,
-          "exit_reason": "COM"
+          "exit_reason": "A"
         },
         {
           "entry_bar": 7901,
@@ -4997,7 +5867,7 @@
           "exit_price": 58.400785000000006,
           "pnl_pct": -30.945700697504076,
           "bars_held": 130,
-          "exit_reason": "COM"
+          "exit_reason": "D"
         },
         {
           "entry_bar": 8065,
@@ -5008,18 +5878,960 @@
           "exit_price": 107.28633,
           "pnl_pct": 41.02145402837773,
           "bars_held": 130,
-          "exit_reason": "COM"
+          "exit_reason": "A"
         },
         {
           "entry_bar": 8288,
-          "exit_bar": 8320,
+          "exit_bar": 8329,
           "entry_date": "2026-04-08",
-          "exit_date": "2026-05-22",
+          "exit_date": "2026-06-05",
           "entry_price": 104.1320418319702,
-          "exit_price": 207.8500061035156,
-          "pnl_pct": 99.60235336488171,
-          "bars_held": 32,
-          "exit_reason": "End of Data"
+          "exit_price": 202.48870133972173,
+          "pnl_pct": 94.4537894171537,
+          "bars_held": 41,
+          "exit_reason": "A"
+        }
+      ]
+    },
+    {
+      "strategy": "gold_hybrid_champion_overlay",
+      "rank": 5,
+      "fitness": 0.4897,
+      "tier": "T2",
+      "params": {
+        "base_strategy": "gc_vjatr_reclaimer",
+        "base_params": {
+          "fast_ema": 140,
+          "slow_ema": 160,
+          "slope_window": 1,
+          "entry_bars": 2,
+          "cooldown": 0,
+          "atr_period": 16,
+          "atr_look": 50,
+          "atr_expand": 2.0,
+          "atr_confirm": 3,
+          "rsi_len": 21,
+          "fast_len": 70,
+          "trend_len": 100,
+          "vol_short": 10,
+          "vol_long": 60,
+          "drawdown_lookback": 80,
+          "drawdown_pct": 30.0,
+          "rsi_reclaim": 50.0,
+          "vol_ratio_max": 0.85
+        },
+        "entry_strategy": "gc_vjatr_timing_repair",
+        "entry_params": {
+          "fast_ema": 140,
+          "slow_ema": 160,
+          "slope_window": 1,
+          "entry_bars": 2,
+          "cooldown": 0,
+          "atr_period": 16,
+          "atr_look": 50,
+          "atr_expand": 2.0,
+          "atr_confirm": 3,
+          "repair_len": 30,
+          "rsi_len": 7,
+          "drawdown_lookback": 40,
+          "drawdown_pct": 25.0,
+          "repair_slope": 3,
+          "rsi_floor": 45.0,
+          "vix_ceiling": 50.0
+        },
+        "exit_strategy": "gc_vjatr_reclaimer",
+        "exit_params": {
+          "fast_ema": 140,
+          "slow_ema": 160,
+          "slope_window": 1,
+          "entry_bars": 2,
+          "cooldown": 0,
+          "atr_period": 16,
+          "atr_look": 50,
+          "atr_expand": 2.0,
+          "atr_confirm": 3,
+          "rsi_len": 21,
+          "fast_len": 70,
+          "trend_len": 100,
+          "vol_short": 30,
+          "vol_long": 60,
+          "drawdown_lookback": 80,
+          "drawdown_pct": 30.0,
+          "rsi_reclaim": 50.0,
+          "vol_ratio_max": 0.9
+        }
+      },
+      "marker_alignment_score": 0.4666,
+      "marker_alignment_detail": {
+        "score": 0.4666,
+        "state_accuracy": 0.772,
+        "precision": 0.8132,
+        "recall": 0.8862,
+        "f1": 0.8482,
+        "transition_timing_score": 0.2464,
+        "timing_magnitude_weighted": 0.4465,
+        "transition_count_score": 0.0,
+        "tolerance_bars": 30,
+        "overlap_start": "1999-10-27",
+        "overlap_end": "2025-10-30",
+        "target_buy_count": 14,
+        "target_sell_count": 14,
+        "candidate_buy_count": 32,
+        "candidate_sell_count": 32,
+        "buy_transition_matches": [
+          {
+            "target_bar": 1638,
+            "nearest_bar": 1699,
+            "distance_bars": 61,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2001,
+            "nearest_bar": 2044,
+            "distance_bars": 43,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2376,
+            "nearest_bar": 2044,
+            "distance_bars": 332,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2841,
+            "nearest_bar": 2880,
+            "distance_bars": 39,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3333,
+            "nearest_bar": 3346,
+            "distance_bars": 13,
+            "score": 0.5667
+          },
+          {
+            "target_bar": 3986,
+            "nearest_bar": 3970,
+            "distance_bars": 16,
+            "score": 0.4667
+          },
+          {
+            "target_bar": 4695,
+            "nearest_bar": 4707,
+            "distance_bars": 12,
+            "score": 0.6
+          },
+          {
+            "target_bar": 6461,
+            "nearest_bar": 6477,
+            "distance_bars": 16,
+            "score": 0.4667
+          },
+          {
+            "target_bar": 6772,
+            "nearest_bar": 6787,
+            "distance_bars": 15,
+            "score": 0.5
+          },
+          {
+            "target_bar": 7158,
+            "nearest_bar": 7355,
+            "distance_bars": 197,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7478,
+            "nearest_bar": 7483,
+            "distance_bars": 5,
+            "score": 0.8333
+          },
+          {
+            "target_bar": 7798,
+            "nearest_bar": 7883,
+            "distance_bars": 85,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7869,
+            "nearest_bar": 7883,
+            "distance_bars": 14,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 8049,
+            "nearest_bar": 8065,
+            "distance_bars": 16,
+            "score": 0.4667
+          }
+        ],
+        "sell_transition_matches": [
+          {
+            "target_bar": 1740,
+            "nearest_bar": 1701,
+            "distance_bars": 39,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2033,
+            "nearest_bar": 1866,
+            "distance_bars": 167,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2700,
+            "nearest_bar": 2827,
+            "distance_bars": 127,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3256,
+            "nearest_bar": 3304,
+            "distance_bars": 48,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3650,
+            "nearest_bar": 3596,
+            "distance_bars": 54,
+            "score": 0.0
+          },
+          {
+            "target_bar": 4477,
+            "nearest_bar": 4501,
+            "distance_bars": 24,
+            "score": 0.2
+          },
+          {
+            "target_bar": 6402,
+            "nearest_bar": 6431,
+            "distance_bars": 29,
+            "score": 0.0333
+          },
+          {
+            "target_bar": 6749,
+            "nearest_bar": 6749,
+            "distance_bars": 0,
+            "score": 1.0
+          },
+          {
+            "target_bar": 7131,
+            "nearest_bar": 7229,
+            "distance_bars": 98,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7218,
+            "nearest_bar": 7229,
+            "distance_bars": 11,
+            "score": 0.6333
+          },
+          {
+            "target_bar": 7763,
+            "nearest_bar": 7868,
+            "distance_bars": 105,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7854,
+            "nearest_bar": 7868,
+            "distance_bars": 14,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 8004,
+            "nearest_bar": 8032,
+            "distance_bars": 28,
+            "score": 0.0667
+          },
+          {
+            "target_bar": 8180,
+            "nearest_bar": 8032,
+            "distance_bars": 148,
+            "score": 0.0
+          }
+        ],
+        "magnitude_weighted_matches": [
+          {
+            "target_bar": 1638,
+            "nearest_bar": 1688,
+            "distance_bars": 50,
+            "magnitude": 2.5429,
+            "score": 0.0
+          },
+          {
+            "target_bar": 1740,
+            "nearest_bar": 1719,
+            "distance_bars": 21,
+            "magnitude": 0.9747,
+            "score": 0.3
+          },
+          {
+            "target_bar": 2001,
+            "nearest_bar": 2044,
+            "distance_bars": 43,
+            "magnitude": 0.8009,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2033,
+            "nearest_bar": 2044,
+            "distance_bars": 11,
+            "magnitude": 0.9724,
+            "score": 0.6333
+          },
+          {
+            "target_bar": 2376,
+            "nearest_bar": 2044,
+            "distance_bars": 332,
+            "magnitude": 3.6241,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2700,
+            "nearest_bar": 2827,
+            "distance_bars": 127,
+            "magnitude": 0.4919,
+            "score": 0.0
+          },
+          {
+            "target_bar": 2841,
+            "nearest_bar": 2827,
+            "distance_bars": 14,
+            "magnitude": 0.7357,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 3256,
+            "nearest_bar": 3304,
+            "distance_bars": 48,
+            "magnitude": 0.3694,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3333,
+            "nearest_bar": 3346,
+            "distance_bars": 13,
+            "magnitude": 1.6453,
+            "score": 0.5667
+          },
+          {
+            "target_bar": 3650,
+            "nearest_bar": 3681,
+            "distance_bars": 31,
+            "magnitude": 0.9347,
+            "score": 0.0
+          },
+          {
+            "target_bar": 3986,
+            "nearest_bar": 3970,
+            "distance_bars": 16,
+            "magnitude": 5.1304,
+            "score": 0.4667
+          },
+          {
+            "target_bar": 4477,
+            "nearest_bar": 4501,
+            "distance_bars": 24,
+            "magnitude": 0.3475,
+            "score": 0.2
+          },
+          {
+            "target_bar": 4695,
+            "nearest_bar": 4707,
+            "distance_bars": 12,
+            "magnitude": 17.5978,
+            "score": 0.6
+          },
+          {
+            "target_bar": 6402,
+            "nearest_bar": 6431,
+            "distance_bars": 29,
+            "magnitude": 0.5167,
+            "score": 0.0333
+          },
+          {
+            "target_bar": 6461,
+            "nearest_bar": 6477,
+            "distance_bars": 16,
+            "magnitude": 2.6505,
+            "score": 0.4667
+          },
+          {
+            "target_bar": 6749,
+            "nearest_bar": 6749,
+            "distance_bars": 0,
+            "magnitude": 0.6476,
+            "score": 1.0
+          },
+          {
+            "target_bar": 6772,
+            "nearest_bar": 6787,
+            "distance_bars": 15,
+            "magnitude": 5.1541,
+            "score": 0.5
+          },
+          {
+            "target_bar": 7131,
+            "nearest_bar": 7229,
+            "distance_bars": 98,
+            "magnitude": 0.1242,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7158,
+            "nearest_bar": 7229,
+            "distance_bars": 71,
+            "magnitude": 0.5266,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7218,
+            "nearest_bar": 7229,
+            "distance_bars": 11,
+            "magnitude": 0.714,
+            "score": 0.6333
+          },
+          {
+            "target_bar": 7478,
+            "nearest_bar": 7483,
+            "distance_bars": 5,
+            "magnitude": 2.3582,
+            "score": 0.8333
+          },
+          {
+            "target_bar": 7763,
+            "nearest_bar": 7868,
+            "distance_bars": 105,
+            "magnitude": 0.2069,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7798,
+            "nearest_bar": 7868,
+            "distance_bars": 70,
+            "magnitude": 0.6035,
+            "score": 0.0
+          },
+          {
+            "target_bar": 7854,
+            "nearest_bar": 7868,
+            "distance_bars": 14,
+            "magnitude": 0.4174,
+            "score": 0.5333
+          },
+          {
+            "target_bar": 7869,
+            "nearest_bar": 7868,
+            "distance_bars": 1,
+            "magnitude": 0.5807,
+            "score": 0.9667
+          },
+          {
+            "target_bar": 8004,
+            "nearest_bar": 8032,
+            "distance_bars": 28,
+            "magnitude": 0.4745,
+            "score": 0.0667
+          },
+          {
+            "target_bar": 8049,
+            "nearest_bar": 8065,
+            "distance_bars": 16,
+            "magnitude": 1.8473,
+            "score": 0.4667
+          },
+          {
+            "target_bar": 8180,
+            "nearest_bar": 8065,
+            "distance_bars": 115,
+            "magnitude": 0.3749,
+            "score": 0.0
+          }
+        ]
+      },
+      "metrics": {
+        "trades": 42,
+        "trades_yr": 1.3,
+        "n_params": 55,
+        "share_multiple": 8.9579,
+        "real_share_multiple": 1.2634,
+        "modern_share_multiple": 1.3749,
+        "cagr": 24.56,
+        "max_dd": 98.8,
+        "mar": 0.249,
+        "regime_score": 0.6013,
+        "hhi": 0.0724,
+        "bull_capture": 0.6426,
+        "bear_avoidance": 0.5601,
+        "win_rate": 57.1,
+        "exit_reasons": {
+          "A": 18,
+          "D": 20,
+          "V": 4
+        }
+      },
+      "trades": [
+        {
+          "entry_bar": 112,
+          "exit_bar": 136,
+          "entry_date": "1993-10-12",
+          "exit_date": "1993-11-15",
+          "entry_price": 1.4281708471012897,
+          "exit_price": 1.5985710200012875,
+          "pnl_pct": 11.931357739576697,
+          "bars_held": 24,
+          "exit_reason": "A"
+        },
+        {
+          "entry_bar": 304,
+          "exit_bar": 305,
+          "entry_date": "1994-07-18",
+          "exit_date": "1994-07-19",
+          "entry_price": 1.4644931538995765,
+          "exit_price": 1.3861850981963215,
+          "pnl_pct": -5.34710971469824,
+          "bars_held": 1,
+          "exit_reason": "D"
+        },
+        {
+          "entry_bar": 322,
+          "exit_bar": 522,
+          "entry_date": "1994-08-11",
+          "exit_date": "1995-05-26",
+          "entry_price": 1.729574832637095,
+          "exit_price": 5.152181995840314,
+          "pnl_pct": 197.88719739779896,
+          "bars_held": 200,
+          "exit_reason": "A"
+        },
+        {
+          "entry_bar": 561,
+          "exit_bar": 565,
+          "entry_date": "1995-07-24",
+          "exit_date": "1995-07-28",
+          "entry_price": 7.13922847012264,
+          "exit_price": 7.433867525766957,
+          "pnl_pct": 4.127043375588402,
+          "bars_held": 4,
+          "exit_reason": "A"
+        },
+        {
+          "entry_bar": 582,
+          "exit_bar": 583,
+          "entry_date": "1995-08-22",
+          "exit_date": "1995-08-23",
+          "entry_price": 7.479488648744925,
+          "exit_price": 7.469696166068148,
+          "pnl_pct": -0.13092449412862583,
+          "bars_held": 1,
+          "exit_reason": "A"
+        },
+        {
+          "entry_bar": 601,
+          "exit_bar": 926,
+          "entry_date": "1995-09-19",
+          "exit_date": "1996-12-31",
+          "entry_price": 7.4338952042062765,
+          "exit_price": 12.172394463345599,
+          "pnl_pct": 63.741808688104264,
+          "bars_held": 325,
+          "exit_reason": "A"
+        },
+        {
+          "entry_bar": 1035,
+          "exit_bar": 1346,
+          "entry_date": "1997-06-06",
+          "exit_date": "1998-08-31",
+          "entry_price": 19.11938060797422,
+          "exit_price": 24.482790685508668,
+          "pnl_pct": 28.052216687906206,
+          "bars_held": 311,
+          "exit_reason": "A"
+        },
+        {
+          "entry_bar": 1380,
+          "exit_bar": 1439,
+          "entry_date": "1998-10-19",
+          "exit_date": "1999-01-13",
+          "entry_price": 31.68057990351074,
+          "exit_price": 92.15150772412679,
+          "pnl_pct": 190.87695996977268,
+          "bars_held": 59,
+          "exit_reason": "A"
+        },
+        {
+          "entry_bar": 1480,
+          "exit_bar": 1687,
+          "entry_date": "1999-03-15",
+          "exit_date": "2000-01-06",
+          "entry_price": 95.95179307126318,
+          "exit_price": 218.12218170703017,
+          "pnl_pct": 127.32475832424655,
+          "bars_held": 207,
+          "exit_reason": "A"
+        },
+        {
+          "entry_bar": 1699,
+          "exit_bar": 1700,
+          "entry_date": "2000-01-25",
+          "exit_date": "2000-01-26",
+          "entry_price": 253.90364374376452,
+          "exit_price": 228.7125094122005,
+          "pnl_pct": -9.921533208474365,
+          "bars_held": 1,
+          "exit_reason": "A"
+        },
+        {
+          "entry_bar": 1719,
+          "exit_bar": 1865,
+          "entry_date": "2000-02-23",
+          "exit_date": "2000-09-20",
+          "entry_price": 277.40196152551584,
+          "exit_price": 174.93394860478875,
+          "pnl_pct": -36.938460116584984,
+          "bars_held": 146,
+          "exit_reason": "D"
+        },
+        {
+          "entry_bar": 2044,
+          "exit_bar": 2826,
+          "entry_date": "2001-06-07",
+          "exit_date": "2004-07-22",
+          "entry_price": 16.520305593455667,
+          "exit_price": 1.5024079447495522,
+          "pnl_pct": -90.90568914569768,
+          "bars_held": 782,
+          "exit_reason": "D"
+        },
+        {
+          "entry_bar": 2880,
+          "exit_bar": 2980,
+          "entry_date": "2004-10-07",
+          "exit_date": "2005-03-02",
+          "entry_price": 1.6134994788567107,
+          "exit_price": 1.6344448803851728,
+          "pnl_pct": 1.2981350042519768,
+          "bars_held": 100,
+          "exit_reason": "D"
+        },
+        {
+          "entry_bar": 3031,
+          "exit_bar": 3303,
+          "entry_date": "2005-05-13",
+          "exit_date": "2006-06-13",
+          "entry_price": 1.4249379323161788,
+          "exit_price": 1.3601590220598558,
+          "pnl_pct": -4.54608644960609,
+          "bars_held": 272,
+          "exit_reason": "D"
+        },
+        {
+          "entry_bar": 3346,
+          "exit_bar": 3595,
+          "entry_date": "2006-08-14",
+          "exit_date": "2007-08-10",
+          "entry_price": 1.3957134721753204,
+          "exit_price": 2.635903428886228,
+          "pnl_pct": 88.85705995070623,
+          "bars_held": 249,
+          "exit_reason": "A"
+        },
+        {
+          "entry_bar": 3681,
+          "exit_bar": 3716,
+          "entry_date": "2007-12-12",
+          "exit_date": "2008-02-04",
+          "entry_price": 3.0903180688622007,
+          "exit_price": 1.878873718845249,
+          "pnl_pct": -39.20128359029994,
+          "bars_held": 35,
+          "exit_reason": "D"
+        },
+        {
+          "entry_bar": 3787,
+          "exit_bar": 3805,
+          "entry_date": "2008-05-15",
+          "exit_date": "2008-06-11",
+          "entry_price": 2.3508921882558993,
+          "exit_price": 1.9320437313847572,
+          "pnl_pct": -17.816574446226785,
+          "bars_held": 18,
+          "exit_reason": "D"
+        },
+        {
+          "entry_bar": 3856,
+          "exit_bar": 3861,
+          "entry_date": "2008-08-22",
+          "exit_date": "2008-08-29",
+          "entry_price": 1.7319258869016214,
+          "exit_price": 1.605546142186498,
+          "pnl_pct": -7.297064249164498,
+          "bars_held": 5,
+          "exit_reason": "D"
+        },
+        {
+          "entry_bar": 3970,
+          "exit_bar": 4284,
+          "entry_date": "2009-02-05",
+          "exit_date": "2010-05-06",
+          "entry_price": 0.35017499999999996,
+          "exit_price": 0.8595700000000001,
+          "pnl_pct": 145.46869422431647,
+          "bars_held": 314,
+          "exit_reason": "V"
+        },
+        {
+          "entry_bar": 4337,
+          "exit_bar": 4338,
+          "entry_date": "2010-07-22",
+          "exit_date": "2010-07-23",
+          "entry_price": 0.78039,
+          "exit_price": 0.7996000000000001,
+          "pnl_pct": 2.461589717961532,
+          "bars_held": 1,
+          "exit_reason": "D"
+        },
+        {
+          "entry_bar": 4371,
+          "exit_bar": 4372,
+          "entry_date": "2010-09-09",
+          "exit_date": "2010-09-10",
+          "entry_price": 0.7003499999999999,
+          "exit_price": 0.69965,
+          "pnl_pct": -0.09995002498749406,
+          "bars_held": 1,
+          "exit_reason": "D"
+        },
+        {
+          "entry_bar": 4380,
+          "exit_bar": 4500,
+          "entry_date": "2010-09-22",
+          "exit_date": "2011-03-15",
+          "entry_price": 0.8004,
+          "exit_price": 1.129435,
+          "pnl_pct": 41.108820589705154,
+          "bars_held": 120,
+          "exit_reason": "A"
+        },
+        {
+          "entry_bar": 4575,
+          "exit_bar": 4601,
+          "entry_date": "2011-06-30",
+          "exit_date": "2011-08-08",
+          "entry_price": 1.1005500000000001,
+          "exit_price": 0.7596200000000001,
+          "pnl_pct": -30.978147289991366,
+          "bars_held": 26,
+          "exit_reason": "V"
+        },
+        {
+          "entry_bar": 4645,
+          "exit_bar": 4674,
+          "entry_date": "2011-10-10",
+          "exit_date": "2011-11-18",
+          "entry_price": 0.930465,
+          "exit_price": 0.9295350000000001,
+          "pnl_pct": -0.09995002498749406,
+          "bars_held": 29,
+          "exit_reason": "D"
+        },
+        {
+          "entry_bar": 4707,
+          "exit_bar": 5618,
+          "entry_date": "2012-01-09",
+          "exit_date": "2015-08-24",
+          "entry_price": 0.9904949999999999,
+          "exit_price": 2.628685,
+          "pnl_pct": 165.391041852811,
+          "bars_held": 911,
+          "exit_reason": "V"
+        },
+        {
+          "entry_bar": 5658,
+          "exit_bar": 5724,
+          "entry_date": "2015-10-20",
+          "exit_date": "2016-01-26",
+          "entry_price": 3.4617299999999998,
+          "exit_price": 2.97851,
+          "pnl_pct": -13.958916495509467,
+          "bars_held": 66,
+          "exit_reason": "D"
+        },
+        {
+          "entry_bar": 5744,
+          "exit_bar": 5745,
+          "entry_date": "2016-02-24",
+          "exit_date": "2016-02-25",
+          "entry_price": 3.06153,
+          "exit_price": 3.168415,
+          "pnl_pct": 3.491228242088118,
+          "bars_held": 1,
+          "exit_reason": "D"
+        },
+        {
+          "entry_bar": 5751,
+          "exit_bar": 6235,
+          "entry_date": "2016-03-04",
+          "exit_date": "2018-02-05",
+          "entry_price": 3.4016999999999995,
+          "exit_price": 10.944525,
+          "pnl_pct": 221.73692565481971,
+          "bars_held": 484,
+          "exit_reason": "V"
+        },
+        {
+          "entry_bar": 6253,
+          "exit_bar": 6261,
+          "entry_date": "2018-03-02",
+          "exit_date": "2018-03-14",
+          "entry_price": 12.836414999999999,
+          "exit_price": 14.062965000000002,
+          "pnl_pct": 9.555237969479812,
+          "bars_held": 8,
+          "exit_reason": "A"
+        },
+        {
+          "entry_bar": 6297,
+          "exit_bar": 6430,
+          "entry_date": "2018-05-04",
+          "exit_date": "2018-11-12",
+          "entry_price": 12.436214999999999,
+          "exit_price": 11.404295000000001,
+          "pnl_pct": -8.297701511271704,
+          "bars_held": 133,
+          "exit_reason": "A"
+        },
+        {
+          "entry_bar": 6477,
+          "exit_bar": 6478,
+          "entry_date": "2019-01-23",
+          "exit_date": "2019-01-24",
+          "entry_price": 9.354674999999999,
+          "exit_price": 9.585205,
+          "pnl_pct": 2.464329332659898,
+          "bars_held": 1,
+          "exit_reason": "D"
+        },
+        {
+          "entry_bar": 6497,
+          "exit_bar": 6748,
+          "entry_date": "2019-02-21",
+          "exit_date": "2020-02-20",
+          "entry_price": 11.705849999999998,
+          "exit_price": 32.36381,
+          "pnl_pct": 176.47552292229958,
+          "bars_held": 251,
+          "exit_reason": "A"
+        },
+        {
+          "entry_bar": 6787,
+          "exit_bar": 6795,
+          "entry_date": "2020-04-16",
+          "exit_date": "2020-04-28",
+          "entry_price": 14.687339999999999,
+          "exit_price": 14.53273,
+          "pnl_pct": -1.0526752972287556,
+          "bars_held": 8,
+          "exit_reason": "D"
+        },
+        {
+          "entry_bar": 6799,
+          "exit_bar": 6800,
+          "entry_date": "2020-05-04",
+          "exit_date": "2020-05-05",
+          "entry_price": 15.30765,
+          "exit_price": 16.021985,
+          "pnl_pct": 4.666522947676488,
+          "bars_held": 1,
+          "exit_reason": "D"
+        },
+        {
+          "entry_bar": 6814,
+          "exit_bar": 7228,
+          "entry_date": "2020-05-26",
+          "exit_date": "2022-01-13",
+          "entry_price": 18.679335000000002,
+          "exit_price": 72.36380000000001,
+          "pnl_pct": 287.40030092077694,
+          "bars_held": 414,
+          "exit_reason": "A"
+        },
+        {
+          "entry_bar": 7355,
+          "exit_bar": 7356,
+          "entry_date": "2022-07-19",
+          "exit_date": "2022-07-20",
+          "entry_price": 33.316649999999996,
+          "exit_price": 34.892545,
+          "pnl_pct": 4.730052391221817,
+          "bars_held": 1,
+          "exit_reason": "D"
+        },
+        {
+          "entry_bar": 7424,
+          "exit_bar": 7425,
+          "entry_date": "2022-10-25",
+          "exit_date": "2022-10-26",
+          "entry_price": 26.303144999999997,
+          "exit_price": 24.507740000000002,
+          "pnl_pct": -6.825818737645228,
+          "bars_held": 1,
+          "exit_reason": "D"
+        },
+        {
+          "entry_bar": 7449,
+          "exit_bar": 7465,
+          "entry_date": "2022-11-30",
+          "exit_date": "2022-12-22",
+          "entry_price": 29.444715,
+          "exit_price": 22.288850000000004,
+          "pnl_pct": -24.302714426001394,
+          "bars_held": 16,
+          "exit_reason": "D"
+        },
+        {
+          "entry_bar": 7483,
+          "exit_bar": 7867,
+          "entry_date": "2023-01-20",
+          "exit_date": "2024-08-01",
+          "entry_price": 25.622805,
+          "exit_price": 75.44226,
+          "pnl_pct": 194.43404030120828,
+          "bars_held": 384,
+          "exit_reason": "A"
+        },
+        {
+          "entry_bar": 7883,
+          "exit_bar": 8031,
+          "entry_date": "2024-08-23",
+          "exit_date": "2025-03-28",
+          "entry_price": 87.88392,
+          "exit_price": 58.400785000000006,
+          "pnl_pct": -33.54781511794194,
+          "bars_held": 148,
+          "exit_reason": "D"
+        },
+        {
+          "entry_bar": 8065,
+          "exit_bar": 8195,
+          "entry_date": "2025-05-16",
+          "exit_date": "2025-11-20",
+          "entry_price": 76.07802,
+          "exit_price": 107.28633,
+          "pnl_pct": 41.02145402837773,
+          "bars_held": 130,
+          "exit_reason": "A"
+        },
+        {
+          "entry_bar": 8229,
+          "exit_bar": 8329,
+          "entry_date": "2026-01-12",
+          "exit_date": "2026-06-05",
+          "entry_price": 124.03198499999999,
+          "exit_price": 202.48870133972173,
+          "pnl_pct": 63.255229156996684,
+          "bars_held": 100,
+          "exit_reason": "A"
         }
       ]
     }

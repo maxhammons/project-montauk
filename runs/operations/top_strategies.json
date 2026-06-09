@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-06-09T03:00:25Z",
+  "data_end_date": "2026-06-08",
+  "strategies": [
+    {
+      "rank": 1,
+      "active": true,
+      "display_name": "Jade Bonobo",
+      "strategy": "chimera_v1_2026_05_26",
+      "position": "out",
+      "risk_state": "risk_off",
+      "flip_likelihood": 0.0,
+      "flip_direction": "to_entry",
+      "montauk_score": 0.6516,
+      "composite_confidence": 0.7594
+    },
+    {
+      "rank": 2,
+      "active": false,
+      "display_name": "Sable Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "position": "out",
+      "risk_state": "risk_off",
+      "flip_likelihood": 0.1667,
+      "flip_direction": "to_entry",
+      "montauk_score": 0.6506,
+      "composite_confidence": 0.7449
+    },
+    {
+      "rank": 3,
+      "active": false,
+      "display_name": "Brindled Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "position": "out",
+      "risk_state": "risk_off",
+      "flip_likelihood": 0.1667,
+      "flip_direction": "to_entry",
+      "montauk_score": 0.6506,
+      "composite_confidence": 0.7449
+    },
+    {
+      "rank": 4,
+      "active": false,
+      "display_name": "Velvet Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "position": "out",
+      "risk_state": "risk_off",
+      "flip_likelihood": 0.1667,
+      "flip_direction": "to_entry",
+      "montauk_score": 0.6505,
+      "composite_confidence": 0.7448
+    },
+    {
+      "rank": 5,
+      "active": false,
+      "display_name": "Amber Osprey",
+      "strategy": "gc_vjatr_reclaimer",
+      "position": "out",
+      "risk_state": "risk_off",
+      "flip_likelihood": 0.1667,
+      "flip_direction": "to_entry",
+      "montauk_score": 0.6505,
+      "composite_confidence": 0.7448
+    }
+  ]
+}

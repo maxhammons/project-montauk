@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "6554e788962b",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "dismissed",
   "kind": "sector_alpha_breadth_divergence",
   "rationale": "Tests if the percentage of Nasdaq-100 components outperforming the index identifies broad institutional accumulation.",
   "validation_tier": "T1",
@@ -29,5 +29,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Underperforms QQQ by more than 15% over any rolling 24-month period.",
     "Correlation with standard breadth metrics exceeds 0.85."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:30Z"
 }

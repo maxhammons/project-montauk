@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-06-07T19:43:34Z",
+  "idea_id": "1dbb63136205",
+  "kind": "yield_curve_slope_divergence",
+  "status": "planned",
+  "hypothesis": "If yield curve slope divergence is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Evaluates if sudden bull-steepening in the 2s10s yield curve acts as a reliable exit signal for long-duration growth stocks.",
+  "input_diagnostics": [
+    "runs/gold_diversity_report.json",
+    "runs/operations/live_holdout.json",
+    "signals/*.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "suggested_tests": [
+    "cross_asset_recheck",
+    "live_holdout_review",
+    "generated_hypothesis_test"
+  ],
+  "expected_artifact_paths": [
+    "runs/gold_diversity_report.json",
+    "runs/operations/live_holdout.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "same-param portability remains below threshold",
+    "drift is not reproducible from point-in-time snapshots",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Strategy goes to cash and misses more than 20% of a subsequent tech rally.",
+    "Win rate of the exit signal is below 45% in confirmed recessions."
+  ],
+  "expected_failure_mode": "Bull steepening driven by rate-cut expectations might fuel a speculative bid in tech, defeating the exit."
+}

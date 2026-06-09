@@ -5,6 +5,7 @@ import hashlib
 import json
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -16,11 +17,30 @@ from ops.events import append_event, utc_now_iso
 from ops.paths import (
     LATEST_PATH,
     LEADERBOARD_PATH,
+    OPERATIONS_DIR,
     PROJECT_ROOT,
     SIGNALS_DIR,
     ensure_ops_dirs,
 )
 from ops.versioning import version_info
+
+# Once-per-day refresh marker. The data pull hits the network for every ticker,
+# so we only do it once per local calendar day and record the outcome here.
+REFRESH_MARKER_PATH = OPERATIONS_DIR / "last_refresh.json"
+
+
+def _local_today() -> str:
+    """Local calendar date (YYYY-MM-DD) used to gate the once-per-day refresh."""
+    return datetime.now().astimezone().strftime("%Y-%m-%d")
+
+
+def _read_refresh_marker() -> dict[str, Any] | None:
+    if not REFRESH_MARKER_PATH.exists():
+        return None
+    try:
+        return _load_json(REFRESH_MARKER_PATH)
+    except (json.JSONDecodeError, OSError):
+        return None
 
 
 def _load_json(path: Path) -> Any:
@@ -73,9 +93,10 @@ def load_active_champion(leaderboard_path: Path = LEADERBOARD_PATH) -> dict[str,
         if entry.get("gold_status") is True or validation.get("gold_status") is True:
             gold.append(entry)
     if gold:
+        # Active champion = Montauk Score leader (the leaderboard's #1 ranking).
         return max(
             gold,
-            key=lambda entry: float((entry.get("validation") or {}).get("composite_confidence") or 0.0),
+            key=lambda entry: float(entry.get("montauk_score") or 0.0),
         )
     return leaderboard[0]
 
@@ -115,6 +136,195 @@ def simulate_signal_state(
     return risk_on, buy_events, sell_events
 
 
+def compute_flip_likelihood(
+    df,
+    strategy_fn,
+    params: dict[str, Any],
+    *,
+    cooldown_bars: int,
+    current_risk_on: bool,
+    horizon: int = 21,
+    paths: int = 150,
+    lookback: int = 120,
+    tail: int = 1000,
+    seed: int = 12345,
+) -> dict[str, Any]:
+    """Monte-Carlo "how likely is the position to flip soon" — always shows a value.
+
+    Strategy-agnostic and symmetric:
+      - currently In  → probability of an EXIT within ``horizon`` trading days
+      - currently Out → probability of a RE-ENTER within ``horizon`` trading days
+
+    Simulates ``paths`` near-term TECL price continuations by bootstrapping
+    recent daily returns, appends each to the real history, re-runs the
+    champion's real entry/exit logic, and measures the fraction of paths whose
+    position flips. Because bootstrapped paths contain realistic sequences
+    (pullbacks, recoveries, trends), even pattern-gated re-entries register — so
+    this never reads a meaningless 0 the way a single price-level test can.
+
+    Returns:
+        flip_likelihood  – 0..1 probability of a flip within the horizon.
+        flip_days        – median trading days to the flip among flipping paths, or None.
+        flip_move_pct    – median TECL move (%) at the flip among flipping paths, or None.
+        flip_horizon     – the horizon (trading days) used.
+        flip_direction   – "to_exit" (In) or "to_entry" (Out).
+    """
+    import numpy as np
+    import pandas as pd
+
+    from engine.strategy_engine import Indicators
+
+    direction = "to_exit" if current_risk_on else "to_entry"
+    real = df.iloc[-tail:].reset_index(drop=True) if len(df) > tail else df.copy()
+    n = len(real)
+    close = real["close"].to_numpy(dtype=float)
+    if n < 60:
+        return {"flip_likelihood": None, "flip_days": None, "flip_move_pct": None,
+                "flip_horizon": horizon, "flip_direction": direction}
+
+    window = close[-(lookback + 1):]
+    rets = np.diff(window) / window[:-1]
+    rets = rets[np.isfinite(rets)]
+    if len(rets) < 10:
+        return {"flip_likelihood": None, "flip_days": None, "flip_move_pct": None,
+                "flip_horizon": horizon, "flip_direction": direction}
+
+    hi = real["high"].to_numpy(dtype=float)[-lookback:]
+    lo = real["low"].to_numpy(dtype=float)[-lookback:]
+    cl = close[-lookback:]
+    with np.errstate(invalid="ignore", divide="ignore"):
+        rng_ratio = float(np.nanmean((hi - lo) / cl))
+    if not np.isfinite(rng_ratio) or rng_ratio <= 0:
+        rng_ratio = 0.03
+
+    # Carry-forward numeric context (vix, macro, etc.); avg recent volume.
+    skip = {"date", "open", "high", "low", "close", "volume"}
+    carry = {
+        c: float(real[c].iloc[-1])
+        for c in real.columns
+        if c not in skip
+        and pd.api.types.is_numeric_dtype(real[c])
+        and np.isfinite(real[c].iloc[-1])
+    }
+    vol_mean = float(np.nanmean(real["volume"].to_numpy(dtype=float)[-lookback:])) if "volume" in real.columns else 1.0
+    last_close = float(close[-1])
+    last_date = pd.Timestamp(real["date"].iloc[-1])
+    future_dates = pd.bdate_range(last_date + pd.Timedelta(days=1), periods=horizon)
+
+    rng = np.random.default_rng(seed)
+    flips = 0
+    days_list: list[int] = []
+    move_list: list[float] = []
+
+    for _ in range(paths):
+        sampled = rng.choice(rets, size=horizon, replace=True)
+        fclose = last_close * np.cumprod(1.0 + sampled)
+        fopen = np.empty(horizon)
+        fopen[0] = last_close
+        fopen[1:] = fclose[:-1]
+        fhigh = np.maximum(fopen, fclose) * (1.0 + rng_ratio / 2.0)
+        flow = np.minimum(fopen, fclose) * (1.0 - rng_ratio / 2.0)
+        fut = {
+            "date": future_dates.values,
+            "open": fopen, "high": fhigh, "low": flow, "close": fclose,
+            "volume": np.full(horizon, vol_mean),
+        }
+        for c, v in carry.items():
+            fut[c] = np.full(horizon, v)
+        aug = pd.concat([real, pd.DataFrame(fut)], ignore_index=True)
+        entries, exits, _ = strategy_fn(Indicators(aug), params)
+        risk_on, _, _ = simulate_signal_state(
+            [bool(v) for v in entries],
+            [bool(v) for v in exits],
+            cooldown_bars=cooldown_bars,
+        )
+        cur = bool(risk_on[n - 1])
+        for i in range(n, n + horizon):
+            if bool(risk_on[i]) != cur:
+                flips += 1
+                days_list.append(i - (n - 1))
+                move_list.append((fclose[i - n] / last_close - 1.0) * 100.0)
+                break
+
+    likelihood = flips / paths
+    return {
+        "flip_likelihood": round(likelihood, 4),
+        "flip_days": int(np.median(days_list)) if days_list else None,
+        "flip_move_pct": round(float(np.median(move_list)), 2) if move_list else None,
+        "flip_horizon": horizon,
+        "flip_direction": direction,
+    }
+
+
+def compute_top_strategies(n: int = 5, *, df=None) -> list[dict[str, Any]]:
+    """Top-N Gold strategies by Montauk Score, each with live position + mini flip.
+
+    Used by the dashboard's bottom strategy bar. Ranked by the Montauk Score
+    (same ordering as the active-champion selector), so rank 1 == active.
+    """
+    from data.loader import get_tecl_data
+    from engine.strategy_engine import Indicators
+    from strategies.library import STRATEGY_REGISTRY
+
+    leaderboard = _load_json(LEADERBOARD_PATH)
+    if not isinstance(leaderboard, list) or not leaderboard:
+        return []
+
+    def _conf(entry: dict[str, Any]) -> float:
+        return float((entry.get("validation") or {}).get("composite_confidence") or 0.0)
+
+    def _montauk(entry: dict[str, Any]) -> float:
+        return float(entry.get("montauk_score") or 0.0)
+
+    gold = [
+        e for e in leaderboard
+        if e.get("gold_status") is True or (e.get("validation") or {}).get("gold_status") is True
+    ]
+    pool = sorted(gold or leaderboard, key=_montauk, reverse=True)[:n]
+
+    if df is None:
+        df = get_tecl_data(use_yfinance=False)
+
+    rows: list[dict[str, Any]] = []
+    for rank, entry in enumerate(pool, start=1):
+        name = entry.get("strategy")
+        params = entry.get("params") or {}
+        fn = STRATEGY_REGISTRY.get(name)
+        if fn is None:
+            continue
+        cur: bool | None = None
+        flip: dict[str, Any] = {}
+        try:
+            entries, exits, _ = fn(Indicators(df), params)
+            risk_on, _, _ = simulate_signal_state(
+                [bool(v) for v in entries],
+                [bool(v) for v in exits],
+                cooldown_bars=int(params.get("cooldown", 0) or 0),
+            )
+            cur = bool(risk_on[-1])
+            # Lower-fidelity MC for the mini indicator (kept fast across N strategies).
+            flip = compute_flip_likelihood(
+                df, fn, params,
+                cooldown_bars=int(params.get("cooldown", 0) or 0),
+                current_risk_on=cur, paths=60, tail=800,
+            )
+        except Exception:  # noqa: BLE001
+            pass
+        rows.append({
+            "rank": rank,
+            "active": rank == 1,
+            "display_name": entry.get("display_name") or name,
+            "strategy": name,
+            "position": "in" if cur else ("out" if cur is not None else "unknown"),
+            "risk_state": ("risk_on" if cur else "risk_off") if cur is not None else None,
+            "flip_likelihood": flip.get("flip_likelihood"),
+            "flip_direction": flip.get("flip_direction"),
+            "montauk_score": _montauk(entry),
+            "composite_confidence": _conf(entry),
+        })
+    return rows
+
+
 def compute_current_signal(champion: dict[str, Any]) -> dict[str, Any]:
     import pandas as pd
 
@@ -147,6 +357,23 @@ def compute_current_signal(champion: dict[str, Any]) -> dict[str, Any]:
     exit_label = ""
     if exits_list[idx] and labels is not None:
         exit_label = str(labels[idx])
+
+    # Price-driven flip likelihood (best-effort; never break the signal).
+    flip = {
+        "flip_likelihood": None, "flip_days": None, "flip_move_pct": None,
+        "flip_horizon": None, "flip_direction": None,
+    }
+    try:
+        flip = compute_flip_likelihood(
+            df,
+            strategy_fn,
+            params,
+            cooldown_bars=int(params.get("cooldown", 0) or 0),
+            current_risk_on=bool(risk_on[idx]),
+        )
+    except Exception:  # noqa: BLE001
+        pass
+
     validation = champion.get("validation") or {}
     metrics = champion.get("metrics") or {}
     return {
@@ -175,6 +402,11 @@ def compute_current_signal(champion: dict[str, Any]) -> dict[str, Any]:
         "buy_event": bool(buy_events[idx]),
         "sell_event": bool(sell_events[idx]),
         "close": round(float(df.iloc[idx]["close"]), 6),
+        "flip_likelihood": flip.get("flip_likelihood"),
+        "flip_days": flip.get("flip_days"),
+        "flip_move_pct": flip.get("flip_move_pct"),
+        "flip_horizon": flip.get("flip_horizon"),
+        "flip_direction": flip.get("flip_direction"),
         "validation": _summarize_validation(validation),
         "warnings": list(validation.get("warnings") or [])[:20],
         "blockers": list(validation.get("hard_fail_reasons") or []),
@@ -265,6 +497,7 @@ def run_viz_build() -> dict[str, Any]:
 def run_daily(
     *,
     skip_refresh: bool = False,
+    force_refresh: bool = False,
     skip_viz: bool = False,
     skip_followups: bool = False,
     allow_overwrite: bool = False,
@@ -276,13 +509,74 @@ def run_daily(
     events: list[dict[str, Any]] = []
     steps: dict[str, Any] = {}
 
+    # Refresh gating: the data pull is network-heavy, so run it at most once per
+    # local calendar day. `last_refresh.json` is the persistent log of when we
+    # last pulled and whether anything actually changed; it lets us skip the
+    # step on repeat launches the same day.
+    today = _local_today()
+    marker = _read_refresh_marker()
+    already_today = bool(marker) and marker.get("date") == today
+
     if skip_refresh:
-        steps["refresh"] = {"status": "skipped"}
+        steps["refresh"] = {"status": "skipped", "reason": "skip_refresh_flag"}
+    elif already_today and not force_refresh:
+        steps["refresh"] = {
+            "status": "skipped",
+            "reason": "already_refreshed_today",
+            "last_refresh": {
+                "date": marker.get("date"),
+                "refreshed_utc": marker.get("refreshed_utc"),
+                "updated": marker.get("updated"),
+                "total_new_bars": marker.get("total_new_bars"),
+                "data_end_date": marker.get("data_end_date"),
+            },
+        }
+        events.append(append_event(
+            "data_refresh_skipped",
+            f"Data already refreshed today ({today}); skipping the network pull.",
+            severity="info",
+            payload=steps["refresh"]["last_refresh"],
+        ))
     else:
         from data.loader import refresh_all
 
-        refresh_all()
-        steps["refresh"] = {"status": "ok"}
+        summary = refresh_all() or {}
+        refreshed_utc = utc_now_iso()
+        steps["refresh"] = {
+            "status": "ok" if summary.get("status", "ok") == "ok" else "fail",
+            "updated": bool(summary.get("updated", False)),
+            "total_new_bars": int(summary.get("total_new_bars", 0) or 0),
+            "new_bars": summary.get("new_bars", {}),
+            "data_end_date": summary.get("data_end_date"),
+            "refreshed_utc": refreshed_utc,
+            "forced": bool(force_refresh and already_today),
+        }
+        # Persist the marker (the once-per-day log) only on a successful pull.
+        if summary.get("status", "ok") == "ok":
+            _write_json(REFRESH_MARKER_PATH, {
+                "schema_version": 1,
+                "date": today,
+                "refreshed_utc": refreshed_utc,
+                "updated": bool(summary.get("updated", False)),
+                "total_new_bars": int(summary.get("total_new_bars", 0) or 0),
+                "new_bars": summary.get("new_bars", {}),
+                "data_end_date": summary.get("data_end_date"),
+            })
+        events.append(append_event(
+            "data_refreshed",
+            (
+                f"Data refresh added {steps['refresh']['total_new_bars']} new bars."
+                if steps["refresh"]["updated"]
+                else "Data refresh ran; no new bars (already current)."
+            ),
+            severity="info",
+            payload={
+                "updated": steps["refresh"]["updated"],
+                "total_new_bars": steps["refresh"]["total_new_bars"],
+                "new_bars": steps["refresh"]["new_bars"],
+                "data_end_date": steps["refresh"]["data_end_date"],
+            },
+        ))
 
     from data.manifest import write_manifest
     from data.quality import audit_all, summarize
@@ -352,6 +646,19 @@ def run_daily(
                 "signal": comparable_signal(snapshot),
             },
         ))
+
+    # Top-5 strategy bar (best-effort; never break the daily run).
+    try:
+        top = compute_top_strategies(5)
+        _write_json(OPERATIONS_DIR / "top_strategies.json", {
+            "schema_version": 1,
+            "generated_utc": generated_utc,
+            "data_end_date": snapshot["data_end_date"],
+            "strategies": top,
+        })
+        steps["top_strategies"] = {"status": "ok", "count": len(top)}
+    except Exception as exc:  # noqa: BLE001
+        steps["top_strategies"] = {"status": "fail", "error": str(exc)}
 
     if skip_viz:
         steps["viz"] = {"status": "skipped"}
@@ -470,6 +777,8 @@ def run_daily(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run Montauk daily operations.")
     parser.add_argument("--skip-refresh", action="store_true", help="Do not fetch new data.")
+    parser.add_argument("--force-refresh", action="store_true",
+                        help="Refresh data even if it already ran today (overrides once-per-day gate).")
     parser.add_argument("--skip-viz", action="store_true", help="Do not rebuild viz HTML.")
     parser.add_argument("--skip-followups", action="store_true", help="Do not build live/governance/notification artifacts.")
     parser.add_argument("--allow-overwrite", action="store_true", help="Allow replacing an existing signal snapshot.")
@@ -479,6 +788,7 @@ def main(argv: list[str] | None = None) -> int:
 
     result = run_daily(
         skip_refresh=args.skip_refresh,
+        force_refresh=args.force_refresh,
         skip_viz=args.skip_viz,
         skip_followups=args.skip_followups,
         allow_overwrite=args.allow_overwrite,

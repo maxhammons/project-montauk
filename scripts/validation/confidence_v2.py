@@ -17,7 +17,6 @@ import os
 from datetime import datetime
 from typing import Any
 
-from certify.contract import sync_entry_contract
 from engine.canonical_params import count_tunable_params
 
 PROJECT_ROOT = os.path.dirname(
@@ -113,6 +112,10 @@ def load_json(path: str, default: Any) -> Any:
 
 
 def load_gold_rows(path: str = LEADERBOARD_PATH) -> list[dict[str, Any]]:
+    # Lazy import: certify.contract imports the Montauk Score module, which
+    # imports this module. Importing it at module load would create a cycle.
+    from certify.contract import sync_entry_contract
+
     rows = load_json(path, [])
     if not isinstance(rows, list):
         return []

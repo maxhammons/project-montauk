@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "60ee480e43a6",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "dismissed",
   "kind": "margin_debt_rate_of_change",
   "rationale": "Tests if rapid multi-month liquidations in margin debt reliably flag ultimate macro capitulation floors.",
   "validation_tier": "T1",
@@ -30,5 +30,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "The strategy enters more than 30% above the eventual cyclical bear-market bottom.",
     "Out-of-sample Sharpe ratio drops below 0.35 over a 10-year cycle."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:30Z"
 }

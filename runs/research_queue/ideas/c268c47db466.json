@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "c268c47db466",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "dismissed",
   "kind": "sector_rotation_velocity",
   "rationale": "Tests if the speed of capital moving out of Energy and Materials into Tech serves as a more reliable entry signal than price alone.",
   "validation_tier": "T1",
@@ -30,5 +30,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Turnover rate exceeds 100% per month without corresponding profit.",
     "Correlation with standard momentum strategies exceeds 0.85."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:29Z"
 }

@@ -480,9 +480,10 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
             entry["converged"] = strategy_state[name]["converged"]
             entry["runs_without_improvement"] = strategy_state[name]["runs_without_improvement"]
 
-    # Deduplicate: keep strongest all-era-performing certified entry per config hash.
-    def _entry_confidence(entry: dict) -> float:
-        return float((entry.get("validation") or {}).get("composite_confidence") or 0.0)
+    # Deduplicate: keep strongest certified entry per config hash (Montauk-first).
+    def _entry_montauk(entry: dict) -> float:
+        # Stamped on every row by sync_entry_contract (calibrated, consistent).
+        return float(entry.get("montauk_score") or 0.0)
     def _entry_overall_score(entry: dict) -> float:
         value = entry.get("overall_performance_score")
         if value is not None:
@@ -495,18 +496,21 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
     for entry in leaderboard:
         h = config_hash(entry["strategy"], entry.get("params", {}))
         if h not in seen or (
-            _entry_overall_score(entry), _entry_fitness(entry), _entry_confidence(entry)
+            _entry_montauk(entry), _entry_overall_score(entry), _entry_fitness(entry)
         ) > (
-            _entry_overall_score(seen[h]), _entry_fitness(seen[h]), _entry_confidence(seen[h])
+            _entry_montauk(seen[h]), _entry_overall_score(seen[h]), _entry_fitness(seen[h])
         ):
             seen[h] = entry
-    # Leaderboard order is all-era-performance-first among already-certified rows.
+    # Leaderboard order is Montauk-Score-first among already-certified rows:
+    # confidence-led ranking (Conviction 0.55 × Performance 0.30 × Durability
+    # 0.15), with all-era performance and fitness as tiebreaks. The top row is
+    # the active strategy.
     leaderboard = sorted(
         seen.values(),
         key=lambda x: (
+            _entry_montauk(x),
             _entry_overall_score(x),
             _entry_fitness(x),
-            _entry_confidence(x),
         ),
         reverse=True,
     )[:20]

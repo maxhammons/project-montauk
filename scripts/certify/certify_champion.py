@@ -39,6 +39,26 @@ import os
 import sys
 
 
+def _entry_confidence(entry: dict) -> float:
+    validation = entry.get("validation") or {}
+    return float(validation.get("composite_confidence") or entry.get("composite_confidence") or 0.0)
+
+
+def _pick_highest_confidence(entries: list) -> dict | None:
+    """Default champion selector — the highest-confidence Gold entry.
+
+    This MUST match scripts/ops/daily.py::load_active_champion so the strategy
+    that gets certified is the same one the live signal runs.
+    """
+    if not entries:
+        return None
+    gold = [
+        e for e in entries
+        if e.get("gold_status") is True or (e.get("validation") or {}).get("gold_status") is True
+    ]
+    return max(gold or entries, key=_entry_confidence)
+
+
 def _find_champion(
     validation_result: dict, strategy_filter: str | None, params_filter: dict | None
 ) -> dict | None:
@@ -47,7 +67,7 @@ def _find_champion(
     if not validated:
         return None
     if strategy_filter is None and params_filter is None:
-        return validated[0]
+        return _pick_highest_confidence(validated)
     for e in validated:
         if strategy_filter and e.get("strategy") != strategy_filter:
             continue
@@ -75,7 +95,7 @@ def _load_champion_from_leaderboard(
     if not lb:
         return None
     if strategy_filter is None and params_filter is None:
-        return lb[0]
+        return _pick_highest_confidence(lb)
     for e in lb:
         if strategy_filter and e.get("strategy") != strategy_filter:
             continue
@@ -85,6 +105,50 @@ def _load_champion_from_leaderboard(
                 continue
         return e
     return None
+
+
+def _attach_flip_metric(champion: dict) -> None:
+    """Stamp the certified entry with the flip-likelihood contract.
+
+    Every strategy that reaches Gold carries this, so when it becomes the active
+    champion the dashboard's Flip Pressure indicator is ready immediately. The
+    live daily signal recomputes the value each day; here we record the contract
+    plus a certification-time baseline. Best-effort — never breaks certification.
+    """
+    metric = {
+        "enabled": True,
+        "schema_version": 1,
+        "method": "monte_carlo_bootstrap_v1",
+        "horizon_days": 21,
+        "description": (
+            "Probability the position flips (exit if In / re-entry if Out) within "
+            "the horizon, from bootstrapped TECL price paths re-run through this strategy."
+        ),
+    }
+    try:
+        from data.loader import get_tecl_data
+        from engine.strategy_engine import Indicators
+        from ops.daily import compute_flip_likelihood, simulate_signal_state
+        from strategies.library import STRATEGY_REGISTRY
+
+        fn = STRATEGY_REGISTRY.get(champion.get("strategy"))
+        params = champion.get("params") or {}
+        if fn is not None:
+            df = get_tecl_data(use_yfinance=False)
+            entries, exits, _ = fn(Indicators(df), params)
+            risk_on, _, _ = simulate_signal_state(
+                [bool(v) for v in entries],
+                [bool(v) for v in exits],
+                cooldown_bars=int(params.get("cooldown", 0) or 0),
+            )
+            metric["certification_baseline"] = compute_flip_likelihood(
+                df, fn, params,
+                cooldown_bars=int(params.get("cooldown", 0) or 0),
+                current_risk_on=bool(risk_on[-1]),
+            )
+    except Exception as exc:  # noqa: BLE001
+        metric["certification_baseline_error"] = str(exc)
+    champion["flip_metric"] = metric
 
 
 def main():
@@ -205,6 +269,7 @@ def main():
     print("[certify] Finalized + refreshed on-disk artifact views")
 
     sync_entry_contract(champion, artifact_paths=artifacts)
+    _attach_flip_metric(champion)
     eligible, reason = is_leaderboard_eligible(champion)
     if eligible:
         from search.evolve import update_leaderboard
@@ -218,14 +283,20 @@ def main():
             champion.get("strategy"),
             json.dumps(champion.get("params", {}), sort_keys=True),
         )
-        persisted = any(
-            (
+        # update_leaderboard normalizes entries and drops unknown fields, so
+        # re-stamp the flip-metric contract onto the persisted row and re-save.
+        persisted = False
+        for row in leaderboard:
+            if (
                 row.get("strategy"),
                 json.dumps(row.get("params", {}), sort_keys=True),
-            )
-            == key
-            for row in leaderboard
-        )
+            ) == key:
+                persisted = True
+                if champion.get("flip_metric"):
+                    row["flip_metric"] = champion["flip_metric"]
+        if persisted and champion.get("flip_metric"):
+            with open(leaderboard_path, "w") as f:
+                json.dump(leaderboard, f, indent=2, default=str)
         if persisted:
             print(
                 f"[certify] Gold Status confirmed; leaderboard rows: {len(leaderboard)}"

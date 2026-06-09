@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "ba43bf0b726d",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "dismissed",
   "kind": "ad_line_divergence",
   "rationale": "Evaluates if Nasdaq advance-decline divergence against QQQ new highs provides an early exit signal for leveraged holdings.",
   "validation_tier": "T0/T1",
@@ -29,5 +29,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Strategy remains in cash for more than 40% of a known bull market.",
     "Misses more than 30% of total buy-and-hold upside."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:29Z"
 }

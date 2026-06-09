@@ -344,13 +344,24 @@ def _refresh_or_create_ticker_csv(csv_path: str, ticker: str, *, start: str) -> 
 # refresh_all() — called once at /spike start
 # ─────────────────────────────────────────────────────────────────────
 
-def refresh_all():
+def refresh_all() -> dict:
     """
     Pull latest bars for all local CSVs. Called once at /spike invocation.
     Updates files in place. Refreshes append new bars; the one-time legacy
     TECL migration creates TECL.csv from the legacy source if needed.
+
+    Returns a summary dict describing what changed::
+
+        {
+            "status": "ok" | "error",
+            "updated": bool,                # any new bars appended anywhere
+            "total_new_bars": int,
+            "new_bars": {ticker: count, ...},
+            "data_end_date": "YYYY-MM-DD" | None,
+        }
     """
     print("[refresh] Updating all local CSVs...")
+    new_bars: dict[str, int] = {}
 
     # ── TECL ──
     # Migrate legacy file if needed
@@ -358,14 +369,23 @@ def refresh_all():
         _migrate_legacy_tecl()
     elif not os.path.exists(TECL_CSV):
         print("[refresh] ERROR: No TECL CSV found. Run data_audit.py first.")
-        return
+        return {
+            "status": "error",
+            "updated": False,
+            "total_new_bars": 0,
+            "new_bars": {},
+            "data_end_date": None,
+            "error": "No TECL CSV found.",
+        }
 
     # Append fresh TECL bars
     tecl_new = _append_tecl_bars()
+    new_bars["TECL"] = tecl_new
     print(f"[refresh] TECL: +{tecl_new} new bars")
 
     # ── VIX ──
     vix_new = _append_vix_bars()
+    new_bars["VIX"] = vix_new
     print(f"[refresh] VIX: +{vix_new} new bars")
 
     # ── Re-merge VIX into TECL ──
@@ -373,30 +393,40 @@ def refresh_all():
         _merge_vix_into_tecl()
 
     # ── XLK ──
-    n = _append_new_bars(XLK_CSV, "XLK")
-    print(f"[refresh] XLK: +{n} new bars")
+    new_bars["XLK"] = _append_new_bars(XLK_CSV, "XLK")
+    print(f"[refresh] XLK: +{new_bars['XLK']} new bars")
 
     # ── QQQ ──
-    n = _append_new_bars(QQQ_CSV, "QQQ")
-    print(f"[refresh] QQQ: +{n} new bars")
+    new_bars["QQQ"] = _append_new_bars(QQQ_CSV, "QQQ")
+    print(f"[refresh] QQQ: +{new_bars['QQQ']} new bars")
 
     # ── TQQQ ──
-    n = _append_new_bars(TQQQ_CSV, "TQQQ")
-    print(f"[refresh] TQQQ: +{n} new bars")
+    new_bars["TQQQ"] = _append_new_bars(TQQQ_CSV, "TQQQ")
+    print(f"[refresh] TQQQ: +{new_bars['TQQQ']} new bars")
     migrate_provenance()
 
     # ── SGOV ──
-    n = _refresh_or_create_ticker_csv(SGOV_CSV, "SGOV", start="2020-01-01")
-    print(f"[refresh] SGOV: +{n} new bars")
+    new_bars["SGOV"] = _refresh_or_create_ticker_csv(SGOV_CSV, "SGOV", start="2020-01-01")
+    print(f"[refresh] SGOV: +{new_bars['SGOV']} new bars")
 
     # ── FRED data (yield spread, fed funds) ──
-    _refresh_fred("tbill-3m.csv", "DTB3", "rate_3m_tbill")
-    _refresh_fred("treasury-spread-10y2y.csv", "T10Y2Y", "yield_spread_10y2y")
-    _refresh_fred("fed-funds-rate.csv", "DFF", "fed_funds_rate")
+    new_bars["DTB3"] = _refresh_fred("tbill-3m.csv", "DTB3", "rate_3m_tbill")
+    new_bars["T10Y2Y"] = _refresh_fred("treasury-spread-10y2y.csv", "T10Y2Y", "yield_spread_10y2y")
+    new_bars["DFF"] = _refresh_fred("fed-funds-rate.csv", "DFF", "fed_funds_rate")
 
     # Summary
     tecl = pd.read_csv(TECL_CSV, parse_dates=["date"])
-    print(f"[refresh] Done. TECL: {len(tecl)} bars through {tecl['date'].max().date()}")
+    data_end_date = str(tecl["date"].max().date())
+    print(f"[refresh] Done. TECL: {len(tecl)} bars through {data_end_date}")
+
+    total_new_bars = sum(int(v or 0) for v in new_bars.values())
+    return {
+        "status": "ok",
+        "updated": total_new_bars > 0,
+        "total_new_bars": total_new_bars,
+        "new_bars": {k: int(v or 0) for k, v in new_bars.items()},
+        "data_end_date": data_end_date,
+    }
 
 
 def _append_tecl_bars() -> int:
@@ -538,8 +568,8 @@ def _apply_tecl_synthetic_financing_drag(
     return out
 
 
-def _refresh_fred(filename: str, series_id: str, col_name: str):
-    """Refresh a FRED CSV by appending new observations."""
+def _refresh_fred(filename: str, series_id: str, col_name: str) -> int:
+    """Refresh a FRED CSV by appending new observations. Returns rows added."""
     path = os.path.join(TS_DIR, filename)
     if not os.path.exists(path):
         df = _fetch_fred_csv(series_id)
@@ -548,25 +578,27 @@ def _refresh_fred(filename: str, series_id: str, col_name: str):
             df = _normalize_date_column(df)
             df.to_csv(path, index=False)
             print(f"[refresh] {filename}: downloaded {len(df)} rows")
-        return
+            return len(df)
+        return 0
 
     existing = pd.read_csv(path, parse_dates=["date"])
     last_date = existing["date"].max()
     fresh = _fetch_fred_csv(series_id, start=(last_date + timedelta(days=1)).strftime("%Y-%m-%d"))
     if fresh.empty or len(fresh) == 0:
         print(f"[refresh] {filename}: up to date")
-        return
+        return 0
 
     fresh.columns = ["date", col_name]
     fresh = fresh[fresh["date"] > last_date]
     if fresh.empty:
         print(f"[refresh] {filename}: up to date")
-        return
+        return 0
 
     combined = pd.concat([existing, fresh], ignore_index=True)
     combined = _normalize_date_column(combined)
     combined.to_csv(path, index=False)
     print(f"[refresh] {filename}: +{len(fresh)} new rows")
+    return len(fresh)
 
 
 def _migrate_legacy_tecl():

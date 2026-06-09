@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-06-07T19:36:47Z",
+  "idea_id": "830dac1027b9",
+  "kind": "yield_curve_inflection_lead",
+  "status": "planned",
+  "hypothesis": "If yield curve inflection lead is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Tests whether rapid changes in the 10Y-2Y Treasury spread predict regime shifts before they manifest in tech price structure.",
+  "input_diagnostics": [
+    "runs/gold_diversity_report.json",
+    "runs/family_confidence_leaderboard.json",
+    "runs/research_queue/ideas/<idea_id>.json"
+  ],
+  "suggested_tests": [
+    "cross_asset_recheck",
+    "diversity_prefilter_search",
+    "generated_hypothesis_test"
+  ],
+  "expected_artifact_paths": [
+    "runs/gold_diversity_report.json",
+    "runs/diversity_prefilter_search.json",
+    "runs/research_queue/hypotheses/<idea_id>.json"
+  ],
+  "stop_conditions": [
+    "same-param portability remains below threshold",
+    "candidate family remains crowded or redundant",
+    "hypothesis cannot be mapped to bounded diagnostics",
+    "Out-of-sample information coefficient falls below 0.05.",
+    "Fails to outperform standard moving-average filters on QQQ in the 2008-2010 window."
+  ],
+  "expected_failure_mode": "The lag between yield-curve shifts and tech equity impacts varies drastically across cycles."
+}

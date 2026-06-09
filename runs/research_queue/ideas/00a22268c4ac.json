@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "00a22268c4ac",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "paused",
   "kind": "rolling_momentum_deceleration",
   "rationale": "Tests whether decay in long-term momentum functions as an early warning exit before structural price breakdowns.",
   "validation_tier": "T1",
@@ -35,5 +35,26 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "The strategy exits more than 15% below the cyclical peak on 3 consecutive cycles.",
     "Calmar ratio falls below buy-and-hold over the full era."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T20:01:02Z",
+  "last_run": {
+    "run_id": "20260607T193703Z-00a22268c4ac",
+    "status": "ok",
+    "finished_utc": "2026-06-07T19:37:11Z",
+    "record_path": null,
+    "steps": [
+      {
+        "name": "near_miss_autopsy",
+        "status": "ok"
+      },
+      {
+        "name": "chimera_generation",
+        "status": "manual_review"
+      },
+      {
+        "name": "generated_hypothesis_test",
+        "status": "ok"
+      }
+    ]
+  }
 }

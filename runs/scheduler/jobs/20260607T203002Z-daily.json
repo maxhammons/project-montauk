@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "job": "daily",
+  "status": "ok",
+  "started_utc": "2026-06-07T20:30:02Z",
+  "finished_utc": "2026-06-07T20:33:44Z",
+  "command": [
+    "/Users/maxhammons/Documents/Projects/Project Montauk/.venv/bin/python",
+    "/Users/maxhammons/Documents/Projects/Project Montauk/scripts/ops/daily.py"
+  ],
+  "cwd": "/Users/maxhammons/Documents/Projects/Project Montauk",
+  "schedule": {
+    "key": "daily",
+    "enabled": true,
+    "schedule": {
+      "Hour": 13,
+      "Minute": 30
+    }
+  },
+  "output_artifact_paths": [
+    "runs/operations/latest.json",
+    "signals/YYYY-MM-DD.json",
+    "viz/montauk-viz.html",
+    "viz/montauk-bundle.json"
+  ],
+  "returncode": 0,
+  "error_code": null,
+  "stdout_tail": "[data] TECL: 8330 bars, 1993-05-04 to 2026-06-05\n[data] VIX: 8327/8330 dates matched\n[data] TECL: 8330 bars, 1993-05-04 to 2026-06-05\n[data] VIX: 8327/8330 dates matched\n[data] TECL: 8330 bars, 1993-05-04 to 2026-06-05\n[data] VIX: 8327/8330 dates matched\nMontauk daily status: ok\nSignal: risk_off through 2026-06-05\n- refresh: skipped\n- manifest: ok\n- data_quality: ok\n- signal_snapshot: unchanged\n- artifact_backfill: ok\n- viz: ok\n- followups: ok\n",
+  "stderr_tail": "",
+  "lock_path": "/Users/maxhammons/Documents/Projects/Project Montauk/runs/scheduler/locks/daily.lock",
+  "record_path": "/Users/maxhammons/Documents/Projects/Project Montauk/runs/scheduler/jobs/20260607T203002Z-daily.json"
+}

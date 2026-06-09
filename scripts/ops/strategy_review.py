@@ -36,6 +36,7 @@ def _stable_hash(payload: Any) -> str:
 
 
 METRIC_LABELS = {
+    "montauk": "Montauk Score",
     "confidence": "composite_confidence",
     "share_multiple": "full-history share multiple",
     "real_share_multiple": "real-era share multiple",
@@ -43,7 +44,13 @@ METRIC_LABELS = {
 }
 
 
-def strategy_score(row: dict[str, Any], metric: str = "confidence") -> float:
+def strategy_score(row: dict[str, Any], metric: str = "montauk") -> float:
+    if metric == "montauk":
+        # Montauk Score is the headline ranking score (top-level on the row).
+        try:
+            return float(row.get("montauk_score") or 0.0)
+        except (TypeError, ValueError):
+            return 0.0
     if metric == "confidence":
         return confidence_score(row)
     metrics = row.get("metrics") or {}
@@ -66,7 +73,7 @@ def is_gold(row: dict[str, Any]) -> bool:
     return bool(row.get("gold_status") or validation.get("gold_status")) and validation.get("verdict") == "PASS"
 
 
-def strategy_identity(row: dict[str, Any] | None, *, metric: str = "confidence") -> dict[str, Any]:
+def strategy_identity(row: dict[str, Any] | None, *, metric: str = "montauk") -> dict[str, Any]:
     row = row or {}
     validation = row.get("validation") or {}
     metrics = row.get("metrics") or {}
@@ -75,6 +82,7 @@ def strategy_identity(row: dict[str, Any] | None, *, metric: str = "confidence")
         "rank": row.get("rank"),
         "display_name": row.get("display_name"),
         "params_hash": _stable_hash(row.get("params") or {}),
+        "montauk_score": row.get("montauk_score"),
         "confidence": validation.get("composite_confidence"),
         "selected_score": strategy_score(row, metric),
         "score_label": METRIC_LABELS.get(metric, metric),
@@ -104,7 +112,7 @@ def build_strategy_review(
     latest_path: Path = LATEST_PATH,
     output_path: Path = STRATEGY_REVIEW_PATH,
     events_path: Path = EVENTS_PATH,
-    metric: str = "confidence",
+    metric: str = "montauk",
     include_signal: bool = False,
     write: bool = True,
     emit_event: bool = True,
@@ -165,7 +173,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Review whether Montauk is on the best certified strategy.")
     parser.add_argument(
         "--metric",
-        default="confidence",
+        default="montauk",
         choices=sorted(METRIC_LABELS),
         help="How to choose the best certified strategy.",
     )

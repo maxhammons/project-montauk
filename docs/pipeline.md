@@ -9,6 +9,8 @@ generate ideas   →   backtest + validate / check for overfitting   →   certi
 
 **The leaderboard rule:** `spike/leaderboard.json` is the authority surface, not a mixed-trust watchlist. Entries are admitted only if they have **Gold Status**: final validation verdict `PASS`, `certified_not_overfit=True`, `backtest_certified=True` / artifact-verified, and share-count outperformance versus B&H in the full, real, and modern eras. This contract is defined in `scripts/certify/contract.py` and reused by promotion, recertification, artifact backfill, champion finalization, and the viz builder. Raw performance does not admit a row by itself; it only ranks already-Gold rows. If fewer than 20 rows are Gold, the leaderboard has fewer than 20 rows.
 
+**The ranking rule:** within the Gold set, rows rank by the **Montauk Score** — one headline number, `Conviction^0.55 × Performance^0.30 × Durability^0.15` (geometric), computed by `scripts/search/montauk_score.py` and stamped on every row by `sync_entry_contract`. The top-ranked Gold row is the **active strategy** whose daily `risk_on`/`risk_off` is executed; the validation champion is the highest-Montauk PASS candidate. The Montauk Score is confidence-led (Conviction is the trust-it-will-keep-working pillar at 0.55 weight) with era-weighted performance (modern > real > synthetic) second and livability (drawdown/parsimony/redundancy) third. It replaces the previous all-era-performance ranking and collapses the `fitness` / `composite_confidence` / `future_confidence` / `trust` / `overall_confidence` surfaces into a single number; those survive as internal plumbing (GA target, PASS/WARN/FAIL verdict) or as pillar inputs.
+
 This document defines the intended operating model of the project under the charter. If this document ever conflicts with `docs/charter.md`, the charter wins.
 
 ---
@@ -56,11 +58,16 @@ The authoritative full-run path is:
 7. **Build native HTML viewer**
    `python viz/build_viz.py` reads `spike/leaderboard.json` + each Gold strategy's `spike/runs/NNN/dashboard_data.json`, assembles the bundle, and writes a self-contained `viz/montauk-viz.html`. Non-blocking; a missing/stale run dir gets flagged with a "stale artifact" badge rather than aborting.
 
+   The viz sorts by the **Montauk Score** (default) with Performance / Durability /
+   Max-drawdown as alternate single-pillar sorts, and selects the top row as the
+   active strategy. The score and its three pillars are read straight off the
+   stamped leaderboard rows — no viz-time re-scoring.
+
    Confidence v2 diagnostics are generated separately with
    `python scripts/diagnostics/confidence_candidate_archive.py`, then
    `python scripts/diagnostics/confidence_vintage_harness.py`. The resulting
-   `runs/confidence_v2/leaderboard_scores.json` enriches the viz with Overall
-   Confidence, Future Confidence, and Trust, but it does not alter Gold Status
+   `runs/confidence_v2/calibration_model.json` calibrates the Conviction pillar of
+   the Montauk Score (forward-survival nudge); it does not alter Gold Status
    admission.
 
 8. **Manually execute from the daily signal**
@@ -226,7 +233,7 @@ Only Gold Status entries reach the leaderboard. `certified_not_overfit` is neces
 
 ### Visualization (`viz/montauk-viz.html`)
 
-Built by `viz/build_viz.py` from `dashboard_data.json` + `spike/leaderboard.json`. Library: TradingView Lightweight Charts v4 (OSS, MIT-style, vendored to `viz/lightweight-charts.js`). The output is a single self-contained HTML file — `open viz/montauk-viz.html`, no server, no install. MVP feature set: price candles with synthetic-period shading, trade markers, equity + drawdown panes, drawdown underwater pane, Gold Status strategy sidebar, metrics + gate-by-gate validation summary, 1Y / 3Y / 5Y recent-period scorecards, manifest-verified provenance badge, north-star marker toggle, 1Y/5Y/ALL time range controls, crosshair + tooltip.
+Built by `viz/build_viz.py` from `dashboard_data.json` + `spike/leaderboard.json`. Library: TradingView Lightweight Charts v4 (OSS, MIT-style, vendored to `viz/lightweight-charts.js`). The output is a single self-contained HTML file — `open viz/montauk-viz.html`, no server, no install. **One shared render engine** powers both surfaces: `app/public/lib/viz-engine.js` (`window.__MONTAUK_VIZ__.boot(D)`) is loaded directly by the Mac app's in-app viz view and embedded by `build_viz.py` into the standalone HTML (which calls `boot()`). The app is the quick glance; the standalone is the in-depth view; both render the same bundle and rank by the same Montauk Score. The retired `viz/templates/app.js` fork is gone — edit the engine once and both update. MVP feature set: price candles with synthetic-period shading, trade markers, equity + drawdown panes, drawdown underwater pane, Gold Status strategy sidebar, metrics + gate-by-gate validation summary, 1Y / 3Y / 5Y recent-period scorecards, manifest-verified provenance badge, north-star marker toggle, 1Y/5Y/ALL time range controls, crosshair + tooltip.
 
 ---
 

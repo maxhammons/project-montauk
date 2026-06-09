@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "ae88ddbd7cf3",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "dismissed",
   "kind": "equal_weight_tech_outperformance",
   "rationale": "Tests if equal-weight tech indices outperforming market-cap variants marks broad-based sustainable rally participation.",
   "validation_tier": "T0/T1",
@@ -29,5 +29,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Underperforms TECL buy-and-hold by more than 20% during any secular bull-market year.",
     "Correlation with existing breadth-thrust families exceeds 0.80."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:30Z"
 }

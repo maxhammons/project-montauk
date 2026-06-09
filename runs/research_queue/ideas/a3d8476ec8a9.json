@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "a3d8476ec8a9",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "dismissed",
   "kind": "central_bank_liquidity_proxy",
   "rationale": "Hypothesizes that changes in Fed balance sheet and Treasury General Account proxies correlate directly with leveraged tech performance.",
   "validation_tier": "T2",
@@ -25,5 +25,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Lagged data causes the strategy to enter trades post-rally.",
     "Sharpe ratio is lower than buy-and-hold during Quantitative Tightening regimes."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:30Z"
 }

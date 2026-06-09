@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "c27952d5064d",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "paused",
   "kind": "inside_bar_cascade_breakout",
   "rationale": "Tests whether multi-day sequential inside bars represent institutional equilibrium before explosive trend-defining expansions.",
   "validation_tier": "T0",
@@ -29,5 +29,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Average win-to-loss ratio drops below 1.5:1.",
     "Profitable signal percentage falls below 38% across a 200-sample run."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:29Z"
 }

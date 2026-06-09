@@ -1,6 +1,6 @@
 {
   "snapshot_schema_version": 1,
-  "generated_utc": "2026-06-05T20:23:36Z",
+  "generated_utc": "2026-06-07T22:38:26Z",
   "data_end_date": "2026-06-05",
   "active_champion": {
     "strategy": "gc_vjatr_timing_repair",
@@ -41,6 +41,11 @@
   "buy_event": false,
   "sell_event": true,
   "close": 202.589996,
+  "flip_likelihood": 0.4,
+  "flip_days": 7,
+  "flip_move_pct": 2.86,
+  "flip_horizon": 21,
+  "flip_direction": "to_entry",
   "validation": {
     "verdict": "PASS",
     "promotion_ready": true,

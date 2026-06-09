@@ -17,10 +17,20 @@
             <div id="last-refreshed" class="muted compact">--</div>
           </div>
           <div class="actions">
+            <button id="backtests-btn" class="button big-button" data-tip="Run, skip, and review strategy backtests from the research queue.">Backtests</button>
             <button id="viz-popout-btn" class="button big-button">Open Viz</button>
             <button id="maintenance-btn" class="button primary big-button" data-tip="Refresh local data, recompute the current signal, update strategy artifacts, rebuild the viz bundle, and run health checks.">Refresh</button>
           </div>
         </header>
+
+        <section id="inbox-alert" class="inbox-alert" data-severity="info" hidden>
+          <span class="inbox-alert-dot" aria-hidden="true"></span>
+          <div class="inbox-alert-body">
+            <strong id="inbox-alert-title">Inbox has items</strong>
+            <small id="inbox-alert-detail">—</small>
+          </div>
+          <button id="inbox-alert-copy" class="button small" data-tip="Copy the full agent inbox so you can paste it to an LLM. An agent can also read runs/operations/agent_inbox.json directly.">Copy for LLM</button>
+        </section>
 
         <section id="action-error" class="action-error" hidden>
           <div>
@@ -36,10 +46,16 @@
               <div class="panel-label">Position status</div>
               <div id="action-main" class="action-main">--</div>
               <div id="position-label" class="position-label">--</div>
+              <div class="position-family" data-tip="The animal-named strategy family currently driving the live signal. Data date shown is the latest market bar in the snapshot.">
+                <span class="position-family-label">Active family</span>
+                <strong id="champion-family">--</strong>
+                <small id="champion-name">--</small>
+                <small class="position-family-data"><span id="data-end">--</span> · <span id="freshness-state">--</span></small>
+              </div>
             </div>
 
             <section class="surface doctor-hero">
-              <div class="ledger">
+              <div class="ledger" data-tip="The champion's validation composite confidence (0–100%). It's a weighted blend of the validation pipeline's sub-scores — walk-forward generalization, marker timing & shape, fragility/robustness, cross-asset portability, bootstrap significance, regime consistency, and trade sufficiency. 70%+ = PASS (certification-grade); higher = more margin. The pills on the right are the live operational health checks behind it.">
                 <div class="panel-label">How sure are we?</div>
                 <div id="confidence-big" class="ledger-number">--</div>
                 <div id="confidence-narrative" class="ledger-narrative">--</div>
@@ -47,18 +63,14 @@
               <div id="ledger-pills" class="ledger-pills"></div>
             </section>
 
-            <aside class="surface family-card">
-              <div class="panel-label">Active family</div>
-              <div id="champion-family" class="family-name">--</div>
-              <div id="champion-name" class="muted">--</div>
-              <div class="family-meta">
-                <div data-tip="The latest market date included in the signal snapshot.">
-                  <span>Data</span>
-                  <strong id="data-end">--</strong>
-                  <small id="freshness-state">--</small>
-                </div>
+            <div class="surface meter-block pressure-card" data-tip="How likely the active strategy is to flip positions soon — symmetric: when In it's the chance of an EXIT, when Out the chance of a RE-ENTRY, within ~21 trading days. Each day the engine simulates many near-term TECL price paths (bootstrapped from recent moves), re-runs the champion's real entry/exit logic on each, and reports the % of paths that flip. The bar is that probability, so it reacts to TECL: after a move, check here to see how much more (or less) likely a buy/sell became. Because simulated paths include pullbacks and recoveries, even pattern-based re-entries register a real number.">
+              <div class="meter-head">
+                <span>Flip pressure</span>
+                <strong id="pressure-state">--</strong>
               </div>
-            </aside>
+              <canvas id="pressure-spark" class="sparkline tall" width="420" height="96"></canvas>
+              <div id="pressure-help" class="muted compact">--</div>
+            </div>
 
             <div class="surface meter-block health-card">
               <div class="meter-head">
@@ -69,21 +81,18 @@
               <div id="tecl-health-meta" class="muted compact">--</div>
             </div>
 
-            <div class="surface meter-block pressure-card">
+            <section class="surface top-strategies" data-tip="The top 5 Gold strategies by validation confidence (rank 1 = the active strategy driving the live signal). Position = each strategy's current In/Out call. Flip = its Monte-Carlo chance of flipping within ~21 trading days. Confidence = its validation composite.">
               <div class="meter-head">
+                <span>Top strategies</span>
+                <strong class="muted">by Montauk Score</strong>
+              </div>
+              <div class="ts-row ts-head">
+                <span>Strategy</span>
+                <span>Position</span>
                 <span>Flip pressure</span>
-                <strong id="pressure-state">--</strong>
+                <span>Montauk</span>
               </div>
-              <canvas id="pressure-spark" class="sparkline tall" width="420" height="96"></canvas>
-            </div>
-
-            <section id="issue-panel" class="surface issue-panel" hidden>
-              <div>
-                <div class="panel-label">Issue code</div>
-                <div id="issue-code" class="issue-code">--</div>
-                <div id="issue-summary" class="muted compact">--</div>
-              </div>
-              <button id="issue-copy-btn" class="button small">Copy Debug</button>
+              <div id="top-strategies-list" class="top-strategies-list"></div>
             </section>
           </section>
         </section>
@@ -100,6 +109,23 @@
         <div class="maintenance-actions">
           <button id="maintenance-close-btn" class="button" data-maintenance-close hidden>Close</button>
           <button id="maintenance-copy-btn" class="button small" hidden>Copy Debug</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="backtests-modal" class="maintenance-modal" hidden>
+      <div class="maintenance-card backtests-card">
+        <div class="maintenance-eyebrow">Strategy backtests</div>
+        <div class="maintenance-title">Research queue</div>
+        <div id="research-queue-summary" class="maintenance-detail">—</div>
+        <div class="backtests-actions">
+          <button id="run-all-research-btn" class="button primary" data-tip="Run every approved strategy backtest in order. Use Skip on any idea first to exclude it.">Run All</button>
+          <button id="doctor-next-research-btn" class="button" data-tip="Run only the next approved strategy backtest.">Run Next</button>
+        </div>
+        <div id="research-queue-last" class="maintenance-detail compact">Approve ideas, Skip any you don't want, then Run All.</div>
+        <div id="research-queue-list" class="leader-table research-queue-list"></div>
+        <div class="maintenance-actions">
+          <button id="backtests-close-btn" class="button" data-backtests-close>Close</button>
         </div>
       </div>
     </div>

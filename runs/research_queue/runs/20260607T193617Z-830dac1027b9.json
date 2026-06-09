@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "run_id": "20260607T193617Z-830dac1027b9",
+  "created_utc": "2026-06-07T19:36:17Z",
+  "version_info": {
+    "schema_version": 1,
+    "generated_utc": "2026-06-07T19:36:17Z",
+    "app_version": "0.1.0",
+    "git_commit": "76c51dc",
+    "git_dirty": true,
+    "strategy_code_version": "76c51dc"
+  },
+  "status": "ok",
+  "execute": true,
+  "plan": {
+    "schema_version": 1,
+    "idea_id": "830dac1027b9",
+    "kind": "yield_curve_inflection_lead",
+    "rationale": "Tests whether rapid changes in the 10Y-2Y Treasury spread predict regime shifts before they manifest in tech price structure.",
+    "validation_tier": "T1",
+    "time_budget": "bounded local diagnostic first",
+    "expected_failure_mode": "The lag between yield-curve shifts and tech equity impacts varies drastically across cycles.",
+    "input_diagnostics": [
+      "runs/gold_diversity_report.json",
+      "runs/family_confidence_leaderboard.json",
+      "runs/research_queue/ideas/<idea_id>.json"
+    ],
+    "expected_artifact_paths": [
+      "runs/gold_diversity_report.json",
+      "runs/diversity_prefilter_search.json",
+      "runs/research_queue/hypotheses/<idea_id>.json"
+    ],
+    "stop_conditions": [
+      "same-param portability remains below threshold",
+      "candidate family remains crowded or redundant",
+      "hypothesis cannot be mapped to bounded diagnostics",
+      "Out-of-sample information coefficient falls below 0.05.",
+      "Fails to outperform standard moving-average filters on QQQ in the 2008-2010 window."
+    ],
+    "steps": [
+      {
+        "name": "cross_asset_recheck",
+        "status": "ok",
+        "command": [
+          "/Users/maxhammons/Documents/Projects/Project Montauk/.venv/bin/python",
+          "/Users/maxhammons/Documents/Projects/Project Montauk/scripts/diagnostics/gold_diversity_report.py"
+        ],
+        "input_diagnostics": [
+          "runs/gold_diversity_report.json",
+          "runs/family_confidence_leaderboard.json",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/gold_diversity_report.json",
+          "runs/diversity_prefilter_search.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "same-param portability remains below threshold",
+          "candidate family remains crowded or redundant",
+          "hypothesis cannot be mapped to bounded diagnostics",
+          "Out-of-sample information coefficient falls below 0.05.",
+          "Fails to outperform standard moving-average filters on QQQ in the 2008-2010 window."
+        ],
+        "started_utc": "2026-06-07T19:36:17Z",
+        "finished_utc": "2026-06-07T19:36:23Z",
+        "returncode": 0,
+        "stdout_tail": "ker=0.306\n  # 3 Brindled Osprey      gc_vjatr_reclaimer       full= 40.34 real= 1.38 modern= 1.80 trades= 21 marker=0.306\n  # 4 Velvet Osprey        gc_vjatr_reclaimer       full= 40.34 real= 1.38 modern= 1.80 trades= 21 marker=0.306\n  # 5 Amber Osprey         gc_vjatr_reclaimer       full= 40.34 real= 1.38 modern= 1.80 trades= 21 marker=0.306\n  # 6 Copper Osprey        gc_vjatr_reclaimer       full= 47.69 real= 1.21 modern= 1.59 trades= 22 marker=0.306\n  # 7 Cobalt Osprey        gc_vjatr_reclaimer       full= 47.69 real= 1.21 modern= 1.59 trades= 22 marker=0.306\n  # 8 Slate Osprey         gc_vjatr_reclaimer       full= 47.69 real= 1.21 modern= 1.59 trades= 22 marker=0.306\n  # 9 Indigo Osprey        gc_vjatr_reclaimer       full= 47.69 real= 1.21 modern= 1.59 trades= 22 marker=0.306\n  #10 Pewter Osprey        gc_vjatr_reclaimer       full= 47.69 real= 1.21 modern= 1.59 trades= 22 marker=0.306\n  #11 Ivory Osprey         gc_vjatr_reclaimer       full= 47.69 real= 1.21 modern= 1.59 trades= 22 marker=0.306\n  #12 Crimson Osprey       gc_vjatr_reclaimer       full= 47.69 real= 1.21 modern= 1.59 trades= 22 marker=0.306\n  #13 Midnight Osprey      gc_vjatr_reclaimer       full= 47.69 real= 1.21 modern= 1.59 trades= 22 marker=0.306\n  #14 Marbled Bonobo       gc_vjatr                 full= 13.13 real= 1.13 modern= 2.71 trades= 16 marker=0.311\n  #15 Ember Bonobo         gc_vjatr                 full= 13.13 real= 1.13 modern= 2.71 trades= 16 marker=0.311\n  #16 Russet Bonobo #2     gc_vjatr                 full= 12.12 real= 1.13 modern= 2.71 trades= 16 marker=0.311\n  #17 Crimson Bonobo       gc_vjatr                 full= 12.12 real= 1.13 modern= 2.71 trades= 16 marker=0.311\n  #18 Ivory Hare           gc_vjatr_timing_repair   full= 10.63 real= 1.55 modern= 2.24 trades= 44 marker=0.447\n  #19 Cerulean Hare #2     gc_vjatr_timing_repair   full= 10.09 real= 1.55 modern= 2.24 trades= 44 marker=0.447\n  #20 Sable Hare           gc_vjatr_timing_repair   full= 10.09 real= 1.55 modern= 2.24 trades= 44 marker=0.447\n\nFOCUS PAIRS: Ivory Hare\n  vs Marbled Bonobo       corr= 0.509 agree= 0.732 entry= 0.43 exit= 0.56\n  vs Ember Bonobo         corr= 0.509 agree= 0.732 entry= 0.43 exit= 0.56\n  vs Russet Bonobo #2     corr= 0.510 agree= 0.733 entry= 0.43 exit= 0.60\n  vs Crimson Bonobo       corr= 0.510 agree= 0.733 entry= 0.43 exit= 0.60\n  vs Chimera v1 - 2026-05-26 corr= 0.617 agree= 0.782 entry= 0.46 exit= 0.73\n  vs Sable Osprey         corr= 0.641 agree= 0.821 entry= 0.39 exit= 0.75\n  vs Brindled Osprey      corr= 0.641 agree= 0.821 entry= 0.39 exit= 0.75\n  vs Velvet Osprey        corr= 0.641 agree= 0.821 entry= 0.39 exit= 0.75\n\nMOST REDUNDANT PAIRS\n  Sable Osprey         <> Brindled Osprey      corr= 1.000 entry= 1.00 exit= 1.00\n  Sable Osprey         <> Velvet Osprey        corr= 1.000 entry= 1.00 exit= 1.00\n  Sable Osprey         <> Amber Osprey         corr= 1.000 entry= 1.00 exit= 1.00\n  Brindled Osprey      <> Velvet Osprey        corr= 1.000 entry= 1.00 exit= 1.00\n  Brindled Osprey      <> Amber Osprey         corr= 1.000 entry= 1.00 exit= 1.00\n  Velvet Osprey        <> Amber Osprey         corr= 1.000 entry= 1.00 exit= 1.00\n  Copper Osprey        <> Cobalt Osprey        corr= 1.000 entry= 1.00 exit= 1.00\n  Copper Osprey        <> Slate Osprey         corr= 1.000 entry= 1.00 exit= 1.00\n\nMOST DIVERSE PAIRS\n  Marbled Bonobo       <> Ivory Hare           corr= 0.509 entry= 0.43 exit= 0.56\n  Ember Bonobo         <> Ivory Hare           corr= 0.509 entry= 0.43 exit= 0.56\n  Russet Bonobo #2     <> Ivory Hare           corr= 0.510 entry= 0.43 exit= 0.60\n  Crimson Bonobo       <> Ivory Hare           corr= 0.510 entry= 0.43 exit= 0.60\n  Marbled Bonobo       <> Cerulean Hare #2     corr= 0.510 entry= 0.43 exit= 0.56\n  Marbled Bonobo       <> Sable Hare           corr= 0.510 entry= 0.43 exit= 0.56\n  Ember Bonobo         <> Cerulean Hare #2     corr= 0.510 entry= 0.43 exit= 0.56\n  Ember Bonobo         <> Sable Hare           corr= 0.510 entry= 0.43 exit= 0.56\n",
+        "stderr_tail": ""
+      },
+      {
+        "name": "diversity_prefilter_search",
+        "status": "ok",
+        "command": [
+          "/Users/maxhammons/Documents/Projects/Project Montauk/.venv/bin/python",
+          "/Users/maxhammons/Documents/Projects/Project Montauk/scripts/diagnostics/diversity_prefilter_search.py"
+        ],
+        "input_diagnostics": [
+          "runs/gold_diversity_report.json",
+          "runs/family_confidence_leaderboard.json",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/gold_diversity_report.json",
+          "runs/diversity_prefilter_search.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "same-param portability remains below threshold",
+          "candidate family remains crowded or redundant",
+          "hypothesis cannot be mapped to bounded diagnostics",
+          "Out-of-sample information coefficient falls below 0.05.",
+          "Fails to outperform standard moving-average filters on QQQ in the 2008-2010 window."
+        ],
+        "started_utc": "2026-06-07T19:36:23Z",
+        "finished_utc": "2026-06-07T19:36:47Z",
+        "returncode": 0,
+        "stdout_tail": "[diversity-search] progress 250/817 pass=0 elapsed=4.3s\n[diversity-search] progress 500/817 pass=0 elapsed=5.2s\n[diversity-search] progress 750/817 pass=0 elapsed=6.5s\n[data] TECL: 8330 bars, 1993-05-04 to 2026-06-05\n[data] VIX: 8327/8330 dates matched\n[data] TECL: 8330 bars, 1993-05-04 to 2026-06-05\n[data] VIX: 8327/8330 dates matched\n[data] TECL: 8330 bars, 1993-05-04 to 2026-06-05\n[data] VIX: 8327/8330 dates matched\n[data] TECL: 8330 bars, 1993-05-04 to 2026-06-05\n[data] VIX: 8327/8330 dates matched\n[data] TECL: 8330 bars, 1993-05-04 to 2026-06-05\n[data] VIX: 8327/8330 dates matched\n[data] TECL: 8330 bars, 1993-05-04 to 2026-06-05\n[data] VIX: 8327/8330 dates matched\n[data] TECL: 8330 bars, 1993-05-04 to 2026-06-05\n[data] VIX: 8327/8330 dates matched\n[data] TECL: 8330 bars, 1993-05-04 to 2026-06-05\n[data] VIX: 8327/8330 dates matched\nDIVERSITY PREFILTER SEARCH\n========================================================================================================\nAnchors: Chimera v1 - 2026-05-26 (chimera_v1_2026_05_26), Ivory Hare (gc_vjatr_timing_repair), Marbled Bonobo (gc_vjatr)\nCombos=817 survivors=0 rejects={'exception': 0, 'weighted_era_fitness_below_min': 817, 'trades<5': 0, 'trades_per_year>5': 0, 'diversity': 0}\n\nrank strategy                    score  wfit  div  corr entry exit  full real modern trades marker\n\nTOP ECONOMIC NEAR MISSES\n  vol_calm_regime             wfit=0.617 full= 0.29 real=0.50 modern= 0.81 trades= 174\n  vol_calm_regime             wfit=0.468 full= 0.07 real=0.33 modern= 0.88 trades= 184\n  vol_calm_regime             wfit=0.451 full= 0.08 real=0.34 modern= 0.79 trades= 116\n  vol_calm_regime             wfit=0.411 full= 0.19 real=0.20 modern= 0.68 trades=  99\n  treasury_regime             wfit=0.404 full= 0.63 real=0.16 modern= 0.53 trades=  70\n  consecutive_down_gap_capitulation wfit=0.369 full= 0.77 real=0.11 modern= 0.52 trades=  31\n  consecutive_down_gap_capitulation wfit=0.341 full= 0.42 real=0.11 modern= 0.53 trades=  48\n  vol_calm_regime             wfit=0.335 full= 3.99 real=0.13 modern= 0.27 trades=  50\n  vix_regime_entry            wfit=0.315 full= 0.80 real=0.11 modern= 0.38 trades=  74\n  consecutive_down_gap_capitulation wfit=0.273 full= 0.22 real=0.09 modern= 0.47 trades=  33\n  treasury_regime             wfit=0.271 full= 0.36 real=0.11 modern= 0.36 trades=  74\n  vol_calm_regime             wfit=0.266 full= 0.05 real=0.15 modern= 0.51 trades= 130\n  vix_regime_entry            wfit=0.257 full= 2.88 real=0.08 modern= 0.23 trades=  69\n  vol_calm_regime             wfit=0.248 full= 0.23 real=0.13 modern= 0.33 trades= 210\n  consecutive_down_gap_capitulation wfit=0.209 full= 0.10 real=0.07 modern= 0.39 trades=  52\n\nBEST BY CONCEPT\n  vol_calm_regime             best_wfit=0.617 survivors=   0/9\n  treasury_regime             best_wfit=0.404 survivors=   0/12\n  consecutive_down_gap_capitulation best_wfit=0.369 survivors=   0/16\n  vix_regime_entry            best_wfit=0.315 survivors=   0/27\n  xlk_relative_momentum       best_wfit=0.201 survivors=   0/18\n  drawdown_recovery           best_wfit=0.181 survivors=   0/162\n  overnight_gap_exhaustion    best_wfit=0.178 survivors=   0/24\n  price_position_regime       best_wfit=0.157 survivors=   0/36\n  donchian_vix                best_wfit=0.151 survivors=   0/16\n  multi_tf_momentum           best_wfit=0.141 survivors=   0/24\n  ensemble_vote_3of5          best_wfit=0.118 survivors=   0/18\n  keltner_squeeze_breakout    best_wfit=0.106 survivors=   0/9\n  rsi_mean_revert_trend       best_wfit=0.101 survivors=   0/54\n  fed_macro_primary           best_wfit=0.083 survivors=   0/24\n  sgov_flight_switch          best_wfit=0.075 survivors=   0/6\n  defensive_sector_divergence best_wfit=0.072 survivors=   0/18\n  move_index_regime           best_wfit=0.053 survivors=   0/32\n  vol_compression_breakout    best_wfit=0.044 survivors=   0/243\n  credit_spread_velocity      best_wfit=0.040 survivors=   0/16\n  vix_term_proxy              best_wfit=0.035 survivors=   0/18\n",
+        "stderr_tail": ""
+      },
+      {
+        "name": "generated_hypothesis_test",
+        "status": "ok",
+        "command": [
+          "/Users/maxhammons/Documents/Projects/Project Montauk/.venv/bin/python",
+          "/Users/maxhammons/Documents/Projects/Project Montauk/scripts/ops/generated_hypothesis_test.py",
+          "--idea-id",
+          "830dac1027b9",
+          "--json"
+        ],
+        "input_diagnostics": [
+          "runs/gold_diversity_report.json",
+          "runs/family_confidence_leaderboard.json",
+          "runs/research_queue/ideas/<idea_id>.json"
+        ],
+        "expected_artifact_paths": [
+          "runs/gold_diversity_report.json",
+          "runs/diversity_prefilter_search.json",
+          "runs/research_queue/hypotheses/<idea_id>.json"
+        ],
+        "stop_conditions": [
+          "same-param portability remains below threshold",
+          "candidate family remains crowded or redundant",
+          "hypothesis cannot be mapped to bounded diagnostics",
+          "Out-of-sample information coefficient falls below 0.05.",
+          "Fails to outperform standard moving-average filters on QQQ in the 2008-2010 window."
+        ],
+        "started_utc": "2026-06-07T19:36:47Z",
+        "finished_utc": "2026-06-07T19:36:47Z",
+        "returncode": 0,
+        "stdout_tail": "{\n  \"schema_version\": 1,\n  \"generated_utc\": \"2026-06-07T19:36:47Z\",\n  \"idea_id\": \"830dac1027b9\",\n  \"kind\": \"yield_curve_inflection_lead\",\n  \"status\": \"planned\",\n  \"hypothesis\": \"If yield curve inflection lead is valid, the bounded tests should improve the motivating diagnostic without weakening Gold Status economics. Rationale: Tests whether rapid changes in the 10Y-2Y Treasury spread predict regime shifts before they manifest in tech price structure.\",\n  \"input_diagnostics\": [\n    \"runs/gold_diversity_report.json\",\n    \"runs/family_confidence_leaderboard.json\",\n    \"runs/research_queue/ideas/<idea_id>.json\"\n  ],\n  \"suggested_tests\": [\n    \"cross_asset_recheck\",\n    \"diversity_prefilter_search\",\n    \"generated_hypothesis_test\"\n  ],\n  \"expected_artifact_paths\": [\n    \"runs/gold_diversity_report.json\",\n    \"runs/diversity_prefilter_search.json\",\n    \"runs/research_queue/hypotheses/<idea_id>.json\"\n  ],\n  \"stop_conditions\": [\n    \"same-param portability remains below threshold\",\n    \"candidate family remains crowded or redundant\",\n    \"hypothesis cannot be mapped to bounded diagnostics\",\n    \"Out-of-sample information coefficient falls below 0.05.\",\n    \"Fails to outperform standard moving-average filters on QQQ in the 2008-2010 window.\"\n  ],\n  \"expected_failure_mode\": \"The lag between yield-curve shifts and tech equity impacts varies drastically across cycles.\",\n  \"artifact_path\": \"/Users/maxhammons/Documents/Projects/Project Montauk/runs/research_queue/hypotheses/830dac1027b9.json\"\n}\n",
+        "stderr_tail": ""
+      }
+    ]
+  },
+  "finished_utc": "2026-06-07T19:36:47Z"
+}

@@ -65,6 +65,15 @@ def _is_hybrid_strategy(strategy: str | None) -> bool:
     return str(strategy or "").startswith("gold_hybrid_")
 
 
+def _includable_member(strategy: str | None) -> bool:
+    """Hybrid members cannot recursively include a chimera or another hybrid.
+
+    So switchboard / overlay / committee sources must be plain single strategies.
+    """
+    s = str(strategy or "")
+    return bool(s) and not s.startswith("gold_hybrid_") and not s.startswith("chimera")
+
+
 def _mean_match_score(matches: list[dict[str, Any]]) -> float:
     if not matches:
         return 0.0
@@ -372,54 +381,68 @@ def build_lab(
     exit_board = sorted(skills, key=lambda row: row["exit_score"], reverse=True)
 
     by_name = {row.get("display_name") or row["strategy"]: row for row in source_rows}
-    entry_row = by_name[entry_board[0]["display_name"]]
-    exit_row = by_name[exit_board[0]["display_name"]]
     champion = rows[0]
-    base_row = source_rows[0]
-    families = _family_leaders(source_rows, limit=family_limit)
 
-    switchboard_params = {
-        "entry_strategy": entry_row["strategy"],
-        "entry_params": entry_row.get("params") or {},
-        "exit_strategy": exit_row["strategy"],
-        "exit_params": exit_row.get("params") or {},
+    # Hybrid members can't recursively include a chimera/hybrid, so restrict the
+    # switchboard / overlay / committee sources to includable single strategies.
+    incl_names = {
+        name for name, row in by_name.items() if _includable_member(row.get("strategy"))
     }
-    overlay_params = {
-        "base_strategy": base_row["strategy"],
-        "base_params": base_row.get("params") or {},
-        "entry_strategy": entry_row["strategy"],
-        "entry_params": entry_row.get("params") or {},
-        "exit_strategy": exit_row["strategy"],
-        "exit_params": exit_row.get("params") or {},
-    }
+    incl_entry_board = [b for b in entry_board if b["display_name"] in incl_names]
+    incl_exit_board = [b for b in exit_board if b["display_name"] in incl_names]
+    base_row = next(
+        (row for row in source_rows if _includable_member(row.get("strategy"))),
+        source_rows[0],
+    )
+    families = [
+        row
+        for row in _family_leaders(source_rows, limit=family_limit)
+        if _includable_member(row.get("strategy"))
+    ]
     members = [_member_config(row, weight=_row_weight(row)) for row in families]
 
-    candidates = [
-        _candidate(
+    candidates: list[dict[str, Any]] = []
+    skipped: list[dict[str, Any]] = []
+
+    def _try(label: str, strategy: str, params: dict[str, Any]) -> None:
+        try:
+            candidates.append(_candidate(label, strategy, params, df, champion))
+        except Exception as exc:  # noqa: BLE001 — skip a bad candidate, never fail the lab
+            skipped.append({"label": label, "strategy": strategy, "error": str(exc)})
+
+    if incl_entry_board and incl_exit_board:
+        entry_row = by_name[incl_entry_board[0]["display_name"]]
+        exit_row = by_name[incl_exit_board[0]["display_name"]]
+        _try(
             "switchboard_top_entry_exit",
             "gold_hybrid_switchboard",
-            switchboard_params,
-            df,
-            champion,
-        ),
-        _candidate(
+            {
+                "entry_strategy": entry_row["strategy"],
+                "entry_params": entry_row.get("params") or {},
+                "exit_strategy": exit_row["strategy"],
+                "exit_params": exit_row.get("params") or {},
+            },
+        )
+        _try(
             "champion_overlay_top_entry_exit",
             "gold_hybrid_champion_overlay",
-            overlay_params,
-            df,
-            champion,
-        ),
-    ]
-    for threshold in (0.50, 0.60, 0.67):
-        candidates.append(
-            _candidate(
+            {
+                "base_strategy": base_row["strategy"],
+                "base_params": base_row.get("params") or {},
+                "entry_strategy": entry_row["strategy"],
+                "entry_params": entry_row.get("params") or {},
+                "exit_strategy": exit_row["strategy"],
+                "exit_params": exit_row.get("params") or {},
+            },
+        )
+
+    if len(members) >= 2:
+        for threshold in (0.50, 0.60, 0.67):
+            _try(
                 f"family_committee_{threshold:.2f}",
                 "chimera_v1_2026_05_26",
                 {"members": members, "threshold": threshold},
-                df,
-                champion,
             )
-        )
 
     candidates.sort(
         key=lambda row: (
@@ -455,6 +478,7 @@ def build_lab(
         "exit_leaderboard": exit_board,
         "family_members": members,
         "candidates": candidates,
+        "skipped_candidates": skipped,
         "raw_rankings": raw_rankings,
     }
 

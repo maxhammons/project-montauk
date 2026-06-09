@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "573511bdb332",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "dismissed",
   "kind": "credit_spread_expansion_halt",
   "rationale": "Tests if deceleration in high-yield credit-spread widening marks reliable macro bottoms for leveraged tech assets.",
   "validation_tier": "T1",
@@ -30,5 +30,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Drawdown during 2022 exceeds buy-and-hold drawdown by more than 5%.",
     "Signal fails to trigger within 15 days of major historical troughs."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:30Z"
 }

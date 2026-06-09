@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "2187cbcdac6e",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "paused",
   "kind": "ma_ribbon_compression",
   "rationale": "Tests if extreme compression of multiple short-term moving averages in QQQ precedes tradable volatility expansions in TECL.",
   "validation_tier": "T0",
@@ -29,5 +29,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "False breakout rate exceeds 60%.",
     "Expected value after compression is negative over a 10-year test."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:29Z"
 }

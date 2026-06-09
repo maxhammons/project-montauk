@@ -222,10 +222,45 @@ def sync_validation_contract(
     return normalized
 
 
+def stamp_montauk_score(
+    entry: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Write the Montauk Score + its three pillars onto an entry, in place.
+
+    The Montauk Score is the single leaderboard-ranking / active-strategy score
+    (Conviction 0.55 × Performance 0.30 × Durability 0.15). Stamping it here means
+    every certified row carries it for free — the leaderboard sorts by it and the
+    viz reads it directly, with no re-derivation. Uses the process-cached
+    enrichment context so the persisted value is calibrated and consistent across
+    every call site.
+    """
+    # Lazy import: search.montauk_score pulls in validation.confidence_v2, which
+    # itself lazily imports this module. Importing at module load is avoidable.
+    from search.montauk_score import compute_montauk_score, default_context
+
+    score = compute_montauk_score(
+        entry, context=context if context is not None else default_context()
+    )
+    entry["montauk_score"] = score["montauk_score"]
+    entry["montauk_score_100"] = score["montauk_score_100"]
+    entry["conviction"] = score["conviction"]
+    entry["conviction_100"] = score["conviction_100"]
+    entry["performance"] = score["performance"]
+    entry["performance_100"] = score["performance_100"]
+    entry["durability"] = score["durability"]
+    entry["durability_100"] = score["durability_100"]
+    entry["montauk_calibration_state"] = score["calibration_state"]
+    entry["montauk_pillars"] = score["pillars"]
+    return entry
+
+
 def sync_entry_contract(
     entry: dict[str, Any],
     *,
     artifact_paths: dict[str, str] | None = None,
+    montauk_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Synchronize top-level entry fields with the canonical validation block."""
 
@@ -247,6 +282,7 @@ def sync_entry_contract(
     validation["gates"] = gates
     entry["validation"] = validation
     entry.update(gold)
+    stamp_montauk_score(entry, context=montauk_context)
     return entry
 
 

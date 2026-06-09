@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "1c8c95b41559",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "paused",
   "kind": "hv_cone_breakout",
   "rationale": "Tests whether realized volatility breaking outside a historical probability cone signals the start of a momentum super-trend.",
   "validation_tier": "T1",
@@ -29,5 +29,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "The strategy buys the top of more than 10 major blow-off peaks.",
     "Fails to accumulate shares during the slow low-volatility uptrend of 2017."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:29Z"
 }

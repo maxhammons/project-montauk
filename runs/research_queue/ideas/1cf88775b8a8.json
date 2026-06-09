@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "1cf88775b8a8",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "dismissed",
   "kind": "iv_crush_accumulation",
   "rationale": "Tests if systematically accumulating shares immediately following major tech earnings implied-volatility crushes outperforms continuous holding.",
   "validation_tier": "T1",
@@ -30,5 +30,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Strategy performance is statistically indistinguishable from a random entry model.",
     "Fails to outperform QQQ baseline holding during Q2 and Q3."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:29Z"
 }

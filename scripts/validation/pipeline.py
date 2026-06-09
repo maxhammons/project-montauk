@@ -1307,11 +1307,22 @@ def run_validation_pipeline(
             for entry in candidates
         ]
 
+    # Stamp the Montauk Score on every evaluated row so the champion (the active
+    # strategy) is the highest-Montauk PASS candidate, matching the leaderboard's
+    # confidence-led ranking. One shared context keeps every score calibrated and
+    # consistent.
+    from search.montauk_score import build_context, compute_montauk_score
+    _montauk_ctx = build_context()
+    for entry in enriched_rankings:
+        entry["montauk_score"] = (
+            compute_montauk_score(entry, context=_montauk_ctx).get("montauk_score") or 0.0
+        )
+
     final_pass = [entry for entry in enriched_rankings if entry["validation"]["verdict"] == "PASS"]
     final_warn = [entry for entry in enriched_rankings if entry["validation"]["verdict"] == "WARN"]
     final_fail = [entry for entry in enriched_rankings if entry["validation"]["verdict"] == "FAIL"]
 
-    validated_rankings = _rank_entries(final_pass, by="fitness")
+    validated_rankings = _rank_entries(final_pass, by="montauk_score")
     champion = copy.deepcopy(validated_rankings[0]) if validated_rankings else None
 
     summary = {
@@ -1341,6 +1352,7 @@ def run_validation_pipeline(
     if champion:
         summary["champion"] = {
             "strategy": champion["strategy"],
+            "montauk_score": champion.get("montauk_score"),
             "fitness": champion["fitness"],
             "composite_confidence": champion["validation"]["composite_confidence"],
         }

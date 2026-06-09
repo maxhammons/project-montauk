@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "f6efcb8fc437",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "dismissed",
   "kind": "copper_gold_ratio_momentum",
   "rationale": "Tests whether economic risk-on momentum from the copper/gold ratio provides long-lead filtering for leveraged tech exposure.",
   "validation_tier": "T1",
@@ -30,5 +30,6 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Rolling 12-month correlation between copper/gold momentum and NDX returns falls below 0.3.",
     "Total turnover exceeds 24 trades per year."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T02:12:30Z"
 }

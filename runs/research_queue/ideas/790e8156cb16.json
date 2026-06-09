@@ -2,7 +2,7 @@
   "schema_version": 1,
   "id": "790e8156cb16",
   "created_utc": "2026-05-26T03:47:08Z",
-  "status": "proposed",
+  "status": "paused",
   "kind": "first_structural_higher_low",
   "rationale": "Tests if waiting for the first weekly higher-low during a deep correction filters out false bear-market relief rallies.",
   "validation_tier": "T1",
@@ -31,5 +31,26 @@
     "hypothesis cannot be mapped to bounded diagnostics",
     "Misses more than 35% of the initial rebound move on major bottoms.",
     "Ulcer Index exceeds QQQ buy-and-hold over the full era."
-  ]
+  ],
+  "reviewed_utc": "2026-06-07T20:01:02Z",
+  "last_run": {
+    "run_id": "20260607T193711Z-790e8156cb16",
+    "status": "ok",
+    "finished_utc": "2026-06-07T19:47:11Z",
+    "record_path": null,
+    "steps": [
+      {
+        "name": "recertify_leaderboard",
+        "status": "ok"
+      },
+      {
+        "name": "live_holdout_review",
+        "status": "ok"
+      },
+      {
+        "name": "generated_hypothesis_test",
+        "status": "ok"
+      }
+    ]
+  }
 }
