@@ -1,3 +1,21 @@
+@font-face {
+  font-family: "Pixel Operator";
+  src: url("/fonts/PixelOperator.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pixel Operator";
+  src: url("/fonts/PixelOperator-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Road Rage";
+  src: url("/fonts/Road_Rage.otf") format("opentype");
+  font-display: swap;
+}
+
 :root {
   color-scheme: dark;
   --bg-0: #080a0d;
@@ -16,6 +34,7 @@
   --violet: #7c5cff;
   --amber: #d7a84a;
   --red: #f06666;
+  --flat: #9fb2c0;
   --ink: #07100d;
   --radius: 8px;
   --radius-sm: 6px;
@@ -32,7 +51,7 @@
   --pad-card: 20px;
   --pad-card-soft: 14px;
   --gap-grid: 14px;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Pixel Operator", ui-monospace, "SF Mono", Menlo, Monaco, monospace;
 }
 
 * {
@@ -302,7 +321,6 @@ body[data-view="viz"] .nav-glyph {
   color: var(--ink);
   font-weight: 800;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
   font-size: 13px;
   box-shadow: 0 0 22px rgba(255, 95, 210, 0.32), inset 0 0 0 1px rgba(255, 255, 255, 0.18);
   animation: sweep-gradient 9s ease-in-out infinite;
@@ -382,7 +400,8 @@ body[data-view="viz"] .nav-glyph {
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .topbar {
@@ -401,10 +420,64 @@ body[data-view="viz"] .nav-glyph {
   text-transform: uppercase;
 }
 
-.topbar h2 {
-  margin-top: 3px;
-  font-size: 28px;
-  line-height: 1.05;
+/* Synthwave wordmark — replaces the old eyebrow / "Position X" title trio. */
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* The wordmark is a black-silhouette SVG used as an alpha mask, so we can fill
+   the real lettering with the synthwave gradient + neon glow. */
+.brand-mark {
+  height: 56px;
+  aspect-ratio: 1929 / 499;
+  background: linear-gradient(180deg, #fdf4ff 0%, #ff5fd2 44%, #a85cff 68%, #63c7d6 100%);
+  -webkit-mask: url("/montauk-wordmark.svg") no-repeat center / contain;
+  mask: url("/montauk-wordmark.svg") no-repeat center / contain;
+  filter:
+    drop-shadow(0 0 10px rgba(255, 95, 210, 0.55))
+    drop-shadow(0 0 24px rgba(124, 92, 255, 0.4));
+}
+
+.brand-sub {
+  padding-left: 0.25em;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  text-shadow: 0 0 12px rgba(99, 199, 214, 0.45);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.actions-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.refresh-stamp {
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+/* ===== Typeface roles =====================================================
+   Pixel Operator is the base (info/data, incl. all numbers). Road Rage carries
+   the brand word-heroes (the big position word + the active family name). */
+.action-main,
+.position-family strong {
+  font-family: "Road Rage", "Pixel Operator", sans-serif;
+  letter-spacing: 0.01em;
 }
 
 .actions,
@@ -544,8 +617,10 @@ body[data-view="viz"] .nav-glyph {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   /* Row 1: position + confidence (tall). Row 2: flip + TECL (trimmed).
-     Row 3: top-strategies bar (sized to content, full width at the bottom). */
-  grid-template-rows: minmax(0, 1.25fr) minmax(150px, 0.82fr) auto;
+     Row floors fit each card's content (5 confidence pills, the meter
+     sparkline + its caption) so cells never silently clip; if the window is
+     too short to honor them, .main scrolls instead of hiding a row. */
+  grid-template-rows: minmax(340px, 1.2fr) minmax(210px, 0.85fr);
   gap: var(--gap-grid);
   flex: 1;
   min-height: 0;
@@ -554,115 +629,6 @@ body[data-view="viz"] .nav-glyph {
 .dashboard-grid > * {
   min-height: 0;
   overflow: hidden;
-}
-
-.top-strategies {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-direction: column;
-  padding: var(--pad-card-soft) var(--pad-card);
-}
-
-.top-strategies-list {
-  margin-top: var(--space-2);
-  display: grid;
-  gap: 6px;
-  overflow-y: auto;
-  min-height: 0;
-}
-
-.ts-row,
-.ts-head {
-  display: grid;
-  grid-template-columns: minmax(0, 2.2fr) 70px minmax(120px, 1.6fr) 78px;
-  gap: 14px;
-  align-items: center;
-  padding: 7px 10px;
-  border-radius: 8px;
-}
-
-.ts-head {
-  color: var(--text-2);
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding-bottom: 0;
-}
-
-.ts-row {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--line);
-}
-
-.ts-row.ts-active {
-  border-color: rgba(99, 199, 214, 0.5);
-  background: linear-gradient(90deg, rgba(99, 199, 214, 0.08), transparent 60%);
-}
-
-.ts-name {
-  font-size: 13px;
-  color: var(--text-0);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.ts-badge {
-  font-size: 9px;
-  color: var(--cyan);
-  border: 1px solid rgba(99, 199, 214, 0.6);
-  border-radius: 4px;
-  padding: 1px 4px;
-  margin-left: 6px;
-  vertical-align: 1px;
-  letter-spacing: 0.05em;
-}
-
-.ts-pos {
-  font-weight: 740;
-  font-size: 13px;
-}
-.ts-pos.in { color: var(--green); }
-.ts-pos.out { color: var(--red); }
-.ts-pos.unknown { color: var(--text-2); }
-
-.ts-flip {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.ts-flip-bar {
-  flex: 1;
-  height: 6px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  overflow: hidden;
-}
-
-.ts-flip-bar > span {
-  display: block;
-  height: 100%;
-  background: linear-gradient(90deg, var(--magenta), var(--cyan));
-}
-
-.ts-flip small {
-  color: var(--text-2);
-  font-size: 11px;
-  min-width: 30px;
-  text-align: right;
-}
-
-.ts-comp {
-  font-weight: 740;
-  text-align: right;
-  color: var(--text-1);
-}
-
-.ts-empty {
-  color: var(--text-2);
-  font-size: 12px;
-  padding: 8px 10px;
 }
 
 .command-panel {
@@ -708,11 +674,16 @@ body[data-view="viz"] .nav-glyph {
   line-height: 1;
 }
 
-body[data-risk="risk_off"] .position-label,
-body[data-risk="risk_off"] .action-main,
 .risk-off-text,
 .danger-text {
   color: var(--red);
+}
+
+/* Flat / out of the trade is a calm, neutral state (in cash) — not an error.
+   Use a muted steel tone instead of alarm-red so "Out" doesn't read as danger. */
+body[data-risk="risk_off"] .position-label,
+body[data-risk="risk_off"] .action-main {
+  color: var(--flat);
 }
 
 body[data-risk="risk_on"] .position-label,
@@ -992,6 +963,12 @@ body[data-risk="risk_on"] .action-main {
 .health-card,
 .pressure-card {
   min-height: 0;
+}
+
+/* Meter captions sit over a textured panel — lift them off the dim muted tier
+   to the brighter body tier so the help/status text stays readable. */
+.meter-block .muted {
+  color: var(--text-1);
 }
 
 .sparkline.tall {

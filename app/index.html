@@ -11,15 +11,17 @@
     <div id="app">
       <main class="main">
         <header class="topbar">
-          <div>
-            <div class="eyebrow">Project Montauk</div>
-            <h2 id="signal-title">--</h2>
-            <div id="last-refreshed" class="muted compact">--</div>
+          <div class="brand">
+            <div class="brand-mark" role="img" aria-label="Montauk"></div>
+            <span class="brand-sub">TECL Signal Engine</span>
           </div>
-          <div class="actions">
-            <button id="backtests-btn" class="button big-button" data-tip="Run, skip, and review strategy backtests from the research queue.">Backtests</button>
-            <button id="viz-popout-btn" class="button big-button">Open Viz</button>
-            <button id="maintenance-btn" class="button primary big-button" data-tip="Refresh local data, recompute the current signal, update strategy artifacts, rebuild the viz bundle, and run health checks.">Refresh</button>
+          <div class="actions-wrap">
+            <div class="actions">
+              <button id="backtests-btn" class="button big-button" data-tip="Run, skip, and review strategy backtests from the research queue.">Backtests</button>
+              <button id="viz-popout-btn" class="button big-button">Open Viz</button>
+              <button id="maintenance-btn" class="button primary big-button" data-tip="Refresh local data, recompute the current signal, update strategy artifacts, rebuild the viz bundle, and run health checks.">Refresh</button>
+            </div>
+            <span id="last-refreshed" class="refresh-stamp">--</span>
           </div>
         </header>
 
@@ -80,20 +82,6 @@
               <canvas id="health-spark" class="sparkline tall" width="420" height="96"></canvas>
               <div id="tecl-health-meta" class="muted compact">--</div>
             </div>
-
-            <section class="surface top-strategies" data-tip="The top 5 Gold strategies by validation confidence (rank 1 = the active strategy driving the live signal). Position = each strategy's current In/Out call. Flip = its Monte-Carlo chance of flipping within ~21 trading days. Confidence = its validation composite.">
-              <div class="meter-head">
-                <span>Top strategies</span>
-                <strong class="muted">by Montauk Score</strong>
-              </div>
-              <div class="ts-row ts-head">
-                <span>Strategy</span>
-                <span>Position</span>
-                <span>Flip pressure</span>
-                <span>Montauk</span>
-              </div>
-              <div id="top-strategies-list" class="top-strategies-list"></div>
-            </section>
           </section>
         </section>
       </main>

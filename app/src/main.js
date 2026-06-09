@@ -1275,34 +1275,6 @@ async function loadAgentInbox() {
   }
 }
 
-function renderTopStrategies(status = state.status) {
-  const node = document.getElementById("top-strategies-list");
-  if (!node) return;
-  const rows = status.top_strategies?.strategies || [];
-  node.innerHTML = "";
-  if (!rows.length) {
-    node.innerHTML = `<div class="ts-empty">No strategy data yet — run a refresh.</div>`;
-    return;
-  }
-  for (const r of rows) {
-    const pos = String(r.position || "unknown");
-    const posLabel = pos === "in" ? "In" : pos === "out" ? "Out" : "—";
-    const flip = Number(r.flip_likelihood);
-    const flipPct = Number.isFinite(flip) ? Math.round(flip * 100) : null;
-    const score = Number(r.montauk_score ?? r.composite_confidence);
-    const compPct = Number.isFinite(score) ? Math.round(score * 100) : null;
-    const row = document.createElement("div");
-    row.className = "ts-row" + (r.active ? " ts-active" : "");
-    row.innerHTML = `
-      <span class="ts-name">${escapeHtml(r.display_name || r.strategy || "?")}${r.active ? ' <span class="ts-badge">ACTIVE</span>' : ""}</span>
-      <span class="ts-pos ${pos}">${posLabel}</span>
-      <span class="ts-flip"><span class="ts-flip-bar"><span style="width:${flipPct == null ? 0 : flipPct}%"></span></span><small>${flipPct == null ? "—" : flipPct + "%"}</small></span>
-      <span class="ts-comp">${compPct == null ? "—" : compPct + "%"}</span>
-    `;
-    node.appendChild(row);
-  }
-}
-
 function renderInboxAlert(inbox = state.inbox) {
   const alert = document.getElementById("inbox-alert");
   if (!alert) return;
@@ -1521,14 +1493,15 @@ function render(status) {
   const runtimeMode = window.__TAURI__?.core ? "tauri bridge" : "static fallback";
   const position = positionStatus(signal);
 
-  text("signal-title", position === "--" ? "Position unknown" : `Position ${position}`);
   text("action-main", position);
   text("position-label", mode.sell_event || signal.sell_event || signal.exit_signal ? "Exit fired today" : mode.buy_event || signal.buy_event || signal.entry_signal ? "Entry fired today" : mode.position);
   text("decision-help", `${family}: ${mode.help}`);
   text("confidence-state", formatConfidence(confidence));
-  text("pressure-state", `${pressureLabel(pressure)} ${Math.round(pressure)}%`);
+  // Headline shows the bare value (consistent with TECL Health's "60.4"); the
+  // qualitative word ("Low"/"Rising"/"High") leads the caption instead.
+  text("pressure-state", `${Math.round(pressure)}%`);
   text("confidence-help", "Higher means Montauk has more reason to trust this position.");
-  text("pressure-help", flipPressureHelp(signal, mode));
+  text("pressure-help", `${pressureLabel(pressure)} — ${flipPressureHelp(signal, mode)}`);
   text("champion-family", family);
   text("champion-name", displayName);
   text("sidebar-position", mode.short);
@@ -1554,7 +1527,6 @@ function render(status) {
   renderResearchQueue(status);
   renderConfidenceLedger(status);
   renderInboxAlert(state.inbox);
-  renderTopStrategies(status);
   renderTeclHealthCard();
   drawFlipPressureSparkline();
 }
@@ -1566,7 +1538,7 @@ async function refresh() {
     state.inbox = await loadAgentInbox();
     state.metricReviews = {};
     render(state.status);
-    text("last-refreshed", `Refreshed ${new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`);
+    text("last-refreshed", `Refreshed ${new Date().toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}`);
     loadFlipPressureHistory();
     loadTeclHealth();
   } catch (error) {
@@ -2415,12 +2387,20 @@ function renderConfidenceLedger(status = state.status) {
     number.innerHTML = score == null ? "—" : `${score}<span class="ledger-pct">%</span>`;
     number.dataset.level = score == null ? "warn" : score >= 70 ? "ok" : score >= 40 ? "warn" : "fail";
   }
+  // Don't claim the checks "support this position" when some of them are
+  // warning/failing — reconcile the headline copy with the pills below it.
+  const concerns = pills.filter((p) => p.level === "warn" || p.level === "fail").length;
+  const concernPhrase = concerns
+    ? `${concerns} check${concerns > 1 ? "s" : ""} below ${concerns > 1 ? "need" : "needs"} a look`
+    : "";
   text(
     "confidence-narrative",
     score == null
       ? "Confidence not yet derived."
       : score >= 70
-        ? "Validation composite — the checks below support this position."
+        ? concerns
+          ? `Validation composite is solid, but ${concernPhrase}.`
+          : "Validation composite — every check below is clean."
         : score >= 40
           ? "Validation composite is soft. Review the checks below before re-deploying capital."
           : "Validation composite is failing. Treat the current position as research-only.",
@@ -2478,7 +2458,9 @@ function drawFlipPressureSparkline() {
     return;
   }
   const padX = 6;
-  const padY = 6;
+  // Extra vertical padding so the line/area keeps headroom from the frame and
+  // the end-point dot doesn't sit on the bottom edge.
+  const padY = 12;
   const w = cssWidth - padX * 2;
   const h = cssHeight - padY * 2;
   const step = points.length > 1 ? w / (points.length - 1) : 0;
@@ -2690,9 +2672,20 @@ function wireTooltips() {
   const margin = 12;
   const preferredWidth = 320; // wider so long copy doesn't wrap into 4 lines
 
+  let showTimer = null;
+
   function hide() {
+    clearTimeout(showTimer);
+    showTimer = null;
     bubble.classList.remove("visible");
     bubble.hidden = true;
+  }
+
+  // Delay before a tooltip appears so sweeping the cursor across the UI doesn't
+  // flash bubbles instantly. Hovering a new target restarts the timer.
+  function scheduleShow(target) {
+    clearTimeout(showTimer);
+    showTimer = setTimeout(() => place(target), 550);
   }
 
   function place(target) {
@@ -2735,7 +2728,7 @@ function wireTooltips() {
 
   document.addEventListener("mouseover", (event) => {
     const target = event.target.closest?.("[data-tip]");
-    if (target) place(target);
+    if (target) scheduleShow(target);
   });
   document.addEventListener("focusin", (event) => {
     const target = event.target.closest?.("[data-tip]");

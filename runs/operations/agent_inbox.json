@@ -2,8 +2,8 @@
   "schema_version": 3,
   "purpose": "agent_intervention_request",
   "instructions": "Work order for an LLM agent. These are not only errors \u2014 they include maintenance, service, data, signal, research, automation, and governance requests. Each item carries a category, severity, suggested_action, and the relevant artifact paths. Resolve actionable (warning+) items using the referenced project files as the source of truth; info/advisory items are optional. The project's Python engine is authoritative for all strategy logic.",
-  "generated_utc": "2026-06-09T03:07:53Z",
-  "generated_local": "2026-06-08T20:07:53-07:00",
+  "generated_utc": "2026-06-09T04:23:59Z",
+  "generated_local": "2026-06-08T21:23:59-07:00",
   "ticket": null,
   "summary": {
     "request_count": 0,
