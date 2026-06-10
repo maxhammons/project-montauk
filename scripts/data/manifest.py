@@ -38,6 +38,23 @@ MANIFEST_PATH = os.path.join(DATA_DIR, "manifest.json")
 # so later builds can prove those rows never changed.
 HISTORY_PATH = os.path.join(DATA_DIR, "manifest-history.jsonl")
 
+# Immutability-hash recipe version. The canonical recipe is versioned, not
+# edited in place: bumping this orphans every older ledger entry (verify ignores
+# entries from a different recipe) so a recipe change can never read as a
+# retroactive bar change. v1 (2026-06-09) hashed raw row text; v2 (2026-06-09)
+# normalizes numeric cells and excludes DERIVED_COLUMNS — see _canonical_history_v2.
+IMMUTABILITY_RECIPE_VERSION = 2
+
+# Columns that are a projection of another guarded source file. Their integrity
+# is enforced by that source's OWN immutability entry, so they're excluded from
+# this file's core hash. That lets a late-arriving value (vix_close fills a day
+# after the bar, once VIX publishes) backfill empty->populated without tripping
+# immutability, while a real revision of the underlying value is still caught on
+# the source file. Keyed by filename -> set of column names (lower-case).
+DERIVED_COLUMNS: dict[str, set[str]] = {
+    "TECL.csv": {"vix_close"},  # mirror of VIX.csv close; VIX.csv is itself ledgered
+}
+
 # Per-CSV declared provenance. Build script attaches sha256 + rows + built_utc.
 CSV_SPECS = {
     "TECL.csv": {
@@ -162,7 +179,12 @@ def write_manifest(path: str = MANIFEST_PATH) -> dict:
 
 
 def _canonical_history(path: str, cutoff_date: str | None = None) -> dict:
-    """Hash the file's historical rows up to a cutoff date.
+    """Hash the file's historical rows up to a cutoff date — recipe v1 (FROZEN).
+
+    Superseded by _canonical_history_v2 (the live recipe). Kept verbatim so v1
+    ledger entries remain interpretable for provenance; it is no longer written
+    or verified against. Do not edit — version the recipe instead (see
+    IMMUTABILITY_RECIPE_VERSION).
 
     Canonical recipe (frozen 2026-06-09 — changing it orphans every existing
     ledger entry, so version it instead of editing it):
@@ -218,6 +240,90 @@ def _canonical_history(path: str, cutoff_date: str | None = None) -> dict:
     }
 
 
+def _normalize_cell(value: str) -> str:
+    """Canonicalize one CSV cell for value-stable hashing (recipe v2).
+
+    Numeric cells are reduced to 12 significant figures so that pure float
+    re-serialization (e.g. 100.44999694824219 vs 100.4499969482422 — a one-ULP
+    reprint of the same price) hashes identically, while a genuine repricing
+    (>= sub-cent) still moves the digest. Integers are preserved exactly so
+    volumes never lose precision. Non-numeric cells (dates, provenance flags)
+    pass through stripped. Empty stays empty so a missing value is distinct from
+    a zero. 12 sig figs sits safely between real data precision (~7 for float32
+    market data) and float64 reprint noise (~16 digits).
+    """
+    s = value.strip()
+    if s == "":
+        return ""
+    try:
+        f = float(s)
+    except ValueError:
+        return s
+    if f != f:  # NaN
+        return "nan"
+    if f.is_integer() and abs(f) < 1e15:
+        return str(int(f))
+    return f"{f:.12g}"
+
+
+def _canonical_history_v2(path: str, cutoff_date: str | None = None) -> dict:
+    """Value-stable historical-bar hash — recipe v2 (2026-06-09, live).
+
+    Supersedes _canonical_history (v1). Two differences, both aimed at flagging
+    only *real* retroactive bar changes:
+      1. Every cell is normalized via _normalize_cell, so float re-serialization
+         and integer formatting no longer change the digest.
+      2. DERIVED_COLUMNS for the file are dropped before hashing, so a late-
+         arriving projection (vix_close) can backfill empty->populated without a
+         violation — its integrity rides on its source file's own ledger entry.
+    Header detection, date column, cutoff filter, and max_date/coverage tracking
+    match v1 so ledger semantics (rows_to_cutoff, coverage-shrink detection) are
+    unchanged.
+    """
+    fname = os.path.basename(path)
+    derived = {c.strip().lower() for c in DERIVED_COLUMNS.get(fname, set())}
+    with open(path, encoding="utf-8") as f:
+        lines = [ln for ln in f.read().splitlines() if ln.strip()]
+    if not lines:
+        return {
+            "cutoff_date": None,
+            "rows_to_cutoff": 0,
+            "history_sha256": None,
+            "max_date": None,
+        }
+    header = [c.strip().lower() for c in lines[0].split(",")]
+    date_idx = header.index("date") if "date" in header else 0
+    keep_idx = [i for i, c in enumerate(header) if c not in derived]
+
+    dated_rows: list[tuple[str, str]] = []
+    for ln in lines[1:]:
+        fields = ln.split(",")
+        if date_idx >= len(fields):
+            continue
+        norm = ",".join(
+            _normalize_cell(fields[i]) if i < len(fields) else "" for i in keep_idx
+        )
+        dated_rows.append((fields[date_idx].strip(), norm))
+    if not dated_rows:
+        return {
+            "cutoff_date": cutoff_date,
+            "rows_to_cutoff": 0,
+            "history_sha256": None,
+            "max_date": None,
+        }
+
+    max_date = max(d for d, _ in dated_rows)
+    cutoff = cutoff_date if cutoff_date is not None else max_date
+    kept = [row for d, row in dated_rows if d <= cutoff]
+    digest = hashlib.sha256("\n".join(kept).encode("utf-8")).hexdigest()
+    return {
+        "cutoff_date": cutoff,
+        "rows_to_cutoff": len(kept),
+        "history_sha256": digest,
+        "max_date": max_date,
+    }
+
+
 def load_history(history_path: str = HISTORY_PATH) -> list[dict]:
     if not os.path.exists(history_path):
         return []
@@ -240,11 +346,14 @@ def append_history(
     Idempotency: a file whose data state (cutoff/rows/hash) is unchanged from
     its most recent ledger entry is skipped, so repeat write_manifest calls on
     the same data (multiple daily launches) don't bloat the ledger — entries
-    mark actual data states, not build invocations.
+    mark actual data states, not build invocations. Idempotency is judged only
+    against entries of the current recipe version, so a recipe bump re-seeds a
+    fresh baseline even if the underlying data is unchanged.
     """
     last_by_file: dict[str, dict] = {}
     for entry in load_history(history_path):
-        last_by_file[entry.get("file", "")] = entry
+        if entry.get("recipe_version") == IMMUTABILITY_RECIPE_VERSION:
+            last_by_file[entry.get("file", "")] = entry
 
     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
     appended: list[dict] = []
@@ -252,7 +361,7 @@ def append_history(
         path = os.path.join(data_dir, fname)
         if not os.path.exists(path):
             continue
-        canon = _canonical_history(path)
+        canon = _canonical_history_v2(path)
         if canon["history_sha256"] is None:
             continue
         prev = last_by_file.get(fname)
@@ -265,6 +374,7 @@ def append_history(
         entry = {
             "file": fname,
             "built_utc": now,
+            "recipe_version": IMMUTABILITY_RECIPE_VERSION,
             "cutoff_date": canon["cutoff_date"],
             "rows_to_cutoff": canon["rows_to_cutoff"],
             "history_sha256": canon["history_sha256"],
@@ -291,8 +401,16 @@ def verify_bar_immutability(
     edited, inserted before, or deleted. A current file whose coverage no
     longer reaches an old cutoff is also a failure — history must never
     shrink silently (a deliberate rebuild must reset the ledger explicitly).
+
+    Only entries written under the current recipe version are checked; entries
+    from an older recipe are skipped (their hashes are not comparable, so a
+    recipe bump can never read as a retroactive change). Re-seed after a bump.
     """
-    entries = load_history(history_path)
+    entries = [
+        e
+        for e in load_history(history_path)
+        if e.get("recipe_version") == IMMUTABILITY_RECIPE_VERSION
+    ]
     if not entries:
         return {
             "ok": True,
@@ -322,7 +440,7 @@ def verify_bar_immutability(
         for entry in recent:
             checked += 1
             cutoff = entry.get("cutoff_date")
-            canon = _canonical_history(path, cutoff_date=cutoff)
+            canon = _canonical_history_v2(path, cutoff_date=cutoff)
             if canon["max_date"] is None or str(canon["max_date"]) < str(cutoff):
                 failures.append(
                     {

@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-06-10T00:38:57Z",
+  "generated_utc": "2026-06-10T04:11:07Z",
   "version_info": {
     "schema_version": 1,
-    "generated_utc": "2026-06-10T00:38:57Z",
+    "generated_utc": "2026-06-10T04:11:07Z",
     "app_version": "0.1.0",
-    "git_commit": "2d169fb",
+    "git_commit": "cedacce",
     "git_dirty": true,
-    "strategy_code_version": "2d169fb"
+    "strategy_code_version": "cedacce"
   },
   "status": "ok",
   "snapshot_count": 19,
@@ -62,103 +62,103 @@
         "degradation_floor": -0.15
       }
     },
-    "checked_utc": "2026-06-10T00:38:57Z"
+    "checked_utc": "2026-06-10T04:11:07Z"
   },
   "comparisons": [
     {
       "date": "2026-05-08",
       "status": "not_replayed",
-      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-05-08.json"
+      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-08.json"
     },
     {
       "date": "2026-05-13",
       "status": "not_replayed",
-      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-05-13.json"
+      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-13.json"
     },
     {
       "date": "2026-05-14",
       "status": "not_replayed",
-      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-05-14.json"
+      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-14.json"
     },
     {
       "date": "2026-05-15",
       "status": "not_replayed",
-      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-05-15.json"
+      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-15.json"
     },
     {
       "date": "2026-05-18",
       "status": "not_replayed",
-      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-05-18.json"
+      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-18.json"
     },
     {
       "date": "2026-05-19",
       "status": "not_replayed",
-      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-05-19.json"
+      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-19.json"
     },
     {
       "date": "2026-05-20",
       "status": "not_replayed",
-      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-05-20.json"
+      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-20.json"
     },
     {
       "date": "2026-05-21",
       "status": "not_replayed",
-      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-05-21.json"
+      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-21.json"
     },
     {
       "date": "2026-05-22",
       "status": "not_replayed",
-      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-05-22.json"
+      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-22.json"
     },
     {
       "date": "2026-05-26",
       "status": "not_replayed",
-      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-05-26.json"
+      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-26.json"
     },
     {
       "date": "2026-05-27",
       "status": "not_replayed",
-      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-05-27.json"
+      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-27.json"
     },
     {
       "date": "2026-05-28",
       "status": "not_replayed",
-      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-05-28.json"
+      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-28.json"
     },
     {
       "date": "2026-06-01",
       "status": "not_replayed",
-      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-06-01.json"
+      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-01.json"
     },
     {
       "date": "2026-06-02",
       "status": "not_replayed",
-      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-06-02.json"
+      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-02.json"
     },
     {
       "date": "2026-06-03",
       "status": "not_replayed",
-      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-06-03.json"
+      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-03.json"
     },
     {
       "date": "2026-06-04",
       "status": "not_replayed",
-      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-06-04.json"
+      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-04.json"
     },
     {
       "date": "2026-06-05",
       "status": "not_replayed",
-      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-06-05.json"
+      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-05.json"
     },
     {
       "date": "2026-06-08",
       "status": "not_replayed",
-      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-06-08.json"
+      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-08.json"
     },
     {
       "date": "2026-06-09",
       "status": "champion_changed",
-      "snapshot_path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-06-09.json",
+      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-09.json",
       "snapshot": {
         "data_end_date": "2026-06-09",
         "strategy": "gc_vjatr_timing_repair",

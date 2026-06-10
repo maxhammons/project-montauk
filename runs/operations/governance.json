@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-06-10T00:38:57Z",
+  "generated_utc": "2026-06-10T04:11:07Z",
   "version_info": {
     "schema_version": 1,
-    "generated_utc": "2026-06-10T00:38:57Z",
+    "generated_utc": "2026-06-10T04:11:07Z",
     "app_version": "0.1.0",
-    "git_commit": "2d169fb",
+    "git_commit": "cedacce",
     "git_dirty": true,
-    "strategy_code_version": "2d169fb"
+    "strategy_code_version": "cedacce"
   },
   "state": "replacement_candidate",
   "reasons": [
@@ -60,7 +60,7 @@
           "degradation_floor": -0.15
         }
       },
-      "checked_utc": "2026-06-10T00:38:57Z"
+      "checked_utc": "2026-06-10T04:11:07Z"
     }
   },
   "strategy_review": {
@@ -79,9 +79,9 @@
       "rank": null,
       "display_name": "Jade Bonobo",
       "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
-      "montauk_score": 0.6524,
+      "montauk_score": 0.6519,
       "confidence": 0.768,
-      "selected_score": 0.6524,
+      "selected_score": 0.6519,
       "score_label": "Montauk Score",
       "share_multiple": 33.2208,
       "real_share_multiple": 1.214,

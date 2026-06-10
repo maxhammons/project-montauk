@@ -100,6 +100,76 @@ def test_bar_immutability_fails_when_history_shrinks(tmp_path) -> None:
     assert "coverage shrank" in result["failures"][0]["reason"]
 
 
+def test_bar_immutability_tolerates_float_reserialization(tmp_path) -> None:
+    # Recipe v2: a one-ULP reprint of the same price (100.44999694824219 vs
+    # 100.4499969482422) is not a retroactive change — numeric cells hash by
+    # normalized value, not raw text.
+    history_path = tmp_path / "manifest-history.jsonl"
+    _write_csv(tmp_path, ["2026-01-02,100.44999694824219,10.5,9.5,10.2,1000"])
+    append_history(data_dir=str(tmp_path), history_path=str(history_path))
+
+    _write_csv(
+        tmp_path,
+        [
+            "2026-01-02,100.4499969482422,10.5,9.5,10.2,1000",  # same value, reprinted
+            "2026-01-05,10.2,10.8,10.0,10.6,1100",
+        ],
+    )
+    result = verify_bar_immutability(
+        data_dir=str(tmp_path), history_path=str(history_path)
+    )
+    assert result["ok"] is True
+    assert result["failures"] == []
+
+
+def test_bar_immutability_tolerates_derived_column_backfill(tmp_path) -> None:
+    # Recipe v2: vix_close is a DERIVED column on TECL.csv (mirror of VIX.csv,
+    # which is itself ledgered). It arrives a day late, so backfilling it
+    # empty->populated on an existing bar must not trip immutability.
+    history_path = tmp_path / "manifest-history.jsonl"
+    header = "date,open,high,low,close,volume,vix_close"
+    (tmp_path / "TECL.csv").write_text(
+        header + "\n2026-01-02,10.0,10.5,9.5,10.2,1000,\n"
+    )
+    append_history(data_dir=str(tmp_path), history_path=str(history_path))
+
+    (tmp_path / "TECL.csv").write_text(
+        header
+        + "\n2026-01-02,10.0,10.5,9.5,10.2,1000,18.92"  # vix_close backfilled
+        + "\n2026-01-05,10.2,10.8,10.0,10.6,1100,19.1\n"
+    )
+    result = verify_bar_immutability(
+        data_dir=str(tmp_path), history_path=str(history_path)
+    )
+    assert result["ok"] is True
+    assert result["failures"] == []
+
+
+def test_bar_immutability_skips_legacy_recipe_entries(tmp_path) -> None:
+    # A pre-v2 ledger entry (no recipe_version) is not comparable to the current
+    # recipe, so verify ignores it rather than reading a recipe bump as tampering.
+    history_path = tmp_path / "manifest-history.jsonl"
+    history_path.write_text(
+        json.dumps(
+            {
+                "file": "TECL.csv",
+                "built_utc": "2026-06-09T00:00:00+00:00",
+                "cutoff_date": "2026-01-02",
+                "rows_to_cutoff": 1,
+                "history_sha256": "deadbeef",  # v1 hash that won't match v2
+            }
+        )
+        + "\n"
+    )
+    _write_csv(tmp_path, ["2026-01-02,10.0,10.5,9.5,10.2,1000"])
+
+    result = verify_bar_immutability(
+        data_dir=str(tmp_path), history_path=str(history_path)
+    )
+    assert result["ok"] is True
+    assert result["checked"] == 0  # legacy entry skipped, nothing to verify
+
+
 def test_append_history_dedupes_unchanged_state(tmp_path) -> None:
     # write_manifest runs on every daily launch; repeat builds over unchanged
     # data must not bloat the append-only ledger.

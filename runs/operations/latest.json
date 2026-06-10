@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-06-10T00:34:14Z",
+  "generated_utc": "2026-06-10T04:10:37Z",
   "status": "attention",
   "version_info": {
     "schema_version": 1,
-    "generated_utc": "2026-06-10T00:34:43Z",
+    "generated_utc": "2026-06-10T04:10:59Z",
     "app_version": "0.1.0",
-    "git_commit": "2d169fb",
+    "git_commit": "cedacce",
     "git_dirty": true,
-    "strategy_code_version": "2d169fb"
+    "strategy_code_version": "cedacce"
   },
   "active_signal": {
     "snapshot_schema_version": 1,
@@ -122,7 +122,7 @@
   },
   "computed_signal": {
     "snapshot_schema_version": 1,
-    "generated_utc": "2026-06-10T00:34:25Z",
+    "generated_utc": "2026-06-10T04:10:46Z",
     "data_end_date": "2026-06-09",
     "active_champion": {
       "strategy": "chimera_v1_2026_05_26",
@@ -199,9 +199,9 @@
         "threshold": 0.5
       },
       "metrics": {
-        "share_multiple": 33.2208,
-        "real_share_multiple": 1.214,
-        "modern_share_multiple": 3.025,
+        "share_multiple": 35.1812,
+        "real_share_multiple": 1.2857,
+        "modern_share_multiple": 3.2035,
         "max_dd": 65.8,
         "trades": 19
       }
@@ -225,7 +225,7 @@
       "certified_not_overfit": true,
       "backtest_certified": true,
       "gold_status": true,
-      "composite_confidence": 0.768,
+      "composite_confidence": 0.7684,
       "tier": "T2",
       "warnings": [
         "n_params=53 exceeds regime_transitions=19",
@@ -233,7 +233,7 @@
         "[T2] transition_timing=0.184 < 0.30 (informational)",
         "concentration: bull_hhi=0.257 bear_hhi=0.128 dom=3.13x",
         "2021_2022_bear: zero trades (sat out, share_multiple=3.239)",
-        "QQQ same-param share_multiple=0.435 < 0.50",
+        "QQQ same-param share_multiple=0.441 < 0.50",
         "execution realism: next-open degradation -12.2%",
         "bootstrap downside probability 0.85 > 0.50",
         "event dependence: covid_crash exclusion collapses edge 81%"
@@ -268,7 +268,7 @@
       "[T2] transition_timing=0.184 < 0.30 (informational)",
       "concentration: bull_hhi=0.257 bear_hhi=0.128 dom=3.13x",
       "2021_2022_bear: zero trades (sat out, share_multiple=3.239)",
-      "QQQ same-param share_multiple=0.435 < 0.50",
+      "QQQ same-param share_multiple=0.441 < 0.50",
       "execution realism: next-open degradation -12.2%",
       "bootstrap downside probability 0.85 > 0.50",
       "event dependence: covid_crash exclusion collapses edge 81%"
@@ -283,74 +283,36 @@
       "previous_risk_state": "risk_off"
     },
     "data_quality": {
-      "total": 46,
-      "pass": 44,
+      "total": 45,
+      "pass": 45,
       "warn": 0,
-      "fail": 2,
+      "fail": 0,
       "skip": 0
     }
   },
   "steps": {
     "refresh": {
-      "status": "ok",
-      "updated": true,
-      "total_new_bars": 13,
-      "new_bars": {
-        "TECL": 1,
-        "VIX": 2,
-        "XLK": 1,
-        "QQQ": 1,
-        "TQQQ": 1,
-        "SGOV": 1,
-        "DTB3": 1,
-        "T10Y2Y": 2,
-        "DFF": 3
-      },
-      "data_end_date": "2026-06-09",
-      "refreshed_utc": "2026-06-10T00:34:18Z",
-      "forced": false
+      "status": "skipped",
+      "reason": "skip_refresh_flag"
     },
     "manifest": {
       "status": "ok",
-      "built_utc": "2026-06-10T00:34:18+00:00"
+      "built_utc": "2026-06-10T04:10:37+00:00"
     },
     "data_quality": {
-      "status": "fail",
+      "status": "ok",
       "summary": {
-        "total": 46,
-        "pass": 44,
+        "total": 45,
+        "pass": 45,
         "warn": 0,
-        "fail": 2,
+        "fail": 0,
         "skip": 0
       },
-      "failing_checks": [
-        {
-          "test": "bar_immutability",
-          "status": "FAIL",
-          "scope": "TECL.csv",
-          "summary": "cutoff 2026-06-08: retroactive bar change: rows <= cutoff hash 312e57f53c16\u2026, ledgered 81f97677f182\u2026 (rows now 8331, ledgered 8331)",
-          "details": {
-            "file": "TECL.csv",
-            "cutoff_date": "2026-06-08",
-            "reason": "retroactive bar change: rows <= cutoff hash 312e57f53c16\u2026, ledgered 81f97677f182\u2026 (rows now 8331, ledgered 8331)"
-          }
-        },
-        {
-          "test": "bar_immutability",
-          "status": "FAIL",
-          "scope": "SGOV.csv",
-          "summary": "cutoff 2026-06-08: retroactive bar change: rows <= cutoff hash ac763f350ea5\u2026, ledgered 508ca43130b1\u2026 (rows now 1513, ledgered 1513)",
-          "details": {
-            "file": "SGOV.csv",
-            "cutoff_date": "2026-06-08",
-            "reason": "retroactive bar change: rows <= cutoff hash ac763f350ea5\u2026, ledgered 508ca43130b1\u2026 (rows now 1513, ledgered 1513)"
-          }
-        }
-      ]
+      "failing_checks": []
     },
     "signal_snapshot": {
       "status": "existing_differs",
-      "path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-06-09.json"
+      "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-09.json"
     },
     "top_strategies": {
       "status": "ok",
@@ -358,28 +320,27 @@
     },
     "artifact_backfill": {
       "status": "ok",
-      "created_or_refreshed": 12,
-      "skipped": 0
+      "created_or_refreshed": 0,
+      "skipped": 12
     },
     "viz": {
       "status": "ok",
       "ok": true,
       "returncode": 0,
-      "stdout_tail": "[build_viz] Loading TECL price data\u2026\n[build_viz]   8332 bars; synthetic ends at index 3936\n[build_viz] TECL Health: 56.32 on 2026-06-09 (diagnostic only)\n[build_viz] Manifest: sha256=25cf731461fc\u2026 built 2026-06-10T00:34:18+00:00\n[build_viz] North-star markers: 28\n[build_viz] Leaderboard entries: 12\n[build_viz] Family confidence leaders: 4\n[build_viz] Confidence v2 scores: 8\n[build_viz] Indexed 128 run-dir dashboard_data.json files\n[build_viz] Matched 12/12 leaderboard entries to run artifacts\n[build_viz] Wrote /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/viz/montauk-viz.html (8.87 MB)\n[build_viz] Wrote /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/viz/montauk-bundle.json (8.63 MB)\n[build_viz] Done. Open with: open '/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/viz/montauk-viz.html'\n",
+      "stdout_tail": "[build_viz] Loading TECL price data\u2026\n[build_viz]   8332 bars; synthetic ends at index 3936\n[build_viz] TECL Health: 56.32 on 2026-06-09 (diagnostic only)\n[build_viz] Manifest: sha256=25cf731461fc\u2026 built 2026-06-10T04:10:37+00:00\n[build_viz] North-star markers: 28\n[build_viz] Leaderboard entries: 12\n[build_viz] Family confidence leaders: 4\n[build_viz] Confidence v2 scores: 8\n[build_viz] Indexed 128 run-dir dashboard_data.json files\n[build_viz] Matched 12/12 leaderboard entries to run artifacts\n[build_viz] Freshness: data through 2026-06-09 \u00b7 signals through 2026-06-09 \u00b7 leaderboard 0df477d8c195\u2026\n[build_viz] Wrote /Users/maxhammons/Documents/Projects/Project Montauk/viz/montauk-viz.html (8.87 MB)\n[build_viz] Wrote /Users/maxhammons/Documents/Projects/Project Montauk/viz/montauk-bundle.json (8.63 MB)\n[build_viz] Done. Open with: open '/Users/maxhammons/Documents/Projects/Project Montauk/viz/montauk-viz.html'\n",
       "stderr_tail": ""
     },
     "followups": {
       "status": "ok",
       "live_holdout": {
-        "status": "attention",
+        "status": "ok",
         "snapshot_count": 19,
-        "diverged_count": 1
+        "diverged_count": 0
       },
       "governance": {
-        "status": "active_blocked",
+        "status": "replacement_candidate",
         "reasons": [
-          "live holdout replay diverged from point-in-time signals",
-          "live evidence demotion: replay diverged from immutable signal record on 1 snapshot(s)"
+          "replacement candidate available: chimera_v1_2026_05_26"
         ]
       },
       "strategy_review": {
@@ -389,13 +350,13 @@
           "rank": null,
           "display_name": "Jade Bonobo",
           "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
-          "montauk_score": 0.6524,
-          "confidence": 0.768,
-          "selected_score": 0.6524,
+          "montauk_score": 0.6574,
+          "confidence": 0.7684,
+          "selected_score": 0.6574,
           "score_label": "Montauk Score",
-          "share_multiple": 33.2208,
-          "real_share_multiple": 1.214,
-          "modern_share_multiple": 3.025
+          "share_multiple": 35.1812,
+          "real_share_multiple": 1.2857,
+          "modern_share_multiple": 3.2035
         },
         "active": {
           "strategy": "gc_vjatr_timing_repair",
@@ -409,80 +370,18 @@
       },
       "notifications": {
         "status": "ok",
-        "pending_count": 51
+        "pending_count": 56
       }
     }
   },
   "events": [
     {
-      "timestamp_utc": "2026-06-10T00:34:18Z",
-      "severity": "info",
-      "event_type": "data_refreshed",
-      "message": "Data refresh added 13 new bars.",
-      "payload": {
-        "updated": true,
-        "total_new_bars": 13,
-        "new_bars": {
-          "TECL": 1,
-          "VIX": 2,
-          "XLK": 1,
-          "QQQ": 1,
-          "TQQQ": 1,
-          "SGOV": 1,
-          "DTB3": 1,
-          "T10Y2Y": 2,
-          "DFF": 3
-        },
-        "data_end_date": "2026-06-09"
-      }
-    },
-    {
-      "timestamp_utc": "2026-06-10T00:34:19Z",
-      "severity": "error",
-      "event_type": "data_quality_failed",
-      "message": "Data quality checks reported failures.",
-      "payload": {
-        "status": "fail",
-        "summary": {
-          "total": 46,
-          "pass": 44,
-          "warn": 0,
-          "fail": 2,
-          "skip": 0
-        },
-        "failing_checks": [
-          {
-            "test": "bar_immutability",
-            "status": "FAIL",
-            "scope": "TECL.csv",
-            "summary": "cutoff 2026-06-08: retroactive bar change: rows <= cutoff hash 312e57f53c16\u2026, ledgered 81f97677f182\u2026 (rows now 8331, ledgered 8331)",
-            "details": {
-              "file": "TECL.csv",
-              "cutoff_date": "2026-06-08",
-              "reason": "retroactive bar change: rows <= cutoff hash 312e57f53c16\u2026, ledgered 81f97677f182\u2026 (rows now 8331, ledgered 8331)"
-            }
-          },
-          {
-            "test": "bar_immutability",
-            "status": "FAIL",
-            "scope": "SGOV.csv",
-            "summary": "cutoff 2026-06-08: retroactive bar change: rows <= cutoff hash ac763f350ea5\u2026, ledgered 508ca43130b1\u2026 (rows now 1513, ledgered 1513)",
-            "details": {
-              "file": "SGOV.csv",
-              "cutoff_date": "2026-06-08",
-              "reason": "retroactive bar change: rows <= cutoff hash ac763f350ea5\u2026, ledgered 508ca43130b1\u2026 (rows now 1513, ledgered 1513)"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "timestamp_utc": "2026-06-10T00:34:26Z",
+      "timestamp_utc": "2026-06-10T04:10:46Z",
       "severity": "warning",
       "event_type": "signal_snapshot_conflict",
       "message": "Signal snapshot already exists for 2026-06-09 and differs.",
       "payload": {
-        "path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-06-09.json",
+        "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-09.json",
         "computed": {
           "data_end_date": "2026-06-09",
           "strategy": "chimera_v1_2026_05_26",
