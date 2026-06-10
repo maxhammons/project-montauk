@@ -2,29 +2,39 @@
   "schema_version": 3,
   "purpose": "agent_intervention_request",
   "instructions": "Work order for an LLM agent. These are not only errors \u2014 they include maintenance, service, data, signal, research, automation, and governance requests. Each item carries a category, severity, suggested_action, and the relevant artifact paths. Resolve actionable (warning+) items using the referenced project files as the source of truth; info/advisory items are optional. The project's Python engine is authoritative for all strategy logic.",
-  "generated_utc": "2026-06-09T04:23:59Z",
-  "generated_local": "2026-06-08T21:23:59-07:00",
-  "ticket": null,
+  "generated_utc": "2026-06-10T00:35:01Z",
+  "generated_local": "2026-06-09T17:35:01-07:00",
+  "ticket": "MONTAUK-6057458F",
   "summary": {
-    "request_count": 0,
-    "actionable": false,
-    "highest_severity": "none",
-    "by_category": {},
-    "by_severity": {}
+    "request_count": 10,
+    "actionable": true,
+    "highest_severity": "critical",
+    "by_category": {
+      "error": 4,
+      "governance": 1,
+      "strategy": 2,
+      "service_request": 2,
+      "automation": 1
+    },
+    "by_severity": {
+      "critical": 1,
+      "warning": 8,
+      "advisory": 1
+    }
   },
   "context": {
     "signal": {
-      "data_end_date": "2026-06-08",
+      "data_end_date": "2026-06-09",
       "risk_state": "risk_off",
       "age_days": 0,
-      "strategy": "chimera_v1_2026_05_26"
+      "strategy": "gc_vjatr_timing_repair"
     },
-    "latest_operation_status": "ok",
+    "latest_operation_status": "attention",
     "maintenance_status": "ok",
-    "doctor_status": "ok",
-    "governance_state": "active_watch",
-    "strategy_review_status": "on_best_certified",
-    "live_holdout_status": "ok",
+    "doctor_status": "advisory",
+    "governance_state": "active_blocked",
+    "strategy_review_status": "switch_candidate",
+    "live_holdout_status": "attention",
     "research_queue": {
       "approved": 0,
       "proposed": 0,
@@ -44,5 +54,128 @@
     "design_guide": "docs/design-guide.md",
     "app_source": "app/"
   },
-  "requests": []
+  "requests": [
+    {
+      "id": "cbf82b4a5c32",
+      "category": "error",
+      "severity": "critical",
+      "area": "daily.data_quality",
+      "title": "Daily step 'data_quality' failed",
+      "detail": "The data_quality step failed during the daily run.",
+      "suggested_action": "Run `.venv/bin/python scripts/ops/daily.py --json` and inspect the 'data_quality' step; fix the underlying cause and re-run.",
+      "artifacts": [
+        "runs/operations/latest.json",
+        "scripts/ops/daily.py"
+      ]
+    },
+    {
+      "id": "b7068ef02b81",
+      "category": "governance",
+      "severity": "warning",
+      "area": "governance",
+      "title": "Governance state: active_blocked",
+      "detail": "live holdout replay diverged from point-in-time signals; live evidence demotion: replay diverged from immutable signal record on 1 snapshot(s)",
+      "suggested_action": "Review governance reasons and the active strategy before trading the signal.",
+      "artifacts": [
+        "runs/operations/governance.json"
+      ]
+    },
+    {
+      "id": "3e38c5cf8837",
+      "category": "strategy",
+      "severity": "warning",
+      "area": "strategy_review",
+      "title": "A better certified strategy is available",
+      "detail": "Active: {'strategy': 'gc_vjatr_timing_repair', 'rank': 1, 'params_hash': '18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d', 'confidence': 0.7678, 'score_label': 'composite_confidence', 'data_end_date': '2026-06-09', 'risk_state': 'risk_off'} \u00b7 best certified: {'strategy': 'chimera_v1_2026_05_26', 'rank': None, 'display_name': 'Jade Bonobo', 'params_hash': 'aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1', 'montauk_score': 0.6524, 'confidence': 0.768, 'selected_score': 0.6524, 'score_label': 'Montauk Score', 'share_multiple': 33.2208, 'real_share_multiple': 1.214, 'modern_share_multiple': 3.025}.",
+      "suggested_action": "Review the switch candidate and decide whether to promote it.",
+      "artifacts": [
+        "runs/operations/strategy_review.json",
+        "spike/leaderboard.json"
+      ]
+    },
+    {
+      "id": "432a3d8dcd25",
+      "category": "strategy",
+      "severity": "warning",
+      "area": "live_holdout",
+      "title": "Live holdout shows drift",
+      "detail": "1 of 19 snapshots diverged.",
+      "suggested_action": "Inspect the live holdout; investigate whether the strategy is degrading out-of-sample.",
+      "artifacts": [
+        "runs/operations/live_holdout.json"
+      ]
+    },
+    {
+      "id": "31bca02f71b7",
+      "category": "error",
+      "severity": "warning",
+      "area": "event.data_quality_failed",
+      "title": "Data quality checks reported failures.",
+      "detail": "{\"status\": \"fail\", \"summary\": {\"total\": 46, \"pass\": 44, \"warn\": 0, \"fail\": 2, \"skip\": 0}, \"failing_checks\": [{\"test\": \"bar_immutability\", \"status\": \"FAIL\", \"scope\": \"TECL.csv\", \"summary\": \"cutoff 2026-06-08: retroactive bar change: rows <= cutoff hash 312e57f53c16\\u2026, ledgered 81f97677f182\\u2026 (rows now 8331, ledgered 8331)\", \"details\": {\"file\": \"TECL.csv\", \"cutoff_date\": \"2026-06-08\", \"reason\": \"retroactive bar change: rows <= cutoff hash 312e57f53c16\\u2026, ledgered 81f97677f182\\u2026 (rows now 8331, ledgered 8331)\"}}, {\"test\": \"bar_immutability\", \"status\": \"FAIL\", \"scope\": \"SGOV.csv\", ",
+      "suggested_action": "Investigate the event payload and resolve the underlying condition.",
+      "artifacts": [
+        "runs/operations/events.jsonl"
+      ]
+    },
+    {
+      "id": "2de18ea3df1f",
+      "category": "service_request",
+      "severity": "warning",
+      "area": "event.signal_snapshot_conflict",
+      "title": "Signal snapshot already exists for 2026-06-09 and differs.",
+      "detail": "{\"path\": \"/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-06-09.json\", \"computed\": {\"data_end_date\": \"2026-06-09\", \"strategy\": \"chimera_v1_2026_05_26\", \"params_hash\": \"aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1\", \"risk_state\": \"risk_off\", \"entry_signal\": false, \"exit_signal\": false, \"buy_event\": false, \"sell_event\": false, \"close\": 202.839996}, \"existing\": {\"data_end_date\": \"2026-06-09\", \"strategy\": \"gc_vjatr_timing_repair\", \"params_hash\": \"18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d\", \"risk_state\": \"risk_off\", \"entry_signal\": ",
+      "suggested_action": "Investigate the event payload and resolve the underlying condition.",
+      "artifacts": [
+        "runs/operations/events.jsonl"
+      ]
+    },
+    {
+      "id": "0da7d9b89791",
+      "category": "service_request",
+      "severity": "warning",
+      "area": "event.live_holdout_drift",
+      "title": "Live holdout replay diverged from a point-in-time signal snapshot.",
+      "detail": "{\"diverged_count\": 1, \"output_path\": \"/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/runs/operations/live_holdout.json\"}",
+      "suggested_action": "Investigate the event payload and resolve the underlying condition.",
+      "artifacts": [
+        "runs/operations/events.jsonl"
+      ]
+    },
+    {
+      "id": "aa25533d56af",
+      "category": "error",
+      "severity": "warning",
+      "area": "event.champion_blocked",
+      "title": "Active champion requires manual review.",
+      "detail": "{\"schema_version\": 1, \"generated_utc\": \"2026-06-10T00:34:49Z\", \"version_info\": {\"schema_version\": 1, \"generated_utc\": \"2026-06-10T00:34:49Z\", \"app_version\": \"0.1.0\", \"git_commit\": \"2d169fb\", \"git_dirty\": true, \"strategy_code_version\": \"2d169fb\"}, \"state\": \"active_blocked\", \"reasons\": [\"live holdout replay diverged from point-in-time signals\", \"live evidence demotion: replay diverged from immutable signal record on 1 snapshot(s)\"], \"blockers\": [\"live holdout replay diverged from point-in-time signals\", \"live evidence demotion: replay diverged from immutable signal record on 1 snapshot(s)\"], \"ad",
+      "suggested_action": "Investigate the event payload and resolve the underlying condition.",
+      "artifacts": [
+        "runs/operations/events.jsonl"
+      ]
+    },
+    {
+      "id": "09d004dc91d7",
+      "category": "error",
+      "severity": "warning",
+      "area": "event.live_demotion",
+      "title": "Live evidence demoted the active champion.",
+      "detail": "{\"demotion\": {\"demote\": true, \"reasons\": [\"replay diverged from immutable signal record on 1 snapshot(s)\"], \"evidence\": {\"n_snapshots\": 19, \"min_snapshots\": 21, \"diverged_count\": 1, \"live_vs_bah_multiple\": 0.9988, \"degradation_fraction\": -0.901023, \"thresholds\": {\"live_vs_bah_floor\": 0.85, \"degradation_floor\": -0.15}}, \"checked_utc\": \"2026-06-10T00:34:49Z\"}, \"governance_state\": \"active_blocked\"}",
+      "suggested_action": "Investigate the event payload and resolve the underlying condition.",
+      "artifacts": [
+        "runs/operations/events.jsonl"
+      ]
+    },
+    {
+      "id": "8825ea66f5d5",
+      "category": "automation",
+      "severity": "advisory",
+      "area": "automation.launch_agents",
+      "title": "7 background automation agent(s) not installed",
+      "detail": "Opt-in launch agents are not installed; the daily jobs only run when you open the app.",
+      "suggested_action": "Optional: install via the app's Doctor panel, or `.venv/bin/python scripts/ops/install_launch_agent.py`. Safe to ignore for manual use.",
+      "artifacts": [
+        "scripts/ops/install_launch_agent.py"
+      ]
+    }
+  ]
 }

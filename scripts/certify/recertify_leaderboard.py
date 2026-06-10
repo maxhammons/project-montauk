@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """Re-validate every entry in `spike/leaderboard.json` under current rules.
 
-Rebuilds the leaderboard from scratch, admitting only entries that pass the
-full 7-gate validation pipeline AND all four engine-level certification checks
-(engine_integrity, golden_regression, shadow_comparator, data_quality_precheck).
+Rebuilds the leaderboard from scratch, admitting only entries that come out
+Gold: PASS verdict + all four engine-level certification checks
+(engine_integrity, golden_regression, shadow_comparator, data_quality_precheck)
++ artifact-verified + beats B&H in every era. Each entry's artifact bundle is
+re-verified on disk from the paths recorded on the old row (the fresh pipeline
+stamps artifact_completeness as pending; without re-linking the stored bundle,
+every row would fail backtest_certified and recertification could never
+complete — fixed 2026-06-09).
 
 Run this after:
   - Patching the engine (validation/integrity.py, strategy_engine.py, etc.)
@@ -33,7 +38,7 @@ def main():
     )
     sys.path.insert(0, os.path.join(project_root, "scripts"))
 
-    from certify.contract import is_leaderboard_eligible
+    from certify.contract import is_leaderboard_eligible, sync_entry_contract
     from search.evolve import update_leaderboard
     from validation.pipeline import run_validation_pipeline
 
@@ -42,6 +47,26 @@ def main():
         lb = json.load(f)
 
     print(f"[recert] Loaded {len(lb)} leaderboard entries")
+
+    def _entry_key(entry: dict) -> tuple:
+        return (
+            entry.get("strategy"),
+            json.dumps(entry.get("params") or {}, sort_keys=True),
+        )
+
+    # Capture each row's recorded artifact bundle BEFORE the old validation
+    # block is dropped — the fresh pipeline stamps artifact_completeness as
+    # pending, and the stored bundle is what gets re-verified on disk.
+    stored_artifact_paths = {}
+    for e in lb:
+        paths = (
+            (e.get("validation") or {})
+            .get("certification_checks", {})
+            .get("artifact_completeness", {})
+            .get("paths")
+        )
+        if paths:
+            stored_artifact_paths[_entry_key(e)] = dict(paths)
 
     # Minimal candidate format for the validation pipeline. We deliberately do
     # NOT forward the old `validation` block — the pipeline must recompute
@@ -100,16 +125,23 @@ def main():
     for e in results.get("raw_rankings", []):
         if not e.get("validation"):
             continue
+        # Re-link the stored artifact bundle so artifact_completeness reflects
+        # what is verifiably on disk instead of the fresh pipeline's "pending".
+        sync_entry_contract(e, artifact_paths=stored_artifact_paths.get(_entry_key(e)))
         eligible, reason = is_leaderboard_eligible(e)
         if eligible:
             admitted.append(e)
         else:
             rejected.append((e.get("strategy"), e.get("params"), reason))
 
-    # Sort admitted by composite_confidence descending (leaderboard is ranked by
-    # confidence under the new framework, fitness is only a tie-breaker).
+    # Ranking contract: Montauk Score (stamped by sync_entry_contract),
+    # composite confidence as tie-breaker. update_leaderboard re-sorts by the
+    # same key, so this ordering is what persists.
     admitted.sort(
-        key=lambda e: (e.get("validation") or {}).get("composite_confidence", 0.0),
+        key=lambda e: (
+            float(e.get("montauk_score") or 0.0),
+            (e.get("validation") or {}).get("composite_confidence", 0.0),
+        ),
         reverse=True,
     )
 
@@ -142,7 +174,9 @@ def main():
 
     with open(lb_path) as f:
         final = json.load(f)
-    print(f"\n[recert] Final leaderboard: {len(final)} entries (ranked by confidence)")
+    print(
+        f"\n[recert] Final leaderboard: {len(final)} entries (ranked by Montauk Score)"
+    )
     for i, e in enumerate(final, 1):
         v = e.get("validation", {})
         cc = v.get("certification_checks", {})

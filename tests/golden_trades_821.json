@@ -1,17 +1,17 @@
 {
   "metadata": {
     "generator": "tests/generate_golden_trades.py",
-    "generated_utc": "2026-05-22T22:30:53Z",
+    "generated_utc": "2026-06-10T00:39:51Z",
     "data_file": "data/TECL.csv",
-    "data_rows": 8321,
+    "data_rows": 8332,
     "data_first_date": "1993-05-04",
-    "data_last_date": "2026-05-22",
+    "data_last_date": "2026-06-09",
     "slippage_pct": 0.05,
     "commission_pct": 0.0,
     "num_trades": 51,
-    "share_multiple": 13.475,
-    "total_return_pct": 220330.2212,
-    "cagr_pct": 26.2299,
+    "share_multiple": 13.437,
+    "total_return_pct": 214644.4211,
+    "cagr_pct": 26.0865,
     "max_drawdown_pct": 85.93,
     "distribution_cash": 132087.098042,
     "bah_distribution_cash": 7025.385231,
@@ -524,11 +524,11 @@
     {
       "entry_date": "2026-04-16",
       "entry_price": 128.003972,
-      "exit_date": "2026-05-22",
-      "exit_price": 207.850006,
-      "exit_reason": "End of Data",
-      "pnl_pct": 62.377778,
-      "bars_held": 26
+      "exit_date": "2026-06-05",
+      "exit_price": 202.488701,
+      "exit_reason": "ATR Exit",
+      "pnl_pct": 58.189389,
+      "bars_held": 35
     }
   ]
 }

@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -19,6 +20,26 @@ from ops.paths import EVENTS_PATH, JOB_RECORDS_DIR, LOCKS_DIR, PROJECT_ROOT, ens
 from ops.scheduler import load_config
 
 CommandRunner = Callable[[list[str]], subprocess.CompletedProcess]
+
+# Fallback compute budget for the nightly spike drain when the scheduler
+# config omits an "hours" key. Kept here (not in spike_runner) because the
+# bound exists to protect the scheduler's slot, not the GA itself. (2026-06-09)
+SPIKE_DRAIN_DEFAULT_HOURS = 2.0
+
+# Jobs that must also hold other jobs' locks while running. The nightly spike
+# drain reads the CSVs the daily refresh rewrites and publishes spike/
+# leaderboard artifacts the daily surfaces consume, so it acquires the 'daily'
+# lock too — acquiring (not merely probing) it closes the race where 'daily'
+# starts mid-drain. A blocked acquisition skips the run; nothing queues.
+# (2026-06-09)
+CONFLICT_LOCK_JOBS: dict[str, tuple[str, ...]] = {
+    "spike-drain": ("daily",),
+}
+
+# Long-running jobs emit an explicit job_started event so a quiet events log
+# during a 2h GA run is distinguishable from a job that never launched.
+# (2026-06-09)
+START_EVENT_JOBS = frozenset({"spike-drain"})
 
 
 class JobLockedError(RuntimeError):
@@ -89,6 +110,41 @@ def default_python() -> str:
     return sys.executable
 
 
+def spike_drain_budget(config: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Resolve the nightly spike-drain compute budget from scheduler config.
+
+    WHY: the drain budget must be tunable from runs/scheduler/config.json
+    (job entry "spike_drain", keys "hours" / "pop_size") without code edits.
+    pop_size is only included when explicitly configured so spike_runner keeps
+    owning its own default. (2026-06-09)
+    """
+
+    entry: dict[str, Any] = {}
+    loaded = config or load_config()
+    for item in (loaded.get("jobs") or {}).values():
+        if item.get("job") == "spike-drain":
+            entry = item
+            break
+    budget: dict[str, Any] = {"hours": float(entry.get("hours", SPIKE_DRAIN_DEFAULT_HOURS))}
+    pop_size = entry.get("pop_size")
+    if pop_size is not None:
+        budget["pop_size"] = int(pop_size)
+    return budget
+
+
+def _spike_drain_command(py: str, scripts: Path) -> list[str]:
+    budget = spike_drain_budget()
+    command = [
+        py,
+        str(scripts / "search" / "spike_runner.py"),
+        "--hours",
+        str(budget["hours"]),
+    ]
+    if "pop_size" in budget:
+        command += ["--pop-size", str(budget["pop_size"])]
+    return command
+
+
 def job_command(job: str, *, python: str | None = None) -> list[str]:
     py = python or default_python()
     scripts = PROJECT_ROOT / "scripts"
@@ -126,6 +182,8 @@ def job_command(job: str, *, python: str | None = None) -> list[str]:
             py,
             str(scripts / "diagnostics" / "confidence_vintage_harness.py"),
         ],
+        # Headless GA run; budget comes from scheduler config, not code.
+        "spike-drain": _spike_drain_command(py, scripts),
     }
     if job not in commands:
         known = ", ".join(sorted(commands))
@@ -171,17 +229,28 @@ def output_artifact_paths(job: str) -> list[str]:
         "family-confidence": ["runs/family_confidence_leaderboard.json"],
         "confidence-archive": ["runs/confidence_v2/candidate_archive.json"],
         "confidence-vintage": ["runs/confidence_v2/vintage_trials.json"],
+        # spike_runner creates spike/runs/NNN/ itself; the job record's
+        # spike_run_dir field pins the exact run dir after completion.
+        "spike-drain": [
+            "spike/runs/NNN/",
+            "spike/leaderboard.json",
+            "spike/hash-index.json",
+        ],
     }
     return paths.get(job, [])
 
 
 def _default_runner(command: list[str]) -> subprocess.CompletedProcess:
+    # stdin=DEVNULL keeps every scheduled job headless-safe: a child that
+    # tries to read input gets immediate EOF instead of blocking a launchd
+    # run forever on a TTY that does not exist. (2026-06-09)
     return subprocess.run(
         command,
         cwd=str(PROJECT_ROOT),
         text=True,
         capture_output=True,
         check=False,
+        stdin=subprocess.DEVNULL,
     )
 
 
@@ -194,6 +263,7 @@ def run_job(
     runner: CommandRunner | None = None,
     python: str | None = None,
     no_lock: bool = False,
+    locks_dir: Path = LOCKS_DIR,
 ) -> dict[str, Any]:
     """Run one named operations job and write a structured job record."""
 
@@ -201,9 +271,27 @@ def run_job(
     started_utc = utc_now_iso()
     safe_started = started_utc.replace(":", "").replace("-", "")
     record_path = record_dir / f"{safe_started}-{job}.json"
-    command = job_command(job, python=python) + list(extra_args or [])
-    lock_path = None
-    lock_payload = None
+    command = job_command(job, python=python)
+    extras = list(extra_args or [])
+    # Extra args override the job's configured flags rather than duplicating
+    # them (2026-06-09): `--job spike-drain -- --hours 0.02` previously
+    # produced `--hours 2.0 --hours 0.02`, working only via argparse
+    # last-wins while the job record misreported the budget.
+    override_flags = {a for a in extras if a.startswith("--")}
+    if override_flags:
+        cleaned: list[str] = []
+        skip_value = False
+        for token in command:
+            if skip_value:
+                skip_value = False
+                continue
+            if token in override_flags:
+                skip_value = True
+                continue
+            cleaned.append(token)
+        command = cleaned
+    command += extras
+    held_locks: list[tuple[Path, dict[str, Any]]] = []
     record: dict[str, Any] = {
         "schema_version": 1,
         "job": job,
@@ -223,11 +311,22 @@ def run_job(
 
     if not no_lock:
         try:
-            lock_path, lock_payload = acquire_lock(job)
+            lock_path, lock_payload = acquire_lock(job, locks_dir=locks_dir)
+            held_locks.append((lock_path, lock_payload))
             record["lock_path"] = str(lock_path)
             if lock_payload.get("recovered_stale_lock"):
                 record["recovered_stale_lock"] = True
+            # Conflict locks (e.g. spike-drain holding 'daily') are acquired
+            # after the job's own lock; if any are busy the whole run is
+            # skipped — scheduled runs never queue behind a live conflict.
+            for conflict_job in CONFLICT_LOCK_JOBS.get(job, ()):
+                conflict_path, conflict_payload = acquire_lock(conflict_job, locks_dir=locks_dir)
+                held_locks.append((conflict_path, conflict_payload))
+            if len(held_locks) > 1:
+                record["conflict_lock_paths"] = [str(path) for path, _ in held_locks[1:]]
         except JobLockedError as exc:
+            for held_path, held_payload in held_locks:
+                release_lock(held_path, held_payload)
             record["finished_utc"] = utc_now_iso()
             record["status"] = "locked"
             record["error_code"] = ERROR_CODES["job_locked"]
@@ -244,6 +343,15 @@ def run_job(
             )
             return record
 
+    if job in START_EVENT_JOBS:
+        append_event(
+            "job_started",
+            f"Scheduled job '{job}' started.",
+            severity="info",
+            payload={"job": job, "record_path": str(record_path), "command": command},
+            events_path=events_path,
+        )
+
     try:
         run = runner or _default_runner
         completed = run(command)
@@ -257,11 +365,17 @@ def run_job(
             completed.stderr or "",
             completed.stdout or "",
         )
+        if job == "spike-drain":
+            # Pin the exact spike/runs/NNN/ dir in the job record so the
+            # nightly drain's output is findable without scanning stdout.
+            match = re.search(r"^Run directory: (.+)$", completed.stdout or "", re.MULTILINE)
+            if match:
+                record["spike_run_dir"] = match.group(1).strip()
         record["record_path"] = str(record_path)
         _write_json(record_path, record)
     finally:
-        if lock_path is not None and lock_payload is not None:
-            release_lock(lock_path, lock_payload)
+        for held_path, held_payload in held_locks:
+            release_lock(held_path, held_payload)
 
     if completed.returncode == 0:
         append_event(

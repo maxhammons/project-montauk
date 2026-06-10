@@ -48,7 +48,7 @@ from validation.cross_asset import cross_asset_reoptimize, cross_asset_validate
 from validation.deflate import (
     calibrate_null_distribution,
     deflate_regime_score,
-    estimate_n_eff_heuristic,
+    estimate_n_eff,
     expected_max_beta,
 )
 from validation.integrity import validate_run_integrity
@@ -145,7 +145,7 @@ def _build_context(raw_rankings: list[dict]) -> ValidationContext:
     bears = detect_bear_regimes(close, dates)
     bulls = detect_bull_regimes(close, dates, bears)
     null = calibrate_null_distribution(samples_per_family=40, use_cache=True)
-    n_eff = estimate_n_eff_heuristic()
+    n_eff = estimate_n_eff()
     expected_max = expected_max_beta(null["beta_alpha"], null["beta_beta"], n_eff)
 
     leaderboard = _load_leaderboard()
@@ -254,6 +254,11 @@ def _geometric_composite(sub_scores: dict) -> float:
         "bootstrap":          0.05,   # T2 only
         "regime_consistency": 0.05,   # T2 only
         "trade_sufficiency":  0.05,   # all tiers
+        # 2026-06-09 additions (deep-validation adjudication — D3.x, D4.9, PBO):
+        "execution_realism":  0.10,   # all tiers — next-open fill degradation
+        "event_dependence":   0.05,   # all tiers — single-event edge collapse
+        "pbo":                0.05,   # T2 only — CSCV probability of backtest overfitting
+        "oos_walk_forward":   0.10,   # T2 only — re-optimized walk-forward OOS/IS
     }
     present = {k: w for k, w in weights.items() if sub_scores.get(k) is not None}
     if not present:
@@ -591,8 +596,14 @@ def _gate4_time_generalization(strategy_name: str, params: dict, ctx: Validation
 def _gate5_uncertainty(strategy_name: str, params: dict, ctx: ValidationContext) -> dict:
     strategy_fn = STRATEGY_REGISTRY[strategy_name]
     morris = morris_fragility(ctx.df, strategy_fn, strategy_name, params, trajectories=30)
+    # 1,000 resamples (was 200): the bootstrap feeds a tail probability
+    # (downside_prob) and a 90% CI width — 200 draws is too thin for tails.
+    # expected_block stays at the module default 20 trading days (~1 month):
+    # long enough to preserve short-range autocorrelation/vol clustering,
+    # acknowledged as destroying multi-year regime structure (the statistic
+    # is an uncertainty proxy, not a regime replay).
     bootstrap = stationary_bootstrap_validation(
-        ctx.df, strategy_fn, strategy_name, params, resamples=200
+        ctx.df, strategy_fn, strategy_name, params, resamples=1000
     )
 
     soft_warnings = []
@@ -831,6 +842,127 @@ def _gate6_cross_asset(strategy_name: str, params: dict, ctx: ValidationContext,
     }
 
 
+
+def _gate_realism(strategy_name: str, params: dict, ctx: ValidationContext) -> dict:
+    """Execution realism + single-event dependence (2026-06-09, all tiers).
+
+    Closes deep-validation D3.x and D4.9: certification numbers must survive
+    next-open fills (the actual manual workflow) and must not be the artifact
+    of exactly one historical event. See candidate.py for anchors rationale.
+    """
+    from validation.candidate import analyze_event_dependence, analyze_execution_realism
+
+    strategy_fn = STRATEGY_REGISTRY[strategy_name]
+    realism = analyze_execution_realism(ctx.df, strategy_fn, params, strategy_name)
+    events = analyze_event_dependence(ctx.df, strategy_fn, params, strategy_name)
+
+    execution_score = _interp(float(realism.get("degradation_pct", -100.0)), -30.0, -15.0, -5.0)
+    # Score on retention (1 - worst collapse): >=0.50 retained -> 1.0,
+    # 0.20 retained -> 0.5, <=0.05 retained (edge IS one event) -> 0.0.
+    retention = 1.0 - float(events.get("worst_collapse", 1.0))
+    event_score = _interp(retention, 0.05, 0.20, 0.50)
+
+    soft_warnings = []
+    critical_warnings = []
+    deg = float(realism.get("degradation_pct", -100.0))
+    if deg <= -15.0:
+        critical_warnings.append(
+            f"execution realism: next-open degradation {deg:.1f}% breaches the -15% budget"
+        )
+    elif deg <= -10.0:
+        soft_warnings.append(f"execution realism: next-open degradation {deg:.1f}%")
+    collapse = float(events.get("worst_collapse", 1.0))
+    if collapse >= 0.80:
+        critical_warnings.append(
+            f"event dependence: {events.get('worst_event')} exclusion collapses edge {collapse:.0%}"
+        )
+    elif collapse >= 0.50:
+        soft_warnings.append(
+            f"event dependence: {events.get('worst_event')} exclusion collapses edge {collapse:.0%}"
+        )
+
+    worst = "FAIL" if "FAIL" in (realism.get("verdict"), events.get("verdict")) else (
+        "WARN" if "WARN" in (realism.get("verdict"), events.get("verdict")) else "PASS")
+    return {
+        "verdict": worst,
+        "execution_realism": realism,
+        "event_dependence": events,
+        "execution_score": round(execution_score, 4),
+        "event_score": round(event_score, 4),
+        "soft_warnings": soft_warnings,
+        "critical_warnings": critical_warnings,
+        "hard_fail_reasons": [],
+    }
+
+
+def _gate_oos_robustness(
+    strategy_name: str,
+    params: dict,
+    ctx: ValidationContext,
+    *,
+    run_reopt_wf: bool = True,
+) -> dict:
+    """Selection-robustness stack (2026-06-09, T2 only): CSCV/PBO + true
+    re-optimized walk-forward. These measure whether the SELECTION PROCESS
+    generalizes, complementing gate2's result-quality diagnostics.
+
+    The reopt walk-forward is budget-controlled (run_reopt_wf=False in quick
+    mode) and skipping it is a budget decision, not a quality signal — no
+    warning is emitted for the skip (lesson from the gate6 budget-skip bug).
+    """
+    out: dict = {
+        "verdict": "PASS",
+        "soft_warnings": [],
+        "critical_warnings": [],
+        "hard_fail_reasons": [],
+    }
+    try:
+        from validation.pbo import cscv_pbo
+
+        pbo_res = cscv_pbo(ctx.df, strategy_name, params)
+        out["pbo"] = pbo_res
+        if pbo_res.get("status") == "ok":
+            pbo_val = float(pbo_res.get("pbo", 1.0))
+            # Anchors: pbo <= 0.20 -> 1.0 (accepted bound), 0.50 -> 0.5
+            # (selection no better than chance), >= 0.80 -> 0.0.
+            out["pbo_score"] = round(_interp(1.0 - pbo_val, 0.20, 0.50, 0.80), 4)
+            if pbo_val > 0.50:
+                out["critical_warnings"].append(
+                    f"PBO {pbo_val:.2f}: in-sample selection lands bottom-half OOS more often than not"
+                )
+            elif pbo_val > 0.20:
+                out["soft_warnings"].append(f"PBO {pbo_val:.2f} above the 0.20 acceptance bound")
+        # insufficient_variants (e.g. static ensembles with no param space)
+        # leaves pbo_score absent -> renormalized out of the composite.
+    except Exception as exc:  # noqa: BLE001 — missing module or runtime error
+        out["pbo"] = {"status": "error", "error": str(exc)}
+
+    if run_reopt_wf:
+        try:
+            from validation.oos_walk_forward import oos_walk_forward
+
+            wf = oos_walk_forward(ctx.df, strategy_name, params, evals_per_window=60)
+            out["reopt_walk_forward"] = wf
+            ratio = float(wf.get("avg_oos_is_ratio", 0.0))
+            out["oos_wf_score"] = round(_interp(ratio, 0.50, 0.65, 0.80), 4)
+            if ratio < 0.50:
+                out["critical_warnings"].append(
+                    f"re-optimized walk-forward OOS/IS {ratio:.2f} < 0.50"
+                )
+            elif ratio < 0.65:
+                out["soft_warnings"].append(
+                    f"re-optimized walk-forward OOS/IS {ratio:.2f} < 0.65"
+                )
+        except Exception as exc:  # noqa: BLE001
+            out["reopt_walk_forward"] = {"status": "error", "error": str(exc)}
+    else:
+        out["reopt_walk_forward"] = {"status": "skipped", "reason": "budget (quick mode)"}
+
+    if out["critical_warnings"]:
+        out["verdict"] = "WARN"
+    return out
+
+
 def _gate7_synthesis(
     strategy_name: str,
     params: dict,
@@ -859,7 +991,7 @@ def _gate7_synthesis(
     # Under the new framework, only gate1 can emit hard_fail_reasons (Layer 1
     # correctness). Collect everything else defensively but drive verdict on
     # gate1 hard-fails + composite.
-    for gate_name in ("gate1", "gate_marker", "gate2", "gate3", "gate4", "gate5", "gate6"):
+    for gate_name in ("gate1", "gate_marker", "gate2", "gate3", "gate4", "gate5", "gate6", "gate_realism", "gate_oos"):
         gate = gates.get(gate_name, {})
         advisories.extend(gate.get("advisories", []))
         soft_warnings.extend(gate.get("soft_warnings", []))
@@ -928,6 +1060,10 @@ def _gate7_synthesis(
         "bootstrap":          _score_if_ran("gate5", "bootstrap_score"),
         "regime_consistency": _score_if_ran("gate2", "regime_consistency_score"),
         "trade_sufficiency":  _trade_sufficiency_score(trade_count),
+        "execution_realism":  _score_if_ran("gate_realism", "execution_score"),
+        "event_dependence":   _score_if_ran("gate_realism", "event_score"),
+        "pbo":                _score_if_ran("gate_oos", "pbo_score"),
+        "oos_walk_forward":   _score_if_ran("gate_oos", "oos_wf_score"),
     }
     composite_confidence = _geometric_composite(sub_scores)
 
@@ -1182,6 +1318,23 @@ def _validate_entry(
     validation["gates"]["gate5"] = gate5
     validation["gates"]["gate6"] = gate6
 
+    # ── Realism + selection-robustness gates (2026-06-09) ──
+    if not hard_stop:
+        gate_realism = _gate_realism(strategy_name, params, ctx)
+        if tier == "T2":
+            gate_oos = _gate_oos_robustness(
+                strategy_name, params, ctx, run_reopt_wf=reopt_minutes > 0
+            )
+        else:
+            gate_oos = _skip_gate(
+                f"skipped for {tier} — selection-robustness stack is T2-only"
+            )
+    else:
+        gate_realism = _skip_gate("earlier hard fail")
+        gate_oos = _skip_gate("earlier hard fail")
+    validation["gates"]["gate_realism"] = gate_realism
+    validation["gates"]["gate_oos"] = gate_oos
+
     gate7 = _gate7_synthesis(
         strategy_name,
         params,
@@ -1232,7 +1385,7 @@ def _val_worker_init(strategy_names, reopt_minutes, reopt_pop_size):
     bears = detect_bear_regimes(close, dates)
     bulls = detect_bull_regimes(close, dates, bears)
     null = calibrate_null_distribution(samples_per_family=40, use_cache=True)
-    n_eff = estimate_n_eff_heuristic()
+    n_eff = estimate_n_eff()
     expected_max = expected_max_beta(null["beta_alpha"], null["beta_beta"], n_eff)
     leaderboard = _load_leaderboard()
     _val_ctx = ValidationContext(

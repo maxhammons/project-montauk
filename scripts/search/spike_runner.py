@@ -282,10 +282,22 @@ def _emit_run_artifacts(
     stored_share_multiple = float(champion_metrics["share_multiple"])
     recomputed_share_multiple = float(backtest_result.share_multiple)
     drift = abs(recomputed_share_multiple - stored_share_multiple)
+    # Drift is stamped on the entry itself (not just printed) so a row whose
+    # stored metrics no longer reproduce carries the evidence everywhere it
+    # flows — leaderboard, viz, certify. verify_board_reproducibility.py
+    # audits the whole board on the same contract.
+    champion["reproducibility"] = {
+        "stored_share_multiple": round(stored_share_multiple, 6),
+        "recomputed_share_multiple": round(recomputed_share_multiple, 6),
+        "drift": round(drift, 6),
+        "status": "stale" if drift > 0.01 else "ok",
+        "checked_utc": generated_utc,
+    }
     if drift > 0.01:
         print(
-            "[artifacts] Warning: recomputed share_multiple diverged from stored metrics "
-            f"({recomputed_share_multiple:.4f} vs {stored_share_multiple:.4f})"
+            "[artifacts] WARNING: recomputed share_multiple diverged from stored metrics "
+            f"({recomputed_share_multiple:.4f} vs {stored_share_multiple:.4f}) — "
+            "entry stamped reproducibility.status=stale"
         )
 
     trade_ledger_path = os.path.join(run_dir, "trade_ledger.json")

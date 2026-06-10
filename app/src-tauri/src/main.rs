@@ -1,6 +1,8 @@
 use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
 use std::env;
 use std::fs;
+use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -495,6 +497,203 @@ fn open_viz() -> Result<(), String> {
     Ok(())
 }
 
+fn tail_lines(text: &str, n: usize) -> String {
+    let lines: Vec<&str> = text.lines().collect();
+    let start = lines.len().saturating_sub(n);
+    lines[start..].join("\n")
+}
+
+fn file_sha256(path: &Path) -> Option<String> {
+    let bytes = fs::read(path).ok()?;
+    let mut hasher = Sha256::new();
+    hasher.update(&bytes);
+    Some(format!("{:x}", hasher.finalize()))
+}
+
+fn latest_signal_file(root: &Path) -> Option<PathBuf> {
+    let signals = root.join("signals");
+    let mut files = fs::read_dir(signals)
+        .ok()?
+        .filter_map(Result::ok)
+        .map(|entry| entry.path())
+        .filter(|path| path.extension().and_then(|v| v.to_str()) == Some("json"))
+        .collect::<Vec<_>>();
+    files.sort();
+    files.pop()
+}
+
+fn run_build_viz(root: &Path) -> Value {
+    let script = root.join("viz/build_viz.py");
+    if !script.exists() {
+        return json!({
+            "ok": false,
+            "stdout_tail": "",
+            "error": format!("missing build script at {}", script.display()),
+        });
+    }
+    match Command::new(python_path(root))
+        .arg(script)
+        .current_dir(root)
+        .output()
+    {
+        Ok(output) => {
+            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+            let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+            if output.status.success() {
+                json!({
+                    "ok": true,
+                    "stdout_tail": tail_lines(&stdout, 8),
+                    "error": Value::Null,
+                })
+            } else {
+                let error = if stderr.trim().is_empty() {
+                    tail_lines(&stdout, 8)
+                } else {
+                    tail_lines(&stderr, 8)
+                };
+                json!({
+                    "ok": false,
+                    "stdout_tail": tail_lines(&stdout, 8),
+                    "error": error,
+                })
+            }
+        }
+        Err(err) => json!({ "ok": false, "stdout_tail": "", "error": err.to_string() }),
+    }
+}
+
+/// Rebuild viz/montauk-viz.html + viz/montauk-bundle.json with the project
+/// venv python. Async so the (multi-second) build never freezes the UI.
+#[tauri::command]
+async fn rebuild_viz() -> Result<Value, String> {
+    tauri::async_runtime::spawn_blocking(|| {
+        let root = match project_root() {
+            Ok(root) => root,
+            Err(err) => {
+                return json!({ "ok": false, "stdout_tail": "", "error": err })
+            }
+        };
+        run_build_viz(&root)
+    })
+    .await
+    .map_err(|err| err.to_string())
+}
+
+/// Extract the freshness stamp build_viz.py writes as a leading HTML comment
+/// (<!--MONTAUK_FRESHNESS:{json}-->) without reading the multi-MB payload.
+fn read_viz_freshness_stamp(root: &Path) -> Option<Value> {
+    let path = root.join("viz/montauk-viz.html");
+    let mut file = fs::File::open(path).ok()?;
+    let mut head = vec![0u8; 8192];
+    let n = file.read(&mut head).ok()?;
+    head.truncate(n);
+    let text = String::from_utf8_lossy(&head);
+    let marker = "MONTAUK_FRESHNESS:";
+    let start = text.find(marker)? + marker.len();
+    let end = text[start..].find("-->")? + start;
+    serde_json::from_str(text[start..end].trim()).ok()
+}
+
+fn compute_viz_freshness(root: &Path) -> Value {
+    let html_path = root.join("viz/montauk-viz.html");
+    let mut reasons: Vec<String> = Vec::new();
+
+    let stamp = if !html_path.exists() {
+        reasons.push("viz/montauk-viz.html does not exist yet".to_string());
+        Value::Null
+    } else {
+        match read_viz_freshness_stamp(root) {
+            Some(value) => value,
+            None => {
+                reasons.push(
+                    "montauk-viz.html carries no freshness stamp (built before the staleness gate)"
+                        .to_string(),
+                );
+                Value::Null
+            }
+        }
+    };
+
+    let live_leaderboard_sha = file_sha256(&root.join("spike/leaderboard.json"));
+    let live_signal_file = latest_signal_file(root);
+    let live_signal_date = live_signal_file
+        .as_ref()
+        .and_then(|path| path.file_stem())
+        .and_then(|stem| stem.to_str())
+        .map(String::from);
+    let live_data_end = live_signal_file
+        .as_ref()
+        .and_then(|path| read_json(path).ok())
+        .and_then(|payload| {
+            payload
+                .get("data_end_date")
+                .and_then(|v| v.as_str())
+                .map(String::from)
+        });
+
+    if !stamp.is_null() {
+        let stamp_sha = stamp.get("leaderboard_sha256").and_then(|v| v.as_str());
+        if let Some(live) = live_leaderboard_sha.as_deref() {
+            if stamp_sha != Some(live) {
+                reasons.push("spike/leaderboard.json changed since the viz was built".to_string());
+            }
+        }
+        let stamp_signal = stamp.get("signals_latest_date").and_then(|v| v.as_str());
+        if let Some(live) = live_signal_date.as_deref() {
+            match stamp_signal {
+                Some(stamped) if stamped >= live => {}
+                _ => reasons.push(format!(
+                    "newer signal {} exists (viz build saw {})",
+                    live,
+                    stamp_signal.unwrap_or("none")
+                )),
+            }
+        }
+        let stamp_data_end = stamp.get("data_end_date").and_then(|v| v.as_str());
+        if let (Some(live), Some(stamped)) = (live_data_end.as_deref(), stamp_data_end) {
+            if live > stamped {
+                reasons.push(format!(
+                    "market data advanced to {} but the viz data ends {}",
+                    live, stamped
+                ));
+            }
+        }
+    }
+
+    json!({
+        "stale": !reasons.is_empty(),
+        "reasons": reasons,
+        "stamp": stamp,
+        "live": {
+            "leaderboard_sha256": live_leaderboard_sha,
+            "signals_latest_date": live_signal_date,
+            "data_end_date": live_data_end,
+        },
+    })
+}
+
+/// Staleness gate backing "Open Viz": compares the HTML's embedded freshness
+/// stamp against the live leaderboard hash + newest signal date.
+#[tauri::command]
+async fn check_viz_freshness() -> Result<Value, String> {
+    tauri::async_runtime::spawn_blocking(|| {
+        let root = match project_root() {
+            Ok(root) => root,
+            Err(err) => {
+                return json!({
+                    "stale": true,
+                    "reasons": [err],
+                    "stamp": Value::Null,
+                    "live": Value::Null,
+                })
+            }
+        };
+        compute_viz_freshness(&root)
+    })
+    .await
+    .map_err(|err| err.to_string())
+}
+
 #[tauri::command]
 fn read_viz_html() -> Result<String, String> {
     let root = project_root()?;
@@ -781,6 +980,8 @@ fn main() {
             open_viz,
             read_viz_html,
             read_viz_bundle,
+            rebuild_viz,
+            check_viz_freshness,
             run_next_research,
             run_all_research,
             read_agent_inbox,

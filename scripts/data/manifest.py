@@ -7,6 +7,11 @@ so silent tampering or staleness can be detected by data_quality.py.
 
 The manifest is the source of truth for "what each CSV claims to be."
 Regenerate after any data refresh or rebuild.
+
+2026-06-09 (Phase 3.4): every build also appends per-CSV historical-bar
+checksums to the append-only data/manifest-history.jsonl ledger, and
+verify_bar_immutability() proves rows that existed at an earlier build were
+never retroactively changed (deep-val D8.1).
 """
 
 from __future__ import annotations
@@ -26,6 +31,12 @@ PROJECT_ROOT = os.path.dirname(
 )  # scripts/data/ -> scripts/ -> project root
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 MANIFEST_PATH = os.path.join(DATA_DIR, "manifest.json")
+# Append-only per-build ledger of historical-bar checksums (Phase 3.4,
+# 2026-06-09). manifest.json only knows the CURRENT file hash, so a refresh
+# that retroactively rewrites old bars looks identical to a legitimate append.
+# The history ledger pins the hash of "all rows up to the build-time cutoff"
+# so later builds can prove those rows never changed.
+HISTORY_PATH = os.path.join(DATA_DIR, "manifest-history.jsonl")
 
 # Per-CSV declared provenance. Build script attaches sha256 + rows + built_utc.
 CSV_SPECS = {
@@ -138,7 +149,207 @@ def write_manifest(path: str = MANIFEST_PATH) -> dict:
     with open(path, "w") as f:
         json.dump(m, f, indent=2, sort_keys=False)
         f.write("\n")
+    # 2026-06-09 (Phase 3.4): every manifest build also ledgers the
+    # historical-bar checksum per CSV so retroactive bar edits are detectable
+    # across refreshes (see verify_bar_immutability).
+    append_history()
     return m
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Historical-bar immutability ledger (Phase 3.4, 2026-06-09)
+# ─────────────────────────────────────────────────────────────────────
+
+
+def _canonical_history(path: str, cutoff_date: str | None = None) -> dict:
+    """Hash the file's historical rows up to a cutoff date.
+
+    Canonical recipe (frozen 2026-06-09 — changing it orphans every existing
+    ledger entry, so version it instead of editing it):
+      1. Read the CSV as UTF-8 text and split into lines.
+      2. The first non-empty line is the header. The date column is the field
+         named "date" (case-insensitive, stripped); if absent, field 0 — that
+         covers TECL_distributions.csv, whose date key is `ex_date`.
+      3. Keep every data line whose date field is <= cutoff_date. Dates are
+         ISO YYYY-MM-DD throughout data/, so plain string comparison is
+         chronological. cutoff_date=None means "use the max date present"
+         (the build-time snapshot of everything currently on disk).
+      4. Strip each kept line, join with "\\n", encode UTF-8, sha256.
+
+    Hashing raw row text (not parsed values) means ANY retroactive change is
+    flagged — a repriced bar, a re-rounded float, or a schema migration that
+    rewrites historical lines. All of those must be deliberate, audited events.
+    """
+    with open(path, encoding="utf-8") as f:
+        lines = [ln for ln in f.read().splitlines() if ln.strip()]
+    if not lines:
+        return {
+            "cutoff_date": None,
+            "rows_to_cutoff": 0,
+            "history_sha256": None,
+            "max_date": None,
+        }
+    header = [c.strip().lower() for c in lines[0].split(",")]
+    date_idx = header.index("date") if "date" in header else 0
+
+    dated_rows: list[tuple[str, str]] = []
+    for ln in lines[1:]:
+        fields = ln.split(",")
+        if date_idx >= len(fields):
+            continue
+        dated_rows.append((fields[date_idx].strip(), ln.strip()))
+    if not dated_rows:
+        return {
+            "cutoff_date": cutoff_date,
+            "rows_to_cutoff": 0,
+            "history_sha256": None,
+            "max_date": None,
+        }
+
+    max_date = max(d for d, _ in dated_rows)
+    cutoff = cutoff_date if cutoff_date is not None else max_date
+    kept = [row for d, row in dated_rows if d <= cutoff]
+    digest = hashlib.sha256("\n".join(kept).encode("utf-8")).hexdigest()
+    return {
+        "cutoff_date": cutoff,
+        "rows_to_cutoff": len(kept),
+        "history_sha256": digest,
+        "max_date": max_date,
+    }
+
+
+def load_history(history_path: str = HISTORY_PATH) -> list[dict]:
+    if not os.path.exists(history_path):
+        return []
+    entries = []
+    with open(history_path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                entries.append(json.loads(line))
+    return entries
+
+
+def append_history(
+    *,
+    data_dir: str = DATA_DIR,
+    history_path: str = HISTORY_PATH,
+) -> list[dict]:
+    """Append one history entry per existing CSV to the append-only ledger.
+
+    Idempotency: a file whose data state (cutoff/rows/hash) is unchanged from
+    its most recent ledger entry is skipped, so repeat write_manifest calls on
+    the same data (multiple daily launches) don't bloat the ledger — entries
+    mark actual data states, not build invocations.
+    """
+    last_by_file: dict[str, dict] = {}
+    for entry in load_history(history_path):
+        last_by_file[entry.get("file", "")] = entry
+
+    now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    appended: list[dict] = []
+    for fname in CSV_SPECS:
+        path = os.path.join(data_dir, fname)
+        if not os.path.exists(path):
+            continue
+        canon = _canonical_history(path)
+        if canon["history_sha256"] is None:
+            continue
+        prev = last_by_file.get(fname)
+        if prev is not None and (
+            prev.get("cutoff_date") == canon["cutoff_date"]
+            and prev.get("rows_to_cutoff") == canon["rows_to_cutoff"]
+            and prev.get("history_sha256") == canon["history_sha256"]
+        ):
+            continue
+        entry = {
+            "file": fname,
+            "built_utc": now,
+            "cutoff_date": canon["cutoff_date"],
+            "rows_to_cutoff": canon["rows_to_cutoff"],
+            "history_sha256": canon["history_sha256"],
+        }
+        os.makedirs(os.path.dirname(history_path), exist_ok=True)
+        with open(history_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry, sort_keys=False))
+            f.write("\n")
+        appended.append(entry)
+    return appended
+
+
+def verify_bar_immutability(
+    max_entries: int = 20,
+    *,
+    data_dir: str = DATA_DIR,
+    history_path: str = HISTORY_PATH,
+) -> dict:
+    """Prove historical bars never changed across refreshes (deep-val D8.1).
+
+    For the most recent `max_entries` ledger entries per file, recompute the
+    history hash over rows <= that entry's cutoff_date in the CURRENT csv.
+    Any mismatch means a bar that existed at ledger time was retroactively
+    edited, inserted before, or deleted. A current file whose coverage no
+    longer reaches an old cutoff is also a failure — history must never
+    shrink silently (a deliberate rebuild must reset the ledger explicitly).
+    """
+    entries = load_history(history_path)
+    if not entries:
+        return {
+            "ok": True,
+            "checked": 0,
+            "failures": [],
+            "note": "no history yet",
+        }
+
+    by_file: dict[str, list[dict]] = {}
+    for entry in entries:
+        by_file.setdefault(str(entry.get("file")), []).append(entry)
+
+    checked = 0
+    failures: list[dict] = []
+    for fname, file_entries in by_file.items():
+        path = os.path.join(data_dir, fname)
+        recent = file_entries[-max_entries:]
+        if not os.path.exists(path):
+            failures.append(
+                {
+                    "file": fname,
+                    "cutoff_date": recent[-1].get("cutoff_date"),
+                    "reason": "file missing on disk but present in history ledger",
+                }
+            )
+            continue
+        for entry in recent:
+            checked += 1
+            cutoff = entry.get("cutoff_date")
+            canon = _canonical_history(path, cutoff_date=cutoff)
+            if canon["max_date"] is None or str(canon["max_date"]) < str(cutoff):
+                failures.append(
+                    {
+                        "file": fname,
+                        "cutoff_date": cutoff,
+                        "reason": (
+                            f"coverage shrank: current file ends {canon['max_date']}, "
+                            f"before ledgered cutoff {cutoff}"
+                        ),
+                    }
+                )
+                continue
+            if canon["history_sha256"] != entry.get("history_sha256"):
+                failures.append(
+                    {
+                        "file": fname,
+                        "cutoff_date": cutoff,
+                        "reason": (
+                            "retroactive bar change: rows <= cutoff hash "
+                            f"{str(canon['history_sha256'])[:12]}…, ledgered "
+                            f"{str(entry.get('history_sha256'))[:12]}… "
+                            f"(rows now {canon['rows_to_cutoff']}, "
+                            f"ledgered {entry.get('rows_to_cutoff')})"
+                        ),
+                    }
+                )
+    return {"ok": not failures, "checked": checked, "failures": failures}
 
 
 def load_manifest(path: str = MANIFEST_PATH) -> dict | None:

@@ -1,8 +1,0 @@
-Make the app more synth wave, retro wave, vaporwave themed. 
-
-The app copy should be more simple. I feel that its repetitive in places:
-Hold TECL
-In the trade
-Hare: No new order. Keep the TECL position.
-
---- seems like we don't need that in there that many times telling the user to hold.

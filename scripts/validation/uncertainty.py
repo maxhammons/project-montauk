@@ -87,7 +87,11 @@ def morris_fragility(
             test_params[name] = _step_param(current[name], meta, direction * delta)
             curr = run_eval(df, strategy_fn, test_params, strategy_name)
             curr_rs = float(curr.get("regime_score", 0.0))
-            effect = (curr_rs - prev_rs) / delta if delta else 0.0
+            # Elementary effect divided by the SIGNED step: a negative-direction
+            # step must flip the effect's sign, or sigma (the interaction proxy)
+            # conflates directional asymmetry with interaction. mu_star was
+            # always sign-safe; sigma was not (fixed 2026-06-09).
+            effect = (curr_rs - prev_rs) / (direction * delta) if delta else 0.0
             effects[name].append(effect)
             swing = abs(curr_rs - prev_rs) / max(abs(prev_rs), baseline_rs, 1e-6)
             max_swing = max(max_swing, swing)

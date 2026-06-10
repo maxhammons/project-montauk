@@ -12,8 +12,28 @@ if str(SCRIPTS_DIR) not in sys.path:
 
 from ops.daily import comparable_signal, compute_current_signal, load_active_champion
 from ops.events import append_event, utc_now_iso
-from ops.paths import LIVE_HOLDOUT_PATH, SIGNALS_DIR, ensure_ops_dirs
+from ops.paths import LEADERBOARD_PATH, LIVE_HOLDOUT_PATH, RUNS_DIR, SIGNALS_DIR, ensure_ops_dirs
 from ops.versioning import version_info
+
+# --- Live demotion thresholds (2026-06-09 live-demotion rule) -----------------
+# Forward evidence outranks backtest claims: once enough live snapshots exist,
+# a champion that is losing to buy-and-hold in real time gets demoted rather
+# than defended. Thresholds are documented in docs/validation-thresholds.md
+# ("Live demotion rule (2026-06-09)").
+#
+# ~1 trading month of live snapshots before performance-based demotion can
+# fire — with fewer, the live multiple is mostly noise.
+DEMOTION_MIN_SNAPSHOTS = 21
+# Live trust proxy floor — same 0.85x floor governance already uses for
+# manual review; at demotion it becomes a blocker instead of an advisory.
+DEMOTION_LIVE_VS_BAH_FLOOR = 0.85
+# Backtest-vs-live degradation floor as a fraction (-0.15 = live multiple
+# fell 15%+ short of the certified backtest share multiple).
+DEMOTION_DEGRADATION_FLOOR = -0.15
+
+# Forward-survival evidence stream consumed by the confidence_vintage harness
+# (runs/confidence_v2/) to calibrate Conviction against reality.
+LIVE_OUTCOMES_PATH = RUNS_DIR / "confidence_v2" / "live_outcomes.jsonl"
 
 
 def _load_json(path: Path) -> Any:
@@ -150,10 +170,166 @@ def live_performance(snapshots: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def evaluate_demotion(
+    live_holdout: dict[str, Any],
+    min_snapshots: int = DEMOTION_MIN_SNAPSHOTS,
+) -> dict[str, Any]:
+    """Decide whether live evidence demotes the active champion (Phase 3.3).
+
+    WHY: certification is a backtest claim; the live holdout is the only
+    evidence stream Montauk has never seen during search. Once that stream
+    contradicts the claim, holding the champion is hope, not validation.
+    Demotion fires when:
+      - replay diverges from the immutable signal record (correctness
+        violation — fires at any sample size), OR
+      - with >= ``min_snapshots`` live snapshots: the live trust proxy falls
+        below ``DEMOTION_LIVE_VS_BAH_FLOOR``, or backtest-vs-live degradation
+        falls beyond ``DEMOTION_DEGRADATION_FLOOR``.
+    With fewer than ``min_snapshots`` snapshots and no divergence, the verdict
+    is always demote=False with an "insufficient live evidence" reason —
+    performance noise on a handful of bars must not demote anyone.
+    """
+
+    live_holdout = live_holdout or {}
+    n_snapshots = int(live_holdout.get("snapshot_count") or 0)
+    diverged_count = int(live_holdout.get("diverged_count") or 0)
+    live_multiple = _safe_float(
+        (live_holdout.get("active_champion_performance_since_live_start") or {}).get(
+            "live_vs_buy_hold_multiple_proxy"
+        )
+    )
+    degradation_pct = _safe_float(
+        (live_holdout.get("backtest_vs_live_degradation") or {}).get("degradation_pct")
+    )
+    degradation_fraction = degradation_pct / 100.0 if degradation_pct is not None else None
+
+    reasons: list[str] = []
+    if diverged_count > 0:
+        reasons.append(
+            f"replay diverged from immutable signal record on {diverged_count} snapshot(s)"
+        )
+    if n_snapshots >= min_snapshots:
+        if live_multiple is not None and live_multiple < DEMOTION_LIVE_VS_BAH_FLOOR:
+            reasons.append(
+                f"live_vs_bah_multiple {live_multiple:.4f} < {DEMOTION_LIVE_VS_BAH_FLOOR} "
+                f"with {n_snapshots} live snapshots"
+            )
+        if degradation_fraction is not None and degradation_fraction < DEMOTION_DEGRADATION_FLOOR:
+            reasons.append(
+                f"backtest-vs-live degradation {degradation_fraction:.4f} "
+                f"beyond {DEMOTION_DEGRADATION_FLOOR}"
+            )
+    demote = bool(reasons)
+    if not demote and n_snapshots < min_snapshots:
+        reasons.append(f"insufficient live evidence ({n_snapshots}/{min_snapshots})")
+    return {
+        "demote": demote,
+        "reasons": reasons,
+        "evidence": {
+            "n_snapshots": n_snapshots,
+            "min_snapshots": min_snapshots,
+            "diverged_count": diverged_count,
+            "live_vs_bah_multiple": live_multiple,
+            "degradation_fraction": degradation_fraction,
+            "thresholds": {
+                "live_vs_bah_floor": DEMOTION_LIVE_VS_BAH_FLOOR,
+                "degradation_floor": DEMOTION_DEGRADATION_FLOOR,
+            },
+        },
+        "checked_utc": utc_now_iso(),
+    }
+
+
+def stamp_live_demotion(
+    leaderboard_path: Path,
+    champion_identity: dict[str, Any],
+    demotion: dict[str, Any],
+) -> bool:
+    """Write the demotion block onto the active champion's leaderboard row.
+
+    WHY stamp instead of remove: this phase records the live evidence on the
+    row (`live_demotion`) and blocks via governance; sync-time eligibility
+    enforcement (excluding demoted rows from the active pick) arrives with the
+    Phase-4 recertification pass. Returns True when a row was stamped.
+    """
+
+    if not leaderboard_path.exists():
+        return False
+    leaderboard = _load_json(leaderboard_path)
+    if not isinstance(leaderboard, list):
+        return False
+    identity = champion_identity or {}
+    strategy = identity.get("strategy")
+    champion_date = identity.get("date")
+    for row in leaderboard:
+        if not strategy or row.get("strategy") != strategy:
+            continue
+        if champion_date and row.get("date") and row.get("date") != champion_date:
+            continue
+        row["live_demotion"] = demotion
+        _write_json(leaderboard_path, leaderboard)
+        return True
+    return False
+
+
+def append_live_outcome(
+    report: dict[str, Any],
+    champion: dict[str, Any],
+    latest_snapshot: dict[str, Any],
+    *,
+    path: Path = LIVE_OUTCOMES_PATH,
+) -> bool:
+    """Append one forward-survival evidence row per build (Phase 3.5).
+
+    WHY: this is the forward-survival evidence stream the confidence_vintage
+    harness consumes to calibrate Conviction against reality. Each line is a
+    hindsight-free, date-stamped record of how the champion's live proxy
+    performance compared with its certified scores on the day the evidence
+    existed. Idempotent per data_end_date: re-running a build on the same data
+    day must not double-count evidence. Returns True when a row was appended.
+    """
+
+    outcome_date = str(report.get("latest_snapshot_date") or "")
+    if not outcome_date:
+        return False
+    if path.exists():
+        with path.open(encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    existing = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if str(existing.get("date")) == outcome_date:
+                    return False
+    snapshot_champion = (latest_snapshot or {}).get("active_champion") or {}
+    performance = report.get("active_champion_performance_since_live_start") or {}
+    row = {
+        "date": outcome_date,
+        "strategy": snapshot_champion.get("strategy") or (champion or {}).get("strategy"),
+        "params_hash": snapshot_champion.get("params_hash"),
+        "montauk_score": (champion or {}).get("montauk_score"),
+        "composite_confidence": (report.get("confidence_drift") or {}).get("latest"),
+        "live_vs_bah_multiple": performance.get("live_vs_buy_hold_multiple_proxy"),
+        "diverged_count": report.get("diverged_count"),
+        "n_snapshots": report.get("snapshot_count"),
+        "appended_utc": utc_now_iso(),
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(row, sort_keys=False, default=str))
+        f.write("\n")
+    return True
+
+
 def build_live_holdout(
     *,
     signals_dir: Path = SIGNALS_DIR,
     output_path: Path = LIVE_HOLDOUT_PATH,
+    leaderboard_path: Path = LEADERBOARD_PATH,
+    live_outcomes_path: Path | None = None,
 ) -> dict[str, Any]:
     ensure_ops_dirs()
     snapshots = load_signal_snapshots(signals_dir)
@@ -173,10 +349,25 @@ def build_live_holdout(
             continue
         snapshot_cmp = comparable_signal(snapshot)
         replay_cmp = comparable_signal(replay)
-        matches = snapshot_cmp == replay_cmp
+        # Divergence semantics (2026-06-09 fix): the replay runs the CURRENT
+        # champion. If the snapshot was recorded by a different strategy or
+        # param set (champion changed since — e.g. a re-certification), a
+        # signal mismatch is expected and is NOT a correctness violation.
+        # True divergence — the demotion trigger — means the SAME strategy +
+        # params no longer reproduces its own immutable record.
+        same_identity = (
+            snapshot_cmp.get("strategy") == replay_cmp.get("strategy")
+            and snapshot_cmp.get("params_hash") == replay_cmp.get("params_hash")
+        )
+        if not same_identity:
+            status = "champion_changed"
+        elif snapshot_cmp == replay_cmp:
+            status = "match"
+        else:
+            status = "diverged"
         comparisons.append({
             "date": date,
-            "status": "match" if matches else "diverged",
+            "status": status,
             "snapshot_path": snapshot.get("_path"),
             "snapshot": snapshot_cmp,
             "replay": replay_cmp,
@@ -228,9 +419,25 @@ def build_live_holdout(
             "latest": performance["confidence_latest"],
             "delta": performance["confidence_drift"],
         },
-        "comparisons": comparisons,
     }
+    # Demotion is evaluated on the assembled report so the payload always
+    # carries the verdict alongside the evidence it was computed from.
+    report["demotion"] = evaluate_demotion(report)
+    report["comparisons"] = comparisons
     _write_json(output_path, report)
+    if report["demotion"]["demote"]:
+        stamp_live_demotion(
+            leaderboard_path,
+            {"strategy": champion.get("strategy"), "date": champion.get("date")},
+            report["demotion"],
+        )
+    # The calibration feed records production builds only: ad-hoc/test builds
+    # against an overridden signals_dir must not contaminate the forward
+    # evidence stream unless they opt in with an explicit live_outcomes_path.
+    if live_outcomes_path is None and signals_dir == SIGNALS_DIR:
+        live_outcomes_path = LIVE_OUTCOMES_PATH
+    if live_outcomes_path is not None and snapshots:
+        append_live_outcome(report, champion, latest, path=live_outcomes_path)
     if diverged:
         append_event(
             "live_holdout_drift",

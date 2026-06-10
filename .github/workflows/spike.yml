@@ -55,7 +55,13 @@ jobs:
           cache-dependency-path: scripts/requirements.txt
 
       - name: Install dependencies
-        run: pip install -r scripts/requirements.txt
+        run: pip install -r scripts/requirements.txt pytest
+
+      # Certification gate: the optimizer must never run on a red test net.
+      # Golden regression + shadow comparator are Layer-1 certification checks;
+      # a failure here means results could not be certified anyway.
+      - name: Run test suite
+        run: python3 -m pytest tests/ -q
 
       - name: Run optimizer
         run: |
@@ -73,7 +79,7 @@ jobs:
           if [ "$BAYESIAN" = "true" ]; then
             BAYESIAN_FLAG="--bayesian"
           fi
-          python3 -u scripts/spike_runner.py \
+          python3 -u scripts/search/spike_runner.py \
             --hours "$HOURS" \
             --pop-size "$POP" \
             $STRATS_FLAG \

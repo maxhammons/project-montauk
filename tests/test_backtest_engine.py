@@ -122,6 +122,44 @@ def test_ema_cross_exit_fires_on_constructed_reversal():
     )
 
 
+def test_ema_cross_exit_fires_with_sell_confirm_disabled_and_window_geq_2():
+    """Pin the 2026-06-09 fix: `enable_sell_confirm=False` must behave as a
+    1-bar confirmation window regardless of `sell_confirm_bars`.
+
+    Before the fix, the exact-cross requirement (ema_short[i-1] >= ema_long[i-1])
+    contradicted the all_below check at idx i-1 whenever sell_confirm_bars >= 2,
+    so the EMA-cross exit could structurally never fire — positions rode a
+    full reversal to End of Data with the primary exit silently dead.
+    """
+    close = np.concatenate(
+        [
+            np.full(60, 100.0),
+            np.linspace(100.0, 140.0, 40),
+            np.linspace(140.0, 90.0, 60),
+        ]
+    )
+    df = _ohlcv_from_close(close)
+
+    results = {}
+    for confirm_bars in (1, 2):
+        params = _minimal_params()
+        params.enable_sell_confirm = False
+        params.sell_confirm_bars = confirm_bars
+        results[confirm_bars] = run_montauk_821(df, params, score_regimes=False)
+
+    for confirm_bars, result in results.items():
+        cross_trades = [t for t in result.trades if t.exit_reason == "EMA Cross"]
+        assert cross_trades, (
+            f"EMA Cross exit dead with enable_sell_confirm=False, "
+            f"sell_confirm_bars={confirm_bars} — confirm-window contradiction is back"
+        )
+
+    # With sell-confirm disabled, the window must be irrelevant: identical ledgers.
+    ledger_1 = [(t.entry_date, t.exit_date, t.exit_reason) for t in results[1].trades]
+    ledger_2 = [(t.entry_date, t.exit_date, t.exit_reason) for t in results[2].trades]
+    assert ledger_1 == ledger_2
+
+
 def test_next_open_execution_fills_on_following_open():
     """Realistic execution mode must fill after-close signals at next open."""
     close = np.concatenate(
@@ -153,9 +191,7 @@ def test_next_open_execution_fills_on_following_open():
 
     assert next_trade.exit_bar == close_trade.exit_bar + 1
     assert next_trade.exit_date == str(df["date"].iloc[next_trade.exit_bar])[:10]
-    assert next_trade.exit_price == pytest.approx(
-        df["open"].iloc[next_trade.exit_bar]
-    )
+    assert next_trade.exit_price == pytest.approx(df["open"].iloc[next_trade.exit_bar])
 
 
 def test_distribution_cash_is_credited_to_strategy_and_buy_hold():

@@ -11,6 +11,7 @@ already on disk.
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -113,11 +114,13 @@ def main() -> int:
             dropped += 1
     rows = kept
 
+    # Ranking contract: Montauk Score first (matches evolve.update_leaderboard
+    # and ops/daily.load_active_champion), then all-era score, then fitness.
     rows.sort(
         key=lambda row: (
+            float(row.get("montauk_score") or 0.0),
             float(row.get("overall_performance_score") or 0.0),
             float(row.get("fitness") or 0.0),
-            float((row.get("validation") or {}).get("composite_confidence") or 0.0),
         ),
         reverse=True,
     )

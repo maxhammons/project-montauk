@@ -1,130 +1,74 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-06-09T03:00:25Z",
-  "status": "ok",
+  "generated_utc": "2026-06-10T00:34:14Z",
+  "status": "attention",
   "version_info": {
     "schema_version": 1,
-    "generated_utc": "2026-06-09T03:00:46Z",
+    "generated_utc": "2026-06-10T00:34:43Z",
     "app_version": "0.1.0",
-    "git_commit": "76c51dc",
+    "git_commit": "2d169fb",
     "git_dirty": true,
-    "strategy_code_version": "76c51dc"
+    "strategy_code_version": "2d169fb"
   },
   "active_signal": {
     "snapshot_schema_version": 1,
-    "generated_utc": "2026-06-09T03:00:35Z",
-    "data_end_date": "2026-06-08",
+    "generated_utc": "2026-06-09T20:30:11Z",
+    "data_end_date": "2026-06-09",
     "active_champion": {
-      "strategy": "chimera_v1_2026_05_26",
+      "strategy": "gc_vjatr_timing_repair",
       "rank": 1,
-      "date": "2026-06-07",
-      "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
+      "date": "2026-04-29",
+      "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
       "params": {
-        "members": [
-          {
-            "display_name": "Dusky Osprey",
-            "strategy": "gc_vjatr_reclaimer",
-            "params": {
-              "fast_ema": 140,
-              "slow_ema": 160,
-              "slope_window": 1,
-              "entry_bars": 2,
-              "cooldown": 0,
-              "atr_period": 16,
-              "atr_look": 50,
-              "atr_expand": 2.0,
-              "atr_confirm": 3,
-              "rsi_len": 14,
-              "fast_len": 50,
-              "trend_len": 100,
-              "vol_short": 20,
-              "vol_long": 60,
-              "drawdown_lookback": 80,
-              "drawdown_pct": 25.0,
-              "rsi_reclaim": 45.0,
-              "vol_ratio_max": 0.85
-            },
-            "weight": 3.540446
-          },
-          {
-            "display_name": "Marbled Bonobo",
-            "strategy": "gc_vjatr",
-            "params": {
-              "fast_ema": 140,
-              "slow_ema": 160,
-              "slope_window": 1,
-              "entry_bars": 2,
-              "cooldown": 0,
-              "atr_period": 7,
-              "atr_look": 40,
-              "atr_expand": 2.5,
-              "atr_confirm": 1
-            },
-            "weight": 2.51853
-          },
-          {
-            "display_name": "Ivory Hare",
-            "strategy": "gc_vjatr_timing_repair",
-            "params": {
-              "fast_ema": 140,
-              "slow_ema": 160,
-              "slope_window": 1,
-              "entry_bars": 2,
-              "cooldown": 0,
-              "atr_period": 16,
-              "atr_look": 50,
-              "atr_expand": 2.0,
-              "atr_confirm": 3,
-              "repair_len": 30,
-              "rsi_len": 7,
-              "drawdown_lookback": 40,
-              "drawdown_pct": 25.0,
-              "repair_slope": 3,
-              "rsi_floor": 45.0,
-              "vix_ceiling": 50.0
-            },
-            "weight": 2.551391
-          }
-        ],
-        "threshold": 0.5
+        "fast_ema": 140,
+        "slow_ema": 160,
+        "slope_window": 1,
+        "entry_bars": 2,
+        "cooldown": 0,
+        "atr_period": 16,
+        "atr_look": 50,
+        "atr_expand": 2.0,
+        "atr_confirm": 3,
+        "repair_len": 30,
+        "rsi_len": 7,
+        "drawdown_lookback": 40,
+        "drawdown_pct": 25.0,
+        "repair_slope": 3,
+        "rsi_floor": 35.0,
+        "vix_ceiling": 50.0
       },
       "metrics": {
-        "share_multiple": 35.2227,
-        "real_share_multiple": 1.2872,
-        "modern_share_multiple": 3.2073,
-        "max_dd": 65.8,
-        "trades": 19
+        "share_multiple": 10.0909,
+        "real_share_multiple": 1.5469,
+        "modern_share_multiple": 2.239,
+        "max_dd": 98.2,
+        "trades": 44
       }
     },
     "risk_state": "risk_off",
     "risk_on": false,
     "entry_signal": false,
-    "exit_signal": false,
-    "exit_label": "",
+    "exit_signal": true,
+    "exit_label": "A",
     "buy_event": false,
     "sell_event": false,
-    "close": 215.360001,
-    "flip_likelihood": 0.0,
-    "flip_days": null,
-    "flip_move_pct": null,
-    "flip_horizon": 21,
-    "flip_direction": "to_entry",
+    "close": 202.839996,
     "validation": {
       "verdict": "PASS",
       "promotion_ready": true,
       "certified_not_overfit": true,
       "backtest_certified": true,
       "gold_status": true,
-      "composite_confidence": 0.7594,
+      "composite_confidence": 0.7678,
       "tier": "T2",
       "warnings": [
-        "n_params=53 exceeds regime_transitions=19",
-        "[T2] missed_marker_cycles=9 > 5 (informational)",
-        "[T2] transition_timing=0.184 < 0.30 (informational)",
-        "concentration: bull_hhi=0.258 bear_hhi=0.128 dom=3.11x",
-        "2023_rebound: share_multiple=0.434",
-        "QQQ same-param share_multiple=0.484 < 0.50",
-        "bootstrap downside probability 0.79 > 0.50"
+        "walk-forward dispersion 0.71 > 0.65",
+        "2023_rebound: share_multiple=0.565",
+        "QQQ same-param share_multiple=0.478 < 0.50",
+        "walk-forward: WF 2024-2025: OOS/IS regime ratio 0.58 < 0.65",
+        "morris warning: max_swing=0.15 sigma_ratio=2.81",
+        "bootstrap downside probability 0.77 > 0.50",
+        "TQQQ same-param share_multiple=0.487 < 0.50"
       ],
       "hard_fail_reasons": [],
       "certification_checks": {
@@ -151,24 +95,21 @@
       }
     },
     "warnings": [
-      "n_params=53 exceeds regime_transitions=19",
-      "[T2] missed_marker_cycles=9 > 5 (informational)",
-      "[T2] transition_timing=0.184 < 0.30 (informational)",
-      "concentration: bull_hhi=0.258 bear_hhi=0.128 dom=3.11x",
-      "2023_rebound: share_multiple=0.434",
-      "QQQ same-param share_multiple=0.484 < 0.50",
-      "bootstrap downside probability 0.79 > 0.50"
+      "walk-forward dispersion 0.71 > 0.65",
+      "2023_rebound: share_multiple=0.565",
+      "QQQ same-param share_multiple=0.478 < 0.50",
+      "walk-forward: WF 2024-2025: OOS/IS regime ratio 0.58 < 0.65",
+      "morris warning: max_swing=0.15 sigma_ratio=2.81",
+      "bootstrap downside probability 0.77 > 0.50",
+      "TQQQ same-param share_multiple=0.487 < 0.50"
     ],
     "blockers": [],
-    "signal_changed": true,
+    "signal_changed": false,
     "signal_change": {
-      "changed": true,
-      "reason": "field_change",
-      "changed_fields": [
-        "sell_event",
-        "exit_signal"
-      ],
-      "previous_data_end_date": "2026-06-05",
+      "changed": false,
+      "reason": "unchanged",
+      "changed_fields": [],
+      "previous_data_end_date": "2026-06-08",
       "previous_risk_state": "risk_off"
     },
     "data_quality": {
@@ -181,12 +122,12 @@
   },
   "computed_signal": {
     "snapshot_schema_version": 1,
-    "generated_utc": "2026-06-09T03:00:35Z",
-    "data_end_date": "2026-06-08",
+    "generated_utc": "2026-06-10T00:34:25Z",
+    "data_end_date": "2026-06-09",
     "active_champion": {
       "strategy": "chimera_v1_2026_05_26",
       "rank": 1,
-      "date": "2026-06-07",
+      "date": "2026-06-09",
       "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
       "params": {
         "members": [
@@ -258,9 +199,9 @@
         "threshold": 0.5
       },
       "metrics": {
-        "share_multiple": 35.2227,
-        "real_share_multiple": 1.2872,
-        "modern_share_multiple": 3.2073,
+        "share_multiple": 33.2208,
+        "real_share_multiple": 1.214,
+        "modern_share_multiple": 3.025,
         "max_dd": 65.8,
         "trades": 19
       }
@@ -272,7 +213,7 @@
     "exit_label": "",
     "buy_event": false,
     "sell_event": false,
-    "close": 215.360001,
+    "close": 202.839996,
     "flip_likelihood": 0.0,
     "flip_days": null,
     "flip_move_pct": null,
@@ -284,16 +225,18 @@
       "certified_not_overfit": true,
       "backtest_certified": true,
       "gold_status": true,
-      "composite_confidence": 0.7594,
+      "composite_confidence": 0.768,
       "tier": "T2",
       "warnings": [
         "n_params=53 exceeds regime_transitions=19",
         "[T2] missed_marker_cycles=9 > 5 (informational)",
         "[T2] transition_timing=0.184 < 0.30 (informational)",
-        "concentration: bull_hhi=0.258 bear_hhi=0.128 dom=3.11x",
-        "2023_rebound: share_multiple=0.434",
-        "QQQ same-param share_multiple=0.484 < 0.50",
-        "bootstrap downside probability 0.79 > 0.50"
+        "concentration: bull_hhi=0.257 bear_hhi=0.128 dom=3.13x",
+        "2021_2022_bear: zero trades (sat out, share_multiple=3.239)",
+        "QQQ same-param share_multiple=0.435 < 0.50",
+        "execution realism: next-open degradation -12.2%",
+        "bootstrap downside probability 0.85 > 0.50",
+        "event dependence: covid_crash exclusion collapses edge 81%"
       ],
       "hard_fail_reasons": [],
       "certification_checks": {
@@ -323,126 +266,225 @@
       "n_params=53 exceeds regime_transitions=19",
       "[T2] missed_marker_cycles=9 > 5 (informational)",
       "[T2] transition_timing=0.184 < 0.30 (informational)",
-      "concentration: bull_hhi=0.258 bear_hhi=0.128 dom=3.11x",
-      "2023_rebound: share_multiple=0.434",
-      "QQQ same-param share_multiple=0.484 < 0.50",
-      "bootstrap downside probability 0.79 > 0.50"
+      "concentration: bull_hhi=0.257 bear_hhi=0.128 dom=3.13x",
+      "2021_2022_bear: zero trades (sat out, share_multiple=3.239)",
+      "QQQ same-param share_multiple=0.435 < 0.50",
+      "execution realism: next-open degradation -12.2%",
+      "bootstrap downside probability 0.85 > 0.50",
+      "event dependence: covid_crash exclusion collapses edge 81%"
     ],
     "blockers": [],
-    "signal_changed": true,
+    "signal_changed": false,
     "signal_change": {
-      "changed": true,
-      "reason": "field_change",
-      "changed_fields": [
-        "sell_event",
-        "exit_signal"
-      ],
-      "previous_data_end_date": "2026-06-05",
+      "changed": false,
+      "reason": "unchanged",
+      "changed_fields": [],
+      "previous_data_end_date": "2026-06-08",
       "previous_risk_state": "risk_off"
     },
     "data_quality": {
-      "total": 41,
-      "pass": 41,
+      "total": 46,
+      "pass": 44,
       "warn": 0,
-      "fail": 0,
+      "fail": 2,
       "skip": 0
     }
   },
   "steps": {
     "refresh": {
-      "status": "skipped",
-      "reason": "skip_refresh_flag"
+      "status": "ok",
+      "updated": true,
+      "total_new_bars": 13,
+      "new_bars": {
+        "TECL": 1,
+        "VIX": 2,
+        "XLK": 1,
+        "QQQ": 1,
+        "TQQQ": 1,
+        "SGOV": 1,
+        "DTB3": 1,
+        "T10Y2Y": 2,
+        "DFF": 3
+      },
+      "data_end_date": "2026-06-09",
+      "refreshed_utc": "2026-06-10T00:34:18Z",
+      "forced": false
     },
     "manifest": {
       "status": "ok",
-      "built_utc": "2026-06-09T03:00:26+00:00"
+      "built_utc": "2026-06-10T00:34:18+00:00"
     },
     "data_quality": {
-      "status": "ok",
+      "status": "fail",
       "summary": {
-        "total": 41,
-        "pass": 41,
+        "total": 46,
+        "pass": 44,
         "warn": 0,
-        "fail": 0,
+        "fail": 2,
         "skip": 0
       },
-      "failing_checks": []
+      "failing_checks": [
+        {
+          "test": "bar_immutability",
+          "status": "FAIL",
+          "scope": "TECL.csv",
+          "summary": "cutoff 2026-06-08: retroactive bar change: rows <= cutoff hash 312e57f53c16\u2026, ledgered 81f97677f182\u2026 (rows now 8331, ledgered 8331)",
+          "details": {
+            "file": "TECL.csv",
+            "cutoff_date": "2026-06-08",
+            "reason": "retroactive bar change: rows <= cutoff hash 312e57f53c16\u2026, ledgered 81f97677f182\u2026 (rows now 8331, ledgered 8331)"
+          }
+        },
+        {
+          "test": "bar_immutability",
+          "status": "FAIL",
+          "scope": "SGOV.csv",
+          "summary": "cutoff 2026-06-08: retroactive bar change: rows <= cutoff hash ac763f350ea5\u2026, ledgered 508ca43130b1\u2026 (rows now 1513, ledgered 1513)",
+          "details": {
+            "file": "SGOV.csv",
+            "cutoff_date": "2026-06-08",
+            "reason": "retroactive bar change: rows <= cutoff hash ac763f350ea5\u2026, ledgered 508ca43130b1\u2026 (rows now 1513, ledgered 1513)"
+          }
+        }
+      ]
     },
     "signal_snapshot": {
-      "status": "unchanged",
-      "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-08.json"
+      "status": "existing_differs",
+      "path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-06-09.json"
     },
     "top_strategies": {
       "status": "ok",
       "count": 5
     },
+    "artifact_backfill": {
+      "status": "ok",
+      "created_or_refreshed": 12,
+      "skipped": 0
+    },
     "viz": {
-      "status": "skipped"
+      "status": "ok",
+      "ok": true,
+      "returncode": 0,
+      "stdout_tail": "[build_viz] Loading TECL price data\u2026\n[build_viz]   8332 bars; synthetic ends at index 3936\n[build_viz] TECL Health: 56.32 on 2026-06-09 (diagnostic only)\n[build_viz] Manifest: sha256=25cf731461fc\u2026 built 2026-06-10T00:34:18+00:00\n[build_viz] North-star markers: 28\n[build_viz] Leaderboard entries: 12\n[build_viz] Family confidence leaders: 4\n[build_viz] Confidence v2 scores: 8\n[build_viz] Indexed 128 run-dir dashboard_data.json files\n[build_viz] Matched 12/12 leaderboard entries to run artifacts\n[build_viz] Wrote /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/viz/montauk-viz.html (8.87 MB)\n[build_viz] Wrote /Users/Max.Hammons/Documents/local-sandbox/Project Montauk/viz/montauk-bundle.json (8.63 MB)\n[build_viz] Done. Open with: open '/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/viz/montauk-viz.html'\n",
+      "stderr_tail": ""
     },
     "followups": {
       "status": "ok",
       "live_holdout": {
-        "status": "ok",
-        "snapshot_count": 18,
-        "diverged_count": 0
+        "status": "attention",
+        "snapshot_count": 19,
+        "diverged_count": 1
       },
       "governance": {
-        "status": "active_watch",
+        "status": "active_blocked",
         "reasons": [
-          "7 validation warnings are active"
+          "live holdout replay diverged from point-in-time signals",
+          "live evidence demotion: replay diverged from immutable signal record on 1 snapshot(s)"
         ]
       },
       "strategy_review": {
-        "status": "on_best_certified",
+        "status": "switch_candidate",
         "best_certified": {
           "strategy": "chimera_v1_2026_05_26",
           "rank": null,
           "display_name": "Jade Bonobo",
           "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
-          "montauk_score": 0.6516,
-          "confidence": 0.7594,
-          "selected_score": 0.6516,
+          "montauk_score": 0.6524,
+          "confidence": 0.768,
+          "selected_score": 0.6524,
           "score_label": "Montauk Score",
-          "share_multiple": 35.2227,
-          "real_share_multiple": 1.2872,
-          "modern_share_multiple": 3.2073
+          "share_multiple": 33.2208,
+          "real_share_multiple": 1.214,
+          "modern_share_multiple": 3.025
         },
         "active": {
-          "strategy": "chimera_v1_2026_05_26",
+          "strategy": "gc_vjatr_timing_repair",
           "rank": 1,
-          "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
-          "confidence": 0.7594,
+          "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+          "confidence": 0.7678,
           "score_label": "composite_confidence",
-          "data_end_date": "2026-06-08",
+          "data_end_date": "2026-06-09",
           "risk_state": "risk_off"
         }
       },
       "notifications": {
         "status": "ok",
-        "pending_count": 44
+        "pending_count": 51
       }
     }
   },
   "events": [
     {
-      "timestamp_utc": "2026-06-09T03:00:35Z",
-      "severity": "notice",
-      "event_type": "signal_changed",
-      "message": "Montauk signal changed to risk_off.",
+      "timestamp_utc": "2026-06-10T00:34:18Z",
+      "severity": "info",
+      "event_type": "data_refreshed",
+      "message": "Data refresh added 13 new bars.",
       "payload": {
-        "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-08.json",
-        "change": {
-          "changed": true,
-          "reason": "field_change",
-          "changed_fields": [
-            "sell_event",
-            "exit_signal"
-          ],
-          "previous_data_end_date": "2026-06-05",
-          "previous_risk_state": "risk_off"
+        "updated": true,
+        "total_new_bars": 13,
+        "new_bars": {
+          "TECL": 1,
+          "VIX": 2,
+          "XLK": 1,
+          "QQQ": 1,
+          "TQQQ": 1,
+          "SGOV": 1,
+          "DTB3": 1,
+          "T10Y2Y": 2,
+          "DFF": 3
         },
-        "signal": {
-          "data_end_date": "2026-06-08",
+        "data_end_date": "2026-06-09"
+      }
+    },
+    {
+      "timestamp_utc": "2026-06-10T00:34:19Z",
+      "severity": "error",
+      "event_type": "data_quality_failed",
+      "message": "Data quality checks reported failures.",
+      "payload": {
+        "status": "fail",
+        "summary": {
+          "total": 46,
+          "pass": 44,
+          "warn": 0,
+          "fail": 2,
+          "skip": 0
+        },
+        "failing_checks": [
+          {
+            "test": "bar_immutability",
+            "status": "FAIL",
+            "scope": "TECL.csv",
+            "summary": "cutoff 2026-06-08: retroactive bar change: rows <= cutoff hash 312e57f53c16\u2026, ledgered 81f97677f182\u2026 (rows now 8331, ledgered 8331)",
+            "details": {
+              "file": "TECL.csv",
+              "cutoff_date": "2026-06-08",
+              "reason": "retroactive bar change: rows <= cutoff hash 312e57f53c16\u2026, ledgered 81f97677f182\u2026 (rows now 8331, ledgered 8331)"
+            }
+          },
+          {
+            "test": "bar_immutability",
+            "status": "FAIL",
+            "scope": "SGOV.csv",
+            "summary": "cutoff 2026-06-08: retroactive bar change: rows <= cutoff hash ac763f350ea5\u2026, ledgered 508ca43130b1\u2026 (rows now 1513, ledgered 1513)",
+            "details": {
+              "file": "SGOV.csv",
+              "cutoff_date": "2026-06-08",
+              "reason": "retroactive bar change: rows <= cutoff hash ac763f350ea5\u2026, ledgered 508ca43130b1\u2026 (rows now 1513, ledgered 1513)"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "timestamp_utc": "2026-06-10T00:34:26Z",
+      "severity": "warning",
+      "event_type": "signal_snapshot_conflict",
+      "message": "Signal snapshot already exists for 2026-06-09 and differs.",
+      "payload": {
+        "path": "/Users/Max.Hammons/Documents/local-sandbox/Project Montauk/signals/2026-06-09.json",
+        "computed": {
+          "data_end_date": "2026-06-09",
           "strategy": "chimera_v1_2026_05_26",
           "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
           "risk_state": "risk_off",
@@ -450,7 +492,18 @@
           "exit_signal": false,
           "buy_event": false,
           "sell_event": false,
-          "close": 215.360001
+          "close": 202.839996
+        },
+        "existing": {
+          "data_end_date": "2026-06-09",
+          "strategy": "gc_vjatr_timing_repair",
+          "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+          "risk_state": "risk_off",
+          "entry_signal": false,
+          "exit_signal": true,
+          "buy_event": false,
+          "sell_event": false,
+          "close": 202.839996
         }
       }
     }

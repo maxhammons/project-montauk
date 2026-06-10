@@ -1,17 +1,17 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-06-09T03:00:55Z",
-  "status": "on_best_certified",
-  "on_best_certified": true,
+  "generated_utc": "2026-06-10T00:34:49Z",
+  "status": "switch_candidate",
+  "on_best_certified": false,
   "selection_metric": "montauk",
   "selection_rule": "highest Montauk Score among current Gold PASS leaderboard rows",
   "active": {
-    "strategy": "chimera_v1_2026_05_26",
+    "strategy": "gc_vjatr_timing_repair",
     "rank": 1,
-    "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
-    "confidence": 0.7594,
+    "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
+    "confidence": 0.7678,
     "score_label": "composite_confidence",
-    "data_end_date": "2026-06-08",
+    "data_end_date": "2026-06-09",
     "risk_state": "risk_off"
   },
   "best_certified": {
@@ -19,14 +19,14 @@
     "rank": null,
     "display_name": "Jade Bonobo",
     "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
-    "montauk_score": 0.6516,
-    "confidence": 0.7594,
-    "selected_score": 0.6516,
+    "montauk_score": 0.6524,
+    "confidence": 0.768,
+    "selected_score": 0.6524,
     "score_label": "Montauk Score",
-    "share_multiple": 35.2227,
-    "real_share_multiple": 1.2872,
-    "modern_share_multiple": 3.2073
+    "share_multiple": 33.2208,
+    "real_share_multiple": 1.214,
+    "modern_share_multiple": 3.025
   },
-  "leaderboard_count": 20,
-  "gold_count": 20
+  "leaderboard_count": 12,
+  "gold_count": 12
 }

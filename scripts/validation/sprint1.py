@@ -34,7 +34,7 @@ from engine.strategy_engine import Indicators, backtest
 from strategies.library import STRATEGY_REGISTRY, STRATEGY_PARAMS
 from engine.regime_helpers import score_regime_capture, detect_bear_regimes, detect_bull_regimes
 from validation.deflate import (calibrate_null_distribution, deflate_regime_score,
-                                estimate_n_eff_heuristic, expected_max_beta)
+                                estimate_n_eff, expected_max_beta)
 
 PROJECT_ROOT = os.path.dirname(_SCRIPTS_DIR)
 LEADERBOARD_FILE = os.path.join(PROJECT_ROOT, "spike", "leaderboard.json")
@@ -362,7 +362,7 @@ def run_sprint1(top_n: int = 20, n_eff_override: int | None = None,
     # Monte Carlo null calibration
     print("\nCalibrating null distribution...")
     null = calibrate_null_distribution(samples_per_family=40, use_cache=not recalibrate)
-    n_eff = n_eff_override or estimate_n_eff_heuristic()
+    n_eff = n_eff_override or estimate_n_eff()
     expected_max = expected_max_beta(null["beta_alpha"], null["beta_beta"], n_eff)
 
     print(f"  Null: {null['n_valid']} samples → Beta({null['beta_alpha']:.1f}, {null['beta_beta']:.1f})")

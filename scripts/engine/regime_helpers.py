@@ -17,7 +17,7 @@ These are used by:
   - `strategy_engine.run_montauk_821()` (canonical 8.2.1 path)
   - `scripts/evolve.py` (attaches `regime_score` to evolved BacktestResults)
   - `scripts/grid_search.py` (same)
-  - `scripts/validation/{pipeline,sprint1,walk_forward,candidate,deflate}.py`
+  - `scripts/validation/{pipeline,sprint1,candidate,deflate}.py`
 
 Compatibility note:
   - this module still re-exports thin wrappers for `run_backtest`,

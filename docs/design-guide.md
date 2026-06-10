@@ -1,3 +1,11 @@
+> **⚠️ Framework note (2026-06-09):** sections below that describe hard
+> gates, the soft-warning cap, marker hard-fails, or cross-asset as a
+> pass/fail requirement reflect the RETIRED pre-2026-04-21 framework. The
+> current rules are the two-layer confidence framework in
+> `docs/validation-thresholds.md` (smooth sub-scores, Montauk Score ranking,
+> 2026-06-09 anti-overfit additions). The strategy-design wisdom here (what
+> kinds of logic clear validation) remains valid.
+
 # T0 Hypothesis Design Guide
 
 > When authoring a new T0 strategy, read this first. It distills what we have

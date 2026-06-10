@@ -25,6 +25,8 @@ Local tests (always run)
   volume_sanity              Zero volume on real ETF dates
   provenance_columns         Synthetic / real provenance fields present
   formula_reverification     Per-segment 3× leverage residual vs source
+  bar_immutability           Historical bars unchanged across refreshes (D8.1)
+  refresh_determinism        Loader output identical across repeat loads (D8.2)
 
 Audit-only tests (opt-in)
 -------------------------
@@ -60,6 +62,7 @@ from data.audit import reverify_formula  # noqa: E402
 from data.manifest import (  # noqa: E402
     MANIFEST_PATH,
     verify_against_disk,
+    verify_bar_immutability,
 )
 from data.rebuild_synthetic import (  # noqa: E402
     SPECS as REBUILD_SPECS,
@@ -456,6 +459,74 @@ def test_formula_reverification() -> list[dict]:
     return out
 
 
+def test_bar_immutability() -> list[dict]:
+    """Phase 3.4 / deep-val D8.1 — historical bars unchanged across refreshes.
+
+    Replays recent data/manifest-history.jsonl entries against the current
+    CSVs: rows that existed at an earlier manifest build must hash identically
+    today. Catches retroactive bar edits that manifest_checksum cannot see
+    (a refresh legitimately changes the whole-file hash every day).
+    """
+    res = verify_bar_immutability()
+    if res["checked"] == 0:
+        # First-run bootstrap: ledger doesn't exist until the first
+        # write_manifest after Phase 3.4 — nothing to verify is not a failure.
+        return [_result("bar_immutability", "PASS", "all",
+                        "no history yet — ledger seeds on next manifest build")]
+    if res["ok"]:
+        return [_result("bar_immutability", "PASS", "all",
+                        f"{res['checked']} history entries verified, no retroactive changes")]
+    out = []
+    for f in res["failures"]:
+        out.append(_result("bar_immutability", "FAIL", f["file"],
+                           f"cutoff {f['cutoff_date']}: {f['reason']}", f))
+    return out
+
+
+def test_refresh_determinism() -> list[dict]:
+    """Phase 3.4 / deep-val D8.2 — repeat loads must be bit-identical.
+
+    Loads each leveraged/underlying CSV twice through the real loader path
+    (drag haircut, distribution + macro merges included) and fingerprints both
+    DataFrames. Any divergence means a nondeterministic transform (RNG,
+    wall-clock dependence, unstable merge order) is contaminating backtests.
+    """
+    import contextlib
+    import hashlib
+    import io
+
+    from data.loader import get_qqq_data, get_tecl_data, get_tqqq_data
+
+    def _fingerprint(df: pd.DataFrame) -> str:
+        h = hashlib.sha256()
+        h.update(",".join(map(str, df.columns)).encode("utf-8"))
+        h.update(pd.util.hash_pandas_object(df, index=True).values.tobytes())
+        return h.hexdigest()
+
+    loaders = (
+        ("TECL.csv", get_tecl_data),
+        ("TQQQ.csv", get_tqqq_data),
+        ("QQQ.csv", get_qqq_data),
+    )
+    out = []
+    for name, fn in loaders:
+        if not os.path.exists(os.path.join(DATA_DIR, name)):
+            continue
+        # The loaders print progress lines; swallow them so the audit table
+        # stays readable.
+        with contextlib.redirect_stdout(io.StringIO()):
+            first = _fingerprint(fn())
+            second = _fingerprint(fn())
+        if first == second:
+            out.append(_result("refresh_determinism", "PASS", name,
+                               f"two loads identical ({first[:12]}…)"))
+        else:
+            out.append(_result("refresh_determinism", "FAIL", name,
+                               "loader output differs between identical loads",
+                               {"first": first, "second": second}))
+    return out
+
+
 # ─────────────────────────────────────────────────────────────────────
 # Runner
 # ─────────────────────────────────────────────────────────────────────
@@ -475,6 +546,8 @@ LOCAL_TESTS = [
     ("volume_sanity",               test_volume_sanity),
     ("provenance_columns",          test_provenance_columns),
     ("formula_reverification",      test_formula_reverification),
+    ("bar_immutability",            test_bar_immutability),
+    ("refresh_determinism",         test_refresh_determinism),
 ]
 
 # Audit-only tests — external API calls, run explicitly during periodic audits,

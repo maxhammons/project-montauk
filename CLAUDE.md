@@ -22,17 +22,20 @@ Project Montauk/
 │       ├── TECL-markers.csv   # Buy/sell cycle markers (north star)
 │       ├── TECL-chart.csv     # Chart data
 │       └── TECL-chart.html    # Interactive chart
-├── docs/                      # All documentation
-│   ├── *NEXT/                 # Canonical outstanding-work backlog + near-term design notes
+├── docs/                      # All documentation — see docs/README.md for the map
+│   ├── *NEXT/                 # Canonical outstanding-work backlog (+ archive/ for executed plans)
 │   ├── charter.md             # Project mission, guardrails, success definition
 │   ├── charter-appendix.md    # Discovery north star + Roth overlay extensions
-│   ├── design-guide.md        # T0 hypothesis design patterns + pre-flight checklist
-│   ├── validation-philosophy.md  # Tier framework (T0/T1/T2) + overfitting defense
-│   ├── validation-thresholds.md  # Threshold definitions for validation gates
+│   ├── design-guide.md        # Strategy-authoring pre-flight checklist
+│   ├── validation-philosophy.md  # Tier framework + overfitting defense rationale
+│   ├── validation-thresholds.md  # AUTHORITATIVE gates/weights/anchors + Gold contract
 │   ├── project-status.md      # Current implementation status + known gaps
 │   ├── pipeline.md            # Visual pipeline diagram (source of truth)
-│   ├── *NEXT/archive/         # Executed plan files
-│   ├── Montauk 2.0/           # Historical record of the Pine/TV excision project
+│   ├── ai-research-playbook.md   # How LLM sessions restock the hypothesis queue
+│   ├── app/                   # App charter / reference / packaging notes
+│   ├── archive/               # One-time reports superseded by current docs
+│   ├── Montauk 2.0/           # Pine-excision record + deep-validation adjudication
+│   ├── Legacy/                # Pre-2.0 material (do not read unless asked)
 │   └── research/              # Market research + academic papers
 │       ├── synthesis.md
 │       ├── sources.csv
@@ -56,7 +59,7 @@ Project Montauk/
 │   │   └── regime_map.py      # Bull/bear cycle segmentation
 │   ├── search/                # Discovery + optimization (pipeline phase 1)
 │   │   ├── grid_search.py     # Exhaustive canonical-grid backtest + validate
-│   │   ├── evolve.py          # GA optimizer + leaderboard updater (with REQUIRED_CERTIFICATION_CHECKS guard)
+│   │   ├── evolve.py          # GA optimizer + leaderboard updater (gold-gated via certify/contract.py + per-strategy diversity cap)
 │   │   ├── spike_runner.py    # Main /spike entry point
 │   │   └── share_metric.py    # Legacy share_multiple JSON schema compat
 │   ├── validation/            # 7-gate validation pipeline (pipeline phase 2)
@@ -64,13 +67,13 @@ Project Montauk/
 │   │   ├── integrity.py       # Gate 0: engine integrity + golden regression + shadow comparator + data_quality precheck
 │   │   ├── candidate.py       # Gate 1: result-quality metrics
 │   │   ├── sprint1.py         # Gate 2: search-bias diagnostics (T2)
-│   │   ├── walk_forward.py    # Gate 4: time-window generalization
 │   │   ├── cross_asset.py     # Gate 6: TQQQ + QQQ portability + re-opt
 │   │   ├── deflate.py         # Monte Carlo null distribution
 │   │   └── uncertainty.py     # Gate 5: Morris fragility + stationary bootstrap
 │   ├── certify/               # Post-validation certification + leaderboard sealing (pipeline phase 3)
 │   │   ├── certify_champion.py      # Emit 5 artifacts + finalize backtest_certified for one strategy
 │   │   ├── recertify_leaderboard.py # Re-validate every leaderboard entry under current rules
+│   │   ├── verify_board_reproducibility.py # Recompute every row's era metrics vs stored stamps (report/--stamp/--enforce)
 │   │   └── backfill_artifacts.py    # Materialize artifacts for older runs
 │   ├── diagnostics/           # Post-run analysis (no verdict impact)
 │   │   ├── cycle_diagnostics.py  # Per-cycle trade breakdown
@@ -155,7 +158,7 @@ Every `spike_runner.py` run emits five standardized JSON artifacts under `spike/
 ## Working with This Code
 
 - **To edit the active strategy defaults**: Modify the `StrategyParams` defaults in `scripts/strategy_engine.py` (post-Phase-7 location). Golden-trade regression (`tests/test_regression.py`) will flag any behavior change until the ledger is regenerated intentionally.
-- **To refresh data**: Run the data-refresh flow in `scripts/data.py`, then rebuild the manifest (`scripts/data_manifest.py`) and re-run `scripts/data_quality.py` to confirm all PASS.
+- **To refresh data**: Run the data-refresh flow in `scripts/data/loader.py`, then rebuild the manifest (`scripts/data/manifest.py`) and re-run `scripts/data/quality.py` to confirm all PASS.
 - **To visualize a run**: `python viz/build_viz.py && open viz/montauk-viz.html`. The HTML is self-contained.
 - **Strategy behavior changes should be tied to a golden-trade refresh**: `tests/generate_golden_trades.py` regenerates `tests/golden_trades_821.json`. Only do this when you intend for the baseline to move.
 
@@ -265,16 +268,22 @@ Weights (T2 baseline) per `docs/validation-thresholds.md`:
 
 | Sub-score | Weight | Tiers |
 |---|:-:|---|
-| walk_forward | 0.20 | all |
+| walk_forward (temporal consistency) | 0.10 | all |
 | marker_shape (state agreement) | 0.10 | all |
 | **marker_timing (per-cycle, magnitude-weighted)** | **0.15** | all |
-| named_windows (split from gate 4) | 0.10 | all |
+| named_windows (scored strictly in-range since 2026-06-09) | 0.05 | all |
+| era_consistency (min of real/modern era multiples) | 0.20 | all |
 | fragility | 0.15 | T1 (Gate 3) / T2 (Gate 5 Morris) |
-| selection_bias | 0.10 | T2 only |
-| cross_asset (demoted) | 0.05 | all |
-| bootstrap | 0.05 | T2 only |
+| selection_bias (N_eff from live hash-index) | 0.10 | T2 only |
+| bootstrap (1,000 resamples) | 0.05 | T2 only |
 | regime_consistency | 0.05 | T2 only |
 | trade_sufficiency | 0.05 | all |
+| execution_realism (next-open degradation, −15% budget) | 0.10 | all |
+| event_dependence (single-event edge collapse) | 0.05 | all |
+| pbo (CSCV probability of backtest overfitting) | 0.05 | T2 only |
+| oos_walk_forward (re-optimized, true OOS) | 0.10 | T2 only |
+
+(cross_asset was removed from the composite 2026-04-21 — computed in gate 6 as a diagnostic only. Authoritative anchors: `docs/validation-thresholds.md`.)
 
 Skipped gates drop out and remaining weights renormalize.
 

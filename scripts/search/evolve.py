@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import multiprocessing
 import os
 import signal
 import sys
@@ -34,6 +35,15 @@ from certify.contract import (
 from data.loader import get_tecl_data
 from engine.strategy_engine import Indicators, backtest, BacktestResult
 from engine.regime_helpers import score_regime_capture
+from search.early_filter import (
+    HARD_CACHE_FITNESS_PENALTY,
+    SCREEN_WARMUP_BARS,
+    SOFT_RANK_MULTIPLIER,
+    filter_decision,
+    halving_active,
+    pruned_cache_entry,
+    select_promoted,
+)
 from search.fitness import (
     all_era_score_from_entry,
     canonicalize_metrics_with_multi_era,
@@ -60,9 +70,13 @@ class _Enc(json.JSONEncoder):
 
 
 def _compute_engine_hash() -> str:
-    """Hash core optimizer files so engine fixes invalidate stale cache keys.
-    Files moved to subfolders by the 2026-04-20 restructure."""
+    """Hash core optimizer files AND the data manifest so both engine fixes
+    and data refreshes invalidate stale cache keys. Without the manifest
+    (added 2026-06-09), a TECL data refresh let the GA reuse metrics computed
+    on old data via hash-index hits. Files moved to subfolders by the
+    2026-04-20 restructure."""
     scripts_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # scripts/
+    project_root = os.path.dirname(scripts_dir)
     digest = hashlib.sha256()
     for rel_path in (
         os.path.join("engine", "strategy_engine.py"),
@@ -76,6 +90,13 @@ def _compute_engine_hash() -> str:
             digest.update(b"\0")
             digest.update(f.read())
             digest.update(b"\0")
+    manifest_path = os.path.join(project_root, "data", "manifest.json")
+    try:
+        with open(manifest_path, "rb") as f:
+            digest.update(b"data/manifest.json\0")
+            digest.update(f.read())
+    except OSError:
+        digest.update(b"data/manifest.json:missing\0")
     return digest.hexdigest()[:12]
 
 
@@ -513,7 +534,28 @@ def update_leaderboard(results: dict, leaderboard_path: str) -> list:
             _entry_fitness(x),
         ),
         reverse=True,
-    )[:20]
+    )
+
+    # Diversity floor (2026-06-09): at most MAX_ROWS_PER_STRATEGY rows per
+    # strategy name. Twelve param-variants of one strategy are one idea, not
+    # twelve discoveries — a board that is 19/20 a single lineage can fool
+    # itself into thinking it has diversity (project-status §5 risk). The
+    # montauk family_crowding penalty stays as the soft signal; this is the
+    # hard cap. Top-Montauk rows per strategy survive.
+    MAX_ROWS_PER_STRATEGY = 4
+    per_strategy: dict = {}
+    capped = []
+    for entry in leaderboard:
+        name = entry.get("strategy") or "?"
+        per_strategy[name] = per_strategy.get(name, 0) + 1
+        if per_strategy[name] <= MAX_ROWS_PER_STRATEGY:
+            capped.append(entry)
+        else:
+            print(
+                f"[leaderboard] diversity cap: dropped {name} variant "
+                f"(montauk={_entry_montauk(entry):.4f}) beyond {MAX_ROWS_PER_STRATEGY}/strategy"
+            )
+    leaderboard = capped[:20]
 
     # Surface family concentration explicitly and disambiguate duplicate
     # display names within the authority leaderboard. This is intentionally
@@ -619,7 +661,16 @@ def fitness_from_cache(entry: dict, *, tier: str = "T2") -> float:
 
     Tier-aware: T0 skips the trades-per-param gate (canonical pre-registration
     is the structural defense; see fitness() docstring).
+
+    2026-06-09: entries carry two optional early-filter fields. `pruned` marks
+    a successive-halving screen prune — the config never got a full-history
+    evaluation, so it must rank at 0.0 (dedup-skip only, never a winner or a
+    seed). `pen` is the hard-breach penalty multiplier (×0.25) stamped by the
+    post-chunk early filter so history seeding deprioritizes configs that
+    would fail execution-realism / event-dependence at validation anyway.
     """
+    if entry.get("pruned"):
+        return 0.0
     share_mult = entry.get("bah")
     real_share = entry.get("real_bah")
     modern_share = entry.get("modern_bah")
@@ -660,7 +711,9 @@ def fitness_from_cache(entry: dict, *, tier: str = "T2") -> float:
     rs = entry.get("rs") or 0
     regime_mult = 0.4 + 0.6 * min(1.0, rs / 0.7)
 
-    return share_mult * hhi_penalty * dd_penalty * complexity_penalty * regime_mult
+    base = share_mult * hhi_penalty * dd_penalty * complexity_penalty * regime_mult
+    # Early-filter hard-breach penalty (see docstring) — raw metrics stay intact.
+    return base * float(entry.get("pen") or 1.0)
 
 
 def discovery_score_value(fitness_score: float, marker_alignment_score: float | None) -> float:
@@ -802,6 +855,10 @@ def _passes_pareto_hard_gates(num_trades: int, trades_per_year: float, n_params:
 
 
 def _objectives_from_cache(entry: dict, dataset_years: float) -> tuple[float, float, float] | None:
+    if entry.get("pruned"):
+        # Screen-pruned trial: no full-history metrics exist (dd is None
+        # anyway), so the bayesian path must prune rather than rank it.
+        return None
     share_mult = entry.get("bah")
     real_share = entry.get("real_bah")
     modern_share = entry.get("modern_bah")
@@ -931,6 +988,344 @@ def evaluate(ind: Indicators, df, strategy_fn, params: dict, name: str) -> tuple
             "score": NEUTRAL_MARKER_SCORE,
             "error": "evaluation_failed",
         }, None
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Parallel population evaluation + successive halving (2026-06-09)
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# WHY a module-level holder + fork: a generation's population is evaluated by a
+# worker pool, and the df / Indicators cache are far too heavy to pickle per
+# task. With the fork start method (set per-pool via get_context, the scoped
+# cousin of recertify_leaderboard's global set_start_method("fork")), workers
+# inherit _PARALLEL_CTX as a copy-on-write snapshot: the parent warms its
+# Indicators cache during baseline/seed evaluation, the fork copies that
+# snapshot, and each worker keeps filling its own copy lazily. The dedup-cache
+# lookup stays in the parent (cheap dict hit) — only cache-miss candidates
+# reach the pool.
+
+_PARALLEL_CTX: dict = {"df": None, "ind": None, "screen_df": None, "screen_from": None}
+
+
+def _set_parallel_context(df, ind, screen_df=None, screen_from=None) -> None:
+    """Stage the fork-inherited globals. MUST run before pool creation."""
+    _PARALLEL_CTX["df"] = df
+    _PARALLEL_CTX["ind"] = ind
+    _PARALLEL_CTX["screen_df"] = screen_df
+    _PARALLEL_CTX["screen_from"] = screen_from
+
+
+def _ctx_indicators() -> Indicators:
+    ind = _PARALLEL_CTX.get("ind")
+    if ind is None:  # built lazily on first use in each worker
+        ind = Indicators(_PARALLEL_CTX["df"])
+        _PARALLEL_CTX["ind"] = ind
+    return ind
+
+
+def _worker_eval_full(task: tuple) -> tuple:
+    """Pool worker: full-history evaluation of one (strategy_name, params)."""
+    strat_name, params = task
+    from strategies.library import STRATEGY_REGISTRY
+
+    fn = STRATEGY_REGISTRY[strat_name]
+    return evaluate(_ctx_indicators(), _PARALLEL_CTX["df"], fn, params, strat_name)
+
+
+def _worker_eval_screen(task: tuple) -> float:
+    """Pool worker: modern-era screen metric for one (strategy_name, params)."""
+    strat_name, params = task
+    from strategies.library import STRATEGY_REGISTRY
+
+    fn = STRATEGY_REGISTRY[strat_name]
+    return _screen_share(
+        _PARALLEL_CTX["screen_df"], fn, params, strat_name, _PARALLEL_CTX["screen_from"]
+    )
+
+
+def _screen_share(screen_df, strategy_fn, params: dict, name: str, eval_from) -> float:
+    """Successive-halving screen metric: modern-era share_multiple.
+
+    Reuses validation.candidate.run_eval's eval_from path, which already
+    implements the era growth-ratio convention (warmup prefix feeds indicators
+    only; the scored share_multiple starts at the modern boundary).
+    """
+    from validation.candidate import run_eval
+
+    metrics = run_eval(screen_df, strategy_fn, params, name, eval_from=eval_from)
+    if metrics.get("error"):
+        return 0.0
+    return float(metrics.get("share_multiple", 0.0) or 0.0)
+
+
+def _resolve_workers(workers: int | None) -> int:
+    if workers is not None:
+        return max(1, int(workers))
+    return max(1, (os.cpu_count() or 2) - 2)
+
+
+def _create_eval_pool(workers: int | None):
+    """Create the once-per-chunk fork pool, or None to run serial.
+
+    Never raises: platforms without fork (or sandboxed environments that
+    refuse subprocesses) silently degrade to the serial path so parallelism
+    can never crash a run.
+    """
+    n_workers = _resolve_workers(workers)
+    if n_workers <= 1:
+        return None
+    try:
+        ctx = multiprocessing.get_context("fork")
+        return ctx.Pool(processes=n_workers)
+    except Exception as e:
+        print(f"[parallel] fork pool unavailable ({e}) — running serial")
+        return None
+
+
+def _close_eval_pool(pool_state: dict) -> None:
+    pool = pool_state.get("pool")
+    if pool is None:
+        return
+    try:
+        pool.close()
+        pool.join()
+    except Exception:
+        try:
+            pool.terminate()
+        except Exception:
+            pass
+    pool_state["pool"] = None
+
+
+def _pool_map(pool_state: dict | None, worker_fn, tasks: list, serial_fn) -> list:
+    """Order-preserving map with automatic serial fallback.
+
+    pool.map preserves task order, so parallel results are positionally
+    identical to serial ones. Any pool failure permanently downgrades the
+    chunk to serial (pool_state["pool"] = None) instead of crashing the run.
+    """
+    pool = pool_state.get("pool") if pool_state else None
+    if pool is not None and len(tasks) > 1:
+        try:
+            return pool.map(worker_fn, tasks)
+        except Exception as e:
+            print(f"[parallel] pool map failed ({e}) — serial for the rest of this chunk")
+            try:
+                pool.terminate()
+            except Exception:
+                pass
+            pool_state["pool"] = None
+    return [serial_fn(t) for t in tasks]
+
+
+def _build_screen_frame(df):
+    """Build the successive-halving screen slice: warmup prefix + modern era.
+
+    Returns (screen_df, eval_from) or (None, None) when screening is pointless
+    — no modern bars, or the slice covers ~the whole frame (e.g. a cross-asset
+    df that already starts post-2015), where a screen backtest would cost as
+    much as the full evaluation it is supposed to avoid.
+
+    The boundary is the canonical MODERN_ERA_START (the same date behind
+    `modern_share_multiple` and the fitness modern-era weight) — never a new
+    ad-hoc date.
+    """
+    from engine.strategy_engine import MODERN_ERA_START
+
+    if df is None or "date" not in df:
+        return None, None
+    mask = (df["date"] >= MODERN_ERA_START).values
+    if not mask.any():
+        return None, None
+    first = int(np.argmax(mask))
+    start = max(0, first - SCREEN_WARMUP_BARS)
+    screen_df = df.iloc[start:].reset_index(drop=True)
+    if len(screen_df) >= 0.9 * len(df):
+        return None, None
+    return screen_df, MODERN_ERA_START
+
+
+def _evaluate_population(
+    pop: list,
+    strat_name: str,
+    fn,
+    ind: Indicators,
+    df,
+    dedup_cache: dict,
+    history_stats: dict,
+    strat_tier: str,
+    *,
+    pool_state: dict | None = None,
+    screen_df=None,
+    screen_from=None,
+    halving_on: bool = False,
+) -> tuple[list, int]:
+    """Evaluate one strategy's population for one generation.
+
+    Returns (scored, n_new_full_evals); `scored` preserves population order so
+    the caller's sort produces identical rankings whether the work ran serial
+    or pooled. Stages:
+
+      1. dedup — parent-only dict lookups; duplicate configs inside the same
+         population resolve to a single evaluation (the serial loop got this
+         for free because the cache filled mid-loop)
+      2. optional modern-era screen of ALL cache-miss candidates (halving);
+         non-promoted candidates are pruned with a hash-index tombstone so
+         they are never retried and still count toward N_eff
+      3. full-history evaluation of the promoted candidates (pool or serial)
+    """
+    slots: list = [None] * len(pop)
+    pending: dict = {}  # config_hash -> {"params": dict, "indices": [int]}
+    miss_order: list = []  # hashes in first-seen order (determinism)
+    for i, params in enumerate(pop):
+        h = config_hash(strat_name, params)
+        cached = dedup_cache.get(h)
+        if _cache_entry_ready(cached):
+            fitness_score = fitness_from_cache(cached, tier=strat_tier)
+            marker_score = cached.get("ma", NEUTRAL_MARKER_SCORE)
+            if marker_score is None:
+                marker_score = NEUTRAL_MARKER_SCORE
+            discovery_score = discovery_score_from_cache(cached, tier=strat_tier)
+            slots[i] = (discovery_score, fitness_score, params, None, marker_score, None)
+            history_stats["cached_configs"] += 1
+        elif h in pending:
+            pending[h]["indices"].append(i)
+            history_stats["cached_configs"] += 1  # in-pop duplicate, as before
+        else:
+            pending[h] = {"params": params, "indices": [i]}
+            miss_order.append(h)
+
+    # ── Successive halving: screen misses on the modern slice, prune losers ──
+    pruned_hashes: set = set()
+    if halving_on and screen_df is not None and miss_order:
+        tasks = [(strat_name, pending[h]["params"]) for h in miss_order]
+        screen_scores = _pool_map(
+            pool_state, _worker_eval_screen, tasks,
+            serial_fn=lambda t: _screen_share(screen_df, fn, t[1], strat_name, screen_from),
+        )
+        promoted_idx = select_promoted([float(s) for s in screen_scores])
+        for j, h in enumerate(miss_order):
+            if j in promoted_idx:
+                continue
+            info = pending[h]
+            pruned_hashes.add(h)
+            dedup_cache[h] = pruned_cache_entry(
+                screen_scores[j], _count_tunable_params(info["params"])
+            )
+            for i in info["indices"]:
+                slots[i] = (0.0, 0.0, info["params"], None, NEUTRAL_MARKER_SCORE, None)
+        history_stats["screen_evals"] = history_stats.get("screen_evals", 0) + len(tasks)
+        history_stats["pruned_screen"] = (
+            history_stats.get("pruned_screen", 0) + len(pruned_hashes)
+        )
+
+    # ── Full-history evaluation of the surviving cache misses ──
+    eval_hashes = [h for h in miss_order if h not in pruned_hashes]
+    tasks = [(strat_name, pending[h]["params"]) for h in eval_hashes]
+    outputs = _pool_map(
+        pool_state, _worker_eval_full, tasks,
+        serial_fn=lambda t: evaluate(ind, df, fn, t[1], strat_name),
+    )
+    n_new = 0
+    for h, out in zip(eval_hashes, outputs):
+        fitness_score, discovery_score, marker_score, marker_detail, result = out
+        info = pending[h]
+        dedup_cache[h] = _cache_entry_from_result(info["params"], result, marker_score)
+        for i in info["indices"]:
+            slots[i] = (
+                discovery_score, fitness_score, info["params"],
+                result, marker_score, marker_detail,
+            )
+        history_stats["new_configs"] += 1
+        n_new += 1
+    return slots, n_new
+
+
+def _apply_early_filter_to_bests(
+    df, reg: dict, strategy_bests: dict, dedup_cache: dict, top_k: int = 5
+) -> list:
+    """Post-chunk validation-aligned early filter (2026-06-09).
+
+    Runs analyze_execution_realism + analyze_event_dependence (≈5 extra
+    backtests per config, once per chunk) on the chunk's top-K distinct
+    configs and applies the early_filter.filter_decision verdicts:
+
+      hard → exclude from strategy_bests / best-run tracking / leaderboard
+             submission for this run, and stamp `pen`=0.25 on the hash-index
+             entry so future history seeding deprioritizes it
+      soft → keep, but demote the in-run ranking key by ×0.85
+
+    Mutates `strategy_bests` in place and returns the annotation list for the
+    results dict. Tuple layouts differ between evolve() (6 slots) and
+    evolve_chunk() (4 slots): only slots 0..2 (discovery, fitness, params) are
+    interpreted; trailing slots are blanked positionally on exclusion (floats
+    → NEUTRAL_MARKER_SCORE, objects → None) so both layouts survive.
+    """
+    from validation.candidate import analyze_event_dependence, analyze_execution_realism
+
+    ranked = sorted(
+        (
+            (name, tup) for name, tup in strategy_bests.items()
+            if tup[1] > 0 and tup[2] and name in reg
+        ),
+        key=lambda x: -x[1][1],
+    )
+    selected = []
+    seen_hashes = set()
+    for name, tup in ranked:
+        h = config_hash(name, tup[2])
+        if h in seen_hashes:
+            continue
+        seen_hashes.add(h)
+        selected.append((name, tup, h))
+        if len(selected) >= top_k:
+            break
+    if not selected:
+        return []
+
+    annotations = []
+    print(f"\n── Early filter (validation-aligned, top {len(selected)} configs) ──")
+    for name, tup, h in selected:
+        realism = analyze_execution_realism(df, reg[name], tup[2], name)
+        events = analyze_event_dependence(df, reg[name], tup[2], name)
+        degradation = float(realism.get("degradation_pct", 0.0))
+        collapse = float(events.get("worst_collapse", 0.0))
+        decision = filter_decision(degradation, collapse)
+        if decision == "hard":
+            action = "exclude"
+            blanked = (0.0, 0.0, {}) + tuple(
+                NEUTRAL_MARKER_SCORE if isinstance(v, (int, float)) else None
+                for v in tup[3:]
+            )
+            strategy_bests[name] = blanked
+            cached = dedup_cache.get(h)
+            if isinstance(cached, dict):
+                cached["pen"] = HARD_CACHE_FITNESS_PENALTY
+        elif decision == "soft":
+            action = "demote"
+            strategy_bests[name] = (tup[0] * SOFT_RANK_MULTIPLIER,) + tuple(tup[1:])
+            print(
+                f"  WARNING {name}: soft breach — ranking key demoted "
+                f"×{SOFT_RANK_MULTIPLIER}"
+            )
+        else:
+            action = "keep"
+        print(
+            f"  {action.upper():7s} {name:<22} "
+            f"next-open degradation={degradation:+.1f}% "
+            f"event collapse={collapse:.2f} ({events.get('worst_event') or '-'})"
+        )
+        annotations.append({
+            "strategy": name,
+            "config_hash": h,
+            "params": tup[2],
+            "degradation_pct": round(degradation, 2),
+            "worst_collapse": round(collapse, 4),
+            "worst_event": events.get("worst_event"),
+            "decision": decision,
+            "action": action,
+        })
+    return annotations
 
 
 def evolve_bayesian(ind, df, strategy_name, strategy_fn, space, hours, dedup_cache, history_stats):
@@ -1082,10 +1477,24 @@ def evolve_bayesian(ind, df, strategy_name, strategy_fn, space, hours, dedup_cac
     )
 
 
+SEARCH_ROSTER_FILE = os.path.join(PROJECT_ROOT, "spike", "search-roster.json")
+
+
+def _load_retired_roster() -> set:
+    """Families retired from default search (spike/search-roster.json)."""
+    try:
+        with open(SEARCH_ROSTER_FILE) as f:
+            roster = json.load(f)
+        return set(roster.get("retired") or [])
+    except (OSError, ValueError):
+        return set()
+
+
 def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
            run_dir: str | None = None, strategies: list[str] | None = None,
            bayesian: bool = False, publish_leaderboard: bool = True,
-           write_report: bool = True) -> dict:
+           write_report: bool = True, early_filter: bool = True,
+           workers: int | None = None, halving: bool = True) -> dict:
     """
     Run the evolutionary optimizer. Returns the results dict.
 
@@ -1096,6 +1505,13 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
     quick : shorter report intervals
     run_dir : directory to save results (optional, for spike_runner)
     strategies : optional list of strategy names to run (default: all)
+    early_filter : run the validation-aligned execution-realism +
+        event-dependence filter on the run's top configs at the end
+        (a full `evolve` run is one chunk for filtering purposes)
+    workers : fork-pool size for population evaluation (None → cpu_count-2;
+        <=1 → serial). GA path only — the bayesian path stays serial.
+    halving : successive-halving modern-era screen before full-history
+        evaluation (auto-disabled below pop 16)
     """
     # Late import to pick up any new strategies added between runs
     from strategies.library import STRATEGY_REGISTRY, STRATEGY_PARAMS
@@ -1108,8 +1524,23 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
         STRATEGY_REGISTRY_FILTERED = {k: v for k, v in STRATEGY_REGISTRY.items() if k in strategies}
         STRATEGY_PARAMS_FILTERED = {k: v for k, v in STRATEGY_PARAMS.items() if k in strategies}
     else:
-        STRATEGY_REGISTRY_FILTERED = STRATEGY_REGISTRY
-        STRATEGY_PARAMS_FILTERED = STRATEGY_PARAMS
+        # Search-roster curation (2026-06-09): families listed as retired in
+        # spike/search-roster.json are excluded from DEFAULT search. They stay
+        # registered (board rows / null calibration / explicit --strategies
+        # still work) — retirement only stops the GA spending default compute
+        # on families the project's own scans showed cannot clear the Gold
+        # economics floor. Edit the roster file to retire/revive.
+        retired = _load_retired_roster()
+        STRATEGY_REGISTRY_FILTERED = {
+            k: v for k, v in STRATEGY_REGISTRY.items() if k not in retired
+        }
+        STRATEGY_PARAMS_FILTERED = {
+            k: v for k, v in STRATEGY_PARAMS.items() if k not in retired
+        }
+        if retired:
+            active = sum(1 for k in STRATEGY_PARAMS_FILTERED)
+            print(f"[roster] {len(retired)} families retired from default search; "
+                  f"{active} searchable families active")
 
     if bayesian:
         _require_optuna()
@@ -1128,7 +1559,8 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
 
     # ── Load hash index for dedup ──
     dedup_cache = load_hash_index()  # hash -> fitness
-    history_stats = {"cached_configs": 0, "new_configs": 0, "seeded_per_strategy": 0}
+    history_stats = {"cached_configs": 0, "new_configs": 0, "seeded_per_strategy": 0,
+                     "screen_evals": 0, "pruned_screen": 0}
 
     if dedup_cache:
         print(f"[history] Dedup cache: {len(dedup_cache):,} configs with known fitness\n")
@@ -1264,7 +1696,26 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
 
     print("\n── Evolving ──")
 
+    # ── Parallel + halving setup (GA path only; bayesian stays serial) ──
+    # The pool is created ONCE per run, after the baselines warmed the
+    # parent's Indicators cache, so the fork snapshot ships warm caches.
+    screen_df, screen_from = _build_screen_frame(df) if halving else (None, None)
+    halving_on = halving_active(halving, pop_size) and screen_df is not None
+    pool_state = {"pool": None}
+    if not bayesian:
+        _set_parallel_context(df, ind, screen_df, screen_from)
+        pool_state["pool"] = _create_eval_pool(workers)
+        if pool_state["pool"] is not None:
+            print(f"[parallel] fork pool: {_resolve_workers(workers)} workers")
+        if halving_on:
+            print(f"[halving] modern-era screen: {len(screen_df)} bars "
+                  f"(eval from {str(screen_from)[:10]})")
+
     if bayesian:
+        # Optuna's NSGA-II evaluates trials one-at-a-time through study
+        # .optimize() (ask/tell), not as a batched population — there is no
+        # generation-shaped map to parallelize or screen, so this path stays
+        # serial and unscreened by design.
         print("Mode: Bayesian (Optuna NSGA-II Pareto)\n")
         per_strategy_hours = hours / max(1, len(active_strategies))
         for strat_name, fn in active_strategies.items():
@@ -1303,27 +1754,14 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
                 pop = populations[strat_name]
                 strat_tier = STRATEGY_TIERS.get(strat_name, "T2")
 
-                # Evaluate with dedup cache (v4: stores all era metrics, fitness computed on the fly)
-                scored = []
-                for params in pop:
-                    h = config_hash(strat_name, params)
-                    cached = dedup_cache.get(h)
-                    if _cache_entry_ready(cached):
-                        # v4 cache hit — recompute fitness from raw metrics
-                        fitness_score = fitness_from_cache(cached, tier=strat_tier)
-                        marker_score = cached.get("ma", NEUTRAL_MARKER_SCORE)
-                        discovery_score = discovery_score_from_cache(cached, tier=strat_tier)
-                        scored.append((discovery_score, fitness_score, params, None, marker_score, None))
-                        history_stats["cached_configs"] += 1
-                    else:
-                        # New config or stale entry (missing era metrics) — must evaluate
-                        fitness_score, discovery_score, marker_score, marker_detail, result = evaluate(
-                            ind, df, fn, params, strat_name
-                        )
-                        total_evals += 1
-                        scored.append((discovery_score, fitness_score, params, result, marker_score, marker_detail))
-                        dedup_cache[h] = _cache_entry_from_result(params, result, marker_score)
-                        history_stats["new_configs"] += 1
+                # Evaluate with dedup cache (v4: era metrics, fitness on the fly),
+                # optional halving screen, and the once-per-run fork pool.
+                scored, n_new = _evaluate_population(
+                    pop, strat_name, fn, ind, df, dedup_cache, history_stats,
+                    strat_tier, pool_state=pool_state, screen_df=screen_df,
+                    screen_from=screen_from, halving_on=halving_on,
+                )
+                total_evals += n_new
                 scored.sort(key=lambda x: x[0], reverse=True)
 
                 # Update strategy best
@@ -1438,6 +1876,8 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
                               f"t/yr={res.trades_per_year:.1f}  DD={res.max_drawdown_pct:.1f}%")
                 last_report = now
 
+    _close_eval_pool(pool_state)
+
     # ── Final report ──
     elapsed = (time.time() - start_time) / 3600
 
@@ -1488,7 +1928,25 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
                 discovery_score, fitness_score, params, result, marker_score, marker_detail
             )
 
-    # Re-sort after re-evaluation
+    # ── Early filter: validation-aligned post-run gate (2026-06-09) ──
+    # A full evolve() run is one "chunk"; both GA and bayesian paths land
+    # here. Runs AFTER the cached-best re-evaluation so soft demotions are
+    # not overwritten, and BEFORE save_hash_index so `pen` stamps persist.
+    early_filter_report = []
+    if early_filter:
+        early_filter_report = _apply_early_filter_to_bests(
+            df, active_strategies, strategy_bests, dedup_cache
+        )
+        if any(a["action"] == "exclude" for a in early_filter_report):
+            # Recompute the run winner from the surviving bests.
+            best_run_discovery, best_run_name, best_run_params = 0.0, "", {}
+            for s_name, tup in strategy_bests.items():
+                if tup[0] > best_run_discovery:
+                    best_run_discovery = tup[0]
+                    best_run_name = s_name
+                    best_run_params = dict(tup[2])
+
+    # Re-sort after re-evaluation + filtering
     rankings = sorted(strategy_bests.items(), key=lambda x: -x[1][0])
 
     # ── Save hash index ──
@@ -1551,6 +2009,8 @@ def evolve(hours: float = 8.0, pop_size: int = 40, quick: bool = False,
             "fitness": round(historical_best_fitness, 4),
             "params": historical_best_params,
         },
+        # Why each chunk-top config was kept/demoted/excluded (2026-06-09).
+        "early_filter": early_filter_report,
     }
 
     leaderboard_path = os.path.join(HISTORY_DIR, "leaderboard.json")
@@ -1638,6 +2098,9 @@ def evolve_chunk(
     strategies: list[str] | None = None,
     state: dict | None = None,
     df: object = None,
+    early_filter: bool = True,
+    workers: int | None = None,
+    halving: bool = True,
 ) -> dict:
     """
     Run the optimizer for a fixed number of minutes, then return results + state.
@@ -1649,12 +2112,18 @@ def evolve_chunk(
     ----------
     df : optional DataFrame to use instead of TECL. Pass TQQQ/QQQ data
          for cross-asset re-optimization (Tier 3 validation).
+    early_filter : post-chunk validation-aligned filter on the chunk's top
+         configs (execution realism + event dependence; 2026-06-09)
+    workers : fork-pool size for population evaluation (None → cpu_count-2;
+         <=1 → serial)
+    halving : successive-halving modern-era screen (off below pop 16)
 
     Returns dict with:
       rankings: sorted strategy results
       state: serializable dict to pass to the next chunk
       diagnostics: per-strategy boundary hits, diversity, improvement
       best_ever: {strategy, fitness, params}
+      early_filter: per-config filter annotations (why kept/demoted/excluded)
     """
     from strategies.library import STRATEGY_REGISTRY, STRATEGY_PARAMS
 
@@ -1674,7 +2143,8 @@ def evolve_chunk(
     ind = Indicators(df)
 
     dedup_cache = load_hash_index()
-    history_stats = {"cached_configs": 0, "new_configs": 0, "seeded_per_strategy": 0}
+    history_stats = {"cached_configs": 0, "new_configs": 0, "seeded_per_strategy": 0,
+                     "screen_evals": 0, "pruned_screen": 0}
 
     leaderboard_path = os.path.join(HISTORY_DIR, "leaderboard.json")
 
@@ -1782,6 +2252,19 @@ def evolve_chunk(
     last_report = start_time
     gen_start = generation
 
+    # Once-per-chunk fork pool + halving screen frame (2026-06-09). The
+    # parent's Indicators cache (warmed by baselines on fresh starts) rides
+    # into the workers via the fork snapshot of _PARALLEL_CTX.
+    screen_df, screen_from = _build_screen_frame(df) if halving else (None, None)
+    halving_on = halving_active(halving, pop_size) and screen_df is not None
+    _set_parallel_context(df, ind, screen_df, screen_from)
+    pool_state = {"pool": _create_eval_pool(workers)}
+    if pool_state["pool"] is not None:
+        print(f"[parallel] fork pool: {_resolve_workers(workers)} workers")
+    if halving_on:
+        print(f"[halving] modern-era screen: {len(screen_df)} bars "
+              f"(eval from {str(screen_from)[:10]})")
+
     try:
         while time.time() < end_time and not _interrupted[0]:
             generation += 1
@@ -1791,25 +2274,13 @@ def evolve_chunk(
                 pop = populations[strat_name]
                 strat_tier = STRATEGY_TIERS.get(strat_name, "T2")
 
-                # Evaluate
-                scored = []
-                for params in pop:
-                    h = config_hash(strat_name, params)
-                    cached = dedup_cache.get(h)
-                    if _cache_entry_ready(cached):
-                        fitness_score = fitness_from_cache(cached, tier=strat_tier)
-                        marker_score = cached.get("ma", NEUTRAL_MARKER_SCORE)
-                        discovery_score = discovery_score_from_cache(cached, tier=strat_tier)
-                        scored.append((discovery_score, fitness_score, params, None, marker_score, None))
-                        history_stats["cached_configs"] += 1
-                    else:
-                        fitness_score, discovery_score, marker_score, marker_detail, result = evaluate(
-                            ind, df, fn, params, strat_name
-                        )
-                        total_evals += 1
-                        scored.append((discovery_score, fitness_score, params, result, marker_score, marker_detail))
-                        dedup_cache[h] = _cache_entry_from_result(params, result, marker_score)
-                        history_stats["new_configs"] += 1
+                # Evaluate (dedup in parent, screen + full evals via pool)
+                scored, n_new = _evaluate_population(
+                    pop, strat_name, fn, ind, df, dedup_cache, history_stats,
+                    strat_tier, pool_state=pool_state, screen_df=screen_df,
+                    screen_from=screen_from, halving_on=halving_on,
+                )
+                total_evals += n_new
                 scored.sort(key=lambda x: x[0], reverse=True)
 
                 # Update bests
@@ -1899,6 +2370,27 @@ def evolve_chunk(
     finally:
         signal.signal(signal.SIGINT, old_sigint)
         signal.signal(signal.SIGTERM, old_sigterm)
+        _close_eval_pool(pool_state)
+
+    # ── Early filter: validation-aligned post-chunk gate (2026-06-09) ──
+    # Runs before save_hash_index so hard-breach `pen` stamps persist.
+    early_filter_report = []
+    if early_filter:
+        early_filter_report = _apply_early_filter_to_bests(
+            df, REG, strategy_bests, dedup_cache
+        )
+        excluded_hashes = {
+            a["config_hash"] for a in early_filter_report if a["action"] == "exclude"
+        }
+        if excluded_hashes and config_hash(best_ever_name, best_ever_params) in excluded_hashes:
+            # The chunk champion itself breached — fall back to the best
+            # surviving config (prior-chunk bests live in strategy_bests too).
+            best_ever_score, best_ever_name, best_ever_params = 0.0, "", {}
+            for s_name, tup in strategy_bests.items():
+                if tup[0] > best_ever_score:
+                    best_ever_score = tup[0]
+                    best_ever_name = s_name
+                    best_ever_params = dict(tup[2])
 
     # Save dedup cache
     save_hash_index(dedup_cache)
@@ -1983,6 +2475,8 @@ def evolve_chunk(
         "elapsed_minutes": round(elapsed, 1),
         "generations": gens_this_chunk,
         "total_evals": total_evals,
+        # Why each chunk-top config was kept/demoted/excluded (2026-06-09).
+        "early_filter": early_filter_report,
     }
 
 
@@ -1993,6 +2487,12 @@ def main():
     parser.add_argument("--quick", action="store_true")
     parser.add_argument("--bayesian", action="store_true",
                         help="Use Optuna NSGA-II multi-objective search")
+    parser.add_argument("--workers", type=int, default=None,
+                        help="Fork-pool size for population eval (default cpu_count-2; 1=serial)")
+    parser.add_argument("--no-early-filter", action="store_true",
+                        help="Skip the post-run validation-aligned early filter")
+    parser.add_argument("--no-halving", action="store_true",
+                        help="Skip the successive-halving modern-era screen")
     parser.add_argument("--list", action="store_true", help="List strategies and exit")
     parser.add_argument("--converge", type=str, help="Flag strategy as converged")
     parser.add_argument("--unconverge", type=str, help="Unflag strategy (resume optimization)")
@@ -2021,7 +2521,9 @@ def main():
             print(f"  {name:<22} {len(space)} params")
         return
 
-    evolve(hours=args.hours, pop_size=args.pop_size, quick=args.quick, bayesian=args.bayesian)
+    evolve(hours=args.hours, pop_size=args.pop_size, quick=args.quick,
+           bayesian=args.bayesian, workers=args.workers,
+           early_filter=not args.no_early_filter, halving=not args.no_halving)
 
 
 if __name__ == "__main__":

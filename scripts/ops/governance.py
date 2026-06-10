@@ -70,6 +70,12 @@ def evaluate_governance(
         blockers.append("data quality has failing checks")
     if live_holdout and live_holdout.get("diverged_count", 0):
         blockers.append("live holdout replay diverged from point-in-time signals")
+    # 2026-06-09 live-demotion rule: live evidence demotion is a hard blocker,
+    # not an advisory — forward evidence outranks the backtest claim.
+    demotion = live_holdout.get("demotion") or {}
+    if demotion.get("demote"):
+        demotion_reasons = "; ".join(str(r) for r in demotion.get("reasons") or []) or "unspecified"
+        blockers.append(f"live evidence demotion: {demotion_reasons}")
 
     confidence_drift = (live_holdout.get("confidence_drift") or {}).get("delta")
     if isinstance(confidence_drift, (int, float)) and confidence_drift <= min_confidence_drift:
@@ -138,6 +144,7 @@ def evaluate_governance(
             "active_champion_performance_since_live_start": live_holdout.get(
                 "active_champion_performance_since_live_start"
             ),
+            "demotion": demotion or None,
         },
         "strategy_review": {
             "status": strategy_review.get("status"),
@@ -203,6 +210,14 @@ def build_governance(
             "Active champion requires manual review.",
             severity="error",
             payload=report,
+        )
+    demotion = (report.get("live_holdout") or {}).get("demotion") or {}
+    if demotion.get("demote"):
+        append_event(
+            "live_demotion",
+            "Live evidence demoted the active champion.",
+            severity="error",
+            payload={"demotion": demotion, "governance_state": report.get("state")},
         )
     return report
 

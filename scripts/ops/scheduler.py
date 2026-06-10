@@ -59,6 +59,22 @@ DEFAULT_SCHEDULE: dict[str, Any] = {
             "schedule": {"Hour": 13, "Minute": 40},
             "description": "Confirm the active strategy is the highest-confidence certified leaderboard strategy.",
         },
+        "spike_drain": {
+            "enabled": True,
+            "job": "spike-drain",
+            "label": "Nightly spike drain",
+            "schedule": {"Hour": 2, "Minute": 0},
+            # Compute budget read by run_job.job_command at launch time so the
+            # nightly drain is tunable from runs/scheduler/config.json without
+            # code edits (2026-06-09). "hours" bounds the GA wall clock; add an
+            # optional "pop_size" key to override spike_runner's default (40).
+            "hours": 2.0,
+            "description": (
+                "Drain idle overnight compute into the curated search roster via a "
+                "headless spike_runner GA run. Budget keys: hours (default 2.0), "
+                "optional pop_size (default: spike_runner's built-in 40)."
+            ),
+        },
         "weekly-recertify": {
             "enabled": False,
             "job": "recertify-leaderboard",

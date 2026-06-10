@@ -8,7 +8,8 @@
       "Bash(git config --global user.name \"maxhammons\")",
       "Bash(git show *)",
       "Bash(code --add \"/Users/maxhammons/Documents/Projects/project-moonbeam\")",
-      "Bash(mkdir -p \"/Users/maxhammons/Documents/Projects/project-moonbeam/presentation\")"
+      "Bash(mkdir -p \"/Users/maxhammons/Documents/Projects/project-moonbeam/presentation\")",
+      "Bash(~/Documents/.venv/bin/python3 -c ' *)"
     ],
     "additionalDirectories": [
       "/Users/maxhammons/Documents/Projects/project-moonbeam"

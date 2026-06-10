@@ -41,15 +41,68 @@ NULL_CACHE_FILE = os.path.join(PROJECT_ROOT, "spike", "null-distribution.json")
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-def estimate_n_eff_heuristic(
-    n_families: int = 15, effective_per_family: int = 20
-) -> int:
+N_EFF_FLOOR = 300  # legacy structural heuristic, kept as an absolute floor
+N_EFF_STATE_FILE = os.path.join(PROJECT_ROOT, "spike", "n-eff-state.json")
+
+
+def estimate_n_eff() -> int:
+    """Effective number of search trials, measured from the actual search history.
+
+    Until 2026-06-09 this returned a hardcoded 300 while the hash-index held
+    4,116+ deduplicated evaluated configs — understating multiplicity >10x.
+
+    Estimator: the count of deduplicated configs in `spike/hash-index.json`.
+    Treating every deduped config as an independent trial is deliberately
+    CONSERVATIVE for certification: correlated GA mutations have lower true
+    multiplicity, so this upper bound deflates harder than reality, never
+    softer. (The eigenvalue-based refinement needs per-config param vectors /
+    return series, which the index does not store — tracked in the Phase-2
+    backlog.)
+
+    A high-water mark is persisted so pruning or rebuilding the hash-index can
+    never quietly relax the deflation bar: N_eff only ratchets upward.
     """
-    Structural heuristic: GA mutations are highly correlated (rho ~0.95).
-    Each family explores ~10-30 distinct basins. Conservative lower bound.
-    Sprint 4 will add eigenvalue-based estimation.
-    """
-    return n_families * effective_per_family
+    n_raw = 0
+    try:
+        with open(HASH_INDEX_FILE) as f:
+            index = json.load(f)
+        if isinstance(index, dict):
+            n_raw = len(index.get("entries", index))
+    except (OSError, ValueError):
+        n_raw = 0
+
+    high_water = 0
+    try:
+        with open(N_EFF_STATE_FILE) as f:
+            high_water = int(json.load(f).get("high_water", 0))
+    except (OSError, ValueError):
+        high_water = 0
+
+    n_eff = max(n_raw, high_water, N_EFF_FLOOR)
+    if n_eff > high_water:
+        try:
+            tmp = N_EFF_STATE_FILE + ".tmp"
+            with open(tmp, "w") as f:
+                json.dump(
+                    {
+                        "high_water": n_eff,
+                        "hash_index_count": n_raw,
+                        "updated_utc": time.strftime(
+                            "%Y-%m-%dT%H:%M:%SZ", time.gmtime()
+                        ),
+                    },
+                    f,
+                    indent=2,
+                )
+            os.replace(tmp, N_EFF_STATE_FILE)
+        except OSError:
+            pass  # state persistence is best-effort; the live count still rules
+    return n_eff
+
+
+def estimate_n_eff_heuristic(*_args, **_kwargs) -> int:
+    """Deprecated alias — use estimate_n_eff(). Kept so stale callers fail soft."""
+    return estimate_n_eff()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -57,8 +110,36 @@ def estimate_n_eff_heuristic(
 # ─────────────────────────────────────────────────────────────────────────────
 
 
+def _calibration_fingerprint() -> dict:
+    """Identify the engine + data the null was calibrated on.
+
+    A cached null is only valid for the engine code and dataset that produced
+    it. Before 2026-06-09 the cache was reused forever — a strategy could be
+    deflated against a null computed on a different engine or stale data.
+    """
+    import hashlib
+
+    engine_hash = "unknown"
+    try:
+        from search.evolve import _ENGINE_HASH
+
+        engine_hash = _ENGINE_HASH
+    except Exception:
+        pass
+    data_fingerprint = "unknown"
+    manifest_path = os.path.join(PROJECT_ROOT, "data", "manifest.json")
+    try:
+        with open(manifest_path, "rb") as f:
+            data_fingerprint = hashlib.sha256(f.read()).hexdigest()[:16]
+    except OSError:
+        pass
+    return {"engine_hash": engine_hash, "data_fingerprint": data_fingerprint}
+
+
 def calibrate_null_distribution(
-    samples_per_family: int = 40, use_cache: bool = True
+    samples_per_family: int = 40,
+    use_cache: bool = True,
+    min_valid: int = 5000,
 ) -> dict:
     """
     Run random parameter configs across all strategy families, compute
@@ -67,13 +148,21 @@ def calibrate_null_distribution(
     This is the empirical null: "what Regime Score would a random
     trend-following strategy achieve on TECL?"
 
-    Caches results to avoid re-running.
+    The cache is keyed on (engine hash, data fingerprint, n_valid): it is
+    reused only when calibrated on the same engine + data with at least
+    `min_valid` valid samples. The Beta fit has NO silent fallback — an
+    infeasible method-of-moments fit raises instead of substituting
+    Beta(10,10) (which would silently misstate the null's tails).
     """
-    # Check cache
+    fingerprint = _calibration_fingerprint()
     if use_cache and os.path.exists(NULL_CACHE_FILE):
         with open(NULL_CACHE_FILE) as f:
             cached = json.load(f)
-        if cached.get("samples_per_family", 0) >= samples_per_family:
+        if (
+            cached.get("n_valid", 0) >= min_valid
+            and cached.get("engine_hash") == fingerprint["engine_hash"]
+            and cached.get("data_fingerprint") == fingerprint["data_fingerprint"]
+        ):
             return cached
 
     from data.loader import get_tecl_data
@@ -90,56 +179,88 @@ def calibrate_null_distribution(
     t0 = time.time()
     rs_values = []
     per_family = {}
+    families = [
+        (fam_name, fam_fn, STRATEGY_PARAMS.get(fam_name, {}))
+        for fam_name, fam_fn in STRATEGY_REGISTRY.items()
+        if STRATEGY_PARAMS.get(fam_name)
+    ]
 
-    for fam_name, fam_fn in STRATEGY_REGISTRY.items():
-        space = STRATEGY_PARAMS.get(fam_name, {})
-        if not space:
-            continue
-        fam_rs = []
-        for _ in range(samples_per_family):
-            params = random_params(space)
-            try:
-                entries, exits, labels = fam_fn(ind, params)
-                cooldown = params.get("cooldown", 0)
-                result = backtest(
-                    df,
-                    entries,
-                    exits,
-                    labels,
-                    cooldown_bars=cooldown,
-                    strategy_name=fam_name,
-                )
-                if result.num_trades >= 3:
-                    rs = score_regime_capture(result.trades, close, dates)
-                    rs_values.append(rs.composite)
-                    fam_rs.append(rs.composite)
-            except (ValueError, RuntimeError, KeyError, IndexError) as e:
-                # MC samples can fail on degenerate random params; log and continue
-                # so the null distribution isn't silently skewed by hidden failures.
-                print(
-                    f"  [MC skip] {fam_name}: {type(e).__name__}: {e}", file=sys.stderr
-                )
-        if fam_rs:
-            per_family[fam_name] = {
-                "mean": round(float(np.mean(fam_rs)), 4),
-                "std": round(float(np.std(fam_rs)), 4),
-                "n": len(fam_rs),
-            }
+    # Round-robin over families until the valid-sample target is met, so the
+    # null is family-balanced at any size. MAX_ROUNDS bounds runaway sampling
+    # when most random configs are degenerate (<3 trades).
+    MAX_ROUNDS = 50
+    rounds = 0
+    while len(rs_values) < min_valid and rounds < MAX_ROUNDS:
+        rounds += 1
+        for fam_name, fam_fn, space in families:
+            fam_rs = per_family.setdefault(fam_name, [])
+            for _ in range(samples_per_family):
+                params = random_params(space)
+                try:
+                    entries, exits, labels = fam_fn(ind, params)
+                    cooldown = params.get("cooldown", 0)
+                    result = backtest(
+                        df,
+                        entries,
+                        exits,
+                        labels,
+                        cooldown_bars=cooldown,
+                        strategy_name=fam_name,
+                    )
+                    if result.num_trades >= 3:
+                        rs = score_regime_capture(result.trades, close, dates)
+                        rs_values.append(rs.composite)
+                        fam_rs.append(rs.composite)
+                except (ValueError, RuntimeError, KeyError, IndexError) as e:
+                    # MC samples can fail on degenerate random params; log and
+                    # continue so the null isn't silently skewed.
+                    print(
+                        f"  [MC skip] {fam_name}: {type(e).__name__}: {e}",
+                        file=sys.stderr,
+                    )
+            if len(rs_values) >= min_valid:
+                break
+        print(
+            f"  [MC] round {rounds}: {len(rs_values)} valid samples "
+            f"(target {min_valid})",
+            file=sys.stderr,
+        )
+
+    per_family = {
+        fam: {
+            "mean": round(float(np.mean(vals)), 4),
+            "std": round(float(np.std(vals)), 4),
+            "n": len(vals),
+        }
+        for fam, vals in per_family.items()
+        if vals
+    }
 
     elapsed = time.time() - t0
     v = np.array(rs_values)
+    if len(v) < 100:
+        raise RuntimeError(
+            f"null calibration produced only {len(v)} valid samples — "
+            "cannot fit a trustworthy null distribution"
+        )
 
-    # Fit Beta via method of moments
+    # Fit Beta via method of moments — fail loud on an infeasible fit.
     mu, var = float(v.mean()), float(v.var())
-    if var < mu * (1 - mu) and var > 0:
-        common = mu * (1 - mu) / var - 1
-        alpha = mu * common
-        beta_param = (1 - mu) * common
-    else:
-        alpha, beta_param = 10.0, 10.0  # fallback
+    if not (var < mu * (1 - mu) and var > 0):
+        raise RuntimeError(
+            f"Beta method-of-moments fit infeasible (mu={mu:.4f}, var={var:.6f}) — "
+            "refusing to substitute a default null"
+        )
+    common = mu * (1 - mu) / var - 1
+    alpha = mu * common
+    beta_param = (1 - mu) * common
 
     result = {
         "samples_per_family": samples_per_family,
+        "min_valid_target": min_valid,
+        "rounds": rounds,
+        "engine_hash": fingerprint["engine_hash"],
+        "data_fingerprint": fingerprint["data_fingerprint"],
         "n_valid": len(rs_values),
         "elapsed_seconds": round(elapsed, 1),
         "rs_mean": round(mu, 4),
@@ -238,7 +359,7 @@ if __name__ == "__main__":
         samples_per_family=args.samples,
         use_cache=not args.recalibrate,
     )
-    n_eff = args.n_eff or estimate_n_eff_heuristic()
+    n_eff = args.n_eff or estimate_n_eff()
 
     print(
         f"\nNull distribution ({null['n_valid']} samples, {null['elapsed_seconds']}s):"

@@ -72,7 +72,7 @@ See `validation/__init__.py` and `validation/pipeline.py`. Each gate lives in it
 - `integrity.py` — gate 0 (engine integrity, golden regression, shadow comparator, data-quality precheck)
 - `candidate.py` — gate 1 (result-quality metrics)
 - `sprint1.py` — gate 2 (search-bias diagnostics, T2 only)
-- `walk_forward.py` — gate 4 (time-window generalization)
+- gate 4 (time-window generalization) lives in `candidate.py::analyze_walk_forward` — the old standalone `walk_forward.py` CLI was removed 2026-06-09 (broken, never imported)
 - `cross_asset.py` — gate 6 (TQQQ + QQQ portability + same-param re-opt)
 - `deflate.py` — Monte Carlo null distribution for regime scoring
 - `uncertainty.py` — gate 5 (Morris fragility + stationary bootstrap)
@@ -81,6 +81,7 @@ See `validation/__init__.py` and `validation/pipeline.py`. Each gate lives in it
 ### `certify/`
 - `certify_champion.py` — seal a single strategy as `backtest_certified=True`. Creates `spike/runs/NNN/` + emits the 5 standardized artifacts.
 - `recertify_leaderboard.py` — re-validate every leaderboard entry under today's rules. Use after engine patches or rule changes.
+- `verify_board_reproducibility.py` — recompute every row's canonical era metrics against current data/engine and compare to stored stamps. Report-only by default (exit 1 on drift, CI-able); `--stamp` writes per-row `reproducibility` blocks; `--enforce` drops stale rows (backed up, refuses to empty the board).
 - `backfill_artifacts.py` — materialize missing 5-artifact bundles for older run directories
 
 ### `diagnostics/`

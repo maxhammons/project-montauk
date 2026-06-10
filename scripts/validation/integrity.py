@@ -19,7 +19,11 @@ import numpy as np
 import pandas as pd
 
 from data.loader import get_qqq_data, get_tecl_data, get_tqqq_data
-from strategies.library import STRATEGY_PARAMS, STRATEGY_REGISTRY
+from strategies.library import (
+    CHARTER_INCOMPATIBLE_STRATEGIES,
+    STRATEGY_PARAMS,
+    STRATEGY_REGISTRY,
+)
 from engine.strategy_engine import StrategyParams, backtest as strategy_backtest, run_montauk_821
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -60,6 +64,12 @@ def _run_golden_regression_check() -> dict:
             golden = json.load(f)
 
         df = get_tecl_data(use_yfinance=False)
+        # Pin to the golden's data horizon (2026-06-09): the check must catch
+        # engine changes, not new bars. Bar immutability of the truncated
+        # prefix is enforced separately by data/quality.py::bar_immutability.
+        data_last_date = (golden.get("metadata") or {}).get("data_last_date")
+        if data_last_date:
+            df = df[df["date"] <= pd.Timestamp(data_last_date)].reset_index(drop=True)
         result = run_montauk_821(df, StrategyParams(), score_regimes=False)
         golden_trades = golden.get("trades", [])
         mismatches: list[str] = []
@@ -361,6 +371,121 @@ def _run_data_quality_precheck() -> dict:
         }
 
 
+def _run_engine_behavior_checks() -> dict:
+    """Executed engine-integrity checks — no self-reported flags.
+
+    Until 2026-06-09 `lookahead_safe` / `repaint_safe` / `bar_close_execution`
+    were hardcoded True. These checks actually run the canonical engine:
+
+    1. prefix_consistency (lookahead + repaint in one property): trades from a
+       truncated history must be a prefix of the full-history trades. A causal,
+       non-repainting engine cannot fail this; an engine that peeks at future
+       bars or revises history cannot pass it. Checked at two truncation
+       depths so both short- and long-horizon peeking would surface.
+    2. bar_close_fills: every recorded fill equals that bar's close adjusted
+       by slippage (buy above, sell below) — the documented
+       process_orders_on_close contract. End-of-Data rows are mark-to-market
+       at the raw close by design and are checked as such.
+    3. single_position: no trade may open before the previous trade's exit bar.
+    """
+    checks: dict = {}
+    failures: list[str] = []
+    try:
+        df = get_tecl_data(use_yfinance=False)
+        params = StrategyParams()
+        full = run_montauk_821(df, params, score_regimes=False)
+
+        # ── 1. Prefix consistency (lookahead + repaint) ──
+        prefix_issues: list[str] = []
+        for depth in (30, 250):
+            trunc_df = df.iloc[:-depth].reset_index(drop=True)
+            trunc = run_montauk_821(trunc_df, params, score_regimes=False)
+            if len(trunc.trades) > len(full.trades):
+                prefix_issues.append(
+                    f"depth={depth}: truncated run has MORE trades "
+                    f"({len(trunc.trades)}) than full ({len(full.trades)})"
+                )
+                continue
+            for i, tt in enumerate(trunc.trades):
+                ft = full.trades[i]
+                if tt.entry_date != ft.entry_date or abs(
+                    float(tt.entry_price) - float(ft.entry_price)
+                ) > PRICE_TOLERANCE:
+                    prefix_issues.append(
+                        f"depth={depth} trade {i}: entry diverged "
+                        f"({tt.entry_date}/{tt.entry_price:.6f} vs "
+                        f"{ft.entry_date}/{ft.entry_price:.6f})"
+                    )
+                    break
+                if tt.exit_reason == "End of Data":
+                    continue  # trade still open at truncation in full history
+                if (
+                    tt.exit_date != ft.exit_date
+                    or tt.exit_reason != ft.exit_reason
+                    or abs(float(tt.exit_price) - float(ft.exit_price)) > PRICE_TOLERANCE
+                ):
+                    prefix_issues.append(
+                        f"depth={depth} trade {i}: exit diverged "
+                        f"({tt.exit_date}/{tt.exit_reason} vs {ft.exit_date}/{ft.exit_reason})"
+                    )
+                    break
+        checks["prefix_consistency"] = {
+            "passed": not prefix_issues,
+            "depths_tested": [30, 250],
+            "issues": prefix_issues[:5],
+        }
+        if prefix_issues:
+            failures.append("prefix consistency (lookahead/repaint) failed")
+
+        # ── 2. Bar-close fill contract ──
+        close_by_date = {
+            str(d)[:10]: float(c) for d, c in zip(df["date"].values, df["close"].values)
+        }
+        slip = float(params.slippage_pct) / 100.0
+        fill_issues: list[str] = []
+        for i, t in enumerate(full.trades):
+            expected_entry = close_by_date[t.entry_date] * (1 + slip)
+            if abs(float(t.entry_price) - expected_entry) > PRICE_TOLERANCE:
+                fill_issues.append(
+                    f"trade {i}: entry fill {t.entry_price:.6f} != close+slip {expected_entry:.6f}"
+                )
+            if t.exit_reason == "End of Data":
+                expected_exit = close_by_date[t.exit_date]  # mark, not fill
+            else:
+                expected_exit = close_by_date[t.exit_date] * (1 - slip)
+            if t.exit_price is not None and abs(float(t.exit_price) - expected_exit) > PRICE_TOLERANCE:
+                fill_issues.append(
+                    f"trade {i}: exit fill {t.exit_price:.6f} != expected {expected_exit:.6f}"
+                )
+        checks["bar_close_fills"] = {
+            "passed": not fill_issues,
+            "trades_checked": len(full.trades),
+            "issues": fill_issues[:5],
+        }
+        if fill_issues:
+            failures.append("bar-close fill contract violated")
+
+        # ── 3. Single-position invariant ──
+        overlap_issues = [
+            f"trade {i + 1} opened at bar {nxt.entry_bar} before trade {i} exited at bar {prev.exit_bar}"
+            for i, (prev, nxt) in enumerate(zip(full.trades, full.trades[1:]))
+            if nxt.entry_bar < (prev.exit_bar or 0)
+        ]
+        checks["single_position"] = {
+            "passed": not overlap_issues,
+            "issues": overlap_issues[:5],
+        }
+        if overlap_issues:
+            failures.append("overlapping trades detected (single-position violated)")
+
+        return {"checks": checks, "failures": failures}
+    except Exception as exc:
+        return {
+            "checks": checks,
+            "failures": failures + [f"engine behavior checks errored: {exc}"],
+        }
+
+
 def validate_run_integrity(strategy_names: list[str]) -> dict:
     datasets = {}
     errors = []
@@ -384,14 +509,19 @@ def validate_run_integrity(strategy_names: list[str]) -> dict:
 
     signature = inspect.signature(strategy_backtest)
     slippage_default = signature.parameters["slippage_pct"].default
+    behavior = _run_engine_behavior_checks()
     engine = {
         "slippage_pct_default": slippage_default,
         "slippage_active": bool(slippage_default and slippage_default > 0),
-        "bar_close_execution": True,
-        "lookahead_safe": True,
-        "repaint_safe": True,
+        # Executed checks (see _run_engine_behavior_checks) — these used to be
+        # hardcoded True; now they reflect actual engine runs.
+        "bar_close_execution": behavior["checks"].get("bar_close_fills", {}).get("passed", False),
+        "lookahead_safe": behavior["checks"].get("prefix_consistency", {}).get("passed", False),
+        "repaint_safe": behavior["checks"].get("prefix_consistency", {}).get("passed", False),
+        "single_position": behavior["checks"].get("single_position", {}).get("passed", False),
+        "behavior_details": behavior["checks"],
     }
-    engine_errors = []
+    engine_errors = list(behavior["failures"])
     if not engine["slippage_active"]:
         engine_errors.append("strategy_engine.backtest has zero slippage by default")
     if engine_errors:
@@ -412,7 +542,10 @@ def validate_run_integrity(strategy_names: list[str]) -> dict:
     for strategy_name in sorted(set(strategy_names)):
         check = {
             "in_registry": strategy_name in STRATEGY_REGISTRY,
-            "charter_compatible": True,
+            # Real registry lookup (was hardcoded True): names listed in
+            # strategies/library.py::CHARTER_INCOMPATIBLE_STRATEGIES hard-fail
+            # Gate 1's charter-compatibility check.
+            "charter_compatible": strategy_name not in CHARTER_INCOMPATIBLE_STRATEGIES,
         }
         if not check["in_registry"]:
             errors.append(f"{strategy_name} missing from STRATEGY_REGISTRY")

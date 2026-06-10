@@ -13,6 +13,7 @@ SCRIPTS_DIR = Path(__file__).resolve().parents[1]
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
+from ops import signal_chain
 from ops.events import append_event, utc_now_iso
 from ops.paths import (
     LATEST_PATH,
@@ -94,9 +95,13 @@ def load_active_champion(leaderboard_path: Path = LEADERBOARD_PATH) -> dict[str,
             gold.append(entry)
     if gold:
         # Active champion = Montauk Score leader (the leaderboard's #1 ranking).
+        # Composite confidence is only a tie-breaker / legacy-row fallback.
         return max(
             gold,
-            key=lambda entry: float(entry.get("montauk_score") or 0.0),
+            key=lambda entry: (
+                float(entry.get("montauk_score") or 0.0),
+                float((entry.get("validation") or {}).get("composite_confidence") or 0.0),
+            ),
         )
     return leaderboard[0]
 
@@ -474,7 +479,26 @@ def write_signal_snapshot(
         if comparable_signal(existing) == comparable_signal(snapshot):
             return path, "unchanged", existing
         return path, "existing_differs", existing
+    # 2026-06-09 (Phase 3.1): every newly written snapshot embeds the sha256 of
+    # the previous date's snapshot file, so the snapshots themselves form a
+    # hash chain independent of the signals/chain.jsonl ledger appended below.
+    # Snapshots predating Phase 3.1 lack this field; the ledger covers them.
+    prior_path = previous_signal_path(target_date, signals_dir)
+    snapshot["prev_snapshot_sha256"] = (
+        signal_chain.file_sha256(prior_path) if prior_path else None
+    )
     _write_json(path, snapshot)
+    # Ledger append is best-effort: a broken chain is surfaced by verify_chain
+    # (CLI / chain_health), and must never abort the daily signal write. An
+    # allow_overwrite write of an already-ledgered date intentionally shows up
+    # as a hash_mismatch break — overwrites are tamper-visible by design.
+    try:
+        signal_chain.build_chain(
+            signals_dir=signals_dir,
+            chain_path=signals_dir / "chain.jsonl",
+        )
+    except OSError:
+        pass
     return path, "overwritten" if existed and allow_overwrite else "written", snapshot
 
 

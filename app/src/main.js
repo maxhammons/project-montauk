@@ -2004,21 +2004,112 @@ async function rebuildViz() {
   }
 }
 
+/* ===== Viz freshness =========================================================
+ * build_viz.py stamps every build with {generated_utc, data_end_date,
+ * leaderboard_sha256, signals_latest_date}. check_viz_freshness (Rust)
+ * compares that stamp against the live files; rebuild_viz (Rust, async)
+ * re-runs viz/build_viz.py with the project venv python. Open Viz is hard-
+ * gated: stale → rebuild first; rebuild fails → never open silently-stale. */
+
+const vizFreshness = { rebuilding: false, rebuildPromise: null };
+
+async function checkVizFreshness() {
+  const invoke = tauriInvoke("check_viz_freshness");
+  if (!invoke) return null;
+  try {
+    return await invoke;
+  } catch (error) {
+    // If the check itself breaks, treat the viz as stale so the gate rebuilds.
+    return { stale: true, reasons: [error?.message || String(error)] };
+  }
+}
+
+async function rebuildVizArtifacts() {
+  // Share one in-flight build: if Refresh and Open Viz both ask for a rebuild,
+  // they await the same build_viz.py run instead of racing on the same files.
+  if (vizFreshness.rebuildPromise) return vizFreshness.rebuildPromise;
+  const run = (async () => {
+    const invoke = tauriInvoke("rebuild_viz");
+    if (!invoke) return { ok: false, stdout_tail: "", error: "Tauri bridge is unavailable." };
+    try {
+      return (await invoke) || { ok: false, stdout_tail: "", error: "rebuild_viz returned no payload" };
+    } catch (error) {
+      return { ok: false, stdout_tail: "", error: error?.message || String(error) };
+    }
+  })();
+  vizFreshness.rebuildPromise = run.finally(() => {
+    vizFreshness.rebuildPromise = null;
+  });
+  return vizFreshness.rebuildPromise;
+}
+
+function vizRebuiltStamp() {
+  return `Viz rebuilt ${new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
+}
+
+/* Refresh-flow hook: after the Refresh button's maintenance pass completes,
+ * make sure the viz artifacts are current. Failures surface as status text
+ * only — they never block the rest of the refresh. */
+async function refreshVizAfterMaintenance() {
+  if (vizFreshness.rebuilding || !window.__TAURI__?.core) return;
+  vizFreshness.rebuilding = true;
+  try {
+    const check = await checkVizFreshness();
+    if (!check || !check.stale) return; // already current (daily job rebuilds it)
+    text("last-refreshed", "Rebuilding viz bundle…");
+    const result = await rebuildVizArtifacts();
+    if (result.ok) {
+      text("last-refreshed", vizRebuiltStamp());
+      // Hot-swap the embedded viz view onto the fresh bundle if it is booted.
+      if (vizState.booted && typeof window.__MONTAUK_VIZ__?.reset === "function") {
+        window.__MONTAUK_VIZ__.reset();
+        vizState.booted = false;
+        if (document.body.dataset.view === "viz") ensureVizBooted();
+      }
+    } else {
+      text("last-refreshed", `Viz rebuild failed: ${result.error || "unknown error"}`);
+    }
+  } finally {
+    vizFreshness.rebuilding = false;
+  }
+}
+
 async function popoutViz() {
-  const invoke = tauriInvoke("open_viz");
-  if (!invoke) {
+  if (!window.__TAURI__?.core) {
     showActionError(errorPayload("Open standalone", "open_viz", "Tauri bridge is unavailable.", {
       expected_context: "Use /Applications/Montauk.app, not the browser-only dev preview.",
       local_command: "open viz/montauk-viz.html",
     }));
     return;
   }
+  const button = document.getElementById("viz-popout-btn");
+  const restore = setButtonBusy("viz-popout-btn", true, "Checking…");
   try {
-    await invoke;
+    const check = await checkVizFreshness();
+    if (check?.stale) {
+      if (button) button.textContent = "Rebuilding…";
+      text("last-refreshed", "Viz is stale — rebuilding before opening…");
+      const result = await rebuildVizArtifacts();
+      if (!result.ok) {
+        // Hard gate: a stale viz that fails to rebuild is never opened.
+        text("last-refreshed", "Viz is stale and rebuild failed — not opening.");
+        showActionError(errorPayload("Open Viz", "rebuild_viz",
+          new Error(result.error || "viz is stale and rebuild failed"), {
+            stale_reasons: check.reasons || [],
+            stdout_tail: result.stdout_tail || "",
+            local_command: ".venv/bin/python viz/build_viz.py",
+          }));
+        return;
+      }
+      text("last-refreshed", vizRebuiltStamp());
+    }
+    await tauriInvoke("open_viz");
   } catch (error) {
     showActionError(errorPayload("Open standalone", "open_viz", error, {
       local_command: "open viz/montauk-viz.html",
     }));
+  } finally {
+    restore();
   }
 }
 
@@ -2286,6 +2377,10 @@ async function runMaintenance(opts = {}) {
         vizState.booted = false;
         if (document.body.dataset.view === "viz") ensureVizBooted();
       }
+      // Refresh also keeps the standalone viz current: rebuild the bundle if
+      // the freshness stamp says it lags the live files (fire-and-forget;
+      // failures show as status text, never block the refresh).
+      refreshVizAfterMaintenance();
     }
   };
   maintenanceState.pollHandle = setInterval(tick, 350);

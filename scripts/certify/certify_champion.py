@@ -44,11 +44,17 @@ def _entry_confidence(entry: dict) -> float:
     return float(validation.get("composite_confidence") or entry.get("composite_confidence") or 0.0)
 
 
-def _pick_highest_confidence(entries: list) -> dict | None:
-    """Default champion selector — the highest-confidence Gold entry.
+def _entry_montauk(entry: dict) -> float:
+    return float(entry.get("montauk_score") or 0.0)
+
+
+def _pick_montauk_leader(entries: list) -> dict | None:
+    """Default champion selector — the Montauk Score leader among Gold entries.
 
     This MUST match scripts/ops/daily.py::load_active_champion so the strategy
-    that gets certified is the same one the live signal runs.
+    that gets certified is the same one the live signal runs. Composite
+    confidence is only a tie-breaker (and the fallback for legacy rows that
+    were never stamped with a Montauk Score).
     """
     if not entries:
         return None
@@ -56,7 +62,7 @@ def _pick_highest_confidence(entries: list) -> dict | None:
         e for e in entries
         if e.get("gold_status") is True or (e.get("validation") or {}).get("gold_status") is True
     ]
-    return max(gold or entries, key=_entry_confidence)
+    return max(gold or entries, key=lambda e: (_entry_montauk(e), _entry_confidence(e)))
 
 
 def _find_champion(
@@ -67,7 +73,7 @@ def _find_champion(
     if not validated:
         return None
     if strategy_filter is None and params_filter is None:
-        return _pick_highest_confidence(validated)
+        return _pick_montauk_leader(validated)
     for e in validated:
         if strategy_filter and e.get("strategy") != strategy_filter:
             continue
@@ -95,7 +101,7 @@ def _load_champion_from_leaderboard(
     if not lb:
         return None
     if strategy_filter is None and params_filter is None:
-        return _pick_highest_confidence(lb)
+        return _pick_montauk_leader(lb)
     for e in lb:
         if strategy_filter and e.get("strategy") != strategy_filter:
             continue

@@ -27,6 +27,10 @@ import copy
 import os
 from typing import Any
 
+PROJECT_ROOT = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
+
 REQUIRED_CERTIFICATION_CHECKS = (
     "engine_integrity",
     "golden_regression",
@@ -49,6 +53,45 @@ GOLD_STATUS_LABEL = "Gold Status"
 
 def _dedupe(items: list[str]) -> list[str]:
     return list(dict.fromkeys(items))
+
+
+def resolve_artifact_path(path: str) -> str:
+    """Rebase an artifact path onto this machine's project root.
+
+    Leaderboard rows persist absolute artifact paths, which go stale whenever
+    the repo moves (different machine, renamed home dir). The run directory
+    layout under `spike/` is stable, so an unresolvable absolute path is
+    re-anchored via its `/spike/` suffix. Returns the original path unchanged
+    if it exists or cannot be rebased — the existence check then fails
+    honestly instead of trusting a stamp.
+    """
+    if os.path.exists(path):
+        return path
+    marker = f"{os.sep}spike{os.sep}"
+    if marker in path:
+        candidate = os.path.join(PROJECT_ROOT, "spike", path.split(marker, 1)[1])
+        if os.path.exists(candidate):
+            return candidate
+    return path
+
+
+def verify_artifact_bundle(
+    artifact_paths: dict[str, str] | None,
+) -> tuple[bool, dict[str, str]]:
+    """Verify the five-artifact bundle by content, not by stored stamp.
+
+    Each required artifact must resolve to an existing, non-empty file on
+    this machine. Returns (ok, resolved_paths).
+    """
+    resolved = {
+        name: resolve_artifact_path(path)
+        for name, path in (artifact_paths or {}).items()
+        if name in REQUIRED_RUN_ARTIFACTS
+    }
+    ok = len(resolved) == len(REQUIRED_RUN_ARTIFACTS) and all(
+        os.path.exists(path) and os.path.getsize(path) > 0 for path in resolved.values()
+    )
+    return ok, resolved
 
 
 def _normalized_check(
@@ -139,16 +182,25 @@ def sync_validation_contract(
         )
 
     artifact_check = dict(checks.get("artifact_completeness") or {})
+    # Stored stamps are never trusted: if the check carries recorded paths,
+    # re-verify the bundle on disk every sync (2026-06-09 — previously a
+    # stored passed=True survived even when the files no longer existed).
+    if artifact_paths is None and artifact_check.get("paths"):
+        artifact_paths = dict(artifact_check["paths"])
+
     if artifact_paths is None:
         if artifact_check:
-            default_status = (
-                "pass"
-                if artifact_check.get("passed")
-                else (artifact_check.get("status") or "fail")
-            )
+            # No paths recorded anywhere — a bare stamp cannot be verified,
+            # so it cannot count as artifact-complete.
             checks["artifact_completeness"] = _normalized_check(
                 artifact_check,
-                default_status=str(default_status),
+                default_status="unverifiable",
+            )
+            checks["artifact_completeness"]["passed"] = False
+            checks["artifact_completeness"]["status"] = (
+                "pending"
+                if artifact_check.get("status") == "pending"
+                else "unverifiable"
             )
         else:
             checks["artifact_completeness"] = {
@@ -157,18 +209,11 @@ def sync_validation_contract(
                 "pending_reason": "run artifacts are generated after validation",
             }
     else:
-        relevant_paths = {
-            name: path
-            for name, path in artifact_paths.items()
-            if name in REQUIRED_RUN_ARTIFACTS
-        }
-        artifact_ok = len(relevant_paths) == len(REQUIRED_RUN_ARTIFACTS) and all(
-            os.path.exists(path) for path in relevant_paths.values()
-        )
+        artifact_ok, resolved_paths = verify_artifact_bundle(artifact_paths)
         checks["artifact_completeness"] = _normalized_check(
             artifact_check,
             default_status="pass" if artifact_ok else "fail",
-            paths=relevant_paths,
+            paths=resolved_paths,
         )
         checks["artifact_completeness"]["passed"] = artifact_ok
         checks["artifact_completeness"]["status"] = "pass" if artifact_ok else "fail"

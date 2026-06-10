@@ -7259,6 +7259,630 @@ def pullback_in_trend(ind, p):
     return entries, exits, labels
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# New-Hypothesis Families 2026-06-09 (nh_*) — replacement search stock.
+#
+# Board diversity hole: no Gold strategy uses the VIX-regime level, the macro
+# series (T10Y2Y / DFF), volume, the XLK underlying as anchor, drawdown-scaled
+# reclaim, 52w-high proximity, VIX mean-reversion re-entry timing, weekly/daily
+# dual-timescale agreement, or the vol-drag variance budget. Every family below
+# keeps the validated winning shape — slow trend core, at least one shock-stop
+# exit, disciplined re-entry, ~0.5-3 trades/yr at defaults — and adds exactly
+# ONE orthogonal mechanism the gc_ lineage does not use.
+# Designed per docs/design-guide.md pre-flight checklist; ≤7 tunables +
+# cooldown each (T1-compatible). NaN policy: missing macro/VIX data means the
+# filter passes (gates) or the mechanism stays silent (exits), stated per
+# function.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def _nh_atr_shock(ind, atr_period: int = 40, atr_mult: float = 3.0) -> np.ndarray:
+    """Shared nh_ risk stop: close drops more than atr_mult * ATR(atr_period)
+    below the previous close (the proven 8.2.1 ATR shock exit). NaN ATR → no
+    signal. Use only in families whose re-entry is fast — a level stop sells
+    the panic low, so the family must be able to buy the rebound."""
+    atr_vals = ind.atr(int(atr_period))
+    cl = ind.close
+    n = ind.n
+    shock = np.zeros(n, dtype=bool)
+    for i in range(1, n):
+        if not np.isnan(atr_vals[i]) and cl[i] < cl[i - 1] - float(atr_mult) * atr_vals[i]:
+            shock[i] = True
+    return shock
+
+
+def _nh_atr_expansion_shock(ind, atr_len: int = 14, atr_look: int = 20,
+                            atr_expand: float = 2.0, confirm: int = 5) -> np.ndarray:
+    """Shared nh_ risk stop, regime form (the validated gc_vjatr shock shape):
+    ATR(atr_len) has expanded more than atr_expand× vs atr_look bars ago AND
+    close is below close[-confirm]. Fires on sustained vol-regime damage
+    rather than a single panic bar — appropriate for families whose re-entry
+    gates are slow. NaN ATR → no signal."""
+    atr_vals = ind.atr(int(atr_len))
+    cl = ind.close
+    n = ind.n
+    shock = np.zeros(n, dtype=bool)
+    for i in range(max(atr_look, confirm), n):
+        if (not np.isnan(atr_vals[i]) and not np.isnan(atr_vals[i - atr_look])
+                and atr_vals[i - atr_look] > 0
+                and atr_vals[i] / atr_vals[i - atr_look] > atr_expand
+                and cl[i] < cl[i - confirm]):
+            shock[i] = True
+    return shock
+
+
+def nh_vix_regime_trend(ind, p):
+    """NH1: VIX vol-regime gate + vol-regime-break exit on a slow trend core.
+
+    Hypothesis: TECL bear legs are vol-regime events before they are price
+    events — VIX trades persistently above its own long EMA weeks before the
+    death cross confirms. Entering only when the vol regime is calm AND the
+    trend is up, and exiting on the vol-regime break instead of the price
+    break, sells higher and re-buys lower than price-only exits → more shares.
+    Orthogonality: gc_ lineage uses VIX only as a spike circuit breaker; here
+    the VIX *level vs its own average* is both the entry gate and the primary
+    exit doctrine.
+    Expected failure mode: vol scares that never become price breaks
+    (2010 / 2011 style) sell winners early and re-buy higher.
+    Risk stops: the vol-regime break IS the shock stop; the death cross is
+    the structural backstop. No single-bar level stop — the calm gate makes
+    re-entry deliberately slow, so selling a panic low cannot be bought back.
+    NaN policy: missing VIX → calm gate passes, vol-break exit stays silent
+    (death-cross backstop still protects)."""
+    n = ind.n
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    entry_bars = int(p.get("entry_bars", 3))
+    vix_ema_len = int(p.get("vix_ema_len", 50))
+    vix_calm_mult = float(p.get("vix_calm_mult", 1.05))
+    vix_break_pct = float(p.get("vix_break_pct", 30.0))
+    vix_entry_cap = float(p.get("vix_entry_cap", 28.0))
+    slope_w = 5
+    vix = ind.vix
+    vix_e = ind.vix_ema(vix_ema_len) if vix is not None else None
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n, dtype=object)
+    ok_count = 0
+    for i in range(slope_w, n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(slow[i - slope_w]):
+            ok_count = 0
+            continue
+        trend_up = fast[i] > slow[i] and slow[i] > slow[i - slope_w]
+        calm = True  # NaN VIX → filter passes
+        if vix is not None and not np.isnan(vix[i]) and not np.isnan(vix_e[i]):
+            calm = vix[i] < vix_e[i] * vix_calm_mult and vix[i] < vix_entry_cap
+        ok_count = ok_count + 1 if (trend_up and calm) else 0
+        if ok_count >= entry_bars:
+            entries[i] = True
+        # Primary doctrine: vol-regime break exit
+        if (vix is not None and not np.isnan(vix[i]) and not np.isnan(vix_e[i])
+                and vix[i] > vix_entry_cap
+                and vix[i] > vix_e[i] * (1 + vix_break_pct / 100)):
+            exits[i] = True
+            labels[i] = "VR"
+        # Structural backstop
+        if fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def nh_curve_macro_trend(ind, p):
+    """NH2: yield-curve inversion memory arms the death cross.
+
+    Hypothesis: TECL's catastrophic bears (2000-02, 2008, 2022) all followed
+    T10Y2Y inversions, while death crosses inside non-inverted regimes are
+    mostly whipsaw (the measured D-exit-in-bull leak). Honoring the death
+    cross only when the curve inverted within the last memory_bars — while an
+    always-on ATR shock stop and a deep price floor protect against
+    everything else — holds bull legs more fully and still steps aside ahead
+    of recession bears.
+    Orthogonality: macro yield-curve state modulates the exit doctrine; gc_
+    exits are price/vol-only and unconditional.
+    Expected failure mode: a non-recession crash with no prior inversion
+    (2020 style) is caught only by the ATR stop and floor — slower, deeper
+    exits in those events.
+    NaN policy: missing spread (pre-1998) → death cross is honored
+    unconditionally (conservative fallback, gc_e1 pattern)."""
+    n = ind.n
+    cl = ind.close
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    entry_bars = int(p.get("entry_bars", 3))
+    memory_bars = int(p.get("memory_bars", 252))
+    floor_pct = float(p.get("floor_pct", 12.0))
+    shock = _nh_atr_shock(ind, int(p.get("atr_period", 40)), float(p.get("atr_mult", 3.0)))
+    spread = ind.treasury_spread
+    slope_w = 5
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n, dtype=object)
+    last_inv = -(10 ** 9)
+    ok_count = 0
+    for i in range(slope_w, n):
+        macro_known = spread is not None and not np.isnan(spread[i])
+        if macro_known and spread[i] < 0:
+            last_inv = i
+        hostile = (i - last_inv) <= memory_bars
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(slow[i - slope_w]):
+            ok_count = 0
+            continue
+        trend_up = fast[i] > slow[i] and slow[i] > slow[i - slope_w]
+        ok_count = ok_count + 1 if trend_up else 0
+        if ok_count >= entry_bars:
+            entries[i] = True
+        if fast[i] < slow[i] and (hostile or not macro_known):
+            exits[i] = True
+            labels[i] = "D"
+        if cl[i] < slow[i] * (1 - floor_pct / 100):
+            exits[i] = True
+            labels[i] = "F"
+        if shock[i]:
+            exits[i] = True
+            labels[i] = "A"
+    return entries, exits, labels
+
+
+def nh_fed_easing_trend(ind, p):
+    """NH3: fed-funds direction modulates entry permission and re-entry speed.
+
+    Hypothesis: shock hiking regimes (DFF rising fast over ~6 months, e.g.
+    2022) compress tech multiples and make new TECL longs negative-EV, while
+    easing regimes (2001, 2008, 2020) mark the best share-accumulation
+    re-entries. Blocking new entries during shock hikes and halving the
+    confirmation requirement while the Fed is cutting buys back lower, sooner.
+    Orthogonality: monetary-policy direction as an entry modulator — gc_
+    entries are price-only and constant-speed.
+    Expected failure mode: hikes into a melt-up (1999) keep us out of late
+    bull gains; cuts into a collapsing market (2008 H1) re-enter early into
+    further downside (ATR stop + death cross protect).
+    NaN policy: missing DFF → delta treated as 0 (gate passes, normal speed)."""
+    n = ind.n
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    ff = ind.fed_funds_rate
+    ff_look = int(p.get("ff_look", 126))
+    hike_cap = float(p.get("hike_cap", 1.5))
+    entry_bars = int(p.get("entry_bars", 3))
+    exit_bars = int(p.get("exit_bars", 2))
+    shock = _nh_atr_shock(ind, 40, float(p.get("atr_mult", 3.0)))
+    slope_w = 5
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n, dtype=object)
+    ok_count = 0
+    below_count = 0
+    for i in range(max(slope_w, ff_look), n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(slow[i - slope_w]):
+            ok_count = 0
+            below_count = 0
+            continue
+        ff_delta = 0.0  # NaN DFF → filter passes
+        if ff is not None and not np.isnan(ff[i]) and not np.isnan(ff[i - ff_look]):
+            ff_delta = ff[i] - ff[i - ff_look]
+        easing = ff_delta < -0.25
+        confirm_needed = max(1, entry_bars // 2) if easing else entry_bars
+        trend_up = fast[i] > slow[i] and slow[i] > slow[i - slope_w]
+        ok_count = ok_count + 1 if (trend_up and ff_delta <= hike_cap) else 0
+        if ok_count >= confirm_needed:
+            entries[i] = True
+        below_count = below_count + 1 if fast[i] < slow[i] else 0
+        if below_count >= exit_bars:
+            exits[i] = True
+            labels[i] = "D"
+        if shock[i]:
+            exits[i] = True
+            labels[i] = "A"
+    return entries, exits, labels
+
+
+def nh_volume_confirm_trend(ind, p):
+    """NH4: volume-participation confirmation on trend entries.
+
+    Hypothesis: TECL trend legs that begin on expanding volume are
+    institutional accumulation and persist; legs on dry volume fail. Gating
+    the slow trend entry on volume EMA-fast / EMA-slow participation skips
+    the false starts that whipsaw pure price crosses, so each entry survives
+    longer and exits convert to cheaper re-entries.
+    Orthogonality: volume is the one OHLCV column no Gold strategy reads.
+    Expected failure mode: volume regime shifts (decade-scale drift, ETF AUM
+    growth) make the ratio gate uninformative; low-volume melt-ups are missed.
+    Risk stop: ATR-expansion regime shock (sustained vol damage), not a
+    single-bar level stop — the participation gate makes re-entry slow.
+    NaN policy: missing/zero volume averages → participation gate passes."""
+    n = ind.n
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    entry_bars = int(p.get("entry_bars", 3))
+    vol_f = ind.vol_ema(int(p.get("vol_fast", 20)))
+    vol_s = ind.vol_ema(int(p.get("vol_slow", 100)))
+    vol_ratio = float(p.get("vol_ratio", 1.0))
+    shock = _nh_atr_expansion_shock(ind, atr_expand=float(p.get("atr_expand", 2.0)))
+    slope_w = 5
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n, dtype=object)
+    ok_count = 0
+    for i in range(slope_w, n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(slow[i - slope_w]):
+            ok_count = 0
+            continue
+        participation = True  # NaN/zero volume → filter passes
+        if not np.isnan(vol_f[i]) and not np.isnan(vol_s[i]) and vol_s[i] > 0:
+            participation = vol_f[i] / vol_s[i] >= vol_ratio
+        trend_up = fast[i] > slow[i] and slow[i] > slow[i - slope_w]
+        ok_count = ok_count + 1 if (trend_up and participation) else 0
+        if ok_count >= entry_bars:
+            entries[i] = True
+        if fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+        if shock[i]:
+            exits[i] = True
+            labels[i] = "A"
+    return entries, exits, labels
+
+
+def nh_xlk_anchor_trend(ind, p):
+    """NH5: the unleveraged XLK underlying is the regime anchor.
+
+    Hypothesis: TECL is 3x XLK, so TECL's own EMAs carry 3x the noise — most
+    TECL death crosses are leverage artifacts. Reading the regime off XLK's
+    EMA (cleaner series), entering when XLK holds above its rising EMA with
+    TECL momentum agreeing, and exiting only when XLK itself breaks down with
+    persistence, filters leveraged whipsaw while a TECL ATR stop still
+    catches fast crashes.
+    Orthogonality: regime state and exit doctrine live on the underlying's
+    series, not TECL's — gc_ lineage reads TECL price only.
+    Expected failure mode: TECL-specific decay episodes (vol drag in choppy
+    flat XLK markets) bleed shares while the XLK anchor stays technically up.
+    NaN policy: missing XLK (pre-1999) → falls back to the same logic on
+    TECL's own slow EMA (filter passes in spirit; no dead years)."""
+    n = ind.n
+    cl = ind.close
+    xlk = ind.xlk_close
+    xlk_e = ind.xlk_ema(int(p.get("xlk_ema_len", 150)))
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    slow = ind.ema(200)
+    slope_w = int(p.get("slope_window", 5))
+    entry_bars = int(p.get("entry_bars", 3))
+    exit_persist = int(p.get("exit_persist", 5))
+    shock = _nh_atr_shock(ind, int(p.get("atr_period", 40)), float(p.get("atr_mult", 3.0)))
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n, dtype=object)
+    ok_count = 0
+    below_count = 0
+    for i in range(slope_w, n):
+        xlk_known = (xlk is not None and xlk_e is not None
+                     and not np.isnan(xlk[i]) and not np.isnan(xlk_e[i])
+                     and not np.isnan(xlk_e[i - slope_w]))
+        if xlk_known:
+            anchor_up = xlk[i] > xlk_e[i] and xlk_e[i] > xlk_e[i - slope_w]
+            anchor_below = xlk[i] < xlk_e[i]
+        elif not np.isnan(slow[i]) and not np.isnan(slow[i - slope_w]):
+            anchor_up = cl[i] > slow[i] and slow[i] > slow[i - slope_w]
+            anchor_below = cl[i] < slow[i]
+        else:
+            ok_count = 0
+            below_count = 0
+            continue
+        momentum_ok = not np.isnan(fast[i]) and not np.isnan(fast[i - slope_w]) and fast[i] > fast[i - slope_w]
+        ok_count = ok_count + 1 if (anchor_up and momentum_ok) else 0
+        if ok_count >= entry_bars:
+            entries[i] = True
+        below_count = below_count + 1 if anchor_below else 0
+        if below_count >= exit_persist:
+            exits[i] = True
+            labels[i] = "XB"
+            below_count = 0
+        if shock[i]:
+            exits[i] = True
+            labels[i] = "A"
+    return entries, exits, labels
+
+
+def nh_dd_scaled_reclaim(ind, p):
+    """NH6: drawdown-depth-scaled reclaim — deeper crash, stricter re-entry.
+
+    Hypothesis: after shallow TECL corrections (< dd_split% off the rolling
+    peak) reclaiming the rising fast EMA is safe and fast re-entry compounds
+    shares; after deep crashes, bear rallies routinely reclaim fast EMAs and
+    trap re-entries, so the reclaim bar escalates to the rising slow EMA.
+    One rule, two crash classes — fast in dips, patient after disasters.
+    Orthogonality: the entry *reference itself* is a function of drawdown
+    depth; gc_ re-entry logic is constant regardless of how the exit happened.
+    Expected failure mode: dd_split sits in the no-man's land of 3x ETF
+    volatility (routine 25-35% pullbacks), randomly toggling the regime class.
+    NaN policy: price-only mechanism; NaN EMAs reset confirmation."""
+    n = ind.n
+    cl = ind.close
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    dd_split = float(p.get("dd_split", 30.0))
+    peak_look = int(p.get("peak_look", 252))
+    entry_bars = int(p.get("entry_bars", 2))
+    shock = _nh_atr_shock(ind, int(p.get("atr_period", 40)), float(p.get("atr_mult", 3.0)))
+    hh = ind.highest(peak_look)
+    slope_w = 5
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n, dtype=object)
+    ok_count = 0
+    for i in range(max(slope_w, peak_look), n):
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(hh[i]) or hh[i] <= 0:
+            ok_count = 0
+            continue
+        dd_pct = (cl[i] / hh[i] - 1.0) * 100
+        ref = fast if dd_pct > -dd_split else slow
+        if np.isnan(ref[i]) or np.isnan(ref[i - slope_w]):
+            ok_count = 0
+            continue
+        reclaim = cl[i] > ref[i] and ref[i] > ref[i - slope_w]
+        ok_count = ok_count + 1 if reclaim else 0
+        if ok_count >= entry_bars:
+            entries[i] = True
+        if fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+        if shock[i]:
+            exits[i] = True
+            labels[i] = "A"
+    return entries, exits, labels
+
+
+def nh_high_proximity_regime(ind, p):
+    """NH7: 52-week-high proximity is the regime, with a hysteresis band.
+
+    Hypothesis: TECL bull regimes live within ~25% of the rolling 52w high
+    (strength begets strength — the momentum literature's high-proximity
+    effect); bear regimes live 45%+ below it. Entering on proximity with a
+    rising fast EMA and exiting on persistent depth gives a regime signal
+    with built-in hysteresis (the 25→45 gap) that cannot whipsaw at a single
+    boundary, and the rolling window self-heals after crashes so re-entry
+    doesn't wait for old highs.
+    Orthogonality: distance-from-high replaces EMA crosses entirely — no
+    moving-average relationship is consulted for the regime.
+    Expected failure mode: 3x volatility makes even healthy bulls visit
+    -30/-40% routinely; a depth exit there sells pullback lows.
+    NaN policy: price-only mechanism; NaN windows produce no signal."""
+    n = ind.n
+    cl = ind.close
+    high_look = int(p.get("high_look", 252))
+    prox_pct = float(p.get("prox_pct", 25.0))
+    exit_pct = float(p.get("exit_pct", 45.0))
+    exit_persist = int(p.get("exit_persist", 3))
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    entry_bars = int(p.get("entry_bars", 3))
+    shock = _nh_atr_shock(ind, 40, float(p.get("atr_mult", 3.0)))
+    hh = ind.highest(high_look)
+    slope_w = 5
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n, dtype=object)
+    ok_count = 0
+    deep_count = 0
+    for i in range(max(slope_w, high_look), n):
+        if np.isnan(hh[i]) or hh[i] <= 0 or np.isnan(fast[i]) or np.isnan(fast[i - slope_w]):
+            ok_count = 0
+            deep_count = 0
+            continue
+        prox = (cl[i] / hh[i] - 1.0) * 100
+        near_high = prox > -prox_pct and fast[i] > fast[i - slope_w]
+        ok_count = ok_count + 1 if near_high else 0
+        if ok_count >= entry_bars:
+            entries[i] = True
+        deep_count = deep_count + 1 if prox < -exit_pct else 0
+        if deep_count >= exit_persist:
+            exits[i] = True
+            labels[i] = "HP"
+            deep_count = 0
+        if shock[i]:
+            exits[i] = True
+            labels[i] = "A"
+    return entries, exits, labels
+
+
+def nh_vix_reversion_reentry(ind, p):
+    """NH8: VIX-spike exit with VIX mean-reversion re-entry timing.
+
+    Hypothesis: VIX spikes mean-revert, and the best share-accumulation buys
+    happen while fear is cresting — when VIX has retraced a fraction of its
+    spike peak and price has stabilized — months before a golden cross
+    confirms (April 2020 vs September 2020). Exit on the spike, re-enter on
+    the vol crest, and let normal trend entries handle everything else.
+    Orthogonality: re-entry is *timed by the VIX retrace*, not by price
+    structure; gc_ re-entries are price-cross-only.
+    Expected failure mode: multi-wave panics (2008) where the first VIX
+    retrace is a trap and the re-entry catches another leg down (the death
+    cross limits the damage).
+    Risk stops: the VIX-spike exit IS the shock stop (it also arms the
+    retrace re-entry, so the panic sale gets bought back lower); the death
+    cross is the structural backstop.
+    NaN policy: missing VIX → no spikes detected, behaves as plain trend core."""
+    n = ind.n
+    cl = ind.close
+    fast = ind.ema(int(p.get("fast_ema", 50)))
+    slow = ind.ema(int(p.get("slow_ema", 200)))
+    entry_bars = int(p.get("entry_bars", 3))
+    spike_vix = float(p.get("spike_vix", 30.0))
+    spike_roc = float(p.get("spike_roc", 1.4))
+    retrace_frac = float(p.get("retrace_frac", 0.6))
+    re_ema = ind.ema(int(p.get("reentry_ema", 20)))
+    vix = ind.vix
+    slope_w = 5
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n, dtype=object)
+    ok_count = 0
+    panic = False
+    spike_peak = 0.0
+    for i in range(max(slope_w, 5), n):
+        vix_known = vix is not None and not np.isnan(vix[i])
+        if vix_known and not np.isnan(vix[i - 5]) and vix[i - 5] > 0:
+            if vix[i] > spike_vix and vix[i] / vix[i - 5] > spike_roc:
+                exits[i] = True
+                labels[i] = "VS"
+                panic = True
+        if panic and vix_known:
+            spike_peak = max(spike_peak, vix[i])
+            if (vix[i] < spike_peak * retrace_frac and vix[i] < spike_vix
+                    and not np.isnan(re_ema[i]) and cl[i] > re_ema[i]):
+                entries[i] = True
+                panic = False
+                spike_peak = 0.0
+        if np.isnan(fast[i]) or np.isnan(slow[i]) or np.isnan(slow[i - slope_w]):
+            ok_count = 0
+            continue
+        trend_up = fast[i] > slow[i] and slow[i] > slow[i - slope_w]
+        ok_count = ok_count + 1 if trend_up else 0
+        if ok_count >= entry_bars and not panic:
+            entries[i] = True
+        if fast[i] < slow[i]:
+            exits[i] = True
+            labels[i] = "D"
+    return entries, exits, labels
+
+
+def nh_dual_timescale_trend(ind, p):
+    """NH9: weekly/daily dual-timescale agreement with a weekly-only exit.
+
+    Hypothesis: signals that agree across timescales are regime, signals that
+    disagree are noise. A true weekly EMA (updated once per completed 5-bar
+    block — a step function, not a smoothed daily EMA) changes state an order
+    of magnitude less often than daily lines; requiring weekly AND daily
+    agreement to enter, but only a persistent weekly break to exit, holds
+    through daily whipsaw while the ATR stop catches crashes between weekly
+    updates.
+    Orthogonality: a genuinely sampled second timescale — gc_ lineage runs
+    everything on daily-updated EMAs.
+    Expected failure mode: the weekly step function lags fast V-bottoms
+    (re-entry waits for the weekly line to catch up).
+    NaN policy: price-only; weekly EMA undefined until first block completes."""
+    n = ind.n
+    cl = ind.close
+    d_fast = ind.ema(int(p.get("daily_fast", 20)))
+    d_slow = ind.ema(int(p.get("daily_slow", 100)))
+    week_ema_len = int(p.get("week_ema_len", 30))
+    week_slope_w = int(p.get("week_slope_w", 4))
+    exit_persist = int(p.get("exit_persist", 7))
+    entry_bars = int(p.get("entry_bars", 3))
+    shock = _nh_atr_shock(ind, int(p.get("atr_period", 40)), float(p.get("atr_mult", 3.0)))
+    # Causal weekly EMA: updated at the close of every completed 5-bar block,
+    # held flat in between (step function).
+    w_ema = np.full(n, np.nan)
+    alpha = 2.0 / (week_ema_len + 1)
+    w_val = np.nan
+    for i in range(n):
+        if (i + 1) % 5 == 0:
+            w_val = cl[i] if np.isnan(w_val) else w_val + alpha * (cl[i] - w_val)
+        w_ema[i] = w_val
+    lag = 5 * week_slope_w
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n, dtype=object)
+    ok_count = 0
+    below_count = 0
+    for i in range(lag, n):
+        if np.isnan(w_ema[i]) or np.isnan(w_ema[i - lag]) or np.isnan(d_fast[i]) or np.isnan(d_slow[i]):
+            ok_count = 0
+            below_count = 0
+            continue
+        weekly_up = cl[i] > w_ema[i] and w_ema[i] > w_ema[i - lag]
+        daily_up = d_fast[i] > d_slow[i]
+        ok_count = ok_count + 1 if (weekly_up and daily_up) else 0
+        if ok_count >= entry_bars:
+            entries[i] = True
+        below_count = below_count + 1 if cl[i] < w_ema[i] else 0
+        if below_count >= exit_persist:
+            exits[i] = True
+            labels[i] = "WB"
+            below_count = 0
+        if shock[i]:
+            exits[i] = True
+            labels[i] = "A"
+    return entries, exits, labels
+
+
+def nh_vol_drag_regime(ind, p):
+    """NH10: leverage-decay variance budget — hold calm variance, exit stormy.
+
+    Hypothesis: a 3x ETF bleeds value at ~3x sigma-squared (vol drag), so
+    TECL share accumulation is won by holding low-variance regimes and
+    sitting out high-variance ones *even when direction is unchanged* — the
+    decay math, not price prediction, is the edge. Enter when short realized
+    vol is compressed vs its long baseline and price is above trend; exit on
+    variance-regime expansion, with a drawdown-from-peak stop and a
+    persistent trend break as risk backstops.
+    Orthogonality: the exit doctrine is the realized-variance regime itself
+    (direction-free), grounded in the charter's leverage-decay math; gc_vjatr
+    requires a directional price drop to confirm its ATR expansion.
+    Expected failure mode: high-vol melt-ups (1999, 2020 H2) get exited for
+    decay that the raw trend overwhelms — underperforms in vertical bulls.
+    NaN policy: price-only inputs; NaN vol windows produce no signal."""
+    n = ind.n
+    cl = ind.close
+    rv_s = ind.realized_vol(int(p.get("rv_short", 20)))
+    rv_l = ind.realized_vol(int(p.get("rv_long", 100)))
+    enter_ratio = float(p.get("enter_ratio", 0.9))
+    exit_ratio = float(p.get("exit_ratio", 1.4))
+    trend = ind.ema(int(p.get("trend_len", 150)))
+    dd_stop_pct = float(p.get("dd_stop_pct", 25.0))
+    exit_persist = int(p.get("exit_persist", 10))
+    entry_bars = 2
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n, dtype=object)
+    ok_count = 0
+    below_count = 0
+    in_trade = False
+    peak = 0.0
+    for i in range(1, n):
+        ratio = np.nan
+        if not np.isnan(rv_s[i]) and not np.isnan(rv_l[i]) and rv_l[i] > 0:
+            ratio = rv_s[i] / rv_l[i]
+        calm = not np.isnan(ratio) and ratio < enter_ratio
+        trend_ok = not np.isnan(trend[i]) and cl[i] > trend[i]
+        ok_count = ok_count + 1 if (calm and trend_ok) else 0
+        if ok_count >= entry_bars:
+            entries[i] = True
+            if not in_trade:
+                in_trade = True
+                peak = cl[i]
+        if in_trade:
+            peak = max(peak, cl[i])
+        # Variance-regime expansion exit (direction-free)
+        if not np.isnan(ratio) and ratio > exit_ratio:
+            exits[i] = True
+            labels[i] = "VD"
+            in_trade = False
+            peak = 0.0
+        # Drawdown-from-peak risk stop
+        if in_trade and peak > 0 and cl[i] < peak * (1 - dd_stop_pct / 100):
+            exits[i] = True
+            labels[i] = "DS"
+            in_trade = False
+            peak = 0.0
+        # Persistent trend-break backstop
+        below_count = below_count + 1 if (not np.isnan(trend[i]) and cl[i] < trend[i]) else 0
+        if below_count >= exit_persist:
+            exits[i] = True
+            labels[i] = "TB"
+            below_count = 0
+            in_trade = False
+            peak = 0.0
+    return entries, exits, labels
+
+
+# Strategies registered for research/diagnostics that violate charter guardrails
+# (TECL-only, long-only, single-position, <=5 trades/yr by design). Names listed
+# here hard-fail Gate 1's charter-compatibility check instead of being silently
+# stamped compatible — scripts/validation/integrity.py reads this set. Empty
+# means every registered strategy is currently charter-compatible; the mechanism
+# exists so the documented Layer-1 hard fail can actually fire.
+CHARTER_INCOMPATIBLE_STRATEGIES: set = set()
+
 STRATEGY_REGISTRY = {
     # Grid-searchable T1 concepts (logic functions that accept any canonical param combo).
     # Grid search evaluates these exhaustively over canonical param grids.
@@ -7466,6 +8090,17 @@ STRATEGY_REGISTRY = {
     "breadth_decay_composite": breadth_decay_composite, # N8
     # ── Next-Frontier 2026-04-20 (Lane 4: meta + infrastructure) ──
     "vj_or_slope_meta":        vj_or_slope_meta,        # N10
+    # ── New-Hypothesis Families 2026-06-09 (replacement search stock) ──
+    "nh_vix_regime_trend":      nh_vix_regime_trend,      # NH1: VIX vol-regime gate + vol-break exit
+    "nh_curve_macro_trend":     nh_curve_macro_trend,     # NH2: curve-inversion memory arms death cross
+    "nh_fed_easing_trend":      nh_fed_easing_trend,      # NH3: fed-funds direction entry modulator
+    "nh_volume_confirm_trend":  nh_volume_confirm_trend,  # NH4: volume-participation entry confirm
+    "nh_xlk_anchor_trend":      nh_xlk_anchor_trend,      # NH5: XLK underlying as regime anchor
+    "nh_dd_scaled_reclaim":     nh_dd_scaled_reclaim,     # NH6: drawdown-depth-scaled re-entry
+    "nh_high_proximity_regime": nh_high_proximity_regime, # NH7: 52w-high proximity hysteresis regime
+    "nh_vix_reversion_reentry": nh_vix_reversion_reentry, # NH8: VIX mean-reversion re-entry timing
+    "nh_dual_timescale_trend":  nh_dual_timescale_trend,  # NH9: weekly/daily agreement, weekly exit
+    "nh_vol_drag_regime":       nh_vol_drag_regime,       # NH10: leverage-decay variance budget
 }
 
 # Declared validation tier for each strategy family.
@@ -7622,6 +8257,17 @@ STRATEGY_TIERS = {
     "breadth_decay_composite": "T1",
     # ── Next-Frontier 2026-04-20 (Lane 4) ──
     "vj_or_slope_meta":        "T1",
+    # ── New-Hypothesis Families 2026-06-09 ──
+    "nh_vix_regime_trend":      "T1",
+    "nh_curve_macro_trend":     "T1",
+    "nh_fed_easing_trend":      "T1",
+    "nh_volume_confirm_trend":  "T1",
+    "nh_xlk_anchor_trend":      "T1",
+    "nh_dd_scaled_reclaim":     "T1",
+    "nh_high_proximity_regime": "T1",
+    "nh_vix_reversion_reentry": "T1",
+    "nh_dual_timescale_trend":  "T1",
+    "nh_vol_drag_regime":       "T1",
 }
 
 # Parameter spaces for each strategy: {param: (min, max, step, type)}
@@ -8405,5 +9051,106 @@ STRATEGY_PARAMS = {
         "slope_window":   (3, 5, 2, int),
         "confirm_bars":   (2, 5, 1, int),
         "atr_mult":       (2.0, 3.0, 0.5, float),
+    },
+    # ── New-Hypothesis Families 2026-06-09 (nh_*) — ≤7 tunables + cooldown ──
+    "nh_vix_regime_trend": {
+        "fast_ema":       (30, 100, 10, int),
+        "slow_ema":       (150, 250, 50, int),
+        "entry_bars":     (2, 5, 1, int),
+        "vix_ema_len":    (30, 100, 10, int),
+        "vix_calm_mult":  (0.9, 1.2, 0.05, float),
+        "vix_break_pct":  (20.0, 50.0, 5.0, float),
+        "vix_entry_cap":  (20.0, 35.0, 2.5, float),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "nh_curve_macro_trend": {
+        "fast_ema":       (30, 100, 10, int),
+        "slow_ema":       (150, 250, 50, int),
+        "entry_bars":     (2, 5, 1, int),
+        "memory_bars":    (126, 504, 63, int),
+        "floor_pct":      (8.0, 20.0, 2.0, float),
+        "atr_period":     (20, 60, 10, int),
+        "atr_mult":       (2.0, 4.0, 0.5, float),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "nh_fed_easing_trend": {
+        "fast_ema":       (30, 100, 10, int),
+        "slow_ema":       (150, 250, 50, int),
+        "ff_look":        (63, 252, 21, int),
+        "hike_cap":       (0.5, 2.5, 0.25, float),
+        "entry_bars":     (2, 5, 1, int),
+        "exit_bars":      (1, 4, 1, int),
+        "atr_mult":       (2.0, 4.0, 0.5, float),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "nh_volume_confirm_trend": {
+        "fast_ema":       (30, 100, 10, int),
+        "slow_ema":       (150, 250, 50, int),
+        "entry_bars":     (2, 5, 1, int),
+        "vol_fast":       (10, 40, 5, int),
+        "vol_slow":       (60, 150, 10, int),
+        "vol_ratio":      (0.8, 1.3, 0.05, float),
+        "atr_expand":     (1.5, 3.0, 0.25, float),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "nh_xlk_anchor_trend": {
+        "xlk_ema_len":    (100, 250, 25, int),
+        "slope_window":   (3, 7, 2, int),
+        "entry_bars":     (2, 5, 1, int),
+        "exit_persist":   (3, 10, 1, int),
+        "fast_ema":       (30, 100, 10, int),
+        "atr_period":     (20, 60, 10, int),
+        "atr_mult":       (2.0, 4.0, 0.5, float),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "nh_dd_scaled_reclaim": {
+        "fast_ema":       (30, 100, 10, int),
+        "slow_ema":       (150, 250, 50, int),
+        "dd_split":       (20.0, 45.0, 5.0, float),
+        "peak_look":      (126, 378, 63, int),
+        "entry_bars":     (2, 5, 1, int),
+        "atr_period":     (20, 60, 10, int),
+        "atr_mult":       (2.0, 4.0, 0.5, float),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "nh_high_proximity_regime": {
+        "high_look":      (126, 378, 63, int),
+        "prox_pct":       (15.0, 35.0, 5.0, float),
+        "exit_pct":       (30.0, 55.0, 5.0, float),
+        "exit_persist":   (2, 8, 1, int),
+        "fast_ema":       (30, 100, 10, int),
+        "entry_bars":     (2, 5, 1, int),
+        "atr_mult":       (2.0, 4.0, 0.5, float),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "nh_vix_reversion_reentry": {
+        "fast_ema":       (30, 100, 10, int),
+        "slow_ema":       (150, 250, 50, int),
+        "entry_bars":     (2, 5, 1, int),
+        "spike_vix":      (25.0, 40.0, 2.5, float),
+        "spike_roc":      (1.2, 1.8, 0.1, float),
+        "retrace_frac":   (0.4, 0.8, 0.05, float),
+        "reentry_ema":    (10, 50, 5, int),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "nh_dual_timescale_trend": {
+        "daily_fast":     (10, 40, 5, int),
+        "daily_slow":     (60, 150, 10, int),
+        "week_ema_len":   (10, 50, 5, int),
+        "week_slope_w":   (2, 8, 1, int),
+        "exit_persist":   (3, 10, 1, int),
+        "entry_bars":     (2, 5, 1, int),
+        "atr_mult":       (2.0, 4.0, 0.5, float),
+        "cooldown":       (2, 10, 3, int),
+    },
+    "nh_vol_drag_regime": {
+        "rv_short":       (10, 30, 5, int),
+        "rv_long":        (60, 150, 10, int),
+        "enter_ratio":    (0.7, 1.1, 0.05, float),
+        "exit_ratio":     (1.2, 2.0, 0.1, float),
+        "trend_len":      (100, 200, 25, int),
+        "dd_stop_pct":    (15.0, 35.0, 5.0, float),
+        "exit_persist":   (5, 15, 2, int),
+        "cooldown":       (2, 10, 3, int),
     },
 }

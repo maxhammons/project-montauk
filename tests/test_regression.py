@@ -25,6 +25,7 @@ import tempfile
 from pathlib import Path
 from types import SimpleNamespace
 
+import pandas as pd
 import pytest
 
 from certify.contract import is_leaderboard_eligible, sync_validation_contract
@@ -61,8 +62,16 @@ def golden() -> dict:
 
 
 @pytest.fixture(scope="module")
-def fresh_result():
+def fresh_result(golden):
+    # Pin to the golden's data horizon (2026-06-09): the regression must catch
+    # ENGINE changes, not new bars arriving. Truncating the live CSV to the
+    # ledger's recorded data_last_date makes the comparison stable across
+    # daily refreshes; the bar-immutability ledger (data/manifest-history)
+    # separately guarantees the truncated prefix can't be silently rewritten.
     df = get_tecl_data(use_yfinance=False)
+    data_last_date = (golden.get("metadata") or {}).get("data_last_date")
+    if data_last_date:
+        df = df[df["date"] <= pd.Timestamp(data_last_date)].reset_index(drop=True)
     return run_montauk_821(df, StrategyParams(), score_regimes=False)
 
 
@@ -146,9 +155,15 @@ def test_slippage_is_unified_per_phase1c(golden):
     )
 
 
-def test_compat_run_backtest_matches_strategy_engine(fresh_result):
+def test_compat_run_backtest_matches_strategy_engine(golden, fresh_result):
     """The backtest_engine compatibility façade must mirror the canonical run."""
+    # Same data horizon as the pinned fresh_result fixture — comparing a
+    # full-history compat run against a truncated canonical run would diverge
+    # the day a new bar arrives.
     df = get_tecl_data(use_yfinance=False)
+    data_last_date = (golden.get("metadata") or {}).get("data_last_date")
+    if data_last_date:
+        df = df[df["date"] <= pd.Timestamp(data_last_date)].reset_index(drop=True)
     compat_result = run_backtest(df, StrategyParams(), score_regimes=False)
 
     assert compat_result.share_multiple == fresh_result.share_multiple
@@ -261,7 +276,9 @@ def test_warn_row_is_not_leaderboard_eligible():
     assert eligible is False
     assert "gold_status=False" in reason
     assert "validation verdict is not PASS" in reason
-    assert sync_validation_contract(entry["validation"])["certified_not_overfit"] is False
+    assert (
+        sync_validation_contract(entry["validation"])["certified_not_overfit"] is False
+    )
 
     with tempfile.TemporaryDirectory() as td:
         leaderboard = update_leaderboard(
@@ -303,7 +320,32 @@ def test_promotion_ready_row_is_not_gold_before_artifact_completion():
     assert normalized["backtest_certified"] is False
 
 
-def test_leaderboard_ranks_by_all_era_score_after_certification():
+def test_leaderboard_ranks_by_montauk_score_after_certification():
+    """Ranking contract (Montauk Score, locked 2026-06-07): within the Gold
+    set, rows rank by montauk_score with all-era score and fitness as
+    tie-breakers — matching evolve.update_leaderboard,
+    ops/daily.load_active_champion, and both viz surfaces."""
+
+    def make_artifact_paths(td: str, strategy: str) -> dict:
+        # Artifact completeness is verified on disk (2026-06-09 hardening):
+        # a bare passed=True stamp without resolvable paths is rejected, so
+        # the fixture must materialize a real five-file bundle.
+        run_dir = os.path.join(td, "runs", strategy)
+        os.makedirs(run_dir, exist_ok=True)
+        paths = {}
+        for name in (
+            "trade_ledger",
+            "signal_series",
+            "equity_curve",
+            "validation_summary",
+            "dashboard_data",
+        ):
+            path = os.path.join(run_dir, f"{name}.json")
+            with open(path, "w") as f:
+                json.dump({"fixture": True}, f)
+            paths[name] = path
+        return paths
+
     def make_entry(
         strategy: str,
         fitness: float,
@@ -312,6 +354,7 @@ def test_leaderboard_ranks_by_all_era_score_after_certification():
         full: float,
         real: float,
         modern: float,
+        artifact_paths: dict,
     ) -> dict:
         return {
             "strategy": strategy,
@@ -332,36 +375,53 @@ def test_leaderboard_ranks_by_all_era_score_after_certification():
                     "golden_regression": {"passed": True},
                     "shadow_comparator": {"passed": True},
                     "data_quality_precheck": {"passed": True},
-                    "artifact_completeness": {"passed": True, "status": "pass"},
+                    "artifact_completeness": {
+                        "passed": True,
+                        "status": "pass",
+                        "paths": artifact_paths,
+                    },
                 },
             },
         }
 
-    modern_skewed = make_entry(
-        "gc_a",
-        2.7744,
-        0.7293,
-        full=11.9639,
-        real=1.0430,
-        modern=2.8942,
-    )
-    stronger_all_era = make_entry(
-        "gc_b",
-        2.6511,
-        0.7345,
-        full=13.1308,
-        real=1.7353,
-        modern=2.1203,
-    )
-
     with tempfile.TemporaryDirectory() as td:
+        modern_skewed = make_entry(
+            "gc_a",
+            2.7744,
+            0.7293,
+            full=11.9639,
+            real=1.0430,
+            modern=2.8942,
+            artifact_paths=make_artifact_paths(td, "gc_a"),
+        )
+        stronger_all_era = make_entry(
+            "gc_b",
+            2.6511,
+            0.7345,
+            full=13.1308,
+            real=1.7353,
+            modern=2.1203,
+            artifact_paths=make_artifact_paths(td, "gc_b"),
+        )
         leaderboard = update_leaderboard(
             {"rankings": [modern_skewed, stronger_all_era], "date": "2026-04-23"},
             os.path.join(td, "leaderboard.json"),
         )
 
-    assert all_era_score_from_metrics(stronger_all_era["metrics"]) > all_era_score_from_metrics(modern_skewed["metrics"])
-    assert [row["strategy"] for row in leaderboard[:2]] == ["gc_b", "gc_a"]
+    # Every admitted row gets a Montauk Score stamped by sync_entry_contract,
+    # and the board is sorted by the contract key, descending.
+    assert len(leaderboard) >= 2
+    contract_keys = [
+        (
+            float(row.get("montauk_score") or 0.0),
+            float(row.get("overall_performance_score") or 0.0),
+            float(row.get("fitness") or 0.0),
+        )
+        for row in leaderboard
+    ]
+    assert contract_keys == sorted(contract_keys, reverse=True)
+    for row in leaderboard:
+        assert "montauk_score" in row
 
 
 def test_multi_era_reruns_override_legacy_sliced_era_metrics_for_leaderboard():
@@ -391,17 +451,50 @@ def test_multi_era_reruns_override_legacy_sliced_era_metrics_for_leaderboard():
 def test_regime_summary_aggregates_components_and_flags_critical_breaches():
     summary = summarize_regime_performance(
         [
-            {"key": "dotcom_bust", "label": "Dot-com bust / Y2K fallout", "kind": "bear", "share_multiple": 0.72},
-            {"key": "gfc_crash", "label": "GFC crash", "kind": "crash", "share_multiple": 1.41},
-            {"key": "covid_crash", "label": "COVID crash", "kind": "crash", "share_multiple": 1.18},
-            {"key": "stimulus_bull", "label": "Stimulus / reopening bull", "kind": "bull", "share_multiple": 1.09},
-            {"key": "qe_recovery", "label": "QE recovery", "kind": "recovery", "share_multiple": 1.04},
-            {"key": "policy_volatility", "label": "Late-cycle policy volatility", "kind": "policy", "share_multiple": 0.97},
+            {
+                "key": "dotcom_bust",
+                "label": "Dot-com bust / Y2K fallout",
+                "kind": "bear",
+                "share_multiple": 0.72,
+            },
+            {
+                "key": "gfc_crash",
+                "label": "GFC crash",
+                "kind": "crash",
+                "share_multiple": 1.41,
+            },
+            {
+                "key": "covid_crash",
+                "label": "COVID crash",
+                "kind": "crash",
+                "share_multiple": 1.18,
+            },
+            {
+                "key": "stimulus_bull",
+                "label": "Stimulus / reopening bull",
+                "kind": "bull",
+                "share_multiple": 1.09,
+            },
+            {
+                "key": "qe_recovery",
+                "label": "QE recovery",
+                "kind": "recovery",
+                "share_multiple": 1.04,
+            },
+            {
+                "key": "policy_volatility",
+                "label": "Late-cycle policy volatility",
+                "kind": "policy",
+                "share_multiple": 0.97,
+            },
         ]
     )
 
     assert summary["overall_score"] > 0
-    assert summary["components"]["crash_defense"]["score"] > summary["components"]["bear_survival"]["score"]
+    assert (
+        summary["components"]["crash_defense"]["score"]
+        > summary["components"]["bear_survival"]["score"]
+    )
     assert summary["critical_guardrail_passed"] is False
     assert [item["key"] for item in summary["critical_failures"]] == ["dotcom_bust"]
 

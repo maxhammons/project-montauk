@@ -13,7 +13,7 @@ Validation has two layers (see `validation-philosophy.md` §4):
 - **Layer 2 — Validation composite**: `composite_confidence` score on [0, 1]. It summarizes the tier-applicable validation stack and still drives PASS/WARN/FAIL. It is not the ranking score.
 - **Layer 3 — Montauk Score (ranking + active strategy)**: the single headline score that ranks the Gold leaderboard and selects the active strategy. See [Montauk Score](#layer-3--montauk-score) below. `composite_confidence` feeds it (via the Conviction pillar); it does not compete with it.
 
-No gate in Layer 2 has veto power on its own. Every sub-score contributes weighted partial credit.
+One documented exception to "no veto": every sub-score's hard-fail anchor maps to 0.0, and a 0.0 inside the weighted geometric mean annihilates the composite (0^w = 0). This is intentional — a dimension at its catastrophic anchor (e.g. walk-forward ratio < 0.50, state agreement < 0.30, a zeroed era) SHOULD sink the verdict regardless of weight. Between anchors, every sub-score contributes weighted partial credit and no gate can veto.
 
 ---
 
@@ -71,13 +71,13 @@ A strategy has Gold Status only when it:
 
 | Check | Source | Hard-fail condition |
 |---|---|---|
-| Engine integrity | `scripts/validation/integrity.py` | Any lookahead / repaint / multi-position violation |
+| Engine integrity | `scripts/validation/integrity.py` | Any lookahead / repaint / multi-position / fill-contract violation — verified by executed checks (`_run_engine_behavior_checks`: prefix-consistency at two truncation depths, per-trade bar-close fill verification, trade-overlap scan), not self-reported flags (real since 2026-06-09) |
 | Golden regression | `tests/test_regression.py` | Trade-by-trade PnL divergence > ±0.001% on 8.2.1 defaults |
 | Shadow comparator (dev) | `tests/test_shadow_comparator.py` | Per-trade divergence > 0.5% vs `backtesting.py` / `vectorbt` |
 | Data-quality pre-check | `scripts/data/quality.py` | Yahoo-vs-Stooq divergence, seam discontinuity, manifest checksum mismatch, OHLC insanity |
-| Artifact completeness | run dir | Prevents `backtest_certified` packaging, but does not by itself negate anti-overfit certification |
+| Artifact completeness | run dir | Prevents `backtest_certified` packaging, but does not by itself negate anti-overfit certification. Verified on disk at every contract sync (existence + non-empty, machine-portable path rebasing); a stored stamp without resolvable paths is `unverifiable`, never trusted (2026-06-09) |
 | Strategy registered | `strategies/library.py` | Strategy name not in `STRATEGY_REGISTRY` |
-| Charter-compatible family | `strategies/library.py` | Registry flag set to `False` |
+| Charter-compatible family | `strategies/library.py` | Strategy name listed in `CHARTER_INCOMPATIBLE_STRATEGIES` (real registry set since 2026-06-09; previously the flag was hardcoded compatible and could never fire) |
 | Share multiplier | Gate 1 (eligibility) | `share_multiple < 1.0` (charter mission: must beat B&H shares) |
 | Trades per year | Gate 1 | `trades_per_year > 5.0` (charter guardrail) |
 | Trade count floor | Gate 1 | `trade_count < 5` (T0) / `< 10` (T1) / `< 15` (T2) |
@@ -128,6 +128,10 @@ admits only Gold Status rows.
 | `bootstrap` | 0.05 | Gate 5 stationary bootstrap | — | — | Y |
 | `regime_consistency` | 0.05 | Gate 2 HHI + meta + clustering | — | — | Y |
 | `trade_sufficiency` | 0.05 | Gate 1 trade count | Y | Y | Y |
+| `execution_realism` | 0.10 | gate_realism (2026-06-09) | Y | Y | Y |
+| `event_dependence` | 0.05 | gate_realism (2026-06-09) | Y | Y | Y |
+| `pbo` | 0.05 | gate_oos CSCV (2026-06-09) | — | — | Y |
+| `oos_walk_forward` | 0.10 | gate_oos re-opt WF (2026-06-09) | — | — | Y |
 | **Total (T2)** | **1.00** | | | | |
 
 **Note:** `cross_asset` was removed from the composite in 2026-04-21 after the gc_vjatr finding. It was penalizing TECL-specific era winners for non-portability to TQQQ, which contradicts the charter's TECL-only design intent. The sub-score is still computed in Gate 6 and surfaced in the validation output for diagnostic purposes but does not factor into `composite_confidence`.
@@ -260,7 +264,7 @@ A strategy that is 40 bars late on the COVID crash (a ~70% drawdown cycle) pays 
 
 ### `named_windows`
 
-**Split out from gate 4.** Anchor on the minimum `share_multiple` across the four named stress windows (`2020_meltup`, `2021_2022_bear`, `2023_rebound`, `2024_onward`).
+**Split out from gate 4.** Anchor on the minimum `share_multiple` across the four named stress windows (`2020_meltup`, `2021_2022_bear`, `2023_rebound`, `2024_onward`). Each window's `share_multiple` and trade count are computed strictly inside the documented date range (era-style growth ratio from the window start); the 700-bar warmup prefix feeds indicators only (fixed 2026-06-09 — previously the whole warmup-padded slice was scored, so e.g. `2020_meltup` actually measured ~Sep-2016 → Jan-2021).
 
 | Anchor | Value |
 |---|:-:|
@@ -324,6 +328,65 @@ Smooth anchors: 0 trades -> 0.0, 10 trades -> 0.5, 20+ trades -> 1.0. Encourages
 | Gate 6 (Cross-asset) | RUN | RUN | RUN | `cross_asset` sub-score (weight reduced to 0.05) |
 | Gate 7 (Synthesis) | RUN | RUN | RUN | Composite + verdict |
 
+
+### `execution_realism` (2026-06-09)
+
+Re-runs the exact signal arrays under `execution_timing="next_open"` (signal at
+close, fill at next open — the actual manual workflow) and scores the
+share_multiple degradation vs close fills. Budget from the deep-validation
+audit (D3.4): −15%.
+
+| Anchor | Degradation |
+|---|:-:|
+| 0.0 | ≤ −30% |
+| 0.5 | −15% |
+| 1.0 | ≥ −5% |
+
+Critical warning at ≤ −15%, soft at ≤ −10%.
+
+### `event_dependence` (2026-06-09)
+
+Splices each major-event window (COVID crash 2020-02-19→04-30, 2022 bear) out
+of the series, re-runs strategy + B&H, and scores edge retention
+(1 − worst collapse). Closes deep-validation D4.9. Calibration: charter-aligned
+defensive strategies legitimately concentrate edge in the few real crashes, so
+the anchors punish *near-total* single-event dependence, not concentration.
+
+| Anchor | Retention (1 − collapse) |
+|---|:-:|
+| 0.0 | ≤ 0.05 (edge IS one event) |
+| 0.5 | 0.20 |
+| 1.0 | ≥ 0.50 |
+
+Critical warning at collapse ≥ 0.80, soft at ≥ 0.50. Null-calibrated anchors
+are backlog.
+
+### `pbo` (T2, 2026-06-09)
+
+CSCV Probability of Backtest Overfitting (Bailey et al.) over the candidate's
+32-variant param neighborhood, 16 blocks, 200 splits
+(`scripts/validation/pbo.py`). PBO = P(IS-best variant lands bottom-half OOS).
+
+| Anchor | PBO |
+|---|:-:|
+| 0.0 | ≥ 0.80 |
+| 0.5 | 0.50 (selection = chance) |
+| 1.0 | ≤ 0.20 (accepted bound) |
+
+Critical warning at PBO > 0.50, soft above 0.20. Static ensembles with no
+param space return `insufficient_variants` and the sub-score renormalizes out.
+
+### `oos_walk_forward` (T2, 2026-06-09)
+
+TRUE out-of-sample walk-forward (`scripts/validation/oos_walk_forward.py`):
+re-optimizes on each anchored train window (60 evals/window in-pipeline,
+seeded), evaluates the train-selected params on the held-out test window.
+Same anchors as `walk_forward` (0.50 / 0.65 / 0.80 on the regime OOS/IS
+ratio). The legacy `walk_forward` sub-score (same params replayed on both
+sides) measures temporal consistency, not OOS — both are kept, documented as
+measuring different things. Budget-skipped in quick mode (no warning — a
+budget decision is not a quality signal).
+
 ### Tier auto-promotion (unchanged)
 
 A strategy declared T0 auto-promotes to T1 if it has > 5 tunable params (excluding cooldown) or any non-canonical param value. T1 auto-promotes to T2 if > 8 tunable params. Declared tier is an upper bound on leniency.
@@ -381,3 +444,47 @@ A strategy that scores weakly across multiple overfit-sensitive sub-scores will 
 
 *Last updated: 2026-05-01*
 *Source of truth: `scripts/validation/pipeline.py`, `scripts/validation/candidate.py`, `scripts/validation/uncertainty.py`, `scripts/strategies/markers.py`*
+
+## 2026-06-09 deflation upgrade
+
+`selection_bias` deflation now uses **N_eff measured from the live search
+history** (`spike/hash-index.json` count, 4,116+ at upgrade time) with a
+ratcheting high-water mark (`spike/n-eff-state.json`) — never the retired
+hardcoded 300. The Monte-Carlo null requires ≥ 5,000 valid samples and is
+cache-keyed on (engine hash, data-manifest fingerprint); an infeasible Beta
+fit raises instead of falling back to Beta(10,10). Treating every deduped
+config as an independent trial is deliberately conservative (harsher
+deflation than the true correlated multiplicity).
+
+## Live demotion rule (2026-06-09)
+
+Forward evidence outranks the backtest claim. Once the live holdout stream
+contradicts certification, the active champion is demoted rather than
+defended. Implemented in `scripts/ops/live_holdout.py::evaluate_demotion`
+(constants `DEMOTION_*`), evaluated on every live-holdout build.
+
+| Trigger | Threshold | Sample-size gate |
+|---|---|---|
+| Live trust proxy | `live_vs_bah_multiple < 0.85` | ≥ 21 live snapshots (~1 trading month) |
+| Backtest-vs-live degradation | degradation fraction `< -0.15` (live multiple ≥ 15% short of the certified backtest share multiple) | ≥ 21 live snapshots |
+| Replay divergence | `diverged_count > 0` (replay disagrees with the immutable signal record) | none — correctness violations fire at any sample size |
+
+With fewer than 21 snapshots and no divergence, the verdict is always
+`demote=False` with reason `insufficient live evidence (n/21)` — performance
+noise on a handful of bars must not demote anyone.
+
+**Evidence stream.** Every live-holdout build appends one row per
+`data_end_date` (idempotent) to `runs/confidence_v2/live_outcomes.jsonl`:
+date, strategy, params_hash, montauk_score, composite_confidence,
+live_vs_bah_multiple, diverged_count, n_snapshots. This is the
+forward-survival evidence the confidence_vintage harness consumes to
+calibrate Conviction against reality. A companion execution-discipline
+journal (`runs/ops/fills.jsonl` + `scripts/ops/fills.py reconcile`) grades
+actual fills against the next-snapshot-close proxy.
+
+**Enforcement.** Today (Phase 3.3) a `demote=True` verdict is a governance
+blocker: governance state goes `active_blocked`, a `live_demotion` event is
+emitted, and the demotion block is stamped onto the active leaderboard row
+(`live_demotion`). After the Phase-4 recertification pass it additionally
+becomes an eligibility gate at leaderboard sync — demoted rows are excluded
+from the active-champion pick, not just flagged.

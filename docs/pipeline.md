@@ -265,3 +265,33 @@ What it is **not** allowed to do is drift outside the charter:
 - no strategy that punishes low trade frequency
 
 The project is a TECL share-accumulation factory, not a generic quant sandbox.
+
+
+---
+
+## 2026-06-09 addendum — search-engine upgrades (phase 1 of the pipeline)
+
+The GA evaluation loop in `search/evolve.py` gained four behaviors (all
+default-ON, flag-controlled):
+
+1. **Search roster** (`spike/search-roster.json`): 94 families whose scans
+   showed they cannot clear the Gold economics floor are retired from DEFAULT
+   search (still registered; null distribution and `--strategies` unaffected).
+   Active default roster: 5 proven `gc_` families + 10 `nh_` new-hypothesis
+   families (VIX/macro/volume/XLK/dual-timescale mechanisms).
+2. **Successive halving** (`halving=True`): cache-miss candidates are screened
+   on the modern era first (800-bar warmup + `MODERN_ERA_START`, era
+   growth-ratio share multiple); top max(8, 50%) promoted to full-history
+   evaluation. Pruned configs get hash-index tombstones — never retried,
+   counted by N_eff, invisible to seeding.
+3. **Parallel evaluation** (`workers=cpu-2`): fork pool across the population,
+   dedup in the parent, deterministic order, serial fallback. ~7x throughput.
+4. **Validation-aligned early filter** (`early_filter=True`): each chunk's
+   top-5 configs run `analyze_execution_realism` + `analyze_event_dependence`;
+   hard breaches (≤−30% next-open degradation or ≥0.95 single-event collapse)
+   are excluded from winner/leaderboard paths and their cached fitness is
+   multiplied by 0.25; soft breaches are penalized ×0.85 and logged. The
+   search can no longer polish candidates the validation pipeline would kill.
+
+Admission (phase 3) additionally enforces the per-strategy diversity cap
+(max 4 rows/strategy) introduced the same day.

@@ -19,7 +19,7 @@ _SCRIPTS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, _SCRIPTS_DIR)
 
 from data.loader import get_tecl_data
-from engine.strategy_engine import Indicators, backtest
+from engine.strategy_engine import backtest, shared_indicators
 from strategies.library import STRATEGY_REGISTRY
 from engine.regime_helpers import score_regime_capture
 
@@ -114,6 +114,14 @@ def split_walk_forward(df: pd.DataFrame):
 
 
 def split_named_windows(df: pd.DataFrame, warmup_bars: int = 700):
+    """Slice each named stress window with a warmup prefix for indicators.
+
+    Returns (name, window_df, eval_start) triples. The warmup prefix exists
+    ONLY to warm indicators (a 200-bar TEMA needs ~600 bars); scored metrics
+    must be computed from `eval_start` forward — see run_eval(eval_from=...).
+    Before 2026-06-09 the whole slice was scored, so "2020_meltup" actually
+    measured ~Sep-2016 → Jan-2021.
+    """
     results = []
     for name, (start, end) in NAMED_WINDOWS.items():
         eval_mask = (df["date"] >= start) & (df["date"] <= end)
@@ -123,8 +131,9 @@ def split_named_windows(df: pd.DataFrame, warmup_bars: int = 700):
         data_start_idx = max(0, eval_start_idx - warmup_bars)
         eval_end_idx = eval_mask[::-1].idxmax()
         window = df.iloc[data_start_idx:eval_end_idx + 1].reset_index(drop=True)
+        eval_start = pd.Timestamp(df["date"].iloc[eval_start_idx])
         if len(window) > 100:
-            results.append((name, window))
+            results.append((name, window, eval_start))
     return results
 
 
@@ -132,9 +141,22 @@ def split_named_windows(df: pd.DataFrame, warmup_bars: int = 700):
 # Run one evaluation
 # ─────────────────────────────────────────────────────────────────────────────
 
-def run_eval(df: pd.DataFrame, strategy_fn, params: dict, name: str) -> dict:
-    """Run strategy, backtest, compute regime score. Return metrics dict."""
-    ind = Indicators(df)
+def run_eval(
+    df: pd.DataFrame,
+    strategy_fn,
+    params: dict,
+    name: str,
+    eval_from: pd.Timestamp | None = None,
+) -> dict:
+    """Run strategy, backtest, compute regime score. Return metrics dict.
+
+    `eval_from`: when the df carries a warmup prefix (named stress windows),
+    the scored share_multiple and trade count are recomputed strictly from
+    this date forward via the same growth-ratio math as the era metrics, so
+    the warmup prefix feeds indicators only. Other fields (regime_score,
+    cagr, max_dd) remain whole-slice diagnostics.
+    """
+    ind = shared_indicators(df)  # per-df cache: repeat sweeps reuse EMAs (2026-06-09)
     try:
         entries, exits, labels = strategy_fn(ind, params)
         cooldown = params.get("cooldown", 0)
@@ -157,7 +179,7 @@ def run_eval(df: pd.DataFrame, strategy_fn, params: dict, name: str) -> dict:
         bull_cap = 0.0
         bear_avoid = 0.0
 
-    return {
+    metrics = {
         "regime_score": round(regime, 4),
         "bull_capture": round(bull_cap, 4),
         "bear_avoidance": round(bear_avoid, 4),
@@ -168,6 +190,26 @@ def run_eval(df: pd.DataFrame, strategy_fn, params: dict, name: str) -> dict:
         "share_multiple": round(result.share_multiple, 3),
         "win_rate": round(result.win_rate_pct, 1),
     }
+
+    if eval_from is not None:
+        from engine.strategy_engine import _distribution_array, _era_share_multiple
+
+        eval_sm = _era_share_multiple(
+            df["date"].values,
+            np.asarray(result.equity_curve, dtype=np.float64),
+            df["close"].values.astype(np.float64),
+            pd.Timestamp(eval_from),
+            _distribution_array(df),
+        )
+        eval_from_str = str(pd.Timestamp(eval_from))[:10]
+        metrics["share_multiple"] = round(float(eval_sm), 3)
+        metrics["trades"] = sum(
+            1 for t in result.trades if str(t.entry_date) >= eval_from_str
+        )
+        metrics["eval_from"] = eval_from_str
+        metrics["full_slice_share_multiple"] = round(result.share_multiple, 3)
+
+    return metrics
 
 
 def _perturb_value(value, perturbation: float):
@@ -367,8 +409,8 @@ def analyze_named_windows(
     hard_fail_reasons = []
     soft_warnings = []
     critical_warnings = []
-    for window_name, window_df in split_named_windows(df):
-        metrics = run_eval(window_df, strategy_fn, params, name)
+    for window_name, window_df, eval_start in split_named_windows(df):
+        metrics = run_eval(window_df, strategy_fn, params, name, eval_from=eval_start)
         results.append({"window": window_name, **metrics})
         if metrics.get("error"):
             hard_fail_reasons.append(f"{window_name}: {metrics['error']}")
@@ -394,6 +436,125 @@ def analyze_named_windows(
         "critical_warnings": critical_warnings,
         "warnings": warnings,
         "hard_fail_reasons": hard_fail_reasons,
+    }
+
+
+EXECUTION_DEGRADATION_FAIL = -30.0   # % share_multiple change, close → next_open
+EXECUTION_DEGRADATION_WARN = -15.0   # deep-validation audit budget (D3.4/D9.6)
+EXECUTION_DEGRADATION_PASS = -5.0
+
+# Major single events: an edge that evaporates when one window is removed is
+# overfit-to-history (deep-validation D4.9 found 83-90% COVID-exclusion
+# collapses on the then-top-5). Windows are spliced out and the strategy +
+# B&H are both re-run on the spliced series, so the comparison stays fair.
+EVENT_WINDOWS = {
+    "covid_crash": ("2020-02-19", "2020-04-30"),
+    "2022_bear": ("2022-01-01", "2022-10-31"),
+}
+# Anchor calibration (2026-06-09): a charter-aligned defensive strategy MUST
+# derive much of its edge from the few real-era crashes (sell high, re-enter
+# lower IS the mission), so moderate event concentration is structural, not
+# damning. Near-total dependence on exactly one event is the overfit
+# signature. Refinement to null-calibrated anchors is in the Phase-2 backlog.
+EVENT_COLLAPSE_FAIL = 0.95
+EVENT_COLLAPSE_WARN = 0.80
+EVENT_COLLAPSE_PASS = 0.50
+
+
+def analyze_execution_realism(
+    df: pd.DataFrame, strategy_fn, params: dict, name: str
+) -> dict:
+    """Close-fill vs next-open-fill degradation (the execution_realism check).
+
+    Certification numbers are computed under same-close fills, but live
+    execution is manual after the close — fills happen at roughly the next
+    open. This re-runs the exact signal arrays under `execution_timing=
+    "next_open"` and reports the share_multiple degradation. The -15% budget
+    comes from the project's own deep-validation audit (D3.4).
+    """
+    ind = shared_indicators(df)  # per-df cache: repeat sweeps reuse EMAs (2026-06-09)
+    try:
+        entries, exits, labels = strategy_fn(ind, params)
+        cooldown = params.get("cooldown", 0)
+        close_result = backtest(
+            df, entries, exits, labels, cooldown_bars=cooldown, strategy_name=name
+        )
+        open_result = backtest(
+            df, entries, exits, labels, cooldown_bars=cooldown, strategy_name=name,
+            execution_timing="next_open",
+        )
+    except Exception as e:
+        return {"verdict": "FAIL", "error": str(e), "degradation_pct": -100.0}
+
+    close_share = float(close_result.share_multiple)
+    open_share = float(open_result.share_multiple)
+    degradation_pct = (
+        (open_share - close_share) / close_share * 100.0 if close_share > 0 else -100.0
+    )
+    if degradation_pct <= EXECUTION_DEGRADATION_FAIL:
+        verdict = "FAIL"
+    elif degradation_pct <= EXECUTION_DEGRADATION_WARN:
+        verdict = "WARN"
+    else:
+        verdict = "PASS"
+    return {
+        "verdict": verdict,
+        "close_share_multiple": round(close_share, 4),
+        "next_open_share_multiple": round(open_share, 4),
+        "degradation_pct": round(degradation_pct, 2),
+        "budget_pct": EXECUTION_DEGRADATION_WARN,
+    }
+
+
+def analyze_event_dependence(
+    df: pd.DataFrame, strategy_fn, params: dict, name: str
+) -> dict:
+    """Single-event dependence: how much edge survives excluding each event.
+
+    For each window in EVENT_WINDOWS the bars are spliced out, indicators and
+    both legs (strategy + B&H) re-run on the spliced series, and the
+    share_multiple compared to baseline. collapse = 1 - excluded/baseline;
+    the score anchors on the WORST event.
+    """
+    baseline = run_eval(df, strategy_fn, params, name)
+    baseline_share = float(baseline.get("share_multiple", 0.0))
+    if baseline.get("error") or baseline_share <= 0:
+        return {"verdict": "FAIL", "error": baseline.get("error", "no baseline edge"),
+                "worst_collapse": 1.0, "events": {}}
+
+    events = {}
+    worst_collapse = 0.0
+    worst_event = None
+    for event, (start, end) in EVENT_WINDOWS.items():
+        mask = (df["date"] >= pd.Timestamp(start)) & (df["date"] <= pd.Timestamp(end))
+        if not mask.any():
+            continue
+        spliced = df[~mask].reset_index(drop=True)
+        metrics = run_eval(spliced, strategy_fn, params, name)
+        excluded_share = float(metrics.get("share_multiple", 0.0))
+        collapse = max(0.0, 1.0 - excluded_share / baseline_share)
+        events[event] = {
+            "window": [start, end],
+            "bars_excluded": int(mask.sum()),
+            "share_multiple": round(excluded_share, 4),
+            "collapse": round(collapse, 4),
+        }
+        if collapse > worst_collapse:
+            worst_collapse = collapse
+            worst_event = event
+
+    if worst_collapse >= EVENT_COLLAPSE_FAIL:
+        verdict = "FAIL"
+    elif worst_collapse >= EVENT_COLLAPSE_WARN:
+        verdict = "WARN"
+    else:
+        verdict = "PASS"
+    return {
+        "verdict": verdict,
+        "baseline_share_multiple": round(baseline_share, 4),
+        "worst_collapse": round(worst_collapse, 4),
+        "worst_event": worst_event,
+        "events": events,
     }
 
 
@@ -565,8 +726,8 @@ def validate(strategy_name: str, params: dict, do_stability: bool = True):
     print("NAMED STRESS WINDOWS")
     print(f"{'='*70}")
     named = split_named_windows(df)
-    for wname, wdf in named:
-        r = run_eval(wdf, strategy_fn, params, strategy_name)
+    for wname, wdf, eval_start in named:
+        r = run_eval(wdf, strategy_fn, params, strategy_name, eval_from=eval_start)
         print(f"\n  {wname}:")
         print(f"    regime={r['regime_score']:.4f}  MAR={r['mar']:.3f}  CAGR={r['cagr']:.1f}%  DD={r['max_dd']:.1f}%  trades={r['trades']}  share_multiple={r['share_multiple']:.3f}")
 

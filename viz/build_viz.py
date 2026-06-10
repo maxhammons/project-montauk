@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import csv
 import datetime as dt
+import hashlib
 import json
 import os
 import sys
@@ -47,6 +48,7 @@ SPIKE_DIR = os.path.join(PROJECT_ROOT, "spike")
 TEMPLATE_DIR = os.path.join(VIZ_DIR, "templates")
 
 LEADERBOARD_PATH = os.path.join(SPIKE_DIR, "leaderboard.json")
+SIGNALS_DIR = os.path.join(PROJECT_ROOT, "signals")
 FAMILY_CONFIDENCE_PATH = os.path.join(PROJECT_ROOT, "runs", "family_confidence_leaderboard.json")
 CONFIDENCE_V2_PATH = os.path.join(PROJECT_ROOT, "runs", "confidence_v2", "leaderboard_scores.json")
 RUNS_DIR = os.path.join(SPIKE_DIR, "runs")
@@ -555,6 +557,52 @@ def compute_tecl_health(tecl: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _sha256_of(path: str) -> str | None:
+    """SHA256 of a file's bytes, or None if the file is missing/unreadable."""
+    if not os.path.exists(path):
+        return None
+    digest = hashlib.sha256()
+    try:
+        with open(path, "rb") as f:
+            for chunk in iter(lambda: f.read(1 << 20), b""):
+                digest.update(chunk)
+    except OSError:
+        return None
+    return digest.hexdigest()
+
+
+def latest_signal_date() -> str | None:
+    """Newest signals/YYYY-MM-DD.json date, if the folder is readable."""
+    try:
+        names = os.listdir(SIGNALS_DIR)
+    except OSError:
+        return None
+    dates = []
+    for name in names:
+        stem, ext = os.path.splitext(name)
+        if ext == ".json" and len(stem) == 10 and stem[4] == "-" and stem[7] == "-":
+            dates.append(stem)
+    return max(dates) if dates else None
+
+
+def build_freshness(tecl: dict[str, Any]) -> dict[str, Any]:
+    """Staleness stamp embedded in the bundle payload, montauk-bundle.json, and
+    a leading HTML comment in montauk-viz.html.
+
+    The Mac app's Open-Viz staleness gate (app/src-tauri check_viz_freshness)
+    compares this block against the live files (leaderboard sha256, newest
+    signal date) before opening the standalone HTML, and rebuilds first if any
+    of them moved. The viz engine renders it as the "data through … · built …"
+    badge and shows a warning banner when the build is older than 24h.
+    """
+    return {
+        "generated_utc": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "data_end_date": tecl["dates"][-1] if tecl.get("dates") else None,
+        "leaderboard_sha256": _sha256_of(LEADERBOARD_PATH),
+        "signals_latest_date": latest_signal_date(),
+    }
+
+
 def load_leaderboard() -> list[dict[str, Any]]:
     if not os.path.exists(LEADERBOARD_PATH):
         print(f"[build_viz] WARNING: leaderboard not found at {LEADERBOARD_PATH}")
@@ -974,8 +1022,17 @@ def build_bundle() -> dict[str, Any]:
     tecl_out = dict(tecl)
     tecl_out["manifest"] = manifest
 
+    freshness = build_freshness(tecl)
+    print(
+        "[build_viz] Freshness: "
+        f"data through {freshness.get('data_end_date')} · "
+        f"signals through {freshness.get('signals_latest_date')} · "
+        f"leaderboard {str(freshness.get('leaderboard_sha256') or '?')[:12]}…"
+    )
+
     bundle = {
         "generated": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        "freshness": freshness,
         "tecl": tecl_out,
         "tecl_health": health,
         "markers": {"north_star": markers},
@@ -1037,6 +1094,13 @@ def emit_html(bundle: dict[str, Any]) -> None:
             .replace("__LIGHTWEIGHT_CHARTS__", lib_js)
             .replace("/*__MONTAUK_PAYLOAD__*/null", safe_data_json)
             .replace("__MONTAUK_APP__", app_js))
+
+    # Cheap machine-readable staleness stamp: a leading HTML comment the Mac
+    # app's gate can extract by scanning only the first few KB of the file
+    # (no need to parse the multi-MB payload). Comments before <!doctype> are
+    # legal and do not trigger quirks mode.
+    stamp = json.dumps(bundle.get("freshness") or {}, separators=(",", ":"))
+    html = f"<!--MONTAUK_FRESHNESS:{stamp}-->\n" + html
 
     with open(OUTPUT_HTML, "w") as f:
         f.write(html)

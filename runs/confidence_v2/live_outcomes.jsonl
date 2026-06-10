@@ -1,0 +1,1 @@
+{"date": "2026-06-09", "strategy": "gc_vjatr_timing_repair", "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d", "montauk_score": 0.6524, "composite_confidence": 0.7678, "live_vs_bah_multiple": 0.9988, "diverged_count": 1, "n_snapshots": 19, "appended_utc": "2026-06-10T00:34:49Z"}

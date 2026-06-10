@@ -46,6 +46,8 @@ window.__MONTAUK_VIZ__.reset = function resetMontaukViz() {
   }
   const tip = document.getElementById("tooltip");
   if (tip) tip.style.display = "none";
+  const staleBanner = document.getElementById("freshness-warning");
+  if (staleBanner) staleBanner.remove();
 
   window.__MONTAUK_VIZ__._state = null;
   window.__MONTAUK_VIZ__.booted = false;
@@ -1186,6 +1188,20 @@ window.__MONTAUK_VIZ__.boot = function bootMontaukViz(D) {
   }
 
   /* ---- Top-bar provenance + generated badges ---- */
+  function freshnessBuiltDate() {
+    // Prefer the machine stamp; fall back to the legacy human string.
+    const iso = D.freshness?.generated_utc;
+    let t = iso ? new Date(iso) : null;
+    if (!t || Number.isNaN(t.getTime())) {
+      t = D.generated ? new Date(String(D.generated).replace(" UTC", "Z").replace(" ", "T")) : null;
+    }
+    return t && !Number.isNaN(t.getTime()) ? t : null;
+  }
+  function fmtBuiltStamp() {
+    const t = freshnessBuiltDate();
+    if (!t) return D.generated || "—";
+    return t.toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  }
   function initBadges() {
     const provText = document.getElementById("prov-text");
     const provBadge = document.getElementById("provenance-badge");
@@ -1198,7 +1214,43 @@ window.__MONTAUK_VIZ__.boot = function bootMontaukViz(D) {
       provBadge.classList.remove("ok");
       provBadge.classList.add("warn");
     }
-    document.getElementById("generated-badge").textContent = `built ${D.generated || "—"}`;
+    const genBadge = document.getElementById("generated-badge");
+    if (genBadge) {
+      const dataThrough = D.freshness?.data_end_date
+        || (D.tecl?.dates?.length ? D.tecl.dates[D.tecl.dates.length - 1] : null);
+      genBadge.textContent = `data through ${dataThrough || "?"} · built ${fmtBuiltStamp()}`;
+      genBadge.title = D.freshness?.leaderboard_sha256
+        ? `Freshness stamp · leaderboard ${D.freshness.leaderboard_sha256.slice(0, 12)}… · signals through ${D.freshness.signals_latest_date || "?"}`
+        : "No freshness stamp — rebuild with viz/build_viz.py";
+    }
+  }
+
+  /* ---- Stale-build warning banner (best-effort, standalone double-click path).
+   * The HARD staleness gate lives in the Mac app (check_viz_freshness before
+   * open_viz). A file:// double-click cannot compare against live files, so
+   * here we warn prominently whenever the build is older than 24h. ---- */
+  function initFreshnessWarning() {
+    document.getElementById("freshness-warning")?.remove();
+    const built = freshnessBuiltDate();
+    if (!built) return;
+    const ageHours = (Date.now() - built.getTime()) / 36e5;
+    if (ageHours <= 24) return;
+    const banner = document.createElement("div");
+    banner.id = "freshness-warning";
+    banner.setAttribute("role", "alert");
+    banner.style.cssText = [
+      "position:fixed", "top:0", "left:0", "right:0", "z-index:9999",
+      "padding:7px 14px", "text-align:center",
+      "font:600 12px Inter,-apple-system,BlinkMacSystemFont,sans-serif",
+      "color:#0b0d10", "background:#f0b429",
+      "box-shadow:0 2px 14px rgba(240,180,41,0.35)",
+    ].join(";");
+    const ageLabel = ageHours >= 48 ? `${Math.floor(ageHours / 24)} days` : `${Math.floor(ageHours)}h`;
+    banner.textContent =
+      `Stale viz — built ${ageLabel} ago (${fmtBuiltStamp()}, data through ${D.freshness?.data_end_date || "?"}). `
+      + "Use the app's Refresh / Open Viz, or run: python viz/build_viz.py";
+    document.body.appendChild(banner);
+    _disposers.push(() => banner.remove());
   }
 
   /* ---- Time-range buttons ---- */
@@ -1333,6 +1385,7 @@ window.__MONTAUK_VIZ__.boot = function bootMontaukViz(D) {
 
   /* ---- Boot ---- */
   initBadges();
+  initFreshnessWarning();
   initLeaderboardTabs();
   initLeaderboardSort();
   initSecondaryToggle();

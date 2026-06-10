@@ -88,6 +88,20 @@ The Roth overlay model can sit on top of a validated binary TECL signal without 
 
 ---
 
+## 2b. What Just Changed (2026-06-09 gold-standard remediation, Phases 0-4 — COMPLETE)
+
+Full audit + remediation per `docs/*NEXT/2026-06-09-gold-standard-remediation-plan.md`:
+
+- **Test net restored + hardened.** Golden ledger regenerated (data-refresh divergence only; trade 50 was an open End-of-Data trade). Champion selection unified on Montauk Score across `certify_champion.py` / `ops/daily.py` / `strategy_review.py`. `backtesting` dependency installed everywhere — shadow comparator actually executes now. `make test` + CI test gate added (rtk hook could silently swallow pytest with exit 0). CI optimizer path fixed (`scripts/spike_runner.py` → `scripts/search/spike_runner.py`, broken since the reorg).
+- **Gate-0 engine integrity is real.** `_run_engine_behavior_checks` executes prefix-consistency (lookahead + repaint, two truncation depths), per-trade bar-close fill verification, and a single-position overlap scan. `charter_compatible` reads `CHARTER_INCOMPATIBLE_STRATEGIES` in the library (was hardcoded True).
+- **Artifact stamps are never trusted.** `contract.py` re-verifies the five-artifact bundle on disk at every sync, with machine-portable path rebasing; a stamp without resolvable paths is `unverifiable`. All 20 board rows resolve locally. `recertify_leaderboard.py` deadlock fixed (stored bundles re-linked after fresh validation) — recertification can complete again.
+- **Reproducibility is first-class.** `certify/verify_board_reproducibility.py` recomputes every row's canonical era metrics vs stored stamps (report / `--stamp` / `--enforce`). Current state: **0/20 rows reproduce** under data through 2026-06-08 (full-era drift 0.3-2.8 share-multiple points) — the board needs the Phase-4 re-certification. `spike_runner` artifact emission stamps `reproducibility.status` on the champion entry instead of only printing a warning.
+- **Engine landmines fixed (defaults unchanged, goldens intact).** Dead EMA-cross exit (`enable_sell_confirm=False` + `sell_confirm_bars>=2`) now collapses to a 1-bar window, pinned by test. `_rma` is NaN-tolerant like `_ema` (a single NaN price could silently disable the ATR exit forever). End-of-Data close-out documented as deliberate mark-to-market (no slippage, symmetric with B&H). **Sideways exit suppression kept intentionally** after measurement: unsuppressing even just the risk stops cuts the 8.2.1 reference from 12.69x to 4.18x B&H shares — calm-regime 3-ATR shocks were overwhelmingly recoverable, and the exposure is self-disarming (a real move blows out the range and re-arms exits). Documented in the engine; residual creep-down risk accepted.
+- **Named stress windows measure their documented ranges.** Warmup prefix feeds indicators only; scored share_multiple/trades computed strictly in-window (2024_onward was flattered 1.75 → honest 0.93; 2020_meltup understated 0.68 → 1.73). Composite scores will shift on re-validation.
+- Dead, broken `validation/walk_forward.py` removed (NameError on every call; nothing imported it).
+
+Phases 2-4 also landed the same day: measured-N_eff deflation (4,116) + 5,000-sample fingerprinted null; CSCV/PBO + true re-optimized walk-forward + execution-realism + event-dependence sub-scores; deep-validation CRITICALs formally adjudicated (docs/Montauk 2.0/deep-validation-report.md — full-era numbers demoted to diagnostic by policy); hash-chained signal log + fills journal + live auto-demotion + bar-immutability checks; and the full board re-certification: **12 Gold rows (was 20), all freshly validated on current data, 12/12 bit-reproducible, capped at 4 variants/strategy, chimera_v1 active at Montauk 0.6524.** Outstanding for the owner: record fills (`scripts/ops/fills.py record ...`) and check the sign-off line in the deep-validation report.
+
 ## 3. What Just Changed (2026-04-21 validation overhaul)
 
 The previous 7-gate pass/fail framework was replaced with a two-layer confidence

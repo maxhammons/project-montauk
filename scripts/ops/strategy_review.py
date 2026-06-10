@@ -123,7 +123,11 @@ def build_strategy_review(
     leaderboard = _load_json(leaderboard_path, [])
     latest = _load_json(latest_path, {})
     gold = [row for row in leaderboard if is_gold(row)]
-    best = max(gold, key=lambda row: strategy_score(row, metric)) if gold else (leaderboard[0] if leaderboard else None)
+    best = (
+        max(gold, key=lambda row: (strategy_score(row, metric), confidence_score(row)))
+        if gold
+        else (leaderboard[0] if leaderboard else None)
+    )
     active = active_from_latest(latest)
     best_identity = strategy_identity(best, metric=metric)
     active_strategy = active.get("strategy")

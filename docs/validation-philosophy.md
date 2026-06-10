@@ -181,3 +181,18 @@ This directly addresses the manual-admission override of gc_vjbb that the team p
 ---
 
 *Last updated: 2026-04-21*
+
+
+---
+
+## 2026-06-09 addendum — Phase 2/3 hardening (authoritative details in validation-thresholds.md)
+
+The anti-overfit stack described above gained: measured-N_eff deflation
+(live hash-index count, ratcheted), a 5,000+-sample fingerprinted null,
+CSCV/PBO, true re-optimized walk-forward (the legacy walk-forward is a
+temporal-consistency check), execution-realism (next-open) scoring,
+single-event-dependence scoring, hash-chained signal logs, fills
+reconciliation, live auto-demotion, and historical-bar immutability checks.
+Where this document's older sections disagree with `validation-thresholds.md`
+(e.g. cross-asset as a 0.05 weighted sub-score — it was removed from the
+composite entirely), the thresholds doc is authoritative.
