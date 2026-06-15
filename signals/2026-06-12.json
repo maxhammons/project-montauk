@@ -1,0 +1,173 @@
+{
+  "snapshot_schema_version": 1,
+  "generated_utc": "2026-06-15T00:09:43Z",
+  "data_end_date": "2026-06-12",
+  "active_champion": {
+    "strategy": "chimera_v1_2026_05_26",
+    "rank": 1,
+    "date": "2026-06-09",
+    "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
+    "params": {
+      "members": [
+        {
+          "display_name": "Dusky Osprey",
+          "strategy": "gc_vjatr_reclaimer",
+          "params": {
+            "fast_ema": 140,
+            "slow_ema": 160,
+            "slope_window": 1,
+            "entry_bars": 2,
+            "cooldown": 0,
+            "atr_period": 16,
+            "atr_look": 50,
+            "atr_expand": 2.0,
+            "atr_confirm": 3,
+            "rsi_len": 14,
+            "fast_len": 50,
+            "trend_len": 100,
+            "vol_short": 20,
+            "vol_long": 60,
+            "drawdown_lookback": 80,
+            "drawdown_pct": 25.0,
+            "rsi_reclaim": 45.0,
+            "vol_ratio_max": 0.85
+          },
+          "weight": 3.540446
+        },
+        {
+          "display_name": "Marbled Bonobo",
+          "strategy": "gc_vjatr",
+          "params": {
+            "fast_ema": 140,
+            "slow_ema": 160,
+            "slope_window": 1,
+            "entry_bars": 2,
+            "cooldown": 0,
+            "atr_period": 7,
+            "atr_look": 40,
+            "atr_expand": 2.5,
+            "atr_confirm": 1
+          },
+          "weight": 2.51853
+        },
+        {
+          "display_name": "Ivory Hare",
+          "strategy": "gc_vjatr_timing_repair",
+          "params": {
+            "fast_ema": 140,
+            "slow_ema": 160,
+            "slope_window": 1,
+            "entry_bars": 2,
+            "cooldown": 0,
+            "atr_period": 16,
+            "atr_look": 50,
+            "atr_expand": 2.0,
+            "atr_confirm": 3,
+            "repair_len": 30,
+            "rsi_len": 7,
+            "drawdown_lookback": 40,
+            "drawdown_pct": 25.0,
+            "repair_slope": 3,
+            "rsi_floor": 45.0,
+            "vix_ceiling": 50.0
+          },
+          "weight": 2.551391
+        }
+      ],
+      "threshold": 0.5
+    },
+    "metrics": {
+      "share_multiple": 35.1812,
+      "real_share_multiple": 1.2857,
+      "modern_share_multiple": 3.2035,
+      "max_dd": 65.8,
+      "trades": 19
+    }
+  },
+  "risk_state": "risk_off",
+  "risk_on": false,
+  "entry_signal": false,
+  "exit_signal": false,
+  "exit_label": "",
+  "buy_event": false,
+  "sell_event": false,
+  "close": 215.490005,
+  "flip_likelihood": 0.0,
+  "flip_days": null,
+  "flip_move_pct": null,
+  "flip_horizon": 21,
+  "flip_direction": "to_entry",
+  "validation": {
+    "verdict": "PASS",
+    "promotion_ready": true,
+    "certified_not_overfit": true,
+    "backtest_certified": true,
+    "gold_status": true,
+    "composite_confidence": 0.7684,
+    "tier": "T2",
+    "warnings": [
+      "n_params=53 exceeds regime_transitions=19",
+      "[T2] missed_marker_cycles=9 > 5 (informational)",
+      "[T2] transition_timing=0.184 < 0.30 (informational)",
+      "concentration: bull_hhi=0.257 bear_hhi=0.128 dom=3.13x",
+      "2021_2022_bear: zero trades (sat out, share_multiple=3.239)",
+      "QQQ same-param share_multiple=0.441 < 0.50",
+      "execution realism: next-open degradation -12.2%",
+      "bootstrap downside probability 0.85 > 0.50",
+      "event dependence: covid_crash exclusion collapses edge 81%"
+    ],
+    "hard_fail_reasons": [],
+    "certification_checks": {
+      "engine_integrity": {
+        "passed": true,
+        "status": "pass"
+      },
+      "golden_regression": {
+        "passed": true,
+        "status": "pass"
+      },
+      "shadow_comparator": {
+        "passed": true,
+        "status": "pass"
+      },
+      "data_quality_precheck": {
+        "passed": true,
+        "status": "pass"
+      },
+      "artifact_completeness": {
+        "passed": true,
+        "status": "pass"
+      }
+    }
+  },
+  "warnings": [
+    "n_params=53 exceeds regime_transitions=19",
+    "[T2] missed_marker_cycles=9 > 5 (informational)",
+    "[T2] transition_timing=0.184 < 0.30 (informational)",
+    "concentration: bull_hhi=0.257 bear_hhi=0.128 dom=3.13x",
+    "2021_2022_bear: zero trades (sat out, share_multiple=3.239)",
+    "QQQ same-param share_multiple=0.441 < 0.50",
+    "execution realism: next-open degradation -12.2%",
+    "bootstrap downside probability 0.85 > 0.50",
+    "event dependence: covid_crash exclusion collapses edge 81%"
+  ],
+  "blockers": [],
+  "signal_changed": true,
+  "signal_change": {
+    "changed": true,
+    "reason": "field_change",
+    "changed_fields": [
+      "exit_signal"
+    ],
+    "previous_data_end_date": "2026-06-09",
+    "previous_risk_state": "risk_off"
+  },
+  "data_quality": {
+    "total": 45,
+    "pass": 45,
+    "warn": 0,
+    "fail": 0,
+    "skip": 0
+  },
+  "prev_snapshot_sha256": "7977486dd46c40bb033685f95ec6bd91da4d1be427c24d366763a2d5e0a2d461"
+}

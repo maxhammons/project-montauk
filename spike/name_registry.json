@@ -73,13 +73,12 @@
       }
     },
     "chimera_v1_2026_05_26": {
-      "adjectives_used": [
-        "Jade"
-      ],
-      "animal": "Bonobo",
+      "adjectives_used": [],
+      "animal": "Chimera 1",
       "assignments": {
-        "43a3ac0489f0": "Jade Bonobo"
-      }
+        "43a3ac0489f0": "Chimera 1"
+      },
+      "reserved": true
     },
     "donchian_turtle": {
       "adjectives_used": [

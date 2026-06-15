@@ -4,6 +4,13 @@ Rule:
   - Each strategy family (the codename, e.g. ``gc_n8``) is bound to one **animal**.
   - Each entry within that family gets a unique **adjective** so siblings
     are visually distinct (``Velvet Jaguar`` vs ``Amber Jaguar``).
+  - **Reserved families** (see ``RESERVED_NAMES``) skip the animal scheme and
+    render under a fixed display name instead — the Chimera committee is an
+    ensemble *of* strategies, not one beast, so it is named ``Chimera`` rather
+    than borrowing a single member's animal.
+
+The animal pool is intentionally large (any recognizable animal is fair game)
+so the one-animal-per-family invariant effectively never collides.
 
 The binding is persisted to ``spike/name_registry.json`` so names are stable
 across re-runs. A params-hash keys the per-entry adjective, so the same
@@ -20,6 +27,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 from typing import Any
 
 ADJECTIVES = [
@@ -56,32 +64,62 @@ ADJECTIVES = [
 ]
 
 ANIMALS = [
-    "Jaguar",
-    "Heron",
-    "Fox",
-    "Otter",
-    "Lynx",
-    "Falcon",
-    "Ibex",
-    "Stag",
-    "Marten",
-    "Badger",
-    "Osprey",
-    "Kestrel",
-    "Hare",
-    "Wolverine",
-    "Caracal",
-    "Serval",
-    "Gannet",
-    "Pangolin",
-    "Okapi",
-    "Tanager",
-    "Gecko",
-    "Shrike",
-    "Civet",
-    "Bonobo",
-    "Tapir",
+    # Original pool (kept first so existing hash positions are stable).
+    "Jaguar", "Heron", "Fox", "Otter", "Lynx", "Falcon", "Ibex", "Stag",
+    "Marten", "Badger", "Osprey", "Kestrel", "Hare", "Wolverine", "Caracal",
+    "Serval", "Gannet", "Pangolin", "Okapi", "Tanager", "Gecko", "Shrike",
+    "Civet", "Bonobo", "Tapir",
+    # Expanded pool — large enough that one-animal-per-family effectively
+    # never collides. Any recognizable animal is fair game.
+    "Aardvark", "Albatross", "Alpaca", "Anteater", "Antelope", "Armadillo",
+    "Axolotl", "Baboon", "Bandicoot", "Barracuda", "Bison", "Bittern",
+    "Bobcat", "Bongo", "Booby", "Buffalo", "Bushbuck", "Capybara", "Cassowary",
+    "Cheetah", "Chinchilla", "Cobra", "Condor", "Cormorant", "Cougar",
+    "Coyote", "Crane", "Curlew", "Dingo", "Dormouse", "Dugong", "Eagle",
+    "Echidna", "Egret", "Eland", "Elk", "Ermine", "Ferret", "Finch",
+    "Flamingo", "Fossa", "Gazelle", "Gerbil", "Gibbon", "Giraffe", "Gnu",
+    "Goshawk", "Grebe", "Grison", "Grouse", "Guanaco", "Harrier", "Hedgehog",
+    "Hornbill", "Hyena", "Ibis", "Impala", "Jackal", "Jackrabbit", "Jay",
+    "Jerboa", "Kakapo", "Kangaroo", "Kinkajou", "Kite", "Kiwi", "Koala",
+    "Kookaburra", "Kowari", "Kudu", "Lapwing", "Lemming", "Lemur", "Leopard",
+    "Loris", "Macaque", "Magpie", "Mamba", "Mandrill", "Manticore", "Markhor",
+    "Meerkat", "Merlin", "Mink", "Mongoose", "Moorhen", "Moose", "Mouflon",
+    "Muntjac", "Narwhal", "Nightjar", "Nilgai", "Numbat", "Nuthatch", "Nyala",
+    "Ocelot", "Onager", "Opossum", "Oribi", "Oriole", "Oryx", "Ouzel",
+    "Panther", "Partridge", "Peccary", "Petrel", "Pika", "Pintail", "Plover",
+    "Polecat", "Porpoise", "Possum", "Pronghorn", "Ptarmigan", "Puffin",
+    "Puma", "Quail", "Quokka", "Quoll", "Raccoon", "Raven", "Reedbuck",
+    "Rhea", "Roan", "Saiga", "Salamander", "Sandpiper", "Sasquatch",
+    "Seriema", "Sika", "Sitatunga", "Skua", "Sloth", "Snipe", "Springbok",
+    "Starling", "Stilt", "Stoat", "Stork", "Sunbird", "Swift", "Takin",
+    "Tahr", "Teal", "Tern", "Topi", "Toucan", "Vervet", "Vicuna", "Vole",
+    "Vulture", "Wallaby", "Wapiti", "Warbler", "Waxwing", "Weasel", "Whimbrel",
+    "Wigeon", "Wombat", "Woodlark", "Wryneck", "Yak", "Zebu", "Zorilla",
 ]
+
+RESERVED_NAMES: dict[str, str] = {
+    # Committee / ensemble families render as a plain reserved name instead of
+    # the adjective+animal scheme. Matched as exact codename or ``<prefix>_*``.
+    "chimera": "Chimera",
+}
+
+
+def _reserved_base(strategy: str) -> str | None:
+    """Return the reserved display label for a family, or ``None``.
+
+    Matches an exact codename or a ``<prefix>_…`` versioned codename and folds
+    the version number into the label, so each Chimera generation is
+    distinguishable:
+      ``chimera_v1_2026_05_26`` → ``Chimera 1``
+      ``chimera_v2_…``          → ``Chimera 2``
+      bare ``chimera``          → ``Chimera``
+    """
+    for prefix, label in RESERVED_NAMES.items():
+        if strategy == prefix or strategy.startswith(prefix + "_"):
+            m = re.search(r"_v(\d+)", strategy)
+            return f"{label} {int(m.group(1))}" if m else label
+    return None
+
 
 SEED_ANIMALS: dict[str, str] = {
     "gc_n8": "Jaguar",
@@ -177,8 +215,19 @@ def assign_display_name(
     _seed_if_empty(registry)
 
     fams = registry["families"]
+    reserved = _reserved_base(strategy)
     fam = fams.get(strategy)
-    if fam is None:
+
+    if reserved is not None and (
+        fam is None or not fam.get("reserved") or fam.get("animal") != reserved
+    ):
+        # New reserved family, a legacy animal-scheme family being healed onto
+        # its reserved name (chimera was once "Jade Bonobo"), or a reserved
+        # label that changed (e.g. "Chimera" → "Chimera 1" after versioning).
+        fam = {"animal": reserved, "assignments": {}, "adjectives_used": [],
+               "reserved": True}
+        fams[strategy] = fam
+    elif fam is None:
         animal = _pick_animal(strategy, registry)
         fam = {"animal": animal, "assignments": {}, "adjectives_used": []}
         fams[strategy] = fam
@@ -196,9 +245,19 @@ def assign_display_name(
         _save_registry(registry_path, registry)
         return fam["assignments"][pk]
 
-    adj = _pick_adjective(f"{strategy}:{pk}", fam["adjectives_used"])
-    name = f"{adj} {fam['animal']}"
+    if fam.get("reserved"):
+        # First sibling renders as the bare reserved label ("Chimera"); any
+        # additional sibling gets a disambiguating adjective ("Jade Chimera").
+        if fam["assignments"]:
+            adj = _pick_adjective(f"{strategy}:{pk}", fam["adjectives_used"])
+            fam["adjectives_used"].append(adj)
+            name = f"{adj} {fam['animal']}"
+        else:
+            name = fam["animal"]
+    else:
+        adj = _pick_adjective(f"{strategy}:{pk}", fam["adjectives_used"])
+        fam["adjectives_used"].append(adj)
+        name = f"{adj} {fam['animal']}"
     fam["assignments"][pk] = name
-    fam["adjectives_used"].append(adj)
     _save_registry(registry_path, registry)
     return name

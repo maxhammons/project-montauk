@@ -2,37 +2,36 @@
   "schema_version": 3,
   "purpose": "agent_intervention_request",
   "instructions": "Work order for an LLM agent. These are not only errors \u2014 they include maintenance, service, data, signal, research, automation, and governance requests. Each item carries a category, severity, suggested_action, and the relevant artifact paths. Resolve actionable (warning+) items using the referenced project files as the source of truth; info/advisory items are optional. The project's Python engine is authoritative for all strategy logic.",
-  "generated_utc": "2026-06-10T04:28:42Z",
-  "generated_local": "2026-06-09T21:28:42-07:00",
-  "ticket": "MONTAUK-083EBD1C",
+  "generated_utc": "2026-06-15T00:10:14Z",
+  "generated_local": "2026-06-14T17:10:14-07:00",
+  "ticket": "MONTAUK-0AD40483",
   "summary": {
-    "request_count": 10,
+    "request_count": 9,
     "actionable": true,
     "highest_severity": "warning",
     "by_category": {
       "governance": 1,
-      "strategy": 1,
       "error": 3,
       "service_request": 4,
       "automation": 1
     },
     "by_severity": {
-      "warning": 9,
+      "warning": 8,
       "advisory": 1
     }
   },
   "context": {
     "signal": {
-      "data_end_date": "2026-06-09",
+      "data_end_date": "2026-06-12",
       "risk_state": "risk_off",
-      "age_days": 0,
-      "strategy": "gc_vjatr_timing_repair"
+      "age_days": 2,
+      "strategy": "chimera_v1_2026_05_26"
     },
-    "latest_operation_status": "attention",
+    "latest_operation_status": "ok",
     "maintenance_status": "ok",
     "doctor_status": "advisory",
     "governance_state": "replacement_candidate",
-    "strategy_review_status": "switch_candidate",
+    "strategy_review_status": "on_best_certified",
     "live_holdout_status": "ok",
     "research_queue": {
       "approved": 0,
@@ -64,19 +63,6 @@
       "suggested_action": "Review governance reasons and the active strategy before trading the signal.",
       "artifacts": [
         "runs/operations/governance.json"
-      ]
-    },
-    {
-      "id": "3e38c5cf8837",
-      "category": "strategy",
-      "severity": "warning",
-      "area": "strategy_review",
-      "title": "A better certified strategy is available",
-      "detail": "Active: {'strategy': 'gc_vjatr_timing_repair', 'rank': 1, 'params_hash': '18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d', 'confidence': 0.7678, 'score_label': 'composite_confidence', 'data_end_date': '2026-06-09', 'risk_state': 'risk_off'} \u00b7 best certified: {'strategy': 'chimera_v1_2026_05_26', 'rank': None, 'display_name': 'Jade Bonobo', 'params_hash': 'aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1', 'montauk_score': 0.6574, 'confidence': 0.7684, 'selected_score': 0.6574, 'score_label': 'Montauk Score', 'share_multiple': 35.1812, 'real_share_multiple': 1.2857, 'modern_share_multiple': 3.2035}.",
-      "suggested_action": "Review the switch candidate and decide whether to promote it.",
-      "artifacts": [
-        "runs/operations/strategy_review.json",
-        "spike/leaderboard.json"
       ]
     },
     {

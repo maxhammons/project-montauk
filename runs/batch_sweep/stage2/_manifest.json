@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "stage": "full",
+  "started_utc": null,
+  "concepts": {
+    "gc_precross_roc": {
+      "status": "error",
+      "returncode": 1,
+      "combos": 36,
+      "charter_pass": null,
+      "survivors": 0,
+      "seconds": 41.5,
+      "updated_utc": "2026-06-15T03:21:27Z",
+      "tail": " line 346, in loads\n    return _default_decoder.decode(s)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/miniconda3/lib/python3.12/json/decoder.py\", line 340, in decode\n    raise JSONDecodeError(\"Extra data\", s, end)\njson.decoder.JSONDecodeError: Extra data: line 1 column 2542989 (char 2542988)\n"
+    },
+    "atr_ratio_vix_rebound": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 576,
+      "charter_pass": 28,
+      "survivors": 15,
+      "seconds": 436.1,
+      "updated_utc": "2026-06-15T03:28:43Z",
+      "tail": null
+    }
+  }
+}

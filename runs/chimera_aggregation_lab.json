@@ -1,0 +1,368 @@
+{
+  "members": [
+    "Dusky Osprey",
+    "Marbled Bonobo",
+    "Ivory Hare"
+  ],
+  "baseline_fitness": 3.2495,
+  "scheme_count": 17,
+  "results": [
+    {
+      "name": "LIVE baseline (weighted, thr 0.5)",
+      "enter": 0.5,
+      "exit": 0.5,
+      "weights": [
+        3.54,
+        2.519,
+        2.551
+      ],
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "name": "equal majority (>=2)",
+      "enter": 0.5,
+      "exit": 0.5,
+      "weights": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "name": "grid: enter>=2, exit<=1",
+      "enter": 0.5,
+      "exit": 0.5,
+      "weights": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "name": "sticky: enter>=2, exit on all-flat",
+      "enter": 0.5,
+      "exit": 0.16666666666666666,
+      "weights": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "metrics": {
+        "fitness": 2.5862,
+        "share_multiple": 30.2495,
+        "real_share_multiple": 1.347,
+        "modern_share_multiple": 1.8352,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6727,
+        "marker_timing": 0.307
+      }
+    },
+    {
+      "name": "grid: enter>=2, exit<=0",
+      "enter": 0.5,
+      "exit": 0.16666666666666666,
+      "weights": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "metrics": {
+        "fitness": 2.5862,
+        "share_multiple": 30.2495,
+        "real_share_multiple": 1.347,
+        "modern_share_multiple": 1.8352,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6727,
+        "marker_timing": 0.307
+      }
+    },
+    {
+      "name": "lean on Marbled Bonobo (dominant)",
+      "enter": 0.5,
+      "exit": 0.5,
+      "weights": [
+        1.0,
+        3.0,
+        1.0
+      ],
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "name": "sticky: enter>=3, exit on all-flat",
+      "enter": 0.8333333333333334,
+      "exit": 0.16666666666666666,
+      "weights": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "metrics": {
+        "fitness": 2.2733,
+        "share_multiple": 12.8037,
+        "real_share_multiple": 1.347,
+        "modern_share_multiple": 1.8352,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.678,
+        "marker_timing": 0.307
+      }
+    },
+    {
+      "name": "grid: enter>=3, exit<=0",
+      "enter": 0.8333333333333334,
+      "exit": 0.16666666666666666,
+      "weights": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "metrics": {
+        "fitness": 2.2733,
+        "share_multiple": 12.8037,
+        "real_share_multiple": 1.347,
+        "modern_share_multiple": 1.8352,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.678,
+        "marker_timing": 0.307
+      }
+    },
+    {
+      "name": "lean on Ivory Hare (dominant)",
+      "enter": 0.5,
+      "exit": 0.5,
+      "weights": [
+        1.0,
+        1.0,
+        3.0
+      ],
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "name": "lean on Dusky Osprey (dominant)",
+      "enter": 0.5,
+      "exit": 0.5,
+      "weights": [
+        3.0,
+        1.0,
+        1.0
+      ],
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "name": "unanimous (>=3)",
+      "enter": 0.8333333333333334,
+      "exit": 0.8333333333333334,
+      "weights": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "metrics": {
+        "fitness": 1.7981,
+        "share_multiple": 13.9297,
+        "real_share_multiple": 1.0876,
+        "modern_share_multiple": 1.3289,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6838,
+        "marker_timing": 0.3082
+      }
+    },
+    {
+      "name": "grid: enter>=3, exit<=2",
+      "enter": 0.8333333333333334,
+      "exit": 0.8333333333333334,
+      "weights": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "metrics": {
+        "fitness": 1.7981,
+        "share_multiple": 13.9297,
+        "real_share_multiple": 1.0876,
+        "modern_share_multiple": 1.3289,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6838,
+        "marker_timing": 0.3082
+      }
+    },
+    {
+      "name": "twitchy: enter>=1, exit on <=1",
+      "enter": 0.16666666666666666,
+      "exit": 0.5,
+      "weights": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "metrics": {
+        "fitness": 1.7492,
+        "share_multiple": 15.2481,
+        "real_share_multiple": 0.9124,
+        "modern_share_multiple": 1.3351,
+        "trades": 1008,
+        "trades_per_year": 30.4,
+        "max_drawdown_pct": 88.1,
+        "marker_score": 0.4623,
+        "marker_timing": 0.4456
+      }
+    },
+    {
+      "name": "any-long (>=1)",
+      "enter": 0.16666666666666666,
+      "exit": 0.16666666666666666,
+      "weights": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "metrics": {
+        "fitness": 1.6516,
+        "share_multiple": 9.3923,
+        "real_share_multiple": 1.1449,
+        "modern_share_multiple": 1.2459,
+        "trades": 40,
+        "trades_per_year": 1.2,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4615,
+        "marker_timing": 0.4449
+      }
+    },
+    {
+      "name": "grid: enter>=1, exit<=0",
+      "enter": 0.16666666666666666,
+      "exit": 0.16666666666666666,
+      "weights": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "metrics": {
+        "fitness": 1.6516,
+        "share_multiple": 9.3923,
+        "real_share_multiple": 1.1449,
+        "modern_share_multiple": 1.2459,
+        "trades": 40,
+        "trades_per_year": 1.2,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4615,
+        "marker_timing": 0.4449
+      }
+    },
+    {
+      "name": "sticky: enter>=3, exit on <=1",
+      "enter": 0.8333333333333334,
+      "exit": 0.5,
+      "weights": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "metrics": {
+        "fitness": 1.5828,
+        "share_multiple": 11.8868,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6792,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "name": "grid: enter>=3, exit<=1",
+      "enter": 0.8333333333333334,
+      "exit": 0.5,
+      "weights": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "metrics": {
+        "fitness": 1.5828,
+        "share_multiple": 11.8868,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6792,
+        "marker_timing": 0.3047
+      }
+    }
+  ]
+}

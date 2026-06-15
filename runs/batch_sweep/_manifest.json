@@ -1,0 +1,1547 @@
+{
+  "schema_version": 1,
+  "stage": "prefilter",
+  "started_utc": null,
+  "concepts": {
+    "gc_n5": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 1,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.2,
+      "updated_utc": "2026-06-15T02:34:57Z",
+      "tail": null
+    },
+    "gc_n8": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 1,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.2,
+      "updated_utc": "2026-06-15T02:34:58Z",
+      "tail": null
+    },
+    "gc_n10": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 1,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.2,
+      "updated_utc": "2026-06-15T02:35:00Z",
+      "tail": null
+    },
+    "gc_n12": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 1,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.2,
+      "updated_utc": "2026-06-15T02:35:01Z",
+      "tail": null
+    },
+    "regime_state_machine": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 1,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.4,
+      "updated_utc": "2026-06-15T02:35:02Z",
+      "tail": null
+    },
+    "gc_e9": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 2,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.3,
+      "updated_utc": "2026-06-15T02:35:03Z",
+      "tail": null
+    },
+    "gc_n6": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 2,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.2,
+      "updated_utc": "2026-06-15T02:35:05Z",
+      "tail": null
+    },
+    "macd_above_zero_trend": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 3,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.2,
+      "updated_utc": "2026-06-15T02:35:06Z",
+      "tail": null
+    },
+    "macd_qqq_bull": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 3,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.3,
+      "updated_utc": "2026-06-15T02:35:07Z",
+      "tail": null
+    },
+    "gc_e1": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 3,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.3,
+      "updated_utc": "2026-06-15T02:35:09Z",
+      "tail": null
+    },
+    "gc_e5": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 3,
+      "charter_pass": 1,
+      "survivors": 1,
+      "seconds": 1.4,
+      "updated_utc": "2026-06-15T02:35:10Z",
+      "tail": null
+    },
+    "gc_e8": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 3,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.3,
+      "updated_utc": "2026-06-15T02:35:11Z",
+      "tail": null
+    },
+    "gc_e12": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 3,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.4,
+      "updated_utc": "2026-06-15T02:35:13Z",
+      "tail": null
+    },
+    "gc_e14": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 3,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.3,
+      "updated_utc": "2026-06-15T02:35:14Z",
+      "tail": null
+    },
+    "gc_e15": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 3,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.3,
+      "updated_utc": "2026-06-15T02:35:15Z",
+      "tail": null
+    },
+    "gc_e18": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 3,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.3,
+      "updated_utc": "2026-06-15T02:35:17Z",
+      "tail": null
+    },
+    "gc_n1": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 3,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.3,
+      "updated_utc": "2026-06-15T02:35:18Z",
+      "tail": null
+    },
+    "gc_n3": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 3,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.3,
+      "updated_utc": "2026-06-15T02:35:19Z",
+      "tail": null
+    },
+    "gc_n11": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 3,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.3,
+      "updated_utc": "2026-06-15T02:35:20Z",
+      "tail": null
+    },
+    "gc_s3": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 3,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.3,
+      "updated_utc": "2026-06-15T02:35:22Z",
+      "tail": null
+    },
+    "gc_n13": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 4,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.3,
+      "updated_utc": "2026-06-15T02:35:23Z",
+      "tail": null
+    },
+    "slope_only_200": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 4,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.2,
+      "updated_utc": "2026-06-15T02:35:24Z",
+      "tail": null
+    },
+    "ema_200_regime": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 6,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.2,
+      "updated_utc": "2026-06-15T02:35:26Z",
+      "tail": null
+    },
+    "sgov_flight_switch": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 6,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.3,
+      "updated_utc": "2026-06-15T02:35:27Z",
+      "tail": null
+    },
+    "gc_e3": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 6,
+      "charter_pass": 3,
+      "survivors": 3,
+      "seconds": 1.4,
+      "updated_utc": "2026-06-15T02:35:28Z",
+      "tail": null
+    },
+    "gc_e4": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 6,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.6,
+      "updated_utc": "2026-06-15T02:35:30Z",
+      "tail": null
+    },
+    "gc_e7": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 6,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.4,
+      "updated_utc": "2026-06-15T02:35:31Z",
+      "tail": null
+    },
+    "gc_e13": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 6,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.5,
+      "updated_utc": "2026-06-15T02:35:33Z",
+      "tail": null
+    },
+    "gc_e16": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 6,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.5,
+      "updated_utc": "2026-06-15T02:35:34Z",
+      "tail": null
+    },
+    "gc_e19": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 6,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.4,
+      "updated_utc": "2026-06-15T02:35:36Z",
+      "tail": null
+    },
+    "gc_n7": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 6,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.4,
+      "updated_utc": "2026-06-15T02:35:37Z",
+      "tail": null
+    },
+    "gc_n9": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 6,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.6,
+      "updated_utc": "2026-06-15T02:35:39Z",
+      "tail": null
+    },
+    "gc_n14": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 6,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.4,
+      "updated_utc": "2026-06-15T02:35:40Z",
+      "tail": null
+    },
+    "gc_s1": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 6,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.5,
+      "updated_utc": "2026-06-15T02:35:42Z",
+      "tail": null
+    },
+    "gc_s2": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 6,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.4,
+      "updated_utc": "2026-06-15T02:35:43Z",
+      "tail": null
+    },
+    "vol_donchian_breakout": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 8,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.5,
+      "updated_utc": "2026-06-15T02:35:45Z",
+      "tail": null
+    },
+    "ema_200_confirm": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 9,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.3,
+      "updated_utc": "2026-06-15T02:35:46Z",
+      "tail": null
+    },
+    "stoch_recovery_trend": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 9,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.4,
+      "updated_utc": "2026-06-15T02:35:47Z",
+      "tail": null
+    },
+    "vol_calm_regime": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 9,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.7,
+      "updated_utc": "2026-06-15T02:35:49Z",
+      "tail": null
+    },
+    "macd_hist_trend": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 9,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.3,
+      "updated_utc": "2026-06-15T02:35:50Z",
+      "tail": null
+    },
+    "keltner_squeeze_breakout": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 9,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.7,
+      "updated_utc": "2026-06-15T02:35:52Z",
+      "tail": null
+    },
+    "gc_e2": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 9,
+      "charter_pass": 1,
+      "survivors": 1,
+      "seconds": 1.6,
+      "updated_utc": "2026-06-15T02:35:54Z",
+      "tail": null
+    },
+    "gc_e6": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 9,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.6,
+      "updated_utc": "2026-06-15T02:35:55Z",
+      "tail": null
+    },
+    "gc_e17": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 9,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.5,
+      "updated_utc": "2026-06-15T02:35:57Z",
+      "tail": null
+    },
+    "gc_n2": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 9,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.7,
+      "updated_utc": "2026-06-15T02:35:58Z",
+      "tail": null
+    },
+    "gc_n4": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 9,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.6,
+      "updated_utc": "2026-06-15T02:36:00Z",
+      "tail": null
+    },
+    "gc_n8_timelimit": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 9,
+      "charter_pass": 3,
+      "survivors": 3,
+      "seconds": 1.6,
+      "updated_utc": "2026-06-15T02:36:01Z",
+      "tail": null
+    },
+    "xlk_relative_strength": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 10,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.6,
+      "updated_utc": "2026-06-15T02:36:03Z",
+      "tail": null
+    },
+    "rsi_recovery_ema": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 12,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.5,
+      "updated_utc": "2026-06-15T02:36:05Z",
+      "tail": null
+    },
+    "rsi_50_above_trend": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 12,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.4,
+      "updated_utc": "2026-06-15T02:36:06Z",
+      "tail": null
+    },
+    "keltner_breakout": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 12,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.5,
+      "updated_utc": "2026-06-15T02:36:07Z",
+      "tail": null
+    },
+    "rsi_roc_combo": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 12,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.5,
+      "updated_utc": "2026-06-15T02:36:09Z",
+      "tail": null
+    },
+    "bb_width_regime": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 12,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.8,
+      "updated_utc": "2026-06-15T02:36:11Z",
+      "tail": null
+    },
+    "vix_gc_filter": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 12,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.4,
+      "updated_utc": "2026-06-15T02:36:12Z",
+      "tail": null
+    },
+    "fed_funds_pivot": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 12,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.5,
+      "updated_utc": "2026-06-15T02:36:14Z",
+      "tail": null
+    },
+    "gc_asym_triple": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 12,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.5,
+      "updated_utc": "2026-06-15T02:36:15Z",
+      "tail": null
+    },
+    "treasury_regime": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 12,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.4,
+      "updated_utc": "2026-06-15T02:36:16Z",
+      "tail": null
+    },
+    "gc_e10": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 12,
+      "charter_pass": 1,
+      "survivors": 1,
+      "seconds": 1.9,
+      "updated_utc": "2026-06-15T02:36:18Z",
+      "tail": null
+    },
+    "gc_e11": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 12,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.0,
+      "updated_utc": "2026-06-15T02:36:20Z",
+      "tail": null
+    },
+    "gc_n8_ddbreaker": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 12,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.7,
+      "updated_utc": "2026-06-15T02:36:22Z",
+      "tail": null
+    },
+    "gc_vjmac": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 12,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.7,
+      "updated_utc": "2026-06-15T02:36:24Z",
+      "tail": null
+    },
+    "gc_vjdd": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 12,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.7,
+      "updated_utc": "2026-06-15T02:36:26Z",
+      "tail": null
+    },
+    "composite_osc_canonical": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 12,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.1,
+      "updated_utc": "2026-06-15T02:36:28Z",
+      "tail": null
+    },
+    "ema_slope_above": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 16,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.4,
+      "updated_utc": "2026-06-15T02:36:29Z",
+      "tail": null
+    },
+    "ema_pure_slope": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 16,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.4,
+      "updated_utc": "2026-06-15T02:36:30Z",
+      "tail": null
+    },
+    "cci_regime_trend": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 16,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.6,
+      "updated_utc": "2026-06-15T02:36:32Z",
+      "tail": null
+    },
+    "credit_spread_velocity": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 16,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.6,
+      "updated_utc": "2026-06-15T02:36:34Z",
+      "tail": null
+    },
+    "consecutive_down_gap_capitulation": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 16,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.4,
+      "updated_utc": "2026-06-15T02:36:35Z",
+      "tail": null
+    },
+    "donchian_vix": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 16,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.6,
+      "updated_utc": "2026-06-15T02:36:37Z",
+      "tail": null
+    },
+    "adaptive_ema_vol": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 16,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.5,
+      "updated_utc": "2026-06-15T02:36:38Z",
+      "tail": null
+    },
+    "gc_vj_dual_regime": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 16,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.3,
+      "updated_utc": "2026-06-15T02:36:40Z",
+      "tail": null
+    },
+    "vj_or_slope_meta": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 16,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.2,
+      "updated_utc": "2026-06-15T02:36:43Z",
+      "tail": null
+    },
+    "roc_above_trend": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 18,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.5,
+      "updated_utc": "2026-06-15T02:36:44Z",
+      "tail": null
+    },
+    "adx_di_trend": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 18,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.9,
+      "updated_utc": "2026-06-15T02:36:46Z",
+      "tail": null
+    },
+    "stoch_cross_trend": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 18,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.9,
+      "updated_utc": "2026-06-15T02:36:48Z",
+      "tail": null
+    },
+    "vix_term_proxy": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 18,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.8,
+      "updated_utc": "2026-06-15T02:36:50Z",
+      "tail": null
+    },
+    "defensive_sector_divergence": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 18,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.8,
+      "updated_utc": "2026-06-15T02:36:52Z",
+      "tail": null
+    },
+    "xlk_relative_momentum": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 18,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.7,
+      "updated_utc": "2026-06-15T02:36:53Z",
+      "tail": null
+    },
+    "gc_n8_panic_flat": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 18,
+      "charter_pass": 7,
+      "survivors": 7,
+      "seconds": 2.2,
+      "updated_utc": "2026-06-15T02:36:55Z",
+      "tail": null
+    },
+    "ensemble_vote_3of5": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 18,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.1,
+      "updated_utc": "2026-06-15T02:36:58Z",
+      "tail": null
+    },
+    "dual_ema_stack": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 22,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.5,
+      "updated_utc": "2026-06-15T02:36:59Z",
+      "tail": null
+    },
+    "gc_spread_momentum": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 22,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.8,
+      "updated_utc": "2026-06-15T02:37:01Z",
+      "tail": null
+    },
+    "gc_spread_band": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 22,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.6,
+      "updated_utc": "2026-06-15T02:37:03Z",
+      "tail": null
+    },
+    "triple_ema_stack": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 24,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.6,
+      "updated_utc": "2026-06-15T02:37:04Z",
+      "tail": null
+    },
+    "roc_ema_slope": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 24,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.6,
+      "updated_utc": "2026-06-15T02:37:06Z",
+      "tail": null
+    },
+    "willr_recovery_trend": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 24,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.7,
+      "updated_utc": "2026-06-15T02:37:08Z",
+      "tail": null
+    },
+    "mfi_above_trend": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 24,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.8,
+      "updated_utc": "2026-06-15T02:37:09Z",
+      "tail": null
+    },
+    "cci_willr_combo": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 24,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.9,
+      "updated_utc": "2026-06-15T02:37:11Z",
+      "tail": null
+    },
+    "bb_cci_combo": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 24,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.5,
+      "updated_utc": "2026-06-15T02:37:14Z",
+      "tail": null
+    },
+    "treasury_curve_trend": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 24,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.7,
+      "updated_utc": "2026-06-15T02:37:15Z",
+      "tail": null
+    },
+    "overnight_gap_exhaustion": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 24,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.5,
+      "updated_utc": "2026-06-15T02:37:17Z",
+      "tail": null
+    },
+    "multi_tf_momentum": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 24,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.3,
+      "updated_utc": "2026-06-15T02:37:18Z",
+      "tail": null
+    },
+    "rsi_bull_regime": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 24,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.8,
+      "updated_utc": "2026-06-15T02:37:20Z",
+      "tail": null
+    },
+    "gc_vjsgov": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 24,
+      "charter_pass": 1,
+      "survivors": 1,
+      "seconds": 2.4,
+      "updated_utc": "2026-06-15T02:37:22Z",
+      "tail": null
+    },
+    "tecl_sgov_rs": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 24,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.5,
+      "updated_utc": "2026-06-15T02:37:24Z",
+      "tail": null
+    },
+    "momentum_roc_canonical": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 24,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.7,
+      "updated_utc": "2026-06-15T02:37:26Z",
+      "tail": null
+    },
+    "fed_macro_primary": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 24,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.7,
+      "updated_utc": "2026-06-15T02:37:27Z",
+      "tail": null
+    },
+    "gc_vj_decay_gate": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 24,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.3,
+      "updated_utc": "2026-06-15T02:37:30Z",
+      "tail": null
+    },
+    "donchian_filter": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 27,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.8,
+      "updated_utc": "2026-06-15T02:37:31Z",
+      "tail": null
+    },
+    "vix_regime_entry": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 27,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.7,
+      "updated_utc": "2026-06-15T02:37:33Z",
+      "tail": null
+    },
+    "move_index_regime": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 32,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 4.6,
+      "updated_utc": "2026-06-15T02:37:38Z",
+      "tail": null
+    },
+    "put_call_panic_reversion": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 32,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.3,
+      "updated_utc": "2026-06-15T02:37:40Z",
+      "tail": null
+    },
+    "gc_asym_slope": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 32,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.2,
+      "updated_utc": "2026-06-15T02:37:42Z",
+      "tail": null
+    },
+    "gc_vjtimer": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 32,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.7,
+      "updated_utc": "2026-06-15T02:37:45Z",
+      "tail": null
+    },
+    "dual_tf_gc": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 32,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.1,
+      "updated_utc": "2026-06-15T02:37:47Z",
+      "tail": null
+    },
+    "tri_filter_macd": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 32,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.3,
+      "updated_utc": "2026-06-15T02:37:49Z",
+      "tail": null
+    },
+    "gc_vj_xlk_relative_trend": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 32,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.7,
+      "updated_utc": "2026-06-15T02:37:52Z",
+      "tail": null
+    },
+    "double_ema_slope": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 36,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.0,
+      "updated_utc": "2026-06-15T02:37:54Z",
+      "tail": null
+    },
+    "atr_ratio_trend": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 36,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.1,
+      "updated_utc": "2026-06-15T02:37:56Z",
+      "tail": null
+    },
+    "gc_precross_roc": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 36,
+      "charter_pass": 5,
+      "survivors": 5,
+      "seconds": 2.3,
+      "updated_utc": "2026-06-15T02:37:58Z",
+      "tail": null
+    },
+    "atr_ratio_vix": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 36,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.5,
+      "updated_utc": "2026-06-15T02:38:01Z",
+      "tail": null
+    },
+    "price_position_regime": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 36,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 3.7,
+      "updated_utc": "2026-06-15T02:38:05Z",
+      "tail": null
+    },
+    "rsi_regime_canonical": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 36,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.8,
+      "updated_utc": "2026-06-15T02:38:06Z",
+      "tail": null
+    },
+    "breadth_decay_composite": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 36,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.1,
+      "updated_utc": "2026-06-15T02:38:09Z",
+      "tail": null
+    },
+    "bounce_breakout": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 40,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 3.9,
+      "updated_utc": "2026-06-15T02:38:12Z",
+      "tail": null
+    },
+    "golden_cross_slope": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 44,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.1,
+      "updated_utc": "2026-06-15T02:38:15Z",
+      "tail": null
+    },
+    "gc_precross": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 44,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.4,
+      "updated_utc": "2026-06-15T02:38:17Z",
+      "tail": null
+    },
+    "gc_precross_vol": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 44,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 3.4,
+      "updated_utc": "2026-06-15T02:38:20Z",
+      "tail": null
+    },
+    "gc_precross_strict": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 44,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.7,
+      "updated_utc": "2026-06-15T02:38:23Z",
+      "tail": null
+    },
+    "gc_pre_vix": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 44,
+      "charter_pass": 3,
+      "survivors": 3,
+      "seconds": 2.8,
+      "updated_utc": "2026-06-15T02:38:26Z",
+      "tail": null
+    },
+    "gc_strict_vix": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 44,
+      "charter_pass": 2,
+      "survivors": 2,
+      "seconds": 3.2,
+      "updated_utc": "2026-06-15T02:38:29Z",
+      "tail": null
+    },
+    "tema_short_slope": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 48,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.4,
+      "updated_utc": "2026-06-15T02:38:31Z",
+      "tail": null
+    },
+    "mfi_obv_trend": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 48,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 3.2,
+      "updated_utc": "2026-06-15T02:38:35Z",
+      "tail": null
+    },
+    "dual_tema_breakout": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 48,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.8,
+      "updated_utc": "2026-06-15T02:38:37Z",
+      "tail": null
+    },
+    "gc_asym_fast_entry": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 48,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.5,
+      "updated_utc": "2026-06-15T02:38:40Z",
+      "tail": null
+    },
+    "gc_tema_asym": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 48,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.4,
+      "updated_utc": "2026-06-15T02:38:42Z",
+      "tail": null
+    },
+    "gc_vjv": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 48,
+      "charter_pass": 12,
+      "survivors": 12,
+      "seconds": 3.7,
+      "updated_utc": "2026-06-15T02:38:46Z",
+      "tail": null
+    },
+    "gc_vjrsi": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 48,
+      "charter_pass": 12,
+      "survivors": 12,
+      "seconds": 3.9,
+      "updated_utc": "2026-06-15T02:38:50Z",
+      "tail": null
+    },
+    "gc_vjbb": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 48,
+      "charter_pass": 4,
+      "survivors": 4,
+      "seconds": 3.6,
+      "updated_utc": "2026-06-15T02:38:54Z",
+      "tail": null
+    },
+    "vol_regime_canonical": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 48,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 2.8,
+      "updated_utc": "2026-06-15T02:38:56Z",
+      "tail": null
+    },
+    "rank_slope_regime": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 48,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 4.1,
+      "updated_utc": "2026-06-15T02:39:01Z",
+      "tail": null
+    },
+    "zscore_return_reversion": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 48,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 6.3,
+      "updated_utc": "2026-06-15T02:39:07Z",
+      "tail": null
+    },
+    "rsi_mean_revert_trend": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 54,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.9,
+      "updated_utc": "2026-06-15T02:39:09Z",
+      "tail": null
+    },
+    "consecutive_strength": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 54,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 1.9,
+      "updated_utc": "2026-06-15T02:39:11Z",
+      "tail": null
+    },
+    "gc_vjxr": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 64,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 4.7,
+      "updated_utc": "2026-06-15T02:39:15Z",
+      "tail": null
+    },
+    "gc_vjx": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 72,
+      "charter_pass": 6,
+      "survivors": 6,
+      "seconds": 5.3,
+      "updated_utc": "2026-06-15T02:39:21Z",
+      "tail": null
+    },
+    "pullback_in_trend": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 72,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 4.0,
+      "updated_utc": "2026-06-15T02:39:25Z",
+      "tail": null
+    },
+    "obv_slope_trend": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 120,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 5.4,
+      "updated_utc": "2026-06-15T02:39:30Z",
+      "tail": null
+    },
+    "gc_vjatr": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 144,
+      "charter_pass": 7,
+      "survivors": 7,
+      "seconds": 9.2,
+      "updated_utc": "2026-06-15T02:39:39Z",
+      "tail": null
+    },
+    "drawdown_recovery": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 162,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 4.8,
+      "updated_utc": "2026-06-15T02:39:44Z",
+      "tail": null
+    },
+    "vol_compression_breakout": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 243,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 3.0,
+      "updated_utc": "2026-06-15T02:39:47Z",
+      "tail": null
+    },
+    "fast_ema_atr_trail": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 288,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 3.5,
+      "updated_utc": "2026-06-15T02:39:51Z",
+      "tail": null
+    },
+    "gc_vjatr_reclaimer_timing": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 384,
+      "charter_pass": 354,
+      "survivors": 20,
+      "seconds": 11.3,
+      "updated_utc": "2026-06-15T02:40:02Z",
+      "tail": null
+    },
+    "gc_atr_trail": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 396,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 4.4,
+      "updated_utc": "2026-06-15T02:40:06Z",
+      "tail": null
+    },
+    "gc_slope_no_death": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 396,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 4.0,
+      "updated_utc": "2026-06-15T02:40:10Z",
+      "tail": null
+    },
+    "atr_ratio_vix_rebound": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 576,
+      "charter_pass": 28,
+      "survivors": 20,
+      "seconds": 6.9,
+      "updated_utc": "2026-06-15T02:40:17Z",
+      "tail": null
+    },
+    "gc_vjatr_timing_repair": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 3888,
+      "charter_pass": 748,
+      "survivors": 20,
+      "seconds": 46.6,
+      "updated_utc": "2026-06-15T02:41:04Z",
+      "tail": null
+    },
+    "gc_vjatr_airbag": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 5832,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 50.7,
+      "updated_utc": "2026-06-15T02:41:54Z",
+      "tail": null
+    },
+    "rsi_rebound_participation": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 9216,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 56.6,
+      "updated_utc": "2026-06-15T02:42:51Z",
+      "tail": null
+    },
+    "airbag_vix_atr": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 11664,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 51.8,
+      "updated_utc": "2026-06-15T02:43:43Z",
+      "tail": null
+    },
+    "gc_vjatr_reclaimer": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 34992,
+      "charter_pass": 18432,
+      "survivors": 20,
+      "seconds": 483.4,
+      "updated_utc": "2026-06-15T02:51:46Z",
+      "tail": null
+    },
+    "gc_vjatr_state_filter": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 59049,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 519.0,
+      "updated_utc": "2026-06-15T03:00:25Z",
+      "tail": null
+    },
+    "reclaimer_vol_rsi": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 104976,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 720.5,
+      "updated_utc": "2026-06-15T03:12:26Z",
+      "tail": null
+    },
+    "state_machine_crash_recovery": {
+      "status": "done",
+      "returncode": 0,
+      "combos": 118098,
+      "charter_pass": 0,
+      "survivors": 0,
+      "seconds": 408.6,
+      "updated_utc": "2026-06-15T03:19:14Z",
+      "tail": null
+    }
+  }
+}

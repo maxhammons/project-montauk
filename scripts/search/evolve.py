@@ -263,11 +263,24 @@ def save_hash_index(index: dict):
     dropped = len(index) - len(pruned)
     if dropped > 0:
         print(f"[history] Pruned {dropped:,} stale/empty entries from hash index")
+    # Atomic write: serialize to a per-process temp file, then os.replace().
+    # A plain open("w")+dump is not atomic — concurrent writers (e.g. a
+    # validation run's tier-3 GA re-opt writing while another process writes)
+    # interleave and leave one object's tail appended after another's end,
+    # producing "Extra data" corruption on the next read. os.replace is atomic
+    # on POSIX, so a reader always sees a complete file and last-writer wins.
+    tmp = f"{HASH_INDEX_FILE}.tmp.{os.getpid()}"
     try:
-        with open(HASH_INDEX_FILE, "w") as f:
+        with open(tmp, "w") as f:
             json.dump(pruned, f, cls=_Enc)
+        os.replace(tmp, HASH_INDEX_FILE)
     except Exception as e:
         print(f"[history] Warning: failed to save hash index: {e}")
+        try:
+            if os.path.exists(tmp):
+                os.remove(tmp)
+        except OSError:
+            pass
 
 
 def get_top_from_leaderboard(leaderboard_path: str, strategy_name: str, n: int = 8) -> list:

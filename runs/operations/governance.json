@@ -1,91 +1,89 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-06-10T04:11:07Z",
+  "generated_utc": "2026-06-15T03:14:05Z",
   "version_info": {
     "schema_version": 1,
-    "generated_utc": "2026-06-10T04:11:07Z",
+    "generated_utc": "2026-06-15T03:14:05Z",
     "app_version": "0.1.0",
-    "git_commit": "cedacce",
+    "git_commit": "693eab1",
     "git_dirty": true,
-    "strategy_code_version": "cedacce"
+    "strategy_code_version": "693eab1"
   },
-  "state": "replacement_candidate",
+  "state": "active_watch",
   "reasons": [
-    "replacement candidate available: chimera_v1_2026_05_26"
+    "9 validation warnings are active"
   ],
   "blockers": [],
   "advisories": [
-    "7 validation warnings are active"
+    "9 validation warnings are active"
   ],
-  "review_reasons": [
-    "replacement candidate available: chimera_v1_2026_05_26"
-  ],
-  "stale_calendar_days": 0,
+  "review_reasons": [],
+  "stale_calendar_days": 2,
   "active_signal": {
-    "data_end_date": "2026-06-09",
+    "data_end_date": "2026-06-12",
     "risk_state": "risk_off",
-    "strategy": "gc_vjatr_timing_repair",
-    "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d"
+    "strategy": "chimera_v1_2026_05_26",
+    "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1"
   },
   "live_holdout": {
     "status": "ok",
-    "snapshot_count": 19,
+    "snapshot_count": 20,
     "diverged_count": 0,
     "confidence_drift": {
       "start": 0.7594,
-      "latest": 0.7678,
-      "delta": 0.0084
+      "latest": 0.7684,
+      "delta": 0.009
     },
     "active_champion_performance_since_live_start": {
       "start_date": "2026-05-08",
-      "latest_date": "2026-06-09",
-      "strategy": "gc_vjatr_timing_repair",
+      "latest_date": "2026-06-12",
+      "strategy": "chimera_v1_2026_05_26",
       "signal_return_pct": 6.0931,
-      "buy_hold_return_pct": 6.224,
-      "live_vs_buy_hold_multiple_proxy": 0.9988
+      "buy_hold_return_pct": 12.8486,
+      "live_vs_buy_hold_multiple_proxy": 0.9401
     },
     "demotion": {
       "demote": false,
       "reasons": [
-        "insufficient live evidence (19/21)"
+        "insufficient live evidence (20/21)"
       ],
       "evidence": {
-        "n_snapshots": 19,
+        "n_snapshots": 20,
         "min_snapshots": 21,
         "diverged_count": 0,
-        "live_vs_bah_multiple": 0.9988,
-        "degradation_fraction": -0.901023,
+        "live_vs_bah_multiple": 0.9401,
+        "degradation_fraction": -0.973277,
         "thresholds": {
           "live_vs_bah_floor": 0.85,
           "degradation_floor": -0.15
         }
       },
-      "checked_utc": "2026-06-10T04:11:07Z"
+      "checked_utc": "2026-06-15T00:10:14Z"
     }
   },
   "strategy_review": {
-    "status": "switch_candidate",
+    "status": "on_best_certified",
     "active": {
-      "strategy": "gc_vjatr_timing_repair",
+      "strategy": "chimera_v1_2026_05_26",
       "rank": 1,
-      "params_hash": "18444647e3abeb6a17c193c094ecacb3367e587a55c079dfca6b2aec8eafd12d",
-      "confidence": 0.7678,
+      "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
+      "confidence": 0.7684,
       "score_label": "composite_confidence",
-      "data_end_date": "2026-06-09",
+      "data_end_date": "2026-06-12",
       "risk_state": "risk_off"
     },
     "best_certified": {
       "strategy": "chimera_v1_2026_05_26",
       "rank": null,
-      "display_name": "Jade Bonobo",
+      "display_name": "Chimera 1",
       "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
-      "montauk_score": 0.6519,
-      "confidence": 0.768,
-      "selected_score": 0.6519,
+      "montauk_score": 0.6574,
+      "confidence": 0.7684,
+      "selected_score": 0.6574,
       "score_label": "Montauk Score",
-      "share_multiple": 33.2208,
-      "real_share_multiple": 1.214,
-      "modern_share_multiple": 3.025
+      "share_multiple": 35.1812,
+      "real_share_multiple": 1.2857,
+      "modern_share_multiple": 3.2035
     }
   }
 }

@@ -63,6 +63,7 @@ This rule is enforced programmatically by `search/evolve.py::update_leaderboard`
 
 ### `search/`
 - `grid_search.py` — exhaustive canonical-grid backtest + validation driver. The main entry after adding a new strategy family.
+- `batch_sweep.py` — staged, resumable driver that runs `grid_search` per concept as isolated subprocesses across the whole grid space (~353k combos). `--stage prefilter` (fast charter filter) / `--stage full` (validate survivors) / `--aggregate` (ranked survivor table). Checkpointed + crash-isolated; never admits (research only).
 - `evolve.py` — GA optimizer (used inside `/spike`), fitness function, leaderboard updater + guard, config-hash dedup
 - `spike_runner.py` — `/spike` entry point. Runs the GA in timed chunks, validates winners, emits run artifacts.
 - `share_metric.py` — tiny compat helper for reading `share_multiple` from both new and legacy leaderboard JSON schemas
@@ -89,6 +90,8 @@ See `validation/__init__.py` and `validation/pipeline.py`. Each gate lives in it
 - `family_confidence_leaderboard.py` — one Gold representative per family, ranked by composite confidence
 - `gold_diversity_report.py` — Gold-row family concentration, signal overlap, and diversity checks
 - `gold_ensemble_matrix.py` / `gold_hybrid_lab.py` — Gold-only ensemble and hybrid research diagnostics
+- `chimera_weight_grid.py` — sweep per-member weight + threshold grids for the Chimera committee; ranks distinct variants (research only, no leaderboard admission)
+- `chimera_aggregation_lab.py` — experiment with how the committee combines member votes (threshold / hysteresis / lopsided weights); scores each vs the live baseline (research only)
 - `report.py` — generate the markdown report that summarizes a `/spike` run
 - `roth_overlay.py` — post-validation Roth IRA cashflow simulator (tax-aware net-of-contribution-limit share count)
 

@@ -7883,10 +7883,55 @@ def nh_vol_drag_regime(ind, p):
 # exists so the documented Layer-1 hard fail can actually fire.
 CHARTER_INCOMPATIBLE_STRATEGIES: set = set()
 
+
+def dual_confirm_stay_long(ind, p):
+    """Max-exposure trend base; exit ONLY when trend break AND realized-vol spike.
+
+    Path-#1 hypothesis (2026-06-14): the "empty box" — stay ~fully long through
+    the modern bull (high era exposure, clears the era gate) while de-risking via
+    a signal ORTHOGONAL to gc_vjatr's ATR-of-price shock. Long while
+    ``close > EMA(slow)``. Exit requires BOTH a trend break (``close < EMA(slow)``)
+    AND a realized-RETURN-volatility spike (``rvol(short)/rvol(long) > vol_expand``);
+    the conjunction keeps it long through ordinary pullbacks and only forces flat
+    on a confirmed regime break. It holds *through* drawdowns by design (no
+    crash-stop) — which is how it accumulates more shares than B&H — so its
+    exit timing is only ~0.30 correlated with gc_vjatr. Point-in-time; uses no
+    calendar/era input. Tuned defaults: slow_ema=50, vol_short=10, vol_long=100,
+    vol_expand=2.0 → real 1.76x / modern 1.65x vs B&H (real-era maxDD ~78%).
+    """
+    n = ind.n
+    cl = ind.close
+    slow = int(p.get("slow_ema", 50))
+    vol_short = int(p.get("vol_short", 10))
+    vol_long = int(p.get("vol_long", 100))
+    vol_expand = float(p.get("vol_expand", 2.0))
+    es = ind.ema(slow)
+    rv_s = ind.realized_vol(vol_short)
+    rv_l = ind.realized_vol(vol_long)
+    entries = np.zeros(n, dtype=bool)
+    exits = np.zeros(n, dtype=bool)
+    labels = np.array([""] * n, dtype=object)
+    for i in range(max(slow, vol_long) + 1, n):
+        if np.isnan(es[i]):
+            continue
+        if cl[i] > es[i]:
+            entries[i] = True
+        trend_break = cl[i] < es[i]
+        vol_spike = (
+            not np.isnan(rv_s[i]) and not np.isnan(rv_l[i]) and rv_l[i] > 0
+            and rv_s[i] / rv_l[i] > vol_expand
+        )
+        if trend_break and vol_spike:
+            exits[i] = True
+            labels[i] = "DC"
+    return entries, exits, labels
+
+
 STRATEGY_REGISTRY = {
     # Grid-searchable T1 concepts (logic functions that accept any canonical param combo).
     # Grid search evaluates these exhaustively over canonical param grids.
     # The GA/spike can also search their STRATEGY_PARAMS ranges if desired.
+    "dual_confirm_stay_long":   dual_confirm_stay_long,   # path-#1: trend base + dual-confirm (trend+rvol) exit
     "golden_cross_slope":       golden_cross_slope,      # _ma_cross_with_slope — EMA cross + slope + confirm
     "ema_slope_above":          ema_200_slope_above,     # _ema_slope_above — close > EMA + slope + confirm
     "rsi_recovery_ema":         rsi_recovery_ema_200,    # _rsi_recovery_above_ema — RSI oversold + trend
@@ -8112,6 +8157,7 @@ STRATEGY_REGISTRY = {
 # declared tier — the declared tier is an upper bound on leniency, not a bypass.
 STRATEGY_TIERS = {
     # T1 grid-searchable concepts (hand-authored logic + canonical param grid)
+    "dual_confirm_stay_long":   "T1",
     "golden_cross_slope":       "T1",
     "ema_slope_above":          "T1",
     "rsi_recovery_ema":         "T1",
@@ -8276,6 +8322,12 @@ STRATEGY_PARAMS = {
     # Real canonical ranges for GA (if spike is used) or grid_search.py.
     # grid_search.py defines its own discrete grids from canonical values;
     # these ranges are used by the GA's random_params/mutate_params.
+    "dual_confirm_stay_long": {
+        "slow_ema":     (50, 200, 10, int),    # trend base EMA
+        "vol_short":    (10, 20, 5, int),      # realized-vol short window
+        "vol_long":     (60, 100, 20, int),    # realized-vol baseline window
+        "vol_expand":   (1.2, 2.0, 0.2, float),  # rvol-ratio spike threshold
+    },
     "golden_cross_slope": {
         "fast_ema":     (20, 100, 10, int),   # canonical: 20, 30, 50, 100
         "slow_ema":     (100, 300, 50, int),   # canonical: 100, 150, 200, 300

@@ -1,0 +1,2839 @@
+{
+  "members": [
+    "Dusky Osprey",
+    "Marbled Bonobo",
+    "Ivory Hare"
+  ],
+  "member_strategies": [
+    "gc_vjatr_reclaimer",
+    "gc_vjatr",
+    "gc_vjatr_timing_repair"
+  ],
+  "weight_levels": [
+    0.0,
+    1.0,
+    2.0,
+    3.0
+  ],
+  "thresholds": [
+    0.4,
+    0.5,
+    0.6
+  ],
+  "configs_evaluated": 147,
+  "distinct_signals": 8,
+  "variants": [
+    {
+      "weights": [
+        1,
+        1,
+        1
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        1,
+        1,
+        1
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        1,
+        1,
+        1
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        1,
+        1,
+        2
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        1,
+        2,
+        2
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        1,
+        2,
+        2
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        1,
+        2,
+        3
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        1,
+        3,
+        3
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        2,
+        1,
+        1
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        2,
+        1,
+        1
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        2,
+        1,
+        2
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        2,
+        1,
+        2
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        2,
+        1,
+        3
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        2,
+        2,
+        1
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        2,
+        2,
+        1
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        2,
+        2,
+        3
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        2,
+        2,
+        3
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        2,
+        3,
+        2
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        2,
+        3,
+        3
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        2,
+        3,
+        3
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        2,
+        3,
+        3
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        1,
+        1
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        1,
+        2
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        1,
+        2
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        1,
+        3
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        2,
+        1
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        2,
+        1
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        2,
+        2
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        2,
+        2
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        2,
+        3
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        2,
+        3
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        2,
+        3
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        3,
+        1
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        3,
+        2
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        3,
+        2
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        3,
+        2
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 3.2495,
+        "share_multiple": 33.2016,
+        "real_share_multiple": 1.7333,
+        "modern_share_multiple": 2.3616,
+        "trades": 19,
+        "trades_per_year": 0.6,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6538,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        0,
+        1,
+        1
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 3.245,
+        "share_multiple": 16.4685,
+        "real_share_multiple": 2.1149,
+        "modern_share_multiple": 2.5842,
+        "trades": 18,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6637,
+        "marker_timing": 0.3082
+      }
+    },
+    {
+      "weights": [
+        1,
+        2,
+        1
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 3.245,
+        "share_multiple": 16.4685,
+        "real_share_multiple": 2.1149,
+        "modern_share_multiple": 2.5842,
+        "trades": 18,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6637,
+        "marker_timing": 0.3082
+      }
+    },
+    {
+      "weights": [
+        1,
+        3,
+        2
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 3.245,
+        "share_multiple": 16.4685,
+        "real_share_multiple": 2.1149,
+        "modern_share_multiple": 2.5842,
+        "trades": 18,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6637,
+        "marker_timing": 0.3082
+      }
+    },
+    {
+      "weights": [
+        1,
+        3,
+        3
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 3.245,
+        "share_multiple": 16.4685,
+        "real_share_multiple": 2.1149,
+        "modern_share_multiple": 2.5842,
+        "trades": 18,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6637,
+        "marker_timing": 0.3082
+      }
+    },
+    {
+      "weights": [
+        2,
+        3,
+        1
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 3.245,
+        "share_multiple": 16.4685,
+        "real_share_multiple": 2.1149,
+        "modern_share_multiple": 2.5842,
+        "trades": 18,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6637,
+        "marker_timing": 0.3082
+      }
+    },
+    {
+      "weights": [
+        2,
+        3,
+        2
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 3.245,
+        "share_multiple": 16.4685,
+        "real_share_multiple": 2.1149,
+        "modern_share_multiple": 2.5842,
+        "trades": 18,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 65.0,
+        "marker_score": 0.6637,
+        "marker_timing": 0.3082
+      }
+    },
+    {
+      "weights": [
+        1,
+        1,
+        0
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.5862,
+        "share_multiple": 30.2495,
+        "real_share_multiple": 1.347,
+        "modern_share_multiple": 1.8352,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6727,
+        "marker_timing": 0.307
+      }
+    },
+    {
+      "weights": [
+        1,
+        1,
+        0
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.5862,
+        "share_multiple": 30.2495,
+        "real_share_multiple": 1.347,
+        "modern_share_multiple": 1.8352,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6727,
+        "marker_timing": 0.307
+      }
+    },
+    {
+      "weights": [
+        1,
+        2,
+        1
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.5862,
+        "share_multiple": 30.2495,
+        "real_share_multiple": 1.347,
+        "modern_share_multiple": 1.8352,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6727,
+        "marker_timing": 0.307
+      }
+    },
+    {
+      "weights": [
+        1,
+        2,
+        1
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.5862,
+        "share_multiple": 30.2495,
+        "real_share_multiple": 1.347,
+        "modern_share_multiple": 1.8352,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6727,
+        "marker_timing": 0.307
+      }
+    },
+    {
+      "weights": [
+        1,
+        3,
+        1
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.5862,
+        "share_multiple": 30.2495,
+        "real_share_multiple": 1.347,
+        "modern_share_multiple": 1.8352,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6727,
+        "marker_timing": 0.307
+      }
+    },
+    {
+      "weights": [
+        1,
+        3,
+        2
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.5862,
+        "share_multiple": 30.2495,
+        "real_share_multiple": 1.347,
+        "modern_share_multiple": 1.8352,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6727,
+        "marker_timing": 0.307
+      }
+    },
+    {
+      "weights": [
+        1,
+        3,
+        2
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.5862,
+        "share_multiple": 30.2495,
+        "real_share_multiple": 1.347,
+        "modern_share_multiple": 1.8352,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6727,
+        "marker_timing": 0.307
+      }
+    },
+    {
+      "weights": [
+        2,
+        2,
+        1
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.5862,
+        "share_multiple": 30.2495,
+        "real_share_multiple": 1.347,
+        "modern_share_multiple": 1.8352,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6727,
+        "marker_timing": 0.307
+      }
+    },
+    {
+      "weights": [
+        2,
+        3,
+        0
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.5862,
+        "share_multiple": 30.2495,
+        "real_share_multiple": 1.347,
+        "modern_share_multiple": 1.8352,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6727,
+        "marker_timing": 0.307
+      }
+    },
+    {
+      "weights": [
+        2,
+        3,
+        1
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.5862,
+        "share_multiple": 30.2495,
+        "real_share_multiple": 1.347,
+        "modern_share_multiple": 1.8352,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6727,
+        "marker_timing": 0.307
+      }
+    },
+    {
+      "weights": [
+        2,
+        3,
+        1
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.5862,
+        "share_multiple": 30.2495,
+        "real_share_multiple": 1.347,
+        "modern_share_multiple": 1.8352,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6727,
+        "marker_timing": 0.307
+      }
+    },
+    {
+      "weights": [
+        2,
+        3,
+        2
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.5862,
+        "share_multiple": 30.2495,
+        "real_share_multiple": 1.347,
+        "modern_share_multiple": 1.8352,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6727,
+        "marker_timing": 0.307
+      }
+    },
+    {
+      "weights": [
+        3,
+        2,
+        0
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.5862,
+        "share_multiple": 30.2495,
+        "real_share_multiple": 1.347,
+        "modern_share_multiple": 1.8352,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6727,
+        "marker_timing": 0.307
+      }
+    },
+    {
+      "weights": [
+        3,
+        3,
+        1
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.5862,
+        "share_multiple": 30.2495,
+        "real_share_multiple": 1.347,
+        "modern_share_multiple": 1.8352,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6727,
+        "marker_timing": 0.307
+      }
+    },
+    {
+      "weights": [
+        0,
+        1,
+        0
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "weights": [
+        0,
+        1,
+        0
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "weights": [
+        0,
+        1,
+        0
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "weights": [
+        0,
+        2,
+        1
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "weights": [
+        0,
+        2,
+        1
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "weights": [
+        0,
+        2,
+        1
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "weights": [
+        0,
+        3,
+        1
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "weights": [
+        0,
+        3,
+        1
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "weights": [
+        0,
+        3,
+        1
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "weights": [
+        0,
+        3,
+        2
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "weights": [
+        0,
+        3,
+        2
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "weights": [
+        1,
+        2,
+        0
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "weights": [
+        1,
+        2,
+        0
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "weights": [
+        1,
+        2,
+        0
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "weights": [
+        1,
+        3,
+        0
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "weights": [
+        1,
+        3,
+        0
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "weights": [
+        1,
+        3,
+        0
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "weights": [
+        1,
+        3,
+        1
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "weights": [
+        1,
+        3,
+        1
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "weights": [
+        2,
+        3,
+        0
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "weights": [
+        2,
+        3,
+        0
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 2.5826,
+        "share_multiple": 15.0042,
+        "real_share_multiple": 1.6435,
+        "modern_share_multiple": 2.0082,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 63.9,
+        "marker_score": 0.6826,
+        "marker_timing": 0.3105
+      }
+    },
+    {
+      "weights": [
+        0,
+        0,
+        1
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        0,
+        0,
+        1
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        0,
+        0,
+        1
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        0,
+        1,
+        2
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        0,
+        1,
+        2
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        0,
+        1,
+        2
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        0,
+        1,
+        3
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        0,
+        1,
+        3
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        0,
+        1,
+        3
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        0,
+        2,
+        3
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        0,
+        2,
+        3
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        1,
+        0,
+        1
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        1,
+        0,
+        1
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        1,
+        0,
+        2
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        1,
+        0,
+        2
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        1,
+        0,
+        2
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        1,
+        0,
+        3
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        1,
+        0,
+        3
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        1,
+        0,
+        3
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        1,
+        1,
+        2
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        1,
+        1,
+        2
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        1,
+        1,
+        3
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        1,
+        1,
+        3
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        1,
+        1,
+        3
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        1,
+        2,
+        3
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        1,
+        2,
+        3
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        2,
+        0,
+        3
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        2,
+        0,
+        3
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        2,
+        0,
+        3
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        2,
+        1,
+        2
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        2,
+        1,
+        3
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        2,
+        1,
+        3
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        2,
+        2,
+        3
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        3,
+        0,
+        2
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        3,
+        1,
+        3
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 2.0752,
+        "share_multiple": 10.309,
+        "real_share_multiple": 1.4733,
+        "modern_share_multiple": 1.6033,
+        "trades": 42,
+        "trades_per_year": 1.3,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4607,
+        "marker_timing": 0.4458
+      }
+    },
+    {
+      "weights": [
+        1,
+        0,
+        0
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        1,
+        0,
+        0
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        1,
+        0,
+        0
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        1,
+        0,
+        1
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        2,
+        0,
+        1
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        2,
+        0,
+        1
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        2,
+        0,
+        1
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        2,
+        1,
+        0
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        2,
+        1,
+        0
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        2,
+        1,
+        0
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        2,
+        1,
+        1
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        0,
+        1
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        0,
+        1
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        0,
+        1
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        0,
+        2
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        0,
+        2
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        1,
+        0
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        1,
+        0
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        1,
+        0
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        1,
+        1
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        1,
+        1
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        1,
+        2
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        1,
+        3
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        2,
+        0
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        2,
+        0
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        2,
+        1
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        3,
+        2,
+        2
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 1.8006,
+        "share_multiple": 28.0833,
+        "real_share_multiple": 0.8914,
+        "modern_share_multiple": 1.2145,
+        "trades": 17,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6739,
+        "marker_timing": 0.3047
+      }
+    },
+    {
+      "weights": [
+        1,
+        1,
+        0
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 1.7981,
+        "share_multiple": 13.9297,
+        "real_share_multiple": 1.0876,
+        "modern_share_multiple": 1.3289,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6838,
+        "marker_timing": 0.3082
+      }
+    },
+    {
+      "weights": [
+        3,
+        3,
+        1
+      ],
+      "threshold": 0.6,
+      "metrics": {
+        "fitness": 1.7981,
+        "share_multiple": 13.9297,
+        "real_share_multiple": 1.0876,
+        "modern_share_multiple": 1.3289,
+        "trades": 16,
+        "trades_per_year": 0.5,
+        "max_drawdown_pct": 49.8,
+        "marker_score": 0.6838,
+        "marker_timing": 0.3082
+      }
+    },
+    {
+      "weights": [
+        0,
+        1,
+        1
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 1.6516,
+        "share_multiple": 9.3923,
+        "real_share_multiple": 1.1449,
+        "modern_share_multiple": 1.2459,
+        "trades": 40,
+        "trades_per_year": 1.2,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4615,
+        "marker_timing": 0.4449
+      }
+    },
+    {
+      "weights": [
+        0,
+        1,
+        1
+      ],
+      "threshold": 0.5,
+      "metrics": {
+        "fitness": 1.6516,
+        "share_multiple": 9.3923,
+        "real_share_multiple": 1.1449,
+        "modern_share_multiple": 1.2459,
+        "trades": 40,
+        "trades_per_year": 1.2,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4615,
+        "marker_timing": 0.4449
+      }
+    },
+    {
+      "weights": [
+        0,
+        2,
+        3
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 1.6516,
+        "share_multiple": 9.3923,
+        "real_share_multiple": 1.1449,
+        "modern_share_multiple": 1.2459,
+        "trades": 40,
+        "trades_per_year": 1.2,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4615,
+        "marker_timing": 0.4449
+      }
+    },
+    {
+      "weights": [
+        0,
+        3,
+        2
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 1.6516,
+        "share_multiple": 9.3923,
+        "real_share_multiple": 1.1449,
+        "modern_share_multiple": 1.2459,
+        "trades": 40,
+        "trades_per_year": 1.2,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4615,
+        "marker_timing": 0.4449
+      }
+    },
+    {
+      "weights": [
+        1,
+        2,
+        2
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 1.6516,
+        "share_multiple": 9.3923,
+        "real_share_multiple": 1.1449,
+        "modern_share_multiple": 1.2459,
+        "trades": 40,
+        "trades_per_year": 1.2,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4615,
+        "marker_timing": 0.4449
+      }
+    },
+    {
+      "weights": [
+        1,
+        3,
+        3
+      ],
+      "threshold": 0.4,
+      "metrics": {
+        "fitness": 1.6516,
+        "share_multiple": 9.3923,
+        "real_share_multiple": 1.1449,
+        "modern_share_multiple": 1.2459,
+        "trades": 40,
+        "trades_per_year": 1.2,
+        "max_drawdown_pct": 98.8,
+        "marker_score": 0.4615,
+        "marker_timing": 0.4449
+      }
+    }
+  ],
+  "baseline": {
+    "weights": [
+      3.5404,
+      2.5185,
+      2.5514
+    ],
+    "threshold": 0.5,
+    "metrics": {
+      "fitness": 3.2495,
+      "share_multiple": 33.2016,
+      "real_share_multiple": 1.7333,
+      "modern_share_multiple": 2.3616,
+      "trades": 19,
+      "trades_per_year": 0.6,
+      "max_drawdown_pct": 65.0,
+      "marker_score": 0.6538,
+      "marker_timing": 0.3047
+    }
+  }
+}

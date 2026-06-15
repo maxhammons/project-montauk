@@ -57,6 +57,12 @@ PROJECT_ROOT = os.path.dirname(
 # ─────────────────────────────────────────────────────────────────────────────
 
 GRIDS = {
+    "dual_confirm_stay_long": {  # path-#1: 5 × 2 × 2 × 5 = 100 combos
+        "slow_ema": [50, 70, 100, 150, 200],
+        "vol_short": [10, 20],
+        "vol_long": [60, 100],
+        "vol_expand": [1.2, 1.4, 1.6, 1.8, 2.0],
+    },
     "golden_cross_slope": {  # 4 × 3 × 2 × 2 = 48 combos
         "fast_ema": [20, 30, 50, 100],
         "slow_ema": [100, 150, 200],
