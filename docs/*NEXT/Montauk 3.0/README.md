@@ -7,12 +7,14 @@ for buy/sell signal flips, and breeds chimera strategies from new leaderboard
 winners — orchestrated by a small local agent plus remote Claude sessions, with
 the owner only needing to top up the idea bucket every month or so.
 
-**Status: VISION / PLANNING.** Nothing here is a frozen spec yet. This is the
-charter conversation the existing `*NEXT/` docs kept asking for (the multi-sector
-doc ends "the next move is the Q1/Q2 charter conversation, not code"; the
-search-expansion doc ends "owner answers Q1 — nothing downstream is buildable
-until the frozen boundary is explicit"). Montauk 3.0 starts that conversation and
-collects the answers in one place.
+**Status: VISION / PLANNING.** Nothing here is a frozen spec yet — this is the
+charter conversation, captured as it happens. The governing draft is
+[charter.md](charter.md); resolved calls land in [decisions.md](decisions.md). The
+guiding light is the **validation engine**
+([validation-engine-hardening.md](validation-engine-hardening.md)): by the time a
+strategy is Gold it must be defensible, auditable, testable, and survive academic
+critique. Montauk 3.0 is **TECL-only**; the multi-asset / wider-action expansion is a
+separate later release in [`../Montauk 4.0/`](../Montauk%204.0/).
 
 ---
 
@@ -22,22 +24,28 @@ collects the answers in one place.
    carries over unchanged from today (the Gold bar, deterministic validation,
    legibility), the always-on architecture, the owner/agent/Claude/pipeline role
    split, and the **decision register** of open charter forks that gate the build.
-   Start here.
+   Start here. Its companion **[decisions.md](decisions.md)** is the running ledger
+   of resolved decisions — read it for what's actually been settled.
 
 2. The supporting pillar docs below — each is a deep-dive on one leg of the
    vision. The charter ties them together; these carry the detail.
 
 ---
 
-## The supporting pillars (moved here from `*NEXT/`)
+## The pillar docs
+
+Governing docs above the pillars: **[charter.md](charter.md)** (umbrella vision) and
+**[decisions.md](decisions.md)** (resolved-decision ledger).
 
 | Doc | Pillar | Status |
 |-----|--------|--------|
-| [2026-06-09-idea-to-gold-pipeline.md](2026-06-09-idea-to-gold-pipeline.md) | **The conveyor.** Bucket of untested ideas in → deterministic, zero-LLM pipeline → Gold strategies out. The single most important prior art; the engine of the whole vision. | Build plan (≈2.5 sessions); downstream machinery mostly exists |
-| [2026-06-14-multi-sector-autonomous-machine.md](2026-06-14-multi-sector-autonomous-machine.md) | **The always-on, AI-orchestrated runtime** + the (optional, charter-gated) expansion from one asset to a fleet of per-sector machines with a rotation brain. | Open-ended vision; needs charter decisions |
-| [2026-06-15-montauk-search-expansion.md](2026-06-15-montauk-search-expansion.md) | **The action space.** Why the board is a monoculture and how to feed the unchanged gate more diverse candidates (defensive SGOV leg, sizing, shorts) — without touching the proof. | Design/discussion; needs charter decision Q1 |
+| [validation-engine-hardening.md](validation-engine-hardening.md) | **The validation engine — the north star.** The three-step pipeline (bucket → backtest/tune → validation), a current-state audit against the academic anti-overfit literature, the gap register, and the hardening backlog. Gold must be academically defensible. | Living doc; line-by-line correctness audit (G10) committed |
+| [2026-06-09-idea-to-gold-pipeline.md](2026-06-09-idea-to-gold-pipeline.md) | **The conveyor.** Bucket of untested ideas in → deterministic, zero-LLM pipeline → Gold strategies out. The engine of the whole vision. | Build plan (≈2.5 sessions); downstream machinery mostly exists |
 | [2026-04-23-meta-strategy-design.md](2026-04-23-meta-strategy-design.md) | **Chimeras.** Confidence-weighted regime ensembles bred from leaderboard winners — itself just another idea family that must clear the same Gold bar. | Design-only; pipeline fodder |
 | [2026-06-10-ios-companion-app.md](2026-06-10-ios-companion-app.md) | **The monitoring surface.** Read-only iPhone app + widget + push on every regime flip — the always-on server's window to the owner's pocket. | Work plan (~2–4 days); needs paid Apple dev account |
+
+> The multi-asset / action-space expansion (the multi-sector-machine + search-expansion
+> docs) has moved to [`../Montauk 4.0/`](../Montauk%204.0/) — a separate, later release.
 
 ---
 
@@ -45,15 +53,16 @@ collects the answers in one place.
 
 The owner's stated vision settles the *shape* of Montauk 3.0:
 
-- **Decided:** an always-on server; a small local orchestration agent + remote
-  Claude (not an expensive local model); an hourly standing run that grinds one
-  idea at a time; monthly bulk idea dumps; the server also owns data refresh, app
-  hosting, signal monitoring, and chimera breeding.
-- **Still open (the decision register in [charter.md](charter.md) §10):** TECL-only
-  vs. multi-sector; the action-space expansion (SGOV leg / sizing / shorts) and
-  the `≤5 trades/year` rule; the execution model (stay manual vs. bounded broker);
-  exact autonomy boundaries and kill-switches; the breadth-deflation fix that
-  keeps "billions of combinations" from manufacturing false Gold.
+- **Decided:** TECL-only; an always-on *appliance* server (a dumb deterministic
+  churner — no on-box AI) with no local agent; remote Claude for authoring +
+  maintenance; grind-constantly with monthly bulk idea dumps; auto-enter intake;
+  Gold → a **staging leaderboard** → manual admission; a hard data-integrity rule;
+  defined chimera triggers; and the validation engine as the north star (with "the
+  bar rises with the search, never falls" locked as a design law). Full ledger in
+  [decisions.md](decisions.md).
+- **Still open (charter §10):** the breadth-deflation *mechanism* (locked as a **hard
+  prerequisite** — it keeps "billions of combinations" from manufacturing false
+  Gold); unifying the bucket front door; and the budget / hardware envelope.
 
 ---
 

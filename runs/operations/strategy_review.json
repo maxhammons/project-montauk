@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-06-15T03:14:05Z",
+  "generated_utc": "2026-06-17T18:57:00Z",
   "status": "on_best_certified",
   "on_best_certified": true,
   "selection_metric": "montauk",
@@ -11,7 +11,7 @@
     "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
     "confidence": 0.7684,
     "score_label": "composite_confidence",
-    "data_end_date": "2026-06-12",
+    "data_end_date": "2026-06-17",
     "risk_state": "risk_off"
   },
   "best_certified": {

@@ -27,9 +27,17 @@ DEMOTION_MIN_SNAPSHOTS = 21
 # Live trust proxy floor — same 0.85x floor governance already uses for
 # manual review; at demotion it becomes a blocker instead of an advisory.
 DEMOTION_LIVE_VS_BAH_FLOOR = 0.85
-# Backtest-vs-live degradation floor as a fraction (-0.15 = live multiple
-# fell 15%+ short of the certified backtest share multiple).
-DEMOTION_DEGRADATION_FLOOR = -0.15
+# NOTE (2026-06-17): the former backtest-vs-live degradation trigger
+# (DEMOTION_DEGRADATION_FLOOR = -0.15) was removed. It compared the live trust
+# proxy — a ~6-week relative-return ratio that is ~1.0 by construction — against
+# the certified *full-history* share multiple (decades of cumulative
+# accumulation, e.g. 35x). Those are incommensurable quantities: the check fired
+# on every leveraged Gold champion at 21 snapshots no matter how well it was
+# tracking live (avoiding it would require beating B&H ~30x in six weeks), and
+# anchoring on a full-history multiple violates the project's "full-history
+# numbers are diagnostic-only" principle. Forward falsification now rests on the
+# live_vs_bah floor and replay divergence. The full-history degradation is still
+# reported as a pure diagnostic in the live-holdout payload.
 
 # Forward-survival evidence stream consumed by the confidence_vintage harness
 # (runs/confidence_v2/) to calibrate Conviction against reality.
@@ -183,8 +191,10 @@ def evaluate_demotion(
       - replay diverges from the immutable signal record (correctness
         violation — fires at any sample size), OR
       - with >= ``min_snapshots`` live snapshots: the live trust proxy falls
-        below ``DEMOTION_LIVE_VS_BAH_FLOOR``, or backtest-vs-live degradation
-        falls beyond ``DEMOTION_DEGRADATION_FLOOR``.
+        below ``DEMOTION_LIVE_VS_BAH_FLOOR``.
+    (The former backtest-vs-live degradation trigger was removed 2026-06-17 —
+    see the module-level note; the full-history degradation remains a diagnostic
+    in the payload but is no longer a demotion trigger.)
     With fewer than ``min_snapshots`` snapshots and no divergence, the verdict
     is always demote=False with an "insufficient live evidence" reason —
     performance noise on a handful of bars must not demote anyone.
@@ -214,11 +224,6 @@ def evaluate_demotion(
                 f"live_vs_bah_multiple {live_multiple:.4f} < {DEMOTION_LIVE_VS_BAH_FLOOR} "
                 f"with {n_snapshots} live snapshots"
             )
-        if degradation_fraction is not None and degradation_fraction < DEMOTION_DEGRADATION_FLOOR:
-            reasons.append(
-                f"backtest-vs-live degradation {degradation_fraction:.4f} "
-                f"beyond {DEMOTION_DEGRADATION_FLOOR}"
-            )
     demote = bool(reasons)
     if not demote and n_snapshots < min_snapshots:
         reasons.append(f"insufficient live evidence ({n_snapshots}/{min_snapshots})")
@@ -230,10 +235,11 @@ def evaluate_demotion(
             "min_snapshots": min_snapshots,
             "diverged_count": diverged_count,
             "live_vs_bah_multiple": live_multiple,
-            "degradation_fraction": degradation_fraction,
+            # Reported for transparency only — no longer a demotion trigger
+            # (full-history vs short-window comparison; see module note).
+            "degradation_fraction_diagnostic": degradation_fraction,
             "thresholds": {
                 "live_vs_bah_floor": DEMOTION_LIVE_VS_BAH_FLOOR,
-                "degradation_floor": DEMOTION_DEGRADATION_FLOOR,
             },
         },
         "checked_utc": utc_now_iso(),
@@ -270,6 +276,40 @@ def stamp_live_demotion(
         _write_json(leaderboard_path, leaderboard)
         return True
     return False
+
+
+def clear_live_demotion(
+    leaderboard_path: Path,
+    champion_identity: dict[str, Any],
+) -> bool:
+    """Remove a stale ``live_demotion`` stamp once live evidence no longer demotes.
+
+    WHY: ``stamp_live_demotion`` writes the demotion block but nothing removed it
+    when the verdict later flips back to ``demote=False`` (e.g. after the
+    2026-06-17 removal of the broken degradation trigger). A lingering stamp would
+    misrepresent a healthy champion as demoted. Returns True when a stamp was
+    cleared.
+    """
+
+    if not leaderboard_path.exists():
+        return False
+    leaderboard = _load_json(leaderboard_path)
+    if not isinstance(leaderboard, list):
+        return False
+    identity = champion_identity or {}
+    strategy = identity.get("strategy")
+    champion_date = identity.get("date")
+    cleared = False
+    for row in leaderboard:
+        if not strategy or row.get("strategy") != strategy:
+            continue
+        if champion_date and row.get("date") and row.get("date") != champion_date:
+            continue
+        if row.pop("live_demotion", None) is not None:
+            cleared = True
+    if cleared:
+        _write_json(leaderboard_path, leaderboard)
+    return cleared
 
 
 def append_live_outcome(
@@ -425,12 +465,11 @@ def build_live_holdout(
     report["demotion"] = evaluate_demotion(report)
     report["comparisons"] = comparisons
     _write_json(output_path, report)
+    champion_identity = {"strategy": champion.get("strategy"), "date": champion.get("date")}
     if report["demotion"]["demote"]:
-        stamp_live_demotion(
-            leaderboard_path,
-            {"strategy": champion.get("strategy"), "date": champion.get("date")},
-            report["demotion"],
-        )
+        stamp_live_demotion(leaderboard_path, champion_identity, report["demotion"])
+    else:
+        clear_live_demotion(leaderboard_path, champion_identity)
     # The calibration feed records production builds only: ad-hoc/test builds
     # against an overridden signals_dir must not contaminate the forward
     # evidence stream unless they opt in with an explicit live_outcomes_path.

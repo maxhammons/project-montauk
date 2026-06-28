@@ -29,6 +29,7 @@ SCRIPTS_DIR = Path(__file__).resolve().parents[1]
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
+from ops.dismiss_request import is_dismissed, load_dismissals
 from ops.events import read_events, utc_now_iso
 from ops.paths import (
     GOVERNANCE_PATH,
@@ -47,12 +48,37 @@ MAINTENANCE_STATUS_PATH = OPERATIONS_DIR / "maintenance_status.json"
 SEVERITY_RANK = {"critical": 3, "warning": 2, "advisory": 1, "info": 0}
 
 # Events that already have a first-class surface elsewhere in this report and
-# should not be re-listed from the raw event log as separate requests.
+# should NOT be re-listed from the raw event log as separate requests.
+#
+# WHY this matters (2026-06-17): the raw-event catch-all replays the last 30
+# warning/error events from the append-only log. Transient conditions
+# (governance blocks, live-holdout drift, data-quality fails) are re-emitted as
+# a fresh event on *every* build while they hold, so once resolved their old
+# log entries kept surfacing as if still actionable — producing tickets full of
+# stale echoes. Each condition below already has a dedicated section that reads
+# the CURRENT authoritative artifact, so the live truth is never lost by
+# excluding the log echo. The catch-all is reserved for event types that have
+# no dedicated current-state surface.
 _EVENT_TYPES_SURFACED_ELSEWHERE = {
+    # Maintenance / data refresh — surfaced via maintenance + data-quality sections.
     "maintenance_run",
     "data_refreshed",
     "data_refresh_skipped",
     "research_idea_reviewed",
+    # Governance state — surfaced via the Governance section (governance.json).
+    "champion_blocked",
+    "live_demotion",
+    "manual_review_required",
+    "champion_changed",
+    # Live holdout — surfaced via the Live-holdout section (live_holdout.json).
+    "live_holdout_drift",
+    # Data quality / freshness — surfaced via the Data-quality + Signal-freshness sections.
+    "data_quality_failed",
+    "data_stale",
+    # Transient/historical: a recompute differing from a stored immutable
+    # snapshot (usually a champion change). A genuine ongoing integrity problem
+    # surfaces as live-holdout divergence, which the Live-holdout section flags.
+    "signal_snapshot_conflict",
 }
 
 
@@ -311,16 +337,35 @@ def build_agent_report() -> dict[str, Any]:
             artifacts=["runs/operations/events.jsonl"],
         ))
 
+    # Partition every candidate into three buckets (2026-06-17):
+    #   requests  — actionable (warning+): the work queue, drives the ticket/badge
+    #   optional  — advisory/info: visible suggestions, never "actionable"
+    #   dismissed — user-suppressed by area (until the issue escalates)
+    # This keeps the inbox honest: if something is in `requests`, it needs action.
+    candidates = requests
+    dismissals = load_dismissals()
+    requests = []
+    optional: list[dict[str, Any]] = []
+    dismissed: list[dict[str, Any]] = []
+    for item in candidates:
+        if is_dismissed(item["area"], item["severity"], dismissals):
+            dismissed.append(item)
+        elif SEVERITY_RANK.get(item["severity"], 0) >= SEVERITY_RANK["warning"]:
+            requests.append(item)
+        else:
+            optional.append(item)
+
     # Sort: highest severity first, stable within severity.
-    requests.sort(key=lambda r: -SEVERITY_RANK.get(r["severity"], 0))
+    for bucket in (requests, optional, dismissed):
+        bucket.sort(key=lambda r: -SEVERITY_RANK.get(r["severity"], 0))
 
     by_category: dict[str, int] = {}
     by_severity: dict[str, int] = {}
     for r in requests:
         by_category[r["category"]] = by_category.get(r["category"], 0) + 1
         by_severity[r["severity"]] = by_severity.get(r["severity"], 0) + 1
-    highest = max((r["severity"] for r in requests), key=lambda s: SEVERITY_RANK.get(s, 0), default="info")
-    actionable = any(SEVERITY_RANK.get(r["severity"], 0) >= SEVERITY_RANK["warning"] for r in requests)
+    highest = max((r["severity"] for r in requests), key=lambda s: SEVERITY_RANK.get(s, 0), default="none")
+    actionable = bool(requests)
 
     ticket = None
     if requests:
@@ -333,20 +378,25 @@ def build_agent_report() -> dict[str, Any]:
         "schema_version": 3,
         "purpose": "agent_intervention_request",
         "instructions": (
-            "Work order for an LLM agent. These are not only errors — they include "
-            "maintenance, service, data, signal, research, automation, and governance "
-            "requests. Each item carries a category, severity, suggested_action, and the "
-            "relevant artifact paths. Resolve actionable (warning+) items using the "
-            "referenced project files as the source of truth; info/advisory items are "
-            "optional. The project's Python engine is authoritative for all strategy logic."
+            "Work order for an LLM agent. `requests` are the ACTIONABLE items "
+            "(warning+) — resolve each using the referenced project files as the "
+            "source of truth. `optional` holds advisory/info suggestions (e.g. "
+            "opt-in setup) that are safe to ignore. `dismissed` holds items the "
+            "user has consciously suppressed by area; leave them unless they have "
+            "escalated. An empty `requests` list (actionable=false) means nothing "
+            "needs doing. The project's Python engine is authoritative for all "
+            "strategy logic. Dismiss an item via `scripts/ops/dismiss_request.py "
+            "dismiss <area>`."
         ),
         "generated_utc": utc_now_iso(),
         "generated_local": datetime.now().astimezone().isoformat(timespec="seconds"),
         "ticket": ticket,
         "summary": {
             "request_count": len(requests),
+            "optional_count": len(optional),
+            "dismissed_count": len(dismissed),
             "actionable": actionable,
-            "highest_severity": highest if requests else "none",
+            "highest_severity": highest,
             "by_category": by_category,
             "by_severity": by_severity,
         },
@@ -377,6 +427,8 @@ def build_agent_report() -> dict[str, Any]:
             "app_source": "app/",
         },
         "requests": requests,
+        "optional": optional,
+        "dismissed": dismissed,
     }
 
 
@@ -392,14 +444,20 @@ def write_agent_report(report: dict[str, Any] | None = None) -> dict[str, Any]:
 
 def _print_human(report: dict[str, Any]) -> None:
     summary = report["summary"]
-    print(f"Agent inbox: {summary['request_count']} request(s) "
-          f"[{report.get('ticket') or 'no ticket'}] · highest={summary['highest_severity']}")
+    print(f"Agent inbox: {summary['request_count']} actionable request(s) "
+          f"[{report.get('ticket') or 'no ticket'}] · highest={summary['highest_severity']}"
+          f" · optional={summary.get('optional_count', 0)}"
+          f" · dismissed={summary.get('dismissed_count', 0)}")
     if summary["by_category"]:
         cats = ", ".join(f"{k}={v}" for k, v in sorted(summary["by_category"].items()))
         print(f"  by category: {cats}")
     for r in report["requests"]:
         print(f"  [{r['severity']:<8}] {r['category']:<15} {r['title']}")
         print(f"             → {r['suggested_action']}")
+    if report.get("optional"):
+        print(f"  optional ({len(report['optional'])}) — safe to ignore or dismiss:")
+        for r in report["optional"]:
+            print(f"  [{r['severity']:<8}] {r['category']:<15} {r['title']}")
     print(f"  written to {INBOX_PATH.relative_to(SCRIPTS_DIR.parent)}")
 
 

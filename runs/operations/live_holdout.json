@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-06-15T00:10:14Z",
+  "generated_utc": "2026-06-17T18:57:00Z",
   "version_info": {
     "schema_version": 1,
-    "generated_utc": "2026-06-15T00:10:14Z",
+    "generated_utc": "2026-06-17T18:57:00Z",
     "app_version": "0.1.0",
-    "git_commit": "693eab1",
+    "git_commit": "3715f54",
     "git_dirty": true,
-    "strategy_code_version": "693eab1"
+    "strategy_code_version": "3715f54"
   },
   "status": "ok",
-  "snapshot_count": 20,
+  "snapshot_count": 21,
   "live_start_date": "2026-05-08",
-  "latest_snapshot_date": "2026-06-12",
+  "latest_snapshot_date": "2026-06-17",
   "matched_count": 1,
   "diverged_count": 0,
-  "not_replayed_count": 19,
-  "close_return_since_start_pct": 12.8486,
+  "not_replayed_count": 20,
+  "close_return_since_start_pct": 18.8736,
   "expected_next_open_execution_proxy": [
     {
       "event": "exit",
@@ -39,16 +39,16 @@
   ],
   "active_champion_performance_since_live_start": {
     "start_date": "2026-05-08",
-    "latest_date": "2026-06-12",
+    "latest_date": "2026-06-17",
     "strategy": "chimera_v1_2026_05_26",
     "signal_return_pct": 6.0931,
-    "buy_hold_return_pct": 12.8486,
-    "live_vs_buy_hold_multiple_proxy": 0.9401
+    "buy_hold_return_pct": 18.8736,
+    "live_vs_buy_hold_multiple_proxy": 0.8925
   },
   "backtest_vs_live_degradation": {
     "backtest_share_multiple": 35.1812,
-    "live_vs_buy_hold_multiple_proxy": 0.9401,
-    "degradation_pct": -97.3277
+    "live_vs_buy_hold_multiple_proxy": 0.8925,
+    "degradation_pct": -97.4632
   },
   "confidence_drift": {
     "start": 0.7594,
@@ -57,21 +57,18 @@
   },
   "demotion": {
     "demote": false,
-    "reasons": [
-      "insufficient live evidence (20/21)"
-    ],
+    "reasons": [],
     "evidence": {
-      "n_snapshots": 20,
+      "n_snapshots": 21,
       "min_snapshots": 21,
       "diverged_count": 0,
-      "live_vs_bah_multiple": 0.9401,
-      "degradation_fraction": -0.973277,
+      "live_vs_bah_multiple": 0.8925,
+      "degradation_fraction_diagnostic": -0.974632,
       "thresholds": {
-        "live_vs_bah_floor": 0.85,
-        "degradation_floor": -0.15
+        "live_vs_bah_floor": 0.85
       }
     },
-    "checked_utc": "2026-06-15T00:10:14Z"
+    "checked_utc": "2026-06-17T18:57:00Z"
   },
   "comparisons": [
     {
@@ -171,10 +168,15 @@
     },
     {
       "date": "2026-06-12",
+      "status": "not_replayed",
+      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-12.json"
+    },
+    {
+      "date": "2026-06-17",
       "status": "match",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-12.json",
+      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-17.json",
       "snapshot": {
-        "data_end_date": "2026-06-12",
+        "data_end_date": "2026-06-17",
         "strategy": "chimera_v1_2026_05_26",
         "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
         "risk_state": "risk_off",
@@ -182,10 +184,10 @@
         "exit_signal": false,
         "buy_event": false,
         "sell_event": false,
-        "close": 215.490005
+        "close": 226.994995
       },
       "replay": {
-        "data_end_date": "2026-06-12",
+        "data_end_date": "2026-06-17",
         "strategy": "chimera_v1_2026_05_26",
         "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
         "risk_state": "risk_off",
@@ -193,7 +195,7 @@
         "exit_signal": false,
         "buy_event": false,
         "sell_event": false,
-        "close": 215.490005
+        "close": 226.994995
       },
       "changed_fields": []
     }

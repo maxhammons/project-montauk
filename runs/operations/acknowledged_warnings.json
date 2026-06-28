@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "acknowledgements": {
+    "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1": {
+      "warnings": [
+        {
+          "signature": "#_#_bear: zero trades (sat out, share_multiple=#.#)",
+          "example": "2021_2022_bear: zero trades (sat out, share_multiple=3.239)"
+        },
+        {
+          "signature": "[t#] missed_marker_cycles=# > # (informational)",
+          "example": "[T2] missed_marker_cycles=9 > 5 (informational)"
+        },
+        {
+          "signature": "[t#] transition_timing=#.# < #.# (informational)",
+          "example": "[T2] transition_timing=0.184 < 0.30 (informational)"
+        },
+        {
+          "signature": "bootstrap downside probability #.# > #.#",
+          "example": "bootstrap downside probability 0.85 > 0.50"
+        },
+        {
+          "signature": "concentration: bull_hhi=#.# bear_hhi=#.# dom=#.#x",
+          "example": "concentration: bull_hhi=0.257 bear_hhi=0.128 dom=3.13x"
+        },
+        {
+          "signature": "event dependence: covid_crash exclusion collapses edge #%",
+          "example": "event dependence: covid_crash exclusion collapses edge 81%"
+        },
+        {
+          "signature": "execution realism: next-open degradation -#.#%",
+          "example": "execution realism: next-open degradation -12.2%"
+        },
+        {
+          "signature": "n_params=# exceeds regime_transitions=#",
+          "example": "n_params=53 exceeds regime_transitions=19"
+        },
+        {
+          "signature": "qqq same-param share_multiple=#.# < #.#",
+          "example": "QQQ same-param share_multiple=0.441 < 0.50"
+        }
+      ],
+      "strategy": "chimera_v1_2026_05_26",
+      "note": "Reviewed 2026-06-17: accepted known risks for Chimera 1 (event-dependence, cross-asset portability, parameter parsimony, etc.). See validation-thresholds.md.",
+      "acknowledged_utc": "2026-06-17T18:55:17Z"
+    }
+  }
+}

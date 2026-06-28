@@ -125,7 +125,7 @@ golden-cross basin every run. There is no cross-concept recombination.
 - **Cut winner-seeding, raise random injection** so the search stops collapsing
   back into the known basin.
 - **Target idea-generation at the board's missing styles**, not by volume (the
-  `2026-06-09-idea-to-gold-pipeline.md` roadmap item #3) — author hypotheses for
+  `../Montauk 3.0/2026-06-09-idea-to-gold-pipeline.md` roadmap item #3) — author hypotheses for
   the regimes/economics the board lacks.
 
 ### Ceiling 3 — Data / regimes
@@ -290,6 +290,6 @@ Derived from a four-angle codebase audit on 2026-06-15: search mechanics
 library.py`, `scripts/engine/strategy_engine.py`), validation & overfitting
 controls (`scripts/validation/`, `spike/`), and the live leaderboard / roadmap
 (`spike/leaderboard.json`, `runs/operations/`, this `*NEXT/` folder). Companion
-to `2026-06-09-idea-to-gold-pipeline.md` (the generation engine) and
-`2026-06-14-multi-sector-autonomous-machine.md` (the multi-asset vision) — this
+to `../Montauk 3.0/2026-06-09-idea-to-gold-pipeline.md` (the generation engine) and
+`2026-06-14-multi-sector-autonomous-machine.md` (the multi-asset vision, same folder) — this
 doc is the *action-space* leg those two assume but don't specify.

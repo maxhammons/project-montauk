@@ -1,19 +1,19 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-06-15T00:09:28Z",
+  "generated_utc": "2026-06-17T18:56:22Z",
   "status": "ok",
   "version_info": {
     "schema_version": 1,
-    "generated_utc": "2026-06-15T00:10:05Z",
+    "generated_utc": "2026-06-17T18:56:50Z",
     "app_version": "0.1.0",
-    "git_commit": "693eab1",
+    "git_commit": "3715f54",
     "git_dirty": true,
-    "strategy_code_version": "693eab1"
+    "strategy_code_version": "3715f54"
   },
   "active_signal": {
     "snapshot_schema_version": 1,
-    "generated_utc": "2026-06-15T00:09:43Z",
-    "data_end_date": "2026-06-12",
+    "generated_utc": "2026-06-17T18:56:34Z",
+    "data_end_date": "2026-06-17",
     "active_champion": {
       "strategy": "chimera_v1_2026_05_26",
       "rank": 1,
@@ -103,7 +103,7 @@
     "exit_label": "",
     "buy_event": false,
     "sell_event": false,
-    "close": 215.490005,
+    "close": 226.994995,
     "flip_likelihood": 0.0,
     "flip_days": null,
     "flip_move_pct": null,
@@ -164,14 +164,12 @@
       "event dependence: covid_crash exclusion collapses edge 81%"
     ],
     "blockers": [],
-    "signal_changed": true,
+    "signal_changed": false,
     "signal_change": {
-      "changed": true,
-      "reason": "field_change",
-      "changed_fields": [
-        "exit_signal"
-      ],
-      "previous_data_end_date": "2026-06-09",
+      "changed": false,
+      "reason": "unchanged",
+      "changed_fields": [],
+      "previous_data_end_date": "2026-06-12",
       "previous_risk_state": "risk_off"
     },
     "data_quality": {
@@ -180,13 +178,12 @@
       "warn": 0,
       "fail": 0,
       "skip": 0
-    },
-    "prev_snapshot_sha256": "7977486dd46c40bb033685f95ec6bd91da4d1be427c24d366763a2d5e0a2d461"
+    }
   },
   "computed_signal": {
     "snapshot_schema_version": 1,
-    "generated_utc": "2026-06-15T00:09:43Z",
-    "data_end_date": "2026-06-12",
+    "generated_utc": "2026-06-17T18:56:34Z",
+    "data_end_date": "2026-06-17",
     "active_champion": {
       "strategy": "chimera_v1_2026_05_26",
       "rank": 1,
@@ -276,7 +273,7 @@
     "exit_label": "",
     "buy_event": false,
     "sell_event": false,
-    "close": 215.490005,
+    "close": 226.994995,
     "flip_likelihood": 0.0,
     "flip_days": null,
     "flip_move_pct": null,
@@ -337,14 +334,12 @@
       "event dependence: covid_crash exclusion collapses edge 81%"
     ],
     "blockers": [],
-    "signal_changed": true,
+    "signal_changed": false,
     "signal_change": {
-      "changed": true,
-      "reason": "field_change",
-      "changed_fields": [
-        "exit_signal"
-      ],
-      "previous_data_end_date": "2026-06-09",
+      "changed": false,
+      "reason": "unchanged",
+      "changed_fields": [],
+      "previous_data_end_date": "2026-06-12",
       "previous_risk_state": "risk_off"
     },
     "data_quality": {
@@ -353,32 +348,23 @@
       "warn": 0,
       "fail": 0,
       "skip": 0
-    },
-    "prev_snapshot_sha256": "7977486dd46c40bb033685f95ec6bd91da4d1be427c24d366763a2d5e0a2d461"
+    }
   },
   "steps": {
     "refresh": {
-      "status": "ok",
-      "updated": true,
-      "total_new_bars": 27,
-      "new_bars": {
-        "TECL": 3,
-        "VIX": 3,
-        "XLK": 3,
-        "QQQ": 3,
-        "TQQQ": 3,
-        "SGOV": 3,
-        "DTB3": 3,
-        "T10Y2Y": 3,
-        "DFF": 3
-      },
-      "data_end_date": "2026-06-12",
-      "refreshed_utc": "2026-06-15T00:09:33Z",
-      "forced": false
+      "status": "skipped",
+      "reason": "already_refreshed_today",
+      "last_refresh": {
+        "date": "2026-06-17",
+        "refreshed_utc": "2026-06-17T17:15:27Z",
+        "updated": true,
+        "total_new_bars": 25,
+        "data_end_date": "2026-06-17"
+      }
     },
     "manifest": {
       "status": "ok",
-      "built_utc": "2026-06-15T00:09:33+00:00"
+      "built_utc": "2026-06-17T18:56:22+00:00"
     },
     "data_quality": {
       "status": "ok",
@@ -392,8 +378,8 @@
       "failing_checks": []
     },
     "signal_snapshot": {
-      "status": "written",
-      "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-12.json"
+      "status": "unchanged",
+      "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-17.json"
     },
     "top_strategies": {
       "status": "ok",
@@ -401,27 +387,27 @@
     },
     "artifact_backfill": {
       "status": "ok",
-      "created_or_refreshed": 12,
-      "skipped": 0
+      "created_or_refreshed": 0,
+      "skipped": 12
     },
     "viz": {
       "status": "ok",
       "ok": true,
       "returncode": 0,
-      "stdout_tail": "[build_viz] Loading TECL price data\u2026\n[build_viz]   8335 bars; synthetic ends at index 3936\n[build_viz] TECL Health: 58.74 on 2026-06-12 (diagnostic only)\n[build_viz] Manifest: sha256=7a5a3d7a4b1c\u2026 built 2026-06-15T00:09:33+00:00\n[build_viz] North-star markers: 28\n[build_viz] Leaderboard entries: 12\n[build_viz] Family confidence leaders: 4\n[build_viz] Confidence v2 scores: 8\n[build_viz] Indexed 128 run-dir dashboard_data.json files\n[build_viz] Matched 12/12 leaderboard entries to run artifacts\n[build_viz] Freshness: data through 2026-06-12 \u00b7 signals through 2026-06-12 \u00b7 leaderboard 0df477d8c195\u2026\n[build_viz] Wrote /Users/maxhammons/Documents/Projects/Project Montauk/viz/montauk-viz.html (8.87 MB)\n[build_viz] Wrote /Users/maxhammons/Documents/Projects/Project Montauk/viz/montauk-bundle.json (8.64 MB)\n[build_viz] Done. Open with: open '/Users/maxhammons/Documents/Projects/Project Montauk/viz/montauk-viz.html'\n",
+      "stdout_tail": "[build_viz] Loading TECL price data\u2026\n[build_viz]   8338 bars; synthetic ends at index 3936\n[build_viz] TECL Health: 73.18 on 2026-06-17 (diagnostic only)\n[build_viz] Manifest: sha256=278272d663fe\u2026 built 2026-06-17T18:56:22+00:00\n[build_viz] North-star markers: 28\n[build_viz] Leaderboard entries: 12\n[build_viz] Family confidence leaders: 4\n[build_viz] Confidence v2 scores: 8\n[build_viz] Indexed 128 run-dir dashboard_data.json files\n[build_viz] Matched 12/12 leaderboard entries to run artifacts\n[build_viz] Freshness: data through 2026-06-17 \u00b7 signals through 2026-06-17 \u00b7 leaderboard 99ab0d17d68e\u2026\n[build_viz] Wrote /Users/maxhammons/Documents/Projects/Project Montauk/viz/montauk-viz.html (8.88 MB)\n[build_viz] Wrote /Users/maxhammons/Documents/Projects/Project Montauk/viz/montauk-bundle.json (8.64 MB)\n[build_viz] Done. Open with: open '/Users/maxhammons/Documents/Projects/Project Montauk/viz/montauk-viz.html'\n",
       "stderr_tail": ""
     },
     "followups": {
       "status": "ok",
       "live_holdout": {
         "status": "ok",
-        "snapshot_count": 20,
+        "snapshot_count": 21,
         "diverged_count": 0
       },
       "governance": {
-        "status": "replacement_candidate",
+        "status": "active_ok",
         "reasons": [
-          "replacement candidate available: chimera_v1_2026_05_26"
+          "active champion is Gold Status with current clean operations artifacts"
         ]
       },
       "strategy_review": {
@@ -429,7 +415,7 @@
         "best_certified": {
           "strategy": "chimera_v1_2026_05_26",
           "rank": null,
-          "display_name": "Jade Bonobo",
+          "display_name": "Chimera 1",
           "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
           "montauk_score": 0.6574,
           "confidence": 0.7684,
@@ -445,66 +431,28 @@
           "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
           "confidence": 0.7684,
           "score_label": "composite_confidence",
-          "data_end_date": "2026-06-12",
+          "data_end_date": "2026-06-17",
           "risk_state": "risk_off"
         }
       },
       "notifications": {
         "status": "ok",
-        "pending_count": 58
+        "pending_count": 61
       }
     }
   },
   "events": [
     {
-      "timestamp_utc": "2026-06-15T00:09:33Z",
+      "timestamp_utc": "2026-06-17T18:56:22Z",
       "severity": "info",
-      "event_type": "data_refreshed",
-      "message": "Data refresh added 27 new bars.",
+      "event_type": "data_refresh_skipped",
+      "message": "Data already refreshed today (2026-06-17); skipping the network pull.",
       "payload": {
+        "date": "2026-06-17",
+        "refreshed_utc": "2026-06-17T17:15:27Z",
         "updated": true,
-        "total_new_bars": 27,
-        "new_bars": {
-          "TECL": 3,
-          "VIX": 3,
-          "XLK": 3,
-          "QQQ": 3,
-          "TQQQ": 3,
-          "SGOV": 3,
-          "DTB3": 3,
-          "T10Y2Y": 3,
-          "DFF": 3
-        },
-        "data_end_date": "2026-06-12"
-      }
-    },
-    {
-      "timestamp_utc": "2026-06-15T00:09:43Z",
-      "severity": "notice",
-      "event_type": "signal_changed",
-      "message": "Montauk signal changed to risk_off.",
-      "payload": {
-        "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-12.json",
-        "change": {
-          "changed": true,
-          "reason": "field_change",
-          "changed_fields": [
-            "exit_signal"
-          ],
-          "previous_data_end_date": "2026-06-09",
-          "previous_risk_state": "risk_off"
-        },
-        "signal": {
-          "data_end_date": "2026-06-12",
-          "strategy": "chimera_v1_2026_05_26",
-          "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
-          "risk_state": "risk_off",
-          "entry_signal": false,
-          "exit_signal": false,
-          "buy_event": false,
-          "sell_event": false,
-          "close": 215.490005
-        }
+        "total_new_bars": 25,
+        "data_end_date": "2026-06-17"
       }
     }
   ]

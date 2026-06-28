@@ -65,12 +65,12 @@ layer over machinery that already works for one sector:
   principle; today it's pointed at TECL.
 - **The search + validation + certification pipeline** (4 phases) — already
   produces Gold champions from raw ideas.
-- **The idea-to-gold pipeline** (`2026-06-09-idea-to-gold-pipeline.md`) —
+- **The idea-to-gold pipeline** (`../Montauk 3.0/2026-06-09-idea-to-gold-pipeline.md`) —
   already describes a *zero-LLM, deterministic, nightly* miner with a hypothesis
   queue, bandit allocation, lifecycle rules, and a verdict ledger. **This is the
   single most important prior art** — the multi-sector machine is essentially
   *"run that pipeline per sector, plus a rotation brain, plus an agent layer."*
-- **The meta-strategy ensemble design** (`2026-04-23-meta-strategy-design.md`)
+- **The meta-strategy ensemble design** (`../Montauk 3.0/2026-04-23-meta-strategy-design.md`)
   — a confidence-weighted regime ensemble. Sector rotation is a close cousin:
   swap "weight strategies by regime" for "weight *sectors* by regime."
 - **The ops layer** (`runs/operations/`, events, notifications, the Mac app,

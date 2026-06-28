@@ -1,19 +1,19 @@
 {
   "schema_version": 1,
-  "date": "2026-06-14",
-  "refreshed_utc": "2026-06-15T00:09:33Z",
+  "date": "2026-06-17",
+  "refreshed_utc": "2026-06-17T17:15:27Z",
   "updated": true,
-  "total_new_bars": 27,
+  "total_new_bars": 25,
   "new_bars": {
     "TECL": 3,
-    "VIX": 3,
+    "VIX": 2,
     "XLK": 3,
     "QQQ": 3,
     "TQQQ": 3,
     "SGOV": 3,
-    "DTB3": 3,
-    "T10Y2Y": 3,
-    "DFF": 3
+    "DTB3": 2,
+    "T10Y2Y": 2,
+    "DFF": 4
   },
-  "data_end_date": "2026-06-12"
+  "data_end_date": "2026-06-17"
 }

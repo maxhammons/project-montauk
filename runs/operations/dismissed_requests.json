@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "dismissals": {
+    "automation.launch_agents": {
+      "area": "automation.launch_agents",
+      "severity": "advisory",
+      "dismissed_utc": "2026-06-17T19:27:10Z",
+      "note": "Manual use; daily jobs run when I open the app."
+    }
+  }
+}

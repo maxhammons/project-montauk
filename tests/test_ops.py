@@ -19,6 +19,13 @@ from ops.daily import (
 from ops.doctor import build_doctor_report
 from ops.events import append_event, read_events
 from ops.signal_chain import build_chain, chain_health, file_sha256, verify_chain
+from ops.acknowledge_warnings import (
+    acknowledge,
+    acknowledged_signatures_for,
+    load_acknowledgements,
+    partition_warnings,
+    warning_signature,
+)
 from ops.governance import build_governance, evaluate_governance
 from ops.install_launch_agent import (
     build_plist,
@@ -635,6 +642,213 @@ def test_governance_blocks_non_gold_active_champion() -> None:
 
     assert report["state"] == "active_blocked"
     assert "active champion is not Gold Status" in report["blockers"]
+
+
+def test_dismiss_round_trip_and_escalation(tmp_path) -> None:
+    from ops.dismiss_request import dismiss, is_dismissed, load_dismissals, restore
+
+    path = tmp_path / "dismissed.json"
+    dismiss("automation.launch_agents", "advisory", note="manual use", path=path)
+    data = load_dismissals(path)
+
+    # Suppressed while at/below the dismissed severity…
+    assert is_dismissed("automation.launch_agents", "advisory", data) is True
+    assert is_dismissed("automation.launch_agents", "info", data) is True
+    # …but an escalation re-surfaces it for a fresh decision.
+    assert is_dismissed("automation.launch_agents", "warning", data) is False
+    assert is_dismissed("automation.launch_agents", "critical", data) is False
+    # Unrelated areas are unaffected.
+    assert is_dismissed("data_quality", "warning", data) is False
+
+    assert restore("automation.launch_agents", path=path) is True
+    assert is_dismissed("automation.launch_agents", "advisory", load_dismissals(path)) is False
+
+
+def test_agent_report_splits_optional_and_honors_dismissals(monkeypatch) -> None:
+    import datetime as _dt
+
+    import ops.agent_report as agent_report
+
+    healthy = {
+        "active_signal": {
+            "data_end_date": _dt.date.today().isoformat(),
+            "validation": {"gold_status": True, "verdict": "PASS"},
+            "data_quality": {"fail": 0},
+            "warnings": [],
+        }
+    }
+    monkeypatch.setattr(agent_report, "_load_json", lambda path, default=None: {
+        agent_report.LATEST_PATH: healthy,
+        agent_report.GOVERNANCE_PATH: {"state": "active_ok"},
+        agent_report.LIVE_HOLDOUT_PATH: {"status": "ok", "diverged_count": 0},
+    }.get(path, default if default is not None else {}))
+    monkeypatch.setattr(agent_report, "read_events", lambda limit=200: [
+        {"event_type": "mystery_anomaly", "severity": "warning", "message": "new", "payload": {}},
+    ])
+    # A doctor advisory → a non-actionable item to bucket into `optional`.
+    import ops.doctor as doctor_mod
+    monkeypatch.setattr(
+        doctor_mod,
+        "build_doctor_report",
+        lambda: {"status": "advisory", "checks": [], "advisory_count": 3},
+    )
+    monkeypatch.setattr(agent_report, "load_dismissals", lambda: {"dismissals": {}})
+
+    report = agent_report.build_agent_report()
+    req_areas = {r["area"] for r in report["requests"]}
+    opt_areas = {r["area"] for r in report["optional"]}
+
+    # Warning event is actionable; advisory launch-agents is optional, not actionable.
+    assert "event.mystery_anomaly" in req_areas
+    assert "automation.launch_agents" in opt_areas
+    assert report["summary"]["actionable"] is True
+
+    # Dismiss the warning's area → it leaves `requests` and the inbox goes clean.
+    monkeypatch.setattr(
+        agent_report,
+        "load_dismissals",
+        lambda: {"dismissals": {"event.mystery_anomaly": {"severity": "warning"}}},
+    )
+    report2 = agent_report.build_agent_report()
+    assert all(r["area"] != "event.mystery_anomaly" for r in report2["requests"])
+    assert any(r["area"] == "event.mystery_anomaly" for r in report2["dismissed"])
+    assert report2["summary"]["actionable"] is False
+
+
+def test_agent_report_excludes_stale_but_surfaces_current_and_novel(monkeypatch) -> None:
+    import datetime as _dt
+
+    import ops.agent_report as agent_report
+
+    # Healthy current state: governance ok, live holdout ok, data quality clean.
+    healthy = {
+        "active_signal": {
+            "data_end_date": _dt.date.today().isoformat(),
+            "validation": {"gold_status": True, "verdict": "PASS"},
+            "data_quality": {"fail": 0},
+            "warnings": [],
+        }
+    }
+    monkeypatch.setattr(agent_report, "_load_json", lambda path, default=None: {
+        agent_report.LATEST_PATH: healthy,
+        agent_report.GOVERNANCE_PATH: {"state": "active_ok"},
+        agent_report.LIVE_HOLDOUT_PATH: {"status": "ok", "diverged_count": 0},
+    }.get(path, default if default is not None else {}))
+    monkeypatch.setattr(agent_report, "read_events", lambda limit=200: [
+        # Stale transient events whose conditions are now resolved — must NOT surface.
+        {"event_type": "champion_blocked", "severity": "error", "message": "blocked", "payload": {}},
+        {"event_type": "live_demotion", "severity": "error", "message": "demoted", "payload": {}},
+        {"event_type": "signal_snapshot_conflict", "severity": "warning", "message": "conflict", "payload": {}},
+        # A novel event with no dedicated current-state surface — must still surface.
+        {"event_type": "mystery_anomaly", "severity": "warning", "message": "something new", "payload": {}},
+    ])
+
+    report = agent_report.build_agent_report()
+    areas = {r["area"] for r in report["requests"]}
+
+    assert "event.mystery_anomaly" in areas  # novel event still surfaces
+    assert not any(a.startswith("event.champion_blocked") for a in areas)
+    assert not any(a.startswith("event.live_demotion") for a in areas)
+    assert not any(a.startswith("event.signal_snapshot_conflict") for a in areas)
+    # Current governance is healthy, so no governance request either.
+    assert "governance" not in areas
+
+
+def test_warning_signature_is_digit_invariant() -> None:
+    # Metric drift must not change a warning's identity.
+    assert warning_signature("execution realism: next-open degradation -12.2%") == warning_signature(
+        "execution realism: next-open degradation -12.4%"
+    )
+    # Distinct disclosures keep distinct signatures.
+    assert warning_signature("QQQ same-param share_multiple=0.441 < 0.50") != warning_signature(
+        "bootstrap downside probability 0.85 > 0.50"
+    )
+
+
+def test_acknowledge_round_trip_and_partition(tmp_path) -> None:
+    path = tmp_path / "acks.json"
+    warnings = [
+        "execution realism: next-open degradation -12.2%",
+        "event dependence: covid_crash exclusion collapses edge 81%",
+    ]
+    acknowledge("hash-A", warnings, strategy="chimera", note="reviewed", path=path)
+    # Re-acknowledging is idempotent (no duplicates).
+    acknowledge("hash-A", warnings, strategy="chimera", path=path)
+
+    data = load_acknowledgements(path)
+    assert len(data["acknowledgements"]["hash-A"]["warnings"]) == 2
+
+    sigs = acknowledged_signatures_for(data, "hash-A")
+    # Drifted metric still matches; a genuinely new warning does not.
+    active, acked = partition_warnings(
+        [
+            "execution realism: next-open degradation -13.9%",
+            "brand new check: foobar 0.9 < 1.0",
+        ],
+        sigs,
+    )
+    assert acked == ["execution realism: next-open degradation -13.9%"]
+    assert active == ["brand new check: foobar 0.9 < 1.0"]
+    # Acks are config-scoped: a different params_hash sees nothing.
+    assert acknowledged_signatures_for(data, "hash-B") == set()
+
+
+def test_governance_excludes_acknowledged_warnings() -> None:
+    latest = {
+        "active_signal": {
+            "data_end_date": "2026-05-08",
+            "risk_state": "risk_on",
+            "active_champion": {"strategy": "chimera", "params_hash": "hash-A"},
+            "validation": {"verdict": "PASS", "gold_status": True},
+            "data_quality": {"fail": 0},
+            "warnings": [
+                "execution realism: next-open degradation -12.2%",
+                "bootstrap downside probability 0.85 > 0.50",
+            ],
+        }
+    }
+    acknowledgements = {
+        "schema_version": 1,
+        "acknowledgements": {
+            "hash-A": {
+                "strategy": "chimera",
+                "warnings": [
+                    {"signature": warning_signature("execution realism: next-open degradation -12.2%")},
+                    {"signature": warning_signature("bootstrap downside probability 0.85 > 0.50")},
+                ],
+            }
+        },
+    }
+
+    report = evaluate_governance(
+        latest,
+        {"diverged_count": 0},
+        {"status": "on_best_certified"},
+        max_stale_calendar_days=999,
+        acknowledgements=acknowledgements,
+    )
+
+    assert report["state"] == "active_ok"
+    assert report["warnings_summary"] == {
+        "active": 0,
+        "acknowledged": 2,
+        "active_warnings": [],
+        "acknowledged_warnings": [
+            "execution realism: next-open degradation -12.2%",
+            "bootstrap downside probability 0.85 > 0.50",
+        ],
+    }
+    # An unacknowledged warning on the same config keeps governance watching.
+    latest["active_signal"]["warnings"].append("unreviewed: new risk 1.0")
+    report2 = evaluate_governance(
+        latest,
+        {"diverged_count": 0},
+        {"status": "on_best_certified"},
+        max_stale_calendar_days=999,
+        acknowledgements=acknowledgements,
+    )
+    assert report2["state"] == "active_watch"
+    assert report2["warnings_summary"]["active"] == 1
 
 
 def test_governance_flags_replacement_candidate_state() -> None:
@@ -1334,9 +1548,14 @@ def test_evaluate_demotion_threshold_logic() -> None:
     assert below_floor["demote"] is True
     assert any("live_vs_bah_multiple" in reason for reason in below_floor["reasons"])
 
-    degraded = evaluate_demotion(live(25, 0.90, -20.0))
-    assert degraded["demote"] is True
-    assert any("degradation" in reason for reason in degraded["reasons"])
+    # Removed 2026-06-17: the backtest-vs-live degradation trigger compared a
+    # short-window live ratio against the full-history share multiple
+    # (incommensurable) and fired on every leveraged champion. A large
+    # full-history degradation with a healthy live trust proxy must NOT demote.
+    not_degraded = evaluate_demotion(live(25, 0.90, -97.0))
+    assert not_degraded["demote"] is False
+    assert not_degraded["reasons"] == []
+    assert "degradation_floor" not in not_degraded["evidence"]["thresholds"]
 
     # Awful numbers on a tiny live sample are noise, not evidence.
     insufficient = evaluate_demotion(live(5, 0.50, -90.0))

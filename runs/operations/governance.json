@@ -1,33 +1,47 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-06-15T03:14:05Z",
+  "generated_utc": "2026-06-17T18:57:00Z",
   "version_info": {
     "schema_version": 1,
-    "generated_utc": "2026-06-15T03:14:05Z",
+    "generated_utc": "2026-06-17T18:57:00Z",
     "app_version": "0.1.0",
-    "git_commit": "693eab1",
+    "git_commit": "3715f54",
     "git_dirty": true,
-    "strategy_code_version": "693eab1"
+    "strategy_code_version": "3715f54"
   },
-  "state": "active_watch",
+  "state": "active_ok",
   "reasons": [
-    "9 validation warnings are active"
+    "active champion is Gold Status with current clean operations artifacts"
   ],
   "blockers": [],
-  "advisories": [
-    "9 validation warnings are active"
-  ],
+  "advisories": [],
   "review_reasons": [],
-  "stale_calendar_days": 2,
+  "stale_calendar_days": 0,
+  "warnings_summary": {
+    "active": 0,
+    "acknowledged": 9,
+    "active_warnings": [],
+    "acknowledged_warnings": [
+      "n_params=53 exceeds regime_transitions=19",
+      "[T2] missed_marker_cycles=9 > 5 (informational)",
+      "[T2] transition_timing=0.184 < 0.30 (informational)",
+      "concentration: bull_hhi=0.257 bear_hhi=0.128 dom=3.13x",
+      "2021_2022_bear: zero trades (sat out, share_multiple=3.239)",
+      "QQQ same-param share_multiple=0.441 < 0.50",
+      "execution realism: next-open degradation -12.2%",
+      "bootstrap downside probability 0.85 > 0.50",
+      "event dependence: covid_crash exclusion collapses edge 81%"
+    ]
+  },
   "active_signal": {
-    "data_end_date": "2026-06-12",
+    "data_end_date": "2026-06-17",
     "risk_state": "risk_off",
     "strategy": "chimera_v1_2026_05_26",
     "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1"
   },
   "live_holdout": {
     "status": "ok",
-    "snapshot_count": 20,
+    "snapshot_count": 21,
     "diverged_count": 0,
     "confidence_drift": {
       "start": 0.7594,
@@ -36,29 +50,26 @@
     },
     "active_champion_performance_since_live_start": {
       "start_date": "2026-05-08",
-      "latest_date": "2026-06-12",
+      "latest_date": "2026-06-17",
       "strategy": "chimera_v1_2026_05_26",
       "signal_return_pct": 6.0931,
-      "buy_hold_return_pct": 12.8486,
-      "live_vs_buy_hold_multiple_proxy": 0.9401
+      "buy_hold_return_pct": 18.8736,
+      "live_vs_buy_hold_multiple_proxy": 0.8925
     },
     "demotion": {
       "demote": false,
-      "reasons": [
-        "insufficient live evidence (20/21)"
-      ],
+      "reasons": [],
       "evidence": {
-        "n_snapshots": 20,
+        "n_snapshots": 21,
         "min_snapshots": 21,
         "diverged_count": 0,
-        "live_vs_bah_multiple": 0.9401,
-        "degradation_fraction": -0.973277,
+        "live_vs_bah_multiple": 0.8925,
+        "degradation_fraction_diagnostic": -0.974632,
         "thresholds": {
-          "live_vs_bah_floor": 0.85,
-          "degradation_floor": -0.15
+          "live_vs_bah_floor": 0.85
         }
       },
-      "checked_utc": "2026-06-15T00:10:14Z"
+      "checked_utc": "2026-06-17T18:57:00Z"
     }
   },
   "strategy_review": {
@@ -69,7 +80,7 @@
       "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
       "confidence": 0.7684,
       "score_label": "composite_confidence",
-      "data_end_date": "2026-06-12",
+      "data_end_date": "2026-06-17",
       "risk_state": "risk_off"
     },
     "best_certified": {

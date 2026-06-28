@@ -80,6 +80,17 @@ the machine — the optimizer, the agent, and the schedule may not bend them.
   falsifies the active champion and demotes it automatically. Forward truth, not
   stored stamps, is the final authority.
 
+**The validation engine is the north star.** The pipeline is three steps —
+**(1)** the bucket (authoring), **(2)** backtest + parameter tuning, **(3)** the
+validation engine (overfit detection + robustness). Steps 1–2 exist to *feed* Step
+3, and the whole machine's credibility reduces to that engine's rigor. The standing
+standard: **by the time a strategy is Gold it must be defensible, auditable,
+testable, and able to survive academic or professional critique, with very little
+doubt about its forward edge.** Because Montauk 3.0 makes generation far more
+powerful (billions of combos, auto-enter, grind-constantly), **the bar rises with
+the search — never falls.** The current-state audit, gap register, and hardening
+backlog live in [validation-engine-hardening.md](validation-engine-hardening.md).
+
 ---
 
 ## 3. The load-bearing seam: authoring vs. the deterministic pipeline
@@ -285,45 +296,43 @@ These are the forks the owner has **not** yet settled. They are consolidated her
 from the pillar docs so the charter conversation happens in one place. **Do not
 implement past a decision until it is marked DECIDED here.**
 
-- **Q1 — Asset universe: TECL-only or multi-sector?** Does Montauk stay TECL-only
-  (multi-sector as a separate future project), or does the charter formally expand
-  to a sector universe (which leveraged/unleveraged ETFs)? Everything in the
-  multi-sector doc and the "more independent regimes" lever depends on this. The
-  current charter's "TECL-only" is a hard non-negotiable, so this is an explicit
-  amendment, not a drift. *(Source: multi-sector Q1, search-expansion Q1.)*
+**Status (updated 2026-06-17) — resolved calls live in [decisions.md](decisions.md):**
+- **Q1 → DECIDED:** TECL-only, long/flat. The multi-asset / sector-rotation expansion
+  (the former Q1–Q3: asset universe, action space, goal function) is now **Montauk 4.0**,
+  moved out of this folder to keep 3.0 cleanly single-asset → see `../Montauk 4.0/`.
+- **Q5 → DECIDED (refined):** the deterministic pipeline publishes Gold to a **staging
+  leaderboard**; the owner **manually admits** to the authority board, and the active
+  traded strategy never changes without a human.
+- **DESIGN LAW LOCKED (2026-06-17):** *the bar rises with the search, never falls.* As
+  generation scales (auto-enter, billions of combos), the validation engine gets
+  correspondingly harder — making **Q6 (breadth deflation) a hard prerequisite** before
+  high-volume auto-enter goes live (validation-engine-hardening.md, G1).
+- **Still open:** Q6 (breadth deflation — locked as a prerequisite; mechanism TBD), Q7
+  (unify the bucket), Q8 (budget ceiling).
+- **Default (effectively decided):** Q4 — execution stays **manual** for 3.0.
+- **New decisions** — the *appliance* principle (dumb deterministic churner, no on-box
+  AI), no local agent, auto-enter intake, the error-code maintenance model, the hard
+  data-integrity rule, chimera triggers, and the validation north star — are all in
+  decisions.md.
 
-- **Q2 — Action space: widen what a strategy can *do*?** Add a defensive SGOV leg
-  (highest-leverage, cheapest, safest first move), then position sizing, then
-  inverse/short? And is the **`≤5 trades/year` cap** frozen Gold or amendable
-  charter style? (It physically lives in Gate 1 but is a style preference, not an
-  overfit check — arguably the second-biggest cause of the monoculture.) *(Source:
-  search-expansion Q1–Q4, Q6.)*
+> **Q1–Q3 moved to Montauk 4.0.** Asset universe, action-space expansion (SGOV leg /
+> sizing / shorts), and the goal function under expansion all depend on the same charter
+> amendment and are tracked in `../Montauk 4.0/`. Montauk 3.0 is TECL-only, long/flat.
 
-- **Q3 — Goal function under any expansion.** Single-asset Montauk optimizes
-  *share_multiple vs B&H TECL*. A defensive/sizing strategy that parks in SGOV
-  needs a defined rule to convert that leg back to TECL-share-equivalent. A
-  multi-sector fleet needs a cross-asset goal (shares aren't comparable across
-  assets). The benchmark logic stays "beat B&H of the thing you trade," but the
-  metric's reading of new position states must be specified. *(Source:
-  multi-sector Q2, search-expansion Q3/Q4.)*
+- **Q4 — Execution model.** Manual (machine proposes, owner executes) for 3.0 — the safe
+  default. A bounded broker integration with hard caps is deferred: major
+  scope/risk/trust, paper-first if ever. *(Source: idea-to-gold #7.)*
 
-- **Q4 — Execution model.** Stay manual (machine proposes, owner executes) — the
-  current default and the safe one — or a bounded broker integration with hard
-  caps? The charter currently forbids broker integration; this is a major
-  scope/risk/trust decision, paper-first for a long time if ever. *(Source:
-  multi-sector Q5/Q6.)*
+- **Q5 — Autonomy boundaries.** Resolved by the staging gate (D4): the agent may mine,
+  validate, certify, publish to *staging*, propose, and alert — but NOT auto-admit to the
+  authority board, NOT auto-activate a champion onto real money, NOT amend its own bar.
+  Still to specify: the kill-switches / circuit-breakers / drawdown halts. *(Source:
+  idea-to-gold #7.)*
 
-- **Q5 — Autonomy boundaries.** Exactly what may the agent do unattended? The
-  working answer: mine, validate, certify, auto-*admit* to the board, propose,
-  alert — but NOT auto-*activate* a champion onto real money, NOT promote without
-  the executed checks, NOT amend its own bar. Where precisely is the line, and what
-  are the kill-switches / circuit-breakers / drawdown halts? This is the trust
-  core. *(Source: idea-to-gold #7, multi-sector Q5.)*
-
-- **Q6 — Breadth deflation (the false-Gold fix).** Adopt "count generated ideas,
-  not just mined ones" and feed authoring breadth into the multiplicity correction
-  *before* scaling the bucket. Strongly recommended as a hard prerequisite, not
-  optional. *(Source: idea-to-gold improvement #1.)*
+- **Q6 — Breadth deflation (the false-Gold fix).** **Locked as a hard prerequisite
+  (2026-06-17).** Count *generated* families, not just mined configs, and feed authoring
+  breadth into the multiplicity correction *before* scaling the bucket. Mechanism is the
+  top hardening-backlog item. *(Source: idea-to-gold #1; validation-engine-hardening G1.)*
 
 - **Q7 — Unify the bucket front door.** Reconcile `runs/research_queue/` (built),
   the proposed `spike/ideas/*.md` + `spike/hypothesis-queue.json`, and the
@@ -331,43 +340,42 @@ implement past a decision until it is marked DECIDED here.**
   location. First concrete build task; needs a one-time decision so we don't ship a
   third parallel queue. *(Source: idea-to-gold build plan + current repo state.)*
 
-- **Q8 — Hardware, budget, hosting.** What machine is the always-on server, what
-  does 24/7 mining + remote authoring + continuous data actually cost per month,
-  and what is the budget ceiling that the compute governor enforces? *(Source:
-  multi-sector Q7.)*
+- **Q8 — Hardware, budget, hosting.** What machine is the always-on server (the
+  appliance — D2/D3, hardware TBD), what does 24/7 mining + remote authoring + continuous
+  data cost per month, and what budget ceiling does the compute governor enforce?
 
 ---
 
 ## 11. Phasing (de-risk incrementally — illustrative, not committed)
 
-Each phase is a real stopping point that delivers value alone. Riskiest,
-least-reversible pieces (real-money autonomy, multi-sector) come last and stay
-optional.
+Each phase is a real stopping point that delivers value alone. The
+least-reversible piece (real-money autonomy) comes last and stays optional. The
+multi-asset / action-space expansion is **out of 3.0 entirely** — it is Montauk 4.0
+(`../Montauk 4.0/`).
 
 1. **Unify the bucket + ship the idea→gold front door** (idea-to-gold build plan).
    Formalize the `.md` idea format, the queue brain, the authoring entrypoint, and
-   the bounded-duration drain. Resolves Q6 (breadth deflation) and Q7 (one bucket).
-2. **Harden the always-on loop.** Wire the existing ops skeleton
+   the bounded-duration drain. Resolves Q7 (one bucket).
+2. **Bulletproof the validation engine** — run the hardening backlog (breadth
+   deflation first, then the line-by-line correctness audit and board-level
+   multiple-testing) so every Gold is academically defensible. This is the **north
+   star** and runs alongside everything, not after it
+   (`validation-engine-hardening.md`).
+3. **Harden the always-on loop.** Wire the existing ops skeleton
    (`scheduler` + launchd + `research_runner` + `live_holdout` + `notifications`)
    into a continuous, self-restocking, self-escalating loop with a compute governor
    and funnel instrumentation. Still TECL-only, still manual execution.
-3. **Ship the monitoring surface.** iOS companion app + widget + flip push, so the
+4. **Ship the monitoring surface.** iOS companion app + widget + flip push, so the
    owner can leave the machine alone and still feel the signals
    (`2026-06-10-ios-companion-app.md`).
-4. **Chimera breeding** from leaderboard winners, routed back through the bucket and
+5. **Chimera breeding** from leaderboard winners, routed back through the bucket and
    the unchanged gate (`2026-04-23-meta-strategy-design.md`).
-5. **Action-space expansion** (only if Q1/Q2 say so) — SGOV defensive leg first,
-   each behind a flag, each re-confirming Layer-1 integrity before it counts
-   (`2026-06-15-montauk-search-expansion.md`).
-6. **Multi-sector fleet + rotation brain** (only if Q1 says so) — generalize the
-   per-asset pipeline, then add a *separately validated* rotation overlay
-   (`2026-06-14-multi-sector-autonomous-machine.md`).
-7. **Bounded execution** (only if Q4/Q5 settled, paper-first) — the last, most
+6. **Bounded execution** (only if Q4/Q5 settled, paper-first) — the last, most
    optional, most gated piece.
 
-The ordering matters: **prove the always-on conveyor honest at one asset (1–4)
-before widening what it trades (5) or how many assets (6), and put any real-money
-autonomy dead last (7).**
+The ordering matters: **prove the always-on conveyor honest *and* bulletproof the
+validation engine at one asset before anything else; real-money autonomy dead last;
+the multi-asset expansion is a separate release (Montauk 4.0).**
 
 ---
 
@@ -377,14 +385,17 @@ This charter is the umbrella; the detail lives in the pillar docs in this folder
 (see [README.md](README.md) for the map):
 
 - **The conveyor:** [2026-06-09-idea-to-gold-pipeline.md](2026-06-09-idea-to-gold-pipeline.md)
-- **The always-on / multi-sector runtime:** [2026-06-14-multi-sector-autonomous-machine.md](2026-06-14-multi-sector-autonomous-machine.md)
-- **The action space:** [2026-06-15-montauk-search-expansion.md](2026-06-15-montauk-search-expansion.md)
+- **The validation engine (north star):** [validation-engine-hardening.md](validation-engine-hardening.md)
 - **Chimeras:** [2026-04-23-meta-strategy-design.md](2026-04-23-meta-strategy-design.md)
 - **The monitoring surface:** [2026-06-10-ios-companion-app.md](2026-06-10-ios-companion-app.md)
+- **Resolved decisions:** [decisions.md](decisions.md)
+
+The multi-asset / action-space expansion (the multi-sector-machine + search-expansion
+docs) has moved to **`../Montauk 4.0/`** — a separate, later release, out of 3.0 scope.
 
 ---
 
-*Draft for the charter conversation. The next move is the owner working through
-the Decision Register (§10) — start with Q1 (asset universe), Q6 (breadth
-deflation), and Q7 (unify the bucket), since the rest branch off those. Code comes
-after the decisions, never before them.*
+*Draft for the charter conversation. The next moves: the validation-engine hardening
+backlog (the north star), then the remaining open items in §10 — Q6 (breadth deflation,
+a locked prerequisite), Q7 (unify the bucket), Q8 (budget). Code comes after the
+decisions, never before them.*

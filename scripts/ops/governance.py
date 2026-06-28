@@ -11,6 +11,11 @@ SCRIPTS_DIR = Path(__file__).resolve().parents[1]
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
+from ops.acknowledge_warnings import (
+    acknowledged_signatures_for,
+    load_acknowledgements,
+    partition_warnings,
+)
 from ops.events import append_event, utc_now_iso
 from ops.paths import GOVERNANCE_PATH, LATEST_PATH, LIVE_HOLDOUT_PATH, STRATEGY_REVIEW_PATH, ensure_ops_dirs
 from ops.versioning import version_info
@@ -48,10 +53,12 @@ def evaluate_governance(
     max_stale_calendar_days: int = 5,
     min_confidence_drift: float = -0.05,
     min_live_vs_buy_hold_multiple: float = 0.85,
+    acknowledgements: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     latest_operation = latest_operation or {}
     live_holdout = live_holdout or {}
     strategy_review = strategy_review or {}
+    acknowledgements = acknowledgements or {}
     signal = latest_operation.get("active_signal") or latest_operation.get("latest_signal") or {}
     validation = signal.get("validation") or {}
     data_quality = signal.get("data_quality") or {}
@@ -100,9 +107,16 @@ def evaluate_governance(
     elif stale_days > max_stale_calendar_days:
         advisories.append(f"data is {stale_days} calendar days stale")
 
-    warnings = signal.get("warnings") or []
-    if warnings:
-        advisories.append(f"{len(warnings)} validation warnings are active")
+    # Acknowledged warnings are honest, human-accepted risk disclosures for this
+    # exact config (keyed on params_hash). They stay in the validation record but
+    # drop out of the "active" count so they stop re-surfacing as fresh attention
+    # items. See scripts/ops/acknowledge_warnings.py.
+    all_warnings = signal.get("warnings") or []
+    params_hash = (signal.get("active_champion") or {}).get("params_hash")
+    acked_signatures = acknowledged_signatures_for(acknowledgements, params_hash)
+    active_warnings, acknowledged_warnings = partition_warnings(all_warnings, acked_signatures)
+    if active_warnings:
+        advisories.append(f"{len(active_warnings)} validation warnings are active")
 
     if blockers:
         state = "active_blocked"
@@ -130,6 +144,12 @@ def evaluate_governance(
         "advisories": advisories,
         "review_reasons": review_reasons,
         "stale_calendar_days": stale_days,
+        "warnings_summary": {
+            "active": len(active_warnings),
+            "acknowledged": len(acknowledged_warnings),
+            "active_warnings": active_warnings,
+            "acknowledged_warnings": acknowledged_warnings,
+        },
         "active_signal": {
             "data_end_date": signal.get("data_end_date"),
             "risk_state": signal.get("risk_state"),
@@ -167,6 +187,7 @@ def build_governance(
         _load_json(latest_path, {}),
         _load_json(live_holdout_path, {}),
         _load_json(strategy_review_path, {}),
+        acknowledgements=load_acknowledgements(),
     )
     _write_json(output_path, report)
     previous_signal = previous.get("active_signal") or {}

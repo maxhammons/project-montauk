@@ -23,13 +23,16 @@ fixed stale links). Keep this map accurate when adding files.
 
 ## Backlog — `*NEXT/`
 Canonical outstanding work.
-- `Montauk 3.0/` — **the forward vision**: an always-on server that runs the
-  deterministic idea→Gold pipeline 24/7, refreshes its own data, hosts the app,
-  watches for signal flips, and breeds chimeras — orchestrated by a small local
-  agent + remote Claude. Start at `Montauk 3.0/README.md`; the governing draft is
-  `Montauk 3.0/charter.md`. Holds the five pillar docs (idea-to-gold conveyor,
-  multi-sector/always-on runtime, search/action-space expansion, meta-strategy
-  chimeras, iOS companion).
+- `Montauk 3.0/` — **the forward vision**: a TECL-only always-on *appliance* server
+  that runs the deterministic idea→Gold pipeline 24/7 behind a **bulletproof
+  validation engine** (the north star), refreshes its own data, hosts the app,
+  watches for signal flips, and breeds chimeras. Start at `Montauk 3.0/README.md`;
+  governing draft `Montauk 3.0/charter.md`; resolved calls `Montauk 3.0/decisions.md`;
+  the validation hardening plan `Montauk 3.0/validation-engine-hardening.md`. Pillars:
+  idea-to-gold conveyor, meta-strategy chimeras, iOS companion.
+- `Montauk 4.0/` — **the next release after 3.0**: trading beyond TECL long/flat — a
+  wider action space (SGOV leg / sizing / shorts) and a multi-sector rotation fleet.
+  Deferred until 3.0 is real.
 - `archive/` — executed plans (incl. the completed 2026-06-09 gold-standard remediation plan and the adjudicated deep-validation audit)
 
 ## App — `app/`

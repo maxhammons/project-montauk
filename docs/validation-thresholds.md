@@ -466,8 +466,20 @@ defended. Implemented in `scripts/ops/live_holdout.py::evaluate_demotion`
 | Trigger | Threshold | Sample-size gate |
 |---|---|---|
 | Live trust proxy | `live_vs_bah_multiple < 0.85` | ≥ 21 live snapshots (~1 trading month) |
-| Backtest-vs-live degradation | degradation fraction `< -0.15` (live multiple ≥ 15% short of the certified backtest share multiple) | ≥ 21 live snapshots |
 | Replay divergence | `diverged_count > 0` (replay disagrees with the immutable signal record) | none — correctness violations fire at any sample size |
+
+> **Removed 2026-06-17 — backtest-vs-live degradation trigger.** The original
+> rule also demoted when a "degradation fraction" fell below `-0.15`. That
+> fraction divided the live trust proxy (a ~6-week relative-return ratio, ≈1.0
+> by construction) by the certified **full-history** share multiple (decades of
+> cumulative accumulation, e.g. 35x) — incommensurable quantities. The check
+> fired on every leveraged Gold champion the moment it reached 21 snapshots
+> regardless of live tracking (avoiding it would require beating B&H ~30x in six
+> weeks), and anchoring on a full-history multiple contradicts the project's
+> "full-history numbers are diagnostic-only" principle. Forward falsification now
+> rests on the live trust proxy floor and replay divergence; the full-history
+> degradation survives as a labeled diagnostic (`degradation_fraction_diagnostic`)
+> in the live-holdout payload only.
 
 With fewer than 21 snapshots and no divergence, the verdict is always
 `demote=False` with reason `insufficient live evidence (n/21)` — performance
@@ -488,3 +500,31 @@ emitted, and the demotion block is stamped onto the active leaderboard row
 (`live_demotion`). After the Phase-4 recertification pass it additionally
 becomes an eligibility gate at leaderboard sync — demoted rows are excluded
 from the active-champion pick, not just flagged.
+
+## Warning acknowledgment layer (2026-06-17)
+
+Layer-2 warnings are honest, *measured* properties of a strategy (event
+dependence, weak cross-asset portability, parameter parsimony, …) — never bugs
+to silence. But once a human has reviewed and accepted those known risks for a
+specific config, re-surfacing them every run as fresh "attention" items is
+noise. `scripts/ops/acknowledge_warnings.py` records acknowledgments in
+`runs/operations/acknowledged_warnings.json`, and `governance.py` excludes
+acknowledged warnings from the *active* count that drives the
+`"N validation warnings are active"` advisory.
+
+- **Keyed on `params_hash`** — the exact config. If a strategy's params change,
+  the hash changes and previously-accepted warnings auto-resurface; a new config
+  has not been reviewed.
+- **Matched on a digit-normalized signature** (`warning_signature`: all digit
+  runs → `#`) so a drifting metric (`-12.2%` → `-12.4%`) does not
+  un-acknowledge an accepted warning, while a genuinely new warning stays active
+  and re-raises governance.
+- **Never deleted from the validation record.** Acknowledged warnings remain in
+  the signal/validation output; governance reports both counts
+  (`warnings_summary.active` / `warnings_summary.acknowledged`). When every
+  active warning is acknowledged (and nothing else is open), governance reaches
+  `active_ok` — the dashboard reads "clean" because the known risks were
+  explicitly accepted, not hidden.
+- **Acknowledge via** `python scripts/ops/acknowledge_warnings.py active`
+  (acks the active champion's current warnings); `… list` / `… clear <hash>`
+  to inspect or revoke.
