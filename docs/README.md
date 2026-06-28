@@ -22,10 +22,14 @@ fixed stale links). Keep this map accurate when adding files.
 - `project-status.md` — current implementation state; §2b is the 2026-06-09 remediation record
 
 ## Backlog — `*NEXT/`
-Canonical outstanding work. Active now:
-- `2026-06-09-idea-to-gold-pipeline.md` — hypothesis-queue build plan (idea bucket → deterministic Gold conveyor)
-- `2026-04-23-meta-strategy-design.md` — regime-ensemble meta-strategy (design-only; pipeline fodder)
-- `2026-05-app-ux-notes.md` — open app UX notes
+Canonical outstanding work.
+- `Montauk 3.0/` — **the forward vision**: an always-on server that runs the
+  deterministic idea→Gold pipeline 24/7, refreshes its own data, hosts the app,
+  watches for signal flips, and breeds chimeras — orchestrated by a small local
+  agent + remote Claude. Start at `Montauk 3.0/README.md`; the governing draft is
+  `Montauk 3.0/charter.md`. Holds the five pillar docs (idea-to-gold conveyor,
+  multi-sector/always-on runtime, search/action-space expansion, meta-strategy
+  chimeras, iOS companion).
 - `archive/` — executed plans (incl. the completed 2026-06-09 gold-standard remediation plan and the adjudicated deep-validation audit)
 
 ## App — `app/`

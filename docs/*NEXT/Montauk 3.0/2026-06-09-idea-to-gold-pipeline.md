@@ -145,7 +145,7 @@ sessions inherit memory.
 ## Build plan
 
 **Backbone (shared by authoring + drain):**
-- [ ] 1. `spike/ideas/*.md` format + parser; `spike/hypothesis-queue.json` schema (derived from the `.md` set); seed with the 10 current nh_ families (`implemented: true, status: mining`) and the meta-strategy design (`status: queued`, spec-only — see `*NEXT/2026-04-23-meta-strategy-design.md`)
+- [ ] 1. `spike/ideas/*.md` format + parser; `spike/hypothesis-queue.json` schema (derived from the `.md` set); seed with the 10 current nh_ families (`implemented: true, status: mining`) and the meta-strategy design (`status: queued`, spec-only — see `2026-04-23-meta-strategy-design.md`)
 - [ ] 2. Queue module `scripts/search/hypothesis_queue.py`: load/save, `.md`↔queue sync, lifecycle transitions (pure functions, unit-tested), bandit allocator (seeded Thompson over Beta posteriors), verdict writer
 - [ ] 3. Wire into spike-drain (deterministic drain): evolve() gets a per-family compute-weight map from the allocator; post-run stats + transitions applied; roster auto-updated on exhaust/condemn; **only consumes `implemented: true` families**
 
