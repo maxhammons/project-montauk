@@ -30,9 +30,12 @@ This clarifies the vision substantially. Two existing 3.0 decisions are now effe
      > correctness failure under the current Montauk validation contract. Gold is fit to trade, but not guaranteed to
      > succeed in every future market.”
 
+Edited:
+> “Gold means the strategy beats TECL buy-and-hold *in all real data* and has no detected overfitting or correctness failure under the current Montauk validation contract. Gold is fit to trade, but *and guaranteed to succeed, in so far as Project Montauk can assure* in every future market.”
+
   2. If not, what part feels too weak?
   3. Should Gold require beating B&H in:
-      - Real and modern eras only, with synthetic history diagnostic
+      - Real and modern eras only, with synthetic history diagnostic - yes this. The synthetic history is diagnostic and meant for testing only. But what actually ddetermines gold is real data. IF the strategy completely bombs out and is horrendous in the synthetic data then that is a red flag. Also I prefer the strategy to beat bxh through all era including synthetic (it gives me more confidence) 
       - Full, real, and modern eras, as today
       - Real and modern eras plus minimum performance in named stress windows
       - Something else
@@ -40,9 +43,10 @@ This clarifies the vision substantially. Two existing 3.0 decisions are now effe
   4. Should Gold performance be calculated using the actual expected workflow—signal after close, execution at next
      available price—or may close-fill backtests remain the certification numbers if execution degradation is separately
      tested?
+I think we want to use the close price? I think thats whats. In the backtest data currently.
 
   5. Which mistake is worse?
-      - A false Gold strategy gets admitted
+      - A false Gold strategy gets admitted - this is slightly worse. Bad that we missed a good strategy but ill take loss of upside over potential unlimited downside.
       - A genuinely good strategy is rejected
       - Both equally
 
