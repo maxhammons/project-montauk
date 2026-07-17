@@ -1,0 +1,300 @@
+This clarifies the vision substantially. Two existing 3.0 decisions are now effectively superseded:
+
+  - The machine is not purely a “dumb churner.” It has a scheduled, model-agnostic frontier agent that authors
+    strategies, studies results, and restocks the pipeline. The Gold verdict remains deterministic.
+
+  - There is no staging board or Trade Roster. Gold candidates automatically enter the leaderboard; only changing the
+    active strategy requires human approval.
+
+  My current one-sentence understanding is:
+
+  > Montauk 3.0 is a personal, always-on TECL research appliance where an AI agent continuously invents executable
+  > strategy candidates, a deterministic pipeline backtests and validates them, every qualifying Gold strategy
+  > automatically joins the leaderboard, and Montauk recommends—but does not normally activate—a new leader without
+  > Max’s approval.
+
+  One important boundary needs to be explicit: no validation system can guarantee that a strategy is not overfit in an
+  absolute sense or that its next call will be correct. Gold can guarantee that no overfitting was detected by Montauk’s
+  versioned, reproducible validation suite. A strategy can still fail because markets change. If 3.0 is defined as
+  “never makes a wrong call,” it is impossible to complete. If it is defined as “uses the strongest honest process
+  available, exposes remaining weaknesses, and quickly demotes strategies when reality contradicts them,” it is
+  buildable.
+
+  ## Round 2 — the operating contract
+
+  ### A. Gold and correctness
+
+  1. Is this acceptable Gold language?
+
+     > “Gold means the strategy beats TECL buy-and-hold under the required periods and has no detected overfitting or
+     > correctness failure under the current Montauk validation contract. Gold is fit to trade, but not guaranteed to
+     > succeed in every future market.”
+
+  2. If not, what part feels too weak?
+  3. Should Gold require beating B&H in:
+      - Real and modern eras only, with synthetic history diagnostic
+      - Full, real, and modern eras, as today
+      - Real and modern eras plus minimum performance in named stress windows
+      - Something else
+
+  4. Should Gold performance be calculated using the actual expected workflow—signal after close, execution at next
+     available price—or may close-fill backtests remain the certification numbers if execution degradation is separately
+     tested?
+
+  5. Which mistake is worse?
+      - A false Gold strategy gets admitted
+      - A genuinely good strategy is rejected
+      - Both equally
+
+  6. Does one bad buy/sell call mean validation failed, or should failure be measured over a period?
+  7. What live result would prove that a Gold strategy should lose Gold: falling behind B&H over a rolling period,
+     replay divergence, unexpected drawdown, repeated bad calls, or a combination?
+
+  8. Should an automatically AI-authored strategy always be treated as T2/high-selection-bias, even if its rules are
+     simple?
+
+  9. Should a genuinely pre-registered human strategy retain a lighter T0/T1 route, or would simplicity improve if every
+     candidate faced the complete validation suite?
+
+  10. You used a two-EMA crossover as an example. Should it pass the overfit portion if correctly implemented and
+     structurally simple, even when it fails Gold because it does not beat B&H?
+
+  ### B. What the AI agent is allowed to do
+
+  11. Does “no local AI” mean no locally hosted model, while a scheduled agent on the Mac mini may call Claude or
+     another remote frontier model every hour?
+
+  12. Would the agent operate through an API, an automated coding-agent subscription, or should the implementation
+     remain provider-agnostic enough to support either?
+
+  13. May the agent automatically write executable strategy code? This was unanswered in question 54 and is the largest
+     remaining architecture decision.
+
+  14. If yes, may it only add new isolated strategy modules, or may it edit existing strategy implementations?
+  15. May it ever edit the backtest engine, validation suite, Gold thresholds, ranking formula, data pipeline, or
+     operations layer without you explicitly asking?
+
+  My recommendation is an absolute no.
+
+  16. Should generated strategy code be automatically committed to Git, or kept as generated research code until it
+     reaches Gold?
+
+  17. Should every generated strategy have an automatic rollback point so a broken addition cannot damage the previous
+     functioning system?
+
+  18. How should generated code be constrained? For example: no network access, no filesystem writes, no subprocesses,
+     deterministic output, and signals derived only from supplied historical arrays.
+
+  19. Which representation sounds preferable?
+
+  - Arbitrary Python strategy modules: most creative, hardest to secure
+  - A typed strategy language/DSL: safest and easiest to search, less expressive
+  - Approved Python building blocks that the agent composes: middle ground
+  - Start with constrained composition and permit isolated Python for novel ideas
+
+  20. For an idea to be “ready for the deterministic pipeline,” should it include:
+
+  - Executable strategy logic
+  - Declared parameter search space
+  - Plain-English economic rationale
+  - Expected failure mode
+  - Smoke-test result
+  - Lookahead/static-safety checks
+  - All of these
+
+  21. If the agent produces invalid code, should it attempt bounded self-repair before alerting you? If so, how many
+     attempts?
+
+  22. Should the ideation agent be allowed to read the complete historical failure ledger and leaderboard, knowing this
+     introduces selection bias that the validator must count?
+
+  23. Should multiple models occasionally be asked to ideate independently, or is one model at a time sufficient?
+
+  ### C. What exactly gets counted and tested
+
+  24. Can we define these terms separately?
+
+  - Idea: written hypothesis
+  - Family: one executable mechanism
+  - Configuration: family plus one exact parameter set
+  - Strategy candidate: one configuration that completed a backtest
+
+  25. When the digest says “124,872 strategies tested,” should that mean configurations, families, or both as separate
+     counts?
+
+  26. Roughly how many new executable families should the AI attempt per hour? One family can create thousands or
+     millions of parameter configurations.
+
+  27. Should the initial “no bad ideas” exploration period be a fixed commissioning phase—such as the first two weeks—or
+     a permanent percentage of compute?
+
+  28. After commissioning, what approximate compute allocation feels right?
+
+  - 60% promising families / 25% champion-weakness repairs / 15% zany exploration
+  - 70% / 20% / 10%
+  - Another balance
+
+  29. Should allocation adapt automatically based on which lanes produce backtest survivors and Gold candidates?
+  30. Should every candidate receive a very cheap initial screen, with only survivors receiving full-history backtests
+     and validation?
+
+  31. What should qualify a family for deeper search: performance floor, novelty, confidence potential, champion
+     weakness addressed, or some combination?
+
+  32. When should a retired family be revisited?
+
+  - New market data arrives
+  - A complementary indicator becomes available
+  - The active champion develops a weakness
+  - Periodically regardless
+  - When the AI proposes a materially redesigned mechanism
+
+  33. Should exact tested configurations be permanently deduplicated unless data, engine, or validation versions change?
+  34. Should Montauk deliberately retest a previously failed configuration when enough genuinely new market data has
+     accumulated?
+
+  35. Should the AI agent review the last hour’s aggregate results before generating the next batch, or should ideation
+     and testing run as independent parallel loops?
+
+  ### D. Leaderboard and active strategy
+
+  36. You want every Gold configuration as its own leaderboard row. Should rows still be visually grouped by family so
+     twenty near-identical variants do not hide unrelated strategies?
+
+  37. Should the leaderboard have a maximum size, or contain every currently Gold configuration?
+  38. When a strategy loses Gold, should it disappear from the current leaderboard but remain in a historical Gold
+     archive?
+
+  39. Should leaderboard positions update automatically after every new Gold result and every recertification?
+  40. You prefer a small metric set. Are these the correct four?
+
+  - Validation Confidence
+  - Expected Performance
+  - Durability
+  - Search Coverage
+
+  41. Should Montauk Score continue combining the first three to determine rank, or should the leaderboard expose them
+     separately and use an explicit ranking order such as Confidence first, Performance second?
+
+  42. Please define the rough active-switch threshold. For example:
+
+  - New leader must improve Montauk Score by at least 5%
+  - Or improve Confidence by at least 10%
+  - Or show meaningful forward evidence plus any score improvement
+  - Existing leader must remain active for a minimum period
+  - Some combination
+
+  43. When a new #1 crosses that threshold, should Montauk immediately notify you and wait indefinitely for approval?
+  44. If you decline or ignore the recommendation, should the incumbent remain active while the new strategy remains
+     displayed as “Montauk Recommended”?
+
+  45. Should your manual override persist until explicitly removed, even if several new leaders appear?
+  46. If the active strategy loses Gold, you selected automatic fallback. Should Montauk immediately activate the
+     highest-ranked remaining Gold strategy without approval and send a critical notification?
+
+  47. What happens if there are no remaining Gold strategies?
+
+  - Force risk_off
+  - Preserve the last signal but label it uncertified
+  - Require immediate human decision
+  - Another rule
+
+  48. If an automatic emergency fallback and the previous active strategy disagree on the current buy/sell state, should
+     the new strategy’s state take effect immediately?
+
+  ### E. Data and forward evidence
+
+  49. When data verification fails, which behavior do you want?
+
+  - Halt research, validation, recertification, and new signals; continue displaying the last verified signal with a
+    stale warning
+
+  - Halt research but allow the last verified strategy to evaluate on partially available data
+  - Another behavior
+
+  50. Should the active strategy be recertified after every new trading bar, while the entire leaderboard is recertified
+     every few days?
+
+  51. Should any engine, validation, ranking, or data-methodology change automatically force full-board recertification
+     before new signals are trusted?
+
+  52. “Forward evidence” means market days that occurred after a strategy was frozen and certified—data the strategy
+     could not have been designed against. Should Montauk visibly track how much untouched forward history each Gold row
+     has accumulated?
+
+  53. Should a new Gold strategy be allowed to become active with no forward record if its historical validation margin
+     is large enough, or should activation normally require some forward observation period?
+
+  54. Do you want actual brokerage fills recorded so Montauk can compare your realized execution with the modeled
+     execution, or is that too much manual work for 3.x?
+
+  ### F. Notifications and the quiet experience
+
+  55. Which events should generate an immediate Slack notification?
+
+  - Buy/sell state flip
+  - Active strategy loses Gold
+  - New strategy reaches Gold
+  - New leaderboard #1
+  - Active-strategy change awaiting approval
+  - Data failure
+  - Pipeline/system failure
+  - AI agent unable to repair itself
+
+  56. Should a new Gold strategy that is not #1 be immediate, or included only in the daily digest?
+  57. What should the daily digest contain? My first draft:
+
+  - Current signal and whether it changed
+  - Active strategy and Gold status
+  - Configurations/families tested
+  - Backtest survivors
+  - Validation attempts
+  - New Gold rows
+  - Leaderboard movement
+  - Errors requiring attention
+
+  58. Should there also be a weekly research summary and monthly “is the leader still clearly best?” report?
+  59. Should Slack be notification-only, or should you be able to approve an active-strategy change from Slack?
+  60. Should the Mac app remain essentially as it is now, with the pipeline details added primarily to Doctor/Viz rather
+     than creating new control surfaces?
+
+  ### G. Storage and auditability
+
+  61. For failed configurations, is a compact permanent record—parameters, metrics, failure stage, reason, and version
+     stamps—enough, while full artifacts are retained only for Gold and near-Gold candidates?
+
+  62. Should generated strategy source code be retained even after the family is retired, so future agents can redesign
+     it?
+
+  63. Is it acceptable for the high-volume experiment history to live in a local database instead of thousands of JSON
+     files committed to Git?
+
+  64. Should every Gold row be fully reproducible from its frozen strategy code, parameters, data fingerprint, engine
+     version, validator version, and artifacts?
+
+  65. When you say “no AI-slop pipeline structure,” which problems are you most concerned about:
+
+  - Duplicated systems and parallel sources of truth
+  - Stale and contradictory documentation
+  - Large numbers of loosely defined scores
+  - Generated scripts scattered across the repository
+  - Silent fallbacks and swallowed failures
+  - AI making undocumented judgment calls
+  - All of these
+
+  ### H. Chimera and completion boundaries
+
+  66. What do you want Chimera to accomplish?
+  67. Should Chimera generation wait until at least several materially independent Gold strategies exist?
+  68. If no Chimera ever beats the best single strategy, is that a perfectly acceptable outcome?
+  69. For Rust, would this rule match your priorities?
+
+  > Keep the reference implementation and validation semantics in Python. Profile first. Port only measured compute
+  > bottlenecks, require bit-for-bit or tolerance-pinned parity, and never let the Rust path become an independent
+  > source of trading truth.
+
+  70. How long should 3.0 operate successfully before 4.0 begins: 30 days, 90 days, six months, or until a specific
+     evidence milestone?
+
+  71. Should completion require an unattended soak test—for example, 30 consecutive days of correct data refresh,
+     ideation, testing, recertification, notification, crash recovery, and signal generation?
