@@ -6600,6 +6600,7 @@ def _member_signals(ind, strategy_name: str, params: dict) -> tuple[np.ndarray, 
         "gold_hybrid_switchboard",
         "gold_hybrid_champion_overlay",
         "chimera_v1_2026_05_26",
+        "chimera_v2_2026_07_12",
     }:
         raise ValueError(f"hybrid strategy cannot recursively include {strategy_name}")
     fn = globals().get(strategy_name)
@@ -6741,6 +6742,78 @@ def chimera_v1_2026_05_26(ind, p):
     weights are supplied in params so the certified signal remains reproducible.
     """
     return _static_gold_committee(ind, p)
+
+
+def _static_gold_two_stage_committee(ind, p):
+    """Gold-only two-stage weighted index with hysteresis execution.
+
+    Stage 1 (within family): each family's member variants vote and the family
+    emits a fractional long-share (3 of 4 variants long -> 0.75), so variant
+    disagreement acts as a live parameter-sensitivity meter.
+    Stage 2 (across families): index score = sum(family_weight * family_share)
+    over normalized family weights.
+    Execution: go long when score >= enter_threshold; flat again only when
+    score <= exit_threshold (enter == exit recovers a plain threshold).
+
+    Params:
+      families: [{family, weight, members: [{strategy, params}, ...]}, ...]
+      enter_threshold: default 0.70
+      exit_threshold: default enter_threshold
+    """
+    families = list(p.get("families") or [])
+    n = ind.n
+    empty = (np.zeros(n, dtype=bool), np.zeros(n, dtype=bool), np.array([""] * n, dtype=object))
+    if not families:
+        return empty
+
+    shares = []
+    weights = []
+    for fam in families:
+        member_states = []
+        for member in fam.get("members") or []:
+            strategy = member.get("strategy")
+            if not strategy:
+                continue
+            entries, exits, _labels = _member_signals(ind, strategy, member.get("params", {}))
+            member_states.append(_events_to_state(entries, exits).astype(float))
+        if not member_states:
+            continue
+        shares.append(np.mean(np.asarray(member_states), axis=0))
+        weights.append(float(fam.get("weight", 1.0) or 1.0))
+
+    if not shares:
+        return empty
+
+    weights_arr = np.asarray(weights, dtype=float)
+    if float(np.sum(weights_arr)) <= 0.0:
+        weights_arr = np.ones(len(shares))
+    score = np.sum(
+        np.asarray(shares) * (weights_arr / float(np.sum(weights_arr)))[:, None], axis=0
+    )
+
+    enter_thr = float(p.get("enter_threshold", 0.70))
+    exit_thr = float(p.get("exit_threshold", enter_thr))
+    state = np.zeros(n, dtype=bool)
+    pos = False
+    for i in range(n):
+        if not pos and score[i] >= enter_thr:
+            pos = True
+        elif pos and score[i] <= exit_thr:
+            pos = False
+        state[i] = pos
+    return _state_to_events(state, "COM")
+
+
+def chimera_v2_2026_07_12(ind, p):
+    """Static certified Chimera v2 snapshot, dated 2026-07-12.
+
+    Two-stage full-Gold weighted index (see `_static_gold_two_stage_committee`).
+    Membership, family weights, and thresholds are supplied in params so the
+    certified signal remains reproducible; the frozen snapshot came from
+    `scripts/diagnostics/chimera_v2_lab.py` (equal family weights, symmetric
+    0.70 threshold — winner of the 44-config hysteresis grid over v1 baseline).
+    """
+    return _static_gold_two_stage_committee(ind, p)
 
 
 def ensemble_vote_3of5(ind, p):
@@ -8121,6 +8194,7 @@ STRATEGY_REGISTRY = {
     "gold_hybrid_switchboard":  gold_hybrid_switchboard,    # H1: best Gold entry + best Gold exit
     "gold_hybrid_champion_overlay": gold_hybrid_champion_overlay, # H2: Gold champion plus specialists
     "chimera_v1_2026_05_26":     chimera_v1_2026_05_26,      # Static certified Chimera v1 snapshot
+    "chimera_v2_2026_07_12":     chimera_v2_2026_07_12,      # Static Chimera v2: two-stage full-Gold index
     "ensemble_vote_3of5":       ensemble_vote_3of5,         # B12
     "fed_macro_primary":        fed_macro_primary,          # B13
     "slope_only_200":           slope_only_200,             # B16
@@ -8289,6 +8363,7 @@ STRATEGY_TIERS = {
     "gold_hybrid_switchboard":  "T2",
     "gold_hybrid_champion_overlay": "T2",
     "chimera_v1_2026_05_26":    "T2",
+    "chimera_v2_2026_07_12":    "T2",
     "ensemble_vote_3of5":       "T1",
     "fed_macro_primary":        "T1",
     "slope_only_200":           "T1",
@@ -9062,6 +9137,7 @@ STRATEGY_PARAMS = {
     "gold_hybrid_switchboard": {},
     "gold_hybrid_champion_overlay": {},
     "chimera_v1_2026_05_26": {},
+    "chimera_v2_2026_07_12": {},
     # ── T1: Spike batch 2026-04-15b (diagnostic-informed) ──
     "gc_atr_trail": {
         "fast_ema":       (20, 100, 10, int),

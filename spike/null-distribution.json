@@ -2,562 +2,562 @@
   "samples_per_family": 40,
   "min_valid_target": 5000,
   "rounds": 2,
-  "engine_hash": "6d7b78589333",
-  "data_fingerprint": "bd8d81b06cf32330",
-  "n_valid": 5037,
-  "elapsed_seconds": 151.5,
-  "rs_mean": 0.5283,
-  "rs_std": 0.0474,
-  "rs_min": 0.3579,
-  "rs_max": 0.6715,
-  "rs_p95": 0.616,
-  "rs_p99": 0.6402,
-  "beta_alpha": 58.16,
-  "beta_beta": 51.93,
+  "engine_hash": "8bf171107de7",
+  "data_fingerprint": "6852fa0f6fa3f45f",
+  "n_valid": 5009,
+  "elapsed_seconds": 182.6,
+  "rs_mean": 0.5279,
+  "rs_std": 0.0481,
+  "rs_min": 0.3507,
+  "rs_max": 0.6935,
+  "rs_p95": 0.6164,
+  "rs_p99": 0.6431,
+  "beta_alpha": 56.22,
+  "beta_beta": 50.28,
   "per_family": {
     "dual_confirm_stay_long": {
-      "mean": 0.5155,
-      "std": 0.0194,
-      "n": 66
+      "mean": 0.5153,
+      "std": 0.0209,
+      "n": 69
     },
     "golden_cross_slope": {
-      "mean": 0.4945,
-      "std": 0.0303,
-      "n": 78
+      "mean": 0.4953,
+      "std": 0.0289,
+      "n": 80
     },
     "ema_slope_above": {
-      "mean": 0.5475,
-      "std": 0.0509,
+      "mean": 0.5397,
+      "std": 0.0488,
       "n": 80
     },
     "rsi_recovery_ema": {
-      "mean": 0.4825,
-      "std": 0.007,
-      "n": 34
+      "mean": 0.4815,
+      "std": 0.0067,
+      "n": 41
     },
     "rsi_50_above_trend": {
-      "mean": 0.6065,
-      "std": 0.0208,
+      "mean": 0.6085,
+      "std": 0.0186,
       "n": 80
     },
     "triple_ema_stack": {
-      "mean": 0.5885,
-      "std": 0.0293,
-      "n": 68
+      "mean": 0.5856,
+      "std": 0.0267,
+      "n": 71
     },
     "dual_ema_stack": {
-      "mean": 0.5315,
-      "std": 0.0253,
+      "mean": 0.5326,
+      "std": 0.0223,
       "n": 80
     },
     "donchian_filter": {
-      "mean": 0.5269,
-      "std": 0.053,
+      "mean": 0.511,
+      "std": 0.0476,
       "n": 80
     },
     "macd_above_zero_trend": {
-      "mean": 0.5702,
-      "std": 0.009,
+      "mean": 0.569,
+      "std": 0.0084,
       "n": 80
     },
     "ema_pure_slope": {
-      "mean": 0.5483,
-      "std": 0.0465,
+      "mean": 0.5468,
+      "std": 0.0456,
       "n": 80
     },
     "ema_200_confirm": {
-      "mean": 0.508,
-      "std": 0.0405,
+      "mean": 0.5125,
+      "std": 0.0376,
       "n": 80
     },
     "ema_200_regime": {
-      "mean": 0.5187,
-      "std": 0.0294,
+      "mean": 0.5199,
+      "std": 0.0324,
       "n": 80
     },
     "montauk_821": {
-      "mean": 0.5817,
-      "std": 0.0389,
-      "n": 80
+      "mean": 0.5751,
+      "std": 0.0518,
+      "n": 78
     },
     "rsi_regime": {
-      "mean": 0.4822,
-      "std": 0.0571,
-      "n": 50
+      "mean": 0.4844,
+      "std": 0.0595,
+      "n": 49
     },
     "breakout": {
-      "mean": 0.558,
-      "std": 0.0509,
+      "mean": 0.5686,
+      "std": 0.0594,
       "n": 80
     },
     "rsi_regime_trail": {
-      "mean": 0.4966,
-      "std": 0.0316,
+      "mean": 0.4979,
+      "std": 0.0358,
       "n": 52
     },
     "vol_regime": {
-      "mean": 0.5097,
-      "std": 0.0302,
+      "mean": 0.5088,
+      "std": 0.0335,
       "n": 80
     },
     "ichimoku_trend": {
-      "mean": 0.5873,
-      "std": 0.026,
-      "n": 74
+      "mean": 0.5907,
+      "std": 0.0216,
+      "n": 78
     },
     "dual_momentum": {
-      "mean": 0.5955,
-      "std": 0.032,
+      "mean": 0.5919,
+      "std": 0.0303,
       "n": 80
     },
     "rsi_vol_regime": {
-      "mean": 0.4948,
-      "std": 0.0406,
-      "n": 50
+      "mean": 0.486,
+      "std": 0.0484,
+      "n": 59
     },
     "momentum_stayer": {
-      "mean": 0.5095,
-      "std": 0.0245,
-      "n": 72
+      "mean": 0.5074,
+      "std": 0.0237,
+      "n": 71
     },
     "donchian_turtle": {
-      "mean": 0.5495,
-      "std": 0.0225,
+      "mean": 0.5489,
+      "std": 0.0238,
       "n": 80
     },
     "slope_persistence": {
-      "mean": 0.5611,
-      "std": 0.0277,
-      "n": 80
+      "mean": 0.5664,
+      "std": 0.0257,
+      "n": 40
     },
     "vix_trend_regime": {
-      "mean": 0.5514,
-      "std": 0.045,
-      "n": 39
+      "mean": 0.5457,
+      "std": 0.051,
+      "n": 40
     },
     "steady_trend": {
-      "mean": 0.5359,
-      "std": 0.0231,
+      "mean": 0.5346,
+      "std": 0.0211,
       "n": 40
     },
     "rsi_recovery": {
-      "mean": 0.5147,
-      "std": 0.0282,
-      "n": 37
+      "mean": 0.5121,
+      "std": 0.0317,
+      "n": 36
     },
     "ema_regime": {
-      "mean": 0.4983,
-      "std": 0.0232,
-      "n": 40
+      "mean": 0.5007,
+      "std": 0.0211,
+      "n": 36
     },
     "roc_above_trend": {
-      "mean": 0.5861,
-      "std": 0.0308,
+      "mean": 0.5823,
+      "std": 0.0319,
       "n": 40
     },
     "stoch_recovery_trend": {
-      "mean": 0.4449,
-      "std": 0.0234,
+      "mean": 0.4508,
+      "std": 0.0228,
       "n": 40
     },
     "adx_di_trend": {
-      "mean": 0.5776,
-      "std": 0.0254,
+      "mean": 0.5811,
+      "std": 0.0289,
       "n": 40
     },
     "keltner_breakout": {
-      "mean": 0.5823,
-      "std": 0.0341,
+      "mean": 0.5844,
+      "std": 0.0384,
       "n": 40
     },
     "vol_calm_regime": {
-      "mean": 0.5651,
-      "std": 0.0333,
+      "mean": 0.5684,
+      "std": 0.0276,
       "n": 40
     },
     "macd_hist_trend": {
-      "mean": 0.5955,
-      "std": 0.0127,
+      "mean": 0.5945,
+      "std": 0.0142,
       "n": 40
     },
     "roc_ema_slope": {
-      "mean": 0.5243,
-      "std": 0.0206,
+      "mean": 0.5234,
+      "std": 0.0224,
       "n": 40
     },
     "stoch_cross_trend": {
-      "mean": 0.5137,
-      "std": 0.0099,
+      "mean": 0.5162,
+      "std": 0.0135,
       "n": 40
     },
     "double_ema_slope": {
-      "mean": 0.5279,
-      "std": 0.0222,
+      "mean": 0.5243,
+      "std": 0.0215,
       "n": 40
     },
     "rsi_roc_combo": {
-      "mean": 0.6289,
-      "std": 0.0129,
+      "mean": 0.6287,
+      "std": 0.0143,
       "n": 40
     },
     "cci_regime_trend": {
-      "mean": 0.4891,
-      "std": 0.0282,
-      "n": 39
-    },
-    "willr_recovery_trend": {
-      "mean": 0.4852,
-      "std": 0.0334,
-      "n": 38
-    },
-    "mfi_above_trend": {
-      "mean": 0.4922,
-      "std": 0.03,
-      "n": 38
-    },
-    "obv_slope_trend": {
-      "mean": 0.5201,
-      "std": 0.0047,
-      "n": 39
-    },
-    "bb_width_regime": {
-      "mean": 0.4851,
-      "std": 0.0361,
+      "mean": 0.4854,
+      "std": 0.0303,
       "n": 40
     },
+    "willr_recovery_trend": {
+      "mean": 0.4926,
+      "std": 0.033,
+      "n": 39
+    },
+    "mfi_above_trend": {
+      "mean": 0.4872,
+      "std": 0.0319,
+      "n": 39
+    },
+    "obv_slope_trend": {
+      "mean": 0.5212,
+      "std": 0.0043,
+      "n": 40
+    },
+    "bb_width_regime": {
+      "mean": 0.4866,
+      "std": 0.0415,
+      "n": 39
+    },
     "tema_short_slope": {
-      "mean": 0.4904,
-      "std": 0.0391,
+      "mean": 0.4911,
+      "std": 0.0384,
       "n": 39
     },
     "cci_willr_combo": {
-      "mean": 0.496,
-      "std": 0.0289,
-      "n": 39
-    },
-    "mfi_obv_trend": {
-      "mean": 0.5219,
-      "std": 0.0034,
+      "mean": 0.4885,
+      "std": 0.0292,
       "n": 40
     },
+    "mfi_obv_trend": {
+      "mean": 0.5218,
+      "std": 0.0036,
+      "n": 37
+    },
     "atr_ratio_trend": {
-      "mean": 0.4787,
-      "std": 0.0321,
+      "mean": 0.4743,
+      "std": 0.0392,
       "n": 40
     },
     "bb_cci_combo": {
-      "mean": 0.4884,
-      "std": 0.0379,
+      "mean": 0.4742,
+      "std": 0.0369,
       "n": 40
     },
     "vix_gc_filter": {
-      "mean": 0.4972,
-      "std": 0.0285,
-      "n": 39
+      "mean": 0.4857,
+      "std": 0.0296,
+      "n": 40
     },
     "treasury_curve_trend": {
-      "mean": 0.5351,
-      "std": 0.0106,
-      "n": 40
+      "mean": 0.5365,
+      "std": 0.0107,
+      "n": 37
     },
     "xlk_relative_strength": {
-      "mean": 0.539,
-      "std": 0.0138,
-      "n": 40
+      "mean": 0.5358,
+      "std": 0.0116,
+      "n": 38
     },
     "fed_funds_pivot": {
-      "mean": 0.4864,
-      "std": 0.0062,
+      "mean": 0.4877,
+      "std": 0.0059,
       "n": 40
     },
     "keltner_squeeze_breakout": {
-      "mean": 0.6111,
-      "std": 0.0227,
+      "mean": 0.6188,
+      "std": 0.0217,
       "n": 40
     },
     "vix_term_proxy": {
-      "mean": 0.5769,
-      "std": 0.023,
+      "mean": 0.5802,
+      "std": 0.0232,
       "n": 40
     },
     "macd_qqq_bull": {
-      "mean": 0.6032,
-      "std": 0.0274,
+      "mean": 0.6175,
+      "std": 0.0241,
       "n": 40
     },
     "dual_tema_breakout": {
-      "mean": 0.4986,
-      "std": 0.0209,
-      "n": 39
+      "mean": 0.4979,
+      "std": 0.0216,
+      "n": 38
     },
     "sgov_flight_switch": {
-      "mean": 0.5126,
+      "mean": 0.5127,
       "std": 0.0003,
       "n": 39
     },
     "move_index_regime": {
-      "mean": 0.5119,
-      "std": 0.0215,
+      "mean": 0.5221,
+      "std": 0.0202,
       "n": 40
     },
     "credit_spread_velocity": {
-      "mean": 0.5101,
+      "mean": 0.5099,
       "std": 0.0007,
       "n": 40
     },
     "overnight_gap_exhaustion": {
-      "mean": 0.5014,
-      "std": 0.0262,
+      "mean": 0.4965,
+      "std": 0.0217,
       "n": 40
     },
     "consecutive_down_gap_capitulation": {
-      "mean": 0.4893,
-      "std": 0.0256,
+      "mean": 0.4975,
+      "std": 0.0217,
       "n": 40
     },
     "put_call_panic_reversion": {
-      "mean": 0.4889,
-      "std": 0.0108,
+      "mean": 0.4895,
+      "std": 0.0109,
       "n": 40
     },
     "defensive_sector_divergence": {
-      "mean": 0.5111,
+      "mean": 0.511,
       "std": 0.0007,
       "n": 40
     },
     "gc_precross": {
-      "mean": 0.5134,
-      "std": 0.0207,
-      "n": 40
+      "mean": 0.5159,
+      "std": 0.0225,
+      "n": 39
     },
     "gc_asym_fast_entry": {
-      "mean": 0.4882,
-      "std": 0.0364,
-      "n": 38
+      "mean": 0.4896,
+      "std": 0.0316,
+      "n": 37
     },
     "gc_tema_asym": {
-      "mean": 0.4865,
-      "std": 0.0358,
-      "n": 39
+      "mean": 0.476,
+      "std": 0.0354,
+      "n": 40
     },
     "gc_spread_momentum": {
-      "mean": 0.4795,
-      "std": 0.0283,
-      "n": 39
+      "mean": 0.493,
+      "std": 0.0307,
+      "n": 37
     },
     "gc_precross_roc": {
-      "mean": 0.506,
-      "std": 0.0177,
+      "mean": 0.5027,
+      "std": 0.0184,
       "n": 39
     },
     "gc_asym_triple": {
-      "mean": 0.4885,
-      "std": 0.0327,
-      "n": 38
+      "mean": 0.4982,
+      "std": 0.0263,
+      "n": 35
     },
     "gc_spread_band": {
-      "mean": 0.4909,
-      "std": 0.0333,
-      "n": 40
+      "mean": 0.4834,
+      "std": 0.0326,
+      "n": 39
     },
     "gc_precross_vol": {
-      "mean": 0.4905,
-      "std": 0.005,
-      "n": 37
+      "mean": 0.4888,
+      "std": 0.0063,
+      "n": 38
     },
     "gc_asym_slope": {
-      "mean": 0.4815,
-      "std": 0.0309,
+      "mean": 0.482,
+      "std": 0.0289,
       "n": 38
     },
     "gc_precross_strict": {
-      "mean": 0.5133,
-      "std": 0.0173,
-      "n": 40
-    },
-    "gc_pre_vix": {
-      "mean": 0.507,
-      "std": 0.0203,
+      "mean": 0.5156,
+      "std": 0.0218,
       "n": 39
     },
+    "gc_pre_vix": {
+      "mean": 0.5096,
+      "std": 0.017,
+      "n": 38
+    },
     "gc_strict_vix": {
-      "mean": 0.5061,
-      "std": 0.0194,
+      "mean": 0.5091,
+      "std": 0.0208,
       "n": 40
     },
     "atr_ratio_vix": {
-      "mean": 0.4754,
-      "std": 0.0429,
-      "n": 39
+      "mean": 0.4834,
+      "std": 0.04,
+      "n": 37
     },
     "atr_ratio_vix_rebound": {
-      "mean": 0.4809,
-      "std": 0.0149,
+      "mean": 0.4763,
+      "std": 0.0133,
       "n": 40
     },
     "drawdown_recovery": {
-      "mean": 0.5754,
-      "std": 0.0381,
+      "mean": 0.5667,
+      "std": 0.0436,
       "n": 40
     },
     "multi_tf_momentum": {
-      "mean": 0.5134,
-      "std": 0.0341,
+      "mean": 0.5078,
+      "std": 0.0322,
       "n": 40
     },
     "rsi_mean_revert_trend": {
-      "mean": 0.4765,
-      "std": 0.0189,
-      "n": 20
+      "mean": 0.4723,
+      "std": 0.0332,
+      "n": 17
     },
     "vol_compression_breakout": {
       "mean": 0.5073,
-      "std": 0.053,
+      "std": 0.0386,
       "n": 40
     },
     "price_position_regime": {
-      "mean": 0.5533,
-      "std": 0.0488,
+      "mean": 0.5547,
+      "std": 0.04,
       "n": 40
     },
     "treasury_regime": {
-      "mean": 0.5248,
-      "std": 0.0071,
+      "mean": 0.5217,
+      "std": 0.009,
       "n": 40
     },
     "xlk_relative_momentum": {
-      "mean": 0.5338,
-      "std": 0.0142,
-      "n": 40
-    },
-    "consecutive_strength": {
-      "mean": 0.5225,
-      "std": 0.0197,
-      "n": 40
-    },
-    "gc_atr_trail": {
-      "mean": 0.5205,
-      "std": 0.0146,
-      "n": 39
-    },
-    "fast_ema_atr_trail": {
-      "mean": 0.5649,
-      "std": 0.0199,
-      "n": 37
-    },
-    "vix_regime_entry": {
-      "mean": 0.5119,
-      "std": 0.0298,
-      "n": 40
-    },
-    "rsi_bull_regime": {
-      "mean": 0.5708,
-      "std": 0.0563,
-      "n": 40
-    },
-    "donchian_vix": {
-      "mean": 0.4943,
-      "std": 0.0379,
-      "n": 40
-    },
-    "gc_slope_no_death": {
-      "mean": 0.5322,
+      "mean": 0.5319,
       "std": 0.0128,
       "n": 40
     },
+    "consecutive_strength": {
+      "mean": 0.5289,
+      "std": 0.0187,
+      "n": 40
+    },
+    "gc_atr_trail": {
+      "mean": 0.521,
+      "std": 0.0143,
+      "n": 40
+    },
+    "fast_ema_atr_trail": {
+      "mean": 0.5629,
+      "std": 0.0213,
+      "n": 38
+    },
+    "vix_regime_entry": {
+      "mean": 0.5095,
+      "std": 0.0333,
+      "n": 40
+    },
+    "rsi_bull_regime": {
+      "mean": 0.5557,
+      "std": 0.0485,
+      "n": 40
+    },
+    "donchian_vix": {
+      "mean": 0.5026,
+      "std": 0.0385,
+      "n": 40
+    },
+    "gc_slope_no_death": {
+      "mean": 0.5324,
+      "std": 0.0124,
+      "n": 40
+    },
     "rsi_rebound_participation": {
-      "mean": 0.5356,
-      "std": 0.02,
-      "n": 40
-    },
-    "airbag_vix_atr": {
-      "mean": 0.5313,
-      "std": 0.0377,
-      "n": 40
-    },
-    "reclaimer_vol_rsi": {
-      "mean": 0.5048,
-      "std": 0.0249,
-      "n": 26
-    },
-    "state_machine_crash_recovery": {
-      "mean": 0.5321,
-      "std": 0.0473,
-      "n": 40
-    },
-    "gc_vjatr_airbag": {
-      "mean": 0.5171,
-      "std": 0.0171,
-      "n": 40
-    },
-    "gc_vjatr_reclaimer": {
-      "mean": 0.5358,
-      "std": 0.024,
-      "n": 40
-    },
-    "gc_vjatr_state_filter": {
-      "mean": 0.5169,
-      "std": 0.0154,
-      "n": 40
-    },
-    "gc_vjatr_timing_repair": {
-      "mean": 0.5284,
-      "std": 0.0282,
-      "n": 40
-    },
-    "gc_vjatr_reclaimer_timing": {
-      "mean": 0.5457,
-      "std": 0.024,
-      "n": 40
-    },
-    "nh_vix_regime_trend": {
-      "mean": 0.5294,
-      "std": 0.034,
-      "n": 40
-    },
-    "nh_curve_macro_trend": {
-      "mean": 0.5334,
+      "mean": 0.5308,
       "std": 0.0216,
       "n": 40
     },
+    "airbag_vix_atr": {
+      "mean": 0.5239,
+      "std": 0.04,
+      "n": 40
+    },
+    "reclaimer_vol_rsi": {
+      "mean": 0.5101,
+      "std": 0.0228,
+      "n": 33
+    },
+    "state_machine_crash_recovery": {
+      "mean": 0.5407,
+      "std": 0.052,
+      "n": 40
+    },
+    "gc_vjatr_airbag": {
+      "mean": 0.5147,
+      "std": 0.0187,
+      "n": 40
+    },
+    "gc_vjatr_reclaimer": {
+      "mean": 0.5391,
+      "std": 0.025,
+      "n": 40
+    },
+    "gc_vjatr_state_filter": {
+      "mean": 0.5185,
+      "std": 0.0164,
+      "n": 40
+    },
+    "gc_vjatr_timing_repair": {
+      "mean": 0.54,
+      "std": 0.0333,
+      "n": 40
+    },
+    "gc_vjatr_reclaimer_timing": {
+      "mean": 0.5445,
+      "std": 0.0219,
+      "n": 40
+    },
+    "nh_vix_regime_trend": {
+      "mean": 0.52,
+      "std": 0.028,
+      "n": 40
+    },
+    "nh_curve_macro_trend": {
+      "mean": 0.5313,
+      "std": 0.0247,
+      "n": 40
+    },
     "nh_fed_easing_trend": {
-      "mean": 0.5304,
-      "std": 0.0243,
+      "mean": 0.5363,
+      "std": 0.0252,
       "n": 40
     },
     "nh_volume_confirm_trend": {
-      "mean": 0.485,
-      "std": 0.0273,
+      "mean": 0.4861,
+      "std": 0.0353,
       "n": 40
     },
     "nh_xlk_anchor_trend": {
-      "mean": 0.535,
-      "std": 0.0319,
+      "mean": 0.5435,
+      "std": 0.036,
       "n": 40
     },
     "nh_dd_scaled_reclaim": {
-      "mean": 0.5483,
-      "std": 0.0249,
+      "mean": 0.5624,
+      "std": 0.0337,
       "n": 40
     },
     "nh_high_proximity_regime": {
-      "mean": 0.5616,
-      "std": 0.035,
+      "mean": 0.5675,
+      "std": 0.0318,
       "n": 40
     },
     "nh_vix_reversion_reentry": {
-      "mean": 0.4897,
-      "std": 0.0401,
+      "mean": 0.4884,
+      "std": 0.0311,
       "n": 40
     },
     "nh_dual_timescale_trend": {
-      "mean": 0.5383,
-      "std": 0.0258,
+      "mean": 0.5357,
+      "std": 0.0279,
       "n": 40
     },
     "nh_vol_drag_regime": {
-      "mean": 0.5576,
-      "std": 0.0396,
+      "mean": 0.5587,
+      "std": 0.0441,
       "n": 40
     }
   }

@@ -9,7 +9,9 @@
       "Bash(git show *)",
       "Bash(code --add \"/Users/maxhammons/Documents/Projects/project-moonbeam\")",
       "Bash(mkdir -p \"/Users/maxhammons/Documents/Projects/project-moonbeam/presentation\")",
-      "Bash(~/Documents/.venv/bin/python3 -c ' *)"
+      "Bash(~/Documents/.venv/bin/python3 -c ' *)",
+      "Bash(git -C \"/Users/maxhammons/Documents/Projects/Project Montauk\" fetch --all --prune)",
+      "Bash(git -C \"/Users/maxhammons/Documents/Projects/Project Montauk\" status)"
     ],
     "additionalDirectories": [
       "/Users/maxhammons/Documents/Projects/project-moonbeam"

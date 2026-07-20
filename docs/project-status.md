@@ -50,6 +50,12 @@ Rows that are PASS but not artifact-backed, or that lose to B&H in any canonical
 
 The prior read-only dynamic Chimera surface has been retired. Chimera now means a versioned, immutable, certified committee strategy. The first version is `chimera_v1_2026_05_26`, formerly the Gold hybrid committee. Its member list, weights, threshold, validation result, and artifact bundle are fixed like any other Gold Status row. Future committees must be generated and certified as new dated versions instead of mutating v1.
 
+### Chimera v2 two-stage full-Gold index (2026-07-12)
+
+`chimera_v2_2026_07_12` is the second certified Chimera version, built on the "better blending" branch of the committee design fork (real-time regime switching was rejected: regime labels can't be assigned without lag). It is a two-stage weighted index over all 11 non-Chimera Gold rows: variants vote within their family into a fractional long-share, family shares combine under equal weights (equal beat Montauk-proportional weights in the lab grid), and a symmetric 0.70 threshold executes the score. The design search lives in `scripts/diagnostics/chimera_v2_lab.py` (44 configs, all logged to the hash-index); the frozen snapshot lives in `library.py::chimera_v2_2026_07_12` and reproduces the lab signal exactly.
+
+Validation returned PASS (composite 0.7562, certified_not_overfit) and certification emitted the five artifacts under `spike/runs/287/`. Canonical era reruns landed at 16.31x full / 1.31x real / 3.15x modern — all eras beat B&H, so it holds Gold Status — but the Montauk Score is 0.4513 because the parameter-parsimony durability sub-score floors at 0.0 (175 frozen leaf params across 11 members vs v1's 53). **Chimera v1 remains the active strategy at #1**; v2 boarded at #10 as a certified, more consensus-demanding alternative with better raw real-era behavior in the lab basis but a heavier frozen payload. Like v1, v2 carries `clean_pass=False` from the selection-bias advisory (deflated=0.0) — advisory-level, not a certification blocker.
+
 ### Timing-repair research lane (2026-04-28)
 
 `gc_vjatr_timing_repair` is a small explicit post-drawdown repair module, separate from `gc_vjatr_reclaimer`. Its job is to test whether marker timing can be improved without forcing the reclaimer overlay to solve both economics and timing.

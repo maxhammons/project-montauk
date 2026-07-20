@@ -138,6 +138,8 @@ Operational contract:
 
 `chimera_v1_2026_05_26` is the first certified static Chimera version and replaces the earlier read-only dynamic `chimera` surface.
 
+`chimera_v2_2026_07_12` is the second certified version: a **two-stage full-Gold weighted index** (`library.py::_static_gold_two_stage_committee`). Stage 1: every Gold row's variants vote inside their family and the family emits a fractional long-share (3 of 4 variants long → 0.75), so variant disagreement acts as a live parameter-sensitivity meter. Stage 2: the index score is the weighted sum of family shares (equal family weights won the lab grid over Montauk-proportional weights). Execution supports a hysteresis enter/exit threshold pair; the certified snapshot uses a symmetric 0.70 threshold — the winner of the 44-config grid in `scripts/diagnostics/chimera_v2_lab.py` (all configs logged to `spike/hash-index.json` for honest N_eff deflation). Certified PASS at composite 0.7562 (run `spike/runs/287/`), Gold Status, boarded at Montauk 0.4513 — the parameter-parsimony pillar floors at 0.0 because the frozen 11-member payload carries 175 leaf params, so v2 did **not** displace v1 as the active strategy.
+
 ---
 
 ## 4. Required Artifacts Per Full Run

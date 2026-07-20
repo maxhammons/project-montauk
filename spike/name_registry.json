@@ -80,6 +80,14 @@
       },
       "reserved": true
     },
+    "chimera_v2_2026_07_12": {
+      "adjectives_used": [],
+      "animal": "Chimera 2",
+      "assignments": {
+        "446fc8df4907": "Chimera 2"
+      },
+      "reserved": true
+    },
     "donchian_turtle": {
       "adjectives_used": [
         "Ivory"
