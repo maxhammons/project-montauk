@@ -1,22 +1,43 @@
-# Meta-Strategy Design: Confidence-Weighted Regime Ensemble
+# Meta-Strategy Design: Confidence-Weighted Regime Ensemble (Chimera)
 
-**Goal:** Create a meta-strategy that aggregates signals from the leaderboard strategies, weighting their votes by their certified composite confidence score and their historical performance in the current market regime.
+**Status: CONDITIONAL / DEFERRED WITHIN 3.x (updated 2026-07-17).** Do not
+implement this as standing 3.0 infrastructure until Montauk has several
+materially independent Gold families and an agreed way to measure/control that
+dependence. Chimera is optional research, not a 3.0 completion requirement.
+
+**Goal:** Test whether several genuinely different Gold strategies can combine
+their votes or confidence estimates into a more defensible TECL signal than the
+best single strategy.
 
 ## Architecture
 
-The meta-strategy will operate as an ensemble model:
-1.  **Leaderboard Ingestion:** It loads the top strategies from `spike/leaderboard.json`, filtering for those that are `certified_not_overfit` and `backtest_certified`.
-2.  **Regime Detection:** It uses the existing `regime_helpers.py` (or similar logic) to classify the current market environment (e.g., bull, bear, chop, recovery).
-3.  **Dynamic Weighting:** Each strategy's base voting power is determined by its `composite_confidence` score (from validation gate 7). This ensures heavily scrutinized strategies have more influence than marginal ones.
-4.  **Regime Adjustment:** The base weight is then scaled by the strategy's historical performance (e.g., its `share_multiple` or `fitness`) specifically in the currently detected regime.
-5.  **Signal Aggregation:** On each bar, all eligible strategies generate a `risk_on` or `risk_off` signal. The meta-strategy calculates a weighted sum of the "risk on" votes.
-6.  **Threshold Execution:** If the weighted sum exceeds a defined threshold (e.g., 60% of total possible weighted votes), the meta-strategy emits a `risk_on` signal; otherwise, `risk_off`.
+The meta-strategy will operate as an ensemble candidate:
+
+1.  **Gold Ingestion:** It queries current Gold certifications rather than reading
+    a fixed number of rows from a JSON file.
+2.  **Dependence Control:** It groups or downweights correlated configurations so
+    thousands of variants from one family cannot dominate the vote. Eligibility
+    requires materially independent mechanisms/signals, not merely different
+    parameter hashes.
+3.  **Regime Detection:** It uses a frozen, real-time-observable classifier with
+    no lookahead to describe the current environment.
+4.  **Base Weighting:** Each eligible strategy receives a predeclared weight from
+    validation strength and independence. A composite score must not be treated
+    as a calibrated probability unless forward calibration supports that claim.
+5.  **Regime Adjustment:** A predeclared rule may scale weights by each frozen
+    strategy's performance in similarly classified historical regimes.
+6.  **Signal Aggregation:** Each strategy emits `risk_on` or `risk_off`; the
+    Chimera combines those signals under a frozen threshold or confidence rule.
 
 ## Key Components
 
-*   **`MetaStrategy` Engine:** A new class (likely in a new file `scripts/engine/meta_engine.py` or added to `strategy_engine.py`) that orchestrates the ensemble.
-*   **Regime Classifier:** A robust method to identify the *current* regime in real-time without lookahead bias. We will need to adapt the historical regime definitions in `leaderboard.json` (like `early_tech_bull`, `covid_crash`) into real-time detectable states based on indicators (e.g., moving averages, volatility).
-*   **Weight Calculator:** A function to dynamically calculate the voting weight for each strategy on every bar based on confidence and the active regime.
+*   **Meta-strategy evaluator:** Runs the ensemble as an ordinary, frozen
+    candidate definition.
+*   **Regime classifier:** Identifies the current regime using only information
+    available at that bar. Named historical episodes are diagnostics, not a
+    real-time classifier.
+*   **Dependence/weight calculator:** Controls family duplication and signal
+    correlation before applying confidence/regime adjustments.
 
 ## Data Flow
 
@@ -32,7 +53,9 @@ The meta-strategy will operate as an ensemble model:
 
 ## Error Handling & Edge Cases
 
-*   **Missing Data:** If a strategy relies on data not available (e.g., early in the backtest), its vote is excluded from the total.
+*   **Missing Data:** A predeclared policy determines whether a missing vote is
+    excluded, held, or makes the ensemble unavailable. It may not change after
+    results are seen.
 *   **Regime Ambiguity:** If the current market doesn't strongly fit a defined regime, weights default closer to the base `composite_confidence`.
 *   **Tie-Breaking:** If the weighted vote is exactly on the threshold, the system should default to the safer stance (likely `risk_off` or hold previous state).
 
@@ -40,8 +63,32 @@ The meta-strategy will operate as an ensemble model:
 
 *   **Unit Tests:** Verify the weight calculation logic correctly applies confidence and regime modifiers.
 *   **Integration Tests:** Ensure the meta-engine correctly aggregates signals from known, mock strategies and respects the voting threshold.
-*   **Regression:** The meta-strategy must run through the standard validation pipeline (Gates 1-7) to ensure the *ensemble itself* is robust, not just its constituents.
+*   **Regression and certification:** The ensemble runs through the same complete
+    backtest, validation, search-accounting, and Gold contract as every other
+    candidate. Gold constituents do not make the combination Gold.
+*   **Baseline comparison:** Gold eligibility uses the same TECL B&H contract as
+    any other candidate. Separately, the Chimera research is successful only if
+    it demonstrates improvement over the best eligible single strategy under the
+    same execution/evidence contract; that comparison is not an extra Gold gate
+    unless Max explicitly makes it one.
+
+## Authority
+
+A Gold Chimera automatically joins the leaderboard like any Gold configuration.
+It receives no special rank or activation privilege; normal active-strategy
+changes still require Max's approval. If no Chimera beats the best single
+strategy, the correct outcome is to keep the single strategy.
+
+## Prerequisites
+
+- several materially independent current Gold families;
+- a versioned dependence metric and duplicate-family control;
+- enough evidence to estimate regime behavior without turning regime labels into
+  another overfit search;
+- the same deployable execution contract used by individual strategies; and
+- full accounting of Chimera membership, weight, threshold, and regime searches.
 
 ---
 
-*This design has been documented here for review before proceeding to the implementation plan.*
+*This remains a research design. It is not an implementation plan until the
+prerequisites above are met and Max explicitly chooses to schedule it.*

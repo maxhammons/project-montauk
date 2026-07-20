@@ -1,3 +1,157 @@
-Convert parts of Montauk to rust:
-- Backtesting?
-- Pipeline?
+MONTAUK 3.0 RUST STRATEGY AND EVALUATION POLICY
+Updated 2026-07-17
+
+Decision
+--------
+Rust is the fixed production language for strategy logic, configuration
+evaluation, and the performance-critical backtest path. The autonomous agent
+does not decide between Python, Go, and Rust.
+
+Python may remain a readable reference/parity implementation, audit tool, and
+test harness. It is not a production strategy format or an independent source of
+trading truth. Go is outside the strategy/evaluator architecture.
+
+The important vocabulary
+------------------------
+- Family specification: one mechanism, its logic graph, parameter domains,
+  constraints, rationale, and failure hypothesis.
+- Configuration: one family version plus one exact set of parameter values.
+- Primitive: a protected reusable Rust operation such as EMA, RSI, ATR,
+  crossover, threshold, state hold, or exit rule.
+
+A configuration is data. It is not Python code, Rust code, or a separately
+compiled executable.
+
+Authoring contract optimized for speed and preventable errors
+-------------------------------------------------------------
+The normal agent does not enumerate configurations and does not write normal
+strategy source code. It submits one schema-constrained StrategySpec through an
+allowlisted structured tool/CLI. The tool exposes the exact versioned primitive
+registry and parameter types, so the agent cannot silently invent indicator
+names or signatures.
+
+The StrategySpec declares:
+- a typed logic graph of registered Rust primitives;
+- parameter types, domains, and cross-parameter constraints;
+- input, warm-up, timing, and state requirements;
+- rationale, expected failure mode, and provenance; and
+- deterministic fixture expectations.
+
+Rust then:
+1. deserializes against the versioned schema;
+2. type-checks series/scalar/boolean/state operations;
+3. enforces causal-access and warm-up rules;
+4. canonicalizes and hashes the family graph;
+5. expands only parameter combinations satisfying constraints;
+6. deduplicates configurations;
+7. compiles one optimized internal execution plan for the family; and
+8. shares/precomputes common features and batch-evaluates configurations.
+
+This is the default 3.0 path. The isolated Rust family-module path is staged and
+disabled until its containment, causal-access, determinism, resource, and parity
+acceptance tests pass.
+
+Production architecture
+-----------------------
+1. PROTECTED RUST ENGINE
+   Owns verified arrays, causal feature access, reusable primitives, batched
+   parameter expansion, shared indicator calculation, backtest/fill semantics,
+   metrics, deterministic scheduling interfaces, and artifact output.
+
+2. NORMAL AGENT OUTPUT: DECLARATIVE FAMILY SPEC
+   The agent writes a small typed specification that composes protected Rust
+   primitives and declares parameter domains/constraints. The Rust engine parses
+   the spec, expands exact configurations, and evaluates them in batches. No
+   Python strategy wrapper and no compile step are needed for each family or
+   configuration.
+
+3. NOVEL-MECHANISM ESCAPE HATCH: ISOLATED RUST FAMILY MODULE
+   If the primitive library cannot express a genuinely new mechanism, the agent
+   may write one Rust module against a frozen Montauk Strategy SDK. It is compiled
+   once for that immutable family version, sandboxed and conformance-tested, then
+   reused for every configuration in its parameter sweep.
+
+4. REFERENCE ORACLE
+   Readable fixtures and, where useful, a Python reference implementation verify
+   signals, fills, trades, metrics, and boundary behavior. Reference code does
+   not generate the production verdict.
+
+Why not base-Python strategies calling Rust blocks?
+---------------------------------------------------
+That design is possible through bindings, but it is not the intended production
+architecture:
+
+- it creates two production languages and two execution models;
+- arbitrary Python strategy code expands the security and nondeterminism surface;
+- calls and object conversion can become overhead unless work is carefully
+  batched;
+- strategy semantics can split between Python glue and Rust primitives; and
+- it makes it easier for the reference implementation to become a second source
+  of truth.
+
+Python bindings may be useful for development, diagnostics, and parity tests.
+The production family representation should remain declarative data consumed
+directly by Rust.
+
+Why this is fast
+----------------
+- Common indicators can be calculated once and shared across configurations.
+- Parameter sets can be evaluated in cache-friendly batches.
+- The agent spends tokens describing one family/search space rather than emitting
+  millions of source variants.
+- The compiler runs when the protected engine changes or, at most, once for a
+  genuinely novel family—not once per configuration.
+- The engine can control memory layout, allocation, parallelism, SIMD/native
+  kernels, and work partitioning consistently.
+
+Protected-core boundary
+-----------------------
+The autonomous agent may create:
+- declarative family specifications; and
+- isolated Rust family modules against the frozen SDK, if that escape hatch is
+  enabled.
+
+It may not modify:
+- the protected Rust engine;
+- the shared primitive library or Strategy SDK;
+- data, fill, comparator, backtest, validation, Gold, score, rank, authority, or
+  operations semantics; or
+- parity fixtures and controls that police this boundary.
+
+A useful new primitive can be proposed for the shared Rust library, but promotion
+requires a Max-authorized core release, review, fixtures, and reference/parity
+evidence.
+
+Compilation is not validation
+-----------------------------
+Successful Rust compilation can catch syntax, type, and memory-safety classes of
+failure. It does not prove causal data access, correct fill timing,
+determinism, a valid economic mechanism, or freedom from overfitting.
+
+Every isolated Rust family module remains untrusted before intake. It must compile
+and execute in a disposable worker with no credentials, no network, no protected-
+repository writes, no unrestricted subprocesses, causal typed inputs,
+deterministic seeds, and strict CPU, memory, time, and output limits.
+
+Priority
+--------
+1. Accuracy and one semantic truth.
+2. Trusted-signal and recertification deadlines.
+3. Throughput, efficiency, and hardware cost.
+4. Implementation convenience.
+
+Benchmark work still required
+-----------------------------
+The language is decided; the precise Rust design is not. Representative Mac mini
+benchmarks must compare:
+
+- declarative interpreter versus compiled execution plan;
+- primitive caching and batched parameter layouts;
+- CPU parallelism, SIMD, memory, disk, and thermal behavior;
+- declarative family versus isolated Rust family-module throughput;
+- compile and bounded-repair costs for novel modules;
+- bytes retained per configuration; and
+- exact signal/trade/fill/metric parity with the reference fixtures.
+
+Those measurements choose the Rust engine design and hardware target. The agent
+does not choose the language.

@@ -1,5 +1,13 @@
 # iOS Companion App — read-only iPhone surface with regime-flip push + widget
 
+> **DEFERRED OUT OF MONTAUK 3.0 (owner decision 2026-07-17).** This is a
+> preserved historical design for a possible 4.x/5.x convenience. It is not a
+> 3.0 pillar, phase, acceptance criterion, or prerequisite. Montauk 3.0 uses the
+> existing mostly read-only Mac “at a glance” surface plus a daily Slack/agent
+> digest and actionable failure/change notifications. If mobile work is resumed,
+> revalidate the product and security assumptions below rather than treating this
+> plan as current.
+
 **Goal (Max, 2026-06-10):** a personal (not App Store) iPhone app that is
 strictly read-only: real app icon, a home-screen widget showing the current
 regime, and a push notification the moment `risk_state` flips. The Mac stays
@@ -95,3 +103,5 @@ that satisfies all three requirements (icon, widget, push).
   SwiftUI + WidgetKit chosen.
 - 2026-06-10: APNs direct-from-Mac chosen over ntfy/Pushover so the alert
   comes from the Montauk app itself (single icon, single surface).
+- 2026-07-17: iOS removed from the Montauk 3.0 completion boundary and deferred
+  to 4.x/5.x. Slack/daily digest is the initial 3.0 remote surface.

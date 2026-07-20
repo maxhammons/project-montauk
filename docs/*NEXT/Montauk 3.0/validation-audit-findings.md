@@ -7,6 +7,14 @@ file is audited. Severity is about the **certification claim**, not code style.
 
 **Scope:** `scripts/validation/` (~5,900 lines).
 
+> **Contract note (2026-07-17):** The owner now intends every backtest survivor,
+> regardless of human/AI origin, to face the same mandatory evidence planks and
+> rigor. A structurally inapplicable algorithm may use a predeclared equivalent
+> or valid `not_applicable` result; origin-based skipping and silent weight
+> renormalization remain current behavior to audit, not the target 3.0 design.
+> Search provenance still matters to multiplicity even when the evidence
+> requirements are universal.
+
 | File | Lines | Status |
 |---|--:|---|
 | `deflate.py` | 373 | ✅ audited 2026-06-17 |
@@ -43,18 +51,22 @@ does not constrain the extreme upper tail, and the result is violently tail-sens
 on the 4th decimal of the fitted CDF, exactly where a body-fit Beta is least
 trustworthy. The empirical `rs_p99` / `rs_max` are computed but never used to validate
 or cap the parametric tail.
-**Fix:** fit the tail directly (EVT / Gumbel on per-family block maxima), or at minimum
-cross-check the Beta tail against the empirical max and raise the null if they diverge.
-Highest-value correctness fix in the file.
+**Fix:** compare and validate appropriate bounded-tail / generalized-extreme-value
+models on per-family block maxima rather than preselecting a Gumbel shape, or at
+minimum cross-check the Beta tail against the empirical max and raise the null if
+they diverge. Highest-value correctness fix in the file.
 
-### D-2 — Expected-max proxy is mildly anti-conservative (MEDIUM)
-`expected_max_beta` uses the `(1 − 1/n)` quantile as `E[max]`. For n iid draws
-`E[max] ≈ F⁻¹(1 − 1/(n+1))`, which is *higher*, so the proxy slightly **underestimates**
-the expected max → `beats_noise = observed > expected_max` is marginally too easy.
-Honestly documented as a proxy, but the bias direction favors passing.
-**Fix:** use `1 − 1/(n+1)` (or the standard −Euler-γ correction); near-free.
+### D-2 — Expected-max quantile proxy is not a validated expectation (MEDIUM)
+`expected_max_beta` substitutes the `(1 − 1/n)` quantile for `E[max]`.
+No single plotting-position quantile is the expected maximum for an arbitrary
+fitted Beta distribution, so the size and even practical importance of the
+approximation error must be measured rather than asserted.
+**Fix:** compute the fitted-Beta maximum expectation from
+`E[max] = integral_0^1 (1 - F(x)^n) dx` using stable numerical integration (or
+an independently verified analytic/simulation equivalent), then test the current
+proxy's bias across the fitted parameter range.
 
-### D-3 — N_eff blind to generation breadth (MEDIUM — this *is* G1)
+### D-3 — N_eff blind to generation breadth (MEDIUM now; CRITICAL at 3.0 scale — G1)
 `estimate_n_eff` counts only **hash-indexed (mined) configs**. Families that die on the
 cheap screen, and authored-but-un-mined families, never enter the count. Under Montauk
 3.0 (auto-enter, grind-constantly) the *uncounted* breadth becomes the dominant
@@ -75,8 +87,8 @@ Numerically negligible, but for bit-exact reproducibility keep full precision in
 concentrated in **D-1** (tail extrapolation), which is also where the whole
 "is-it-noise" verdict is most sensitive. **D-3 (=G1)** remains the structural priority.
 
-> Also worth noting (not a bug): this RS-deflation feeds the `selection_bias` sub-score
-> at weight **0.10** (T2). The anti-overfit deflation therefore has bounded influence on
-> the final composite — a design choice (deflation *informs*, it doesn't *dominate*),
-> but worth keeping in view when reasoning about how much the gate actually punishes
-> selection bias.
+> Also worth noting (current implementation, not endorsed 3.0 policy): this
+> RS-deflation feeds the `selection_bias` sub-score at weight **0.10** on the T2
+> route. The anti-overfit deflation therefore has bounded influence on the final
+> composite. The universal-contract design must decide whether selection-bias
+> evidence is a mandatory plank rather than something stronger scores can offset.
