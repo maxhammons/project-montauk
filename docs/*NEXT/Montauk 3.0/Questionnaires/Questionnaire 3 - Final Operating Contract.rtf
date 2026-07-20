@@ -1,292 +1,1378 @@
-{\rtf1\ansi\ansicpg1252\deff0
-{\fonttbl{\f0\fswiss Helvetica;}{\f1\froman Georgia;}}
-{\colortbl;\red22\green33\blue46;\red75\green85\blue99;\red180\green40\blue45;}
-\paperw12240\paperh15840\margl1080\margr1080\margt900\margb900
-\viewkind4\uc1
-\pard\qc\sa180\f1\b\fs36 Montauk 3.0 - Questionnaire 3\par
-\pard\qc\sa100\f0\b0\fs24 Final Operating Contract\par
-\pard\qc\sa300\cf2\fs20 Prepared 2026-07-17\cf0\par
-
-\pard\sa160\f0\fs21 This questionnaire contains only decisions that remain unresolved after the first two rounds. The following are already treated as settled and are not being asked again: TECL-only; one user; always-on appliance; scheduled model-agnostic remote frontier agent; deterministic Gold verdict; autonomous candidate authoring; automatic Gold-to-leaderboard publication; no staging board or Trade Roster; normal active-strategy changes require Max; brokerage remains manual for 3.x; iOS is later; and only Max decides when 4.x begins.\par
-\pard\sa160\fs21 For each item, type after "Answer." If the suggested default matches your intent, "accept default" is enough. These questions are intentionally precise because a coding agent should not invent these rules.\par
-\pard\sa200\cf3\b\fs21 Questionnaire process rule:\cf0\b0  After Max finishes each questionnaire round, the reviewing agent must read the complete answers and update README.md, charter.md, decisions.md, and every affected pillar plan before preparing another round or a coding handoff. The answered questionnaire is preserved unchanged as source evidence; the active Markdown documents become the current project truth. Contradictions must be reconciled explicitly, and superseded decisions must remain marked in the decision log. No round is complete merely because the answer file exists.\par
-
-\pard\sa220\f1\b\fs28 A. Gold: the exact promise and economic gate\par
-
-\pard\fi-360\li720\tx720\sa80\f0\b\fs21 1.\tab Gold wording.\b0  Is this the right final claim?\par
-\pard\li720\sa100\fs20 "Gold is Montauk's highest current certification of an exact, frozen strategy configuration. Under a named validation-contract version and data vintage, it beat the defined TECL buy-and-hold benchmark on every required real-data horizon using the deployable execution model, passed every mandatory correctness, robustness, and search-wide anti-overfitting criterion, and remains current under Montauk's forward-monitoring rules. Gold means Montauk detected no disqualifying failure to the strongest extent supported by available evidence. It does not prove that overfitting is absent or guarantee any future call or return."\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
-\pard\li720\sa120\fs20\par
+{\rtf1\ansi\ansicpg1252\cocoartf2870
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 Georgia-Bold;\f1\fswiss\fcharset0 Helvetica;\f2\fswiss\fcharset0 Helvetica-Bold;
+\f3\fswiss\fcharset0 Helvetica-Oblique;}
+{\colortbl;\red255\green255\blue255;\red75\green85\blue99;\red180\green40\blue45;}
+{\*\expandedcolortbl;;\csgenericrgb\c29412\c33333\c38824;\csgenericrgb\c70588\c15686\c17647;}
+\margl1080\margr1080\margb900\margt900\vieww15600\viewh15840\viewkind0
+\deftab720
+\pard\pardeftab720\sa180\qc\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 2.\tab Universal validation versus search history.\b0  Do you agree that every survivor should face the same mandatory gates, while the statistical correction still becomes stricter when the strategy was selected from a broader or more adaptive search?\par
-\pard\li720\sa80\fs20 Suggested default: yes. Who authored a strategy does not change the visible gates, but millions of feedback-informed attempts cannot be treated like one untouched hypothesis.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f0\b\fs42 \cf0 Montauk 3.0 - Questionnaire 3\
+\pard\pardeftab720\sa100\qc\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 3.\tab Retire T0/T1/T2 routing.\b0  Should Montauk 3.0 retire validation routes that skip or reweight gates based on whether a candidate was human-preregistered, simple, or AI/discovery-authored?\par
-\pard\li720\sa80\fs20 Suggested default: yes; one maximum-strength contract, with selection provenance incorporated inside the relevant tests rather than by omitting tests.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f1\b0\fs30 \cf0 Final Operating Contract\
+\pard\pardeftab720\sa300\qc\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 4.\tab Required real-data horizons.\b0  Which named real-data periods must independently beat B&H for Gold? Please define the windows, for example: all real TECL history, a fixed recent five-year window, and one or more fixed rolling/stress windows.\par
-\pard\li720\sa80\fs20 Suggested default: all available real history plus a fixed recent window; use named stress windows as required diagnostics only if they are frozen before search.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\fs26 \cf2 Prepared 2026-07-17; expanded with context and recommendations 2026-07-20\cf0 \
+\pard\pardeftab720\sa160\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 5.\tab Rolling B&H demotion.\b0  What exact rolling underperformance should make a current Gold strategy lose Gold: window length, allowed margin below B&H, minimum observations/trades, and how many consecutive evaluations must fail?\par
-\pard\li720\sa80\fs20 Suggested default: require a predeclared persistence rule rather than revoking on one noisy daily crossing.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\fs27 \cf0 This questionnaire contains only decisions that remain unresolved after the first two rounds. The following are already treated as settled and are not being asked again: TECL-only; one user; always-on appliance; scheduled model-agnostic remote frontier agent; deterministic Gold verdict; autonomous candidate authoring; automatic Gold-to-leaderboard publication; no staging board or Trade Roster; normal active-strategy changes require Max; brokerage remains manual for 3.x; iOS is later; and only Max decides when 4.x begins.\
+Each item now has four parts. "Context" explains what part of Montauk the decision controls and why it is being asked. "Question" states the choice in plain language. "Suggested answer" gives a concrete default you may accept. "Reasoning" explains the tradeoff behind that default. Type after "Your answer." If the recommendation matches your intent, "accept suggested answer" is enough.\
+Some questions set owner policy; others identify a rule that must be designed and statistically calibrated during implementation. Where a number would be irresponsible to guess from preference alone, the suggested answer deliberately fixes the safety policy and requires the validation workstream to derive, simulate, version, and audit the exact number before production.\
+\pard\pardeftab720\sa200\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 6.\tab Synthetic catastrophic veto.\b0  Synthetic history is diagnostic, but you also want an extreme synthetic failure to matter. What result is catastrophic enough to block Gold, if any?\par
-\pard\li720\sa80\fs20 Suggested default: define one conservative veto such as ruin, unrecoverable drawdown, or severe B&H underperformance across a broad majority of predeclared synthetic regimes; do not count synthetic outperformance as independent proof.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b \cf3 Questionnaire process rule:
+\f1\b0 \cf0  After Max finishes each questionnaire round, the reviewing agent must read the complete answers and update README.md, charter.md, decisions.md, and every affected pillar plan before preparing another round or a coding handoff. The answered questionnaire is preserved unchanged as source evidence; the active Markdown documents become the current project truth. Contradictions must be reconciled explicitly, and superseded decisions must remain marked in the decision log. No round is complete merely because the answer file exists.\
+\pard\pardeftab720\sa220\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 7.\tab Deployable fill timing.\b0  If a signal is calculated after a day's close, should Gold economics require execution at the next actually available price, with same-close results shown only as an optimistic diagnostic?\par
-\pard\li720\sa80\fs20 Suggested default: yes. A strategy cannot know the closing signal and fill at that same close.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f0\b\fs34 \cf0 A. Gold: the exact promise and economic gate\
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 8.\tab B&H comparator contract.\b0  Should B&H use the same initial date, deployable purchase timing, distributions, transaction costs, and treatment of unavailable/warm-up bars as the strategy? What return should risk-off cash earn?\par
-\pard\li720\sa80\fs20 Suggested default: freeze every comparator detail and compare unrounded values under matched timing and costs.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\fs27 \cf0 1.	Gold wording\
+\pard\pardeftab720\li720\sa60\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 9.\tab Evidence of beating B&H.\b0  Is a point estimate barely above 1.0 enough, or must a one-sided lower confidence bound exceed B&H?\par
-\pard\li720\sa80\fs20 Suggested default: lower confidence bound above B&H, accepting that the Gold board may sometimes be empty. This matches your preference to avoid false Gold.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\fs26 \cf0 Context:
+\f1\b0  This sentence defines the promise made whenever Montauk labels a configuration Gold. It governs the leaderboard, notifications, active-strategy eligibility, and how much trust you should place in the label.\
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 10.\tab Minimum evidence.\b0  Should Gold require a minimum number of trades, minimum track-record length, minimum independent regimes, or a combination? May a structurally simple strategy qualify with very few trades?\par
-\pard\li720\sa80\fs20 Suggested default: use a combination with an explicit insufficient-evidence result rather than allowing a high point estimate to hide a tiny sample.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
-
-\pard\fi-360\li720\tx720\sa80\b\fs21 11.\tab Mandatory planks versus composite score.\b0  Must every required validation dimension clear its own minimum, or may exceptional strength elsewhere offset a weak or failed dimension?\par
-\pard\li720\sa80\fs20 Suggested default: mandatory minima for every load-bearing plank. Montauk Score ranks eligible Gold rows; it never rescues a failed Gold gate.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
-
-\pard\fi-360\li720\tx720\sa80\b\fs21 12.\tab Score versus probability.\b0  Until enough real forward outcomes exist to calibrate a probability, should the UI say "Validation Score 78/100" rather than "78% confidence"?\par
-\pard\li720\sa80\fs20 Suggested default: yes. A weighted composite is not automatically a 78% probability that the edge is real.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
-
-\pard\fi-360\li720\tx720\sa80\b\fs21 13.\tab Missing and skipped validation.\b0  Should missing, budget-skipped, insufficient-variant, or unverifiable required evidence always prevent Gold unless a predeclared equivalent test is explicitly marked not applicable?\par
-\pard\li720\sa80\fs20 Suggested default: yes; never silently drop a missing dimension and renormalize the remaining score upward.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
-
-\pard\fi-360\li720\tx720\sa80\b\fs21 14.\tab Recent performance role.\b0  Should recent performance be a hard Gold requirement, a ranking weight, a demotion trigger, or all three with different rules?\par
-\pard\li720\sa80\fs20 Suggested default: fixed recent horizon as one hard eligibility gate, recent strength as a ranking input, and a separate persistent rolling rule for live demotion.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
-
-\pard\fi-360\li720\tx720\sa80\b\fs21 15.\tab Empty-board tolerance.\b0  Are you willing for a rigorous contract to produce zero Gold strategies temporarily, rather than lower the bar to guarantee an active Gold row?\par
-\pard\li720\sa80\fs20 Suggested default: yes; then use the separately defined no-Gold human-decision state.\par
-\pard\li720\sa220\i\fs20 Answer:\i0\par
-
-\page
-\pard\sa220\f1\b\fs28 B. Search breadth, continual learning, and honest counting\par
-
-\pard\fi-360\li720\tx720\sa80\f0\b\fs21 16.\tab Search-campaign identity.\b0  How should one statistical search campaign be bounded: by family version, agent batch, data vintage, methodology version, elapsed time, or a combination?\par
-\pard\li720\sa80\fs20 Suggested default: preserve all levels and let the correction use family, campaign, and lifetime/board context rather than pretending one boundary erases earlier selection.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b Question:
+\f1\b0  Should Gold promise that Montauk found no disqualifying failure under a named, reproducible contract, while explicitly avoiding a guarantee about future returns?\
+\pard\pardeftab720\li720\sa80\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 17.\tab What must be counted.\b0  Should Montauk record all agent-proposed families, invalid/rejected submissions, configurations actually cheap-screened, full backtests, validation attempts, and feedback-driven batches for selection-bias accounting?\par
-\pard\li720\sa80\fs20 Suggested default: yes. A combination only declared but never evaluated is not a tested configuration, but the mechanism-level selection event should still be logged.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b \cf0 Suggested answer:
+\f1\b0  Accept this wording: "Gold is Montauk's highest current certification of an exact, frozen strategy configuration. Under a named validation-contract version and data vintage, it beat the defined TECL buy-and-hold benchmark on every required real-data horizon using the deployable execution model, passed every mandatory correctness, robustness, and search-wide anti-overfitting criterion, and remains current under Montauk's forward-monitoring rules. Gold means Montauk detected no disqualifying failure to the strongest extent supported by available evidence. It does not prove that overfitting is absent or guarantee any future call or return."\
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 18.\tab Agent learning from results.\b0  Do you accept that letting the agent read failures and the leaderboard is desirable but makes subsequent ideation adaptive to the same TECL history, so the validator must account for that selection?\par
-\pard\li720\sa80\fs20 Suggested default: yes. This learning is a feature; pretending it is statistically free would be the problem.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b Reasoning:
+\f1\b0  This is strong enough to mean "fit to trade under Montauk's best process" and precise enough to audit. An absolute statement that a strategy is not overfit or will succeed in every future market cannot be established from historical data.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 19.\tab Board-level multiple testing.\b0  Should a candidate be barred from Gold until Montauk also establishes that it survives a board/search-wide test such as SPA, White's Reality Check, Romano-Wolf, or a validated equivalent?\par
-\pard\li720\sa80\fs20 Suggested default: yes; the exact method should be selected and audited by the validation workstream, not by the ideation agent.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f3\i \cf0 Your answer:\
+Yes that is good for the wording for the definition of \'93gold\'94
+\f1\i0 \
+\pard\pardeftab720\li720\sa120\partightenfactor0
+\cf0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 20.\tab Lifetime multiplicity.\b0  Does selection-bias history ever reset? If so, only after what kind of data or methodology change?\par
-\pard\li720\sa80\fs20 Suggested default: do not erase history. Version it, and distinguish prior search under old data/contracts from current search while retaining lifetime context.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b\fs27 \cf0 2.	Universal validation versus search history\
+\pard\pardeftab720\li720\sa60\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 21.\tab Family similarity.\b0  May related configurations remain separate leaderboard rows while being clustered as one dependent family for statistical correction and Chimera voting?\par
-\pard\li720\sa80\fs20 Suggested default: yes. Presentation identity and statistical independence are different questions.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\fs26 \cf0 Context:
+\f1\b0  Two separate issues were getting mixed together. Every surviving strategy should provide the same required evidence, but a winner discovered after millions of adaptive attempts is statistically less surprising than a winner from one untouched hypothesis.\
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 22.\tab Protected exploration floor.\b0  What minimum share of discovery compute should remain reserved for unusual mechanisms even when promising lanes are producing survivors?\par
-\pard\li720\sa80\fs20 Suggested default: start at 10%, allow adaptation within bounds, and report the realized allocation rather than pretending it is scientifically optimal.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b Question:
+\f1\b0  Should all survivors face the same mandatory evidence requirements while the anti-selection-bias correction becomes stricter as Montauk searches more broadly and repeatedly?\
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 23.\tab Retired-family sampling.\b0  Should a retired family receive a small monthly/new-data sample, and what event permits deeper reopening: meaningful traction, complementary primitive, champion weakness, or material redesign?\par
-\pard\li720\sa80\fs20 Suggested default: small periodic samples plus event-triggered reopening; never equate one failed search space with permanent proof that a mechanism cannot work.\par
-\pard\li720\sa220\i\fs20 Answer:\i0\par
+\f2\b Suggested answer:
+\f1\b0  Yes. Use one common Gold evidence contract, and separately account for the complete search path, including agent feedback cycles and discarded attempts.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
 
-\pard\sa220\f1\b\fs28 C. Strategy representation and untrusted execution\par
+\f2\b \cf0 Reasoning:
+\f1\b0  Author identity should not create an easier certification route. At the same time, ignoring the number of attempts would let continual search manufacture lucky winners.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
 
-\pard\sa160\f0\fs20 Fixed representation decision: Rust is the production strategy/evaluation language and the agent does not choose another language. The normal agent output is one schema-constrained declarative family specification, not strategy source code and not a hand-written list of configurations. Rust validates the typed logic graph and constraints, compiles one internal execution plan, then generates and batch-evaluates exact configurations as data. The isolated Rust family-module escape hatch is staged and disabled until its containment, causality, determinism, resource, and parity acceptance tests pass. Python is reference/testing only.\par
+\f3\i \cf0 Your answer:\
+Yes defeinely. All stratgeies that are certified gold have passed all the same tests and passed all the evidence requirements. When we talk about selection bias, im less strict on that. A strategy that we know poses through the pipeline will have a configuration that will be very similar that will perform very similarly. That doesnt mean that the similar strategy should be punished. (Al though it is a bit ridiculous and would clog up the leaderboard if there are millions of configurations that are .1 or .01 off from the main configuration so I dont want that) the leaderboard is about finidng all strategies that pass the backtesting and pass the anti over fitting suite. Once they get to the leaderboard I will sort and choose the best one based on our scoring criteria. I\'92ll happily have thousands of strategies in the leaderboard (using it as more of repo of viable and usable strategies- albeit most would not be the best performing or highest confidence strategies. 
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\f0\b\fs21 24.\tab Rust representation path - DECIDED.\b0  Montauk begins declarative-first: the agent submits one typed family/search-space specification, while Rust generates valid exact configurations and batch-tests them. The isolated agent-authored Rust-module path is enabled only after its acceptance suite passes. This is intended to maximize test speed and prevent implementation/configuration errors without permanently blocking novel mechanisms.\par
-\pard\li720\sa200\i\fs20 Optional correction or comment:\i0\par
+\f2\b\fs27 \cf0 3.	Retire T0/T1/T2 routing\
+\pard\pardeftab720\li720\sa60\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 25.\tab Initial building-block scope.\b0  Which primitives must the first constrained representation support: price/return transforms, EMA/SMA, volatility/ATR, RSI/momentum, state machines, regime filters, macro inputs, boolean composition, position holds, and exits?\par
-\pard\li720\sa80\fs20 Please name any mechanism already used by Montauk that would be unacceptable to lose.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\fs26 \cf0 Context:
+\f1\b0  The current validator can route strategies through different tiers based partly on how they were proposed. Some tiers may skip tests or redistribute their score weights. That conflicts with your desire for every Gold strategy to survive the strongest available process.\
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 26.\tab Isolated Rust-module admission.\b0  Who may decide that a new idea needs an agent-authored Rust family module rather than the declarative primitive library: the agent automatically, a deterministic expressiveness check, or Max?\par
-\pard\li720\sa80\fs20 Suggested default: agent may request it, but a deterministic policy and/or Max must authorize the capability until the boundary is mature.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b Question:
+\f1\b0  Should 3.0 remove author-origin tiers as a reason to skip or weaken evidence requirements?\
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 27.\tab Sandbox capabilities.\b0  Do you approve this default: no network, no secrets, no arbitrary filesystem writes, no protected-repository writes, no subprocesses, read-only typed historical arrays, deterministic seed, schema-validated output, and disposable process/container?\par
-\pard\li720\sa80\fs20 Suggested default: yes, deny by default and allow only capabilities a strategy contract proves necessary.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b Suggested answer:
+\f1\b0  Yes. Require the same evidence planks and rigor for every survivor. Permit only a predeclared equivalent test or a genuinely valid not-applicable result when a test is structurally irrelevant.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 28.\tab Resource abuse.\b0  May the worker terminate a candidate automatically for CPU, wall-clock, memory, output-size, recursion, or repeated nondeterminism limits and record a structured failure?\par
-\pard\li720\sa80\fs20 Suggested default: yes. Limits should be measured by representation/workload class, not chosen by the AI after seeing results.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b \cf0 Reasoning:
+\f1\b0  This closes an avoidable loophole. Selection history still matters, but it belongs inside multiplicity and overfitting tests rather than in a shortcut around them.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 29.\tab Candidate repair count.\b0  Confirm two or three immediate repair attempts. Should the default be three total executions or three repairs after the original attempt?\par
-\pard\li720\sa80\fs20 Suggested default: original attempt plus two repairs, then low-priority repair queue; alert only when failures indicate a system problem or the queue becomes unhealthy.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f3\i \cf0 Your answer:\
+As ive stated- It doesnt matter where the strategy came from. Each configuration is treated as a separate strategy and must pass all tests. No tests can ever be skipped. Confidence in strategies on the leaderboard is paramount. All configurations/strategies on there should have all gone through the same rigorous tests and all of them should have passed all those tests. 
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 30.\tab Immutable family versions.\b0  Should every strategy code change create a new immutable family version rather than editing an existing tested version in place?\par
-\pard\li720\sa80\fs20 Suggested default: yes; preserve lineage and never rewrite the artifact associated with a verdict or forward record.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b\fs27 \cf0 4.	Required real-data horizons\
+\pard\pardeftab720\li720\sa60\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 31.\tab Shared strategy library.\b0  Should the autonomous agent be prohibited from appending into one large shared strategy file, instead writing isolated family definitions/modules that intake can address and revoke independently?\par
-\pard\li720\sa80\fs20 Suggested default: yes. Shared trusted primitives are core; generated families are isolated untrusted artifacts.\par
-\pard\li720\sa220\i\fs20 Answer:\i0\par
+\fs26 \cf0 Context:
+\f1\b0  "Beats B&H in all real data" needs named tests. One result over TECL's entire life can hide a strategy that was excellent early and ineffective recently; many hand-picked subperiods create another data-mining problem.\
 
-\page
-\pard\sa220\f1\b\fs28 D. Protected core, repositories, and agent authority\par
+\f2\b Question:
+\f1\b0  Which fixed real-data horizons must each independently beat B&H before Gold is possible?\
 
-\pard\fi-360\li720\tx720\sa80\f0\b\fs21 32.\tab Mechanical core protection.\b0  Which enforcement shape do you prefer?\par
-\pard\li720\sa60\fs20 [ ] Separate protected-core and generated-research repositories plus separate credentials\par
-\pard\li720\sa60\fs20 [ ] One repository with OS-level read-only mounts/path permissions and protected branches\par
-\pard\li720\sa60\fs20 [ ] Hybrid: separate workspaces/credentials plus signed version manifests\par
-\pard\li720\sa80\fs20 Suggested default: hybrid. The agent gets write access only to generated research; protected code is mounted/readable but not writable in autonomous mode.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b Suggested answer:
+\f1\b0  Require the complete available real TECL history and one fixed trailing five-year real-data horizon. Treat named crashes and stress episodes as frozen diagnostics unless the validation design establishes a small predeclared set of additional hard gates.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 33.\tab Core maintenance mode.\b0  How should Max authorize a core change: direct coding session, explicit maintenance-mode command, reviewed pull request, or some combination?\par
-\pard\li720\sa80\fs20 Suggested default: explicit maintenance session plus reviewed diff/tests; the resident autonomous credential never gains core write access.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b \cf0 Reasoning:
+\f1\b0  Full history tests durability; the fixed recent window tests present usefulness. Avoiding an expanding collection of hand-selected windows reduces the chance of tuning the exam to past events.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 34.\tab What counts as core.\b0  Confirm that shared indicators/building blocks, candidate compiler/interpreter, data, fills, B&H, search accounting, validators, thresholds, Montauk Score, rank, recertification, authority state, sandbox, operations, and protected tests are all core.\par
-\pard\li720\sa80\fs20 Suggested default: yes. The agent may propose a new primitive but cannot install it autonomously.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f3\i \cf0 Your answer:\
+Full history tests are important but not the only thing that we should run. I think we should have many. Ideally any gold strategy is better or as good as buy and hold no matter what time period you choose. however it realistically won\'92t always be the case. So we need to choose sections of TECL history that give it enough time to be good but not too much time to cover up bad stretches. How I have it now is pretty good, but it can probably be improved. I dont want the backtest testing to be too complicated. My intent for them is that no matter how you slice it a gold strategy has better performance than bxh. 
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 35.\tab Core-change consequences.\b0  When a data, engine, execution, validator, threshold, or Gold-rule change lands, may Montauk automatically mark every affected certification stale even if Max chooses when the expensive recertification job actually runs?\par
-\pard\li720\sa80\fs20 Suggested default: yes. User control may schedule computation, but cannot make an old incompatible certificate statistically current.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b\fs27 \cf0 5.	Rolling B&H demotion\
+\pard\pardeftab720\li720\sa60\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 36.\tab Ranking-only changes.\b0  If only the ranking formula changes and Gold evidence is otherwise compatible, should rows remain Gold while the board reranks under a clearly named ranking version?\par
-\pard\li720\sa80\fs20 Suggested default: yes, unless the old score was itself a Gold eligibility gate.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\fs26 \cf0 Context:
+\f1\b0  This controls when new live evidence causes an existing Gold strategy to lose certification. Checking every day without persistence rules can eventually revoke a sound strategy because of one random crossing; waiting too long leaves a decayed strategy active.\
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 37.\tab Generated-research Git policy.\b0  Should each accepted agent batch be committed and pushed automatically, or committed locally with periodic push after deterministic checks?\par
-\pard\li720\sa80\fs20 Suggested default: commit after deterministic intake checks; push on a frequent bounded cadence. A local commit is not a disaster-recovery backup until copied off-machine.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b Question:
+\f1\b0  What policy should turn recent B&H underperformance into warning, stale, and revoked states?\
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 38.\tab Provider and credential boundary.\b0  May the resident agent choose between configured frontier providers based on cost/availability, or should provider changes require Max? What monthly spend or usage guardrail should halt calls?\par
-\pard\li720\sa80\fs20 Suggested default: provider-neutral allowlist with explicit cost limits and no credentials exposed to candidate workers.\par
-\pard\li720\sa220\i\fs20 Answer:\i0\par
+\f2\b Suggested answer:
+\f1\b0  Use the same trailing five-year real-data horizon as Question 4. A first statistically meaningful breach creates a warning. Revoke only if the breach persists across two consecutive formal renewals separated by enough new observations under the minimum-evidence rule. Correctness, data-integrity, or replay failures still revoke immediately.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
 
-\pard\sa220\f1\b\fs28 E. Leaderboard, recommendation, and active strategy\par
+\f2\b \cf0 Reasoning:
+\f1\b0  This adds hysteresis without ignoring deterioration. The exact confidence calculation and minimum new evidence should be simulated and audited by the validation workstream rather than guessed from preference.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\f0\b\fs21 39.\tab Headline metrics.\b0  Confirm the default compact row: Montauk Score, Validation Score or calibrated Confidence, and deployable Performance. Should forward-evidence age/status be the one additional compact field?\par
-\pard\li720\sa80\fs20 Suggested default: yes; keep other metrics in detail views and show weaknesses in plain English.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f3\i \cf0 Your answer:\
+Trailing 5 year is a good idea. One bad trade call shouldnt rule out a strategy but if that persists then it should drop
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 40.\tab Recommendation threshold.\b0  How should "meaningfully better" be computed? Please approve or modify a rule such as: recommend review when Validation improves by at least 10% with no material performance loss, Performance improves by at least 10% with no confidence loss, or Montauk Score improves by at least 5% and all secondary floors hold.\par
-\pard\li720\sa80\fs20 Should these be relative percentage changes or absolute score points?\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b\fs27 \cf0 6.	Synthetic catastrophic veto\
+\pard\pardeftab720\li720\sa60\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 41.\tab Recommendation stability.\b0  Should a new leader have to remain superior across a minimum number of daily evaluations before becoming Montauk Recommended?\par
-\pard\li720\sa80\fs20 Suggested default: yes, unless the incumbent lost Gold; use hysteresis to prevent rank noise from producing constant recommendations.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\fs26 \cf0 Context:
+\f1\b0  Synthetic scenarios can expose mechanical fragility outside the one market history we observed, but they are generated assumptions rather than independent evidence. The question is whether an extreme synthetic failure merely lowers confidence or prevents Gold.\
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 42.\tab New-Gold waiting period.\b0  Is the two-week or one-month delay merely a human cooling-off period, or must a candidate accumulate actual forward bars/trades before it may be recommended or activated?\par
-\pard\li720\sa80\fs20 Suggested default: label it "Gold - forward evidence pending" immediately; recommendation/activation policy should use actual forward evidence requirements rather than pretending two calendar weeks proves a low-trade strategy.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b Question:
+\f1\b0  Should synthetic results ever veto Gold, and if so only for what kind of failure?\
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 43.\tab Same-state emergency fallback.\b0  If Active loses Gold and the highest-ranked current Gold fallback gives the same current risk state as the last verified Montauk instruction, may Montauk automatically change the active pointer to that fallback and send a critical alert?\par
-\pard\li720\sa80\fs20 This is the narrow exception that can reconcile automatic fallback with "never normally activates without Max."\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b Suggested answer:
+\f1\b0  Keep synthetic performance diagnostic except for a narrow predeclared catastrophic veto: repeated ruin, invalid behavior, or breach of a frozen maximum-loss safety limit across a broad set of validated stress scenarios. One bad synthetic path does not veto Gold, and synthetic success never counts as independent proof of edge.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 44.\tab Disagreeing emergency fallback.\b0  If that fallback gives the opposite risk state, should Montauk preserve the last verified instruction, enter human_decision_required, and wait for Max rather than issuing a new trusted flip?\par
-\pard\li720\sa80\fs20 Suggested default: yes. Montauk can preserve its last instruction; without an execution acknowledgement it cannot assert the real brokerage position.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b \cf0 Reasoning:
+\f1\b0  This catches structural danger without letting arbitrary scenario generation become a second tunable Gold exam. The validator must define and test the exact catastrophe threshold before use.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 45.\tab No-Gold state.\b0  If no current Gold strategy remains, should Montauk show "no certified strategy," recommend risk-off for human consideration, preserve the last instruction until Max decides, and send a critical alert?\par
-\pard\li720\sa80\fs20 Please distinguish the recommendation from any automatic brokerage action; brokerage remains manual.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f3\i \cf0 Your answer:\
+The synthetic data is pretty accurate and the methodology is pretty sound. Is there a write up on how that was made? Would be good for you to understand that. If no read me or documentation look in git history? Basically it was XLK times 3 (daily) back to a point. And while no there was no TECL that is essentially TECL. (Important to check and see if that is how the data was actually created.) so while the data isn\'92t technically TECL it is close (hence the synthetic moniker) that said- should I have as much weight? Maybe not as much but for different reasons. Current market conditions are different- vol, cyclical, ai, etc. so maybe all this means some kind of weighted backtesting (not to say that the trailing 5 year should matter more than anything else but it should be all weighted) also important are how the the strategy did during certain events (2001, 2008, 2020, 2022, tariffs etc)  
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 46.\tab Manual override loses Gold.\b0  Does loss of Gold automatically cancel a manual override and invoke the emergency state machine, or may an uncertified override remain active with a critical warning?\par
-\pard\li720\sa80\fs20 Suggested default: an uncertified strategy cannot remain Active; cancel its authority and enter the emergency state machine.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b\fs27 \cf0 7.	Deployable fill timing\
+\pard\pardeftab720\li720\sa60\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 47.\tab Minimal execution acknowledgement.\b0  Although brokerage is manual, are you willing to acknowledge "order executed / not executed" so Montauk can distinguish its last instruction from the actual account state?\par
-\pard\li720\sa80\fs20 Suggested default: optional but valuable. Without it, the UI must say "last Montauk instruction," not "current position."\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\fs26 \cf0 Context:
+\f1\b0  Montauk calculates a daily signal using a completed closing bar. A backtest that then fills at that same close uses a price that was no longer available after the signal became known.\
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 48.\tab Signal views while overridden.\b0  When Active differs from Recommended, should the daily surface show both strategies' current states and clearly identify which one drives the trusted instruction?\par
-\pard\li720\sa80\fs20 Suggested default: yes, with Active visually primary and the disagreement impossible to miss.\par
-\pard\li720\sa220\i\fs20 Answer:\i0\par
+\f2\b Question:
+\f1\b0  Should Gold performance use the next genuinely available execution price rather than the signal bar's close?\
 
-\page
-\pard\sa220\f1\b\fs28 F. Data, forward evidence, and recertification\par
+\f2\b Suggested answer:
+\f1\b0  Yes. Certify using the next available price under the actual intended workflow, net of frozen costs. Keep same-close performance only as an explicitly optimistic diagnostic.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\f0\b\fs21 49.\tab Frozen-data research after a feed failure.\b0  May discovery research continue against an immutable last-good data snapshot while all current certification, leaderboard mutation, recertification, and new trusted signals remain halted?\par
-\pard\li720\sa80\fs20 Suggested default: yes, if every result is marked stale-data research and cannot reach current Gold until replayed on current verified data.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b \cf0 Reasoning:
+\f1\b0  A strategy that only beats B&H with an impossible fill is not fit to trade. This is an execution-correctness rule, not a conservative preference.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 50.\tab Recovery order.\b0  Confirm this restart/offline order: database/integrity recovery; data catch-up and verification; active recertification and current signal; critical notifications; top-board recertification; then discovery research.\par
-\pard\li720\sa80\fs20 Suggested default: yes.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f3\i \cf0 Your answer:\
+Or should we switch to open prices? And then the fill would have to be calculated on the average price of the day (im also thinking maybe we make the fill price the low of the day. Im just thinking when I get the notification to sell position ill papally not get as good of price as when the alert was first triggered. And vice versa with the buy call) so maybe for the backtest we say that when the open price posted and triggers a buy/sell then by the time I see it the price is usually worse than it had so we take average of high or low depending on the move and the close price? Or is that overthinking? Just trying to make the backtests as realistic and defendable as possible
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 51.\tab Per-row forward evidence.\b0  Should each immutable strategy version start its own forward record at certification, tracking bars, elapsed market time, trades/signals, regimes, performance versus its frozen comparator, and drawdown?\par
-\pard\li720\sa80\fs20 Suggested default: yes; never relabel an earlier active system's observations with a later champion.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b\fs27 \cf0 8.	B&H comparator contract\
+\pard\pardeftab720\li720\sa60\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 52.\tab Monitoring versus recertification versus re-optimization.\b0  Do you approve treating these as distinct: daily replay of frozen logic, certification renewal when new bars accumulate, and re-optimization that creates a new candidate/version?\par
-\pard\li720\sa80\fs20 Suggested default: yes. Re-optimization must never erase or merge the old version's forward history.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\fs26 \cf0 Context:
+\f1\b0  "Beats buy and hold" is ambiguous unless both sides start and trade under matching assumptions. Different start dates, dividend handling, fees, or cash yield can manufacture an apparent advantage.\
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 53.\tab Evidence-driven recertification.\b0  What should force renewal: every new bar for Active, a fixed number of forward bars, a signal/trade event, performance drift, contract/data correction, or a maximum elapsed age?\par
-\pard\li720\sa80\fs20 Suggested default: Active is replayed daily; formal renewal is triggered by meaningful new bars/events plus maximum age; top cohort next; remainder rolling. Repeating unchanged data only verifies reproducibility and adds no evidence.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b Question:
+\f1\b0  What exact TECL B&H baseline should every candidate have to beat?\
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 54.\tab Live demotion hysteresis.\b0  Should live Gold loss require a predeclared sequential rule with minimum sample and persistence, rather than repeatedly checking until one random bad day crosses a threshold?\par
-\pard\li720\sa80\fs20 Suggested default: yes; define alert, warning, stale, and revoked states separately.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b Suggested answer:
+\f1\b0  Use adjusted total-return TECL, the same starting capital and eligible start date, the same next-available purchase timing, and the same explicit transaction-cost model. Compare unrounded results. For the initial conservative Gold contract, give risk-off cash zero return; show an actually achievable cash yield only as a separate diagnostic until the intended cash vehicle is formally in scope.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 55.\tab Mixed contract versions.\b0  May current Gold rows certified under incompatible validator/execution contracts share one ranked current leaderboard?\par
-\pard\li720\sa80\fs20 Suggested default: no. Mark affected rows stale and separate historical views until recertified under the current contract.\par
-\pard\li720\sa220\i\fs20 Answer:\i0\par
+\f2\b \cf0 Reasoning:
+\f1\b0  Matched assumptions make the comparison reproducible and prevent cash-yield or timing choices from quietly flattering the strategy. Zero cash return is conservative for a long/flat TECL system.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
 
-\pard\sa220\f1\b\fs28 G. Storage, Slack, operations, and completion\par
+\f3\i \cf0 Your answer:\
+Yes to your suggested and see my answer above about backtesting in number 6
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\f0\b\fs21 56.\tab Canonical storage split.\b0  Do you approve: transactional control database for workflow/authority; compressed partitioned experiment ledger for high-volume results; immutable content-addressed Gold/near-Gold artifacts; and Git/GitHub for core code, strategy definitions, compact Gold manifests, and snapshots?\par
-\pard\li720\sa80\fs20 Suggested default: yes. The leaderboard becomes a database view, not a million-line hand-edited file.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b\fs27 \cf0 9.	Evidence of beating B&H\
+\pard\pardeftab720\li720\sa60\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 57.\tab Retention tiers.\b0  At extreme throughput, what must remain forever per failed configuration: exact parameters, key metrics, terminal stage/reason, versions, campaign, and content hash? May raw traces and intermediate arrays expire after aggregate verification?\par
-\pard\li720\sa80\fs20 Suggested default: permanent compact verdict rows; full artifacts for Gold/near-Gold/audit samples; measured retention and archival for raw bulk data.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\fs26 \cf0 Context:
+\f1\b0  A terminal performance ratio of 1.001 says the estimate is barely above B&H, not that the true edge is reliably positive. This question determines how much uncertainty must be cleared before Gold.\
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 58.\tab Backup and recovery target.\b0  How much experiment history can be lost after a machine failure, and how quickly should trusted signal service recover? Is nightly off-machine database backup plus frequent core/Gold push enough?\par
-\pard\li720\sa80\fs20 Suggested default: define separate targets - near-zero loss for authority/Gold state, up to one research interval for bulk experiments, and recovery of verified signal before research resumes.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b Question:
+\f1\b0  Is a point estimate above B&H sufficient, or must a conservative lower confidence bound also exceed B&H?\
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 59.\tab Slack authority.\b0  Which actions may Slack perform in 3.0?\par
-\pard\li720\sa60\fs20 [ ] Query/explain status and research\par
-\pard\li720\sa60\fs20 [ ] Request ideation or a research campaign\par
-\pard\li720\sa60\fs20 [ ] Trigger recertification\par
-\pard\li720\sa60\fs20 [ ] Acknowledge an alert\par
-\pard\li720\sa60\fs20 [ ] Approve a named pending active-strategy switch\par
-\pard\li720\sa60\fs20 [ ] Enter/exit maintenance mode\par
-\pard\li720\sa80\fs20 Suggested default: allow the first five only through authenticated, allowlisted, exact-ID, confirmed, idempotent, audited commands. Free-form chat never edits core or implies approval.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b Suggested answer:
+\f1\b0  Require a predeclared one-sided lower confidence bound to exceed B&H on each mandatory horizon. Accept that this can produce an empty Gold board.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 60.\tab Immediate-alert SLA.\b0  Even if most updates wait for the daily digest, which events require an immediate alert and how soon: data verification failure, inability to generate the required signal, Active loses Gold, no Gold fallback, database corruption, sandbox escape attempt, or repeated agent/system failure?\par
-\pard\li720\sa80\fs20 Suggested default: all listed authority/integrity failures immediate; new non-leading Gold and ordinary research errors stay in the digest.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f2\b \cf0 Reasoning:
+\f1\b0  You have said false Gold is worse than missing some upside. Requiring the downside edge of the uncertainty interval to clear B&H expresses that preference much better than a rounded point estimate.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 61.\tab Quantified 3.0 acceptance evidence.\b0  Which tests must pass before you will call the appliance operational: deterministic replay, clean-machine Gold reproduction, sandbox escape suite, crash-at-every-transition recovery, backup restore, data-failure drill, active-loss drill, provider swap, load/preemption test, and unattended soak?\par
-\pard\li720\sa80\fs20 Suggested default: require all of them. The soak duration is evidence for Max's decision, never an automatic transition to 4.x.\par
-\pard\li720\sa200\i\fs20 Answer:\i0\par
+\f3\i \cf0 Your answer:\
+I think there should be a threshold above 1. not sure how much. And maybe its dynamic so we start it at 1.1 and if we cconsistently beat that we bump to 1.2 keeping an eye on confidence scores
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
-\pard\fi-360\li720\tx720\sa80\b\fs21 62.\tab Final human inspection before autonomous operation.\b0  Before the scheduled agent is allowed to run unattended, do you want a single owner-review package containing the frozen Gold contract, authority state machine, core-permission proof, validation audit, recovery drill results, current known limitations, and a dry-run digest for your explicit approval?\par
-\pard\li720\sa80\fs20 Suggested default: yes. This approval makes the methodology and authority model clear without making Max approve ordinary research thereafter.\par
-\pard\li720\sa240\i\fs20 Answer:\i0\par
+\f2\b\fs27 \cf0 10.	Minimum evidence\
+\pard\pardeftab720\li720\sa60\partightenfactor0
 
-\pard\qc\sa100\f1\b\fs24 End of Questionnaire 3\par
-\pard\qc\sa100\f0\b0\cf2\fs18 Save this file with your answers. The next required action is for the reviewing agent to promote the complete round into the active docs before asking another round or preparing a coding handoff.\cf0\par
+\fs26 \cf0 Context:
+\f1\b0  A strategy can show excellent performance from only a handful of trades or one macro regime. Simplicity reduces parameter-overfit risk but does not create missing observations.\
+
+\f2\b Question:
+\f1\b0  What evidence floor must be met before statistical passage can mean Gold?\
+
+\f2\b Suggested answer:
+\f1\b0  Require a validated minimum track-record-length/power test plus explicit trade-count and independent-regime reporting. Do not choose an arbitrary trade count as the sole gate. If the record is too thin, return "insufficient evidence" rather than Gold, even for a simple strategy.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  Trade counts are not equally informative when outcomes are serially dependent. A calibrated evidence-sufficiency test is more defensible, while visible trade/regime counts keep the limitation understandable.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 11.	Mandatory planks versus composite score\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  A weighted score can allow strong performance to compensate for weak execution realism or overfit evidence. This asks whether Gold is a set of non-negotiable requirements or merely a high average.\
+
+\f2\b Question:
+\f1\b0  Can strength in one validation dimension offset a failure in another load-bearing dimension?\
+
+\f2\b Suggested answer:
+\f1\b0  No. Give every mandatory correctness, execution, evidence-sufficiency, and anti-overfit plank its own minimum. Use Montauk Score only to rank candidates that have already cleared every Gold gate.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  A composite should express relative quality among valid strategies, not hide a fatal weakness. This preserves the meaning of Gold as certification rather than a leaderboard average.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 12.	Score versus probability\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  Montauk currently combines several validation dimensions into a number. Unless that number has been calibrated against many genuine forward outcomes, calling 78 a "78% confidence" gives it a probabilistic meaning it has not earned.\
+
+\f2\b Question:
+\f1\b0  Should the UI use "Validation Score" until forward calibration supports an actual probability?\
+
+\f2\b Suggested answer:
+\f1\b0  Yes. Display "Validation Score: 78/100." Use "Confidence: 78%" only after a versioned calibration study demonstrates that interpretation and shows its sample size/error.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  Honest labeling increases trust. It prevents a useful ranking index from being mistaken for a measured chance of future success.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 13.	Missing and skipped validation\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  Some current scoring paths can omit a gate when it did not run and then redistribute weight across the remaining gates. That can make less evidence look like a stronger score.\
+
+\f2\b Question:
+\f1\b0  May a candidate receive Gold when required evidence is missing, skipped for budget, underpowered, or unverifiable?\
+
+\f2\b Suggested answer:
+\f1\b0  No. Any missing required evidence blocks Gold. Allow not-applicable only when the contract predeclares why the test is structurally irrelevant and identifies an equivalent required check where necessary.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  Compute limits are not evidence. Fail-closed behavior prevents a fast or convenient path from becoming an easier path to certification.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 14.	Recent performance role\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  You want old strategies that no longer work to fall from the board, while still valuing long history. Recent evidence can affect initial Gold, rank among Gold strategies, and later revocation; those are different jobs.\
+
+\f2\b Question:
+\f1\b0  Should recent performance participate in all three jobs under separate frozen rules?\
+
+\f2\b Suggested answer:
+\f1\b0  Yes. Require passage on the fixed recent horizon for Gold, use the margin of recent passage as one ranking input, and apply Question 5's persistent rolling rule for warning/revocation.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This prevents a strategy from surviving solely on distant history without letting one bad recent week erase a long, still-valid record.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 15.	Empty-board tolerance\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  A hard Gold contract may conclude that no tested strategy currently has sufficient evidence. Requiring the board always to contain something would pressure the system to weaken its own standard.\
+
+\f2\b Question:
+\f1\b0  Is an empty current Gold leaderboard an acceptable honest result?\
+
+\f2\b Suggested answer:
+\f1\b0  Yes. Never lower the Gold bar to keep a row. Enter the explicit no-Gold/human-decision state defined later in this questionnaire.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  "No certified answer" is safer and more truthful than manufacturing confidence. It also makes failures in the research program visible instead of masking them.\
+\pard\pardeftab720\li720\sa220\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\page \pard\pardeftab720\sa220\partightenfactor0
+
+\f0\b\fs34 \cf0 B. Search breadth, continual learning, and honest counting\
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\fs27 \cf0 16.	Search-campaign identity\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  Multiple-testing corrections need to know which alternatives were considered together. Montauk will search continuously, so an arbitrary midnight, model session, or file boundary must not make prior attempts disappear statistically.\
+
+\f2\b Question:
+\f1\b0  How should Montauk identify the nested search history associated with a winner?\
+
+\f2\b Suggested answer:
+\f1\b0  Preserve hierarchical IDs for family version, agent batch, research campaign, data vintage, engine/validator contract, and lifetime board history. Let the statistical design use the relevant levels; never let one ID reset the others.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  There is no single honest boundary for an adaptive lifelong search. Hierarchical provenance allows within-family, campaign-wide, and board/lifetime questions to be tested without pretending earlier exploration never occurred.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 17.	What must be counted\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  The system needs honest funnel counts and statistical denominators. A family the agent proposed and rejected is a selection event; a parameter combination that was never evaluated should not be called a tested strategy.\
+
+\f2\b Question:
+\f1\b0  Which events must the permanent research ledger distinguish?\
+
+\f2\b Suggested answer:
+\f1\b0  Record every proposed family/version, invalid or policy-rejected submission, declared search space, configuration actually cheap-screened, full backtest, validation attempt, feedback-informed batch, and final Gold/rejection. Count only configurations actually evaluated as "tested."\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This preserves both honest public counts and the information needed to correct for data snooping. It also prevents billions of merely declared combinations from inflating throughput claims.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 18.	Agent learning from results\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  You want the agent to study failures, avoid loops, and target champion weaknesses. That makes later ideas partially shaped by the same TECL history, just as human iterative research would be.\
+
+\f2\b Question:
+\f1\b0  Should Montauk keep this feedback loop while explicitly counting it as adaptive selection?\
+
+\f2\b Suggested answer:
+\f1\b0  Yes. Give the agent structured access to prior outcomes and record exactly which result summaries informed each new batch.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  Removing feedback would make research wasteful and repetitive. The honest solution is not to blind the agent; it is to preserve provenance and make the validator explicitly account for repeated adaptation.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 19.	Board-level multiple testing\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  A candidate can look robust inside its own parameter neighborhood and still be only the luckiest family among thousands tried. This is the board-wide version of the multiple-comparisons problem.\
+
+\f2\b Question:
+\f1\b0  Must Gold include a test that the winner is superior to B&H after considering the broader family/board search?\
+
+\f2\b Suggested answer:
+\f1\b0  Yes. Require an independently audited board/search-wide test such as Hansen's SPA, White's Reality Check, Romano-Wolf, or a validated equivalent. Let the validation design choose and calibrate the method; the ideation agent cannot select it.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  The published methods were designed for the question "is the best model found in a specification search genuinely better than the benchmark?" That is exactly the risk created by Montauk's continual search.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 20.	Lifetime multiplicity\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  If Montauk can reset the attempt counter every month or after a software update, it can eventually escape the penalty for years of searching the same underlying TECL history.\
+
+\f2\b Question:
+\f1\b0  Should earlier search history ever be deleted from statistical context?\
+
+\f2\b Suggested answer:
+\f1\b0  Never erase it. Start a new versioned epoch when data or methodology materially changes, but retain and expose lifetime provenance and define how old and new epochs enter current correction.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  New bars and better methods change relevance; they do not make earlier data snooping cease to have happened. Versioning permits appropriate weighting without granting a fictional fresh start.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 21.	Family similarity\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  You want every Gold configuration visible, but 70,000 nearby EMA variants are not 70,000 independent discoveries and must not cast 70,000 independent Chimera votes.\
+
+\f2\b Question:
+\f1\b0  May every configuration remain a row while statistical and ensemble logic clusters dependent variants?\
+
+\f2\b Suggested answer:
+\f1\b0  Yes. Keep individual rows and collapsible family views, while using a versioned dependence/similarity model for multiplicity correction, diversity reporting, and Chimera weights.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This preserves the detailed leaderboard you want without pretending presentation rows equal independent evidence.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 22.	Protected exploration floor\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  A yield-driven scheduler will naturally concentrate on familiar families. Without a protected lane, Montauk may become very efficient at searching only the same river.\
+
+\f2\b Question:
+\f1\b0  What minimum discovery capacity should remain available for unusual mechanisms?\
+
+\f2\b Suggested answer:
+\f1\b0  Reserve at least 10% of discovery compute for exploratory mechanisms, with automatic adaptation above that floor and permission to use more when higher-priority queues are empty. Report the realized allocation.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  Ten percent is large enough to keep genuine exploration alive and small enough not to dominate productive search. It is an initial operating policy to revisit from measured yield, not a claim of mathematical optimality.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 23.	Retired-family sampling\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  "Retired" should prevent wasted deep search, not assert that RSI, volatility, or another mechanism can never work in a different combination or market period.\
+
+\f2\b Question:
+\f1\b0  How should Montauk revisit retired families without dwelling on them?\
+
+\f2\b Suggested answer:
+\f1\b0  Give retired families a small monthly or meaningful-new-data sample. Permit deeper reopening only after measurable sample traction, a new complementary primitive, a relevant champion weakness, or a materially redesigned mechanism. Keep this lane near 1-2% unless evidence earns more.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This preserves optimism and catches changed conditions while keeping most compute focused on mechanisms with evidence of promise.\
+\pard\pardeftab720\li720\sa220\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\pardeftab720\sa220\partightenfactor0
+
+\f0\b\fs34 \cf0 C. Strategy representation and untrusted execution\
+\pard\pardeftab720\sa160\partightenfactor0
+
+\f2\fs26 \cf0 Fixed representation decision: Rust is the production strategy/evaluation language and the agent does not choose another language. The normal agent output is one schema-constrained declarative family specification, not strategy source code and not a hand-written list of configurations. Rust validates the typed logic graph and constraints, compiles one internal execution plan, then generates and batch-evaluates exact configurations as data. The isolated Rust family-module escape hatch is staged and disabled until its containment, causality, determinism, resource, and parity acceptance tests pass. Python is reference/testing only.\
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\fs27 \cf0 24.	Rust representation path - DECIDED\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  This settles what the ideation agent normally writes. It directly affects throughput, token use, compile failures, reproducibility, and whether every candidate uses the same tested execution semantics.\
+
+\f2\b Question:
+\f1\b0  Do you confirm the already-recorded decision that the agent normally submits one typed declarative family and search-space specification, Rust generates exact configurations as data and batch-tests them, and arbitrary agent-authored Rust is only a later isolated escape hatch?\
+
+\f2\b Suggested answer:
+\f1\b0  Yes. Keep the declarative-first path as the only normal path. Enable the isolated Rust-module path only after its containment, causality, determinism, resource-limit, and Python-reference parity suite passes.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This gives the fast, consistent Rust hot path without asking the agent to repeatedly write and compile nearly identical programs. It removes a large class of syntax, type, and integration errors, enables shared feature computation and batched parameter evaluation, and still leaves a controlled route for genuinely new mechanisms.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer or correction:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 25.	Initial building-block scope\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  The declarative strategy language can express only mechanisms provided by its trusted Rust primitive library. If the first library omits something used by Montauk today, the new engine could be fast but unable to reproduce the current strategy or its benchmark results.\
+
+\f2\b Question:
+\f1\b0  What must the first primitive library support before Montauk switches research or production evaluation to it?\
+
+\f2\b Suggested answer:
+\f1\b0  First inventory every current production, Gold, benchmark, and validation strategy and require exact semantic coverage. At minimum include typed arithmetic/comparison/boolean operations; lagged and rolling values; price, return, and volume transforms; SMA, EMA, and WMA; momentum/ROC, RSI, and MACD; ATR, realized volatility, and Bollinger-style bands; crossover and threshold events; causal regime and approved macro inputs; and explicit entry, exit, hold, cooldown, and position-state rules. Require an engineering coverage matrix and block cutover if any existing behavior cannot be reproduced.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  You should not have to guess the complete indicator list from memory. A coverage matrix turns this into a verifiable engineering task and preserves current semantics while establishing a useful first vocabulary for the agent. New primitives can then be proposed deliberately instead of silently improvised.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 26.	Isolated Rust-module admission\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  Some novel idea may not fit the approved declarative primitives. Allowing the agent to declare that every difficult idea needs custom Rust would bypass the safer, faster normal path and create an expanding body of untrusted executable code.\
+
+\f2\b Question:
+\f1\b0  Who decides that an idea is truly inexpressible and may enter the custom Rust-module path?\
+
+\f2\b Suggested answer:
+\f1\b0  Let the compiler produce a deterministic unsupported-capability report and let the agent submit a module request, but require Max's explicit approval before custom executable Rust is admitted during 3.0. Reconsider automatic admission only after the escape hatch has a strong operational record and a separately approved policy.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This prevents convenience from becoming an authority bypass. The deterministic report shows whether a missing primitive is real, while human approval is proportionate because custom code expands the trusted or sandboxed execution surface.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 27.	Sandbox and causal-data capabilities\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  This question covers two different risks: hostile or accidental machine access, and lookahead bias. Merely making a complete historical array read-only protects files but still lets a strategy inspect future values while deciding an earlier signal.\
+
+\f2\b Question:
+\f1\b0  What capabilities may an untrusted custom strategy module receive, and how must Montauk prevent it from reading future data?\
+
+\f2\b Suggested answer:
+\f1\b0  Deny network, secrets, arbitrary filesystem writes, protected-repository writes, subprocesses, and undeclared clocks or randomness. Run each module in a disposable resource-limited process with schema-validated outputs. Expose data through a causal windowed API, or require a prefix-invariance test proving that appending future bars cannot change earlier signals; a full-history read-only array alone is not sufficient.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  The machine boundary reduces operational damage, while the causal boundary protects backtest correctness. Both must be enforced mechanically because a strategy can be harmless to the computer yet invalid as research if it can see the future.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 28.	Resource-limit failures\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  A malformed or unexpectedly expensive candidate could monopolize the Mac mini, grow output without bound, or repeatedly return nondeterministic results. Montauk needs a deterministic way to fail that candidate without stalling higher-priority signal and certification work.\
+
+\f2\b Question:
+\f1\b0  May the worker automatically terminate candidates that exceed CPU, wall-clock, memory, output-size, recursion, or determinism limits, and what should happen afterward?\
+
+\f2\b Suggested answer:
+\f1\b0  Yes. Set fixed, benchmarked limits by representation and workload class; kill the candidate automatically; preserve a structured failure record; and permit at most one automatic retry when the failure is plausibly an infrastructure or resource-class mismatch. The agent may not raise its own limits.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  Automatic containment keeps the appliance available and makes failures comparable. Class-based limits are fairer than one universal timeout, while prohibiting agent-controlled limit changes protects compute governance.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 29.	Candidate repair count\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  You previously preferred two or three repair attempts and then saving failures for later. This question makes the count precise so one broken family cannot consume an unbounded amount of model usage.\
+
+\f2\b Question:
+\f1\b0  Does the repair allowance mean three total attempts, or the original attempt plus three repairs?\
+
+\f2\b Suggested answer:
+\f1\b0  Use the original submission plus two immediate repair attempts: three total executions. Then place it in a low-priority repair queue. Escalate to Max only when the same compiler or pipeline defect affects many candidates, a defined failure-rate threshold is crossed, or the repair queue becomes operationally unhealthy.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  Three total attempts are enough to fix common schema or syntax misunderstandings without allowing a single idea to dominate tokens. Deferring isolated failures preserves them for later learning while keeping routine noise out of your notifications.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 30.	Immutable family versions\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  Backtest, Gold, and forward records must always point to the exact logic that produced them. Editing a family in place would make an old verdict appear to describe new code and could contaminate its forward record.\
+
+\f2\b Question:
+\f1\b0  When should Montauk create a new immutable family version instead of reusing an existing version?\
+
+\f2\b Suggested answer:
+\f1\b0  Create a new family version for every change to strategy logic, parameter-domain meaning, defaults that affect execution, or search semantics. Preserve lineage to the parent. The identical content hash may be evaluated again under a new data, engine, or validation version without pretending the family source itself changed.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This provides exact reproducibility without creating meaningless source versions for routine recertification. It cleanly separates a strategy change from a new evaluation of the same frozen strategy.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 31.	Shared strategy library boundary\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  If the agent continually appends generated logic into one common source file, one bad edit can break unrelated families and no family can be independently quarantined. At the same time, the trusted Rust primitives should be shared so indicators are computed once and behave consistently.\
+
+\f2\b Question:
+\f1\b0  Which parts may be shared, and which generated artifacts must remain isolated?\
+
+\f2\b Suggested answer:
+\f1\b0  Keep the Rust primitive library, compiler, schemas, and execution engine shared and protected as core. Store every generated family specification or approved custom module as an isolated, content-addressed artifact that can be admitted, revoked, or reproduced independently. The agent may propose a core primitive but may never install or edit one autonomously.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This combines performance and consistency in the hot path with a small blast radius for generated work. It also prevents generated scripts from accumulating as an unstructured second implementation of the engine.\
+\pard\pardeftab720\li720\sa220\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\page \pard\pardeftab720\sa220\partightenfactor0
+
+\f0\b\fs34 \cf0 D. Protected core, repositories, and agent authority\
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\fs27 \cf0 32.	Mechanical core protection\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  You identified the most important agent rule: it may create strategies but may never alter the machinery that decides whether they pass. A prompt, README instruction, branch rule, or later Git rollback alone does not prevent a running process from making the forbidden change.\
+
+\f2\b Question:
+\f1\b0  What technical boundary should make protected-pipeline modification impossible during autonomous operation?\
+
+\f2\b Suggested answer:
+\f1\b0  Use a hybrid boundary: a separate protected-core repository and deployment workspace; a separate generated-research repository/workspace; distinct OS identities and credentials; the deployed core mounted read-only to the resident agent; protected remote branches; and a signed or content-addressed core-version manifest attached to every result. The autonomous identity never receives a core write credential.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  Repository separation clarifies ownership, OS permissions enforce it while code is running, remote protection reduces accidental publication, and the manifest proves which immutable pipeline judged a candidate. Defense in depth matters because Git history helps recovery but does not prevent corruption before a commit.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 33.	Core maintenance mode\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  Montauk will eventually need deliberate fixes or methodology improvements. The maintenance process must let you make those changes without silently granting the always-on ideation agent the same authority.\
+
+\f2\b Question:
+\f1\b0  How should Max authorize and install a planned change to protected core?\
+
+\f2\b Suggested answer:
+\f1\b0  Max explicitly opens a maintenance session using a separate human-controlled credential. The change receives a reviewable diff, the complete protected test suite, a new core/version manifest, and an audit record of approval. Closing maintenance mode revokes the writable deployment context. The resident autonomous credential remains unchanged and read-only throughout.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This makes owner authority an observable state transition rather than an interpretation of chat. Separate credentials ensure an agent cannot promote its own pipeline modification simply because it can propose one.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 34.	What counts as protected core\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  The write boundary only works if the protected set is complete. A candidate could bias its own verdict by changing an indicator, comparator, data adjustment, score, threshold, or state transition even if the file named validator remained untouched.\
+
+\f2\b Question:
+\f1\b0  Which systems must be owner-controlled core rather than autonomous strategy research?\
+
+\f2\b Suggested answer:
+\f1\b0  Protect the Rust engine and primitive library, StrategySpec schema and compiler, data ingestion and adjustments, causal/execution and fill model, B&H comparator, campaign/search accounting, validation methods and thresholds, Gold eligibility contract, Montauk Score and ranking, recertification scheduler, authority and fallback state machines, sandbox, operational policies, migrations, and every test that guards them. The agent may submit a proposal for a new primitive or core change but cannot install it.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  These components determine what a result means or what Montauk is authorized to do. Treating all of them as one trust boundary prevents a less obvious file from becoming a loophole around the no-pipeline-edit rule.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 35.	Effect of a core change on existing Gold\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  A Gold certificate is valid only under the exact data, execution, engine, and validation contract that produced it. If one of those semantics changes, the stored results may still be historically interesting but may no longer answer the current Gold question.\
+
+\f2\b Question:
+\f1\b0  When a relevant core change is installed, should Montauk automatically make affected certifications stale even though Max controls when the recertification compute runs?\
+
+\f2\b Suggested answer:
+\f1\b0  Yes. The migration declares its compatibility scope and immediately marks every incompatible certificate stale. Max may schedule the expensive recomputation, but an incompatible stale row cannot remain current Gold or drive a newly trusted signal. Data corrections and correctness fixes should receive highest recertification priority.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  Owner control over timing should not turn an old answer into a valid answer to a changed test. Explicit staleness is the simplest way to keep the board's promise precise and auditable.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 36.	Ranking-only changes\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  Ranking and Gold eligibility are related but different. A new display/ranking formula can reorder already certified strategies without invalidating the evidence that made them Gold, provided the changed score was not itself a certification gate.\
+
+\f2\b Question:
+\f1\b0  May compatible Gold rows remain certified when only the ranking formula changes?\
+
+\f2\b Suggested answer:
+\f1\b0  Yes. Recompute rank under an explicitly named ranking version while preserving each compatible Gold certificate. If any changed term also affected eligibility, confidence, or a required validation threshold, treat it as a certification-contract change and mark affected rows stale instead.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This avoids needless full validation for a presentation or preference change while preventing a substantive gate change from being mislabeled as cosmetic reranking.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 37.	Generated-research Git and backup cadence\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  You want frequent commits for rollback and off-machine protection, but Montauk may generate batches far faster than a useful human-readable commit per configuration. A local commit also survives a bad edit, not a destroyed or stolen Mac mini.\
+
+\f2\b Question:
+\f1\b0  At what boundary should accepted generated research be committed and copied off-machine?\
+
+\f2\b Suggested answer:
+\f1\b0  Commit a family specification or coherent accepted batch only after deterministic intake checks. Push at the end of each batch or at least hourly, whichever comes first, with an optional size trigger such as 100 new families. Keep high-volume configuration results in the backed-up experiment store rather than Git. Keep protected core in its separate repository and release/version process.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This gives bounded data loss and clean rollback points without turning billions of evaluated parameter rows into an unusable Git history. Separating source/spec backup from experiment-ledger backup matches their very different volumes.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 38.	Provider, credential, and spending boundary\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  Montauk is model-agnostic, but that should mean the provider can be replaced without changing research truth - not that the resident agent can register any service, expose secrets to strategy workers, or spend without a limit. Subscription automation and API usage may also have different technical and contractual constraints.\
+
+\f2\b Question:
+\f1\b0  May the resident orchestrator fail over among providers automatically, and what usage boundary should require Max?\
+
+\f2\b Suggested answer:
+\f1\b0  Max maintains an allowlist of configured providers/models and credentials. The orchestrator may select or fail over only within that allowlist, record the provider/model/prompt version for every batch, and keep credentials outside candidate sandboxes. Alert at 80% of the configured monthly usage or cost budget and stop new ideation calls at 100% unless Max explicitly overrides; deterministic queued testing continues.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This preserves provider neutrality and uptime while retaining human control over new vendors and spend. Provenance also makes it possible to compare model yield without letting model choice alter Gold semantics.\
+\pard\pardeftab720\li720\sa220\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\pardeftab720\sa220\partightenfactor0
+
+\f0\b\fs34 \cf0 E. Leaderboard, recommendation, and active strategy\
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\fs27 \cf0 39.	Headline leaderboard metrics\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  This decides what you see before opening a detailed report. Too many numbers recreate the current sense of needless complication; too few can conceal why a strategy is ranked or whether its evidence is still fresh.\
+
+\f2\b Question:
+\f1\b0  Which compact fields earn permanent space on each leaderboard row?\
+
+\f2\b Suggested answer:
+\f1\b0  Show Montauk Score, Validation Score (renamed calibrated Confidence only if forward calibration later supports that interpretation), deployable Performance versus matched B&H, and forward-evidence status/age. Put individual gates and metrics in the expandable detail, with major weaknesses summarized in plain English. Show the current signal prominently at the application level rather than repeating it as a ranking metric.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  These four fields answer rank, evidentiary strength, economic result, and freshness. The wording avoids making Validation Score look like a literal probability until Montauk can prove that calibration.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 40.	Threshold for recommending a switch\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  The leaderboard may reorder after tiny price moves or recertifications. This threshold does not change which row is ranked number one and never activates it; it decides when the improvement is large enough to put a strategy-change decision in front of you.\
+
+\f2\b Question:
+\f1\b0  What combination of confidence, deployable performance, and Montauk Score should make a new leader a formal Montauk Recommended candidate?\
+
+\f2\b Suggested answer:
+\f1\b0  Begin with a review recommendation if any one of these holds while all minimum Gold and secondary non-degradation floors remain satisfied: Validation Score rises by at least 10 absolute points with no material deployable-performance loss; the lower-bound deployable-performance estimate improves by at least 10% relative with no Validation Score decline; or Montauk Score rises by at least 5 absolute points with neither component materially worse. Treat these as versioned provisional operating thresholds and calibrate them against observed recommendation churn.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  Absolute points are interpretable for bounded scores, while relative change is more natural for performance. The asymmetric rule reflects your stated preference: a large confidence gain matters more than the same-sized point estimate gain, but a substantial performance gain still deserves your review.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 41.	Recommendation stability\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  A candidate might cross the switch threshold for one bar and fall back below it the next day. Without persistence, the daily digest could repeatedly reverse its recommendation even though no economically meaningful change occurred.\
+
+\f2\b Question:
+\f1\b0  How long must a qualifying new leader remain superior before Montauk labels it Recommended?\
+
+\f2\b Suggested answer:
+\f1\b0  Require the candidate to remain above the recommendation threshold for five new verified trading bars. Reset the persistence count if it falls below the exit threshold, and use a slightly lower exit threshold than entry threshold to create hysteresis. Bypass this normal recommendation delay when the incumbent loses Gold and invoke the emergency rules instead.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  Five bars suppress short-lived rank noise without imposing another month of delay after all other evidence requirements are met. Separate entry and exit thresholds prevent notification oscillation near one boundary.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 42.	New-Gold cooling-off and forward evidence\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  Historical certification and post-certification evidence answer different questions. A calendar delay gives you time to inspect a new winner, but two weeks with no trade does not statistically validate a slow strategy. This policy controls recommendation/activation eligibility, not whether the strategy belongs on the Gold leaderboard.\
+
+\f2\b Question:
+\f1\b0  What waiting rule should apply after a strategy first reaches Gold, and how should Montauk describe the evidence gathered during it?\
+
+\f2\b Suggested answer:
+\f1\b0  Add the row to the leaderboard immediately as "Gold - forward evidence pending." Apply a normal activation cooling-off period of 20 verified trading bars, after which it may become Recommended if it still clears the switch and stability rules. Track bars, trades/signals, regimes, and relative performance separately; do not claim that 20 bars provide meaningful forward validation when few relevant events occurred. Permit Max to override the cooling-off period explicitly, with that override displayed and audited.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  Roughly one market month is a clear, conservative review interval, but the separate evidence counters preserve statistical honesty. Immediate Gold admission also respects your definition that every currently qualifying strategy belongs on the board.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 43.	Same-state emergency fallback\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  You want automatic fallback when Active loses Gold, but you also said Montauk must never normally activate a different strategy without you. If the best fallback currently gives the same buy/risk-on or sell/risk-off instruction, changing the internal Active pointer does not ask you to make a different trade.\
+
+\f2\b Question:
+\f1\b0  May Montauk automatically transfer Active authority to the highest-ranked current Gold fallback when its current state matches the last trusted instruction?\
+
+\f2\b Suggested answer:
+\f1\b0  Yes, as a narrowly defined emergency exception. Change the Active pointer, preserve the same instruction, label the transition as automatic emergency fallback, and send an immediate critical notification naming both strategies and the evidence that caused the loss of Gold.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  Montauk remains continuously governed by a Gold strategy without silently initiating a different market action. The explicit provenance keeps this exception from being mistaken for ordinary autonomous strategy selection.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 44.	Disagreeing emergency fallback\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  If Active loses Gold and the replacement gives the opposite state, automatically changing the pointer would effectively issue a new buy or sell instruction that you never approved. This is the safety conflict between continuous Gold operation and human authority over position changes.\
+
+\f2\b Question:
+\f1\b0  What should Montauk do when the best Gold fallback disagrees with the last trusted instruction?\
+
+\f2\b Suggested answer:
+\f1\b0  Preserve the last issued instruction, do not label any strategy Active, enter human_decision_required, show the proposed Gold fallback and both signals, and send an immediate critical notification. Wait for Max before issuing the opposite instruction. If execution was never acknowledged, describe only the last Montauk instruction rather than claiming to know the brokerage position.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This implements your explicit instruction to hold state and require a human decision when emergency strategies disagree. It also avoids inventing account knowledge that Montauk does not possess.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 45.	No-Gold state\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  A robust certification system must be allowed to conclude that no tested strategy is currently trustworthy. Montauk still needs to communicate a safe next step without pretending that an uncertified strategy is Active or automatically placing a brokerage order.\
+
+\f2\b Question:
+\f1\b0  What exact state and instruction should appear when the current Gold leaderboard is empty?\
+
+\f2\b Suggested answer:
+\f1\b0  Show "No certified strategy" and human_decision_required, recommend risk-off for Max's decision, preserve and display the last Montauk instruction until Max responds, and send an immediate critical alert. Do not keep an uncertified Active pointer and do not perform any brokerage action.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This is honest about the evidence and leans toward protecting downside, while respecting that manual execution and the final position decision remain yours. It also allows an empty board rather than weakening Gold to avoid an uncomfortable state.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 46.	Manual override that loses Gold\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  A manual override means you selected a lower-ranked Gold strategy, not that you waived the requirement to operate on a certified strategy. Leaving it Active after certification loss would quietly change the meaning of Active and Gold.\
+
+\f2\b Question:
+\f1\b0  Does loss of Gold automatically end a manual override?\
+
+\f2\b Suggested answer:
+\f1\b0  Yes. Revoke the strategy's Active authority and the override immediately, then follow the same emergency fallback rules: automatic pointer transfer only for a same-state Gold fallback; otherwise human_decision_required. Preserve the override and revocation in the audit history.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This enforces your principle that Montauk always operates from Gold-certified logic while retaining a complete record of the intentional choice you previously made.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 47.	Minimal manual-execution acknowledgement\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  Montauk will send instructions while you place orders manually. Without one small acknowledgement, it can know what it recommended but cannot know whether the account actually followed it; that matters when describing current exposure or recovering after downtime.\
+
+\f2\b Question:
+\f1\b0  Are you willing to acknowledge each signal change as executed, not executed, or intentionally deferred?\
+
+\f2\b Suggested answer:
+\f1\b0  Yes. Provide a one-tap Slack or app acknowledgement tied to the exact instruction, with optional execution time and price. Keep it simple and do not require full brokerage integration in 3.x. Until acknowledged, label the display "last Montauk instruction" rather than "current position."\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  One acknowledgement gives Montauk an honest minimal account-state record and improves recovery and performance reconciliation without expanding 3.0 into automated brokerage execution.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 48.	Signal display during a manual override\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  If you keep an approved lower-ranked strategy Active, the number-one Recommended strategy may give a different buy/sell state. Showing only one would either hide what governs your instruction or hide what Montauk currently believes is best.\
+
+\f2\b Question:
+\f1\b0  What should the daily view show when Active and Recommended differ?\
+
+\f2\b Suggested answer:
+\f1\b0  Show both names and current signals. Make Active visually primary and label it "Selected by Max - drives Montauk instruction." Label the other "Montauk Recommended - not active." Display a prominent disagreement state whenever their signals differ, and keep the override in force until Max explicitly removes it or the Active strategy loses Gold.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This makes your authority unmistakable without hiding the system's current recommendation, reducing the risk that you believe you are following the leader when you are not.\
+\pard\pardeftab720\li720\sa220\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\page \pard\pardeftab720\sa220\partightenfactor0
+
+\f0\b\fs34 \cf0 F. Data, forward evidence, and recertification\
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\fs27 \cf0 49.	Research during a market-data failure\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  You said a failed verification should freeze new signals and display the last verified signal with a stale warning, but the machine could still test ideas on the last trusted dataset. This question defines how to retain useful compute without letting stale research contaminate the current leaderboard.\
+
+\f2\b Question:
+\f1\b0  May discovery continue on the immutable last-good snapshot, and which outputs must remain frozen until data recovers?\
+
+\f2\b Suggested answer:
+\f1\b0  Yes. Continue low-priority deterministic research against the content-addressed last-good snapshot, clearly labeled stale-data research. Halt current recertification, Gold promotion or demotion based on the missing period, leaderboard mutation, and new trusted signals. No stale-data survivor may enter current Gold until it is replayed through the complete current pipeline on repaired and verified data. Prioritize recovery over discovery compute.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This avoids wasting safe offline compute while maintaining one unambiguous source of trading truth. The quarantine rule ensures results produced during the outage cannot masquerade as current evidence.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 50.	Recovery order after downtime or corruption\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  After several offline days, Montauk may have a restored database, missing bars, stale certificates, queued research, and an old signal at the same time. The order determines how quickly you regain a trustworthy instruction and prevents research throughput from taking priority over trading safety.\
+
+\f2\b Question:
+\f1\b0  In what exact sequence should the appliance recover?\
+
+\f2\b Suggested answer:
+\f1\b0  First verify or restore the control database, authority log, and artifact integrity. Immediately notify Max that the system is stale and recovering. Then catch up and verify market data; replay and formally recertify Active; compute the current signal and notify Max whether it changed; recertify the Recommended/top cohort; and only then resume ordinary discovery. If Active fails, enter the emergency fallback state machine before lower-priority work.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This restores the minimum trustworthy decision service first and gives you prompt awareness of the outage. It reflects your priority that the active strategy's Gold status matters more than maximizing strategy throughput during recovery.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 51.	Forward evidence belongs to an immutable row\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  Forward evidence is market history that happened after a particular strategy version and parameter set were frozen. A later variation did not exist during the earlier period and cannot inherit that untouched evidence merely because it shares a family name.\
+
+\f2\b Question:
+\f1\b0  Should every immutable configuration version begin and retain its own forward-evidence record?\
+
+\f2\b Suggested answer:
+\f1\b0  Yes. Start at the exact certification/freeze timestamp and track verified bars, elapsed market days, signal changes and trades, observed regimes, deployable return versus the frozen matched comparator, drawdown, and validation warnings. Never transfer observations from a parent, sibling, earlier champion, or re-optimized version.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This preserves the one property that makes forward evidence unusually valuable: the strategy could not have been changed to fit those later observations. Family-level summaries may aggregate rows but must not relabel their individual histories.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 52.	Monitoring, certification renewal, and re-optimization\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  These operations are easy to blur together. Daily monitoring asks what frozen logic says now; renewal asks whether the same frozen strategy still passes Gold with new evidence; re-optimization uses data to choose different parameters or logic and therefore creates a newly selected candidate.\
+
+\f2\b Question:
+\f1\b0  Should Montauk represent and schedule these as three distinct workflows?\
+
+\f2\b Suggested answer:
+\f1\b0  Yes. Replay every required signal from immutable logic and verified data; renew certification only through the versioned Gold contract; and make every re-optimization result a new immutable candidate/version with a new freeze timestamp. Never merge or erase the predecessor's forward history.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  The separation prevents ordinary signal generation from looking like new validation and prevents adapting parameters to new data from being described as untouched forward performance. It also makes scheduler cost and status much easier to understand.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 53.	Evidence-driven recertification schedule\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  Re-running an unchanged suite on unchanged history checks reproducibility but adds no statistical evidence. You first proposed calendar cadences and then preferred forcing renewal when enough genuinely new market history exists. This question converts that preference into initial scheduler rules.\
+
+\f2\b Question:
+\f1\b0  Which new-evidence or safety events should force replay or full Gold renewal for Active, the top cohort, and the rest of the board?\
+
+\f2\b Suggested answer:
+\f1\b0  Replay Active after every verified daily bar. Formally renew Active after 20 new verified bars, any new signal/trade event, any live-warning threshold, or before an emergency/normal activation decision. Renew Recommended and the top cohort weekly or before they become activation-eligible. Renew the remainder after 63 new verified bars, with spare compute permitted to pull work forward. Any relevant data correction or Gold-contract change makes affected rows stale immediately rather than waiting for a bar count. Treat 20, weekly, and 63 as initial versioned operating values to benchmark and revise with owner approval.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This gives the Active strategy continuous operational scrutiny, keeps plausible replacements ready, and prevents a huge board from consuming all compute before it has accumulated meaningful new information. Event triggers catch important changes sooner than a calendar alone.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 54.	Live-warning and Gold-demotion hysteresis\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  Repeatedly asking after every bar whether recent performance is below B&H creates many chances for a random bad day to trigger demotion. Conversely, waiting too long can leave a decayed strategy certified. Montauk needs a predeclared sequential rule rather than a judgment made after seeing the path.\
+
+\f2\b Question:
+\f1\b0  Should rolling underperformance move through warning, stale, and revoked states using minimum evidence and persistence?\
+
+\f2\b Suggested answer:
+\f1\b0  Yes. Validate a one-sided sequential monitoring rule and minimum sample before launch. A first meaningful rolling-bound breach creates a warning and prioritized renewal; a persistent breach across two scheduled formal renewals with sufficient new evidence revokes Gold. Correctness faults, replay divergence, invalid data dependencies, or broken artifacts bypass persistence and make the certificate stale or revoked immediately. Simulate the rule's false-demotion and detection behavior before freezing it.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  Persistence protects against noisy one-day decisions, while immediate correctness exceptions prevent a statistically invalid strategy from remaining trusted. Predeclaring and simulating the policy keeps the demotion mechanism itself from becoming an improvised response to disappointing results.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 55.	Incompatible certification-contract versions\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  Two rows can both be called Gold yet have been judged under different execution fills, data corrections, multiple-testing rules, or thresholds. Ranking them together as equally current would hide that they do not make the same certification promise.\
+
+\f2\b Question:
+\f1\b0  May incompatible contract versions appear together on the current ranked Gold leaderboard?\
+
+\f2\b Suggested answer:
+\f1\b0  No. The current leaderboard has one active Gold-contract version. Keep compatible rows current, mark incompatible rows stale, and display older certificates only in a clearly separated historical/archive view until they are recertified. Every row and digest names its contract version.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  A single current contract makes every row comparable and keeps the word Gold precise. Historical visibility preserves auditability without allowing legacy evidence to drive current authority.\
+\pard\pardeftab720\li720\sa220\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\pardeftab720\sa220\partightenfactor0
+
+\f0\b\fs34 \cf0 G. Storage, Slack, operations, and completion\
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\fs27 \cf0 56.	Canonical storage and sources of truth\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  Millions or billions of configuration results cannot sensibly live as hand-edited JSON or leaderboard files in Git. Montauk still needs durable workflow state, a compact research history, reproducible Gold artifacts, and clear authority after a crash or restore - without creating parallel sources of truth.\
+
+\f2\b Question:
+\f1\b0  Which store is authoritative for each class of Montauk data?\
+
+\f2\b Suggested answer:
+\f1\b0  Use a transactional control database as authority for jobs, alerts, Active/Recommended state, approvals, and certificate lifecycle; a compressed partitioned experiment ledger for high-volume proposals and results; immutable content-addressed storage for full Gold, historical-Gold, near-Gold, and audit artifacts; and Git/GitHub for protected code, declarative family definitions, schemas, migrations, compact signed Gold manifests, and human-readable snapshots. Render the leaderboard as a database view. Define and test exactly how those authorities reconcile after restore.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  Each storage technology handles the data shape it is good at, while the explicit authority map prevents two files from both claiming to be current truth. The leaderboard remains complete and sortable without becoming a million-line operational file.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 57.	Retention tiers for high-volume research\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  Keeping every intermediate equity curve, signal vector, and trace forever may make extreme throughput economically impossible. Deleting every failed result would cause duplicate testing, destroy the failure map used by the ideation agent, and make lifetime search accounting unverifiable.\
+
+\f2\b Question:
+\f1\b0  What must Montauk retain permanently for each evaluated configuration, and when may bulky intermediate artifacts expire?\
+
+\f2\b Suggested answer:
+\f1\b0  Permanently retain one compact verdict row containing exact canonical parameters or their lossless reference, key metrics, terminal gate/reason, family/version, campaign and search provenance, data/engine/validator versions, and content hash. Keep full artifacts permanently for current and historical Gold plus a stratified audit sample. Keep full near-Gold artifacts for at least one year. Retain ordinary failed raw traces/intermediate arrays for 30 days, then delete them only after aggregate, deduplication, and reproducibility checks succeed. Measure bytes per configuration before changing these values.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  The compact row preserves the permanent scientific and operational memory at manageable size. Tiered full-artifact retention supports audits and redesign while allowing the largest reproducible bulk objects to expire.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 58.	Backup loss and recovery targets\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  Different state has different value. Losing an hour of failed parameter screens is inconvenient; losing which strategy was approved, the current instruction, or the artifacts supporting Gold could make Montauk unsafe or unauditable. This question asks for separate recovery point and recovery time targets rather than one vague backup schedule.\
+
+\f2\b Question:
+\f1\b0  How much data loss is acceptable for authority/Gold versus bulk research, and how soon must trusted signal service return after machine loss?\
+
+\f2\b Suggested answer:
+\f1\b0  Target near-zero loss for approval, authority, signal, and Gold lifecycle mutations by durably logging and copying each committed mutation off-machine. Permit at most one hour of loss for bulk research. Target restoration of verified current-signal service within one hour, before discovery resumes. Use frequent incremental replication, a nightly full backup, versioned off-machine Git/artifact copies, and a scheduled full restore drill at least monthly during 3.0 commissioning. Encrypt secrets separately and verify restored hashes.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  The stricter target protects the small amount of state that governs real decisions, while the looser research target avoids expensive synchronous replication of replaceable work. A backup is only trustworthy after a restore has proved it usable.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 59.	Slack chat and decision authority\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  You envision an OpenClaw-like relationship: receive concise updates and talk to the resident agent from Slack. Conversational convenience must not make an ambiguous sentence count as permission to change the trading authority or protected pipeline.\
+
+\f2\b Question:
+\f1\b0  Which Slack actions may alter Montauk state in 3.0, and which must remain outside Slack?\
+
+\f2\b Suggested answer:
+\f1\b0  Allow authenticated Slack commands to query/explain status, request ideation or a named campaign, trigger recertification, acknowledge alerts or manual execution, and approve one exact pending Active-strategy switch. Require an allowlisted user, exact immutable strategy/request ID, explicit confirmation, expiration, idempotency, and an audit record for every state-changing command. Do not permit Slack to enter core maintenance mode, modify Gold/ranking/data rules, install primitives, or infer approval from free-form chat.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This provides the low-friction conversation and approvals you want while preserving a crisp line between research direction, one named trading-authority decision, and protected methodology changes. Exact IDs and confirmation prevent a duplicated or vague message from switching the wrong strategy.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 60.	Immediate alerts versus the daily digest\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  You do not trade intraday and prefer a quiet appliance, so normal research progress can wait for one daily message. Some failures, however, mean the displayed signal or certification authority can no longer be trusted and should not wait until tomorrow.\
+
+\f2\b Question:
+\f1\b0  Which events must notify you immediately, and what does "immediate" mean operationally?\
+
+\f2\b Suggested answer:
+\f1\b0  Emit and attempt delivery within five minutes of detection for a verified-data failure, inability to produce the required signal by its deadline, Active losing Gold, no compatible fallback, authority/control-database corruption, artifact integrity failure, or sandbox escape attempt. Alert on agent/pipeline research failure only after three consecutive failed cycles or evidence of one systemic defect; isolated candidate failures remain routine. Put new non-leading Gold rows, ordinary leaderboard movement, tested counts, and repaired errors in the daily digest. Escalate delivery if a critical alert remains unacknowledged.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  This keeps steady state quiet while immediately surfacing events that threaten the trustworthiness or availability of the next decision. A defined delivery objective is testable; the repeated-cycle rule prevents noisy candidate errors from paging you.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 61.	Evidence required before 3.0 is operational\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  Feature completion does not prove that an always-on research appliance can preserve evidence and authority through failures. This is an acceptance checklist for your final judgment, not an automatic declaration that 3.0 is complete or permission to begin 4.x.\
+
+\f2\b Question:
+\f1\b0  Which end-to-end tests must produce passing evidence before you consider enabling unattended 3.0?\
+
+\f2\b Suggested answer:
+\f1\b0  Require deterministic replay; clean-machine reproduction of sampled and top Gold rows; Python-reference/Rust parity; causality and lookahead tests; sandbox and permission escape tests; crash injection at every authority/job transition; database migration and corruption tests; backup restore; stale-data and recovery drills; Active-loss, disagreeing-fallback, and empty-board drills; Slack authentication/idempotency tests; provider swap/failure tests; priority preemption under sustained load; notification-delivery tests; and an unattended soak long enough for Max to observe normal cycles and recovery. Put every requirement and artifact in a signed acceptance matrix. Max alone decides whether the evidence is sufficient.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  These tests target the ways a system can look correct in a demo yet fail when left alone. A matrix makes omissions visible, while reserving the final decision for you respects your instruction that no elapsed duration automatically completes 3.0 or starts 4.x.\
+\pard\pardeftab720\li720\sa200\partightenfactor0
+
+\f3\i \cf0 Your answer:
+\f1\i0 \
+\pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
+
+\f2\b\fs27 \cf0 62.	Final owner review before autonomous operation\
+\pard\pardeftab720\li720\sa60\partightenfactor0
+
+\fs26 \cf0 Context:
+\f1\b0  Your emotional trust criterion is understanding the methodologies and knowing the system is not a pile of contradictory AI-generated machinery. This is the one deliberate review that freezes the operating contract before routine ideation can run without your involvement.\
+
+\f2\b Question:
+\f1\b0  Should unattended mode require one owner-review package and Max's explicit approval?\
+
+\f2\b Suggested answer:
+\f1\b0  Yes. Present the frozen Gold and search-accounting contracts, data and execution semantics, authority/fallback state machine, core-permission proof, validation-method audit, Rust/reference parity results, security and recovery drill results, backup proof, resource/cost limits, notification examples, current known limitations, and a dry-run daily digest. Record Max's approval against exact versions before autonomous scheduling is enabled. Ordinary research and Gold admission then proceed without repeated approval; Active changes remain governed by the separate authority rules.\
+\pard\pardeftab720\li720\sa80\partightenfactor0
+
+\f2\b \cf0 Reasoning:
+\f1\b0  A single coherent package makes the system's claims and limits inspectable at the point they begin to matter operationally. It creates earned trust without turning you into a daily pipeline operator.\
+\pard\pardeftab720\li720\sa240\partightenfactor0
+
+\f3\i \cf0 Your answer:\
+\
+\
+\
+\
+\'97\'97\'97\
+Some additional thoughts:\
+Not sure where to put this: I think more strategies with data and metrics pulled from other assets is important. We already pull VIX data but what about other things? Volume, options, an idiosyncratic component, etc\
+\
+
+\f1\i0 \
+\pard\pardeftab720\sa100\qc\partightenfactor0
+
+\f0\b\fs30 \cf0 End of Questionnaire 3\
+\pard\pardeftab720\sa100\qc\partightenfactor0
+
+\f1\b0\fs24 \cf2 Save this file with your answers. The next required action is for the reviewing agent to promote the complete round into the active docs before asking another round or preparing a coding handoff.\cf0 \
 }
