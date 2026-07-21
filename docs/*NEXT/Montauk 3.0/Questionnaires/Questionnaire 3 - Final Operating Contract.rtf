@@ -270,7 +270,7 @@ Yes to calibrated. I dont want a strategy to be the top of the leaderboard from 
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
 \f3\i \cf0 Your answer:\
-No. So the backtesting and anti-overfitting gates are sseparate. 
+Your suggestion is good 
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -291,7 +291,8 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  Honest labeling increases trust. It prevents a useful ranking index from being mistaken for a measured chance of future success.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+Yes. Or just strip the % from the confidence score. And it\'92s just a number. But then it would be hard to know the baseline. Would be interesting to refine how we calculate that. how might we make that number be accurate and trustable? Do we get scores from defeienly not overfit strategies (like ema crossovers or simple RSI strategies) and while they have bad performance they would capably be consistent. Is consistence in the performance what we mean by confidence? Just thinking about it now that sounds right. 
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -312,8 +313,9 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  Compute limits are not evidence. Fail-closed behavior prevents a fast or convenient path from becoming an easier path to certification.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
-\f1\i0 \
+\f3\i \cf0 Your answer:\
+No strategy should ever be gold certified if it has not passed all tests. 
+\f1\i0 Compute limits are not evidence. Does not matter if the system deems it as \'93a waste of time and can be promoted without testing\'94 there is NO case where a strategy that is gold certified has gotten there without passing all and every test in the pipeline\
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
 \f2\b\fs27 \cf0 14.	Recent performance role\
@@ -333,7 +335,8 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  This prevents a strategy from surviving solely on distant history without letting one bad recent week erase a long, still-valid record.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+Go for your strategy
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -354,7 +357,8 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  "No certified answer" is safer and more truthful than manufacturing confidence. It also makes failures in the research program visible instead of masking them.\
 \pard\pardeftab720\li720\sa220\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+Of course. An empty leaderboard means we haven\'92t found a goos strategy yet. It does not mean that we should lower the bar to get a win and get something the board
 \f1\i0 \
 \page \pard\pardeftab720\sa220\partightenfactor0
 
@@ -378,7 +382,8 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  There is no single honest boundary for an adaptive lifelong search. Hierarchical provenance allows within-family, campaign-wide, and board/lifetime questions to be tested without pretending earlier exploration never occurred.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+Go for your suggestion. Maybe also add what the failures were and why it didn\'92t pass the tests? That way any future tests can steer around those 
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -399,7 +404,8 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  This preserves both honest public counts and the information needed to correct for data snooping. It also prevents billions of merely declared combinations from inflating throughput claims.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+Go for your suggestion
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -420,7 +426,8 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  Removing feedback would make research wasteful and repetitive. The honest solution is not to blind the agent; it is to preserve provenance and make the validator explicitly account for repeated adaptation.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+Yes this will help the agent. Your answer was good too
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -441,7 +448,8 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  The published methods were designed for the question "is the best model found in a specification search genuinely better than the benchmark?" That is exactly the risk created by Montauk's continual search.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+Yours is good
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -462,7 +470,8 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  New bars and better methods change relevance; they do not make earlier data snooping cease to have happened. Versioning permits appropriate weighting without granting a fictional fresh start.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+No but at some point we should go back and retest old sstrategies or at least ones that would have benefitted from new data. If one is certified overfit and does not pass that one will not benefit from more data. But one that just barely doesnt pass backtest might work now even if it didn\'92t in the past. (I may be wrong in that but thats why we test) 
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -483,7 +492,8 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  This preserves the detailed leaderboard you want without pretending presentation rows equal independent evidence.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+Go for your suggestion
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -504,7 +514,8 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  Ten percent is large enough to keep genuine exploration alive and small enough not to dominate productive search. It is an initial operating policy to revisit from measured yield, not a claim of mathematical optimality.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+The 10% you state above is good. That number might change over the future. and I do want the ability to kick off runs that are just exploritory or with no exploration
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -525,7 +536,8 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  This preserves optimism and catches changed conditions while keeping most compute focused on mechanisms with evidence of promise.\
 \pard\pardeftab720\li720\sa220\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+Your answer is good but also I think it\'92s separating the indicator or data stream from the configuration. Montauk shouldnt generalize by thinking that because this family that used an RSI doesnt make gold standard so none will. Instead it should analyze where that strategy doesnt work and keep tuning. 
 \f1\i0 \
 \pard\pardeftab720\sa220\partightenfactor0
 
@@ -573,7 +585,8 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  You should not have to guess the complete indicator list from memory. A coverage matrix turns this into a verifiable engineering task and preserves current semantics while establishing a useful first vocabulary for the agent. New primitives can then be proposed deliberately instead of silently improvised.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+Your proposed answer is good. We\'92re obviously trying to strike the right balance between having building blocks ready and being limited by those building blocks. It is important that the building blocks are written correctly, if we are going to be repeatedly using them they need to be 100% which is why maybe they should be very simple so that they can be debugged. Also I think if a strategy gets dreamed up that uses an indicator or data what is not in the rust library then solutions need to be made for that 9maybe we write a new building block for it) I dont want to be limited or give up on ideas bbecause of limitations or dumb rules
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -594,7 +607,8 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  This prevents convenience from becoming an authority bypass. The deterministic report shows whether a missing primitive is real, while human approval is proportionate because custom code expands the trusted or sandboxed execution surface.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+I like your answer. However I dont need to give explicit approval. The agent can write anything it wants- however the pipeline and rules a strategy must pass does not change. The agent could crank out millions of overfit strategies and from a leaderboard integrity perspective thats fine (as none of them will make it through to gold status) now from a operations perspective thats not good so the agent should be aware of what we are trying to do and have honest and aligned iinterests when creating strategies.
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -615,7 +629,8 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  The machine boundary reduces operational damage, while the causal boundary protects backtest correctness. Both must be enforced mechanically because a strategy can be harmless to the computer yet invalid as research if it can see the future.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+This is really import and your answer does a great job. Additionally, there should be walk forward testing and all kinds of tricks up the backtesting\'92s sleeve. 
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -636,7 +651,8 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  Automatic containment keeps the appliance available and makes failures comparable. Class-based limits are fairer than one universal timeout, while prohibiting agent-controlled limit changes protects compute governance.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+Your answer is good. Important that we do not set those limits too strict as to limit legitimate stretegies from getting properly tested. When those limits are reached there should be a bucket for those and a fixing pattern. It may be that the code was written poorly but that does not invalidate the strategy\'92s configuration
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -657,7 +673,8 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  Three total attempts are enough to fix common schema or syntax misunderstandings without allowing a single idea to dominate tokens. Deferring isolated failures preserves them for later learning while keeping routine noise out of your notifications.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+Your answer is good 
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -678,7 +695,8 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  This provides exact reproducibility without creating meaningless source versions for routine recertification. It cleanly separates a strategy change from a new evaluation of the same frozen strategy.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+Your answer is fine and sure we can do that. honestly I dont really care about what family the strategy is in. It doesnt really matter. A family just means strategies that are similar. All that matters to me is that the leaderboard is full of configurations. From there if there was a layer on top that was \'93family\'94 and we could organize that way or categorize for chimera thatsgood but I dont think that family matters as much here. Id say as a general rule a family is when they have all the same params and the triggers are the same. 
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -699,7 +717,8 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  This combines performance and consistency in the hot path with a small blast radius for generated work. It also prevents generated scripts from accumulating as an unstructured second implementation of the engine.\
 \pard\pardeftab720\li720\sa220\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+Your answer is good
 \f1\i0 \
 \page \pard\pardeftab720\sa220\partightenfactor0
 
@@ -723,7 +742,9 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  Repository separation clarifies ownership, OS permissions enforce it while code is running, remote protection reduces accidental publication, and the manifest proves which immutable pipeline judged a candidate. Defense in depth matters because Git history helps recovery but does not prevent corruption before a commit.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+\pard\pardeftab720\li720\sa240\partightenfactor0
+\cf0 Your answer is good. Locking down those gates is so important. We need credentials like you say and also maybe a tamper-evident killswitch that stops any tests being run if something has been edited without proper creds  
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -744,7 +765,9 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  This makes owner authority an observable state transition rather than an interpretation of chat. Separate credentials ensure an agent cannot promote its own pipeline modification simply because it can propose one.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+\pard\pardeftab720\li720\sa240\partightenfactor0
+\cf0 Your answer is good. Yeah im tthinking like a password or like I seal it. Like is there a way to make changes and then I seal it with a password or ssomething. Or maybe thats overthinking and its just a git repo and the history has to be clean or have verified edits?
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -765,7 +788,9 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  These components determine what a result means or what Montauk is authorized to do. Treating all of them as one trust boundary prevents a less obvious file from becoming a loophole around the no-pipeline-edit rule.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+\pard\pardeftab720\li720\sa240\partightenfactor0
+\cf0 Your answer is good. The agent basically has the sandbox of the untested strategies that it can do anything it wants to in there. Sort of a pool of chaos and out come its strategies
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -786,7 +811,9 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  Owner control over timing should not turn an old answer into a valid answer to a changed test. Explicit staleness is the simplest way to keep the board's promise precise and auditable.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+\pard\pardeftab720\li720\sa240\partightenfactor0
+\cf0 Your answer is good. And it should re-validate those strategies asap. As a general rule im looking to minimize the time that any gold strategy is not firmly validated and backtested. I really should always have 100% confidence that those configuations are properly (walk forward etc.) backtested and anti-overfit tested. 
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -807,7 +834,9 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  This avoids needless full validation for a presentation or preference change while preventing a substantive gate change from being mislabeled as cosmetic reranking.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+\pard\pardeftab720\li720\sa240\partightenfactor0
+\cf0 Your answer is good. 
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -828,7 +857,8 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  This gives bounded data loss and clean rollback points without turning billions of evaluated parameter rows into an unusable Git history. Separating source/spec backup from experiment-ledger backup matches their very different volumes.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer: \
+Your answer is good. We dont need git commits every test but id say at most every hour or after every batch. We\'92d also want commits before the batch just incase of data failure
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -1086,7 +1116,9 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  This avoids wasting safe offline compute while maintaining one unambiguous source of trading truth. The quarantine rule ensures results produced during the outage cannot masquerade as current evidence.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+\pard\pardeftab720\li720\sa240\partightenfactor0
+\cf0 Your answer is good. I add that no strategy may get promoted to gold if we are missing all the data needed in the backtesting and anti-overfit testing pipeline. We can do some of the testing before we have all the data but we need all the data to call it gold
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -1107,7 +1139,9 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  This restores the minimum trustworthy decision service first and gives you prompt awareness of the outage. It reflects your priority that the active strategy's Gold status matters more than maximizing strategy throughput during recovery.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+\pard\pardeftab720\li720\sa240\partightenfactor0
+\cf0 Your answer is good. Pause exploratory compute while the system catches up 
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -1128,7 +1162,9 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  This preserves the one property that makes forward evidence unusually valuable: the strategy could not have been changed to fit those later observations. Family-level summaries may aggregate rows but must not relabel their individual histories.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+\pard\pardeftab720\li720\sa240\partightenfactor0
+\cf0 Your answer is good. 
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -1149,7 +1185,9 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  The separation prevents ordinary signal generation from looking like new validation and prevents adapting parameters to new data from being described as untouched forward performance. It also makes scheduler cost and status much easier to understand.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+\pard\pardeftab720\li720\sa240\partightenfactor0
+\cf0 Your answer is good. 
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -1170,7 +1208,9 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  This gives the Active strategy continuous operational scrutiny, keeps plausible replacements ready, and prevents a huge board from consuming all compute before it has accumulated meaningful new information. Event triggers catch important changes sooner than a calendar alone.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+\pard\pardeftab720\li720\sa240\partightenfactor0
+\cf0 Your answer is good. 
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -1191,7 +1231,9 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  Persistence protects against noisy one-day decisions, while immediate correctness exceptions prevent a statistically invalid strategy from remaining trusted. Predeclaring and simulating the policy keeps the demotion mechanism itself from becoming an improvised response to disappointing results.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+\pard\pardeftab720\li720\sa240\partightenfactor0
+\cf0 Your answer is good. And I think we\'92ve talked bout this earlier
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -1212,7 +1254,9 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  A single current contract makes every row comparable and keeps the word Gold precise. Historical visibility preserves auditability without allowing legacy evidence to drive current authority.\
 \pard\pardeftab720\li720\sa220\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+\pard\pardeftab720\li720\sa240\partightenfactor0
+\cf0 Your answer is good. So everything on the leaderboard should have passed the most recent version of the testing pipeline. No legacy or grandfathered in configurations that hold gold status even though the validation process has changed
 \f1\i0 \
 \pard\pardeftab720\sa220\partightenfactor0
 
@@ -1236,7 +1280,9 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  Each storage technology handles the data shape it is good at, while the explicit authority map prevents two files from both claiming to be current truth. The leaderboard remains complete and sortable without becoming a million-line operational file.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+\pard\pardeftab720\li720\sa240\partightenfactor0
+\cf0 Your answer is good. additoanlly I think we should go to GitHub for everything. Everything should be backed up there. We need to be cognizant that the largest file allowable on GitHub is 100mb. And as repos get big we should be using multiple repos for syncing and performance
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -1257,7 +1303,9 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  The compact row preserves the permanent scientific and operational memory at manageable size. Tiered full-artifact retention supports audits and redesign while allowing the largest reproducible bulk objects to expire.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+\pard\pardeftab720\li720\sa240\partightenfactor0
+\cf0 Your answer is good. If there is near 0 chance that a strategy will make it to gold and has failed the pipeline testing then we can delete all the configurations we tested and summarize the findings in an archive. The key would be saving enough so we know what we have tested so we dont waste time testing known failed strategies again
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -1278,7 +1326,8 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  The stricter target protects the small amount of state that governs real decisions, while the looser research target avoids expensive synchronous replication of replaceable work. A backup is only trustworthy after a restore has proved it usable.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+There should be no data loss. We will be pushing to GitHub and tracking git locally. I expect very regular and routine commits. No strategy is backtested or validated or overfit tested on corrupt or lost data. I want strict data loss prevention and alert if it does happen. Bad data = bad testing = bad leaderboard = bad trading 
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -1300,7 +1349,7 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
 \f3\i \cf0 Your answer:\
-(Merged from the earlier draft of this questionnaire) Allowed in Slack: query/explain status and research; request ideation or a research campaign; trigger recertification; approve a named pending active-strategy switch. Not allowed in Slack: acknowledge an alert; enter or exit maintenance mode.
+Allowed in Slack: query/explain status and research; request ideation or a research campaign; trigger recertification; approve a named pending active-strategy switch. Not allowed in Slack: acknowledge an alert; enter or exit maintenance mode.
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -1321,7 +1370,9 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  This keeps steady state quiet while immediately surfacing events that threaten the trustworthiness or availability of the next decision. A defined delivery objective is testable; the repeated-cycle rule prevents noisy candidate errors from paging you.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+\pard\pardeftab720\li720\sa240\partightenfactor0
+\cf0 Your answer is good. I will configure slack into multiple channels where these notifications will come through. (Which I think can be accomplished on the free version of slack?)
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -1342,7 +1393,8 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \f1\b0  These tests target the ways a system can look correct in a demo yet fail when left alone. A matrix makes omissions visible, while reserving the final decision for you respects your instruction that no elapsed duration automatically completes 3.0 or starts 4.x.\
 \pard\pardeftab720\li720\sa200\partightenfactor0
 
-\f3\i \cf0 Your answer:
+\f3\i \cf0 Your answer:\
+Look I will decide when to push to 4.x. nothing else can start that process. Lets not even go there
 \f1\i0 \
 \pard\tx720\pardeftab720\li720\fi-360\sa80\partightenfactor0
 
@@ -1364,6 +1416,7 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \pard\pardeftab720\li720\sa240\partightenfactor0
 
 \f3\i \cf0 Your answer:\
+Your answer is good\
 \
 \
 \
@@ -1371,6 +1424,7 @@ No. So the backtesting and anti-overfitting gates are sseparate.
 \'97\'97\'97\
 Some additional thoughts:\
 Not sure where to put this: I think more strategies with data and metrics pulled from other assets is important. We already pull VIX data but what about other things? Volume, options, an idiosyncratic component, etc\
+We need to really brainstorm about the data pipeline. Which is the backtesting and anti-overfit validations. Those need to be bullet proof and defendable. Idk if ive talked bout this before. We need to do additional research. There is some research 'Project Montauk/docs/research' but when I built montauk 2.0 the requirements it was putting my data through seemed too strict. It was callings things over fit that weren\'92t really. So maybe we take another look at that.\
 \
 
 \f1\i0 \
