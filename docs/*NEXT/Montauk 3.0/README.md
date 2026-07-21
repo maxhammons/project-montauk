@@ -1,7 +1,7 @@
 # Montauk 3.0 — The Always-On TECL Research Appliance
 
-**Status: VISION / OPERATING CONTRACT (updated 2026-07-17).** This folder
-defines the next TECL-only iteration of Project Montauk. The governing draft is
+**Status: RATIFIED VISION / IMPLEMENTATION CONTRACT (updated 2026-07-21).** This folder
+defines the next TECL-only iteration of Project Montauk. The governing contract is
 [charter.md](charter.md); settled decisions and superseded decisions are recorded
 in [decisions.md](decisions.md). Existing questionnaire answers are source
 material, not the final specification.
@@ -30,7 +30,11 @@ keep challenging it in the background.
 
 ## The operating contract
 
-- **TECL only.** Multi-asset work is Montauk 4.x or later.
+- **TECL is the only traded asset.** Multi-asset selection, sizing, and rotation
+  are later work. Strategies may use point-in-time, provenance-verified external
+  inputs such as VIX, volume, options-derived data, macro series, related assets,
+  or an idiosyncratic TECL component while still emitting only TECL
+  `risk_on`/`risk_off`.
 - **Single user.** Montauk 3.0 is built for Max, not as a general product.
 - **Always on.** The server refreshes data, recertifies trusted strategies,
   generates research, drains the experiment queue, and reports changes without
@@ -46,21 +50,34 @@ keep challenging it in the background.
   Rust validates and compiles the logic graph once, generates valid exact
   configurations, and batch-evaluates them. An isolated agent-authored Rust
   family module is a later escape hatch only for mechanisms the specification
-  language cannot express.
+  language cannot express. Once the escape-hatch acceptance suite is approved,
+  isolated modules may enter deterministic intake automatically; Max does not
+  approve each generated module.
 - **The core is protected.** The autonomous agent may not change the data
   contract, execution semantics, backtest engine, validation suite, Gold
   thresholds, score/ranking formula, operations safety layer, or authority rules.
   Those changes require explicit owner-directed work and versioned
-  recertification consequences.
-- **Gold goes directly to the leaderboard.** There is no staging board and no
-  Trade Roster. Each Gold configuration is a row; the interface may collapse
-  near-identical rows by family.
+  recertification consequences. A human-held signing key seals an exact core
+  release; autonomous startup and evaluation fail closed if its signed manifest,
+  permissions, or protected hashes do not verify.
+- **Pending Gold is a deterministic certification state, not a Trade Roster.**
+  Historical-suite survivors enter `Pending Gold` while they accumulate the
+  required cooling-off/forward evidence. Graduation to current Gold is automatic
+  after the current contract passes again. Each current Gold configuration is a
+  leaderboard row; the interface may collapse related rows by family.
 - **Recommended is not active.** Montauk can name a new recommended leader, but a
   normal active-strategy change requires Max's approval. Manual brokerage
   execution remains the rule throughout 3.x.
 - **Quiet by default.** The normal experience is a daily digest and
   change/failure notifications, with a mostly read-only “Montauk at a glance”
   application and a conversational Slack/agent surface.
+- **Current contract only.** There are no grandfathered Gold rows. A material
+  data, execution, engine, or validation change makes every incompatible
+  certificate stale and queues urgent recertification.
+- **Everything durable has an off-machine GitHub path.** Code, specifications,
+  manifests, authority state, Gold artifacts, and partitioned database snapshots
+  are backed up without forcing high-volume live databases into ordinary Git
+  blobs. No acknowledged durable result may be silently lost.
 
 ## What Gold means
 
@@ -74,15 +91,22 @@ The current owner-intent wording is:
 Gold means **no disqualifying overfit or correctness failure was detected**. It
 does not make future returns certain. New market evidence, a data correction, or
 a methodology/version change can make a Gold result stale or revoke it. Synthetic
-history adds diagnostic confidence but is not a substitute for real-market
-evidence. Exact real-period gates, synthetic red-flag rules, execution timing,
-and breadth-aware statistical correction remain specification work.
+history adds diagnostic/stress confidence but is not a substitute for real-market
+evidence. No test may be skipped, silently renormalized, or replaced by a high
+composite score. A configuration with missing required data or insufficient
+evidence cannot be Gold.
+
+The owner-facing confidence number remains **Validation Score** until a frozen
+calibration target, controls, sample size, and genuine forward outcomes justify
+a probability interpretation. Performance and confidence thresholds are
+versioned contracts; they never auto-ratchet merely because the search found
+more winners.
 
 ## Read in this order
 
 1. **[charter.md](charter.md)** — the complete product and operating contract,
    including authority boundaries, funnel states, steady-state behavior, and the
-   remaining decisions.
+   bounded calibration studies that remain.
 2. **[decisions.md](decisions.md)** — the append-only decision ledger. Historical
    decisions remain visible when superseded.
 3. **[validation-engine-hardening.md](validation-engine-hardening.md)** — the
@@ -99,7 +123,7 @@ and breadth-aware statistical correction remain specification work.
 | Document | 3.0 role | Current status |
 |---|---|---|
 | [validation-engine-hardening.md](validation-engine-hardening.md) | Establish a statistically honest, reproducible Gold contract that remains defensible under massive search breadth. | Required 3.0 foundation |
-| [2026-06-09-idea-to-gold-pipeline.md](2026-06-09-idea-to-gold-pipeline.md) | Turn ready candidate families and parameter spaces into screened, backtested, validated, reproducible results. | Requires revision and implementation |
+| [2026-06-09-idea-to-gold-pipeline.md](2026-06-09-idea-to-gold-pipeline.md) | Turn ready candidate families and parameter spaces into screened, backtested, validated, reproducible results. | Ratified operating plan; Phase A ready |
 | [2026-04-23-meta-strategy-design.md](2026-04-23-meta-strategy-design.md) | Test whether independent Gold strategies can combine into a superior voting/confidence strategy. | Deferred inside 3.x until prerequisites exist |
 | [2026-06-10-ios-companion-app.md](2026-06-10-ios-companion-app.md) | Historical mobile-app proposal. | Deferred to 4.x/5.x; not a 3.0 completion requirement |
 | [_RUST CONVERSION.txt](_RUST%20CONVERSION.txt) | Rust strategy/evaluator architecture and performance policy. | Rust fixed; declarative families plus isolated Rust-module escape hatch |
@@ -108,22 +132,32 @@ The multi-asset expansion lives in
 [`../Montauk 4.0/`](../Montauk%204.0/). Beginning it is an explicit human
 decision; no uptime duration or soak test automatically advances the project.
 
-## The most important unresolved contracts
+## Ratified policy; calibration work remains
 
-The remaining questions are not about the vision. They are the small number of
-places where an implementation would otherwise invent policy:
-
-- executable signal timing and B&H comparison semantics;
-- the exact real-data, recent-performance, synthetic-stress, and rolling-demotion
-  rules for Gold;
-- search-breadth accounting and board-level false-discovery control;
-- the safe candidate representation and pre-execution sandbox;
-- emergency behavior when the active strategy loses Gold;
-- forward-evidence waiting/staleness rules and recertification triggers;
-- the protected-core enforcement mechanism and Slack command authority; and
-- measurable 3.0 acceptance criteria, while preserving Max's sole authority to
-  begin 4.x.
-
-These are collected in
 [Questionnaire 3 — Final Operating Contract](Questionnaires/Questionnaire%203%20-%20Final%20Operating%20Contract.rtf)
-rather than scattered through new planning files.
+is complete and preserved as owner evidence. It resolved agent authority,
+candidate isolation, Pending Gold, recommendation/fallback behavior,
+recertification, current-contract-only Gold, storage, GitHub backup, Slack
+authority, and acceptance ownership.
+
+The remaining work is **methodology and engineering calibration**, not permission
+for a coding agent to choose policy. Phase A must produce evidence for:
+
+- the executable notification-to-fill model, tested against conservative OHLC
+  stress assumptions and later Max's recorded manual fills;
+- a small, fixed real-data horizon/rolling-window contract that realizes “beats
+  B&H however reasonably sliced” without creating a tunable exam;
+- the initial real-era performance margin (owner intuition: begin around 1.10),
+  lower-bound test, and recent/stress weighting;
+- independent recalibration of the XLK/technology-index synthetic series and its
+  diagnostic/catastrophic-stress role;
+- board/lifetime search correction that recognizes correlated configurations
+  without punishing a legitimate nearby configuration merely for similarity;
+- the meaning and forward calibration of Validation Score; and
+- false-positive **and false-negative** behavior of every anti-overfit gate so a
+  strict but invalid grader cannot reject sound controls.
+
+Those studies must be reviewed and frozen into a signed contract before the
+autonomous conveyor can certify Gold. Only Max declares 3.0 complete. Work on a
+later major version begins only when Max separately says so; acceptance tests,
+elapsed time, or a soak never make that decision.

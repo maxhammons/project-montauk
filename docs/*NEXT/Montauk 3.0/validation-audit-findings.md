@@ -7,13 +7,19 @@ file is audited. Severity is about the **certification claim**, not code style.
 
 **Scope:** `scripts/validation/` (~5,900 lines).
 
-> **Contract note (2026-07-17):** The owner now intends every backtest survivor,
+> **Contract note (updated 2026-07-21):** The owner intends every backtest survivor,
 > regardless of human/AI origin, to face the same mandatory evidence planks and
 > rigor. A structurally inapplicable algorithm may use a predeclared equivalent
 > or valid `not_applicable` result; origin-based skipping and silent weight
 > renormalization remain current behavior to audit, not the target 3.0 design.
-> Search provenance still matters to multiplicity even when the evidence
-> requirements are universal.
+> Missing, skipped, underpowered, incomplete, or unverifiable mandatory evidence
+> blocks Gold, and Montauk Score cannot compensate. Search provenance still
+> matters to multiplicity, but correction must estimate effective dependence
+> rather than use raw near-twin counts. This implementation audit now feeds a
+> separate validation-of-validation harness that measures both false-Gold and
+> false-rejection behavior. The composite remains **Validation Score**, not a
+> calibrated confidence probability, until forward reliability evidence earns
+> that interpretation.
 
 | File | Lines | Status |
 |---|--:|---|
@@ -71,7 +77,10 @@ proxy's bias across the fitted parameter range.
 cheap screen, and authored-but-un-mined families, never enter the count. Under Montauk
 3.0 (auto-enter, grind-constantly) the *uncounted* breadth becomes the dominant
 multiplicity. This is the design-level G1 gap, confirmed at the code level.
-**Fix:** the G1 backlog item — count generated families and feed them in here.
+**Fix:** retain the complete observable proposal/search ledger, then estimate
+effective dependence at family, campaign, and board/lifetime levels. Do not
+simply feed a raw family/configuration count in as independent hypotheses;
+validate the correction's operating characteristics against controls.
 
 ### D-4 — Null conditioned on ≥3 trades (LOW)
 Only random configs with `num_trades ≥ 3` enter the null, reshaping its distribution

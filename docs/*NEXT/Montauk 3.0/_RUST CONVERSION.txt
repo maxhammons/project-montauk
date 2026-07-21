@@ -1,5 +1,5 @@
 MONTAUK 3.0 RUST STRATEGY AND EVALUATION POLICY
-Updated 2026-07-17
+Updated 2026-07-21
 
 Decision
 --------
@@ -13,8 +13,9 @@ trading truth. Go is outside the strategy/evaluator architecture.
 
 The important vocabulary
 ------------------------
-- Family specification: one mechanism, its logic graph, parameter domains,
-  constraints, rationale, and failure hypothesis.
+- Family specification: one trigger/decision graph and one parameter schema,
+  plus its domains, constraints, rationale, and failure hypothesis. Family is an
+  organizational/batching identity, not the certification unit.
 - Configuration: one family version plus one exact set of parameter values.
 - Primitive: a protected reusable Rust operation such as EMA, RSI, ATR,
   crossover, threshold, state hold, or exit rule.
@@ -33,7 +34,9 @@ names or signatures.
 The StrategySpec declares:
 - a typed logic graph of registered Rust primitives;
 - parameter types, domains, and cross-parameter constraints;
-- input, warm-up, timing, and state requirements;
+- input, warm-up, timing, and state requirements, including point-in-time source,
+  publication/revision lag, causal availability, and missing-data semantics for
+  every non-TECL input;
 - rationale, expected failure mode, and provenance; and
 - deterministic fixture expectations.
 
@@ -50,6 +53,15 @@ Rust then:
 This is the default 3.0 path. The isolated Rust family-module path is staged and
 disabled until its containment, causal-access, determinism, resource, and parity
 acceptance tests pass.
+
+The first primitive registry is intentionally small and fixture-heavy, but it
+must reproduce every current production, current/historical Gold, benchmark, and
+simple validator-control strategy. Its initial coverage matrix includes typed
+arithmetic and boolean logic; lag/rolling operations; moving averages; momentum;
+RSI/MACD; ATR, volatility, and bands; crossover/threshold events; approved
+external inputs; and explicit position state. Missing a primitive does not prove
+an idea invalid: the agent may use the isolated-module lane, or propose a shared
+primitive for a later Max-authorized core release.
 
 Production architecture
 -----------------------
@@ -69,7 +81,11 @@ Production architecture
    If the primitive library cannot express a genuinely new mechanism, the agent
    may write one Rust module against a frozen Montauk Strategy SDK. It is compiled
    once for that immutable family version, sandboxed and conformance-tested, then
-   reused for every configuration in its parameter sweep.
+   reused for every configuration in its parameter sweep. The module begins in
+   the generated-research “pool of chaos.” The escape hatch is disabled until Max
+   approves its signed acceptance policy. After that one policy approval, any
+   module that passes it automatically enters untrusted pipeline intake; Max does
+   not review each module individually.
 
 4. REFERENCE ORACLE
    Readable fixtures and, where useful, a Python reference implementation verify
@@ -122,6 +138,16 @@ A useful new primitive can be proposed for the shared Rust library, but promotio
 requires a Max-authorized core release, review, fixtures, and reference/parity
 evidence.
 
+The boundary is a cryptographic release seal, not a prompt or Git convention.
+Use separate protected-core and generated-research repositories/workspaces,
+distinct OS identities and credentials, read-only deployed core, protected remote
+branches, and a content-addressed core manifest signed by a human-held key the
+resident agent cannot access. Startup, strategy testing, Gold publication, and
+trusted-signal execution fail closed when signature, protected hashes, or
+permissions do not verify. A core release requires an explicit Max-controlled
+maintenance session, reviewed diff, protected tests, a newly signed manifest,
+audit record, and revocation of temporary maintenance credentials.
+
 Compilation is not validation
 -----------------------------
 Successful Rust compilation can catch syntax, type, and memory-safety classes of
@@ -132,6 +158,12 @@ Every isolated Rust family module remains untrusted before intake. It must compi
 and execute in a disposable worker with no credentials, no network, no protected-
 repository writes, no unrestricted subprocesses, causal typed inputs,
 deterministic seeds, and strict CPU, memory, time, and output limits.
+
+Compilation, timeout, OOM, or another resource failure is an implementation/
+operations verdict, not an economic verdict on the hypothesis. Use one original
+attempt plus two immediate bounded repairs, then quarantine the artifact with a
+structured reason for lower-priority repair. Candidate code and the resident
+agent cannot raise their own resource limits.
 
 Priority
 --------
@@ -145,13 +177,18 @@ Benchmark work still required
 The language is decided; the precise Rust design is not. Representative Mac mini
 benchmarks must compare:
 
+- primitive-coverage parity for all current strategies and controls;
 - declarative interpreter versus compiled execution plan;
 - primitive caching and batched parameter layouts;
 - CPU parallelism, SIMD, memory, disk, and thermal behavior;
 - declarative family versus isolated Rust family-module throughput;
 - compile and bounded-repair costs for novel modules;
-- bytes retained per configuration; and
-- exact signal/trade/fill/metric parity with the reference fixtures.
+- bytes retained per configuration;
+- exact signal/trade/fill/metric parity with the reference fixtures under the
+  calibrated execution/B&H contract;
+- trusted-work preemption and sustainable thermal behavior under full discovery
+  load; and
+- isolated-module acceptance/repair cost without weakening containment.
 
 Those measurements choose the Rust engine design and hardware target. The agent
 does not choose the language.

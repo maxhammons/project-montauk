@@ -1,15 +1,16 @@
 # Project Montauk 3.0 Charter — The Always-On TECL Research Appliance
 
-**Status: DRAFT OPERATING CONTRACT (updated 2026-07-17).** This document
-captures the owner's clarified intent and is the governing 3.0 planning draft.
+**Status: RATIFIED OPERATING POLICY; CALIBRATION PENDING (updated 2026-07-21).** This document
+captures the owner's clarified intent and is the governing 3.0 planning contract.
 It extends, but does not silently override, the repository's existing validation
 and execution contracts. Settled changes must be reconciled into canonical
 implementation docs and tests before they become production truth.
 
-Terms marked **DECIDED** are owner decisions. Terms marked **OWNER INTENT,
-SPECIFICATION PENDING** have a clear desired outcome but still need a precise,
-testable rule. Terms marked **OPEN** must not be chosen implicitly by a coding
-agent.
+Terms marked **DECIDED** are owner decisions. Terms marked **POLICY DECIDED,
+CALIBRATION PENDING** have a fixed safety/authority outcome but still require a
+measured, versioned implementation rule. A coding agent may implement only the
+approved experiment and acceptance criteria; it may not choose the eventual
+threshold or reinterpret the owner policy.
 
 **DECIDED — questionnaire promotion rule.** After Max completes a questionnaire
 round, the reviewing agent must process the entire answer set into this charter,
@@ -75,6 +76,11 @@ or fault.
 ### 2.1 In scope
 
 - TECL, with the existing long/flat or risk-on/risk-off action space.
+- Point-in-time, provenance-verified explanatory inputs from other markets or
+  data streams—including VIX, TECL/underlying volume, options-derived measures,
+  macro series, related assets, and an idiosyncratic TECL component—provided the
+  strategy still trades only TECL and every input passes the same causal/data
+  contract.
 - A single user: Max.
 - An always-on Mac mini or comparable dedicated host.
 - A model-agnostic remote frontier agent invoked on a schedule. “No local AI”
@@ -90,7 +96,8 @@ or fault.
 
 ### 2.2 Explicitly out of scope
 
-- Multi-asset selection, allocation, sizing, or rotation. Those belong to 4.x.
+- Multi-asset selection, allocation, sizing, or rotation. External features do
+  not broaden the traded action space; multi-asset trading belongs to later work.
 - Autonomous brokerage execution.
 - A general multi-user or commercial product.
 - iOS as a 3.0 completion requirement. The companion is a 4.x/5.x convenience.
@@ -127,7 +134,8 @@ artifacts are defects.
 | Active strategy | Explicit owner selection, except a separately specified emergency rule |
 | Current trusted signal | Active Gold strategy evaluated on last verified data |
 | Autonomous research priorities | Agent/scheduler policy, never certification authority |
-| Core methodology changes | Explicit owner-directed change |
+| Core methodology changes | Explicit owner-directed, signed core release |
+| Durable recovery state | Transactional authority record plus verified off-machine backup |
 
 The AI agent may influence **what is proposed and what enters the queue**. It may
 not influence a deterministic verdict after observing the answer, reinterpret a
@@ -137,7 +145,7 @@ failed gate, soften a threshold, or choose which evidence “counts.”
 
 ### 4.1 Meaning
 
-**DECIDED IN PRINCIPLE; exact gates pending.**
+**DECIDED; statistical and execution calibration pending.**
 
 > **Gold means a frozen strategy configuration beats TECL buy-and-hold across
 > every required real-data evaluation period, passes Montauk's complete
@@ -153,23 +161,59 @@ weaknesses, high drawdown, few trades, or regime dependence and still qualify if
 it satisfies every hard gate. Those weaknesses affect confidence, score, rank,
 and the owner's decision; they are not silently hidden.
 
+There is no obligation to keep the board populated. An empty current Gold board
+means Montauk has not found a configuration that earns certification; it never
+authorizes lowering the standard.
+
 ### 4.2 Evidence roles
 
 - **Real market data determines economic eligibility.** Gold must beat the
-  frozen B&H comparator in every required real-data period.
-- **Modern/recent evidence matters more to present usefulness.** The owner wants
-  recent behavior—roughly the latest five years as an initial intuition—to have
-  greater influence than distant history. The exact hard gate and/or score
-  weighting is OPEN.
-- **Synthetic history is diagnostic.** It may increase or reduce confidence and
-  catastrophic synthetic failure must be surfaced. Whether a defined synthetic
-  failure blocks Gold is OPEN. Synthetic data never substitutes for passing real
-  data.
+  frozen B&H comparator over complete real TECL history, a fixed recent horizon
+  initially centered on trailing five years, and a small predeclared
+  rolling/window robustness contract. The implementation study must realize the
+  owner's intent—better than B&H however the history is reasonably sliced—without
+  turning an ever-growing set of hand-picked windows into a tunable exam.
+- **The economic margin is greater than 1.0.** The owner's provisional intuition
+  is to begin near a 1.10 real-era share multiple and increase the requirement if
+  evidence supports it. The final margin and one-sided lower-bound test must be
+  calibrated before launch. No threshold auto-ratchets after seeing winners;
+  changing it creates a new owner-approved Gold-contract version and
+  recertification.
+- **Modern/recent evidence has three explicit jobs.** It is a hard eligibility
+  horizon, a ranking input through its margin of passage, and a live warning/
+  revocation input under a persistent sequential rule. A single bad trade or
+  week does not revoke Gold.
+- **Synthetic history is diagnostic and stress evidence.** The present series is
+  deterministically derived from 3x daily S&P technology-index returns
+  (1993–1998), 3x daily XLK returns (1998–2008), expenses, and a loader-time
+  financing/tracking-drag haircut before the real TECL seam. It reproduces from
+  checked-in sources, but prior overlap audits found structural tracking and
+  volatility differences from real TECL. It may influence diagnostics and
+  confidence only under a separately audited weighting/stress contract; it never
+  substitutes for real TECL passage. Repeated ruin, invalid behavior, or a
+  predeclared catastrophic safety breach may veto Gold only after the synthetic
+  model and veto rule are independently recalibrated.
+- **Named events remain visible.** Dot-com, 2008, 2020, 2022, tariff shocks, and
+  future frozen events are diagnostic/stress views. A small predeclared subset
+  may become hard evidence only through a versioned methodology decision.
 - **Untouched forward evidence is distinct.** Bars occurring after a strategy was
   frozen and certified could not have been used to design that frozen version.
   Montauk must track this evidence separately from historical validation.
 - **One bad call is not revocation.** Gold is judged by the contract over
   meaningful evidence, not by demanding perfect trades.
+- **Gold uses a deployable fill contract.** A signal cannot consume a closing
+  price and then claim a fill at that already-known close. Phase A must compare
+  close-observed/next-open execution, other precisely timestamped workflows,
+  conservative OHLC stress fills, spreads/slippage, and later Max's recorded
+  manual fills. An average, high, or low from the rest of the day may be a stress
+  estimator but cannot be treated as a price knowable at signal time. The frozen
+  production contract uses the first genuinely obtainable price plus calibrated
+  costs; optimistic same-close results remain diagnostic only.
+- **B&H is matched and reproducible.** It uses adjusted total-return TECL, the
+  same eligible start and initial capital, the same first obtainable purchase
+  timing, explicit costs, and unrounded decisions. Risk-off cash receives zero
+  return in the initial conservative Gold comparison; an achievable cash vehicle
+  may be shown diagnostically until separately brought into scope.
 
 ### 4.3 Universal rigor and search breadth
 
@@ -178,6 +222,12 @@ evidence planks and rigor. A predeclared test may have a valid equivalent or
 `not_applicable` result when it is structurally inapplicable, but origin does
 not earn skipped evidence, a lighter route, or silent score renormalization.
 
+Every mandatory test must actually execute on complete required data. Compute
+cost, apparent simplicity, or an upstream opinion that a test is unnecessary is
+never evidence. Missing, skipped, underpowered, or unverifiable required evidence
+blocks Gold. Montauk Score ranks only configurations that have already cleared
+every Gold plank.
+
 This does **not** make search history irrelevant. A simple rule discovered after
 millions of adaptive attempts has a different false-discovery context from the
 same rule genuinely frozen before any observation. Montauk must record the
@@ -185,6 +235,20 @@ complete observable search process and apply a defensible multiplicity or
 selection-bias correction at the appropriate family, campaign, and board level.
 The exact statistical mechanism remains a hard prerequisite for high-volume
 autonomous search.
+
+Dependence must be modeled honestly. A nearby configuration is not rejected or
+“punished” merely because a similar configuration also works, but thousands of
+near-identical rows do not count as thousands of independent discoveries or
+Chimera votes. Board/lifetime correction uses effective dependence, not a naive
+raw row count, while each exact configuration keeps its own evidence and row.
+
+The validation suite itself must be validated. Before its thresholds are frozen,
+Montauk must measure false-Gold detection **and** false-rejection behavior using
+null/adversarial controls, simple fixed structural controls, seeded defects,
+simulation, and genuine forward outcomes. Simple EMA/RSI strategies are useful
+controls, not ground-truth examples of “definitely not overfit.” Until forward
+calibration supports a probability interpretation, the headline is Validation
+Score—not “Confidence %.”
 
 ### 4.4 Reproducibility
 
@@ -206,7 +270,10 @@ If any required component is missing, the row is not Gold.
 ### 5.1 Vocabulary
 
 - **Idea:** a written hypothesis.
-- **Family:** one executable mechanism with a declared parameter space.
+- **Family:** an organizational/statistical grouping whose configurations share
+  the same trigger logic and parameter schema. It helps batching, display,
+  search accounting, and Chimera dependence control; it is not a certification
+  or owner-facing authority unit.
 - **Configuration:** one family plus one exact parameter set.
 - **Strategy candidate:** one configuration that completed a backtest.
 - **Strategy:** in owner-facing summaries, a configuration; technical views must
@@ -224,6 +291,9 @@ Before a family can enter executable research it must include:
 - declared parameter domains and constraints;
 - a one- or two-sentence economic or behavioral rationale;
 - expected failure modes;
+- required inputs, warm-up, and signal timing;
+- point-in-time source, publication-lag, missingness, and provenance requirements
+  for every non-TECL input;
 - deterministic smoke tests;
 - static/lookahead/safety-check results; and
 - immutable identity and version metadata.
@@ -270,7 +340,7 @@ One model at a time is sufficient.
 
 ### 6.2 Search policy
 
-**OWNER INTENT, SPECIFICATION PENDING.**
+**DECIDED operating policy; adaptive-yield calibration pending.**
 
 - Keep enough queued work to use available research compute without requiring
   every generated configuration to run immediately.
@@ -280,11 +350,16 @@ One model at a time is sufficient.
   families, up to 20% champion-weakness work when needed, and 10% unusual
   exploration. The actual allocation should adapt to survivor yield, Gold yield,
   novelty, and operational priorities.
+- Ten percent is the autonomous steady-state exploration floor, not a permanent
+  owner restriction. Max may explicitly launch a named campaign with 100%
+  exploration, 0% exploration, or another allocation; the override is bounded,
+  visible, and audited.
 - Recertification and trusted-signal work always preempt discovery research.
 - Cheaply sample broad or retired families before committing deep search.
 - Do not permanently condemn an indicator or mechanism merely because one
-  implementation failed. Preserve failure evidence and permit redesigned
-  versions.
+  implementation failed. Record what exact logic, region, data, and gate failed;
+  preserve the indicator/data stream as available material; and keep testing
+  tuned, complementary, or redesigned versions when evidence earns compute.
 - Review aggregate results before generating the next batch so the agent does not
   repeat rejected configurations or get trapped in one mechanism.
 - Retest exact prior configurations only when a versioned reason exists, such as
@@ -293,6 +368,12 @@ One model at a time is sufficient.
 There is no fixed “one family per hour” completion target. Throughput should be
 measured empirically after correctness, resource isolation, and representative
 workloads exist.
+
+A compile, timeout, memory, or other resource failure describes an implementation
+attempt, not the economic configuration. Resource-bound work enters a dedicated
+quarantine/repair lane with its original hypothesis intact. Limits must protect
+trusted deadlines without being so tight that legitimate strategies are silently
+classified as bad ideas.
 
 ## 7. System architecture
 
@@ -310,7 +391,8 @@ UNTRUSTED CANDIDATE INTAKE
                   v
 PROTECTED DETERMINISTIC CORE
   verified data -> cheap screen -> full backtest -> validation
-  -> reproducibility -> Gold -> score/rank
+  -> reproducibility -> Pending Gold -> forward evidence
+  -> fresh certification -> current Gold -> score/rank
                   |
           +-------+-------+
           |               |
@@ -339,10 +421,21 @@ Information may flow from protected results back to ideation, but ideation's
 write authority never flows into the protected core or Active state.
 
 The high-volume experiment ledger belongs in a queryable local database, not in
-millions of committed JSON files. Git/GitHub retains protected infrastructure,
-versioned strategy source/definitions, the current and historical Gold
-publication layer, migrations, and disaster-recovery essentials. Database
-backup and restore are required even if raw experiment rows are not committed.
+millions of committed JSON files. Every durable data class nevertheless has a
+GitHub-hosted off-machine recovery path: ordinary Git for protected
+infrastructure, definitions, migrations, compact manifests, and human-readable
+snapshots; partitioned/compressed logical snapshots, releases, or Git LFS where
+appropriate for bulk artifacts. Ordinary Git blobs stay below GitHub's 100 MiB
+hard limit (with an earlier internal warning), and repositories are split by
+responsibility before size degrades sync or restore performance. A live mutable
+database is never treated as a normal Git file.
+
+The target is no silent loss of acknowledged durable state. Authority, current
+signal, approvals, and Gold lifecycle mutations are durably journaled and
+replicated before acknowledgement. Each batch has a pre-batch recovery point and
+an end-of-batch commit/snapshot; the maximum background sync interval is one
+hour. In-flight computations may be rerun after a crash, but completed durable
+results cannot disappear without an integrity failure and immediate alert.
 
 ## 8. Autonomous-agent authority and containment
 
@@ -356,7 +449,7 @@ The scheduled agent may:
 - submit valid candidates to intake without human review;
 - analyze aggregate research outcomes and recommend the next search;
 - make frequent commits in the generated-research area;
-- attempt two or three immediate repairs of invalid candidate code; and
+- try the original invalid candidate plus at most two immediate repairs; and
 - place unresolved candidates in a lower-priority repair queue.
 
 ### 8.2 Prohibited without explicit owner-directed work
@@ -374,15 +467,31 @@ The agent may not change:
 - permissions that enforce these boundaries.
 
 This is the highest-priority autonomy rule. It must be mechanically enforced,
-not merely stated in a prompt. The exact repository/process boundary—separate
-repositories, protected paths, limited credentials, signed manifests, reviewed
-promotion, or a combination—is OPEN.
+not merely stated in a prompt. The required boundary is defense in depth:
+separate protected-core and generated-research repositories/workspaces,
+different OS identities and credentials, a read-only deployed core, protected
+remote branches, and a content-addressed release manifest cryptographically
+signed by a human-held key that the autonomous agent cannot access. Startup,
+testing, Gold publication, and trusted-signal work fail closed if the seal,
+permissions, or protected hashes do not verify. A password prompt or clean Git
+history alone is not the seal.
 
 Commits are rollback points, not a sandbox. Candidate execution still requires
 capability denial, process isolation, resource/time limits, deterministic inputs,
 and explicit output schemas. Network, arbitrary filesystem writes, subprocess
 spawning, credential access, and protected-repository mutation should be denied
 by default.
+
+The agent's generated-research area is deliberately a “pool of chaos”: it may
+write arbitrary candidate specifications or isolated modules there. Nothing in
+that area becomes trusted because it exists or compiles. Deterministic intake,
+causal access, containment, full backtesting, validation, and certification are
+the only route out.
+
+Provider accounts, credentials, subscriptions/APIs, and spending limits are
+configured personally by Max. The 3.0 core keeps a provider-neutral adapter and
+never exposes provider credentials to candidate workers, but it does not
+autonomously register providers or invent a cost/failover policy.
 
 ### 8.3 Candidate representation
 
@@ -403,7 +512,12 @@ that.
 A genuinely novel mechanism may eventually use one isolated Rust module compiled
 once for that immutable family version, then sweep its parameter space without
 recompilation. That escape hatch is disabled until its containment, causality,
-determinism, and parity acceptance tests pass. Python may remain a readable
+determinism, resource, and parity acceptance tests pass. After Max approves the
+escape-hatch policy and signed core release, individual generated modules do not
+need case-by-case approval: conforming modules automatically enter untrusted
+intake, and the unchanged deterministic pipeline decides their outcome. Adding a
+new shared primitive still changes protected core and therefore requires a signed
+owner release. Python may remain a readable
 reference/parity oracle, but it is not a production strategy format or an
 independent source of trading truth.
 
@@ -413,6 +527,16 @@ independent source of trading truth.
 
 **DECIDED.**
 
+- A configuration that clears the historical backtest/validation contract first
+  enters **Pending Gold**. This is a deterministic evidence state, not a human
+  staging board or Trade Roster. It is visible but cannot be Active or count as
+  current Gold.
+- Pending Gold normally accumulates 20 verified trading bars, maintains every
+  required gate, and receives a fresh certification before automatically
+  graduating to current Gold. Bars, trades/signals, regimes, and relative
+  performance are shown separately; elapsed bars are never described as strong
+  forward proof when no relevant event occurred. Max may explicitly override the
+  cooling-off delay, and that exception is conspicuous and audited.
 - There is one current Gold leaderboard, not a staging board or Trade Roster.
 - Every current Gold configuration is eligible for its own row.
 - Rows may be grouped and collapsed by family for legibility.
@@ -444,24 +568,42 @@ decline it; ignoring it leaves the incumbent active. The interface must make a
 manual override impossible to mistake for the recommendation.
 
 Confidence gains matter more than equally sized performance gains. A small score
-improvement should not create churn. The exact meaningful-superiority threshold,
-minimum forward evidence, and cooling-off rule are OPEN.
+improvement should not create churn. The initial versioned recommendation rule
+flags owner review when any one of these holds while every Gold and secondary
+non-degradation floor remains satisfied:
+
+- Validation Score improves by at least 10 absolute points without a material
+  deployable-performance loss;
+- the lower-bound deployable-performance estimate improves by at least 10%
+  relative without a Validation Score decline; or
+- Montauk Score improves by at least 5 absolute points with neither component
+  materially worse.
+
+The candidate must remain above the entry threshold for five new verified
+trading bars; a lower exit threshold supplies hysteresis. These are provisional
+operating values to calibrate against recommendation churn, not permission for
+the agent to tune the rule after seeing a preferred candidate.
 
 ### 9.3 Emergency loss of Gold
 
-The owner wants continuous operation on a Gold-certified strategy and also
-retains authority over state-changing replacements. The exact rule is therefore
-OPEN:
+**DECIDED.** A normal leaderboard/recommendation change never activates a
+strategy. When Active or a manual override loses Gold:
 
-- whether a same-state fallback may activate automatically;
-- what happens when the best fallback disagrees with the current risk state;
-- how long the last position/state may be held while human review is required;
-  and
-- the no-Gold behavior.
+1. revoke its Active authority and any manual override immediately;
+2. if the highest-ranked compatible Gold fallback emits the **same** current
+   risk state as the last verified Montauk instruction, transfer the Active
+   pointer automatically as a named emergency fallback, preserve the instruction,
+   and send a critical alert;
+3. if the fallback disagrees, preserve the last issued instruction, leave no
+   strategy labeled Active, enter `human_decision_required`, display both states,
+   and alert Max immediately; and
+4. if no Gold fallback exists, display `no_certified_strategy`, recommend
+   risk-off for Max's consideration, preserve the last instruction until Max
+   decides, and perform no brokerage action.
 
-Until ratified, no implementation may infer that “fallback” authorizes a trade.
-The safe provisional behavior is to freeze the last trusted state, mark human
-decision required, and send a critical alert.
+Montauk may describe the actual account position only after Max acknowledges the
+manual execution through a dedicated authenticated app/operations action. Slack
+chat is not the execution-acknowledgement authority.
 
 ## 10. Data, live evidence, and recertification
 
@@ -475,8 +617,10 @@ If current data fails verification:
 - keep displaying the last verified signal with an explicit stale timestamp;
 - preserve current authority state;
 - raise an actionable failure for human intervention; and
-- optionally continue clearly labeled research against the frozen last-good
-  dataset, but do not promote those results as current.
+- allow already-safe partial screens to be quarantined against the frozen
+  last-good dataset, but pause exploratory compute while recovery catches up.
+  No configuration may become Pending Gold or Gold until every required
+  backtest and anti-overfit input is complete and verified.
 
 On recovery after downtime: catch up and verify data first, then recertify the
 active strategy before trusting a new signal; only then resume lower-priority
@@ -493,15 +637,33 @@ Montauk must track, per Gold row:
 - last recertification data/version; and
 - current, stale, or revoked state.
 
-The initial operating intuition was active daily, top 20% or top 5,000 twice per
-week, and full board every two weeks. The owner prefers evidence-based staleness
-triggers if they are more meaningful. The final scheduling policy is OPEN, but
-active-strategy verification and recertification always outrank new discovery.
+The initial scheduling contract is:
 
-A core data, engine, execution, validator, threshold, or ranking change creates a
-new methodology version. The scope of automatically stale rows and the
-owner-triggered/full-board recertification workflow must be explicit before such
-a change is accepted.
+- replay Active after every verified daily bar;
+- formally renew Active after 20 new verified bars, any new signal/trade event,
+  any live-warning threshold, or before an activation/fallback decision;
+- renew Recommended and the top cohort weekly or before activation eligibility;
+- renew the remaining board after 63 new verified bars, with spare compute
+  permitted to pull work forward; and
+- preempt discovery whenever verification, renewal, or recovery needs resources.
+
+These values are versioned commissioning defaults and may be recalibrated only
+through an owner-approved core release. Repeating unchanged data proves replay,
+not new evidence.
+
+A core data, engine, execution, validator, threshold, or eligibility change
+creates a new methodology version and immediately makes every incompatible
+certificate stale. Data/correctness changes receive urgent full-board
+recertification; no legacy or grandfathered configuration remains current Gold.
+A genuinely ranking-only change may preserve compatible Gold evidence while the
+board reranks under a named ranking version. Montauk minimizes the stale interval
+but never represents stale evidence as current confidence.
+
+Rolling recent underperformance uses a predeclared one-sided sequential rule. A
+first meaningful trailing-five-year bound breach creates a warning and priority
+renewal; persistence across two formal renewals separated by sufficient new
+evidence revokes Gold. Correctness, causality, data, replay, or artifact failures
+bypass hysteresis and stale/revoke immediately.
 
 ## 11. Storage, audit, and failure memory
 
@@ -516,9 +678,14 @@ configuration:
 - terminal failure code and plain-English reason; and
 - references to retained artifacts.
 
-Full artifacts are required for Gold and near-Gold candidates; retention tiers
-for the remainder may be compact. Generated strategy source is retained even
-after retirement so later agents can study or redesign it.
+Full artifacts are retained permanently for current/historical Gold and a
+stratified audit sample, and for at least one year for near-Gold. For an exhausted
+region with near-zero measured chance of Gold, bulky per-configuration traces may
+expire after a compact lossless-enough summary records the exact tested space,
+versions, aggregate results, representative failures, and deduplication keys.
+The archive must be sufficient to avoid unknowingly repeating the same failed
+work. Generated strategy source is retained even after retirement so later agents
+can study or redesign it.
 
 The failure ledger is part of the research intelligence, not a trash pile. The
 agent should read it to avoid exact repetition, distinguish implementation
@@ -528,6 +695,16 @@ retired families when new data or a material redesign justifies it.
 Silent fallback and swallowed error behavior are prohibited. Every operational
 failure has a structured code, ownership, safe state, retry policy, escalation
 policy, and durable audit event.
+
+Every durable class has local integrity protection and an off-machine GitHub
+copy. Use multiple repositories by responsibility when needed; keep regular Git
+objects below platform limits; and use partitioned snapshots/LFS/releases for
+large immutable artifacts rather than committing a changing database file. A
+pre-batch recovery point and end-of-batch or hourly sync—whichever comes first—
+bound exposure. Authority/Gold mutations are replicated before acknowledgement.
+Backup corruption, GitHub sync failure past its bound, or any lost acknowledged
+state is a critical alert. Restore drills must prove the copies, not merely prove
+that a push command ran.
 
 ## 12. User experience
 
@@ -545,16 +722,35 @@ traceable pass/fail lights with plain-English explanations such as “most of th
 historical advantage came from one event,” with detailed evidence available on
 demand.
 
-The notification surface may begin with one daily digest because Montauk does
-not trade intraday. The digest should include the trusted state and any change,
-active Gold/override status, staged recommendation, honest funnel counts, new
-Gold rows, important board movement, forward-evidence/recertification status, and
-actionable failures. Critical data, active-Gold, signal, or system failures may
-later justify immediate alerts.
+The notification surface begins with one daily digest because Montauk does not
+trade intraday. The digest includes the trusted state and any change, Active
+Gold/override status, Pending Gold and recommendation changes, honest funnel
+counts, new Gold rows, important board movement, forward-evidence/
+recertification status, and actionable failures.
 
-Slack is expected to support conversation with the resident agent and may support
-owner-authorized commands or approvals. Authentication, replay protection,
-idempotency, confirmation, audit, and which commands are allowed are OPEN.
+Within five minutes of detection, attempt immediate delivery for verified-data
+failure, a missed required-signal deadline, Active losing Gold, no compatible
+fallback, authority/control-store corruption, artifact-integrity failure, or a
+sandbox escape attempt. Three consecutive research-cycle failures or one systemic
+pipeline defect also alert; isolated candidate failures remain in the digest.
+Max may route these classes into separate Slack channels.
+
+Slack supports conversation plus exactly these state-changing 3.0 commands:
+
+- request a named ideation/research campaign;
+- trigger recertification; and
+- approve one exact pending Active-strategy switch.
+
+Status/explanation queries are read-only. Every mutation requires Max's
+allowlisted identity, an immutable request/strategy ID, explicit confirmation,
+expiry, idempotency, replay protection, and a durable audit event. Slack cannot
+acknowledge alerts or manual brokerage execution, enter/exit maintenance mode,
+modify methodology, or infer approval from free-form conversation.
+
+Slack's current Free plan is sufficient for multiple channels and one Montauk
+custom app, but its searchable history is limited; Slack is never the audit log.
+The control database and notification outbox remain authoritative, and plan
+limits are rechecked during deployment.
 
 ## 13. Chimera
 
@@ -575,6 +771,8 @@ The preferred direction is:
 
 - a legible reference implementation and frozen behavioral fixtures;
 - a prebuilt high-performance Rust evaluator and reusable primitive library;
+- a coverage matrix proving exact reproduction of every current production,
+  Gold, benchmark, and validation strategy before cutover;
 - compact strategy definitions for normal composition;
 - at most one isolated compiled Rust module per genuinely novel family, not a
   newly compiled program for every parameter configuration;
@@ -587,6 +785,13 @@ The preferred direction is:
 Compilation proves syntax/type properties, not trading correctness, absence of
 lookahead, or validity of the edge. No optimized path may become an independent,
 unreconciled source of trading truth.
+
+The first primitive vocabulary covers typed arithmetic/boolean composition,
+lags/rolling values, TECL OHLCV and approved external inputs, SMA/EMA/WMA,
+momentum/ROC, RSI/MACD, ATR/volatility/bands, crossover/threshold events, and
+explicit entry/exit/hold/cooldown/position state. Primitives remain small,
+independently fixture-tested, causal, and protected. Missing expressiveness
+creates a module or primitive proposal; it never silently kills an idea.
 
 ## 15. Definition of done
 
@@ -607,29 +812,43 @@ Montauk 3.0 is ready for Max to call complete when:
   and unattended-soak acceptance tests; and
 - Max decides the evidence is sufficient.
 
-An unattended soak test is evidence for that decision, not an automatic gate to
-4.x.
+An unattended soak test is evidence for Max's decision, not an automatic project
+transition. Only Max declares 3.0 complete, and later-version work begins only
+after a separate explicit instruction from Max.
 
-## 16. Remaining decisions
+## 16. Required calibration and design evidence
 
-The following require explicit answers or a focused design experiment:
+Questionnaire 3 settled the owner policy. The following are now bounded Phase-A
+studies, not open invitations for a coding agent to invent behavior:
 
-1. Gold-safe signal/execution timing and the exact B&H comparator.
-2. Required real-data periods, recent-performance gate/weight, rolling
-   underperformance demotion, and minimum trade/evidence rules.
-3. Synthetic catastrophic-failure behavior.
-4. Search-breadth accounting and board-level false-discovery control.
-5. Initial Rust primitive vocabulary, the acceptance evidence required to enable
-   the staged isolated-family escape hatch, and who may authorize its use.
-6. Mechanical protected-core enforcement and repository/credential boundaries.
-7. Recommendation superiority, cooling-off, and forward-evidence requirements.
-8. Active-Gold-loss, disagreeing fallback, and no-Gold state machine.
-9. Recertification/staleness triggers and methodology-change consequences.
-10. Slack command and approval authority.
-11. Retention, backup, restore, and disaster-recovery targets.
-12. Quantified 3.0 acceptance tests and evidence presentation.
+1. **Execution study:** freeze the signal timestamp, first obtainable fill,
+   costs, OHLC stress model, and B&H comparator after comparing alternatives and
+   defining reconciliation to Max's later real fills.
+2. **Economic-gate study:** select the smallest defensible fixed real/recent/
+   rolling horizon set, calibrate the provisional ~1.10 margin and one-sided
+   uncertainty requirement, and show both missed-good and admitted-bad behavior.
+3. **Synthetic-data study:** independently reproduce and overlap-calibrate the
+   technology-index/XLK construction, financing drag, volatility/tracking error,
+   named-event behavior, weights, and any catastrophic veto.
+4. **Validation-of-validation study:** audit every method and threshold; test
+   null, adversarial, simple structural, seeded-defect, and forward controls;
+   report Type-I/false-Gold and Type-II/false-rejection behavior; define what
+   Validation Score measures and whether it can ever be calibrated as a
+   probability.
+5. **Multiplicity study:** preserve lifetime hierarchical search provenance and
+   select an independently reviewed within-family plus board/lifetime method that
+   handles correlated configurations without treating raw row count as
+   independence.
+6. **Containment/seal study:** demonstrate signed-core fail-closed startup,
+   separate credentials, causal workers, resource quarantine/repair, and the
+   acceptance suite that enables automatic isolated-module intake.
+7. **Recovery/storage study:** prove no loss of acknowledged authority/Gold state,
+   bounded batch recovery, GitHub partition/repository limits, corruption
+   detection, and clean restore.
+8. **Acceptance matrix:** attach a stable test ID, invariant, fixture, threshold,
+   artifact, safe failure state, rollback, and Max sign-off field to every 3.0
+   operational claim.
 
-Those questions are collected in
-[Questionnaire 3 — Final Operating Contract](Questionnaires/Questionnaire%203%20-%20Final%20Operating%20Contract.rtf).
-Answers become entries in [decisions.md](decisions.md) and changes to this
-charter; they must not create another parallel source of truth.
+The completed questionnaire remains unchanged as source evidence. The decision
+log records the resulting calls; this charter and its pillar plans are the
+current planning truth.

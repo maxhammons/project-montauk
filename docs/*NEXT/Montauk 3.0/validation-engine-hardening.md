@@ -1,6 +1,6 @@
 # Montauk 3.0 — The Validation Engine (North Star) + Hardening Plan
 
-**Status: LIVING DOC (opened 2026-06-17; owner contract updated 2026-07-17).**
+**Status: LIVING DOC (opened 2026-06-17; owner contract updated 2026-07-21).**
 This is the guiding-light workstream of Montauk 3.0. The audit below is
 **design-level** (what is covered, what is missing, measured against the
 anti-overfitting literature). The **line-by-line correctness audit** (G10) is
@@ -29,26 +29,48 @@ true out-of-sample and correctly attributed live-forward evidence, reproducible
 artifacts, independent re-implementation, and honestly stated uncertainty—
 including what the data cannot support.
 
-### 1a. Owner contract clarified on 2026-07-17
+### 1a. Owner contract ratified through Questionnaire 3 on 2026-07-21
 
-- Gold is Montauk's highest **process and evidence certification**, not a
-  guarantee of any future call or return.
-- Every candidate faces the same mandatory evidence planks and rigor regardless
-  of whether a human or an AI authored it. A structurally inapplicable test may
-  have a predeclared equivalent or valid `not_applicable` result;
-  origin-based T0/T1/T2 skipping and silent renormalization are not the target
-  3.0 contract.
-- Universal gates do not erase selection bias. The adaptive agent's family
-  proposals, cheap-screen rejects, parameter configurations, feedback cycles,
-  and board-wide comparisons must all be represented in the correction.
-- Required real-data horizons determine economic eligibility. Synthetic history
-  is diagnostic; a possible catastrophic synthetic veto is still an open
-  predeclared rule.
+- Gold is Montauk's highest **versioned process and evidence certification**, not
+  a guarantee of any future call or return. An empty Gold board is an honest
+  result.
+- Every configuration faces every mandatory evidence plank regardless of author,
+  simplicity, compute cost, or expected result. Missing, skipped, underpowered,
+  incomplete, or unverifiable required evidence blocks Gold. A structurally
+  inapplicable algorithm needs a predeclared equivalent or valid
+  `not_applicable` treatment; no origin-based tier or silent renormalization
+  remains.
+- Montauk Score ranks only configurations that passed all hard planks. The
+  evidence-strength composite is named **Validation Score**, not a confidence
+  percentage, until a frozen forward outcome and reliability study justify a
+  probability interpretation.
+- Universal gates do not erase adaptive selection. The agent's proposals,
+  cheap-screen rejects, configurations, campaigns, feedback cycles, and
+  board/lifetime comparisons remain observable. Correction must model effective
+  dependence; it may neither treat every near-twin as independent nor erase
+  legitimate exact configurations.
+- Economic eligibility uses matched TECL B&H across complete real history, a
+  fixed recent horizon initially centered on trailing five years, and a small
+  predeclared rolling/window design. The exact uncertainty-aware margin starts
+  from Max's provisional ~1.10 intuition and requires calibration.
+- Synthetic history is diagnostic and never substitutes for real passage. Its
+  current model and any weight/catastrophic veto require independent overlap and
+  model-error calibration.
+- Gold must use a timestamped, obtainable manual-execution model. Same-close
+  fills cannot certify a signal that consumed that close. OHLC alternatives and
+  close fills are stress/diagnostic outputs unless their availability and
+  execution are proven.
 - Backtest/B&H passage precedes the expensive validation suite. Candidate-code
   containment and correctness preflight precede execution.
-- Automation cannot change the validator, thresholds, weights, or evidence rules.
-  Max-authorized hardening may create a new contract version; affected
-  certifications then follow an explicit stale/recertification policy.
+- A historical-suite survivor is `Pending Gold`, normally accumulates 20 verified
+  bars, and must pass a fresh certification before current Gold. Only the latest
+  compatible contract appears on the current board; no legacy grandfathering.
+- The validator must measure both false-Gold and false-rejection behavior. A
+  validator that rejects everything is not robust merely because it is strict.
+- Automation cannot change the validator, thresholds, weights, data/execution
+  contract, or evidence rules. A signed Max-authorized core release creates new
+  version identities and immediately stales incompatible certifications for
+  urgent recertification.
 
 ---
 
@@ -66,11 +88,15 @@ including what the data cannot support.
 ```
 
 **The asymmetry that matters:** Steps 1–2 *generate* (and Montauk 3.0 makes them
-enormously more powerful — auto-enter, grind-constantly, billions of combos). Step 3
-is the **adversary**. The more powerful generation gets, the *harder* Step 3 must
-work — **the bar rises with the search, it never falls.** A more powerful search
-without a correspondingly harder validator just manufactures false Gold faster.
-This is the single most important design law of the whole machine.
+enormously more powerful—auto-enter, continuous feedback, billions of
+configurations). Step 3 is the **adversary**. As the number of effectively
+independent opportunities to get lucky rises, the multiplicity burden must rise
+with it. Raw counts of highly dependent near-twins do not automatically equal
+independent trials, and unrelated evidence planks do not become arbitrarily
+stricter merely because throughput improved. A more powerful search without
+honest dependence-aware correction manufactures false Gold; a naïve raw-count
+penalty can manufacture false rejection. This balance is the central design law
+of the machine.
 
 ---
 
@@ -121,6 +147,10 @@ and certification vintage that generated it.
 | **G11** | **Forward evidence is not yet an immutable per-row record.** An active-system stream can be relabeled when the champion changes, and repeated recertification on unchanged data can be mistaken for new evidence. | Evidence after one frozen version's certification belongs only to that version; reproducibility reruns do not create new market evidence. | **Critical contract** | Key observations by frozen strategy/configuration/certification ID; separate replay, renewal on new bars, and re-optimization; define sequential/hysteresis rules. |
 | **G12** | **Gold execution and comparator semantics are unsettled.** Same-close fills are not deployable when the signal uses that close; B&H dates, distributions, cash return, costs, and unrounded comparison margin must be frozen. | A statistically strong result under an impossible fill is not fit to trade. A rounded point estimate barely above 1.0 is weak evidence of superiority. | **Critical contract** | Certify on the actual next-available execution workflow net of costs; keep close-fill as diagnostic. Decide whether the hard economic gate uses a one-sided lower confidence bound. |
 | **G13** | **Composite/gate semantics may not match “passes every validation.”** Skipped/missing dimensions can be renormalized, warnings may not affect verdicts, and weighted strength can offset a failed plank. | A score is not a probability and cannot rescue absent mandatory evidence. | **High** | Define mandatory minima and explicit `not_applicable` equivalents; fail Gold on missing/unverifiable required evidence; label uncalibrated composite values as scores, not probabilities. |
+| **G14** | **The validator's false-positive and false-negative operating characteristics are unmeasured.** Passing known defects and rejecting valid controls are both possible. | “Stricter” can hide a powerless or biased grader just as easily as a permissive one. | **Critical evidence** | Build a validation-of-validation harness with randomized nulls, seeded leakage/overfit defects, simple frozen controls, simulation, power reporting, and per-row forward outcomes. Freeze expected sensitivity/specificity ranges per contract version. |
+| **G15** | **Synthetic TECL diagnostic validity is not independently calibrated.** The builder is reproducible, but its index/ETF proxies, leverage model, expenses, seam, and financing haircut are not equivalent to observed TECL behavior. | An uncalibrated synthetic vote or veto can create false confidence or reject a sound real-era strategy. | **High** | Validate on real-TECL overlap and model-error controls; version every assumption; quantify volatility/tracking differences; permit a weight/veto only after out-of-model review. |
+| **G16** | **Recent/rolling passage and demotion can themselves become a hand-picked exam.** “Beat B&H however reasonably sliced” is not executable until the slices and persistence rule are frozen. | Retrospective windows manufacture robustness; excessively many correlated windows can make Gold impossible without adding independent evidence. | **Critical contract** | Predeclare a small complete-real/recent/rolling design, calibrate the provisional ~1.10 margin and uncertainty floor, and test the two-renewal warning/demotion rule under simulation and controls. |
+| **G17** | **External-input point-in-time contracts are incomplete.** 3.0 may use VIX, volume, options, related assets, macro series, and idiosyncratic components while trading TECL only. | Revision, publication-lag, same-bar, survivorship, timezone, and missing-data mistakes can create invisible lookahead. | **High** | Require a versioned source registry with provenance, publication/market timestamp, revision policy, missing semantics, and causal feature APIs; verify with prefix replay and as-of fixtures. |
 
 ---
 
@@ -138,7 +168,8 @@ A Gold row should be able to answer all of these on demand:
    present) *and* board-level (SPA / Reality Check, G2).
 4. **True OOS + live forward** — re-optimized walk-forward plus evidence attributed
    to each frozen row, with bars, time, trades/signals, regimes, and calibration
-   sample size stated (G5/G11).
+   sample size stated (G5/G11). Historical-suite survivors remain Pending Gold
+   until the required untouched forward record and fresh certification complete.
 5. **Reproducible** — recomputable from the five artifacts; era metrics re-derivable
    (`certify/verify_board_reproducibility.py`); no trust in stale stamps.
 6. **Independently re-implementable** — shadow comparator agrees (present; make it CI,
@@ -148,43 +179,65 @@ A Gold row should be able to answer all of these on demand:
    uncalibrated weighted composite is labeled a score, not a probability.
 8. **Deployable economics** — every named real-data horizon beats the frozen B&H
    contract under the actual execution workflow and unrounded decision values
-   (G12).
+   (G12/G16).
 9. **Mandatory evidence** — skipped, missing, insufficient, or unverifiable
    required gates cannot disappear through weight renormalization (G13).
+10. **Validator operating characteristics** — frozen defect/control suites report
+    measured false-Gold, false-rejection, power, and uncertainty behavior; pass
+    scarcity is not used as proof of rigor (G14).
+11. **Synthetic honesty** — the exact proxy/leverage/expense/seam/financing model
+    and overlap error are disclosed; synthetic results are diagnostic and have no
+    uncalibrated vote or veto (G15).
+12. **Point-in-time inputs** — every external feature traces to an as-of source,
+    publication/revision policy, missing-data rule, and causal fixture (G8/G17).
+13. **Current contract only** — a material methodology change stales incompatible
+    rows; older certificates are archived rather than grandfathered onto the
+    current Gold board.
 
 ---
 
 ## 5. Hardening backlog (prioritized)
 
-1. **G1 — breadth deflation.** The big rock; prerequisite for safe high-volume
-   auto-enter. Count observable family proposals, adaptive batches,
-   configurations evaluated, and rejects; feed the relevant levels into
-   within-family and board/lifetime correction.
-2. **G10 — line-by-line correctness audit** of `scripts/validation/`. Cheap insurance
-   that the strong design is also a correct implementation. **Underway** —
+1. **G10 + G14 — audit and validate the validator.** Finish the line-by-line
+   method audit, then prove the full suite against defect, null, structural-
+   control, simulation, and forward datasets. **Underway** —
    [validation-audit-findings.md](validation-audit-findings.md).
-3. **G11–G13 — freeze the forward-evidence identity, deployable execution/B&H
-   contract, and mandatory gate semantics** before calling the suite complete.
-4. **G2 — board-level SPA / Reality Check** test across the family set.
-5. **G4 — freeze + sensitivity-test the validator's own parameters.** Stop the
-   validator from being overfit to today's pool.
-6. **G8 — verify point-in-time macro data** (rule out revision lookahead).
-7. **G9 + G6 — Minimum Track Record Length + small-sample CI/power reporting.**
-8. **G7 — strengthen PBO** (scale + search-path neighborhood).
-9. **G5 — keep banking live-forward evidence**; report calibration sample size on
-   every claim (passive, time-healing).
-10. **G3 — surface the data-scarcity ceiling** on every Gold claim now; the structural
-   cure for TECL is more untouched TECL market evidence.
+2. **G12 + G16 — freeze deployable economic truth.** Calibrate timestamp/fill and
+   matched-B&H semantics, complete-real/recent/rolling passage, provisional
+   ~1.10 superiority margin, uncertainty floor, and warning/demotion behavior.
+3. **G1 + G2 — dependence-aware breadth and board/lifetime correction.** Count
+   the complete observable adaptive search while estimating effective—not raw—
+   independent breadth; choose and independently review the hierarchical online
+   SPA/Reality-Check/step-down design.
+4. **G11 + G13 — fail-closed evidence and immutable forward identity.** Implement
+   Pending Gold, per-row forward bars, hard mandatory planks, and latest-contract-
+   only current Gold.
+5. **G15 — independently recalibrate synthetic TECL.** Quantify overlap/model
+   error before allowing any diagnostic weight or veto.
+6. **G4 — freeze + sensitivity-test validator parameters.** Never tune anchors to
+   the current candidate pool; define Validation Score without probability
+   language until G14 supports it.
+7. **G8 + G17 — point-in-time external data registry and causal API.** Cover macro,
+   VIX, volume, options, related assets, and idiosyncratic inputs.
+8. **G9 + G6 — Minimum Track Record Length + small-sample CI/power reporting.**
+9. **G7 — strengthen PBO** with actual searched neighborhoods and calibrated
+   scale.
+10. **G5 + G3 — bank and expose untouched evidence.** Report calibration sample,
+    trade/regime counts, and the TECL data-scarcity ceiling on every current claim.
 
 ---
 
 ## 6. What does NOT change
 
-This is hardening, never opportunistic softening. The autonomous agent cannot
-alter the Gold contract, binary correctness layer, composite, or deflation
+This is evidence-led correction, never threshold shopping for a desired winner.
+It may strengthen a permissive test **or** repair/remove an invalid over-strict
+test when the audit and control studies justify that change. The autonomous agent
+cannot alter the Gold contract, binary correctness layer, composite, or deflation
 machinery. Those elements may change only through an explicit Max-authorized,
-versioned core release with documented rationale, tests, and consequences for
-existing certifications. No release may tune the grader toward the current
-candidate pool or compare mixed contract versions as though they were identical.
-When a hardening item lands, it is reconciled into the authoritative validation
-docs by explicit decision, never by drift.
+signed and versioned core release with documented rationale, tests, and
+consequences for existing certifications. Incompatible rows immediately leave
+the current board pending urgent recertification; they are not grandfathered.
+No release may tune the grader toward the current candidate pool or compare mixed
+contract versions as though they were identical. When a hardening item lands, it
+is reconciled into the authoritative validation docs by explicit decision, never
+by drift.

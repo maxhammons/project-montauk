@@ -1,6 +1,6 @@
 # Meta-Strategy Design: Confidence-Weighted Regime Ensemble (Chimera)
 
-**Status: CONDITIONAL / DEFERRED WITHIN 3.x (updated 2026-07-17).** Do not
+**Status: CONDITIONAL / DEFERRED WITHIN 3.x (updated 2026-07-21).** Do not
 implement this as standing 3.0 infrastructure until Montauk has several
 materially independent Gold families and an agreed way to measure/control that
 dependence. Chimera is optional research, not a 3.0 completion requirement.
@@ -13,17 +13,19 @@ best single strategy.
 
 The meta-strategy will operate as an ensemble candidate:
 
-1.  **Gold Ingestion:** It queries current Gold certifications rather than reading
-    a fixed number of rows from a JSON file.
+1.  **Gold Ingestion:** It queries current, latest-contract Gold certifications
+    rather than reading a fixed number of rows from a JSON file. Pending Gold,
+    stale, revoked, and historical rows cannot vote.
 2.  **Dependence Control:** It groups or downweights correlated configurations so
     thousands of variants from one family cannot dominate the vote. Eligibility
     requires materially independent mechanisms/signals, not merely different
     parameter hashes.
 3.  **Regime Detection:** It uses a frozen, real-time-observable classifier with
     no lookahead to describe the current environment.
-4.  **Base Weighting:** Each eligible strategy receives a predeclared weight from
-    validation strength and independence. A composite score must not be treated
-    as a calibrated probability unless forward calibration supports that claim.
+4.  **Base Weighting:** Each eligible exact configuration receives a predeclared
+    weight from Validation Score, deployable performance evidence, and effective
+    independence. A composite score must not be treated as a calibrated
+    probability unless forward calibration supports that claim.
 5.  **Regime Adjustment:** A predeclared rule may scale weights by each frozen
     strategy's performance in similarly classified historical regimes.
 6.  **Signal Aggregation:** Each strategy emits `risk_on` or `risk_off`; the
@@ -41,7 +43,7 @@ The meta-strategy will operate as an ensemble candidate:
 
 ## Data Flow
 
-1.  Load OHLCV data.
+1.  Load verified point-in-time TECL data and any approved causal regime inputs.
 2.  Load leaderboard strategies and their parameters/metrics.
 3.  For each bar:
     a. Determine the current regime state.
@@ -56,8 +58,11 @@ The meta-strategy will operate as an ensemble candidate:
 *   **Missing Data:** A predeclared policy determines whether a missing vote is
     excluded, held, or makes the ensemble unavailable. It may not change after
     results are seen.
-*   **Regime Ambiguity:** If the current market doesn't strongly fit a defined regime, weights default closer to the base `composite_confidence`.
-*   **Tie-Breaking:** If the weighted vote is exactly on the threshold, the system should default to the safer stance (likely `risk_off` or hold previous state).
+*   **Regime Ambiguity:** If the current market does not strongly fit a defined
+    regime, weights fall back to the frozen base-weight rule rather than an
+    improvised interpretation.
+*   **Tie-Breaking:** The exact hold-versus-risk-off rule is frozen before the
+    search. It cannot be selected after seeing which choice backtests better.
 
 ## Testing Strategy
 
@@ -75,14 +80,17 @@ The meta-strategy will operate as an ensemble candidate:
 ## Authority
 
 A Gold Chimera automatically joins the leaderboard like any Gold configuration.
-It receives no special rank or activation privilege; normal active-strategy
-changes still require Max's approval. If no Chimera beats the best single
-strategy, the correct outcome is to keep the single strategy.
+It first follows the same Pending Gold forward-evidence path, receives no special
+rank or activation privilege, and normal active-strategy changes still require
+Max's approval. If no Chimera beats the best single strategy, the correct outcome
+is to keep the single strategy.
 
 ## Prerequisites
 
 - several materially independent current Gold families;
 - a versioned dependence metric and duplicate-family control;
+- a rule that treats “family” as same trigger graph/parameter schema for
+  organization while estimating actual dependence from signals and returns;
 - enough evidence to estimate regime behavior without turning regime labels into
   another overfit search;
 - the same deployable execution contract used by individual strategies; and
@@ -91,4 +99,5 @@ strategy, the correct outcome is to keep the single strategy.
 ---
 
 *This remains a research design. It is not an implementation plan until the
-prerequisites above are met and Max explicitly chooses to schedule it.*
+prerequisites above are met and Max explicitly chooses to schedule it. A new #1,
+new Gold row, or leaderboard shuffle never triggers Chimera work by itself.*
