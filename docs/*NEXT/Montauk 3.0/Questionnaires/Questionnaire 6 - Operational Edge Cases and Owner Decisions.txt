@@ -1,0 +1,197 @@
+Questionnaire 6 - Operational Edge Cases and Owner Decisions
+
+This questionnaire contains the owner-level questions surfaced by an independent
+review of the ratified Montauk 3.0 plan. It does not ask Max to choose statistical
+methods, software libraries, or arbitrary thresholds. Phase 1 should still bring
+technical choices back with evidence in the plain-language format already required
+by the charter.
+
+Workflow note. This file is source evidence only. After Max answers it, a later
+explicit reconciliation pass may update the active Montauk 3.0 documents. Creating
+this questionnaire does not itself change any existing policy.
+
+
+1. Should an integrity failure use a different emergency state from ordinary
+performance deterioration?
+
+Context. The current emergency rule treats every loss of Gold similarly. But a
+strategy that falls behind B&H is different from a strategy whose current signal
+may have been produced by corrupted data, lookahead, an engine defect, or a broken
+artifact. In the second case, even the last instruction may no longer deserve the
+same label of trust.
+
+Suggested answer. Yes. Keep the current same-state/opposing-state fallback rules
+for ordinary evidence deterioration. If a correctness, causality, engine, data, or
+artifact defect may contaminate the current signal or multiple rows, enter a
+separate integrity_emergency state: quarantine every affected certificate, issue
+no new trusted instruction, show the last previously verified instruction with an
+explicit potentially-invalid warning, recommend risk-off for Max's consideration,
+and require a human decision unless an unaffected current-Gold fallback is proven
+compatible under the exact unaffected contract.
+
+Reasoning. “The edge may have weakened” and “the signal may be wrong” should not
+share one safety response merely because both remove a row from Gold.
+
+Max's answer. - the most important alerts have to do with the active strategy. If that drops from gold status then that should ring all alarm bells.
+
+
+2. What should happen if off-machine replication is unavailable at signal time?
+
+Context. The plan says authority, current-signal, approval, and Gold mutations are
+replicated before acknowledgement. If GitHub or the internet is unavailable after
+the close, strict synchronous replication could suppress a valid time-sensitive
+signal even when the local database, data, engine, and strategy are healthy.
+
+Suggested answer. Permit the deterministic current signal to be delivered in a
+clearly labelled degraded-backup state after it is fsynced to the protected local
+journal and a second local recovery copy. Block Gold publication, Active changes,
+methodology changes, and other nonessential authority mutations until off-machine
+replication recovers. Alert Max immediately and reconcile the queued signal event
+off-machine as soon as possible.
+
+Reasoning. This preserves the trading deadline without pretending that a GitHub
+outage is harmless. The exact local durability requirements should be proven by
+the recovery study.
+
+Max's answer. - are we doing off machine testing? I dont believe so and we shouldnt be. This is contained on the one computer. If there is an internet or power issue we will go through our catch up procedure (verify active and gold strategies first and then resume testing. (Aanything that was in progress gets reset back to the bbeginning of the pipeline
+
+
+3. May Montauk use a second independent off-machine backup in addition to GitHub?
+
+Context. GitHub is a valuable recovery path, but one provider/account is still one
+external failure domain. Account compromise, deletion, billing/LFS problems, or a
+provider outage could affect code, releases, and bulk artifacts together.
+
+Suggested answer. Yes. Keep the required GitHub path, and add one encrypted,
+versioned, append-only or immutable backup in a separate failure domain. It can be
+simple object storage or an offline/rotated disk. Restore tests must prove both
+paths independently; neither becomes a second live authority database.
+
+Reasoning. A second recovery copy supports the stated zero-silent-loss goal without
+changing GitHub's role or creating another source of operational truth.
+
+Max's answer. - there may be external or additional wired deep backup drives installed at a later point but GitHub for now
+
+
+4. Should there be an independent read-only dead-man notification path?
+
+Context. Montauk intentionally deploys one conversational channel. If the host,
+home internet, or that channel fails completely, the same system that should send
+the alert may be unable to do so. Tailscale/SSH helps only after Max decides to
+check the machine.
+
+Suggested answer. Yes. Keep exactly one command-capable conversational channel,
+but permit one independent read-only external heartbeat/dead-man service to send
+email, SMS, or push when the daily heartbeat or signal deadline is missed. It has
+no Montauk credentials and cannot issue commands or change state.
+
+Reasoning. A one-way absence alarm is not a second authority path. It closes the
+largest notification single point of failure in the always-on design.
+
+Max's answer. - yes having a slack/buzz channel that is just daily updates that is read only for me where the agent just posts daily updates or other channels where other things are posted is good. Then there would be a DM basically where I can talk to the agent on the comptuter
+
+
+5. What should happen if TECL itself materially changes?
+
+Context. TECL can undergo splits, ticker/CUSIP changes, fee changes, benchmark-index
+changes, leverage-objective changes, prolonged halts, closure, or another material
+prospectus event. A data-quality pass does not prove that a strategy certified for
+the old product contract is still valid for the changed one.
+
+Suggested answer. Treat a material TECL product-contract change as a methodology
+break. Stop new trusted signals once the change becomes effective, stale every
+affected certificate, preserve the last instruction with a prominent warning, and
+require a new owner-approved data/execution contract and full recertification. Do
+not automatically substitute another leveraged ETF or ticker.
+
+Reasoning. Montauk is TECL-specific. Product drift changes the object being traded,
+not merely one more daily data point.
+
+Max's answer. - this is important. So there should be some kind of weekly/daily news alert set up to get news about TECL. Splits and all that should be accounted for in the price data. But material changes (the fund shutting down or other large changes should be flagged and sent to user/human immediately)
+
+
+6. Should Max be able to dismiss or defer a recommendation without changing
+Active?
+
+Context. The current channel has commands to request research, request
+recertification, and approve an Active switch. Ignoring a recommendation leaves
+Active unchanged, but there is no durable way to say “not now” or “do not remind
+me again unless the evidence materially changes.” That may conflict with the quiet
+by default goal.
+
+Suggested answer. Yes. Add one narrow typed action that defers one exact
+Recommended-versus-Active proposal until a fixed expiry or a material new evidence
+event. The reason is optional, the deferral is audited, and it never changes Gold,
+rank, Recommended, Active, or the trusted signal.
+
+Reasoning. This controls notification churn without turning a decline into a
+methodology decision or training signal unless Max voluntarily supplies a reason.
+
+Max's answer. - yes. Your answer is good. In the slack or whatever interface it should be easy to see the new strategy, what it improves, vs the current active, and then one button press to change.
+
+
+7. Must an Active-switch approval explicitly show whether it creates an immediate
+opposite-state instruction?
+
+Context. Approving a new Active strategy can be only an authority-pointer change,
+or it can immediately change the Montauk target from risk-on to risk-off (or the
+reverse). Those effects should not look identical in a compact Slack or app
+confirmation.
+
+Suggested answer. Yes. Before confirmation, show the old and new exact strategy
+IDs, both current states, whether approval changes the target state immediately,
+the resulting instruction, the data/certification timestamps, and the expiry. If
+the states disagree, require a conspicuous trade-impact confirmation rather than
+reusing a generic switch acknowledgement.
+
+Reasoning. Max still executes manually, but the system should make the practical
+consequence of an authority change impossible to miss.
+
+Max's answer. Yes your answer is good. That needs to be included in the presentation of a new active candidate to the human
+
+
+8. Should Phase 1 evaluate a narrow catastrophic-risk floor for real-data Gold?
+
+Context. Earlier answers intentionally allow a Gold strategy to have high
+drawdown if it beats B&H and passes the anti-overfit contract. That is coherent,
+but “high drawdown” and “structural near-ruin or an economically unlivable loss”
+may not be the same thing. The current four compact leaderboard fields also do not
+show drawdown directly.
+
+Suggested answer. Yes, but do not install an arbitrary preferred maximum drawdown
+now. Ask Phase 1 to test whether a very narrow catastrophic-loss/ruin veto adds
+distinct protection on real and validated stress controls without rejecting sound
+trend strategies. Ordinary drawdown remains a disclosed ranking/decision input.
+If no defensible catastrophic boundary exists, keep the current policy and make
+that limitation prominent in every activation review.
+
+Reasoning. This preserves the earlier decision that regime weakness or ordinary
+high drawdown need not destroy Gold while checking whether “fit to trade” needs one
+non-negotiable outer safety boundary.
+
+Max's answer. - your answer is good
+
+
+9. Should the false-Gold decision show cumulative multi-year risk as well as the
+one-year rate?
+
+Context. The plan uses a one-percent probability of any false Gold during one
+simulated year as an aspirational reference while also requiring lifetime search
+accounting. Even a stable one-percent annual risk accumulates over a long-running
+appliance; it is not automatically a one-percent lifetime risk.
+
+Suggested answer. Yes. Phase 1 should show the annual operating point and its
+five-year, ten-year, and lifetime interpretation under clearly stated dependence
+assumptions. It should explain whether the chosen online testing policy spends a
+finite lifetime error budget, controls a rolling annual risk, or uses another
+guarantee. Max approves the understandable long-run promise and its planted-signal
+recovery cost, not only the one-year number.
+
+Reasoning. Montauk is intended to run continuously. The safety claim should use
+the same time horizon as the product rather than make a one-year number look like
+a permanent guarantee.
+
+Max's answer. Your answer is good
+
+
+End of Questionnaire 6.

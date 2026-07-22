@@ -1,0 +1,404 @@
+Questionnaire 7 - Research Reconciliation Decisions
+
+This questionnaire contains the complete owner-decision inventory that remains
+after reviewing the completed research package against Questionnaires 1-6. It does
+not ask Max to select statistical algorithms blindly. Part A contains facts and
+product policies that can be answered now. Part B records consequential settings
+that Phase 1 must bring back with measured evidence; Max may approve the suggested
+decision process now without selecting an arbitrary number. The research package
+and active Montauk 3.0 documents remain unchanged until a later explicit
+reconciliation pass.
+
+
+Part A - Facts and product policies to answer now
+
+
+1. Which broker and account interface will Max use for Montauk's market-on-open
+orders?
+
+Context. Max already decided to submit an order after the close for execution at
+the next market open. The research found that participation in the NYSE Arca Core
+Open Auction is broker- and order-type-specific. “Market order near 9:30” is not
+necessarily the same fill as the auction print.
+
+Suggested answer. Name the actual broker and interface, such as Schwab web/mobile,
+Fidelity, or Interactive Brokers/TWS. Phase 1 then verifies the exact order type,
+time-in-force, routing, partial-fill/cancellation behavior, and any account-specific
+restriction before treating the auction fill as live-tradeable.
+
+Reasoning. This is the last real-world fact needed to determine whether Gold's
+modeled opening fill is obtainable.
+
+Max's answer.
+
+
+2. How should the real 2008-12-17 through 2012-06-28 TYH era enter Gold?
+
+Context. The research found that the fund now called TECL originally traded as
+TYH and targeted the Russell 1000 Technology Index. It changed ticker and benchmark
+to the Technology Select Sector Index around 2012-06-29. Those are real, tradeable
+fund returns, but they are not returns from the same benchmark contract TECL uses
+today.
+
+Suggested answer. Keep the TYH era as real observed fund evidence, but expose it as
+a separate product era. Require the strategy to avoid catastrophic failure in that
+era and report its era-specific B&H result; do not use the era to calibrate the
+XLK-based synthetic reconstruction. Phase 1 should determine whether it is a hard
+economic sub-gate or a required stress/generalization gate after measuring how much
+the benchmark change affects otherwise sound controls.
+
+Reasoning. Silently treating the fund as one unchanged product is wrong, while
+discarding 3.5 years of actual tradable history also throws away evidence.
+
+Max's answer.
+
+
+3. Should a GitHub-only outage block an otherwise valid daily signal?
+
+Context. This is narrower than the internet/power outage in Questionnaire 6.
+Assume the Montauk computer is healthy, market data and the close are verified, the
+signal is reproducible, and Max's notification channel works, but GitHub alone is
+temporarily unavailable.
+
+Suggested answer. No. Durably journal the signal locally, label the system
+degraded_backup, alert Max, deliver the valid signal on time, and queue the GitHub
+copy for verified retry. Block new Gold publication, Active changes, and other
+nonessential authority changes until off-machine replication catches up.
+
+Reasoning. A backup-provider outage should be visible, but it should not silently
+turn into a trading rule or suppress a valid time-sensitive instruction.
+
+Max's answer.
+
+
+4. What disaster data-loss promise should 3.0 make while GitHub is the only
+off-machine backup?
+
+Context. An earlier answer required “no data loss,” while Questionnaire 6 says
+GitHub is the backup for now and additional drives may come later. If the entire
+tower is destroyed between GitHub syncs, a GitHub-only design cannot promise zero
+loss. A second disk in the same tower protects against some disk/software failures,
+but not fire, theft, or shared-power failure.
+
+Suggested answer. For 3.0, require zero loss of already-acknowledged Active,
+approval, signal, and Gold mutations against ordinary process/disk failure by using
+a proven local journal plus a second local device. Explicitly accept a bounded
+physical-disaster recovery point equal to the last verified GitHub sync until a
+second offsite backup is added. Re-runnable in-progress research may restart from
+the beginning, as already answered.
+
+Reasoning. This turns “no data loss” into a promise the hardware can actually
+support and names the one residual exception instead of hiding it.
+
+Max's answer.
+
+
+5. Must the dead-man alert be independent of Montauk's Slack/Buzz workspace?
+
+Context. Separate read-only Slack/Buzz update channels are useful, but they are not
+an independent dead-man path. If the host, home internet, or the shared messaging
+provider is unavailable, Montauk cannot post the message that says it is dead.
+
+Suggested answer. Yes. Keep Slack/Buzz as the only command-capable conversation,
+and add one outbound-heartbeat service with no Montauk credentials that alerts by
+an outside path such as email, SMS, or phone push when the daily heartbeat or signal
+deadline is missed.
+
+Reasoning. This adds no second authority channel; it only reports the absence of
+the primary system.
+
+Max's answer.
+
+
+6. Can a later search-accounting discovery make an existing Gold certificate stale?
+
+Context. The research lead states that future search never affects an issued Gold
+certificate. That is too broad. A normal new candidate should not rewrite an old
+certificate, but a later discovery that Montauk omitted relevant prior searches,
+mis-clustered thousands of near-twins, leaked a holdout, or used an invalid
+multiplicity method means the original Search Honesty plank may never have been
+valid.
+
+Suggested answer. Ordinary future searching does not change an old certificate.
+A material search-ledger, holdout, lineage, or multiplicity defect does immediately
+stale every affected certificate and triggers prioritized recertification under a
+corrected signed contract, just like a material data or engine correctness defect.
+
+Reasoning. An immutable certificate should preserve what was claimed and why; it
+should not remain current Gold after evidence shows that one mandatory plank was
+computed incorrectly.
+
+Max's answer.
+
+
+7. How should TECL cash distributions be handled for the strategy and matched B&H?
+
+Context. The charter requires adjusted total-return TECL and a matched comparator,
+but the current runtime credits a separate distribution ledger as cash. The ledger
+starts in 2021 despite evidence of earlier distributions, credits cash by ex-date
+rather than pay-date, does not reinvest it, and could double-count distributions if
+the price series is later replaced with a total-return-adjusted series.
+
+Suggested answer. Use one complete, primary-source distribution ledger. Recognize
+entitlement on the ex-date but make cash available on the pay-date. Reinvest
+distributions for both an invested strategy and B&H at the same first obtainable
+price and cost convention, unless the strategy is risk-off on the reinvestment
+date. Keep tradable OHLC, split-adjusted feature prices, and total-return wealth as
+separate data views so distributions can never be omitted or counted twice.
+
+Reasoning. “Adjusted total return” needs one explicit, symmetric convention before
+Gold can honestly claim to beat matched B&H.
+
+Max's answer.
+
+
+8. May a signed core or validator release reset Montauk's search-history penalty?
+
+Context. The research recommends one lifetime testing ledger but allows it to reset
+after a signed core-version release. A software release does not make years of
+searching the same TECL history disappear, and an automatic reset would be an easy
+way to weaken the Search Honesty plank.
+
+Suggested answer. No automatic reset. Every release retains lifetime search and
+holdout provenance. A new signed epoch may use a separately justified allocation
+only when the statistical contract explains why the old and new questions differ;
+it never erases or hides the earlier search, and a renamed optimizer, campaign, or
+feature source is not enough.
+
+Reasoning. Versioning should identify changed methodology, not manufacture a fresh
+untested history.
+
+Max's answer.
+
+
+9. What exact confirmation interaction should an opposite-state Active switch use?
+
+Context. Questionnaire 6 asks for one-button switching after the proposed strategy,
+improvement, and trade impact are shown. The ranking research instead recommends a
+separate two-screen confirmation flow.
+
+Suggested answer. Use one complete review card showing exact old/new strategy IDs,
+both signals, whether the target state changes, the resulting next-open instruction,
+performance/confidence differences, drawdown/catastrophe evidence, timestamps, and
+expiry. After that information is already visible, one explicit button confirms
+the switch. No default acceptance, timeout acceptance, or hidden second trade.
+
+Reasoning. This preserves the requested one-button action without making a real
+opposite-state instruction look like a harmless leaderboard pointer update.
+
+Max's answer.
+
+
+10. When should a dismissed or deferred recommendation be shown again?
+
+Context. Questionnaire 6 approved dismiss/defer actions but did not define when the
+same proposal becomes materially new rather than a repeated alert.
+
+Suggested answer. A deferral resurfaces at its chosen expiry or after a material
+Gold/integrity event. A dismissal remains quiet until the proposal clears a
+versioned material-improvement threshold beyond the evidence already dismissed,
+the current Active strategy weakens materially, or Max requests it. Phase 1 should
+calibrate the exact improvement threshold from recommendation-churn tests rather
+than installing the research report's arbitrary “50% of threshold or 20 bars.”
+
+Reasoning. This preserves a quiet interface without allowing dismissal to hide a
+meaningfully changed decision.
+
+Max's answer.
+
+
+11. Does a material TECL product change merely alert Max, or also suspend trusted
+signals and stale Gold?
+
+Context. Questionnaire 6 requires daily/weekly TECL news monitoring and immediate
+alerts for closure or other large changes, but it does not explicitly say whether
+old certificates remain current after the traded product changes.
+
+Suggested answer. A split or ordinary distribution follows the tested corporate-
+action path. A benchmark, leverage objective, ticker/CUSIP continuity, closure,
+prolonged halt, or other material contract change triggers an immediate alert,
+suspends new trusted signals once effective, stales every affected certificate,
+and requires an owner-approved contract update and full recertification. Do not
+automatically substitute another ETF.
+
+Reasoning. A material fund change alters the object Montauk certified, not merely
+one more daily observation.
+
+Max's answer.
+
+
+12. May Montauk perform a clean-machine restore drill even though production and
+strategy testing remain on one computer?
+
+Context. Questionnaire 6 correctly keeps production testing contained on one
+computer. Recovery cannot be proven solely on that same computer, however; a
+restore procedure that has never recreated the authority/Gold state elsewhere is
+still hypothetical.
+
+Suggested answer. Yes. Permit a periodic, isolated, non-authoritative restore onto
+a spare machine or temporary VM using only the documented backups. It may verify
+hashes, reconstruct the last trusted state, and run acceptance fixtures, but it may
+not perform live discovery, publish Gold, send trusted signals, or become a second
+authority. Destroy or reseal it after the drill.
+
+Reasoning. This tests disaster recovery without creating off-machine production
+testing or a hot standby.
+
+Max's answer.
+
+
+Part B - Consequential settings Phase 1 must return with evidence
+
+
+13. What long-run false-Gold promise should Phase 1 optimize for?
+
+Context. The current charter uses a one-percent annual probability of any false
+Gold as an aspirational reference. Questionnaire 6 also requires five-year,
+ten-year, and lifetime interpretations. The research package's proposed FDR/mFDR
+wealth ledger does not prove a one-percent probability of no false Gold over the
+appliance's lifetime.
+
+Suggested answer. Preserve the annual figure as a provisional plotting reference,
+not a promise. Require Phase 1 to compare methods that target the probability of
+one or more false Golds, show annual/5-year/10-year/lifetime behavior and planted-
+signal recovery under explicit assumptions, and recommend one understandable
+long-run contract. Max selects the final operating point only after seeing that
+frontier. Do not represent FDR/mFDR as the requested any-false-Gold guarantee.
+
+Reasoning. The error definition must be correct before choosing its numerical
+level.
+
+Max's answer.
+
+
+14. Should every hard real-data horizon require its own uncertainty-aware lower
+bound, and should “insufficient” block Gold?
+
+Context. Complete real history and trailing five years are hard economic gates.
+The research leaves open whether the five-year gate gets only a point estimate and
+whether one insufficient horizon may still count as passing.
+
+Suggested answer. Apply the same uncertainty-aware treatment to every hard horizon.
+If a required horizon is insufficient, Gold is blocked but the row says
+insufficient rather than economically failed. Phase 1 may recommend changing a
+window from hard gate to diagnostic if controls show that the window cannot provide
+decision-grade evidence; it may not silently treat insufficient as a pass.
+
+Reasoning. Calling a period a hard gate while allowing unsupported evidence to pass
+would make “hard gate” meaningless.
+
+Max's answer.
+
+
+15. How should the final confidence level and evidence-sufficiency floors be set?
+
+Context. The research recommends a one-sided 90% lower bound mainly because 95%
+may leave the board empty. It also proposes regime, block-count, and MinTRL floors
+that have not yet been validated for Montauk's terminal-wealth estimand.
+
+Suggested answer. Do not ratify 90%, 95%, a minimum effective sample size, or a
+minimum planted-signal recall rate now. Phase 1 must measure coverage, false Gold,
+false rejection, and interval width on several known data-generating processes and
+return one minimal recommended package in plain language. Max then approves the
+operating point; current leaderboard survival is not an input.
+
+Reasoning. Board fullness is a consequence to disclose, not a statistical reason
+to weaken a confidence statement.
+
+Max's answer.
+
+
+16. May Phase 1 acquire paid official-close, auction, or quote data if free sources
+cannot support the execution claim?
+
+Context. The repo has daily aggregators but no official-close/SIP reference,
+opening-auction imbalance history, or TECL quote data. Without them, Phase 1 can
+only produce a conservative execution-cost range and cannot precisely validate the
+auction fill assumption across the $10,000-$100,000 band.
+
+Suggested answer. First exhaust free primary records, the actual broker's account
+documentation, and a bounded live/shadow audit. If a specific unresolved Gold claim
+still requires paid data, return the exact dataset, price, coverage, and decision it
+would resolve for Max's approval. Until approved, use a documented conservative
+range and label precise execution cost insufficient rather than inventing a point
+estimate.
+
+Reasoning. This prevents unapproved spending while keeping missing execution
+evidence visible.
+
+Max's answer.
+
+
+17. Should a third Montauk Score pillar be admitted based on classifying control
+worlds, or only on better ranking decisions among already-Gold rows?
+
+Context. The Phase 1 research proposes admitting a pillar if it fixes one control's
+Gold classification. Montauk Score ranks rows after Gold eligibility; it is not
+supposed to become a hidden sixth Gold gate.
+
+Suggested answer. Keep the two-pillar score unless a third input demonstrates
+distinct, stable, out-of-sample ranking or switch-decision value among already-Gold
+controls/rows without duplicating a hard gate. Never admit it merely because it
+changes Gold classification. Any eligibility-relevant information belongs in an
+explicit Gold plank instead.
+
+Reasoning. Ranking and certification answer different questions and should not
+silently absorb each other.
+
+Max's answer.
+
+
+18. How should the “leader not clearly separated” confidence level be selected?
+
+Context. The ranking research proposes 90%, with an automatic fall to 75% if the
+flag appears too often. Reducing confidence because a warning is inconvenient can
+manufacture false rank precision.
+
+Suggested answer. Keep the flag disclosure-only as already decided. Phase 1 should
+calibrate its method and level against known equal and separated leaders, report
+false-clear and false-ambiguity rates, and recommend one stable level. Do not lower
+the level merely to meet a desired flag frequency.
+
+Reasoning. Alert volume should improve presentation and retrigger policy, not alter
+the meaning of statistical separation.
+
+Max's answer.
+
+
+19. When may the custom Rust strategy-module escape hatch be enabled?
+
+Context. Declarative StrategySpec is the normal path. The research proposes a
+zero-third-party-crate escape hatch plus compile/runtime containment, but adversarial
+tests cannot prove containment and several policy details remain uncalibrated.
+
+Suggested answer. Keep the escape hatch disabled by default. After the complete
+compile-time and runtime containment suite, causal parity, deterministic replay,
+resource-limit tests, dependency policy, signing, and recovery drill pass, present
+one owner-review package. Only Max may explicitly enable that exact signed version;
+a passing suite never enables it automatically.
+
+Reasoning. This preserves novel-mechanism capability without making an exceptional
+code path part of the trusted surface by default.
+
+Max's answer.
+
+
+20. When may Phase 1 install a catastrophic real-data risk veto?
+
+Context. Questionnaire 6 approved studying a narrow catastrophic-loss/ruin floor,
+not selecting an arbitrary maximum drawdown. The final adoption rule still needs
+owner authority.
+
+Suggested answer. Phase 1 must show the candidate veto's caught-defect rate, false-
+rejection rate for sound trend strategies, exact economic interpretation, and why
+ordinary drawdown disclosure is insufficient. Max approves or rejects the proposed
+veto as a separate Gold-contract decision. If no defensible boundary emerges, no
+veto is installed and the limitation remains prominent in activation review.
+
+Reasoning. A catastrophic floor may be valuable, but it must not become a disguised
+preference for smooth backtests.
+
+Max's answer.
+
+
+End of Questionnaire 7.
