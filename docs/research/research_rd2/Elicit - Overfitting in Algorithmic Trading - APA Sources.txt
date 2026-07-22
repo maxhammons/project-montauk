@@ -1,0 +1,43 @@
+Gort, B., Liu, X.-Y., Sun, X., Gao, J., Chen, S., & Wang, C. (2022).
+Deep Reinforcement Learning for Cryptocurrency Trading: Practical
+Approach to Address Backtest Overfitting. arXiv.org.
+https://doi.org/10.48550/arXiv.2209.05559
+
+Koshiyama, A. S., & Firoozye, N. B. (2019). Avoiding Backtesting
+Overfitting by Covariance-Penalties: An Empirical Investigation of the
+Ordinary and Total Least Squares Cases. The Journal of Financial Data
+Science. https://doi.org/10.3905/jfds.2019.1.013
+
+Peng, Y.-L., & Lee, W.-P. (2021). Data selection to avoid overfitting
+for foreign exchange intraday trading with machine learning. Applied
+Soft Computing. https://doi.org/10.1016/j.asoc.2021.107461
+
+Pham, T. A., Nguyen, B., & Thi, N. (2026). AlgoXpert Alpha Research
+Framework: A Rigorous IS-WFA-OOS Protocol for Mitigating Overfitting in
+Quantitative Strategies. Social Science Research Network.
+https://doi.org/10.2139/ssrn.6303279
+
+Sánchez, R. G. (2026). Is Invariance Possible? The Kac Ratio as a Method
+for Mitigating Overfitting in Algorithmic Trading. Social Science
+Research Network. https://doi.org/10.2139/ssrn.6827500
+
+Sheppert, A. (2026). The GT-Score: A Robust Objective Function for
+Reducing Overfitting in Data-Driven Trading Strategies. Journal of Risk
+and Financial Management. https://doi.org/10.3390/jrfm19010060
+
+Suhonen, A., Lennkh, M., & Perez, F. (2017). Quantifying Backtest
+Overfitting in Alternative Beta Strategies. Journal of Portfolio
+Management. https://doi.org/10.3905/jpm.2017.43.2.090
+
+Tudor, C., & Sova, R. (2024). Enhancing Trading Decision in Financial
+Markets: An Algorithmic Trading Framework With Continual Mean-Variance
+Optimization, Window Presetting, and Controlled Early-Stopping. IEEE
+Access. https://doi.org/10.1109/ACCESS.2024.3417815
+
+Wiecki, T. V., Campbell, A., Lent, J., & Stauth, J. (2016). All That
+Glitters Is Not Gold: Comparing Backtest and Out-of-Sample Performance
+on a Large Cohort of Trading Algorithms. Journal of Investing.
+https://doi.org/10.3905/joi.2016.25.3.069
+
+Witzany, J. (2017). A Bayesian Approach to Backtest Overfitting.
+https://doi.org/10.2139/SSRN.3002503

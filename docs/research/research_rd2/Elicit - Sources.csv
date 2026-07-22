@@ -1,0 +1,971 @@
+﻿Title,Authors,URL,DOI,Published Date,Summary
+Elicit - Detecting Overfitting in Algorithmic Trading Strat - Report.pdf,,,,,
+COMPUTING THE PROBABILITY OF OVERFITTING IN THE BACKTESTING AND OPTIMIZATION OF INVESTMENT STRATEGIES,M. L. Prado,https://www.semanticscholar.org/paper/7ffada54b48286cb3ac78a1ac60bca903af15573,,2013,"Most firms and portfolio managers rely on backtests (or historical simulations of performance) to select investment strategies and allocate them capital. We prove that after trying only 7 strategy configurations, a researcher is expected to identify at least one 2-year long backtest with an annualized Sharpe ratio of over 1, when the expected out of sample Sharpe ratio is 0. If the researcher tries a large enough number of strategy configurations, a backtest can always be fit to any desired performance for a fixed sample length. We find that there is a minimum backtest length (MinBTL) that should be required for a given number of trials. A Sharpe ratio of 10 over 50 years requires more overfitting effort than a Sharpe ratio of 2 over 5 years, but nowadays’ computational power makes backtest overfitting a relatively easy task. The practical totality of published backtests do not report the number of trials involved, thus we suspect that many backtests may be substantially overfit. Standard statistical techniques designed to prevent regression overfitting, such as holdout, tend to be unreliable and inaccurate in the context of investment backtests. We propose a framework that estimates the probability of backtest overfitting (PBO) specifically in the context of investment simulations, through a numerical method that we call combinatorially symmetric cross-validation (CSCV). We show that CSCV produces accurate estimates of the probability that a particular backtest is overfit."
+"The Deflated Sharpe Ratio: Correcting for Selection Bias, Backtest Overfitting, and Non-Normality","David H. Bailey, Marcos M. López de Prado",https://www.semanticscholar.org/paper/950f37470615dc6ae6e1f45f735408af11c48251,10.3905/jpm.2014.40.5.094,2014,"With the advent in recent years of large financial data sets, machine learning and high-performance computing, analysts can backtest millions (if not billions) of alternative investment strategies. Backtest optimizers search for combinations of parameters that maximize the simulated historical performance of a strategy, leading to backtest overfitting. The problem of performance inflation extends beyond backtesting. More generally, researchers and investors tend to report only positive outcomes, a phenomenon known as selection bias. Not controlling for the number of trials involved in a particular discovery leads to over-optimistic performance expectations. The Deflated Sharpe Ratio (DSR) corrects for two leading sources of performance inflation: Selection bias under multiple testing and non-Normally distributed returns. In doing so, DSR helps separate legitimate empirical findings from statistical flukes."
+All That Glitters Is Not Gold: Comparing Backtest and Out-of-Sample Performance on a Large Cohort of Trading Algorithms,"Thomas V. Wiecki, Andrew Campbell, J. Lent, Jessica Stauth",https://www.semanticscholar.org/paper/b028c2d0b2145e85d543fb21ad3fcf896c932ab5,10.3905/joi.2016.25.3.069,2016,"When automated trading strategies are developed and evaluated using backtests on historical pricing data, there exists a tendency to overfit to the past. Using a unique dataset of 888 algorithmic trading strategies developed and backtested on the Quantopian platform, with at least six months of out-of-sample performance, this article studies the prevalence and impact of backtest overfitting. Specifically, the authors find that commonly reported backtest evaluation metrics, such as the Sharpe ratio, offer little value in predicting out-of-sample performance (R 2 < 0.025). In contrast, higher-order moments, such as volatility and maximum drawdown, as well as portfolio construction features (e.g., hedging), show significant predictive value of relevance to quantitative finance practitioners. Moreover, in line with prior theoretical considerations, the authors find empirical evidence of overfitting—the more backtesting a quant has done for a strategy, the larger the discrepancy between backtest and out-of-sample performance. Finally, they show that by training nonlinear, machine-learning classifiers on a variety of features that describe backtest behavior, out-of-sample performance can be predicted with much greater accuracy (R 2 = 0.17) on hold-out data than when using linear, univariate features. A portfolio constructed by using predictions on hold-out data performed significantly better out-of-sample than one constructed from algorithms with the highest backtest Sharpe ratios."
+A comparison of machine learning model validation schemes for non-stationary time series data,M. Schnaubelt,https://www.semanticscholar.org/paper/ffa62088ef1a9360aee06b6b4d3747070fee73cf,,2019,"Machine learning is increasingly applied to time series data, as it constitutes an attractive alternative to forecasts based on traditional time series models. For independent and identically distributed observations, cross-validation is the prevalent scheme for estimating out-of-sample performance in both model selection and assessment. For time series data, however, it is unclear whether forwardvalidation schemes, i.e., schemes that keep the temporal order of observations, should be preferred. In this paper, we perform a comprehensive empirical study of eight common validation schemes. We introduce a study design that perturbs global stationarity by introducing a slow evolution of the underlying data-generating process. Our results demonstrate that, even for relatively small perturbations, commonly used cross-validation schemes often yield estimates with the largest bias and variance, and forward-validation schemes yield better estimates of the out-of-sample error. We provide an interpretation of these results in terms of an additional evolution-induced bias and the sample-size dependent estimation error. Using a large-scale financial data set, we demonstrate the practical significance in a replication study of a statistical arbitrage problem. We conclude with some general guidelines on the selection of suitable validation schemes for time series data."
+"FRM® Exam, Financial Risk Manager Certification | GARP",,https://www.garp.org/frm,,,"FRM® Exam, Financial Risk Manager Certification | GARP Skip to content
+
+Current time: 1784652060521 | Jul 21, 2026 12:41:00 PM SCR®, RAI™, and FRM® Exam Updates Beginning May 1 Start date: 1744761600000 | Apr 15, 2025 8:00:00 PM End date: 1746748800000 | May 8, 2025 8:00:00 PM
+
+###### Financial Risk Manager (FRM®)
+
+# FRM Certification
+
+Join the 97,000+ professionals from over 190 countries and regions who have completed their FRM Certification and earned financial risk management’s mark of excellence.
+
+## About the FRM Program
+
+As the true standard for educational excellence in risk management, GARP’s FRM Certification is proof that you’re ready and able to assess, measure, and monitor risk in real-world situations, placing you in a strong position to improve your job performance and advance your career.
+
+FRM Program and Exams
+
+### Request More Information
+
+Sign up to receive our comprehensive FRM Candidate Guide. It includes all the information needed to earn the FRM Certification and open new career pathways with risk expertise.
+
+## Get to Know the FRM Program
+
+Learn more about the globally recognized standard for financial risk management.
+
+Certification Process
+
+---
+
+### How can I earn the FRM Certification?
+
+To earn your Certification, you’ll need to pass two multiple-choice Exams and submit evidence of at least two years of relevant work experience. Once you become certified, you are strongly encouraged to participate in GARP’s Continuing Professional Development (CPD) program to help stay up-to-date with the latest best practices in risk management.
+
+Exam Structure
+
+---
+
+### What is the structure of the FRM Exam?
+
+The FRM Exam Part I consists of 100 multiple-choice questions focusing on risk management foundations, quantitative analysis, financial markets and products, and valuation and risk models. The FRM Exam Part II comprises 80 questions emphasizing the application of the tools and techniques covered in Part I; topics include market risk, credit risk, operational risk and resilience, liquidity and treasury risk, risk management and investment management, and current financial market issues.
+
+Scheduling
+
+---
+
+### When is the FRM Exam offered?
+
+FRM Exams are offered each year in May, August, and November at testing sites around the world. Seats are available on a first-come, first-served basis. To learn more about how to schedule an Exam, please visit our Exam Logistics page.
+
+Exam Logistics
+
+Program Cost
+
+---
+
+### How much does the FRM Program cost?
+
+The cost of the FRM Program varies based on whether a candidate is registering during the early or standard registration window. Registration also includes one year of complimentary GARP Individual Membership for FRM candidates who have not previously received it from a different GARP program. For a specific pricing breakdown, visit our Fees and Payments page below.
+
+Fees and Payments
+
+Study Materials
+
+---
+
+### What study materials are available?
+
+GARP offers study resources, official practice exams for each exam part, and more to help with preparation. Candidates can access the full curriculum via our comprehensive online GARP Learning platform, complimentary for Part I candidates and available for purchase for Part II candidates. Printed books for both Exam curriculums are also available for purchase. To view all resources, visit our Study Materials page.
+
+Study Materials
+
+Time Commitment
+
+---
+
+### How long does it take to prepare for the FRM Exam?
+
+The FRM Exam is a rigorous evaluation of one's financial risk management expertise, demanding substantial preparation. Candidates typically invest around 240 hours over several months in study time, though this can vary based on individual factors. GARP advises early registration to allow for a comfortable study pace.
+
+### How can I earn the FRM Certification?
+
+To earn your Certification, you’ll need to pass two multiple-choice Exams and submit evidence of at least two years of relevant work experience. Once you become certified, you are strongly encouraged to participate in GARP’s Continuing Professional Development (CPD) program to help stay up-to-date with the latest best practices in risk management.
+
+### What is the structure of the FRM Exam?
+
+The FRM Exam Part I consists of 100 multiple-choice questions focusing on risk management foundations, quantitative analysis, financial markets and products, and valuation and risk models. The FRM Exam Part II comprises 80 questions emphasizing the application of the tools and techniques covered in Part I; topics include market risk, credit risk, operational risk and resilience, liquidity and treasury risk, risk management and investment management, and current financial market issues.
+
+### When is the FRM Exam offered?
+
+FRM Exams are offered each year in May, August, and November at testing sites around the world. Seats are available on a first-come, first-served basis. To learn more about how to schedule an Exam, please visit our Exam Logistics page.
+
+Exam Logistics
+
+### How much does the FRM Program cost?
+
+The cost of the FRM Program varies based on whether a candidate is registering during the early or standard registration window. Registration also includes one year of complimentary GARP Individual Membership for FRM candidates who have not previously received it from a different GARP program. For a specific pricing breakdown, visit our Fees and Payments page below.
+
+Fees and Payments
+
+### What study materials are available?
+
+GARP offers study resources, official practice exams for each exam part, and more to help with preparation. Candidates can access the full curriculum via our comprehensive online GARP Learning platform, complimentary for Part I candidates and available for purchase for Part II candidates. Printed books for both Exam curriculums are also available for purchase. To view all resources, visit our Study Materials page.
+
+Study Materials
+
+### How long does it take to prepare for the FRM Exam?
+
+The FRM Exam is a rigorous evaluation of one's financial risk management expertise, demanding substantial preparation. Candidates typically invest around 240 hours over several months in study time, though this can vary based on individual factors. GARP advises early registration to allow for a comfortable study pace.
+
+## Benefits of FRM Program
+
+Uncover the extensive benefits associated with pursuing your FRM Certification.
+
+FRM Certification at a Glance
+
+#### Career Development
+
+Signal your ability to assess, measure, and monitor risk in real-world situations.
+
+#### Improved Job Performance
+
+Future-proof your career with transferable skills that are applicable across industries and functional roles.
+
+#### Professional Credibility
+
+Many organizations view the FRM Certification as a valuable asset and may be more likely to consider candidates for hire, promotion, and leadership roles if they hold it.
+
+#### Industry Connections
+
+Share ideas and collaborate with a global network of market professionals.
+
+## Curriculum
+
+The FRM Certification Exams cover the following topics:
+
+FRM Exam Part I
+
+Foundations of Risk Management
+
+Quantitative Analysis
+
+Financial Markets and Products
+
+Valuation and Risk Models
+
+FRM Exam Part II
+
+Market Risk Measurement and Management
+
+Credit Risk Measurement and Management
+
+Operational Risk and Resilience
+
+Liquidity and Treasury Risk Measurement and Management
+
+Risk Management and Investment Management
+
+Current Issues in Financial Markets
+
+View Study Materials
+
+## Stand Out to Top Employers
+
+Our FRM-Certified Professionals are constantly in demand by the world’s leading companies and banks.
+
+##### Agricultural Bank of China
+
+##### Banco Santander
+
+##### Bank of America
+
+##### Bank of China
+
+##### China Construction Bank
+
+##### Citigroup
+
+##### Deutsche Bank
+
+##### HSBC
+
+##### ICBC
+
+##### JP Morgan Chase
+
+##### KPMG
+
+##### PWC
+
+##### UBS
+
+##### Wells Fargo
+
+## Comparable Degree Levels
+
+According to an independent benchmarking study conducted by Ecctis, the FRM Certification is comparable to a Master's degree in the following 14 national and regional educational systems:
+
+United Kingdom
+
+RQF Level 7
+
+United States
+
+U.S. Master's degree standard
+
+Canada
+
+OQF Level 12
+
+India
+
+NSQF Level 9
+
+Hong Kong SAR China
+
+HKQF Level 6
+
+Singapore
+
+Singaporean Master’s degree standard
+
+Australia
+
+AQF Level 9
+
+Brazil
+
+Brazilian Master’s degree standard
+
+China Mainland
+
+Chinese Master’s degree standard
+
+Japan
+
+Japanese Master’s degree standard
+
+South Africa
+
+NQF Level 9
+
+UAE
+
+QFEmirates Level 9
+
+Mexico
+
+Mexican Master’s degree standard
+
+Taiwan Region
+
+Taiwanese Master’s degree standard
+
+## Benefits for Chinese Candidates
+
+The FRM Certification is approved by the Occupational Skill Testing Authority (OSTA) and the Ministry of Human Resources and Social Security (MOHRSS) in China Mainland as a National Vocational Qualification Certificate. More than 25,000 FRM-Certified Professionals are currently employed by every major Chinese financial institution.
+
+Upon successful completion of the program, candidates in China Mainland will receive a certificate acknowledging their achievement and inclusion among a select group of global risk managers. They will also receive a certificate in Chinese and can verify their certification status below to be listed as globally certified risk professionals.
+
+Starting with May 1 registration for November 2025 Exams, GARP will offer its FRM Exam in both Simplified Chinese and American English in Mainland China. This first-time offering will assist in empowering the Chinese-speaking community by providing them with the tools and knowledge needed to excel in the field of financial risk management.
+
+Guðmundur Örn Jónsson, FRM
+
+Senior Risk Analyst, Central Bank of Iceland
+
+The FRM Program gave me the holistic knowledge I need to excel in my job. Thanks to the curriculum, I can now evaluate risks at smaller financial institutions with ease.
+
+Guðmundur Örn Jónsson, FRM
+
+Senior Risk Analyst, Central Bank of Iceland
+
+## FRM Program: By the Numbers
+
+## FRM Program: By the Numbers
+
+97K
+
+Total Certified Professionals
+
+190
+
+Candidate Countries and Regions
+
+## Financial Risk Resources
+
+Stay on top of timely financial risk news and trends with our content hub of articles, podcasts, webcasts, and more.
+
+View All Resources
+
+##### GARP 2026 European Financial Risk Symposium
+
+Event
+
+##### Governing the Machine: How the RAI Prepares Professionals for an AI-Driven World
+
+Webcast
+
+##### A Scoring System for AI Governance and Accountability
+
+Article Members Only
+
+## Ready to take the next step toward Certification?
+
+Early registration for the November 2026 FRM Exam is now open.
+
+View Exam Dates View Pricing
+
+## Ready to take the next step toward Certification?
+
+Early registration for the November 2026 FRM Exam is now open.
+
+View Pricing"
+The Certificate in Quantitative Finance | CQF Qualification | CQF,,https://www.cqf.com/,,,"The Certificate in Quantitative Finance | CQF Qualification | CQF
+
+Gain cutting-edge quant finance and machine learning skills with the CQF
+
+Master the practical implementation of quant techniques used in industry. Download a brochure to find out more.
+
+Download a brochure
+
+# Certificate in Quantitative Finance (CQF)
+
+## The world's leading master's-level professional qualification in quant finance
+
+✔ 23 years of shaping quant careers ✔ 11,500+ alumni and delegates ✔ Alumni in 90+ countries
+
+Awarded by the CQF Institute, part of Fitch Learning, the CQF will teach you the essential quant finance and machine learning skills you need to advance your career. Learn from industry leaders, study online and part-time over six months, and discover how to apply practical techniques for real-world success. The next CQF program starts on 25th June 2026.
+
+### Start Your CQF Journey
+
+Prospective Candidates
+
+Redefine Your Career with CQF
+
+Enhance your skills to achieve your career goals.
+
+Learn more
+
+Employers
+
+Build a Future-Ready Team
+
+Sharpen team expertise with the latest quant finance methods.
+
+Learn More
+
+How The CQF Transformed My Career
+
+If you are looking to enhance your expertise in quantitative finance, I highly recommend the CQF as an invaluable investment in your professional journey.
+
+Borja Garcia Haendler
+
+Head of Market Risk and Product Control Asia - Julius Baer
+
+View more testimonials
+
+Why The CQF Should Be Your First Choice?
+
+Gain practical quant skills online
+
+Learn more
+
+Learn from world-leading practitioners
+
+Meet our faculty
+
+Stay competitive throughout your career
+
+Discover Lifelong Learning
+
+## Elevate Your Career With The CQF
+
+Explore how our cutting-edge, industry focused syllabus will help you go beyond the theory to develop the practical skillset you need to succeed in the ever-evolving world of finance.
+
+Watch this video to discover how you could go further with the CQF.
+
+## CQF Information Session
+
+Join our next live online information session to discover how the CQF will enhance your career prospects.
+
+Next session: 23rd July 2026 - Global Webinars View All Sessions >
+
+About the CQF
+
+Program Structure
+
+- What is the CQF?
+- Program Overview
+- Preparation
+- CQF Qualification
+- Lifelong Learning
+
+Program Delivery
+
+- Teaching Methodology
+- Assessment
+- Study Resources
+- Learning Support
+
+CQF Faculty
+
+- Faculty Profiles
+- Sample Lectures
+
+Program Fees
+
+- Fees
+
+Why the CQF?
+
+Delegate Benefits
+
+- Why Choose the CQF?
+- Benefits for Career Paths
+- Alumni Benefits
+- Careers Service
+
+Career Impact
+
+Global Community
+
+- Where Our Alumni Work
+- The CQF Institute
+- CQF Blog
+
+Employer Benefits
+
+- Why Sponsor Employees"
+About the CMT Program - CMT Association,,https://cmtassociation.org/cmt-program/,,2024-11-21,"Skip to main content Skip to footer
+
+# What is the Chartered Market Technician® (CMT) Program?
+
+CMT Program Guide Register for the CMT Exam Explore the Learning Objectives
+
+## Why Choose the CMT Program?
+
+Choosing the Chartered Market Technician® (CMT) Program is about building a powerful foundation in technical analysis to navigate financial markets with precision and confidence. Recognized globally, the CMT Program delivers cutting-edge insights into behavioral finance, risk management, and quantitative strategies, making it the industry’s highest distinction in technical analysis.
+
+Whether you’re advancing your career in asset management, trading, or investment advising, the CMT curriculum equips you with practical, data-driven tools to interpret market trends and manage risk effectively. As a CMT charterholder, you’ll join a prestigious network of professionals who are shaping the future of finance, backed by CMT Association's commitment to high ethical standards and continual professional development.
+
+Elevate your expertise, deepen your market insights, and distinguish yourself in a competitive field—choose the CMT Program.
+
+Explore the CMT Exam Learning Objectives Frequently Asked Questions
+
+#### Salary/Bonus Increase
+
+#### New Positions
+
+#### Promotions
+
+#### Greater AUM
+
+## Curriculum Designed To Give
+
+## You A Competitive Edge
+
+It’s completely digital and included with your exam registration! You can study anywhere, any time, from your desktop or mobile device, making it the most accessible curriculum in CMT history!*
+Track your progress, take notes, bookmark important sections, and even rate your confidence level so you can return to topics you’ll need extra time studying.
+Watch the video for a quick overview of the curriculum. You can also try a free demo of the curriculum using the link below.
+
+Test Drive The Curriculum Learning Experience FAQ
+
+* Curriculum is hosted on an online Learning Management System (LMS) and requires an internet connection to access.
+
+## Curriculum Designed To Give You A Competitive Edge
+
+Earn your CMT designation and start getting the respect and earning power you deserve
+
+- It’s completely digital and included with your exam registration! No books to lug around, and you can access it from your desktop or mobile device. You can study from anywhere, any time, making it the most accessible curriculum in CMT history!*
+- Track your progress, take notes, bookmark important sections, and even rate your confidence level so you can return to topics you’ll need extra time studying.
+- Created by respected and established experts in utilizing technical analysis, so you’ll be learning from professionals who successfully turned their passion into a career in the financial markets.
+- Watch the video for a quick overview of the curriculum. You can also try a free demo of the curriculum using the link below.
+
+* Curriculum is hosted on an online Learning Management System (LMS) and requires an internet connection to access.
+
+Test Drive The Curriculum
+
+## How to become a CMT Charterholder
+
+## 1
+
+#### Pass all three levels of the CMT Exams
+
+The CMT Program consists of three comprehensive exams. To earn the Chartered Market Technician® designation, candidates must pass all three levels, which build technical analysis proficiency, from basic concepts to advanced trading strategies.
+
+## 2
+
+#### Accumulate qualifying professional work experience
+
+Candidates need relevant work experience that contributes directly to financial market analysis or investment decision-making. Experience can be accumulated before, during, or after participating in the CMT Program.
+
+## 3
+
+#### Apply for Professional Membership status
+
+Candidates must join CMT Association as Professional Members, including submitting professional references to verify work and character, to earn their charter.
+
+Enroll in the CMT Program View the CMT Exam Pass Rates
+
+## CMT Program Candidates
+
+## 1
+
+#### Pass all three levels of the CMT Exams
+
+The CMT Program consists of three comprehensive exams. To earn the Chartered Market Technician® designation, candidates must pass all three levels, which build technical analysis proficiency, from basic concepts to advanced trading strategies.
+
+## 2
+
+#### Accumulate qualifying professional work experience
+
+Candidates need relevant work experience that contributes directly to financial market analysis or investment decision-making. Experience can be accumulated before, during, or after participating in the CMT Program.
+
+## 3
+
+#### Apply for Professional Membership status
+
+Candidates must join the CMT Association as Professional Members, including submitting professional references to verify work and character, to earn their charter.
+
+Enroll in the CMT Program View the CMT Exam Pass Rates
+
+## Ranked among the elite
+
+Earn your CMT designation and start getting the respect and earning power you deserve
+
+- Preeminent global designation for professional technical analysts
+- Offers immediate credibility and recognition industry-wide
+- Develop deep knowledge of technical analysis
+- Career upgrade – new positions, promotions, salary increases
+
+Earn Your CMT Designation
+
+## Exclusive Partner Offers For Exam Candidates
+
+Do note that these offerings are the intellectual property of our partners and provided at their discretion. These are liable to change at any time, without notice. CMT Association will not be liable for partner services.
+
+## Exclusive Partner Offers For Exam Candidates
+
+Do note that these offerings are the intellectual property of our partners and provided at their discretion. These are liable to change at any time, without notice. CMT Association will not be liable for partner services.
+
+Exclusive Partner Offers For Exam Candidates 
+
+## Top 15 Employers of CMT Members
+
+MORGAN STANLEY • WELLS FARGO • BANK OF AMERICA • CHARLES SCHWAB • FIDELITY • RBC (CM & DS) • WELLINGTON MANAGEMENT • BLOOMBERG, LP • UBS • CIBC • CREDIT SUISSE • TD AMERITRADE • BMO NESBITT BURNS • NDR • BARCLAYS
+
+Explore Career Opportunities For CMTs
+
+## Benefits of the CMT Designation
+
+### CMT Prep Providers
+
+### CMT Program Prep Providers
+
+The CMT Exams are designed solely on the most current edition of the Official Curriculum. Courses and education either independent or as a Prep Provider should not be used as a substitute for the official...
+
+Explore CMT Program Prep Providers
+
+### Official Discord Community
+
+Need help to prepare? OR Deepen your learning
+
+The CMT Program can be done through self-study, but you don’t need to do it alone.
+
+Join the CMT Association’s official Discord community. Candidates of the CMT Program get access to premium channels on our discord server where they can engage with their fellow candidates, seniors in the program and CMT...
+
+Discord Server
+
+Participate in CMT Association’s Investment Challenge to put practice the skills you learn in a real-world virtual investment management environment, powered by Optuma.
+
+Investment Challenge
+
+### Exclusive Partner Offers
+
+### Employment Opportunities
+
+### Top 15 Employers of CMT Members
+
+MORGAN STANLEY • WELLS FARGO • BANK OF AMERICA • CHARLES SCHWAB • FIDELITY • RBC (CM & DS) • WELLINGTON MANAGEMENT • BLOOMBERG, LP • UBS • CIBC • CREDIT SUISSE • TD AMERITRADE • BMO NESBITT BURNS • NDR • BARCLAYS
+
+Explore Career Opportunities For CMTs
+
+### Top 15 Employers of CMT Members
+
+MORGAN STANLEY • WELLS FARGO • BANK OF AMERICA • CHARLES SCHWAB • FIDELITY • RBC (CM & DS) • WELLINGTON MANAGEMENT • BLOOMBERG, LP • UBS • CIBC • CREDIT SUISSE • TD AMERITRADE • BMO NESBITT BURNS • NDR • BARCLAYS
+
+Explore Career Opportunities For CMTs
+
+### CMT Program Prep Providers
+
+The CMT Exams are designed solely on the most current edition of the Official Curriculum. Courses and education either independent or as a Prep Provider should not be used as a substitute for the official...
+
+Explore CMT Program Prep Providers
+
+## Benefits of the CMT Designation
+
+##### CMT Prep Providers
+
+##### Official Discord Community
+
+##### Exclusive Partner Offers
+
+##### Employment Opportunities
+
+### CMT Program Prep Providers
+
+The CMT Exams are designed solely on the most current edition of the Official Curriculum. Courses and education either independent or as a Prep Provider should not be used as a substitute for the official CMT Curriculum and should not be treated as standalone exam preparation devices. The preparation courses and materials featured on this page are not endorsed by CMT Association or reviewed by the Curriculum and Committee.
+
+Explore CMT Program Prep Providers
+
+### Join the Conversation
+
+With the addition of the CMT Association server, members can now easily connect with each other, share ideas, and participate in discussions related to technical analysis and market trends. This move to Discord allows for a more streamlined and dynamic interaction among members, who can now access the community from anywhere, at any time.
+
+Join Official Discord Community
+
+### Exclusive Partner Offers
+
+The CMT Exams are designed solely on the most current edition of the Official Curriculum. Courses and education either independent or as a Prep Provider should not be used as a substitute for the official CMT Curriculum and should not be treated as standalone exam preparation devices. The preparation courses and materials featured on this page are not endorsed by the CMT Association or reviewed by the Curriculum and Committee.
+
+Explore Exclusive Partner Offers
+
+### Top 15 Employers of CMT Members
+
+MORGAN STANLEY • WELLS FARGO • BANK OF AMERICA • CHARLES SCHWAB • FIDELITY • RBC (CM & DS) • WELLINGTON MANAGEMENT • BLOOMBERG, LP • UBS • CIBC • CREDIT SUISSE • TD AMERITRADE • BMO NESBITT BURNS • NDR • BARCLAYS
+
+Explore Career Opportunities For CMTs
+
+## Benefits of the CMT Designation
+
+##### CMT Prep Providers
+
+##### Official Discord Community
+
+##### Exclusive Partner Offers
+
+##### Employment Opportunities
+
+### CMT Program Prep Providers
+
+The CMT Exams are designed solely on the most current edition of the Official Curriculum. Courses and education either independent or as a Prep Provider should not be used as a substitute for the official CMT Curriculum and should not be treated as standalone exam preparation devices. The preparation courses and materials featured on this page are not endorsed by CMT Association or reviewed by the Curriculum and Committee.
+
+Explore CMT Program Prep Providers
+
+### Join the Conversation
+
+With the addition of the CMT Association server, members can now easily connect with each other, share ideas, and participate in discussions related to technical analysis and market trends. This move to Discord allows for a more streamlined and dynamic interaction among members, who can now access the community from anywhere, at any time.
+
+Join Official Discord Community
+
+### Exclusive Partner Offers
+
+Long time partners of CMT Association have very kindly offered for free, resources to help our candidates get started with the CMT program. These include access to Optuma’s robust charting platform and Level 1 video course as well as research offerings and tools from Nasdaq and Trend Spider. Do note that these offerings are the intellectual property of our partners and provided at their discretion. These are liable to change at any time, without notice. CMT Association will not be liable for partner services.
+
+Explore Exclusive Partner Offers
+
+### Top 15 Employers of CMT Members
+
+MORGAN STANLEY • WELLS FARGO • BANK OF AMERICA • CHARLES SCHWAB • FIDELITY • RBC (CM & DS) • WELLINGTON MANAGEMENT • BLOOMBERG, LP • UBS • CIBC • CREDIT SUISSE • TD AMERITRADE • BMO NESBITT BURNS • NDR • BARCLAYS
+
+Explore Career Opportunities For CMTs
+
+## Benefits of the CMT Designation
+
+##### CMT Prep Providers
+
+##### Official Discord Community
+
+##### Exclusive Partner Offers
+
+##### Employment Opportunities
+
+### CMT Program Prep Providers
+
+The CMT Exams are designed solely on the most current edition of the Official Curriculum. Courses and education either independent or as a Prep Provider should not be used as a substitute for the official CMT Curriculum and should not be treated as standalone exam preparation devices. The preparation courses and materials featured on this page are not endorsed by the CMT Association or reviewed by the Curriculum and Committee.
+
+Explore CMT Program Prep Providers
+
+### Join the Conversation
+
+With the addition of the CMT Association server, members can now easily connect with each other, share ideas, and participate in discussions related to technical analysis and market trends. This move to Discord allows for a more streamlined and dynamic interaction among members, who can now access the community from anywhere, at any time.
+
+Join Official Discord Community
+
+### CMT Program Prep Providers
+
+The CMT Exams are designed solely on the most current edition of the Official Curriculum. Courses and education either independent or as a Prep Provider should not be used as a substitute for the official CMT Curriculum and should not be treated as standalone exam preparation devices. The preparation courses and materials featured on this page are not endorsed by the CMT Association or reviewed by the Curriculum and Committee.
+
+Explore Exclusive Partner Offers
+
+### Top 15 Employers of CMT Members
+
+MORGAN STANLEY • WELLS FARGO • BANK OF AMERICA • CHARLES SCHWAB • FIDELITY • RBC (CM & DS) • WELLINGTON MANAGEMENT • BLOOMBERG, LP • UBS • CIBC • CREDIT SUISSE • TD AMERITRADE • BMO NESBITT BURNS • NDR • BARCLAYS
+
+Explore Career Opportunities For CMTs
+
+## Top 15 Employers of CMT Members
+
+MORGAN STANLEY • WELLS FARGO • BANK OF AMERICA • CHARLES SCHWAB • FIDELITY • RBC (CM & DS) • WELLINGTON MANAGEMENT • BLOOMBERG, LP • UBS • CIBC • CREDIT SUISSE • TD AMERITRADE • BMO NESBITT BURNS • NDR • BARCLAYS
+
+Explore Career Opportunities For CMTs
+
+## Top 15 Employers of CMT Members
+
+MORGAN STANLEY • WELLS FARGO • BANK OF AMERICA • CHARLES SCHWAB • FIDELITY • RBC (CM & DS) • WELLINGTON MANAGEMENT • BLOOMBERG, LP • UBS • CIBC • CREDIT SUISSE • TD AMERITRADE • BMO NESBITT BURNS • NDR • BARCLAYS
+
+Explore Career Opportunities For CMTs
+
+## CMT Program Prep Providers
+
+The CMT Exams are designed solely on the most current edition of the Official Curriculum. Courses and education either independent or as a Prep Provider should not be used as a substitute for the official...
+
+Explore CMT Program Prep Providers
+
+## Value of the CMT Designation
+
+The CMT designation develops deep knowledge in technical analysis and will directly impact the work of portfolio managers, hedge fund managers, investment advisors, RIAs, investment strategists, heads of research, and chief investment officers.
+
+If you’re interested in market behavior, the gap between intrinsic value and market price, behavioral finance, quantitative systems design and risk management, the CMT Program is for you.
+
+Studying for and taking the CMT exams provided another turning point in my career, and allowed for an enhancement of an existing technical process.
+
+Vernon Bice
+
+CMT Charterholder since 2016
+
+A lot of what I am today is because of the CMT designation. The CMT program is the gold standard in its field, without a doubt.
+
+Gautam Shah
+
+CMT Charterholder since 2009
+
+Take calculated risks with your career. Here again, a core piece of the CMT curriculum is risk management, capturing upside while mitigating downside...
+
+Dr. Kelly Corbiere
+
+CMT Charterholder since 2017
+
+Joining CMT Association and obtaining my CMT charter has been one of the best decisions for my career...
+
+David Lundgren
+
+CMT Charterholder since 2011
+
+Begin Your CMT Journey
+
+Exam Registration Rates
+
+For more information about the tax policy for online transactions with CMT Association, please visit Tax Policy.
+
+- Includes Curriculum
+- Includes Access to Optuma
+- Includes access to research from NASDAQ Dorsey Wright
+
+CMT exams are offered twice a year, in June and December.
+
+The Level I and II exams will be offered December 1 – 16, 2026 ET
+The Level III exam will be held on Thursday, December 3, 2026 ET
+
+Academic Partner Program
+
+Ends November 4, 2026
+
+$295
+
+Early Registration
+
+Opens May 14, 2026 ET
+
+Ends August 27, 2026 ET
+
+$875
+
+Standard Registration
+
+Opens August 28, 2026 ET
+
+Ends October 7, 2026 ET
+
+$1075
+
+Late Registration
+
+Opens October 8, 2026 ET
+
+Ends November 4, 2026 ET
+
+$1475
+
+[cmt_exam_registration_rates]
+
+Exam Registration Rates
+
+For more information about the tax policy for online transactions with CMT Association, please visit Tax Policy.
+
+- Includes Curriculum
+- Includes Access to Optuma
+- Includes access to research from NASDAQ Dorsey Wright
+
+CMT exams are offered twice a year, in June and December.
+
+The Level I and II exams will be offered December 1 – 16, 2026 ET
+The Level III exam will be held on Thursday, December 3, 2026 ET
+
+Academic Partner Program
+
+Ends November 4, 2026
+
+$295
+
+Early Registration
+
+Opens May 14, 2026 ET
+
+Ends August 27, 2026 ET
+
+$875
+
+Standard Registration
+
+Opens August 28, 2026 ET
+
+Ends October 7, 2026 ET
+
+$1075
+
+Late Registration
+
+Opens October 8, 2026 ET
+
+Ends November 4, 2026 ET
+
+$1475
+
+#### Free access to their charting software for all candidates enrolled in the CMT Program + FREE CMT Level I prep course for registered candidates at CMT Level I
+
+Along with free access to Optuma, the most advanced Technical Analysis application, you can also get access to the CMT Level I prep course candidates are raving about for FREE.
+
+Do note that these offerings are the intellectual property of our partners and provided at their discretion. These are liable to change at any time, without notice. CMT Association will not be liable for partner services.
+
+The Optuma CMT Level I Course provides you with:
+
+- Over 15 hours of detailed video instruction
+- Notes for each lesson
+- Access to a private forum where you can ask questions to a qualified CMT expert
+- Technical Analysis Glossary— all the definitions you need for CMT Level I and CMT Level II
+- Indicator List— all the indicators you need to know about
+- Knowledge Domains by Chapter— a critical resource in the final weeks before the exam.
+
+You will have everything you need to pass the CMT Level I exam!
+
+#### Free access to Optuma's charting platform and CMT prep course for all candidates enrolled in the upcoming CMT exam.
+
+Do note that these offerings are the intellectual property of our partners and are
+provided at their discretion. They are subject to change at any time without notice. The
+CMT Association is not liable for any partner services.
+
+The Optuma CMT Prep Course includes:
+
+- Video lessons to help you better understand the material
+- Notes breaking down each lesson and learning objective
+- Ethics-specific lessons and quizzes
+- A Technical Analysis Glossary – all the definitions you need for the exam
+- The option to purchase practice exams and AI tools for each level
+
+Optuma gives you everything you need to feel confident on exam day.
+
+The CMT Association is not responsible for any changes to third-party offers. Please
+refer to the respective provider for the most up-to-date details.
+
+#### Free 6-month access to TrendSpider
+
+#### Access Nasdaq Dorsey Wright to assist your technical studies
+
+#### Free access to their charting software for all candidates enrolled in the CMT Program + FREE CMT Level I prep course for registered candidates at CMT Level I
+
+Along with free access to Optuma, the most advanced Technical Analysis application, you can also get access to the CMT Level I prep course candidates are raving about for FREE.
+
+Do note that these offerings are the intellectual property of our partners and provided at their discretion. These are liable to change at any time, without notice. CMT Association will not be liable for partner services.
+
+The Optuma CMT Level I Course provides you with:
+
+- Over 15 hours of detailed video instruction
+- Notes for each lesson
+- Access to a private forum where you can ask questions to a qualified CMT expert
+- Technical Analysis Glossary— all the definitions you need for CMT Level I and CMT Level II
+- Indicator List— all the indicators you need to know about
+- Knowledge Domains by Chapter— a critical resource in the final weeks before the exam.
+
+You will have everything you need to pass the CMT Level I exam!
+
+#### Free access to Optuma's charting platform and CMT prep course for all candidates enrolled in the upcoming CMT exam.
+
+Do note that these offerings are the intellectual property of our partners and are
+provided at their discretion. They are subject to change at any time without notice. The
+CMT Association is not liable for any partner services.
+
+The Optuma CMT Prep Course includes:
+
+- Video lessons to help you better understand the material
+- Notes breaking down each lesson and learning objective
+- Ethics-specific lessons and quizzes
+- A Technical Analysis Glossary – all the definitions you need for the exam
+- The option to purchase practice exams and AI tools for each level
+
+Optuma gives you everything you need to feel confident on exam day.
+
+The CMT Association is not responsible for any changes to third-party offers. Please
+refer to the respective provider for the most up-to-date details.
+
+#### Free 6-month access to TrendSpider
+
+#### Access Nasdaq Dorsey Wright to assist your technical studies
+
+### Get notified when the next administration begins
+
+CMT Exam - Early Registration Notifications
+
+Notify
+
+Name
+
+Email
+
+Notify me
+
+#### Free access to their charting software for all candidates enrolled in the CMT Program + FREE CMT Level I prep course for registered candidates at CMT Level I
+
+Along with free access to Optuma, the most advanced Technical Analysis application, you can also get access to the CMT Level I prep course candidates are raving about for FREE.
+
+Do note that these offerings are the intellectual property of our partners and provided at their discretion. These are liable to change at any time, without notice. CMT Association will not be liable for partner services.
+
+The Optuma CMT Level I Course provides you with:
+
+- Over 15 hours of detailed video instruction
+- Notes for each lesson
+- Access to a private forum where you can ask questions to a qualified CMT expert
+- Technical Analysis Glossary— all the definitions you need for CMT Level I and CMT Level II
+- Indicator List— all the indicators you need to know about
+- Knowledge Domains by Chapter— a critical resource in the final weeks before the exam.
+
+You will have everything you need to pass the CMT Level I exam!
+
+#### Free access to Optuma's charting platform and CMT prep course for all candidates enrolled in the upcoming CMT exam.
+
+Do note that these offerings are the intellectual property of our partners and are
+provided at their discretion. They are subject to change at any time without notice. The
+CMT Association is not liable for any partner services.
+
+The Optuma CMT Prep Course includes:
+
+- Video lessons to help you better understand the material
+- Notes breaking down each lesson and learning objective
+- Ethics-specific lessons and quizzes
+- A Technical Analysis Glossary – all the definitions you need for the exam
+- The option to purchase practice exams and AI tools for each level
+
+Optuma gives you everything you need to feel confident on exam day.
+
+The CMT Association is not responsible for any changes to third-party offers. Please
+refer to the respective provider for the most up-to-date details.
+
+```json
+{""@context"":""https://schema.org"",""@graph"":[{""@type"":""WebSite"",""@id"":""https://cmtassociation.org/#website"",""name"":""CMT Association"",""author"":{""@id"":""https://cmtassociation.org/cmt-program#person""},""copyrightHolder"":{""@id"":""https://cmtassociation.org/cmt-program#person""},""description"":""Advancing the Discipline of Technical Analysis for Over 40 Years"",""url"":""https://cmtassociation.org/"",""potentialAction"":{""@id"":""https://cmtassociation.org/#searchaction""},""publisher"":{""@id"":""https://cmtassociation.org/#organization""}},{""@type"":""WebPage"",""@id"":""https://cmtassociation.org/cmt-program#webpage"",""name"":""About the CMT Program"",""author"":{""@id"":""https://cmtassociation.org/cmt-program#person""},""inLanguage"":""en-US"",""url"":""https://cmtassociation.org/cmt-program"",""breadcrumb"":{""@id"":""https://cmtassociation.org/cmt-program#breadcrumblist""},""contributor"":{""@id"":""https://cmtassociation.org/cmt-program#person""},""copyrightHolder"":{""@id"":""https://cmtassociation.org/cmt-program#person""},""datePublished"":""2024-11-21T13:25:44-05:00"",""dateModified"":""2026-05-13T11:00:08-04:00"",""isPartOf"":{""@id"":""https://cmtassociation.org/#website""},""publisher"":{""@id"":""https://cmtassociation.org/#organization""}},{""@type"":""Organization"",""@id"":""https://cmtassociation.org/#organization"",""name"":""CMT Association"",""founder"":[{""@type"":""Person"",""name"":""SFX DEV""}],""logo"":""https://cmtassociation.org/wp-content/uploads/2024/01/cropped-cmta-square-1-1.jpg"",""slogan"":""Advancing the Discipline of Technical Analysis for Over 40 Years"",""url"":""https://cmtassociation.org/ ""},{""@type"":""BreadcrumbList"",""name"":""BreadcrumbList"",""@id"":""https://cmtassociation.org/cmt-program#breadcrumblist"",""itemListElement"":[{""@type"":""ListItem"",""position"":1,""item"":{""@id"":""https://cmtassociation.org"",""name"":""Home""}},{""@type"":""ListItem"",""position"":2,""item"":{""@id"":""https://cmtassociation.org/cmt-program/"",""name"":""About the CMT Program""}}]},{""@type"":""SearchAction"",""@id"":""https://cmtassociation.org/#searchaction"",""target"":""https://cmtassociation.org/?s={search_term_string}"",""query-input"":""required name=search_term_string""}]}
+
+```"

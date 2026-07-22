@@ -1,0 +1,300 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2870
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica-Bold;\f1\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1080\margr1080\margb1080\margt1080\vieww12000\viewh15840\viewkind0
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\b\fs32 \cf0 Questionnaire 4 - Backtest and Validation Contract
+\f1\b0\fs24 \
+\
+This round resolves the remaining owner choices exposed by the backtesting, walk-forward, and anti-overfit research. It does not ask Max to choose statistical algorithms blindly. Where evidence should decide, the suggested answer is to run a bounded Phase 1 comparison and bring the measured tradeoff back to Max.\
+\
+
+\f0\b Workflow note.
+\f1\b0 \'a0After Max completes this round, the reviewing agent must update the charter, decision log, README, validation hardening plan, and every other affected Montauk 3.0 document before drafting another questionnaire or coding handoff. This completed file remains unchanged as source evidence.\
+\
+
+\f0\b 1. What exact execution workflow should Gold model?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0 \'a0A strategy that consumes the official close cannot also claim a fill at that already-known close. Montauk will send a message and Max will trade manually, so the model must use a price Max could actually obtain after the signal exists.\
+
+\f0\b Suggested answer.
+\f1\b0 \'a0Compute the signal only after the official daily bar is verified; certify performance at the next regular-session open plus calibrated slippage and fees. Show same-close and other OHLC fills only as diagnostics/stress cases. Later compare the model with Max's recorded fills.\
+
+\f0\b Reasoning.
+\f1\b0 \'a0This is conservative, causal, reproducible, and matches the intended after-close notification workflow.\
+
+\f0\b Max's answer.
+\f1\b0 \
+Your answer is sufficient\
+\
+
+\f0\b 2. What should be the primary economic performance number?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0 \'a0Gold needs one primary target before statistical testing begins. Multiple interchangeable targets let the pipeline select whichever tells the best story.\
+
+\f0\b Suggested answer.
+\f1\b0 \'a0Use terminal deployable TECL wealth/share multiple versus a matched B&H investment as the primary outcome. Retain daily net log-wealth differences for inference. Show CAGR, maximum drawdown, Sharpe, and trade statistics as secondary explanations, not alternate Gold targets.\
+
+\f0\b Reasoning.
+\f1\b0 \'a0This directly measures Max's economic goal and avoids deciding Gold from a ratio of rounded CAGRs.\
+
+\f0\b Max's answer.
+\f1\b0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 Your answer is sufficient\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 \
+
+\f0\b 3. Which real-data periods must be hard economic gates?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0 \'a0The current intent requires complete real TECL history, recent performance, and predeclared rolling views. Requiring every possible slice to win is different from requiring a small fixed contract and may contradict the decision that a Gold strategy can have known regime weaknesses.\
+
+\f0\b Suggested answer.
+\f1\b0 \'a0Make complete observed TECL history and a fixed trailing-five-year horizon hard gates. Use a small predeclared rolling-window contract for generalization, but do not require every individual rolling window to exceed the full Gold margin. Instead calibrate an aggregate passage rule plus a catastrophic-window veto on controls.\
+
+\f0\b Reasoning.
+\f1\b0 \'a0A universal every-window win requirement can reject any valid trend strategy during a regime it was never expected to dominate, while a hand-picked majority rule can be too permissive. The exact aggregate/veto rule needs measured calibration.\
+
+\f0\b Max's answer.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b0 \cf0 Your answer is sufficient but I would add that maybe we should include key \'93moments\'94 - 2001, 2008, 2020, 2022, tariffs announcement etc.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 \
+\
+
+\f0\b 4. How should the provisional 1.10 performance margin work?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0 \'a0A point estimate 10 percent above B&H and a one-sided lower confidence bound 10 percent above B&H are radically different standards. The latter may be impossible with TECL's short, low-trade record.\
+
+\f0\b Suggested answer.
+\f1\b0 \'a0Treat 1.10 as a Phase 1 starting hypothesis for the unrounded full/recent point estimate, not a ratified universal cutoff. Compare candidate margins on null and planted-signal controls. Require an uncertainty-aware lower bound above no edge (1.0) or declare insufficient evidence; do not choose the final values by whether the current champion survives.\
+
+\f0\b Reasoning.
+\f1\b0 \'a0This preserves the owner's desire for meaningful outperformance while separating economic magnitude from statistical uncertainty.\
+
+\f0\b Max's answer.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b0 \cf0 Your answer is sufficient. However I will want to see either a share multiplier or a simple expression on a strategy vs bxh (as well as confidence) in the leaderboard in order to make a decision on active strategy.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 \
+\
+
+\f0\b 5. What exactly should historical walk-forward validate?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0 \'a0Replaying today's frozen parameters on old windows tests time concentration. It does not recreate the decision process. A real rolling-origin reconstruction re-runs the family search using only data available at each historical origin and tests the selected configuration on the next block.\
+
+\f0\b Suggested answer.
+\f1\b0 \'a0Use nested rolling-origin reconstruction to validate the family plus search/selection procedure. Keep frozen-configuration replay as a separate diagnostic. Label both retrospective or pseudo-OOS whenever the family itself was designed after seeing later history.\
+
+\f0\b Reasoning.
+\f1\b0 \'a0This answers the useful question - would this research procedure have generalized through time? - without falsely calling old data untouched.\
+
+\f0\b Max's answer.
+\f1\b0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 Your answer is sufficient.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 \
+
+\f0\b 6. Should Phase 1 choose expanding or rolling training windows now?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0 \'a0Expanding windows use all earlier history and are more data-efficient. Fixed rolling windows emphasize current regimes but discard older evidence. TECL has too little independent history to select one by intuition.\
+
+\f0\b Suggested answer.
+\f1\b0 \'a0Do not lock the window lengths now. Compare an expanding rolling-origin spine and a recent fixed-window variant on the same null, planted-signal, regime-change, and low-trade controls. Pick the smallest design with the best future-error calibration and acceptable false-Gold/false-reject behavior.\
+
+\f0\b Reasoning.
+\f1\b0 \'a0The right answer depends on how quickly the simulated process changes and how much power is lost by shortening the training sample.\
+
+\f0\b Max's answer.
+\f1\b0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 Your answer is sufficient.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 \
+
+\f0\b 7. What role should CPCV have?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0 \'a0A 2024 paper found CPCV better than walk-forward in its synthetic/ML experiment. Another study found chronology-preserving forward validation better under several non-stationary processes. CPCV can use observations later than an earlier test block for training, so it is not a historical deployment replay.\
+
+\f0\b Suggested answer.
+\f1\b0 \'a0Treat CPCV as a complementary candidate for selection stability, not an automatic Gold gate or replacement for rolling-origin. Admit it only when Montauk has a real overlapping-label problem and the Phase 1 ablation shows incremental defect detection.\
+
+\f0\b Reasoning.
+\f1\b0 \'a0This captures CPCV's benefit without mistaking more combinations for more independent regimes or future evidence.\
+
+\f0\b Max's answer.\
+
+\f1\b0 Use both? Ideally a gold worthy strategy should be able to pass CPCV and walk forward \
+\
+\
+
+\f0\b 8. How should purge and embargo lengths be chosen?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0 \'a0Purging removes training labels/outcomes that overlap a test interval. Embargo addresses a specified residual leakage/dependence path. A copied percentage is not automatically correct, and an ordinary past-looking indicator window is not itself future leakage.\
+
+\f0\b Suggested answer.
+\f1\b0 \'a0Derive purge and embargo from the declared information interval of each label, feature, and holding outcome. Use zero when no overlap path exists. Reject any family whose required interval cannot be computed exactly.\
+
+\f0\b Reasoning.
+\f1\b0 \'a0This makes leakage control causal and testable instead of ceremonial.\
+
+\f0\b Max's answer.
+\f1\b0 \
+\
+\
+
+\f0\b 9. Can Montauk keep one permanent untouched historical lockbox?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0 \'a0Once an agent sees a lockbox metric, rank, or even pass/fail result, later ideas can adapt to it. Unlimited repeated queries eventually spend a fixed historical holdout.\
+
+\f0\b Suggested answer.
+\f1\b0 \'a0No. A sealed historical block may provide one-time campaign evidence, after which it is labeled spent/reused and counted in adaptive search. Only bars arriving after an exact row is frozen are untouched evidence for that row. Phase 1 may evaluate a formally reviewed reusable-holdout method, but Montauk should not assume one is needed.\
+
+\f0\b Reasoning.
+\f1\b0 \'a0This is the honest consequence of an always-on agent that learns from its failures.\
+
+\f0\b Max's answer.
+\f1\b0 \
+\
+\
+
+\f0\b 10. Should Gold decisions occur in frozen certification epochs?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0 \'a0Research can run continuously, but statistical correction needs a coherent universe of alternatives. Testing and publishing rows one at a time makes the search denominator and result lineage ambiguous.\
+
+\f0\b Suggested answer.
+\f1\b0 \'a0Let discovery and cheap backtesting run continuously. Once per day, freeze the eligible survivor cohort and complete search-ledger snapshot, run the Gold exam and shared multiplicity correction, then publish all passing rows together. Later epochs inherit prior disclosures; the daily boundary does not reset lifetime search history.\
+
+\f0\b Reasoning.
+\f1\b0 \'a0Daily epochs match the non-intraday product, daily digest, and quiet experience while keeping the examiner deterministic and auditable.\
+
+\f0\b Max's answer.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b0 \cf0 Your answer is sufficient.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 \
+\
+
+\f0\b 11. How should false-Gold strictness be selected?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0 \'a0A conventional five-percent single-test threshold is not the same as the probability that at least one null strategy enters Gold after a year of continuous search. Max has said false Gold is slightly worse than missing a good strategy.\
+
+\f0\b Suggested answer.
+\f1\b0 \'a0Phase 1 should report a frontier, not invent a cutoff: probability of any false Gold during a simulated one-year continuous Montauk run versus recovery of planted economically meaningful signals. Use a one-percent annual false-Gold probability as an aspirational reference, then let Max approve the final achievable point after seeing the false-rejection cost.\
+
+\f0\b Reasoning.
+\f1\b0 \'a0The target should describe the whole appliance's failure risk, not a p-value on one row. Choosing after a transparent tradeoff is safer than either automatic 5 percent or a validator that rejects everything.\
+
+\f0\b Max's answer.
+\f1\b0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 Your answer is sufficient.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 \
+
+\f0\b 12. Should Gold have a fixed minimum trade count?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0 \'a0The Elicit report repeats a 50-trade default from a 2026 composite-score study. That paper uses the threshold to stabilize its own heuristic Z-score; it does not prove a universal boundary. Montauk's low-frequency strategies may have far fewer trades.\
+
+\f0\b Suggested answer.
+\f1\b0 \'a0No universal trade-count cliff. Report trades, distinct state transitions, exposure episodes, effective observations, uncertainty width, and method power. Return insufficient evidence whenever the required uncertainty/power standard cannot be met, regardless of raw count.\
+
+\f0\b Reasoning.
+\f1\b0 \'a0Forty-nine diverse trades can contain more information than 100 tightly clustered trades. The test's actual power is what matters.\
+
+\f0\b Max's answer.
+\f1\b0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 Your answer is sufficient. Montauk's low-frequency strategies may have far fewer trades.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 \
+
+\f0\b 13. What should a parameter plateau mean?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0 \'a0Thousands of nearby parameter settings may look robust while emitting the identical sparse trade path. That is numeric redundancy, not thousands of independent confirmations.\
+
+\f0\b Suggested answer.
+\f1\b0 \'a0Record both semantic parameter distance and behavioral distance. Hash signal, position, and trade paths; group identical or near-identical behavior; require robustness across meaningful perturbations without counting duplicate paths as independent evidence.\
+
+\f0\b Reasoning.
+\f1\b0 \'a0This preserves the useful plateau idea while preventing sparse strategies from gaming it accidentally.\
+
+\f0\b Max's answer.
+\f1\b0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 Your answer is sufficient.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 \
+
+\f0\b 14. May search-honesty evidence be shared across many Gold rows?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0 \'a0Board-wide selection correction is a property of a family/campaign/cohort, not something that becomes more valid by rerunning the same calculation for 74,000 siblings. Max still wants every exact Gold configuration to remain its own leaderboard row.\
+
+\f0\b Suggested answer.
+\f1\b0 \'a0Yes. Each row keeps exact row-specific correctness, economic, parameter/execution, reproduction, and forward artifacts, while referencing an immutable shared family/campaign/board multiplicity certificate. Shared evidence never makes siblings independent Chimera votes.\
+
+\f0\b Reasoning.
+\f1\b0 \'a0This is statistically honest and computationally simple without changing the one-row-per-configuration product decision.\
+
+\f0\b Max's answer.
+\f1\b0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 Your answer is sufficient.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 \
+
+\f0\b 15. Should the leaderboard expose ranking ambiguity?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0 \'a0Exact scores can place one row first even when available evidence cannot distinguish it from several near-ties. A formal Model Confidence Set is only a candidate and has published power/multiple-testing limitations.\
+
+\f0\b Suggested answer.
+\f1\b0 \'a0Keep an exact deterministic rank, but show a simple "leader not clearly separated" status when calibrated uncertainty says the top group is practically/statistically indistinguishable. Do not add a new headline score.\
+
+\f0\b Reasoning.
+\f1\b0 \'a0This prevents false precision while preserving the simple leaderboard and one Montauk recommendation.\
+
+\f0\b Max's answer.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b0 \cf0 Your answer is sufficient.\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+\cf0 \
+\
+End of Questionnaire 4.\
+}

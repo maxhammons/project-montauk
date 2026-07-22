@@ -1,11 +1,24 @@
-# Montauk 3.0 — G10 Validation Correctness Audit (findings log)
+# Montauk 3.0 — Legacy Validation Audit Evidence
 
-Line-by-line correctness audit of `scripts/validation/` against each method's cited
-literature. This is the **G10** item from [validation-engine-hardening.md](validation-engine-hardening.md),
-made a committed Montauk 3.0 deliverable (2026-06-17). Findings are logged here as each
-file is audited. Severity is about the **certification claim**, not code style.
+**Status: REFERENCE INPUT, NOT A REWRITE REQUIREMENT (updated 2026-07-21).**
 
-**Scope:** `scripts/validation/` (~5,900 lines).
+This file preserves useful findings from a line-by-line audit started against the
+legacy `scripts/validation/` implementation. The current scripts may be replaced.
+Montauk 3.0 does **not** require finishing this file-by-file audit merely to preserve
+old code, and the unchecked rows below are not an implementation checklist.
+
+No legacy threshold, gate number, weight, file path, score, tier, or skip rule
+in this document is a current 3.0 requirement. A coding agent reads a finding
+only when the final design retains the associated failure mode or method, then
+re-proves the replacement under the active charter and validation pillar.
+
+For any method retained, ported, or rewritten, Phase 1 must audit the final
+implementation against its frozen specification and primary literature, then run
+it through the validation-of-validation controls. Findings here are evidence to
+carry forward when relevant. Severity is about the certification claim, not code
+style.
+
+**Historical scope:** legacy `scripts/validation/` (~5,900 lines).
 
 > **Contract note (updated 2026-07-21):** The owner intends every backtest survivor,
 > regardless of human/AI origin, to face the same mandatory evidence planks and
@@ -24,16 +37,16 @@ file is audited. Severity is about the **certification claim**, not code style.
 | File | Lines | Status |
 |---|--:|---|
 | `deflate.py` | 373 | ✅ audited 2026-06-17 |
-| `pbo.py` | 391 | ⏳ next |
-| `uncertainty.py` | 229 | ⏳ |
-| `oos_walk_forward.py` | 300 | ⏳ |
-| `reality_check.py` | 434 | ⏳ |
-| `sprint1.py` | 506 | ⏳ |
-| `candidate.py` | 804 | ⏳ |
-| `integrity.py` | 565 | ⏳ |
-| `confidence_v2.py` | 545 | ⏳ |
-| `cross_asset.py` | 225 | ⏳ |
-| `pipeline.py` | 1518 | ⏳ |
+| `pbo.py` | 391 | not audited; review only if method is retained |
+| `uncertainty.py` | 229 | not audited; review only if method is retained |
+| `oos_walk_forward.py` | 300 | not audited; review only if method is retained |
+| `reality_check.py` | 434 | not audited; review only if method is retained |
+| `sprint1.py` | 506 | not audited; review only if method is retained |
+| `candidate.py` | 804 | not audited; review only if method is retained |
+| `integrity.py` | 565 | not audited; review only if method is retained |
+| `confidence_v2.py` | 545 | not audited; review only if method is retained |
+| `cross_asset.py` | 225 | not audited; review only if method is retained |
+| `pipeline.py` | 1518 | not audited; review only if method is retained |
 
 **Severity key.** **High** = could let an overfit strategy through, or materially
 misstate the overfit verdict. **Medium** = directional bias / fragility, bounded

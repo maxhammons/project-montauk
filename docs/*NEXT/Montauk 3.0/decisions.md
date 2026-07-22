@@ -1,5 +1,8 @@
 # Montauk 3.0 — Decision Log
 
+**Status: HISTORICAL RATIONALE / NON-AUTHORITATIVE FOR IMPLEMENTATION (updated
+2026-07-21).**
+
 Running ledger of **resolved** decisions for the Montauk 3.0 always-on strategy
 factory. Pairs with [charter.md](charter.md): the charter holds the integrated
 operating contract while this file preserves the calls and their history. Section
@@ -8,6 +11,13 @@ that an implementation agent may answer by implication. When a decision changes 
 core charter claim, the charter gets updated to match — never by drift.
 
 Each entry: the **call**, the **why**, and the **implications** for the build.
+
+> **DO NOT IMPLEMENT FROM THIS LEDGER.** It intentionally retains superseded
+> Mac/`launchd`, no-agent, staging-board, Python/Go, synthetic-Gold, Slack-only,
+> and other historical calls so the reasoning is auditable. The current
+> requirement is whatever [charter.md](charter.md) and the active pillar plans
+> say. If this ledger appears to disagree with them, the ledger is history and
+> must be marked/refined—not treated as an alternate specification.
 
 ---
 
@@ -110,7 +120,7 @@ emerges, or **(c)** the leaderboard significantly shuffles.
 **Implications.** Chimera generation is deterministic (D2) and routes the new ensemble
 back into the bucket as an ordinary family that must clear the same Gold bar — no
 shortcut. Define "significant shuffle" concretely *(open).* Depends on the
-meta-strategy engine existing (`2026-04-23-meta-strategy-design.md`).
+meta-strategy research design now preserved in `chimera-research-design.md`.
 
 ---
 
@@ -144,7 +154,7 @@ hand-tuned weights/anchors can themselves be overfit.
 June snapshot, not the current claim. Until the correctness audit, breadth and
 board-level correction, deployable execution contract, mandatory-gate semantics,
 and per-frozen-row forward attribution are complete, the accurate status is
-**advanced but provisional**. See the expanded G1–G13 register.
+**advanced but provisional**. See the expanded G1–G19 register.
 
 ---
 
@@ -155,7 +165,7 @@ Where these calls conflict with June entries, the newer numbered decision
 explicitly supersedes the older one. History is retained so the change is
 auditable.
 
-### D11 — A scheduled, model-agnostic frontier agent is part of steady state
+### D11 — A scheduled, model-agnostic frontier agent is part of steady state (REFINED by D61)
 
 **Call.** Montauk 3.0 includes a standing agent loop on the always-on machine. It
 may call Claude, Codex, or another remote frontier model through a subscription or
@@ -331,12 +341,13 @@ strategy remains human.
   Pending Gold cooling period; D35 fixes the emergency fallback state machine.
 - No implementation may interpret a leaderboard reorder as permission to trade.
 
-### D19 — Quiet, read-mostly operation with a conversational notification surface (REFINED by D38)
+### D19 — Quiet, read-mostly operation with a conversational notification surface (REFINED by D38 and D61–D63)
 
 **Call.** The normal app experience is “Montauk at a glance”: current state,
 active strategy and Gold status, override/recommendation status, Montauk Score,
 Validation Score (or calibrated Confidence only after calibration justifies
-that term), deployable Performance, simple gate lights, and plain-English
+that term), deployable Performance, forward-evidence status/age, simple gate
+lights, and plain-English
 weaknesses. It is primarily read-only, with no forest of sliders or duplicated
 control surfaces. A daily digest is sufficient as the initial notification
 cadence because Montauk is not intraday. Slack is the likely conversation,
@@ -359,9 +370,10 @@ up data and recertifies the active strategy before resuming lower-priority work.
 
 **Why.** Partial or divergent data cannot be permitted to change authority.
 
-**Implications.** D36 resolves recovery priority: already-safe partial work may
-be quarantined, while exploratory compute pauses until verified catch-up, Active
-recertification/current signal, and top-cohort refresh complete.
+**Implications.** D36 resolves recovery priority: low-priority deterministic
+research may continue only on the labeled last-good snapshot when it does not
+delay verified catch-up, Active recertification/current signal, and top-cohort
+refresh; it cannot affect current Gold before replay on repaired data.
 
 ### D21 — Manual brokerage and human-controlled release progression
 
@@ -510,7 +522,7 @@ a failed plank. An empty current board is valid.
 **Why.** Max's trust depends on every row making the same complete promise. A
 false Gold row is worse than a missed opportunity.
 
-### D29 — Real-data superiority is broad, recent, margin-bearing, and versioned
+### D29 — Real-data superiority is broad, recent, margin-bearing, and versioned (REFINED by D46–D47)
 
 **Call.** Gold must beat matched TECL B&H over complete real history, a fixed
 recent horizon initially centered on trailing five years, and a small
@@ -520,7 +532,7 @@ building a complicated or retrospectively hand-picked exam.
 
 The economic floor is greater than 1.0. An initial margin around 1.10 is the
 owner's provisional starting intuition; the exact margin and one-sided
-lower-bound test require Phase-A calibration. A future increase is a new
+lower-bound test require Phase 1 calibration. A future increase is a new
 owner-approved contract version and full compatibility review, not an automatic
 ratchet caused by finding many winners. Recent evidence affects eligibility,
 rank, and persistent rolling demotion under separate frozen rules.
@@ -532,14 +544,19 @@ decisions. Initial risk-off cash earns zero in the Gold comparison.
 **Why.** A barely positive point estimate or one excellent distant period is not
 the strong performance-plus-confidence standard Max wants.
 
-### D30 — Fill timing and synthetic history require bounded calibration, not guesses
+### D30 — Fill timing and synthetic history require bounded calibration, not guesses (REFINED by D46 and D53–D56)
 
 **Call.** Gold must use a genuinely obtainable manual-execution model. Same-close
-fills cannot certify a signal that consumes that close. Phase A compares the
+fills cannot certify a signal that consumes that close. Phase 1 compares the
 close-observed/next-open workflow, precisely timestamped alternatives,
-conservative high/low/average OHLC stress estimators, spreads/slippage, and later
-Max's recorded fills. Daily high/low/average prices are diagnostics unless the
-contract proves when they were knowable and executable.
+conservative high/low/average OHLC stress estimators, and spreads/slippage. Daily
+high/low/average prices are diagnostics unless the contract proves when they
+were knowable and executable. The original D30 proposal to compare against Max's
+recorded fills is superseded by D54; personal fill capture is outside 3.0.
+
+D46 later fixes signal-after-verified-close/next-regular-session-open as the
+certification workflow. The remaining study calibrates costs and diagnostics; it
+no longer chooses among fill timings.
 
 The current synthetic TECL history is real code with reproducible provenance:
 3x daily S&P technology-sector-index returns for 1993–1998, 3x daily XLK returns
@@ -554,7 +571,7 @@ weight or catastrophic veto requires independent overlap/model recalibration.
 better or worse without changing its logic. They must be defensible measurement
 contracts, not after-the-fact preferences.
 
-### D31 — Declarative Rust is normal; custom modules graduate automatically through containment
+### D31 — Declarative Rust is normal; custom modules graduate automatically through containment (REFINED by D64)
 
 **Call.** D27 remains the normal path. The first primitive library must reproduce
 every current production/Gold/benchmark strategy and cover small fixture-tested
@@ -579,15 +596,13 @@ agent cannot raise its own limits.
 confusing generated code with trusted methodology or discarding a potentially
 valid idea because its first implementation was poor.
 
-### D32 — The protected core is cryptographically sealed and fails closed
+### D32 — The protected core is cryptographically sealed and fails closed (SIMPLIFIED by D44)
 
-**Call.** Use separate protected-core and generated-research repositories/
-workspaces, different OS identities and credentials, read-only deployed core,
-protected remote branches, and a content-addressed core manifest signed by a
-human-held key unavailable to the resident agent. Startup, testing, Gold
-publication, and trusted-signal evaluation stop if signatures, permissions, or
-protected hashes do not verify. A password alone, later rollback, or clean Git
-history is insufficient.
+**Historical call.** The original design prescribed separate protected-core and
+generated-research repositories/workspaces, protected remote branches, and a
+larger release ceremony. D44 retains the cryptographic, read-only, fail-closed
+outcome while making those topology choices optional implementation controls.
+A password alone, later rollback, or clean Git history is insufficient.
 
 Max changes core only in an explicit human-controlled maintenance/release
 session with reviewed diff, full protected tests, new signed manifest, audit
@@ -615,16 +630,24 @@ data samples, and no indicator or data stream is condemned because one use of it
 failed. The failure ledger records where and why exact logic/regions failed so
 the agent can tune or redesign intelligently.
 
+The default board view is collapsed by family: show its leading exact row and
+sibling count, then expand/page on demand. This keeps every certified
+configuration queryable without filling the normal screen with tiny parameter
+variations.
+
 **Why.** Max cares about finding viable configurations, not maintaining a rigid
 taxonomy, while the system still needs dependence control and efficient memory.
 
-### D34 — Pending Gold, recommendation stability, and normal owner authority
+### D34 — Pending Gold, recommendation stability, and normal owner authority (REFINED by D49)
 
-**Call.** A historical-suite survivor first becomes `Pending Gold`, a visible
-deterministic evidence state rather than a human staging board. It normally
+**Call.** A historical-suite survivor becomes Gold and joins the one leaderboard
+automatically with activation status `Pending Gold`; D49 later defines
+“automatically” as publication in the next daily frozen certification epoch
+rather than one-row-at-a-time publication. This is a visible badge, not a human
+staging board or a weaker/pre-Gold certification tier. It normally
 accumulates 20 verified trading bars and passes fresh certification before
-automatic graduation to current Gold. It cannot be Active while pending. Max may
-explicitly override the cooling delay; the exception is visible and audited.
+becoming eligible to be Recommended or Active. Max may explicitly override the
+cooling delay; the exception is visible and audited.
 
 Initial switch-review thresholds are: +10 absolute Validation Score points with
 no material deployable-performance loss; or +10% relative lower-bound deployable
@@ -637,7 +660,7 @@ only Max approves the exact switch.
 **Why.** This gives new configurations a cooling/evidence period and prevents
 trivial rank noise from demanding repeated active-strategy changes.
 
-### D35 — Emergency fallback never silently authorizes an opposing trade
+### D35 — Emergency fallback never silently authorizes an opposing trade (EXECUTION-ACKNOWLEDGEMENT PORTION SUPERSEDED by D54)
 
 **Call.** Loss of Gold immediately revokes Active authority and any manual
 override. If the top compatible Gold fallback has the same current risk state as
@@ -648,9 +671,9 @@ Active, enters `human_decision_required`, and alerts Max. If no Gold remains, it
 shows `no_certified_strategy`, recommends risk-off for human consideration, and
 takes no brokerage action.
 
-Max will acknowledge manual execution, but that acknowledgement belongs to a
-dedicated authenticated app/operations surface rather than Slack. Without it,
-Montauk says “last instruction,” not “current position.”
+The original D35 manual-execution acknowledgement is superseded by D54. Montauk
+does not collect execution acknowledgement in 3.0 and therefore says “last
+instruction,” not “current position.”
 
 **Why.** Continuous Gold governance and Max's authority over a state-changing
 trade are both preserved without pretending Montauk controls the brokerage.
@@ -658,9 +681,12 @@ trade are both preserved without pretending Montauk controls the brokerage.
 ### D36 — Current data and the latest contract are mandatory; recertification preempts discovery
 
 **Call.** Missing or failed current data freezes trusted signals, Gold mutation,
-and promotion. Partial work may be quarantined, but exploratory compute pauses
-while recovery verifies the control store, catches up data, recertifies Active,
-computes the current signal, then refreshes the top cohort before discovery.
+and promotion. Low-priority deterministic discovery may continue only against
+the content-addressed last-good snapshot, clearly labeled `stale_data_research`,
+and only when it cannot delay recovery. Its survivors cannot affect current Gold
+until replayed through the complete current pipeline after recovery verifies the
+control store, catches up data, recertifies Active, computes the current signal,
+and refreshes the top cohort.
 
 Replay Active after every verified bar. Formally renew it after 20 new bars, a
 signal/trade event, a warning, or before activation/fallback. Renew Recommended/
@@ -701,20 +727,21 @@ evidence to prevent wasteful retesting.
 **Why.** “Everything backed up” is achieved without turning Git history into a
 multi-billion-row database or ignoring GitHub's actual storage constraints.
 
-### D38 — Slack is conversational but has a narrow authority allowlist
+### D38 — Slack is conversational but has a narrow authority allowlist (REFINED by D54, D61, and D63)
 
 **Call.** Slack may query/explain status, request a named ideation/research
 campaign, trigger recertification, and approve one exact pending Active switch.
-It may not acknowledge alerts or brokerage execution, enter/exit maintenance,
-modify core/methodology, or infer approval from free-form text. Every mutation
-uses Max's allowlisted identity, exact immutable ID, confirmation, expiry,
-idempotency, replay protection, and durable audit.
+The original D38 execution-acknowledgement command is superseded by D54. Slack
+may not acknowledge alerts, enter/exit maintenance, modify core/methodology, or
+infer approval from free-form text. Every mutation uses Max's allowlisted
+identity, exact immutable ID, confirmation, expiry, idempotency, replay
+protection, and durable audit.
 
 Critical integrity/authority failures attempt delivery within five minutes;
 ordinary research, new non-leading Gold, and board movement go to the daily
-digest. Multiple Slack channels are expected. Slack Free is sufficient for
-multiple channels and one custom integration at the time of this decision, but
-its limited history means the local outbox/audit record remains authoritative.
+digest. Multiple Slack channels were expected. The former Slack-plan assumption
+is historical; D63 makes provider/plan choice a commissioning bake-off. No
+conversation provider is the durable audit log.
 
 **Why.** This delivers the OpenClaw-like low-friction relationship without making
 chat history the system of record or an ambiguous sentence a methodology change.
@@ -732,22 +759,23 @@ core change.
 **Why.** Useful market context can improve a TECL call without prematurely
 building multi-asset selection, allocation, or brokerage behavior.
 
-### D40 — The validator must prove it is neither permissive nor blindly over-strict
+### D40 — The validator must prove it is neither permissive nor blindly over-strict (SIMPLIFIED by D43)
 
 **Call.** Questionnaire 3 reopens methodological research before the autonomous
-scale-up. Audit every validation implementation against its cited method and
-calibrate both false-Gold and false-rejection behavior. Use null/randomized and
-adversarial controls, seeded leakage/overfit defects, simple frozen structural
-controls, simulation, and genuine per-row forward outcomes. Simple EMA/RSI rules
-are useful controls, not certified ground truth. Define Validation Score as an
-evidence-strength/robustness index until a frozen target and forward reliability
-study support a probability.
+scale-up. Select the smallest complete method set, audit every final retained or
+rewritten validation implementation against its cited method, and calibrate both
+false-Gold and false-rejection behavior. Use null/randomized and adversarial
+controls, seeded leakage/overfit defects, simple frozen structural controls,
+simulation, and genuine per-row forward outcomes. Simple EMA/RSI rules are useful
+controls, not certified ground truth. Define Validation Score as an evidence-
+strength/robustness index until a frozen target and forward reliability study
+support a probability.
 
 **Why.** A pipeline that calls everything overfit is not bulletproof; it is an
 invalid grader in the opposite direction. Confidence comes from defendable
 methods with measured operating characteristics, not merely more gates.
 
-### D41 — Provider operations are owner-configured; only Max controls completion
+### D41 — Provider operations are owner-configured; only Max controls completion (REFINED by D58)
 
 **Call.** Max personally configures model providers, credentials, subscription/
 API choice, and cost controls. The core remains provider-neutral and secrets stay
@@ -762,19 +790,474 @@ explicit Max instruction begins any later major-version effort.
 **Why.** Operational evidence should make the decision well informed without
 turning a timer or checklist into project authority.
 
+## 2026-07-21 — independent alignment and simplification review
+
+### D42 — One canonical conveyor; configurations are data, not scripts
+
+**Call.** The complete owner-facing system is one line: model/Max creates a typed
+family definition → protected Rust primitives validate and expand it → exact
+configurations enter the research bucket as data → matched-B&H backtest resolves
+economic passage → validation resolves the remaining four Gold planks → Gold
+leaderboard → rank → Max normally chooses Active.
+One family may yield millions of configurations without compiling millions of
+programs. A novel unexpressible mechanism uses at most one isolated module for
+the family.
+
+The bucket is logical at scale: deterministic family/search shards may stream
+bounded configuration batches just in time. Montauk persists the exact identity
+and compact verdict of every configuration actually evaluated, not billions of
+pre-created script files or empty job rows.
+
+Sandboxing, storage, backup, monitoring, and Slack protect or operate that line;
+they are not parallel pipelines. The charter alone owns product/Gold/authority
+policy, pillar plans own implementation domains, and the decision log is history
+rather than an alternative requirements source.
+
+**Why.** This is the smallest expression of Max's questionnaire intent and the
+test for needless complexity: every component must map to the conveyor or protect
+it.
+
+### D43 — Five Gold planks; methods must earn admission
+
+**Call.** The Gold exam exposes exactly five hard planks: correctness, economic
+passage, generalization, search honesty, and reproducibility/currentness. Every
+technical test belongs beneath one plank and has one predeclared decision role.
+The backtest stage resolves economic passage and the following validation stage
+resolves the other four; this is one contract, not a duplicated performance test.
+Phase 1 admits a method only after proving relevant assumptions, implementation
+parity, incremental value, usable power, and acceptable false-Gold/false-reject
+behavior. PBO, SPA/Reality Check, bootstrap, walk-forward, sensitivity analysis,
+synthetic history, and any other named technique are candidates—not mandatory by
+reputation. Hindsight labels or discovery targets stay diagnostic unless a truly
+independent design earns another role.
+
+No legacy Gold row is presumed to meet 3.0. Every row must pass the final contract
+from scratch. Gold aims to earn operational trust in the process, never certainty
+that the next call is correct.
+
+**Why.** A kitchen-sink validator can double-count evidence, use underpowered
+methods, create tunable weights, and manufacture either false confidence or false
+rejection. A small proven exam is more defensible than a large impressive one.
+
+### D44 — Protect the core with the smallest enforceable seal
+
+**Call.** D32's required security outcome remains, but repository topology and
+release ceremony are not product concepts. The minimum is one resident-agent OS
+identity with no core-write credential, one read-only content-addressed core
+release, generated research outside it, a manifest signed by Max's unavailable
+human-held key, and fail-closed signature/hash/permission verification at startup
+and every Gold/signal job. Additional repository or branch controls must justify
+their operational value rather than becoming mandatory layers by default.
+
+**Why.** This makes the number-one agent prohibition mechanically real without
+turning a personal appliance into an enterprise security program that is harder
+to operate than the threat requires.
+
+## 2026-07-21 — Questionnaire 4 and the testing-pipeline guiding light
+
+Questionnaire 4 accepts the proposed owner-facing outcomes in questions 1–6 and
+10–15, tentatively asks to use both CPCV and walk-forward in question 7, and
+leaves questions 8–9 blank. Max then clarified that much of the technical
+language was unclear and supplied one higher-authority requirement: Gold should,
+to the best knowledge available from scholarship, market expertise, AI-assisted
+research, best practice, and Montauk's own reasoning and controls, establish that
+a strategy is not overfit and performs better when followed than TECL B&H.
+Accordingly, the calls below distinguish owner-visible policy from methods that
+Phase 1 must justify scientifically.
+
+### D45 — One testing-pipeline guiding light
+
+**Call.** Gold exists to provide the strongest honest assurance Montauk can
+produce that an exact frozen strategy has no detected material overfit or
+correctness failure and that following it under obtainable execution should
+outperform matched TECL B&H. Research and expert/model critique help find the
+best available methods; opinions and consensus never substitute for reproducible
+evidence. “Strongest honest assurance” does not guarantee the next trade or
+future return.
+
+**Why.** This is Max's plain-language goal and the controlling interpretation
+when a questionnaire's statistical wording is ambiguous. The five planks are the
+minimum evidence needed to earn this one promise, not five competing goals.
+
+### D46 — Gold measures actual deployable outperformance (REFINED by D52–D54)
+
+**Call.** The strategy observes the verified official daily bar, then uses the
+next regular-session open plus calibrated slippage and fees for certification.
+Same-close and alternative OHLC fills remain diagnostics/stresses. The primary
+economic estimand is the exact terminal deployable TECL wealth/share multiple
+versus a matched B&H investment; daily net log-wealth difference supports
+inference, while CAGR, drawdown, Sharpe, and trade statistics are explanations.
+
+Complete observed TECL history and trailing five years are hard real-data gates.
+The provisional 1.10 value is a starting hypothesis for the unrounded point
+estimate, while an uncertainty-aware lower bound must exceed no edge (1.0) or
+return insufficient evidence. Phase 1 calibrates final costs, margin, and
+uncertainty rule on controls, never around preservation of the current champion.
+
+**Why.** “Better when followed” requires a price Max could actually obtain and
+one stable economic target; optimistic fill timing or interchangeable metrics
+would defeat the guiding light.
+
+### D47 — Rolling periods and named moments are predeclared, not hand-picked
+
+**Call.** A small fixed rolling-window suite uses a calibrated aggregate passage
+rule plus a calibrated catastrophic-window veto rather than demanding victory in
+every imaginable slice. The named-moment diagnostic suite includes Max's
+examples—2001/dot-com, 2008, 2020, 2022, and tariff announcements—and grows only
+through a methodology version. Each result is source-labelled: pre-TECL moments
+are reconstructed/synthetic diagnostics; events within observed TECL history use
+verified real data. No reconstructed episode can satisfy a real-data Gold gate.
+
+**Why.** Important crises should be visible, but candidate-specific windows and
+synthetic history masquerading as observations would create the very overfit
+exam Montauk is meant to prevent.
+
+### D48 — Chronological validation is required; CPCV must be real, not ceremonial
+
+**Call.** Nested rolling-origin reconstruction is the required chronological
+spine and frozen-configuration replay remains a separately labelled diagnostic.
+Phase 1 compares expanding and fixed rolling training windows. It also evaluates
+CPCV alongside rolling-origin and aims to retain both, but CPCV is hard only
+where it has a defined selection target, adequate power, and measured
+incremental defect detection. Otherwise the contract supplies a predeclared
+valid equivalent or `not_applicable`; an invalid test cannot award confidence.
+
+Purge and embargo derive from the exact information/label/holding-outcome
+intervals and are zero when no overlap path exists. Candidate intake fails when
+a required interval cannot be computed. There is no permanent untouched
+historical lockbox: a revealed campaign holdout becomes spent/reused evidence
+and enters lifetime search accounting. Only bars arriving after an exact row is
+frozen are untouched for that row.
+
+**Why.** Max's preference for both CPCV and walk-forward is honored wherever both
+are scientifically meaningful. The purge/embargo and lockbox rules were not
+direct owner answers; they are conservative methodological consequences of D45
+and remain subject to independent Phase 1 implementation review.
+
+### D49 — Gold is published in daily frozen cohorts
+
+**Call.** Discovery and backtesting run continuously. Once per day, the pipeline
+freezes the complete eligible survivor cohort and search-ledger snapshot, runs
+the cohort-dependent shared multiplicity/search-honesty correction, assembles
+the final five-plank verdict from existing immutable candidate and shared
+artifacts, and automatically publishes all passing rows together. Candidate-
+local checks are not rerun as a second exam, and no human admission is added.
+Later epochs inherit all prior disclosures and lifetime search history; a day
+boundary never resets the multiple-testing denominator.
+
+One immutable family/campaign/epoch search-honesty certificate may be referenced
+by many exact rows. Numeric parameter distance and hashed signal/position/trade
+behavior are recorded separately so duplicate paths are neither independent
+discoveries nor independent Chimera votes.
+
+**Why.** A coherent candidate universe makes continual-search correction
+auditable while preserving continuous research, one row per exact Gold
+configuration, and automatic board admission.
+
+### D50 — Evidence sufficiency replaces a universal trade-count cliff
+
+**Call.** Gold has no fixed minimum number of trades. It reports trades, state
+transitions, exposure episodes, effective observations, regimes, uncertainty
+width, and method power; any method without enough information returns
+`insufficient`.
+
+Phase 1 reports the whole-appliance tradeoff between the probability of any false
+Gold during a simulated year of continuous search and recovery of planted
+economically meaningful signals. One percent annual probability of any false
+Gold is an aspirational reference, not a ratified cutoff. Max chooses the final
+achievable operating point after reviewing its false-rejection cost.
+
+**Why.** Low-frequency strategies can be valid with few trades, while many
+clustered trades can still provide little independent evidence. The relevant
+risk is a false certificate from the whole machine, not a conventional p-value
+on one selected row.
+
+### D51 — The leaderboard states performance and ranking uncertainty plainly
+
+**Call.** Each compact row shows terminal deployable TECL wealth/share multiple
+versus matched B&H as a simple relative expression, Validation Score (or
+calibrated Confidence only after it earns that interpretation), Montauk Score,
+and forward-evidence status. The board keeps one deterministic exact rank but
+shows `leader not clearly separated` when calibrated uncertainty cannot
+distinguish the leading group. This is a status, not another score.
+
+**Why.** Max needs an intelligible performance-versus-B&H result and evidentiary
+strength to choose Active, without false precision or another metric zoo.
+
+## 2026-07-21 — Questionnaire 5 remaining scope and research mandate
+
+Questionnaire 5 is preserved unchanged in `Questionnaires/`. Question 8 and
+question 21 contain no answer, so they do not create new decisions: the already-
+ratified Gold-first delivery order remains in force, and no additional product
+outcome is inferred. Question 4 accepted the size-band approach without selecting
+a band; Max's subsequent clarification in D59 fixes the backtesting band and
+keeps actual order sizing outside 3.0.
+
+### D52 — 3.0 assumes a tax-advantaged primary account; tax is out of scope
+
+**Call.** Montauk 3.0 is designed for Max's tax-advantaged primary account. Gold
+compares pre-tax terminal performance net of frozen trading costs. Tax rates,
+holding periods, wash sales, lot selection, tax optimization, and multiple
+account profiles are outside 3.0.
+
+**Why.** Tax modeling does not affect the intended account and would introduce a
+large unrelated rules system into the Gold contract.
+
+### D53 — Max will submit an after-close order for the next market open (REFINED by D59)
+
+**Call.** After Montauk verifies the official close and emits a position change,
+Max will manually submit the order after close for execution at the next regular-
+session market open. Gold models that opening execution plus calibrated costs;
+same-close and other OHLC fills remain diagnostics.
+
+Risk-off cash earns zero by default. SGOV is an interesting later alternative
+but is not a 3.0 traded leg. Questionnaire 5 accepted a conservative order-size
+band without selecting one; D59 subsequently fixes the backtesting band while
+keeping actual order size and account size outside 3.0.
+
+**Why.** This is a repeatable causal workflow and a conservative TECL-only
+economic comparison without pretending Max disclosed a financial value he did
+not provide.
+
+### D54 — Personal fill tracking and mandatory outside-human review are out of scope
+
+**Call.** 3.0 does not require Max to record brokerage time, price, quantity, or
+execution acknowledgement, and it does not reconcile modeled fills with his
+account. Montauk therefore displays the trusted signal and last issued
+instruction, never an asserted brokerage position. Remove the manual-execution
+acknowledgement from Slack's 3.0 mutation allowlist.
+
+An outside paid or credentialed human review is not a launch gate. Independent
+reference implementation, clean reproduction, adversarial review by a separate
+agent/process, primary-source audit, and control evidence remain mandatory.
+
+**Why.** Max explicitly placed both recurring personal fill capture and external-
+human review outside 3.0. The retained reproducibility requirements protect the
+method without silently restoring either scope item.
+
+### D55 — Every Gold step is proven; research must address a named Montauk gap
+
+**Call.** Continual-search multiplicity is the highest-priority statistical
+research. Phase 1 must exercise the complete author/search/select/backtest/
+validation system in null, planted-signal, regime-change, low-trade,
+event-memorizing, lookahead, impossible-fill, and duplicate-behavior control
+worlds and report both false Gold and false rejection. Every safety- or
+evidence-critical step receives a fixture and acceptance proof.
+
+Broad literature collection stops unless a primary source addresses a named
+Montauk failure mode and produces a testable consequence. A method enters Gold
+only after Montauk-specific controls establish assumptions, power, and
+incremental protection.
+
+**Why.** The research bottleneck is now proving this exact always-on examiner,
+not accumulating a longer list of respected statistical names.
+
+### D56 — Synthetic TECL must walk forward through the real overlap
+
+**Call.** Extend the frozen XLK-based synthetic transformation through the actual
+TECL era and compare the modeled path with observed TECL. Use rolling/forward
+overlap evaluation: calibrate transformation assumptions only on earlier overlap
+blocks and test later blocks without refitting. Report daily-return bias,
+tracking error, volatility, terminal path, drawdowns, financing/expense error,
+and named-event behavior.
+
+The goal is the most accurate defensible estimate of how TECL might have behaved
+before inception, with explicit uncertainty. Synthetic evidence remains
+diagnostic and never becomes observed real-data passage merely because overlap
+fit improves.
+
+**Why.** Direct overlap is the best available empirical check on the synthetic
+construction, while time-separated evaluation prevents tuning the entire real
+era and then calling the fit validation.
+
+### D57 — Phase 1 explains decisions simply and Max ratifies after evidence
+
+**Call.** Every owner decision report begins in simple language and includes a
+simple example. It states the problem, recommended choice, measured false-Gold/
+false-reject consequences, and known limits; formulas, papers, and technical
+detail move to an appendix.
+
+The performance margin, whole-appliance false-Gold tolerance, minimal validation
+package, activation/renewal schedule, ranking ambiguity, and switch thresholds
+remain provisional until Phase 1 or commissioning presents evidence. Max
+approves the recommended package. Later fine-tuning requires another versioned
+control study and owner approval; it is not autonomous threshold drift.
+
+**Why.** Max owns the trust standard and final decision without being asked to
+select unfamiliar statistical machinery.
+
+### D58 — Hardware, provider, budget, and throughput targets do not define 3.0 (COMPLEMENTED by D60)
+
+**Call.** The product remains an always-on, provider-neutral appliance with a
+correct and efficient Rust evaluation path. Exact hardware procurement, frontier
+provider/subscription, spending budget, and a numerical strategies-per-hour
+target are deployment concerns outside the 3.0 product contract. Profiling and
+ordinary optimization may improve operation after correctness, but no hardware
+comparison or throughput threshold gates Gold or completion.
+
+**Why.** Max explicitly removed these purchasing and performance-target choices
+from 3.0. This preserves the settled architecture without turning a benchmark or
+machine purchase into product authority.
+
+### D59 — Backtests use a fixed $10,000–$100,000 modeled order band
+
+**Call.** Execution calibration and every Gold backtest model TECL position-change
+orders in the fixed $10,000–$100,000 notional band. Slippage and opening-execution
+assumptions must be defensible across that range and use the conservative result
+where costs vary materially within it.
+
+This is a research assumption, not an account-size disclosure or operational
+order limit. Montauk 3.0 does not collect, infer, enforce, or reconcile Max's
+actual account balance or order size. Its execution claim is limited to the
+frozen modeled band.
+
+**Why.** A fixed scale makes transaction-cost testing reproducible without adding
+personal portfolio tracking to 3.0.
+
+## 2026-07-21 — dedicated host, remote operation, and OpenClaw comparison
+
+### D60 — Minimal native Debian is the appliance deployment baseline
+
+**Call.** Montauk 3.0 is planned to run natively on current Debian Stable on the
+dedicated tower, without a desktop unless hardware evidence requires one.
+`systemd` supervises the controller, low-priority Rust research, bounded model
+invocations, the selected channel adapter, health, and backup. Hot state requires SSD/NVMe; HDD is for
+cold archive/backup. Research may use all spare compute, but verified data,
+signal generation, Active recertification, recovery, and alerts preempt it.
+
+This does not supersede D58: exact hardware purchase and numerical throughput are
+still not Gold or completion gates. Worker count, batch size, RAM cap, and thermal
+ceiling are measured on the actual tower.
+
+**Why.** A minimal native Linux host provides predictable resources, durable
+service supervision, headless operation, and clearer OS permission boundaries.
+The benefit is primarily simplicity and stability; it does not replace Rust
+profiling or make the OS itself part of strategy evidence.
+
+### D61 — Montauk owns Slack and scheduling; remote repair is a separate path (REFINED by D63)
+
+**Call.** One private custom Montauk Slack app initially uses Socket Mode to the
+Debian host. Its typed bridge renders the deterministic outbox and accepts only
+the charter's exact allowlisted commands from Max's stable user/channel IDs. The
+controller—not Slack and not the model—queues, validates, audits, and commits
+each mutation. Free-form chat remains explanatory/advisory and may create a
+bounded, thread-linked agent task with read-only Montauk views and candidate-
+workspace access; it does not create protected maintenance authority.
+
+Durable model calls are bounded one-shot jobs triggered by `systemd`, not an
+interactive provider loop. Tailscale plus SSH is the independent administration
+and recovery path. Claude Remote Control or an equivalent provider feature may
+be used for a deliberately launched local repair session, but it is not the
+scheduler or authority layer. Direct Claude-in-Slack is not the Montauk bridge.
+
+**Why.** This makes the daily relationship conversational and easy while
+preserving recovery when Slack or the model is down and making the number-one
+agent rule mechanically enforceable.
+
+### D62 — Borrow OpenClaw's gateway patterns, not its authority or blast radius
+
+**Call.** Montauk is **OpenClaw-like in interaction, not OpenClaw-dependent in
+authority**. It borrows one gateway boundary, typed messages, stable thread/
+session routing, per-session serialization and global backpressure, distinct
+scheduled/health/event mechanisms, a durable task ledger, immediate run status,
+idempotency, private remote access, scoped identities, and health/doctor/audit
+patterns.
+
+OpenClaw is not a required 3.0 dependency and may not own Montauk's queue truth,
+methodology, backtest, validator, Gold, leaderboard, signal, Active state, or
+audit. General computer control, broad shell/tool access, plugin/skill sprawl,
+inferred conversational authority, multi-channel/multi-agent breadth, and
+provider-hosted memory do not enter 3.0 merely because OpenClaw supports them.
+If trialed later, OpenClaw is a replaceable outer adapter under the no-core-write
+agent identity or stricter container.
+
+OpenClaw's current ACP path is not accepted as containment: its documentation
+states that external ACP agents execute on the host under the external CLI's
+permissions rather than inside OpenClaw's sandbox. A candidate-only working
+directory is therefore organization, not security; OS/container capabilities
+must enforce the Montauk boundary.
+
+**Why.** OpenClaw has good solutions to conversational routing and long-lived
+agent operation, but Montauk needs a much smaller trusted computing base. The
+useful UX does not justify importing a general-purpose agent's blast radius.
+
+### D63 — One channel contract; Slack is the default and Buzz must earn replacement
+
+**Call.** Montauk owns one provider-neutral typed conversation-channel adapter
+and runs only one primary provider in production. Slack Socket Mode is the
+conservative commissioning default, not a permanent product dependency. Before
+full channel implementation, a time-boxed Slack-versus-Buzz bake-off may select
+Buzz if it is at least as reliable for Max's phone, daily digest, and critical
+alerts; passes the identical identity, typed-confirmation, expiry, replay,
+idempotency, restart, and no-core-authority tests; and earns its greater
+self-hosting/operations burden through materially better thread and agent
+continuity. Max makes the final UX choice from the evidence. The rejected
+adapter is not left running as a second command path.
+
+Buzz's signed identities/events, hash-chained relay receipts, searchable rooms,
+JSON CLI, and ACP support are useful outer-channel properties. They do not make
+Buzz an authority. Its relay/workflow/audit state cannot replace Montauk's
+controller ledger, and its shell/file agent receives no protected credential or
+write capability. A Buzz trial must account for its pre-1.0 status, unfinished
+mobile/push/approval features, relay/PostgreSQL/Redis/object-store operations,
+TLS/private-network setup, absent enforced rate limiting in the current
+architecture, and operator-trust-level shell. Same-host resource impact is
+measured under saturated Rust research.
+
+**Why.** Buzz may fit the desired “talk to the resident agent in its own room”
+experience better than Slack, but adopting both would create the exact parallel
+authority and needless operational complexity 3.0 is trying to remove. A single
+adapter seam lets evidence—not novelty—choose the outer UX while keeping the
+deterministic controller unchanged.
+
+### D64 — The rewrite preserves required truth, not every legacy strategy
+
+**Call.** Montauk 3.0 is a rewrite whose active folder is the planning authority.
+Legacy code, tests, scores, thresholds, folder structure, and Gold rows are
+migration evidence, not blanket compatibility requirements. Rust parity before
+cutover is required for the legacy Active strategy needed for safe shadowing,
+the matched B&H/execution reference, the final validator's controls and
+benchmarks, and any legacy strategy Max explicitly selects as a migration
+candidate. The implementation does not have to reconstruct every historical
+Gold strategy or old pipeline surface.
+
+No old row is grandfathered. An explicitly migrated legacy candidate receives a
+new immutable identity and must pass the complete current 3.0 contract before it
+can join the current board. Old rows that are not migrated remain historical
+evidence without consuming rewrite scope.
+
+**Why.** Reproducing every old implementation would preserve accidental
+architecture and slow the clean Rust conveyor without improving Gold. Safe
+cutover requires continuity for the actual trusted signal and reference
+controls—not a compatibility museum.
+
 ## Calibration / implementation work still required
 
-- freeze the executable notification-to-fill and matched-B&H contract;
-- calibrate the fixed real/recent/rolling horizons, provisional ~1.10 margin,
-  uncertainty floor, and rolling demotion operating characteristics;
-- independently recalibrate the synthetic construction and any weight/veto;
+- calibrate slippage/fees from market evidence within the fixed next-open,
+  $10,000–$100,000 modeled-order, and matched-B&H contract;
+- calibrate the rolling aggregate/catastrophic rule, provisional 1.10
+  point-estimate margin, lower bound above 1.0, and rolling demotion behavior;
+- choose expanding versus fixed rolling windows for required nested
+  rolling-origin reconstruction; prove when CPCV is applicable, adequately
+  powered, and incremental; and freeze interval-derived purge/embargo rules;
+- freeze the source-labelled named-moment suite and calibrated diagnostic/veto
+  semantics;
+- independently recalibrate the synthetic construction using time-separated
+  XLK-model-versus-real-TECL overlap blocks and decide any diagnostic weight/veto;
 - choose and independently audit the hierarchical/board/lifetime multiplicity
-  method;
+  method and daily certification-epoch artifact;
+- map the annual any-false-Gold versus planted-signal-recovery frontier around
+  the aspirational 1% reference;
 - define and calibrate Validation Score against explicit controls and forward
   outcomes;
+- calibrate the `leader not clearly separated` rule;
 - implement and prove the signed-core seal, sandbox/module acceptance suite,
-  zero-silent-loss storage/restore plan, and exact acceptance matrix; and
-- profile the Rust evaluator and target hardware after correctness fixtures pass.
+  zero-silent-loss storage/restore plan, and exact acceptance matrix;
+- commission the minimal Debian/`systemd` service topology, SSD hot-storage and
+  resource-preemption policy, Tailscale/SSH recovery path, bounded provider
+  adapter, and one selected private typed channel under the dedicated operations
+  [plan](debian-host-agent-and-channel-operations.md), including the bounded
+  Slack/Buzz bake-off.
 
-These are bounded studies and engineering deliverables under D28–D41. They are
+These are bounded studies and engineering deliverables under D28–D64. They are
 not unresolved owner authority that a coding agent may fill in implicitly.

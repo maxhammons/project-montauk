@@ -1,0 +1,411 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2870
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica-Bold;\f1\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1080\margr1080\margb1080\margt1080\vieww12000\viewh15840\viewkind0
+\deftab720
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\pardirnatural\partightenfactor0
+
+\f0\b\fs32 \cf0 Questionnaire 5 - Remaining 3.0 Decisions and Research Mandate
+\f1\b0\fs24 \
+\
+Montauk's product vision is sufficiently specified to begin Phase 1. This questionnaire captures the small number of practical facts only Max can supply, confirms the research Montauk must perform, and defines which later decisions must come back to Max with evidence. It does not ask Max to choose statistical algorithms blindly.\
+\
+
+\f0\b How to answer.
+\f1\b0  Plain language is enough. For any question where the recommendation matches your intent, write "Use the suggested answer." If a technical term remains unclear, describe the real-world outcome you want; the reviewing agent must translate it without attributing statistical expertise or wording to you that you did not provide.\
+\
+
+\f0\b Workflow note.
+\f1\b0  After Max completes this round, the reviewing agent must update the charter, decision log, README, validation hardening plan, idea-to-Gold pipeline, and every other affected Montauk 3.0 document before preparing a coding handoff. This completed file remains unchanged as source evidence.\
+\
+
+\f0\b\fs28 Part A - Practical facts and decisions to answer now
+\f1\b0\fs24 \
+\
+
+\f0\b 1. Which account will be the primary account Montauk 3.0 is designed to trade?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0  Taxes can change whether actively moving in and out of TECL actually beats holding TECL. Montauk is personal software, so it should model the account Max will really use instead of pretending every account is the same. No balance or account number is needed.\
+
+\f0\b Suggested answer.
+\f1\b0  Name one primary 3.0 account by jurisdiction and tax treatment, for example "US tax-advantaged retirement account" or "US taxable brokerage account." If Montauk may be used in both, identify which one controls Gold certification in 3.0 and leave multiple account profiles for later.\
+
+\f0\b Reasoning.
+\f1\b0  One primary account keeps Gold's economic promise simple. A taxable account may need a materially different performance test from a retirement account.\
+
+\f0\b Max's answer.\
+
+\f1\b0 Tax advantaged. Dont worry about this. Out of scope for project montauk 3.0\
+\
+\
+
+\f0\b 2. If the primary account is taxable, should Gold have to beat B&H after a conservative tax model?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0  A strategy can beat B&H before tax while losing after short-term capital-gains tax, dividend treatment, wash-sale effects, or lot accounting. "Better when followed" should mean better in the account where it is followed.\
+
+\f0\b Suggested answer.
+\f1\b0  Yes. Require both net-of-cost pre-tax outperformance and conservative after-tax outperformance for the primary taxable account. If the primary account is tax-advantaged, mark this not applicable. Freeze the tax jurisdiction, tax-rate assumptions, lot method, and version; never let the research agent tune them for a winner.\
+
+\f0\b Reasoning.
+\f1\b0  Taxes are part of realized performance, but only when they actually apply. A fixed conservative model protects Gold without turning personal tax planning into a strategy parameter.\
+
+\f0\b Max's answer.
+\f1\b0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\pardirnatural\partightenfactor0
+\cf0 Dont worry about this. Out of scope for project montauk 3.0\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \
+
+\f0\b 3. How will Max actually execute a next-open position change?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0  The current contract assumes Montauk sends an after-close signal and Max obtains the next regular-session opening price. That is realistic only if Max places an order intended to participate at the open. A manual order entered later in the morning cannot honestly be backtested at the official opening print.\
+
+\f0\b Suggested answer.
+\f1\b0  Use a market-on-open order after the evening signal if the broker supports it reliably. If Max instead intends to trade after the open, state the realistic time or window and replace the opening-price contract with a conservative model of that workflow.\
+
+\f0\b Reasoning.
+\f1\b0  The backtest must model an action Max can repeat. Choosing the workflow now prevents an impossible fill from becoming Gold evidence.\
+
+\f0\b Max's answer.
+\f1\b0 \
+Your answer is good. So I will submit orders after close for execution on market open the next day\
+\
+
+\f0\b 4. What maximum normal order-size band should the execution study model?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0  Spread, slippage, opening-auction behavior, and partial-fill risk depend on order size. Montauk does not need an exact account balance, but it needs a conservative scale.\
+
+\f0\b Suggested answer.
+\f1\b0  Choose the smallest band that safely covers the largest expected normal TECL order:\
+\pard\tx720\pardeftab720\li720\fi-360\pardirnatural\partightenfactor0
+\cf0 \'95	Under $100,000\
+\'95	$100,000 to $500,000\
+\'95	$500,000 to $1 million\
+\'95	Above $1 million\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\pardirnatural\partightenfactor0
+
+\f0\b \cf0 Reasoning.
+\f1\b0  A band provides enough information for a defensible cost model without recording private financial details.\
+
+\f0\b Max's answer.
+\f1\b0 \
+Your answer is good\
+\
+
+\f0\b 5. What happens to sale proceeds while Montauk is risk-off?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0  The current Gold comparison assumes risk-off cash earns zero. A brokerage sweep may earn interest automatically; deliberately buying another fund would introduce another traded asset and more rules.\
+
+\f0\b Suggested answer.
+\f1\b0  Keep zero-return cash as the conservative 3.0 Gold assumption. Show actual automatic brokerage-sweep income as a diagnostic when reliable records exist. Do not add an actively traded cash substitute in 3.0.\
+
+\f0\b Reasoning.
+\f1\b0  Zero return understates rather than invents strategy performance and preserves the TECL-only boundary.\
+
+\f0\b Max's answer.
+\f1\b0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\pardirnatural\partightenfactor0
+\cf0 Your answer is good. Short term bonds (SGOV) is an interesting alternative but lets stick to 0 return by default\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \
+
+\f0\b 6. Will Max record the actual time and price of each manual Montauk trade?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0  Literature cannot establish whether Montauk's modeled fill matches Max's real execution. A small live record can compare the instruction, modeled fill, submitted order, and actual fill without automating brokerage.\
+
+\f0\b Suggested answer.
+\f1\b0  Yes. Use one short authenticated app or Slack acknowledgement tied to the exact instruction, with executed/deferred/not-executed status and optional time, price, and quantity. Keep brokerage execution manual.\
+
+\f0\b Reasoning.
+\f1\b0  This turns execution realism into measurable evidence while adding very little recurring work.\
+
+\f0\b Max's answer.
+\f1\b0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\pardirnatural\partightenfactor0
+\cf0 Dont worry about this. Out of scope for project montauk 3.0\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \
+
+\f0\b 7. What independent review must occur before Max trusts 3.0 Gold with real money?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0  "Best knowledge available from AI, scholars, and market experts" needs an operational meaning. A second model can find errors cheaply, but models can share blind spots. A human specialist costs more but provides genuinely different scrutiny.\
+
+\f0\b Suggested answer.
+\f1\b0  Require adversarial review by a separate frontier model throughout Phase 1 and one independent human review of the final Gold methodology by someone qualified in quantitative backtesting or applied statistics before live trust. The reviewer evaluates the methodology and control evidence, not every strategy.\
+
+\f0\b Reasoning.
+\f1\b0  This is the smallest review standard that honestly includes both AI-assisted research and outside human expertise.\
+
+\f0\b Max's answer.
+\f1\b0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\pardirnatural\partightenfactor0
+\cf0 Dont worry about this. Out of scope for project montauk 3.0\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \
+
+\f0\b\fs28 Part B - Confirm the Phase 1 research mandate
+\f1\b0\fs24 \
+\
+
+\f0\b 8. Should proving the Gold exam remain the first priority before autonomous strategy generation and speed work?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0  A faster strategy factory amplifies whatever grader it is given. If the Gold exam is wrong, testing more configurations increases false confidence rather than useful knowledge.\
+
+\f0\b Suggested answer.
+\f1\b0  Yes. Phase 1 proves the data, execution, B&H, validation, search-honesty, and reproduction contracts before Montauk enables high-volume autonomous ideation. Limited prototype strategies may be used as controls.\
+
+\f0\b Reasoning.
+\f1\b0  The examiner must be trustworthy before the search is scaled.\
+
+\f0\b Max's answer.
+\f1\b0 \
+\
+\
+
+\f0\b 9. Should continual adaptive search and multiple-testing control be the highest-priority statistical research?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0  Montauk may test millions or billions of related configurations and let an agent learn from prior failures. A strategy can appear exceptional by luck when the entire search history is ignored. This is a broader problem than an ordinary walk-forward test on one final row.\
+
+\f0\b Suggested answer.
+\f1\b0  Yes. Phase 1 must compare defensible family, daily-cohort, board, and lifetime search corrections, including online/adaptive methods, on Montauk-specific controls. It must count feedback and revealed holdouts without pretending correlated near-twins are independent trials.\
+
+\f0\b Reasoning.
+\f1\b0  This is the central scientific risk created by Montauk's continual-search vision.\
+
+\f0\b Max's answer.
+\f1\b0 \
+Your answer is good\
+\
+
+\f0\b 10. Must Montauk experimentally validate the validator itself?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0  A long list of respected tests can still be implemented incorrectly, have no power with TECL's limited history, admit lucky strategies, or reject every genuinely useful low-frequency strategy.\
+
+\f0\b Suggested answer.
+\f1\b0  Yes. Run the complete pipeline in controlled worlds containing no signal, planted signal, regime change, low trade counts, event memorization, lookahead, impossible fills, and huge groups of behavioral duplicates. Measure both false Gold and false rejection before freezing the validator.\
+
+\f0\b Reasoning.
+\f1\b0  This is how Montauk establishes that its certificate means what it claims rather than merely citing respected methods.\
+
+\f0\b Max's answer.
+\f1\b0 \
+Your answer is good. Every step of this needs to be proven and tested\
+\
+
+\f0\b 11. Must Phase 1 perform a TECL-specific data and product study?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0  TECL is a daily-reset leveraged ETF. Its long-term path, expenses, distributions, splits, tracking, and financing behavior cannot be inferred by simply multiplying an index return by three. Real TECL also did not exist for the 2001 episode or most of 2008.\
+
+\f0\b Suggested answer.
+\f1\b0  Yes. Verify observed TECL prices, splits, distributions, total-return B&H, product expenses, point-in-time inputs, and the real/synthetic seam. Rebuild and overlap-test the synthetic pre-inception series. Keep every pre-inception event explicitly reconstructed and diagnostic.\
+
+\f0\b Reasoning.
+\f1\b0  Statistical sophistication cannot rescue incorrect underlying data or an invalid leveraged-ETF model.\
+
+\f0\b Max's answer.
+\f1\b0 \
+Yes your answer is good. One thing that I did not do with the synthetic data and should be done to make sure it is correct is essentially kind of a walk forward into the actual dataset for TECL. So I was using XLK before TECl was available so how does XLK (x3) compare to TECL after TECL originated? This would give us clues on if the synthetic data was created correctly. Ultimately I want to be as sure as possible that the synthetic TECL data is as accurate as possible to how TECL would have performed. Obviously we can never perfectly know but we can accurately guesstimate.\
+\
+
+\f0\b 12. Must Phase 1 empirically study execution rather than adopt a generic slippage number?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0  The actual edge depends on obtainable fills. TECL spread, opening behavior, order size, broker handling, missed orders, and market stress can make a paper result materially different from a followed result.\
+
+\f0\b Suggested answer.
+\f1\b0  Yes. Study historical open/spread behavior at the chosen size band, apply conservative stress assumptions, and begin comparing the frozen model with Max's live fills as they accumulate.\
+
+\f0\b Reasoning.
+\f1\b0  Execution research directly tests the phrase "better when followed."\
+
+\f0\b Max's answer.
+\f1\b0 \
+Your answer is good \
+\
+
+\f0\b 13. Must a separate implementation reproduce every Gold verdict?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0  One implementation can be internally consistent and still share a systematic bug across signals, fills, B&H, and validation. Compilation checks syntax and types, not economic or statistical correctness.\
+
+\f0\b Suggested answer.
+\f1\b0  Yes. A separate reference implementation must reproduce signals, positions, fills, trades, daily wealth, B&H comparison, and the final verdict from immutable inputs. Differences fail closed until explained.\
+
+\f0\b Reasoning.
+\f1\b0  Independent reproduction is one of the strongest practical defenses against implementation error and AI-generated pipeline mistakes.\
+
+\f0\b Max's answer.
+\f1\b0 \
+Yes. Your answer is good\
+\
+
+\f0\b 14. Should broad literature collection stop unless a source addresses a named Montauk gap?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0  The existing research already establishes that chronology, multiple testing, parameter fragility, realistic costs, and forward evidence matter. More general lists of tests can create a larger but less coherent validator.\
+
+\f0\b Suggested answer.
+\f1\b0  Yes. Future research must name the Montauk failure mode it addresses, use primary sources where possible, and produce a testable consequence. A method enters Gold only if Montauk's control study shows valid assumptions and incremental protection.\
+
+\f0\b Reasoning.
+\f1\b0  The next gains will come from Montauk-specific experiments and independent review, not collecting additional test names.\
+
+\f0\b Max's answer.
+\f1\b0 \
+Your answer is correct\
+\
+
+\f0\b\fs28 Part C - Decisions intentionally deferred until Phase 1 produces evidence
+\f1\b0\fs24 \
+\
+
+\f0\b 15. How should Phase 1 present technical decisions to Max?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0  Questionnaire 4 showed that asking Max to select statistical machinery directly is not useful. Max needs to understand the consequence, confidence, and tradeoff without becoming the statistician implementing the method.\
+
+\f0\b Suggested answer.
+\f1\b0  For each decision, provide a one-page plain-English recommendation first: what problem it solves, what the controls showed, false-Gold and false-rejection consequences, known limits, and the recommended choice. Put formulas, papers, and implementation details in an appendix. Max approves or rejects the package.\
+
+\f0\b Reasoning.
+\f1\b0  This preserves informed human authority without shifting technical design work onto Max.\
+
+\f0\b Max's answer.
+\f1\b0 \
+Simply explain it to me. Simple terms and maybe use a simple example\
+\
+
+\f0\b 16. Should Max choose the final performance margin only after seeing Phase 1 results?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0  The current 1.10 times B&H point-estimate margin is a starting hypothesis. A wider margin may reject nearly everything; a narrow margin may admit noise. The uncertainty lower bound has a separate role.\
+
+\f0\b Suggested answer.
+\f1\b0  Yes. Phase 1 compares plausible margins and lower-bound rules on null and planted-signal controls. It recommends the smallest threshold that represents meaningful deployable improvement while meeting the chosen false-Gold standard. Max then approves it. Do not tune it to keep the current champion.\
+
+\f0\b Reasoning.
+\f1\b0  The economic hurdle should reflect measured reliability, not an attractive round number.\
+
+\f0\b Max's answer.
+\f1\b0 \
+Yes but we can fine tune after \
+\
+
+\f0\b 17. Should Max choose the final false-Gold tolerance only after seeing the false-rejection cost?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0  Making false Gold extremely rare can also make Gold practically impossible. The current 1 percent annual probability of any false Gold is an aspirational reference, not a proven achievable threshold.\
+
+\f0\b Suggested answer.
+\f1\b0  Yes. Phase 1 plots the whole-appliance tradeoff between any false Gold during a simulated year of continuous search and recovery of meaningful planted signals. Show 1 percent as the reference. Max chooses the final operating point from that frontier.\
+
+\f0\b Reasoning.
+\f1\b0  This lets Max express the real preference - false Gold is worse - after seeing what additional strictness costs.\
+
+\f0\b Max's answer.
+\f1\b0 \
+Your answer is good\
+\
+
+\f0\b 18. Should the research team recommend one minimal validation package rather than ask Max to choose CPCV, window lengths, or correction formulas?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0  Expanding versus rolling history, CPCV applicability, purge and embargo, behavioral parameter plateaus, and search-wide correction are technical design questions. Adding every method is not automatically safer.\
+
+\f0\b Suggested answer.
+\f1\b0  Yes. Phase 1 recommends the smallest package that covers all five Gold planks with measured power and acceptable error behavior. Max reviews its plain-English promise and limitations and approves the package as a whole.\
+
+\f0\b Reasoning.
+\f1\b0  Max should own the standard of trust, while the evidence determines the machinery used to meet it.\
+
+\f0\b Max's answer.
+\f1\b0 \
+Your answer is good\
+\
+
+\f0\b 19. Should activation, recertification, ranking, and switch thresholds remain provisional until tested?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0  The current plan uses defaults such as 20 forward bars before normal activation, periodic board renewal, recommendation persistence, and minimum score improvements. These values affect stale risk and notification churn but are not articles of faith.\
+
+\f0\b Suggested answer.
+\f1\b0  Yes. Phase 1 or commissioning tests their behavior and returns one recommended operating table. Max approves the final waiting period, renewal schedule, ranking-ambiguity rule, and recommendation-switch thresholds.\
+
+\f0\b Reasoning.
+\f1\b0  These are consequential owner settings, but they are easier to judge after seeing how often the alternatives trigger, churn, or leave stale evidence.\
+
+\f0\b Max's answer.
+\f1\b0 \
+Your answer is good\
+\
+
+\f0\b 20. Should hardware, provider, and throughput decisions wait for correctness-first benchmarks?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0  The final machine, frontier-model provider, token cost, database layout, and Rust optimization depend on measured workload. Choosing hardware from an imagined strategies-per-hour number can waste money or distort the design.\
+
+\f0\b Suggested answer.
+\f1\b0  Yes. Build representative correct workloads first, benchmark the target-class machines, and return expected sustained throughput, storage growth, power/thermal behavior, provider cost, and bottlenecks. Max then chooses the production hardware and provider budget.\
+
+\f0\b Reasoning.
+\f1\b0  Correctness determines what work must be done; profiling determines how to do it efficiently.\
+
+\f0\b Max's answer.
+\f1\b0 \
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\pardirnatural\partightenfactor0
+\cf0 Dont worry about this. Out of scope for project montauk 3.0\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \
+
+\f0\b 21. Is any important part of the intended real-world relationship with Montauk still missing?
+\f1\b0 \
+
+\f0\b Context.
+\f1\b0  The current contract is: Montauk works continuously, sends a quiet daily summary, alerts on failures or material changes, recommends but does not normally activate a new leader, and leaves every brokerage trade to Max.\
+
+\f0\b Suggested answer.
+\f1\b0  If that description is complete, answer "No; use the current contract." Otherwise describe the missing real-world outcome without proposing implementation details.\
+
+\f0\b Reasoning.
+\f1\b0  This final check catches a product-level omission without reopening already-settled statistical and engineering machinery.\
+
+\f0\b Max's answer.
+\f1\b0 \
+\
+\
+
+\f0\b End of Questionnaire 5.
+\f1\b0 \
+}

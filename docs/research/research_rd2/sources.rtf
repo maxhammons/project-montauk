@@ -1,0 +1,833 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2870
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 HelveticaNeue;\f1\fnil\fcharset0 HelveticaNeue-Medium;}
+{\colortbl;\red255\green255\blue255;\red88\green94\blue109;\red255\green255\blue255;\red24\green30\blue42;
+\red247\green249\blue250;}
+{\*\expandedcolortbl;;\cssrgb\c41961\c44706\c50196;\cssrgb\c100000\c100000\c100000;\cssrgb\c12157\c16078\c21569;
+\cssrgb\c97647\c98039\c98431;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs26 \cf2 \cb3 \expnd0\expndtw0\kerning0
+Based on your research question, below are some of the top sources we\'92ve found\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-284803775?hideSummaryItems=1"}}{\fldrslt 
+\f1 \cf4 \cb5 The GT-Score: A Robust Objective Function for Reducing Overfitting in Data-Driven Trading Strategies}}\cf4 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Alexander Sheppert\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Journal of Risk and Financial Management \'b7 2026 \'b7 1 citation\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Overfitting remains a critical challenge in data-driven financial modelling, where machine learning (ML) systems learn spurious patterns in historical prices and fail out of sample and in deployment. This paper introduces the GT-Score, a composite objective function that integrates performance, statistical significance, consistency, and downside risk to guide optimization toward more robust trading strategies. This approach directly addresses critical pitfalls in quantitative strategy development, specifically data snooping during optimization and the unreliability of statistical inference under non-normal return distributions. Using historical stock data for 50 S&P 500 companies spanning 2010\'962024, we conduct an empirical evaluation that includes walk-forward validation with nine sequential time splits and a Monte Carlo study with 15 random seeds across three trading strategies. In walk-forward validation, GT-Score improves the generalization ratio (validation return divided by training return) by 98% relative to baseline objective functions. Paired statistical tests on Monte Carlo out-of-sample returns indicate statistically detectable differences between objective functions (p < 0.01 for comparisons with Sortino and Simple), with small effect sizes. These results suggest that embedding an anti-overfitting structure into the objective can improve the reliability of backtests in quantitative research.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-152282221?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Avoiding Backtesting Overfitting by Covariance-Penalties: An Empirical Investigation of the Ordinary and Total Least Squares Cases}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Adriano Soares Koshiyama, Nikan B. Firoozye\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 The Journal of Financial Data Science \'b7 2019 \'b7 9 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Systematic trading strategies are rule-based procedures that choose portfolios and allocate assets. To attain certain desired return profiles, quantitative strategists must determine a large array of trading parameters. Backtesting, the attempt to identify the appropriate parameters using historical data available, has been highly criticized because of its abundance of misleading results. Hence, there is increasing interest in devising procedures for the assessment and comparison of strategies (i.e., devising schemes for preventing what is known as backtesting overfitting). So far, many financial researchers have proposed different ways to tackle this problem that can be broadly categorized into three types: data snooping, overestimated performance, and cross-validation evaluation. In this article, the authors propose a new approach to dealing with financial overfitting, a covariance-penalty correction, in which a risk metric is lowered given the number of parameters and amount of data used to underpin a trading strategy. They outline the foundation and main results behind the covariance-penalty correction for trading strategies. After that, the authors pursue an empirical investigation and compare its performance with some other approaches in the realm of covariance-penalties across more than 1,300 assets, using ordinary and total least squares. Their results suggest that covariance-penalties are a suitable procedure to avoid backtesting overfitting, and total least squares provides superior performance when compared to ordinary least squares. TOPICS: Statistical methods, simulations, big data/machine learning Key Findings \'95 A literature review of backtest overfitting, putting in perspective the different approaches available. \'95 A new Covariance-Penalty formula to correct Sharpe ratios based on the number of parameters in a model. \'95 An empirical investigation across 1300 assets, using ordinary and total least squares, comparing our technique with others from the Covariance-Penalty literature.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-267037762?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Backtest overfitting in the machine learning era: A comparison of out-of-sample testing methods in a synthetic controlled environment}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Hamidreza Arian, Daniel Norouzi Mobarekeh, Luis A. Seco\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Knowledge-Based Systems \'b7 2024 \'b7 5 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 This research explores the integration of advanced statistical models and machine learning in financial analytics, representing a shift from traditional to advanced, data-driven methods. We address a critical gap in quantitative finance: the need for robust model evaluation and out-of-sample testing methodologies, particularly tailored cross-validation techniques for financial markets. We present a comprehensive framework to assess these methods, considering the unique characteristics of financial data like non-stationarity, autocorrelation, and regime shifts. Through our analysis, we unveil the marked superiority of the Combinatorial Purged (CPCV) method in mitigating overfitting risks, outperforming traditional methods like K-Fold, Purged K-Fold, and especially Walk-Forward, as evidenced by its lower Probability of Backtest Overfitting (PBO) and superior Deflated Sharpe Ratio (DSR) Test Statistic. Walk-Forward, by contrast, exhibits notable shortcomings in false discovery prevention, characterized by increased temporal variability and weaker stationarity. This contrasts starkly with CPCV's demonstrable stability and efficiency, confirming its reliability for financial strategy development. The analysis also suggests that choosing between Purged K-Fold and K-Fold necessitates caution due to their comparable performance and potential impact on the robustness of training data in out-of-sample testing. Our investigation utilizes a Synthetic Controlled Environment incorporating advanced models like the Heston Stochastic Volatility, Merton Jump Diffusion, and Drift-Burst Hypothesis, alongside regime-switching models. This approach provides a nuanced simulation of market conditions, offering new insights into evaluating cross-validation techniques. Our study underscores the necessity of specialized validation methods in financial modeling, especially in the face of growing regulatory demands and complex market dynamics. It bridges theoretical and practical finance, offering a fresh outlook on financial model validation. Highlighting the significance of advanced cross-validation techniques like CPCV, our research enhances the reliability and applicability of financial models in decision-making.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-156366677?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 All That Glitters Is Not Gold: Comparing Backtest and Out-of-Sample Performance on a Large Cohort of Trading Algorithms}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Thomas V. Wiecki, Andrew Campbell, J. Lent, and 1 more\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Journal of Investing \'b7 2016 \'b7 18 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 When automated trading strategies are developed and evaluated using backtests on historical pricing data, there exists a tendency to overfit to the past. Using a unique dataset of 888 algorithmic trading strategies developed and backtested on the Quantopian platform, with at least six months of out-of-sample performance, this article studies the prevalence and impact of backtest overfitting. Specifically, the authors find that commonly reported backtest evaluation metrics, such as the Sharpe ratio, offer little value in predicting out-of-sample performance (R 2 < 0.025). In contrast, higher-order moments, such as volatility and maximum drawdown, as well as portfolio construction features (e.g., hedging), show significant predictive value of relevance to quantitative finance practitioners. Moreover, in line with prior theoretical considerations, the authors find empirical evidence of overfitting\'97the more backtesting a quant has done for a strategy, the larger the discrepancy between backtest and out-of-sample performance. Finally, they show that by training nonlinear, machine-learning classifiers on a variety of features that describe backtest behavior, out-of-sample performance can be predicted with much greater accuracy (R 2 = 0.17) on hold-out data than when using linear, univariate features. A portfolio constructed by using predictions on hold-out data performed significantly better out-of-sample than one constructed from algorithms with the highest backtest Sharpe ratios.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-286424292?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 AlgoXpert Alpha Research Framework: A Rigorous IS-WFA-OOS Protocol for Mitigating Overfitting in Quantitative Strategies}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 The Anh Pham, Bao Nguyen, N. Thi\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Social Science Research Network \'b7 2026 \'b7 0 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Transitioning a strategy from backtest to live operation is where many quantitative trading systems fail, primarily due to parameter overfitting, selection bias, and fragility under regime shifts. This paper proposes the AlgoXpert Alpha Research Framework-a standardized, decision-oriented protocol that evaluates strategies across three chronological stages: (i) In-Sample (IS), which prioritizes stable parameter regions (plateaus) over single optima; (ii) Walk-Forward Analysis (WFA) with rolling windows and purge gaps to mitigate information leakage, equipped with majority-pass and catastrophic-veto decision gates; and (iii) Out-of-Sample (OOS) holdout under strict parameter lock (no further tuning). The framework integrates a defense-in-depth architecture: structural (cliff veto), execution (spread/leverage guards), and equity protection (circuit breakers, kill switch). A case study on USDJPY M5 intraday illustrates the procedure for detecting overfitting through performance degradation and drawdown integrity under chronology. A post-validation report comparing four alpha variants (v1-v4) reveals rank reversal when switching the objective from maximizing Sharpe to minimizing MaxDD, underscoring the trade-off between risk-adjusted performance and tail-risk control.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-157643407?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 A Bayesian Approach to Backtest Overfitting}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 J. Witzany\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 2017 \'b7 4 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Quantitative investment strategies are often selected from a broad class of candidate models estimated and tested on historical data. Standard statistical technique to prevent model overfitting such as out-sample back-testing turns out to be unreliable in the situation when selection is based on results of too many models tested on the holdout sample. There is an ongoing discussion how to estimate the probability of back-test overfitting and adjust the expected performance indicators like Sharpe ratio in order to reflect properly the effect of multiple testing. We propose a consistent Bayesian approach that consistently yields the desired robust estimates based on an MCMC simulation. The approach is tested on a class of technical trading strategies where a seemingly profitable strategy can be selected in the naive approach.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-234136080?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 A Bayesian Approach to Measurement of Backtest Overfitting}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 J. Witzany\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Risks \'b7 2021 \'b7 1 citation\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Quantitative investment strategies are often selected from a broad class of candidate models estimated and tested on historical data. Standard statistical techniques to prevent model overfitting such as out-sample backtesting turn out to be unreliable in situations when the selection is based on results of too many models tested on the holdout sample. There is an ongoing discussion of how to estimate the probability of backtest overfitting and adjust the expected performance indicators such as the Sharpe ratio in order to reflect properly the effect of multiple testing. We propose a consistent Bayesian approach that yields the desired robust estimates on the basis of a Markov chain Monte Carlo (MCMC) simulation. The approach is tested on a class of technical trading strategies where a seemingly profitable strategy can be selected in the na\'efve approach.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-235496166?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Data selection to avoid overfitting for foreign exchange intraday trading with machine learning}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Yuan-Long Peng, Wei-Po Lee\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Applied Soft Computing \'b7 2021 \'b7 17 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Algorithmic trading requires tuning hyperparameters to fit the time series data; however, it often suffers from overfitting of data that can lead to loss of money in action. Further, only a few studies discuss how to select trading exchange pairs and frequencies in response to the fitness of machine learning models. To cope with these problems, we developed a log-distance path loss model (to measure and reduce the overfitting in data modeling and determine exchange pairs and frequencies effectively. We conducted several experiments for different metrics using several influential factors such as machine learning models, learning objectives, trading strategies, and hyperparameter turning cases to validate the proposed approach. The obtained results indicate that the proposed metric is significantly superior to other methods in terms of accuracy, in-sample return (i.e., return of training data), and F1-score. Thus, using our path loss metric to guide data modeling, we provide a method to deal with the overfitting problem and yield positive trading returns.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-268431604?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 On the design of searching algorithm for parameter plateau in quantitative trading strategies using particle swarm optimization}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Jimmy Ming-Tai Wu, Wen-Yu Lin, Ko-Wei Huang, and 1 more\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Knowledge-Based Systems \'b7 2024 \'b7 7 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Quantitative trading, relying on diverse parameter combinations, is becoming increasingly the norm for trading strategies in financial investments. The performance of these strategies is intricately linked to these parameters. However, the performance on the training set after backtesting does not ensure success on a test set and may lead to overfitting. This study emphasizes enhancing stability and robustness in trading-strategy parameters by introducing a \'92parameter plateau.\'92 Traditional brute-force methods for exploring high-dimensional parameter spaces can be intricate and time-consuming. To address this challenge, we present an efficient alternative that identifies stable and robust parameters by configuring parameter plateaus to mitigate overfitting risks. A step-by-step search algorithm is proposed to determine the optimal parameters, leveraging the power of particle-swarm optimization. In continuous, multi-dimensional solution spaces, particle-swarm optimization is invaluable for the swift and effective discovery of the desired solutions. Experiments underscore the substantial influence of the parameter plateau concept on parameter selection, highlighting the pivotal role of particle-swarm optimization in efficiently navigating complex solution spaces and thereby enabling the discovery of stable and profitable trading strategies.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-276453712?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Future Trends in Quantitative Finance and Algorithmic Trading Strategies}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 K. Sahithi, Nagandla Venkatesh Chowdary, Devannawar Amruta, and 1 more\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 2024 International Conference on Sustainable Islamic Business and Finance (SIBF) \'b7 2024 \'b7 2 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 The last several decades have witnessed tremendous changes in algorithmic trading and quantitative finance due to advances in data analytics, computing capacity, and technology. This study examines how these industries will evolve in the future while providing a thorough overview of recent advancements and upcoming trends. The paper starts with a historical review that traces the development of algorithmic trading methods and quantitative finance, emphasizing significant turning points and technical innovations. We examine the latest developments in high-frequency trading (HFT), the use of big data analytics, and the fusion of artificial intelligence and machine learning as they relate to quantitative finance. The study looks at a number of algorithmic trading techniques, including as sentiment-based trading, statistical arbitrage, trend following, mean reversion, and market creating. The potential for developing technologies to transform financial markets and trading methods is also taken into account, including the influence of blockchain, quantum computing, and sophisticated data visualization tools.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-49408928?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 How hard is it to pick the right model? MCS and backtest overfitting}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Diego Aparicio, M. L. Prado\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Algorithmic Finance \'b7 2017 \'b7 4 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Recent advances in machine learning, artificial intelligence, and the availability of billions of high frequency data signals have made model selection a challenging and pressing need. However, most of the model selection methods available in modern finance are subject to backtest overfitting. This is the probability that one will select a financial strategy that outperforms during backtest, but underperforms in practice. We evaluate the performance of the novel model confidence set (MCS) introduced in Hansen et al. (2011a) in a simple machine learning trading strategy problem. We find that MCS is not robust to multiple testing and that it requires a very high signal-to-noise ratio to be utilizable. More generally, we raise awareness on the limitations of model selection in finance.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-156114354?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Quantifying Backtest Overfitting in Alternative Beta Strategies}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Antti Suhonen, Matthias Lennkh, Fabrice Perez\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Journal of Portfolio Management \'b7 2017 \'b7 26 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 The authors investigate the biases in the backtested performance of \'93alternative beta\'94 strategies using a unique sample of 215 trading strategies developed and promoted by global investment banks. Their results lend support to the cautions in the recent literature regarding backtest overfitting and lack of robustness in trading strategy performance during the \'93live\'94 period (out of sample). The authors report a median 73% deterioration in Sharpe ratios between backtested and live performance periods for the strategies, and they establish a link between performance deterioration and strategy complexity, with the realized reduction in live versus backtested Sharpe ratios of the most complex strategies exceeding those of the simplest ones by over 30 percentage points. The robustness of strategy exposure to risk factors varies between asset classes and strategies; it appears reasonable in equity volatility and FX carry strategies but quite weak in the equity value strategy in particular.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-110183358?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Statistical Overfitting and Backtest Performance}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 D. Bailey, Stephanie Ger, Marcos M. L\'f3pez de Prado, and 2 more\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 2014 \'b7 8 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 In the field of mathematical finance, a \'93backtest\'94 is the usage of historical market data to assess the performance of a proposed trading strategy. It is a relatively simple matter for a present-day computer system to explore thousands, millions or even billions of variations of a proposed strategy, and pick the best performing variant as the \'93optimal\'94 strategy \'93in sample\'94 (i.e., on the input dataset). Unfortunately, such an \'93optimal\'94 strategy often performs very poorly \'93out of sample\'94 (i.e., on another dataset), because the parameters of the invest strategy have been overfit to the in-sample data, a situation known as \'93backtest overfitting\'94.While the mathematics of backtest overfitting has been examined in several recent theoretical studies, here we pursue a more tangible analysis of this problem, in the form of an online simulator tool. Given a input random walk time series, the tool develops an \'93optimal\'94 variant of a simple strategy by exhaustively exploring all integer parameter values among a handful of parameters. That \'93optimal\'94 strategy is overfit, since by definition a random walk is unpredictable. Then the tool tests the resulting \'93optimal\'94 strategy on a second random walk time series. In most runs using our online tool, the \'93optimal\'94 strategy derived from the first time series performs poorly on the second time series, demonstrating how hard it is not to overfit a backtest. We offer this online tool to facilitate further research in this area.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-156048399?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Backtest Overfitting in Financial Markets}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 David H. Bailey, David H. Bailey, J. M. Borwein, and 5 more\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 2016 \'b7 15 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 We introduce two online backtest overfitting tools: BODT simulates the overfitting of seasonal strategies (typical of technical analysis), and TMST simulates the overfitting of econometric strategies (typical of academic journals). We show that econometric methods lend themselves to extreme levels of overfitting, casting doubt on most investment strategies published in academic journals.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-14849749?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 The probability of back-test over-fitting}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 David H. Bailey, J. Borwein, Lopez M. de Pardo, and 1 more\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 2016 \'b7 117 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Most firms and portfolio managers rely on backtests (or historical simulations of performance) to select investment strategies and allocate them capital. Standard statistical techniques designed to prevent regression over-fitting, such as hold-out, tend to be unreliable and inaccurate in the context of investment backtests. We propose a framework that estimates the probability of backtest over-fitting (PBO) specifically in the context of investment simulations, through a numerical method that we call combinatorially symmetric cross-validation (CSCV). We show that CSCV produces accurate estimates of the probability that a particular backtest is over-fit.The appendices for this paper are available at the following URL: http://ssrn.com/abstract=2568435\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-286836980?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Techniques for mitigating overfitting in machine learning: a comprehensive review, taxonomy, and practical guide}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Alexander Sheppert\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Frontiers in Artificial Intelligence \'b7 2026 \'b7 1 citation\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Introduction Overfitting remains a persistent barrier to reliable machine learning, especially in modern overparameterized deep models. Methods We conducted a narrative review synthesizing approximately 95 core studies (1943\'962026) identified through structured searches of IEEE Xplore, ACM Digital Library, arXiv, Google Scholar, and Semantic Scholar, extracting mechanisms, assumptions, and empirical evidence for prominent methods for mitigating overfitting. Results We organize techniques into a unified five-family taxonomy (parameter-, training-, data-, ensemble-, and objective-based) and provide a practical decision framework that maps data regimes, model families, and real-world scenarios to actionable regularization strategies. Conclusion Overfitting mitigation benefits from coordinated choices in data, model capacity, optimization, and evaluation. Our taxonomy and decision framework help practitioners select complementary interventions and avoid common pitfalls such as leakage and over-regularization.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-17627549?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Overfitting in Making Comparisons Between Variable Selection Methods}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 J. Reunanen\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Journal of machine learning research \'b7 2003 \'b7 573 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 This paper addresses a common methodological flaw in the comparison of variable selection methods. A practical approach to guide the search or the selection process is to compute cross-validation performance estimates of the different variable subsets. Used with computationally intensive search algorithms, these estimates may overfit and yield biased predictions. Therefore, they cannot be used reliably to compare two selection methods, as is shown by the empirical results of this paper. Instead, like in other instances of the model selection problem, independent test sets should be used for determining the final performance. The claims made in the literature about the superiority of more exhaustive search algorithms over simpler ones are also revisited, and some of them infirmed.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-88499738?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 An Overview of Overfitting and its Solutions}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Xue Ying\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Journal of Physics, Conference Series \'b7 2019 \'b7 2,146 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Overfitting is a fundamental issue in supervised machine learning which prevents us from perfectly generalizing the models to well fit observed data on training data, as well as unseen data on testing set. Because of the presence of noise, the limited size of training set, and the complexity of classifiers, overfitting happens. This paper is going to talk about overfitting from the perspectives of causes and solutions. To reduce the effects of overfitting, various strategies are proposed to address to these causes: 1) \'93early-stopping\'94 strategy is introduced to prevent overfitting by stopping training before the performance stops optimize; 2) \'93network-reduction\'94 strategy is used to exclude the noises in training set; 3) \'93data-expansion\'94 strategy is proposed for complicated models to fine-tune the hyper-parameters sets with a great amount of data; and 4) \'93regularization\'94 strategy is proposed to guarantee models performance to a great extent while dealing with real world issues by feature-selection, and by distinguishing more useful and less useful features.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-14659162?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 PSEUDO-MATHEMATICS AND FINANCIALCHARLATANISM: THE EFFECTS OF BACKTEST OVERFITTING ONOUT-OF-SAMPLE PERFORMANCE}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 David H. Bailey, J. Borwein, Lopez M. de Pardo, and 1 more\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 2014 \'b7 152 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Recent computational advances allow investment managers to methodically\cb1 \
+\cb5 search through thousands or even millions of potential options\cb1 \
+\cb5 for a protable investment strategy. In many instances, the resulting\cb1 \
+\cb5 strategy involves a pseudo-mathematical argument, which is\cb1 \
+\cb5 spuriously validated through a simulation of its historical performance\cb1 \
+\cb5 (also called backtest).\cb1 \
+\cb5 We prove that high performance is easily achievable after backtesting\cb1 \
+\cb5 a relatively small number of alternative strategy congurations, a\cb1 \
+\cb5 practice we denote \\backtest overtting." The higher the number of\cb1 \
+\cb5 congurations tried, the greater is the probability that the backtest is\cb1 \
+\cb5 overt. Because nancial analysts rarely report the number of congurations\cb1 \
+\cb5 tried for a given backtest, investors cannot evaluate the degree\cb1 \
+\cb5 of overtting in most investment claims and analysis.\cb1 \
+\cb5 The implication is that investors can be easily misled into allocating\cb1 \
+\cb5 capital to strategies that appear to be mathematically sound\cb1 \
+\cb5 and empirically supported by a backtest. This practice is particularly\cb1 \
+\cb5 pernicious, because due to the nature of nancial time series,\cb1 \
+\cb5 backtest overtting has a detrimental eect on the strategy's future\cb1 \
+\cb5 performance.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-1858029?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 On Over-fitting in Model Selection and Subsequent Selection Bias in Performance Evaluation}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 G. Cawley, N. L. C. Talbot\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Journal of machine learning research \'b7 2010 \'b7 2,342 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Model selection strategies for machine learning algorithms typically involve the numerical optimisation of an appropriate model selection criterion, often based on an estimator of generalisation performance, such as k-fold cross-validation. The error of such an estimator can be broken down into bias and variance components. While unbiasedness is often cited as a beneficial quality of a model selection criterion, we demonstrate that a low variance is at least as important, as a non-negligible variance introduces the potential for over-fitting in model selection as well as in training the model. While this observation is in hindsight perhaps rather obvious, the degradation in performance due to over-fitting the model selection criterion can be surprisingly large, an observation that appears to have received little attention in the machine learning literature to date. In this paper, we show that the effects of this form of over-fitting are often of comparable magnitude to differences in performance between learning algorithms, and thus cannot be ignored in empirical evaluation. Furthermore, we show that some common performance evaluation practices are susceptible to a form of selection bias as a result of this form of over-fitting and hence are unreliable. We discuss methods to avoid over-fitting in model selection and subsequent selection bias in performance evaluation, which we hope will be incorporated into best practice. While this study concentrates on cross-validation based model selection, the findings are quite general and apply to any model selection practice involving the optimisation of a model selection criterion evaluated over a finite sample of data, including maximisation of the Bayesian evidence and optimisation of performance bounds.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-267061131?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Keeping Deep Learning Models in Check: A History-Based Approach to Mitigate Overfitting}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Hao Li, Gopi Krishnan Rajbahadur, Dayi Lin, and 2 more\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 IEEE Access \'b7 2024 \'b7 75 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 In software engineering, deep learning models are increasingly deployed for critical tasks such as bug detection and code review. However, overfitting remains a challenge that affects the quality, reliability, and trustworthiness of software systems that utilize deep learning models. Overfitting can be (1) prevented (e.g., using dropout or early stopping) or (2) detected in a trained model (e.g., using correlation-based approaches). Both overfitting detection and prevention approaches that are currently used have constraints (e.g., requiring modification of the model structure, and high computing resources). In this paper, we propose a simple, yet powerful approach that can both detect and prevent overfitting based on the training history (i.e., validation losses). Our approach first trains a time series classifier on training histories of overfit models. This classifier is then used to detect if a trained model is overfit. In addition, our trained classifier can be used to prevent overfitting by identifying the optimal point to stop a model\'92s training. We evaluate our approach on its ability to identify and prevent overfitting in real-world samples. We compare our approach against correlation-based detection approaches and the most commonly used prevention approach (i.e., early stopping). Our approach achieves an F1 score of 0.91 which is at least 5% higher than the current best-performing non-intrusive overfitting detection approach. Furthermore, our approach can stop training to avoid overfitting at least 32% of the times earlier than early stopping and has the same or a better rate of returning the best model.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-49529756?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Model Evaluation, Model Selection, and Algorithm Selection in Machine Learning}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 S. Raschka\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 arXiv.org \'b7 2018 \'b7 1,059 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 The correct use of model evaluation, model selection, and algorithm selection techniques is vital in academic machine learning research as well as in many industrial settings. This article reviews different techniques that can be used for each of these three subtasks and discusses the main advantages and disadvantages of each technique with references to theoretical and empirical studies. Further, recommendations are given to encourage best yet feasible practices in research and applications of machine learning. Common methods such as the holdout method for model evaluation and selection are covered, which are not recommended when working with small datasets. Different flavors of the bootstrap technique are introduced for estimating the uncertainty of performance estimates, as an alternative to confidence intervals via normal approximation if bootstrapping is computationally feasible. Common cross-validation techniques such as leave-one-out cross-validation and k-fold cross-validation are reviewed, the bias-variance trade-off for choosing k is discussed, and practical tips for the optimal choice of k are given based on empirical evidence. Different statistical tests for algorithm comparisons are presented, and strategies for dealing with multiple comparisons such as omnibus tests and multiple-comparison corrections are discussed. Finally, alternative methods for algorithm selection, such as the combined F-test 5x2 cross-validation and nested cross-validation, are recommended for comparing machine learning algorithms when datasets are small.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-7691847?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Preventing "Overfitting" of Cross-Validation Data}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 A. Ng\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 International Conference on Machine Learning \'b7 1997 \'b7 257 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Suppose that, for a learning task, we have to select one hypothesis out of a set of hypotheses (that may, for example, have been generated by multiple applications of a randomized learning algorithm). A common approach is to evaluate each hypothesis in the set on some previously unseen cross-validation data, and then to select the hypothesis that had the lowest cross-validation error. But when the cross-validation data is partially corrupted such as by noise, and if the set of hypotheses we are selecting from is large, then \\folklore" also warns about \\overrtting" the cross-In this paper, we explain how this \\overrtting" really occurs, and show the surprising result that it can be overcome by selecting a hypothesis with a higher cross-validation error, over others with lower cross-validation errors. We give reasons for not selecting the hypothesis with the lowest cross-validation error, and propose a new algorithm, LOOCVCV, that uses a computa-tionally eecient form of leave\{one\{out cross-validation to select such a hypothesis. Finally , we present experimental results for one domain, that show LOOCVCV consistently beating picking the hypothesis with the lowest cross-validation error, even when using reasonably large cross-validation sets.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-261694533?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Predictive overfitting in immunological applications: Pitfalls and solutions}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Jeremy P. Gygi, S. Kleinstein, Leying Guan\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Human Vaccines & Immunotherapeutics \'b7 2023 \'b7 64 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 ABSTRACT Overfitting describes the phenomenon where a highly predictive model on the training data generalizes poorly to future observations. It is a common concern when applying machine learning techniques to contemporary medical applications, such as predicting vaccination response and disease status in infectious disease or cancer studies. This review examines the causes of overfitting and offers strategies to counteract it, focusing on model complexity reduction, reliable model evaluation, and harnessing data diversity. Through discussion of the underlying mathematical models and illustrative examples using both synthetic data and published real datasets, our objective is to equip analysts and bioinformaticians with the knowledge and tools necessary to detect and mitigate overfitting in their research.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-742663?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Preventing Over-Fitting during Model Selection via Bayesian Regularisation of the Hyper-Parameters}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 G. Cawley, N. L. C. Talbot\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Journal of machine learning research \'b7 2007 \'b7 267 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 While the model parameters of a kernel machine are typically given by the solution of a convex optimisation problem, with a single global optimum, the selection of good values for the regularisation and kernel parameters is much less straightforward. Fortunately the leave-one-out cross-validation procedure can be performed or a least approximated very efficiently in closed form for a wide variety of kernel learning methods, providing a convenient means for model selection. Leave-one-out cross-validation based estimates of performance, however, generally exhibit a relatively high variance and are therefore prone to over-fitting. In this paper, we investigate the novel use of Bayesian regularisation at the second level of inference, adding a regularisation term to the model selection criterion corresponding to a prior over the hyper-parameter values, where the additional regularisation parameters are integrated out analytically. Results obtained on a suite of thirteen real-world and synthetic benchmark data sets clearly demonstrate the benefit of this approach.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-248518102?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 A Review of Overfitting Solutions in Smart Depression Detection Models}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 G. Gupta, D. Sharma\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 International Conference on Computing for Sustainable Global Development \'b7 2022 \'b7 13 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Overfitting is a common issue in machine learning-based depression detection model. Overfitting occurs when a machine learning model uses garbage data in the training datasets to the amount that deleteriously impacts on the concert of the model on new data. To predict depression level, most of the model uses machine learning and deep learning approaches. In this paper, a survey is conducted on the solution of overfitting in machine learning-based depression detection models. The survey covers the latest research articles and thesis published in the years 2020 and 2021. The findings of the survey reveal that the early stopping methodology, also called Control the Iteration as is better as compared to the penalty methodology, as it can avoid overfitting problems in the machine learning-based depression detection model. We have listed down other methods also to reduce overfitting like regularization methods, applying ensemble learning, training with more data, cross-validation, etc.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-52986310?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Cross-Validation for Imbalanced Datasets: Avoiding Overoptimistic and Overfitting Approaches [Research Frontier]}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 M. Santos, J. Soares, P. Abreu, and 2 more\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 IEEE Computational Intelligence Magazine \'b7 2018 \'b7 317 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Although cross-validation is a standard procedure for performance evaluation, its joint application with oversampling remains an open question for researchers farther from the imbalanced data topic. A frequent experimental flaw is the application of oversampling algorithms to the entire dataset, resulting in biased models and overly-optimistic estimates.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-12440383?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 The Problem of Overfitting}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 D. Hawkins\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Journal of Chemical Information and Modeling \'b7 2004 \'b7 2,537 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Model fitting is an important part of all sciences that use quantitative measurements. Experimenters often explore the relationships between measures. Two subclasses of relationship problems are as follows: \'95 Correlation problems: those in which we have a collection of measures, all of interest in their own right, and wish to see how and how strongly they are related. \'95 Regression problems : those in which one of the measures, the dependent Variable, is of special interest, and we wish to explore its relationship with the other variables. These other variables may be called the independent Variables, the predictor Variables, or the coVariates. The dependent variable may be a continuous numeric measure such as a boiling point or a categorical measure such as a classification into mutagenic and nonmutagenic. We should emphasize that using the words \'91correlation problem\'92 and \'91regression problem\'92 is not meant to tie these problems to any particular statistical methodology. Having a \'91correlation problem\'92 does not limit us to conventional Pearson correlation coefficients. Log-linear models, for example, measure the relationship between categorical variables in multiway contingency tables. Similarly, multiple linear regression is a methodology useful for regression problems, but so also are nonlinear regression, neural nets, recursive partitioning and k-nearest neighbors, logistic regression, support vector machines and discriminant analysis, to mention a few. All of these methods aim to quantify the relationship between the predictors and the dependent variable. We will use the term \'91regression problem\'92 in this conceptual form and, when we want to specialize to multiple linear regression using ordinary least squares, will describe it as \'91OLS regression\'92. Our focus is on regression problems. We will use y as shorthand for the dependent variable and x for the collection of predictors available. There are two distinct primary settings in which we might want to do a regression study: \'95 Prediction problems:We may want to make predictions of y for future cases where we know x but do not knowy. This for example is the problem faced with the Toxic Substances Control Act (TSCA) list. This list contains many tens of thousands of compounds, and there is a need to identify those on the list that are potentially harmful. Only a small fraction of the list however has any measured biological properties, but all of them can be characterized by chemical descriptors with relative ease. Using quantitative structure-activity relationships (QSARs) fitted to this small fraction to predict the toxicities of the much larger collection is a potentially cost-effective way to try to sort the TSCA compounds by their potential for harm. Later, we will use a data set for predicting the boiling point of a set of compounds on the TSCA list from some molecular descriptors. \'95 Effect quantification:We may want to gain an understanding of how the predictors enter into the relationship that predicts y. We do not necessarily have candidate future unknowns that we want to predict, we simply want to know how each predictor drives the distribution of y. This is the setting seen in drug discovery, where the biological activity y of each in a collection of compounds is measured, along with molecular descriptors x. Finding out which descriptors x are associated with high and which with low biological activity leads to a recipe for new compounds which are high in the features associated positively with activity and low in those associated with inactivity or with adverse side effects. These two objectives are not always best served by the same approaches. \'91Feature selection\'92 skeeping those features associated withy and ignoring those not associated with y is very commonly a part of an analysis meant for effect quantification but is not necessarily helpful if the objective is prediction of future unknowns. For prediction, methods such as partial least squares (PLS) and ridge regression (RR) that retain all features but rein in their contributions are often found to be more effective than those relying on feature selection. What Is Overfitting? Occam\'92s Razor, or the principle of parsimony, calls for using models and procedures that contain all that is necessary for the modeling but nothing more. For example, if a regression model with 2 predictors is enough to explainy, then no more than these two predictors should be used. Going further, if the relationship can be captured by a linear function in these two predictors (which is described by 3 numbers sthe intercept and two slopes), then using a quadratic violates parsimony. Overfitting is the use of models or procedures that violate parsimonysthat is, that include more terms than are necessary or use more complicated approaches than are necessary. It is helpful to distinguish two types of overfitting: \'95 Using a model that is more flexible than it needs to be. For example, a neural net is able to accommodate some curvilinear relationships and so is more flexible than a simple linear regression. But if it is used on a data set that conforms to the linear model, it will add a level of complexity without * Corresponding author e-mail: doug@stat.umn.edu. 1 J. Chem. Inf. Comput. Sci. 2004,44, 1-12\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-207942622?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Machine learning algorithm validation with a limited sample size}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 A. Vabalas, E. Gowen, E. Poliakoff, and 1 more\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 PLoS ONE \'b7 2019 \'b7 1,447 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Advances in neuroimaging, genomic, motion tracking, eye-tracking and many other technology-based data collection methods have led to a torrent of high dimensional datasets, which commonly have a small number of samples because of the intrinsic high cost of data collection involving human participants. High dimensional data with a small number of samples is of critical importance for identifying biomarkers and conducting feasibility and pilot work, however it can lead to biased machine learning (ML) performance estimates. Our review of studies which have applied ML to predict autistic from non-autistic individuals showed that small sample size is associated with higher reported classification accuracy. Thus, we have investigated whether this bias could be caused by the use of validation methods which do not sufficiently control overfitting. Our simulations show that K-fold Cross-Validation (CV) produces strongly biased performance estimates with small sample sizes, and the bias is still evident with sample size of 1000. Nested CV and train/test split approaches produce robust and unbiased performance estimates regardless of sample size. We also show that feature selection if performed on pooled training and testing data is contributing to bias considerably more than parameter tuning. In addition, the contribution to bias by data dimensionality, hyper-parameter space and number of CV folds was explored, and validation methods were compared with discriminable data. The results suggest how to design robust testing methodologies when working with small datasets and how to interpret the results of other studies based on what validation method was used.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-265509848?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Detecting Overfitting of Machine Learning Techniques for Automatic Vulnerability Detection}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Niklas Risse\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 ESEC/SIGSOFT FSE \'b7 2023 \'b7 9 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Recent results of machine learning for automatic vulnerability detection have been very promising indeed: Given only the source code of a function f, models trained by machine learning techniques can decide if f contains a security flaw with up to 70% accuracy. But how do we know that these results are general and not specific to the datasets? To study this question, researchers proposed to amplify the testing set by injecting semantic preserving changes and found that the model\'92s accuracy significantly drops. In other words, the model uses some unrelated features during classification. In order to increase the robustness of the model, researchers proposed to train on amplified training data, and indeed model accuracy increased to previous levels. In this paper, we replicate and continue this investigation, and provide an actionable model benchmarking methodology to help researchers better evaluate advances in machine learning for vulnerability detection. Specifically, we propose a cross validation algorithm, where a semantic preserving transformation is applied during the amplification of either the training set or the testing set. Using 11 transformations and 3 ML techniques, we find that the improved robustness only applies to the specific transformations used during training data amplification. In other words, the robustified models still rely on unrelated features for predicting the vulnerabilities in the testing data.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-289116531?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Is Invariance Possible? The Kac Ratio as a Method for Mitigating Overfitting in Algorithmic Trading}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Ra\'fal G\'f3mez S\'e1nchez\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Social Science Research Network \'b7 2026 \'b7 0 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 This article addresses one of the most critical vulnerabilities in quantitative finance and algorithmic trading: backtest overfitting and data mining bias. Traditional performance metrics, such as Sharpe ratios, frequently suffer from selection bias, identifying parameters that maximize historical returns but fail catastrophically in out-of-sample conditions. To mitigate this structural dependency, this study introduces the KaC Ratio, a novel hybrid evaluation metric that multiplies an asset\'92s risk-adjusted return (Sharpe Ratio) by the linearity of its cumulative equity curve (R\'b2). To validate its empirical robustness and demonstrate its statistical invariance, a multidimensional macro-audit framework was designed. The KaC Ratio was subjected to stress tests against 20 classic and contemporary financial ratios across a cross-sectional universe of 600 systematic strategy combinations (derived from overnight and post-settlement anomalies in 60 global futures contracts).\cb1 \
+\cb5 The experimental architecture incorporated three static validation frameworks (training/test splits of 75/25, 50/50, and 25/75) and two dynamic, iterative schemes (Walk Forward Analysis and Robust Walk Forward Analysis). Performance distributions were aggregated through a non-parametric combinatorial framework using Borda Count rankings and a custom Position-Volatility Efficiency metric (PER analysis). Empirical results demonstrate that, while traditional ratios experience severe performance degradation under information scarcity (25/75 framework), the KaC Ratio functions as an exceptional defensive shield, as it exhibits the most stable opponent ranking of all analyzed ratios, performing well under any robustness analysis employed.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-235613429?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Robust Overfitting may be mitigated by properly learned smoothening}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Tianlong Chen, Zhenyu (Allen) Zhang, Sijia Liu, and 2 more\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 International Conference on Learning Representations \'b7 2021 \'b7 218 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 A recent study\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-42033021?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Application of evolutionary computation for rule discovery in stock algorithmic trading: A literature review}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Yong Hu, Kang Liu, Xiangzhou Zhang, and 3 more\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Applied Soft Computing \'b7 2015 \'b7 161 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Despite the wide application of evolutionary computation (EC) techniques to rule discovery in stock algorithmic trading (AT), a comprehensive literature review on this topic is unavailable. Therefore, this paper aims to provide the first systematic literature review on the state-of-the-art application of EC techniques for rule discovery in stock AT. Out of 650 articles published before 2013 (inclusive), 51 relevant articles from 24 journals were confirmed. These papers were reviewed and grouped into three analytical method categories (fundamental analysis, technical analysis, and blending analysis) and three EC technique categories (evolutionary algorithm, swarm intelligence, and hybrid EC techniques). A significant bias toward the applications of genetic algorithm-based (GA) and genetic programming-based (GP) techniques in technical trading rule discovery is observed. Other EC techniques and fundamental analysis lack sufficient study. Furthermore, we summarize the information on the evaluation scheme of selected papers and particularly analyze the researches which compare their models with buy and hold strategy (B&H). We observe an interesting phenomenon where most of the existing techniques perform effectively in the downtrend and poorly in the uptrend, and considering the distribution of research in the classification framework, we suggest that this phenomenon can be attributed to the inclination of factor selections and problem in transaction cost selections. We also observe the significant influence of the transaction cost change on the margins of excess return. Other influenced factors are also presented in detail. The absence of ways for market trend prediction and the selection of transaction cost are two major limitations of the studies reviewed. In addition, the combination of trading rule discovery techniques and portfolio selection is a major research gap. Our review reveals the research focus and gaps in applying EC techniques for rule discovery in stock AT and suggests a roadmap for future research.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-269881218?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 OVERFITTING IN MACHINE LEARNING: PROBLEMS AND SOLUTIONS}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 V. Parasich, I. Parasich, G. Volovich, and 2 more\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Bulletin of the South Ural State University. Ser. Computer Technologies, Automatic Control &amp; Radioelectronics \'b7 2024 \'b7 2 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Overfitting is one of the most important factors affecting the performance of machine lear\'acning algorithms. When solving machine learning problems, it is important to be able to effectively solve the problem of overfitting. The research objective. The purpose of this article is to study the problem of overfitting in machine learning tasks. The article discusses effective learning methods aimed at preventing overfitting. Material and methods. The focus of the article is on various non-standard issues related to overfitting that are important from a practical point of view. Various causes of overfitting, its consequences and methods of combating overfitting are considered. The dependence of overfitting and generalizing abi\'aclity on the quality of features and properties of the training set is studied. Particular attention is paid to the features of training and the formation of a training sample in multidimensional feature spaces. The question of the correct formation of the training set and the correct addition of data to the training set from the point of view of overfitting prevention, as well as the impact of incorrect distribution of the target variable on overfitting, is considered. It is explained why the methods of adding incorrect data to the training set, such as MixUp and CutMix, can improve the quality of training. The problem of the algorithm's confidence in its predictions is considered, as well as the problem of algorithm overconfidence in incorrect predictions, which is also typical for ChatGPT. The problem of assessing the quality of the algorithm is considered. It is shown why normalization can help avoid overfitting. Results. An algorithm for training decision trees Random Samples Mix-Up is proposed to combat overfitting, which improves the quality of training decision trees. A comparative analysis of the quality of models before and after the application of this method of combating overfitting is carried out. Experiments on real data confirm effectiveness of this method. Conclusion. The results of the study can be useful in developing new machine learning algorithms and improving the efficiency of existing ones. The results of the study can be useful for developers of machine learning algorithms and specialists in the field of artificial intelligence.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-153276445?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 The Evaluation and Optimization of Trading Strategies}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 R. Pardo\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 2008 \'b7 86 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Foreword. Preface. Acknowledgments. Introduction. Chapter 1. On Trading Strategies. Why This Book Was Written. Who Will Benefit from this Book? The Goals of this Book. The Lay of the Land. Chapter 2. The Systematic Trading "Edge". Discretionary Trading. Raising the Bar. Verification. Quantification. Risk and Reward. The Performance Profile. Objectivity. Consistency. Extensibility. The Benefits of the Historical Simulation. Positive Expectancy. The Likelihood of Future Profit. The Performance Profile. Proper Capitalization. A Measure of Real-Time Trading Performance. The Benefits of Optimization. The Benefits of the Walk-Forward Analysis. The Advantages of a Thorough Understanding. Confidence. Strategy Refinement. Chapter 3. The Trading Strategy Development Process. Two Philosophical Approaches to Strategy Development. The Scientific Approach. The Path of Empirical Development. An Overview of the Trading Strategy Design Process. Step 1: Formulate the Trading Strategy. Step 2: Translate the Rules into a Definitive Form. Step 3: Preliminary Testing. Step 4: Optimize the Trading strategy. Step 5: the Walk Forward Analysis(t). Step 6: Trade the System. Step 7: Evaluate Real-Time Performance. Step 8: Improving the System. Chapter 4. The Strategy Development Platform. The Scripting Language. Diagnostics. Reporting. Optimization. The Objective Function. Speed. Automation. Walk Forward Analysis(t). Portfolio Analysis. In Conclusion. Chapter 5. The Elements of Strategy Design. The Three Principle Components of a Strategy. Entry and Exit. Risk Management. Position Sizing. An Overview of a Typical Trading Strategy. A Trade Equals an Entry and an Exit. Entry Filters. The Management of Risk. Trade Risk. Strategy Risk. Portfolio Risk. The Management of Profit. The Trailing Stop. Profit Targets. Position Sizing. Advanced Strategies. Summary. Chapter 6. The Historical Simulation. The Essential Reports. The Performance Summary. The Trade List. The Equity Curve. Performance by Period. The Importance of Accuracy. Software Limitations. Rounding Issues. Phantom Trades. Price Orders. Realistic Assumptions. Price and Trade Slippage. Opening Gap Slippage. Opening and Closing Range Slippage. Slippage Due to Size. The Significance of Slippage. Limit Moves. Major Events and Dates. Historical Data. Stock Prices. Cash Markets. Futures Markets. The Continuous Contract. The Perpetual Contract. Adjusted Continuous Contracts. The Size of the Test Window. Statistical Requirements. Sample Size and Statistical Error. How Many Trades? Stability. Degrees of Freedom. Frequency of Trading. Types of Markets. The Bull Market. The Bear Market. The Cyclic Market. The Congested Market. Efficient Markets. The Life Cycle of a Trading Strategy. Window Size and Model Life. Chapter 7. Formulation and Specification. Formulate the Trading Strategy. Specification - "Translate" The Idea Into A Testable Strategy. Make a Vague Idea Precise. Chapter 8. Preliminary Testing. Verification of Calculations and Trades. Calculations. Trading Rules. In Summary. Theoretical Expectations. Preliminary Profitability. The Multi-Market and Multi-Period Test. Selecting the Basket. Determining the Length of the Test Period. Segmenting the Data. The Test. The Results of the Test. Chapter 9. Search and Judgment. Search Methods. The Grid Search. The Prioritized Step Search. Hill Climbing Search Algorithms. Multi-Point Hill Climbing Search. Advanced Search Methods. Simulated Annealing. Genetic Algorithms. Particle Swarm Optimization. General Problems with Search Methods. The Objective Function. A Review of a Variety of Evaluation Methods. Multiple Evaluation Types. Chapter 10. Optimization. Optimization contra Overfitting. A Simple Optimization. The Optimization Framework. The Parameters. The Scan Range. The Historical Sample. The Objective Function. The Optimization Evaluation. A Multi-Market and Multi-Period Optimization. The Evaluation of the Optimization. The Robust Trading Strategy. The Robust Optimization. The Statistically Significant Optimization Profile. The Distribution of the Optimization Profile. The Shape of the Optimization Profile. How Does the Strategy Respond to Optimization? Does the Strategy Deserve Further Development? Chapter 11. Walk-Forward Analysis. Is the Trading Strategy Robust? Robustness and Walk-Forward Efficiency. The Cure for Overfitting. A More Reliable Measure of Risk and Return. Assessing the Impact of Market Changes. The Best Parameter Set for Trading. The Theory of Relevant Data. Peak Performance. Statistical Rigor. Shifting Markets. The Varieties of Market Conditions. The Walk-Forward. The Role of the Walk Forward. Setting Up a Walk-Forward. An Example of a Walk-Forward Test. The Walk-Forward Analysis. The Purpose of the Walk-Forward Analysis. An Example of a Walk-Forward Analysis. Is the Strategy Robust? What Rate of Profit Should We Expect? What Is the Risk? Walk-Forward Analysis and the Portfolio. Chapter 12. The Evaluation of Performance. The Trading Strategy as an Investment. The Dimension of Risk. Compare the Strategy to the Alternatives. Maximum Drawdown and Trading Risk. Maximum Drawdown in Context. Maximum Drawdown and the Trader. Maximum Run up and the Trader. Trading Capital and Risk. Risk Adjusted Return. Reward to Risk Ratio. Model Efficiency. Consistency. Patterns of Profit and Loss. Chapter 13. The Many Faces of Overfitting. What Is Overfitting? The Abuse of Hindsight. The Case of the Overfit Forecasting Model. The Case of the Overfit Trading Model. The Symptoms of an Overfit Trading Model. The Causes of Overfitting. Degrees of Freedom. Measuring Degrees of Freedom. Degrees of Freedom, Sample Size and Startup Overhead. Trade Sample Size. Optimization Error #1 - Over Parameterization. Optimization Error #2 -Over Scanning. The Big Fish in a Small Pond Syndrome. The Walk-Forward Test. Chapter 14. Trading the Strategy. The Mental Aspects of Trading. Return on Investment. Poor Strategy. Market Contraction. Unseen Market Conditions. In Conclusion. Maximum Risk. Real-time and Evaluation Performance. Comparing the Evaluation and Trade Profile. Understanding the Test Profile Performance Quirks. The Windfall Profit. The Losing Run. Flat Production. In Conclusion. Notes. Index.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-244872442?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Foundations of Machine Learning-Based Clinical Prediction Modeling: Part II-Generalization and Overfitting.}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 J. Kernbach, V. Staartjes\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Acta neurochirurgica. Supplement \'b7 2021 \'b7 129 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 We review the concept of overfitting, which is a well-known concern within the machine learning community, but less established in the clinical community. Overfitted models may lead to inadequate conclusions that may wrongly or even harmfully shape clinical decision-making. Overfitting can be defined as the difference among discriminatory training and testing performance, while it is normal that out-of-sample performance is equal to or ever so slightly worse than training performance for any adequately fitted model, a massively worse out-of-sample performance suggests relevant overfitting. We delve into resampling methods, specifically recommending k-fold cross-validation and bootstrapping to arrive at realistic estimates of out-of-sample error during training. Also, we encourage the use of regularization techniques such as L1 or L2 regularization, and to choose an appropriate level of algorithm complexity for the type of dataset used. Data leakage is addressed, and the importance of external validation to assess true out-of-sample performance and to-upon successful external validation-release the model into clinical practice is discussed. Finally, for highly dimensional datasets, the concepts of feature reduction using principal component analysis (PCA) as well as feature elimination using recursive feature elimination (RFE) are elucidated.\cb1 \
+\cb5 \'a9 2022. The Author(s), under exclusive license to Springer Nature Switzerland AG.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-17402145?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Can Out-of-Sample Forecast Comparisons Help Prevent Overfitting?}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Todd E. Clark\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Journal of Forecasting \'b7 2004 \'b7 118 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 This paper shows that out-of-sample forecast comparisons can help prevent data mining-induced overfitting. The basic results are drawn from simulations of a simple Monte Carlo design and a real data-based design similar to those used in some previous studies. In each simulation, a general-to-specific procedure is used to arrive at a model. If the selected specification includes any of the candidate explanatory variables, forecasts from the model are compared to forecasts from a benchmark model that is nested within the selected model. In particular, the competing forecasts are tested for equal MSE and encompassing. The simulations indicate most of the post-sample tests are roughly correctly sized. Moreover, the tests have relatively good power, although some are consistently more powerful than others. The paper concludes with an application, modelling quarterly US inflation. Copyright \'a9 2004 John Wiley & Sons, Ltd.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-272161879?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Algorithmic trading and machine learning: Advanced techniques for market prediction and strategy development}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Mayowa Timothy Adesina, Sunday David Esebre, Abdullah Tunde Adewuyi, and 5 more\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 World Journal of Advanced Research and Reviews \'b7 2024 \'b7 6 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 This paper provides an in-depth examination of advanced techniques in algorithmic trading and machine learning, focusing on their impact on market prediction and trading strategies. As financial markets evolve, the need for sophisticated analytical methods has become paramount to gaining a competitive edge. The study covers a range of techniques including time series analysis, natural language processing (NLP), and deep learning models, highlighting their contributions to enhancing predictive accuracy and trading efficiency. The paper explores the importance of feature engineering, model selection, and risk management in developing robust trading strategies. It also addresses the challenges and limitations inherent in financial modeling, such as data quality, overfitting, and computational complexity. Additionally, the paper examines emerging trends and technologies, including quantum computing, federated learning, and ESG integration, which are poised to shape the future of financial markets. By synthesizing insights from various advanced techniques and their practical applications, this paper offers a comprehensive overview of the current state and future directions of algorithmic trading and machine learning in finance. It underscores the importance of continuous innovation and adaptation in maintaining a competitive advantage in the dynamic landscape of financial trading.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-252212180?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Deep Reinforcement Learning for Cryptocurrency Trading: Practical Approach to Address Backtest Overfitting}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 B. Gort, Xiao-Yang Liu, Xin Sun, and 3 more\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 arXiv.org \'b7 2022 \'b7 18 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Designing profitable and reliable trading strategies is challenging in the highly volatile cryptocurrency market. Existing works applied deep reinforcement learning methods and optimistically reported increased profits in backtesting, which may suffer from the false positive issue due to overfitting. In this paper, we propose a practical approach to address backtest overfitting for cryptocurrency trading using deep reinforcement learning. First, we formulate the detection of backtest overfitting as a hypothesis test. Then, we train the DRL agents, estimate the probability of overfitting, and reject the overfitted agents, increasing the chance of good trading performance. Finally, on 10 cryptocurrencies over a testing period from 05/01/2022 to 06/27/2022 (during which the crypto market crashed two times), we show that the less overfitted deep reinforcement learning agents have a higher return than that of more overfitted agents, an equal weight strategy, and the S&P DBM Index (market benchmark), offering confidence in possible deployment to a real market.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-273243432?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Proposed Methods for Preventing Overfitting in Machine Learning and Deep Learning}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Vladimir Diukarev, Yaroslav Starukhin\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Asian Journal of Research in Computer Science \'b7 2024 \'b7 12 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 The article discusses various approaches and methods to combat overfitting, which is a key problem in the field of artificial intelligence. Overfitting occurs when the model over-adapts to the training dataset, losing the ability to generalize to new data. The main causes and signs of overfitting are also discussed, including excessive complexity of models and limited data. The focus is on methods such as regularization, dropout, and the use of ensemble methods that can significantly reduce the risk of overfitting. These approaches are evaluated using examples from various fields of neural network applications, providing the reader with a comprehensive understanding of the problem and its solution methods.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-272015088?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Systematic Optimization of Overfitting Problem in Machine Learning}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Zilin Zhu\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Highlights in Science Engineering and Technology \'b7 2024 \'b7 11 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 The significant challenge of models in machine learning not being able to generalize sufficiently from seen to unseen data is known as overfitting. Overfitting occurs when a model exhibits perfect accuracy on its training dataset but performs poorly on new, test datasets. This issue not only makes the model overly complex and increases computational costs, but it also leads to its instability. Overfitting can be tackled through various methods, which are extensively discussed in the present article. Specifically, the article focuses on three main strategies: regularization, ensemble learning, and data augmentation. Each of these approaches is introduced with a brief explanation of their foundational principles and techniques. Moreover, the practical impact of these strategies is illustrated through several recent case studies across different fields such as text processing, agriculture, and healthcare. These approaches have been shown to significantly enhance the accuracy of models compared to traditional training methodologies, demonstrating their effectiveness in real-world applications.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-225484161?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Algorithmic Trading and Quantitative Strategies}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 R. Velu, Maxence Hardy, Daniel Nehren\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Algorithmic Trading and Quantitative Strategies \'b7 2020 \'b7 11 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Algorithmic Trading and Quantitative Strategies provides an in-depth overview of this growing field with a unique mix of quantitative rigor and practitioner\'92s hands-on experience. The focus on empirical modeling and practical know-how makes this book a valuable resource for students and professionals.\cb1 \
+\cb5 The book starts with the often overlooked context of why and how we trade via a detailed introduction to market structure and quantitative microstructure models. The authors then present the necessary quantitative toolbox including more advanced machine learning models needed to successfully operate in the field. They next discuss the subject of quantitative trading, alpha generation, active portfolio management and more recent topics like news and sentiment analytics. The last main topic of execution algorithms is covered in detail with emphasis on the state of the field and critical topics including the elusive concept of market impact. The book concludes with a discussion on the technology infrastructure necessary to implement algorithmic strategies in large-scale production settings.\cb1 \
+\cb5 A git-hub repository includes data-sets and explanatory/exercise Jupyter notebooks. The exercises involve adding the correct code to solve the particular analysis/problem.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-158956354?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Systematic Testing of Systematic Trading Strategies}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 K. Perumal, Emlyn Flint\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Journal of Interaction Science \'b7 2018 \'b7 1 citation\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Systematic trading is a method that is currently extremely popular in the investment world. The testing of systematic trading rules is usually done through backtesting and is at high risk of spurious accuracy as a result of the data-mining bias (DMB) present from testing multiple rules concurrently over the same history. The eradication of this DMB with the use of statistical methodologies is currently a relevant topic in investment research, illustrated by papers written by Chordia et al. (2017), Harvey and Liu (2014), Novy-Marx (2016) and Peterson (2015). This study collectively reviews the various statistical methodologies in place to test multiple systematic trading strategies and implements these methodologies under simulation with known artificial trading rules in order to critically compare and evaluate them.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-248077859?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Predicting Stock Price Changes Based on the Limit Order Book: A Survey}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Ilia Zaznov, Julian Kunkel, A. Dufour, and 1 more\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Mathematics \'b7 2022 \'b7 23 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 This survey starts with a general overview of the strategies for stock price change predictions based on market data and in particular Limit Order Book (LOB) data. The main discussion is devoted to the systematic analysis, comparison, and critical evaluation of the state-of-the-art studies in the research area of stock price movement predictions based on LOB data. LOB and Order Flow data are two of the most valuable information sources available to traders on the stock markets. Academic researchers are actively exploring the application of different quantitative methods and algorithms for this type of data to predict stock price movements. With the advancements in machine learning and subsequently in deep learning, the complexity and computational intensity of these models was growing, as well as the claimed predictive power. Some researchers claim accuracy of stock price movement prediction well in excess of 80%. These models are now commonly employed by automated market-making programs to set bids and ask for quotes. If these results were also applicable to arbitrage trading strategies, then those algorithms could make a fortune for their developers. Thus, the open question is whether these results could be used to generate buy and sell signals that could be exploited with active trading. Therefore, this survey paper is intended to answer this question by reviewing these results and scrutinising their reliability. The ultimate conclusion from this analysis is that although considerable progress was achieved in this direction, even the state-of-art models can not guarantee a consistent profit in active trading. Taking this into account several suggestions for future research in this area were formulated along the three dimensions: input data, model\'92s architecture, and experimental setup. In particular, from the input data perspective, it is critical that the dataset is properly processed, up-to-date, and its size is sufficient for the particular model training. From the model architecture perspective, even though deep learning models are demonstrating a stronger performance than classical models, they are also more prone to over-fitting. To avoid over-fitting it is suggested to optimize the feature space, as well as a number of layers and neurons, and apply dropout functionality. The over-fitting problem can be also addressed by optimising the experimental setup in several ways: Introducing the early stopping mechanism; Saving the best weights of the model achieved during the training; Testing the model on the out-of-sample data, which should be separated from the validation and training samples. Finally, it is suggested to always conduct the trading simulation under realistic market conditions considering transactions costs, bid\'96ask spreads, and market impact.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-270671327?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Enhancing Trading Decision in Financial Markets: An Algorithmic Trading Framework With Continual Mean-Variance Optimization, Window Presetting, and Controlled Early-Stopping}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 C. Tudor, Robert Sova\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 IEEE Access \'b7 2024 \'b7 10 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 This study introduces a trading decision support system (DSS) enhanced by an optimized mean-variance model for algorithmic trading (AT), crucial in modern financial markets for its efficiency and error reduction. Despite AT\'92s advantages, its limitations, including risks of losses and market instability, are notable. The proposed DSS focuses on improving trading algorithms by embedding optimized forecasting techniques to predict market movements accurately. By employing a recursive approach to refine return forecasts and trading signals, and continuously adjusting model parameters within a sliding window, the system adapts to market changes, maintaining its robustness. Key contributions include optimizing the recursive window length and addressing overfitting, significantly enhancing existing trading systems. The system is validated through backtesting in the volatile natural gas market, highlighting its relevance amid the global shift towards sustainable energy. Numerical findings show that the DSS portfolio achieved an annualized Sharpe ratio of +0.8478 compared to the buy-and-hold strategy\'92s -0.4521, and the maximum drawdown was reduced from 90.67% to 63.59%. These results demonstrate the system\'92s capability to create superior portfolios, even in downturns, by optimizing rolling window lengths and covariate pool sizes while mitigating model performance issues and overfitting. This has significant economic and environmental implications, facilitating a smoother energy transition, and providing trading professionals with advanced tools to enhance portfolio performance and risk management in volatile markets.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-2225763?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Over-Fitting in Model Selection and Its Avoidance}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 G. Cawley\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 International Symposium on Intelligent Data Analysis \'b7 2012 \'b7 10 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Over-fitting is a ubiquitous problem in machine learning, and a variety of techniques to avoid over-fitting the training sample have proven highly effective, including early stopping, regularization, and ensemble methods. However, while over-fitting in training is widely appreciated and its avoidance now a standard element of best practice, over-fitting can also occur in model selection. This form of over-fitting can significantly degrade generalization performance, but has thus far received little attention. For example the kernel and regularization parameters of a support vector machine are often tuned by optimizing a cross-validation based model selection criterion. However the cross-validation estimate of generalization performance will inevitably have a finite variance, such that its minimizer depends on the particular sample on which it is evaluated, and this will generally differ from the minimizer of the true generalization error. Therefore if the cross-validation error is aggressively minimized, generalization performance may be substantially degraded. In general, the smaller the amount of data available, the higher the variance of the model selection criterion, and hence the more likely over-fitting in model selection will be a significant problem. Similarly, the more hyper-parameters to be tuned in model selection, the more easily the variance of the model selection criterion can be exploited, which again increases the likelihood of over-fitting in model selection.Over-fitting in model selection is empirically demonstrated to pose a substantial pitfall in the application of kernel learning methods and Gaussian process classifiers. Furthermore, evaluation of machine learning methods can easily be significantly biased unless the evaluation protocol properly accounts for this type of over-fitting. Fortunately the common solutions to avoiding over-fitting in training also appear to be effective in avoiding over-fitting in model selection. Three examples are presented based on regularization of the model selection criterion, early stopping in model selection and minimizing the number of hyper-parameters to be tuned during model selection.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-284607987?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Regularization-Based Solutions to Overfitting in Modern Predictive Models: A Review}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 O. M. Nwakeze\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Methods in Science and Technology Studies \'b7 2025 \'b7 0 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 One of the most serious issues in the current predictive modelling is overfitting, especially with the increase in the complexity and size of machine learning systems. This research proposes regularisation-based methods as critical methods of enhancing generalisation and avoiding noise memorization in training data by models. The systematic literature review of the study that includes 2006-2025 research provides the synthesis of classical regularization methods, including L1/L2 penalties, Elastic Net, dropout, and early stopping, and emerging methods, including probabilistic dropout variants, Bayesian regularization, adaptive regularizers, and hybrid frameworks. The review points to the importance of the regularisation in the context of increasing the performance of generalisation, enhancing robustness to noisy or finite-sized datasets, stabilising optimization dynamics, and interpretability in high dimensional computations. It also determines the major shortcomings in the extant research such as, lack of comprehension on implicit regularisation, the cross domain comparative assessment and the requirement of adaptive and automatic strategies of regularisation. The paper ends with the research recommendations and open directions of research that are meant to enhance the theory, diagnostic tools, and towards the practitioners to effective regularisation configurations under different data regimes. Altogether, this paper gives an integrative and holistic approach to regularisation as a core building block of constructing credible, robust and general predictive models.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-225312062?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Forecast Optimization via Parameter Tuning: Performance Gain and Overfit}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 I. Soloveychik\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 2020 \'b7 0 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Most predictors used in systematic trading are designed as functions of available data streams. The functional form of these signals involves tuning a number of parameters such as the trading frequency, sample sizes, entry and exit thresholds, stop losses, and so on to improve the performance of the predictor. It is well known that such tuning leads to overfitting, meaning that the constructed signal fits historical returns well but may poorly predict their future behavior. One of the central questions that has not been previously addressed is how much each fitting parameter contributes to the overall performance improvement. In this article, this question is addressed both quantitatively and qualitatively. The author concentrates on a simple, but very common in practice, fitting technique consisting of smoothing the signal using the weighted moving average. It is shown that the improvement of the Sharpe ratio mainly depends on the signal autocorrelation and its alpha decay parameter. The findings are confirmed by numerical simulations. This result sheds more light on the overfitting phenomenon in the context of investment strategy construction and reveals the sources of performance improvement in forecast design. TOPICS: Big data/machine learning, portfolio construction, simulations, statistical methods Key Findings \'95 Fitting the parameters of return predictors on historical data unavoidably leads to statistical overfitting, which may result in partial or total failure of the signal in the out-of-sample period. \'95 This article introduces a novel framework capable of precisely estimating the level of overfitting or performance gain arising from optimization over every parameter. \'95 An illustration of the power of the new methodology is provided using the ubiquitous example of exponential moving average smoothing of the forecast.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-13830028?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 Evaluating Trading Strategies}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 Campbell R. Harvey, Yan Liu\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 Journal of Portfolio Management \'b7 2014 \'b7 88 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 In this article, the authors provide some new tools to evaluate trading strategies. When it is known that many strategies and combinations of strategies have been tried, it is necessary to adjust our evaluation method for these multiple tests. Sharpe Ratios and other statistics will be overstated. The methods provided by the authors in this article are simple to implement and allow for the real-time evaluation of candidate trading strategies.\cb1 \
+\pard\pardeftab720\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://elicit.com/review/5a1f5dc1-85c4-4256-9d63-2afce7e51ae7/source/ss-14677407?hideSummaryItems=1"}}{\fldrslt 
+\f1\fs26 \cf4 \cb5 On the Dangers of Cross-Validation. An Experimental Evaluation}}
+\fs26 \
+\pard\pardeftab720\partightenfactor0
+
+\fs24 \cf2 \
+\pard\pardeftab720\partightenfactor0
+\cf2 \cb5 \'a0\cb1 \
+\cb5 R. B. Rao, Glenn Fung, R\'f3mer Rosales\cb1 \
+\
+\cb5 \'a0\cb1 \
+\cb5 SDM \'b7 2008 \'b7 234 citations\cb1 \
+\pard\pardeftab720\sa320\partightenfactor0
+
+\fs30 \cf4 \cb5 Cross validation allows models to be tested using the full training set by means of repeated resampling; thus, maximizing the total number of points used for testing and potentially, helping to protect against overfitting. Improvements in computational power, recent reductions in the (computational) cost of classification algorithms, and the development of closed-form solutions (for performing cross validation in certain classes of learning algorithms) makes it possible to test thousand or millions of variants of learning models on the data. Thus, it is now possible to calculate cross validation performance on a much larger number of tuned models than would have been possible otherwise. However, we empirically show how under such large number of models the risk for overfitting increases and the performance estimated by cross validation is no longer an effective estimate of generalization; hence, this paper provides an empirical reminder of the dangers of cross validation. We use a closed-form solution that makes this evaluation possible for the cross validation problem of interest. In addition, through extensive experiments we expose and discuss the effects of the overuse/misuse of cross validation in various aspects, including model selection, feature selection, and data dimensionality. This is illustrated on synthetic, benchmark, and real-world data sets.}

@@ -1,5 +1,9 @@
-MONTAUK 3.0 RUST STRATEGY AND EVALUATION POLICY
-Updated 2026-07-21
+# Montauk 3.0 — Rust Strategy and Evaluation Policy
+
+**Status: REQUIRED IMPLEMENTATION PILLAR / CHARTER-SUBORDINATE (updated
+2026-07-21).** This document owns the production representation and performance
+policy for strategy families and configurations. It cannot alter Gold,
+authority, or product scope defined by [charter.md](charter.md).
 
 Decision
 --------
@@ -23,6 +27,11 @@ The important vocabulary
 A configuration is data. It is not Python code, Rust code, or a separately
 compiled executable.
 
+The configuration bucket is logical. Rust may expand deterministic search shards
+in bounded batches immediately before evaluation rather than pre-writing an
+entire billion-row Cartesian product. Every evaluated exact parameter set still
+receives a stable identity, dedup key, and compact durable verdict.
+
 Authoring contract optimized for speed and preventable errors
 -------------------------------------------------------------
 The normal agent does not enumerate configurations and does not write normal
@@ -45,7 +54,8 @@ Rust then:
 2. type-checks series/scalar/boolean/state operations;
 3. enforces causal-access and warm-up rules;
 4. canonicalizes and hashes the family graph;
-5. expands only parameter combinations satisfying constraints;
+5. expands only parameter combinations satisfying constraints, in bounded
+   deterministic batches when scale requires;
 6. deduplicates configurations;
 7. compiles one optimized internal execution plan for the family; and
 8. shares/precomputes common features and batch-evaluates configurations.
@@ -54,9 +64,12 @@ This is the default 3.0 path. The isolated Rust family-module path is staged and
 disabled until its containment, causal-access, determinism, resource, and parity
 acceptance tests pass.
 
-The first primitive registry is intentionally small and fixture-heavy, but it
-must reproduce every current production, current/historical Gold, benchmark, and
-simple validator-control strategy. Its initial coverage matrix includes typed
+The first primitive registry is intentionally small and fixture-heavy. Before
+cutover it must reproduce the legacy Active strategy needed for shadow safety,
+the matched B&H/execution reference, every control/benchmark admitted to the
+final 3.0 validator, and any legacy strategy Max explicitly selects as a
+migration candidate. Historical Gold rows and legacy scripts are not blanket
+coverage requirements. Its initial coverage matrix includes typed
 arithmetic and boolean logic; lag/rolling operations; moving averages; momentum;
 RSI/MACD; ATR, volatility, and bands; crossover/threshold events; approved
 external inputs; and explicit position state. Missing a primitive does not prove
@@ -139,14 +152,23 @@ requires a Max-authorized core release, review, fixtures, and reference/parity
 evidence.
 
 The boundary is a cryptographic release seal, not a prompt or Git convention.
-Use separate protected-core and generated-research repositories/workspaces,
-distinct OS identities and credentials, read-only deployed core, protected remote
-branches, and a content-addressed core manifest signed by a human-held key the
-resident agent cannot access. Startup, strategy testing, Gold publication, and
-trusted-signal execution fail closed when signature, protected hashes, or
-permissions do not verify. A core release requires an explicit Max-controlled
-maintenance session, reviewed diff, protected tests, a newly signed manifest,
-audit record, and revocation of temporary maintenance credentials.
+The minimum enforceable design is deliberately small:
+
+- the resident agent runs under an OS identity that has no protected-core write
+  credential;
+- one content-addressed core release is deployed read-only;
+- generated family specs/modules and research artifacts live outside that
+  release;
+- Max signs the release manifest with a human-held key unavailable to the
+  resident agent; and
+- startup plus every Gold-publication and trusted-signal job verifies the
+  signature, hashes, and permissions and fails closed on any mismatch.
+
+A core change therefore requires an explicit Max-controlled maintenance session,
+reviewed diff, protected tests, and a newly signed release. Separate repositories,
+protected remote branches, temporary credentials, and other release controls may
+support that outcome, but are not additional Montauk product concepts or mandatory
+layers unless an implementation threat/recovery test proves they are needed.
 
 Compilation is not validation
 -----------------------------
@@ -169,15 +191,17 @@ Priority
 --------
 1. Accuracy and one semantic truth.
 2. Trusted-signal and recertification deadlines.
-3. Throughput, efficiency, and hardware cost.
+3. Throughput and runtime efficiency on the available host.
 4. Implementation convenience.
 
-Benchmark work still required
------------------------------
-The language is decided; the precise Rust design is not. Representative Mac mini
-benchmarks must compare:
+Profiling work after correctness
+--------------------------------
+The language is decided; the precise Rust design is not. Profiling is ordinary
+engineering after correctness, not a hardware-procurement study or numerical
+throughput gate for 3.0. Representative workloads may compare:
 
-- primitive-coverage parity for all current strategies and controls;
+- primitive-coverage parity for the legacy Active migration fixture, final
+  controls/benchmarks, and explicitly selected migration candidates;
 - declarative interpreter versus compiled execution plan;
 - primitive caching and batched parameter layouts;
 - CPU parallelism, SIMD, memory, disk, and thermal behavior;
@@ -190,5 +214,34 @@ benchmarks must compare:
   load; and
 - isolated-module acceptance/repair cost without weakening containment.
 
-Those measurements choose the Rust engine design and hardware target. The agent
-does not choose the language.
+Those measurements guide safe Rust optimization on whichever host is supplied.
+They do not choose hardware, provider budget, or a strategies-per-hour acceptance
+target. The agent does not choose the language.
+
+Dedicated-host execution baseline
+---------------------------------
+The planned appliance runs native release-mode Rust on minimal current Debian
+Stable. Debian and systemd improve predictability, supervision, and permissions;
+they are not substitutes for benchmark evidence and do not change strategy or
+Gold semantics.
+
+- Hot market data, control state, experiment partitions, builds, and logs live
+  on SSD/NVMe. HDD is cold archive/backup only.
+- The scheduler gives verified data, signal generation, Active recertification,
+  recovery, and alerts first claim on CPU and I/O. Discovery workers use all
+  spare capacity at lower priority and must be preemptible.
+- Benchmark physical-core and logical-thread counts rather than assuming the
+  maximum thread count wins on an older CPU.
+- Expand and evaluate configurations in bounded streaming shards; never create a
+  file/process/object or compile step per configuration.
+- Use matched-channel RAM where the machine supports it. Keep a small emergency
+  swap area, but treat sustained swapping as a load-shedding fault.
+- Profile release builds under sustained CPU/RAM/SSD/thermal load. Tune worker
+  count, batch size, memory cap, reserve capacity, caching, and data layout before
+  kernel, governor, filesystem, or exotic compiler changes.
+- No overclocking or optimization is accepted if it weakens deterministic parity,
+  stability, containment, or a trusted deadline.
+
+The full host, service, remote-agent, conversation-channel, Slack/Buzz, and
+OpenClaw-pattern policy is in
+[debian-host-agent-and-channel-operations.md](debian-host-agent-and-channel-operations.md).
