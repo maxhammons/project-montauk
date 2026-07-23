@@ -2,8 +2,8 @@
   "schema_version": 3,
   "purpose": "agent_intervention_request",
   "instructions": "Work order for an LLM agent. `requests` are the ACTIONABLE items (warning+) \u2014 resolve each using the referenced project files as the source of truth. `optional` holds advisory/info suggestions (e.g. opt-in setup) that are safe to ignore. `dismissed` holds items the user has consciously suppressed by area; leave them unless they have escalated. An empty `requests` list (actionable=false) means nothing needs doing. The project's Python engine is authoritative for all strategy logic. Dismiss an item via `scripts/ops/dismiss_request.py dismiss <area>`.",
-  "generated_utc": "2026-06-17T19:27:10Z",
-  "generated_local": "2026-06-17T12:27:10-07:00",
+  "generated_utc": "2026-07-23T19:13:12Z",
+  "generated_local": "2026-07-23T12:13:12-07:00",
   "ticket": null,
   "summary": {
     "request_count": 0,
@@ -16,7 +16,7 @@
   },
   "context": {
     "signal": {
-      "data_end_date": "2026-06-17",
+      "data_end_date": "2026-07-23",
       "risk_state": "risk_off",
       "age_days": 0,
       "strategy": "chimera_v1_2026_05_26"

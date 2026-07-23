@@ -1,24 +1,24 @@
 {
   "schema_version": 1,
   "status": "ok",
-  "started_utc": "2026-06-17T19:10:10Z",
-  "finished_utc": "2026-06-17T19:10:10Z",
+  "started_utc": "2026-07-23T19:13:12Z",
+  "finished_utc": "2026-07-23T19:13:12Z",
   "phases": [
     {
       "key": "daily",
       "label": "Refresh data & recompute signal",
-      "detail": "Data & signal already refreshed today (2026-06-17); skipped.",
+      "detail": "Data & signal already refreshed today (2026-07-23); skipped.",
       "status": "skipped",
-      "started_utc": "2026-06-17T19:10:10Z",
-      "finished_utc": "2026-06-17T19:10:10Z"
+      "started_utc": "2026-07-23T19:13:12Z",
+      "finished_utc": "2026-07-23T19:13:12Z"
     },
     {
       "key": "doctor",
       "label": "Run health checks",
       "detail": "scripts/ops/doctor.py \u2014 verify app bundle, ops artifacts, scheduler config, and local launchd state.",
       "status": "ok",
-      "started_utc": "2026-06-17T19:10:10Z",
-      "finished_utc": "2026-06-17T19:10:10Z",
+      "started_utc": "2026-07-23T19:13:12Z",
+      "finished_utc": "2026-07-23T19:13:12Z",
       "returncode": 0,
       "stderr_tail": ""
     },
@@ -27,8 +27,8 @@
       "label": "Drain one approved research idea",
       "detail": "No approved strategy ideas are queued. Research was skipped; the app is ready to use.",
       "status": "empty",
-      "started_utc": "2026-06-17T19:10:10Z",
-      "finished_utc": "2026-06-17T19:10:10Z"
+      "started_utc": "2026-07-23T19:13:12Z",
+      "finished_utc": "2026-07-23T19:13:12Z"
     }
   ],
   "current_phase": "research",

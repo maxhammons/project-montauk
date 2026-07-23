@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-06-17T18:57:00Z",
+  "generated_utc": "2026-07-23T19:08:08Z",
   "version_info": {
     "schema_version": 1,
-    "generated_utc": "2026-06-17T18:57:00Z",
+    "generated_utc": "2026-07-23T19:08:08Z",
     "app_version": "0.1.0",
-    "git_commit": "3715f54",
+    "git_commit": "3f0ac61",
     "git_dirty": true,
-    "strategy_code_version": "3715f54"
+    "strategy_code_version": "3f0ac61"
   },
   "pending_count": 61,
   "preferences": {
@@ -64,7 +64,7 @@
   "notifications": [
     {
       "id": "f184da1d7aa827cb",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -113,7 +113,7 @@
     },
     {
       "id": "65b518ef99843587",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -261,7 +261,7 @@
     },
     {
       "id": "c5a2da4901f0069e",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -460,7 +460,7 @@
     },
     {
       "id": "a795804388207584",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -608,7 +608,7 @@
     },
     {
       "id": "d69a59a211166044",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -807,7 +807,7 @@
     },
     {
       "id": "c1ffbea063a46f8b",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Warning",
       "body": "Chimera validation completed.",
       "severity": "warning",
@@ -836,7 +836,7 @@
     },
     {
       "id": "ddb96a9414741df8",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Warning",
       "body": "Chimera validation completed.",
       "severity": "warning",
@@ -865,7 +865,7 @@
     },
     {
       "id": "fcf1b9215960a7bf",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Chimera validation completed.",
       "severity": "notice",
@@ -894,7 +894,7 @@
     },
     {
       "id": "fb159d441d5d6e44",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Chimera validation completed.",
       "severity": "notice",
@@ -923,7 +923,7 @@
     },
     {
       "id": "5b8b452fd24fe171",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Chimera validation completed.",
       "severity": "notice",
@@ -952,7 +952,7 @@
     },
     {
       "id": "029a9bcc006b5e43",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Chimera validation completed.",
       "severity": "notice",
@@ -981,7 +981,7 @@
     },
     {
       "id": "42a15f5b8933cc33",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1028,7 +1028,7 @@
     },
     {
       "id": "627c962b0ef5f9ef",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1075,7 +1075,7 @@
     },
     {
       "id": "37bd1aabfd312323",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1122,7 +1122,7 @@
     },
     {
       "id": "e5201e4de5614c63",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1169,7 +1169,7 @@
     },
     {
       "id": "c5def9ddbb42dd2a",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1216,7 +1216,7 @@
     },
     {
       "id": "53925cebcb08b3ba",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1263,7 +1263,7 @@
     },
     {
       "id": "2c1a1a90fd1b3fe7",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Warning",
       "body": "Maintenance failed.",
       "severity": "warning",
@@ -1295,7 +1295,7 @@
     },
     {
       "id": "110d1fbdb8e938b6",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1342,7 +1342,7 @@
     },
     {
       "id": "3eade09923547837",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Warning",
       "body": "Maintenance failed.",
       "severity": "warning",
@@ -1374,7 +1374,7 @@
     },
     {
       "id": "049ca5134dc2fe76",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1421,7 +1421,7 @@
     },
     {
       "id": "0d96871e63cd8fbf",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Warning",
       "body": "Maintenance failed.",
       "severity": "warning",
@@ -1453,7 +1453,7 @@
     },
     {
       "id": "ffebfd8f6677ea39",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1500,7 +1500,7 @@
     },
     {
       "id": "c41533158c2bb731",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1547,7 +1547,7 @@
     },
     {
       "id": "860dcf94fc22175d",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1594,7 +1594,7 @@
     },
     {
       "id": "4907f76c8e152a82",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1641,7 +1641,7 @@
     },
     {
       "id": "8efa2f2ddefc7bd6",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1688,7 +1688,7 @@
     },
     {
       "id": "307004f9a568baef",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1735,7 +1735,7 @@
     },
     {
       "id": "926c60db2283654e",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Warning",
       "body": "Maintenance failed.",
       "severity": "warning",
@@ -1767,7 +1767,7 @@
     },
     {
       "id": "b5eb1d0ae8bf703c",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1814,7 +1814,7 @@
     },
     {
       "id": "c8d4ca2bf117bfd2",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1861,7 +1861,7 @@
     },
     {
       "id": "0dc70367a4b9f797",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1908,7 +1908,7 @@
     },
     {
       "id": "c255b2246ee37a2f",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -1955,7 +1955,7 @@
     },
     {
       "id": "6051a3d5a8745cc5",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -2002,7 +2002,7 @@
     },
     {
       "id": "08e1d6e293eaf504",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -2049,7 +2049,7 @@
     },
     {
       "id": "77eb1e3078b47ac1",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -2096,7 +2096,7 @@
     },
     {
       "id": "4724f536fc2aca43",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -2143,7 +2143,7 @@
     },
     {
       "id": "e292081d59af1d2a",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -2190,7 +2190,7 @@
     },
     {
       "id": "c553a889628aa5fa",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -2237,7 +2237,7 @@
     },
     {
       "id": "e5d484a86e17b532",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -2284,7 +2284,7 @@
     },
     {
       "id": "d44bb3eb356235a5",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -2338,7 +2338,7 @@
     },
     {
       "id": "bfce618aea8ecfe6",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -2384,7 +2384,7 @@
     },
     {
       "id": "58b4ff0f26fe36c0",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Active champion changed.",
       "severity": "notice",
@@ -2421,7 +2421,7 @@
     },
     {
       "id": "877ee111a92a4ad7",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -2467,7 +2467,7 @@
     },
     {
       "id": "e6c76a8173d0f454",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Error",
       "body": "Data quality checks reported failures.",
       "severity": "error",
@@ -2523,7 +2523,7 @@
     },
     {
       "id": "d42cb41b86d31d93",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Warning",
       "body": "Signal snapshot already exists for 2026-06-09 and differs.",
       "severity": "warning",
@@ -2570,7 +2570,7 @@
     },
     {
       "id": "3e73f665f7b28afe",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Warning",
       "body": "Live holdout replay diverged from a point-in-time signal snapshot.",
       "severity": "warning",
@@ -2596,7 +2596,7 @@
     },
     {
       "id": "7d0eda1d3aabe99e",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Active champion changed.",
       "severity": "notice",
@@ -2633,7 +2633,7 @@
     },
     {
       "id": "9faf55cdcfcdc9b2",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Error",
       "body": "Active champion requires manual review.",
       "severity": "error",
@@ -2748,7 +2748,7 @@
     },
     {
       "id": "14d8cd6ea33fccd6",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Error",
       "body": "Live evidence demoted the active champion.",
       "severity": "error",
@@ -2791,7 +2791,7 @@
     },
     {
       "id": "8ffb50cdd031f2bc",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -2845,7 +2845,7 @@
     },
     {
       "id": "733afd9bef8e9b32",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Warning",
       "body": "Maintenance failed.",
       "severity": "warning",
@@ -2877,7 +2877,7 @@
     },
     {
       "id": "f0898457c96017fd",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Warning",
       "body": "Signal snapshot already exists for 2026-06-09 and differs.",
       "severity": "warning",
@@ -2924,7 +2924,7 @@
     },
     {
       "id": "97eec99417861827",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -2978,7 +2978,7 @@
     },
     {
       "id": "eb228a3432378ae9",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Warning",
       "body": "Signal snapshot already exists for 2026-06-09 and differs.",
       "severity": "warning",
@@ -3025,7 +3025,7 @@
     },
     {
       "id": "4292177ac2462228",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "A higher-confidence certified strategy is available for review.",
       "severity": "notice",
@@ -3079,7 +3079,7 @@
     },
     {
       "id": "6ccbddd715f21a36",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Montauk signal changed to risk_off.",
       "severity": "notice",
@@ -3124,7 +3124,7 @@
     },
     {
       "id": "21888f92fa7e635d",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Notice",
       "body": "Active champion changed.",
       "severity": "notice",
@@ -3161,7 +3161,7 @@
     },
     {
       "id": "5676f57df6774384",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Error",
       "body": "Active champion requires manual review.",
       "severity": "error",
@@ -3274,7 +3274,7 @@
     },
     {
       "id": "0e746cad37ebce32",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Error",
       "body": "Live evidence demoted the active champion.",
       "severity": "error",
@@ -3317,7 +3317,7 @@
     },
     {
       "id": "ca5ad5e01a4f22ae",
-      "created_utc": "2026-06-17T18:57:00Z",
+      "created_utc": "2026-07-23T19:08:08Z",
       "title": "Montauk Warning",
       "body": "Maintenance failed.",
       "severity": "warning",

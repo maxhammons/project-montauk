@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-06-17T18:57:00Z",
+  "generated_utc": "2026-07-23T19:08:08Z",
   "version_info": {
     "schema_version": 1,
-    "generated_utc": "2026-06-17T18:57:00Z",
+    "generated_utc": "2026-07-23T19:08:08Z",
     "app_version": "0.1.0",
-    "git_commit": "3715f54",
+    "git_commit": "3f0ac61",
     "git_dirty": true,
-    "strategy_code_version": "3715f54"
+    "strategy_code_version": "3f0ac61"
   },
   "status": "ok",
-  "snapshot_count": 21,
+  "snapshot_count": 22,
   "live_start_date": "2026-05-08",
-  "latest_snapshot_date": "2026-06-17",
+  "latest_snapshot_date": "2026-07-23",
   "matched_count": 1,
   "diverged_count": 0,
-  "not_replayed_count": 20,
-  "close_return_since_start_pct": 18.8736,
+  "not_replayed_count": 21,
+  "close_return_since_start_pct": -4.3282,
   "expected_next_open_execution_proxy": [
     {
       "event": "exit",
@@ -39,16 +39,16 @@
   ],
   "active_champion_performance_since_live_start": {
     "start_date": "2026-05-08",
-    "latest_date": "2026-06-17",
+    "latest_date": "2026-07-23",
     "strategy": "chimera_v1_2026_05_26",
     "signal_return_pct": 6.0931,
-    "buy_hold_return_pct": 18.8736,
-    "live_vs_buy_hold_multiple_proxy": 0.8925
+    "buy_hold_return_pct": -4.3282,
+    "live_vs_buy_hold_multiple_proxy": 1.1089
   },
   "backtest_vs_live_degradation": {
     "backtest_share_multiple": 35.1812,
-    "live_vs_buy_hold_multiple_proxy": 0.8925,
-    "degradation_pct": -97.4632
+    "live_vs_buy_hold_multiple_proxy": 1.1089,
+    "degradation_pct": -96.848
   },
   "confidence_drift": {
     "start": 0.7594,
@@ -59,124 +59,129 @@
     "demote": false,
     "reasons": [],
     "evidence": {
-      "n_snapshots": 21,
+      "n_snapshots": 22,
       "min_snapshots": 21,
       "diverged_count": 0,
-      "live_vs_bah_multiple": 0.8925,
-      "degradation_fraction_diagnostic": -0.974632,
+      "live_vs_bah_multiple": 1.1089,
+      "degradation_fraction_diagnostic": -0.96848,
       "thresholds": {
         "live_vs_bah_floor": 0.85
       }
     },
-    "checked_utc": "2026-06-17T18:57:00Z"
+    "checked_utc": "2026-07-23T19:08:08Z"
   },
   "comparisons": [
     {
       "date": "2026-05-08",
       "status": "not_replayed",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-08.json"
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-05-08.json"
     },
     {
       "date": "2026-05-13",
       "status": "not_replayed",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-13.json"
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-05-13.json"
     },
     {
       "date": "2026-05-14",
       "status": "not_replayed",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-14.json"
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-05-14.json"
     },
     {
       "date": "2026-05-15",
       "status": "not_replayed",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-15.json"
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-05-15.json"
     },
     {
       "date": "2026-05-18",
       "status": "not_replayed",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-18.json"
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-05-18.json"
     },
     {
       "date": "2026-05-19",
       "status": "not_replayed",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-19.json"
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-05-19.json"
     },
     {
       "date": "2026-05-20",
       "status": "not_replayed",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-20.json"
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-05-20.json"
     },
     {
       "date": "2026-05-21",
       "status": "not_replayed",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-21.json"
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-05-21.json"
     },
     {
       "date": "2026-05-22",
       "status": "not_replayed",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-22.json"
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-05-22.json"
     },
     {
       "date": "2026-05-26",
       "status": "not_replayed",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-26.json"
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-05-26.json"
     },
     {
       "date": "2026-05-27",
       "status": "not_replayed",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-27.json"
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-05-27.json"
     },
     {
       "date": "2026-05-28",
       "status": "not_replayed",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-05-28.json"
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-05-28.json"
     },
     {
       "date": "2026-06-01",
       "status": "not_replayed",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-01.json"
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-06-01.json"
     },
     {
       "date": "2026-06-02",
       "status": "not_replayed",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-02.json"
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-06-02.json"
     },
     {
       "date": "2026-06-03",
       "status": "not_replayed",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-03.json"
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-06-03.json"
     },
     {
       "date": "2026-06-04",
       "status": "not_replayed",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-04.json"
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-06-04.json"
     },
     {
       "date": "2026-06-05",
       "status": "not_replayed",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-05.json"
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-06-05.json"
     },
     {
       "date": "2026-06-08",
       "status": "not_replayed",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-08.json"
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-06-08.json"
     },
     {
       "date": "2026-06-09",
       "status": "not_replayed",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-09.json"
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-06-09.json"
     },
     {
       "date": "2026-06-12",
       "status": "not_replayed",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-12.json"
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-06-12.json"
     },
     {
       "date": "2026-06-17",
+      "status": "not_replayed",
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-06-17.json"
+    },
+    {
+      "date": "2026-07-23",
       "status": "match",
-      "snapshot_path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-17.json",
+      "snapshot_path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-07-23.json",
       "snapshot": {
-        "data_end_date": "2026-06-17",
+        "data_end_date": "2026-07-23",
         "strategy": "chimera_v1_2026_05_26",
         "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
         "risk_state": "risk_off",
@@ -184,10 +189,10 @@
         "exit_signal": false,
         "buy_event": false,
         "sell_event": false,
-        "close": 226.994995
+        "close": 182.690002
       },
       "replay": {
-        "data_end_date": "2026-06-17",
+        "data_end_date": "2026-07-23",
         "strategy": "chimera_v1_2026_05_26",
         "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
         "risk_state": "risk_off",
@@ -195,7 +200,7 @@
         "exit_signal": false,
         "buy_event": false,
         "sell_event": false,
-        "close": 226.994995
+        "close": 182.690002
       },
       "changed_fields": []
     }

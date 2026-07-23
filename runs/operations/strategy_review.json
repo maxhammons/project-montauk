@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-06-17T18:57:00Z",
+  "generated_utc": "2026-07-23T19:08:08Z",
   "status": "on_best_certified",
   "on_best_certified": true,
   "selection_metric": "montauk",
@@ -11,7 +11,7 @@
     "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
     "confidence": 0.7684,
     "score_label": "composite_confidence",
-    "data_end_date": "2026-06-17",
+    "data_end_date": "2026-07-23",
     "risk_state": "risk_off"
   },
   "best_certified": {
@@ -19,14 +19,14 @@
     "rank": null,
     "display_name": "Chimera 1",
     "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
-    "montauk_score": 0.6574,
+    "montauk_score": 0.6607,
     "confidence": 0.7684,
-    "selected_score": 0.6574,
+    "selected_score": 0.6607,
     "score_label": "Montauk Score",
     "share_multiple": 35.1812,
     "real_share_multiple": 1.2857,
     "modern_share_multiple": 3.2035
   },
-  "leaderboard_count": 12,
-  "gold_count": 12
+  "leaderboard_count": 13,
+  "gold_count": 13
 }

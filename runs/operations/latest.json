@@ -1,19 +1,19 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-06-17T18:56:22Z",
+  "generated_utc": "2026-07-23T19:07:32Z",
   "status": "ok",
   "version_info": {
     "schema_version": 1,
-    "generated_utc": "2026-06-17T18:56:50Z",
+    "generated_utc": "2026-07-23T19:08:02Z",
     "app_version": "0.1.0",
-    "git_commit": "3715f54",
+    "git_commit": "3f0ac61",
     "git_dirty": true,
-    "strategy_code_version": "3715f54"
+    "strategy_code_version": "3f0ac61"
   },
   "active_signal": {
     "snapshot_schema_version": 1,
-    "generated_utc": "2026-06-17T18:56:34Z",
-    "data_end_date": "2026-06-17",
+    "generated_utc": "2026-07-23T19:07:43Z",
+    "data_end_date": "2026-07-23",
     "active_champion": {
       "strategy": "chimera_v1_2026_05_26",
       "rank": 1,
@@ -103,7 +103,7 @@
     "exit_label": "",
     "buy_event": false,
     "sell_event": false,
-    "close": 226.994995,
+    "close": 182.690002,
     "flip_likelihood": 0.0,
     "flip_days": null,
     "flip_move_pct": null,
@@ -169,7 +169,7 @@
       "changed": false,
       "reason": "unchanged",
       "changed_fields": [],
-      "previous_data_end_date": "2026-06-12",
+      "previous_data_end_date": "2026-06-17",
       "previous_risk_state": "risk_off"
     },
     "data_quality": {
@@ -178,12 +178,13 @@
       "warn": 0,
       "fail": 0,
       "skip": 0
-    }
+    },
+    "prev_snapshot_sha256": "496282e742638a52e7421b635f7218cf600ea1109242f698588326bf808aa56b"
   },
   "computed_signal": {
     "snapshot_schema_version": 1,
-    "generated_utc": "2026-06-17T18:56:34Z",
-    "data_end_date": "2026-06-17",
+    "generated_utc": "2026-07-23T19:07:43Z",
+    "data_end_date": "2026-07-23",
     "active_champion": {
       "strategy": "chimera_v1_2026_05_26",
       "rank": 1,
@@ -273,7 +274,7 @@
     "exit_label": "",
     "buy_event": false,
     "sell_event": false,
-    "close": 226.994995,
+    "close": 182.690002,
     "flip_likelihood": 0.0,
     "flip_days": null,
     "flip_move_pct": null,
@@ -339,7 +340,7 @@
       "changed": false,
       "reason": "unchanged",
       "changed_fields": [],
-      "previous_data_end_date": "2026-06-12",
+      "previous_data_end_date": "2026-06-17",
       "previous_risk_state": "risk_off"
     },
     "data_quality": {
@@ -348,23 +349,32 @@
       "warn": 0,
       "fail": 0,
       "skip": 0
-    }
+    },
+    "prev_snapshot_sha256": "496282e742638a52e7421b635f7218cf600ea1109242f698588326bf808aa56b"
   },
   "steps": {
     "refresh": {
-      "status": "skipped",
-      "reason": "already_refreshed_today",
-      "last_refresh": {
-        "date": "2026-06-17",
-        "refreshed_utc": "2026-06-17T17:15:27Z",
-        "updated": true,
-        "total_new_bars": 25,
-        "data_end_date": "2026-06-17"
-      }
+      "status": "ok",
+      "updated": true,
+      "total_new_bars": 230,
+      "new_bars": {
+        "TECL": 24,
+        "VIX": 26,
+        "XLK": 24,
+        "QQQ": 24,
+        "TQQQ": 24,
+        "SGOV": 24,
+        "DTB3": 24,
+        "T10Y2Y": 24,
+        "DFF": 36
+      },
+      "data_end_date": "2026-07-23",
+      "refreshed_utc": "2026-07-23T19:07:36Z",
+      "forced": false
     },
     "manifest": {
       "status": "ok",
-      "built_utc": "2026-06-17T18:56:22+00:00"
+      "built_utc": "2026-07-23T19:07:36+00:00"
     },
     "data_quality": {
       "status": "ok",
@@ -378,8 +388,8 @@
       "failing_checks": []
     },
     "signal_snapshot": {
-      "status": "unchanged",
-      "path": "/Users/maxhammons/Documents/Projects/Project Montauk/signals/2026-06-17.json"
+      "status": "written",
+      "path": "/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/signals/2026-07-23.json"
     },
     "top_strategies": {
       "status": "ok",
@@ -387,21 +397,21 @@
     },
     "artifact_backfill": {
       "status": "ok",
-      "created_or_refreshed": 0,
-      "skipped": 12
+      "created_or_refreshed": 13,
+      "skipped": 0
     },
     "viz": {
       "status": "ok",
       "ok": true,
       "returncode": 0,
-      "stdout_tail": "[build_viz] Loading TECL price data\u2026\n[build_viz]   8338 bars; synthetic ends at index 3936\n[build_viz] TECL Health: 73.18 on 2026-06-17 (diagnostic only)\n[build_viz] Manifest: sha256=278272d663fe\u2026 built 2026-06-17T18:56:22+00:00\n[build_viz] North-star markers: 28\n[build_viz] Leaderboard entries: 12\n[build_viz] Family confidence leaders: 4\n[build_viz] Confidence v2 scores: 8\n[build_viz] Indexed 128 run-dir dashboard_data.json files\n[build_viz] Matched 12/12 leaderboard entries to run artifacts\n[build_viz] Freshness: data through 2026-06-17 \u00b7 signals through 2026-06-17 \u00b7 leaderboard 99ab0d17d68e\u2026\n[build_viz] Wrote /Users/maxhammons/Documents/Projects/Project Montauk/viz/montauk-viz.html (8.88 MB)\n[build_viz] Wrote /Users/maxhammons/Documents/Projects/Project Montauk/viz/montauk-bundle.json (8.64 MB)\n[build_viz] Done. Open with: open '/Users/maxhammons/Documents/Projects/Project Montauk/viz/montauk-viz.html'\n",
+      "stdout_tail": "[build_viz] Loading TECL price data\u2026\n[build_viz]   8362 bars; synthetic ends at index 3936\n[build_viz] TECL Health: 32.85 on 2026-07-23 (diagnostic only)\n[build_viz] Manifest: sha256=8b2332ba7c7e\u2026 built 2026-07-23T19:07:36+00:00\n[build_viz] North-star markers: 28\n[build_viz] Leaderboard entries: 13\n[build_viz] Family confidence leaders: 4\n[build_viz] Confidence v2 scores: 8\n[build_viz] Indexed 129 run-dir dashboard_data.json files\n[build_viz] Matched 13/13 leaderboard entries to run artifacts\n[build_viz] Freshness: data through 2026-07-23 \u00b7 signals through 2026-07-23 \u00b7 leaderboard 39d7a736bbd8\u2026\n[build_viz] Wrote /Users/Max.Hammons/Developer/local-sandbox/Project Montauk/viz/montauk-viz.html (9.47 MB)\n[build_viz] Wrote /Users/Max.Hammons/Developer/local-sandbox/Project Montauk/viz/montauk-bundle.json (9.23 MB)\n[build_viz] Done. Open with: open '/Users/Max.Hammons/Developer/local-sandbox/Project Montauk/viz/montauk-viz.html'\n",
       "stderr_tail": ""
     },
     "followups": {
       "status": "ok",
       "live_holdout": {
         "status": "ok",
-        "snapshot_count": 21,
+        "snapshot_count": 22,
         "diverged_count": 0
       },
       "governance": {
@@ -417,9 +427,9 @@
           "rank": null,
           "display_name": "Chimera 1",
           "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
-          "montauk_score": 0.6574,
+          "montauk_score": 0.6607,
           "confidence": 0.7684,
-          "selected_score": 0.6574,
+          "selected_score": 0.6607,
           "score_label": "Montauk Score",
           "share_multiple": 35.1812,
           "real_share_multiple": 1.2857,
@@ -431,7 +441,7 @@
           "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1",
           "confidence": 0.7684,
           "score_label": "composite_confidence",
-          "data_end_date": "2026-06-17",
+          "data_end_date": "2026-07-23",
           "risk_state": "risk_off"
         }
       },
@@ -443,16 +453,25 @@
   },
   "events": [
     {
-      "timestamp_utc": "2026-06-17T18:56:22Z",
+      "timestamp_utc": "2026-07-23T19:07:36Z",
       "severity": "info",
-      "event_type": "data_refresh_skipped",
-      "message": "Data already refreshed today (2026-06-17); skipping the network pull.",
+      "event_type": "data_refreshed",
+      "message": "Data refresh added 230 new bars.",
       "payload": {
-        "date": "2026-06-17",
-        "refreshed_utc": "2026-06-17T17:15:27Z",
         "updated": true,
-        "total_new_bars": 25,
-        "data_end_date": "2026-06-17"
+        "total_new_bars": 230,
+        "new_bars": {
+          "TECL": 24,
+          "VIX": 26,
+          "XLK": 24,
+          "QQQ": 24,
+          "TQQQ": 24,
+          "SGOV": 24,
+          "DTB3": 24,
+          "T10Y2Y": 24,
+          "DFF": 36
+        },
+        "data_end_date": "2026-07-23"
       }
     }
   ]

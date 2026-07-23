@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-06-17T18:57:00Z",
+  "generated_utc": "2026-07-23T19:08:08Z",
   "version_info": {
     "schema_version": 1,
-    "generated_utc": "2026-06-17T18:57:00Z",
+    "generated_utc": "2026-07-23T19:08:08Z",
     "app_version": "0.1.0",
-    "git_commit": "3715f54",
+    "git_commit": "3f0ac61",
     "git_dirty": true,
-    "strategy_code_version": "3715f54"
+    "strategy_code_version": "3f0ac61"
   },
   "state": "active_ok",
   "reasons": [
@@ -34,14 +34,14 @@
     ]
   },
   "active_signal": {
-    "data_end_date": "2026-06-17",
+    "data_end_date": "2026-07-23",
     "risk_state": "risk_off",
     "strategy": "chimera_v1_2026_05_26",
     "params_hash": "aae4f46bdc83cf80a678266ec02babce161bd8130c6dac5e9a2301a27571bfb1"
   },
   "live_holdout": {
     "status": "ok",
-    "snapshot_count": 21,
+    "snapshot_count": 22,
     "diverged_count": 0,
     "confidence_drift": {
       "start": 0.7594,
@@ -50,26 +50,26 @@
     },
     "active_champion_performance_since_live_start": {
       "start_date": "2026-05-08",
-      "latest_date": "2026-06-17",
+      "latest_date": "2026-07-23",
       "strategy": "chimera_v1_2026_05_26",
       "signal_return_pct": 6.0931,
-      "buy_hold_return_pct": 18.8736,
-      "live_vs_buy_hold_multiple_proxy": 0.8925
+      "buy_hold_return_pct": -4.3282,
+      "live_vs_buy_hold_multiple_proxy": 1.1089
     },
     "demotion": {
       "demote": false,
       "reasons": [],
       "evidence": {
-        "n_snapshots": 21,
+        "n_snapshots": 22,
         "min_snapshots": 21,
         "diverged_count": 0,
-        "live_vs_bah_multiple": 0.8925,
-        "degradation_fraction_diagnostic": -0.974632,
+        "live_vs_bah_multiple": 1.1089,
+        "degradation_fraction_diagnostic": -0.96848,
         "thresholds": {
           "live_vs_bah_floor": 0.85
         }
       },
-      "checked_utc": "2026-06-17T18:57:00Z"
+      "checked_utc": "2026-07-23T19:08:08Z"
     }
   },
   "strategy_review": {
