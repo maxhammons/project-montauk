@@ -30,6 +30,7 @@ Reasoning. This is the last real-world fact needed to determine whether Gold's
 modeled opening fill is obtainable.
 
 Max's answer.
+This is out of scope for 3.0
 
 
 2. How should the real 2008-12-17 through 2012-06-28 TYH era enter Gold?
@@ -51,6 +52,7 @@ Reasoning. Silently treating the fund as one unchanged product is wrong, while
 discarding 3.5 years of actual tradable history also throws away evidence.
 
 Max's answer.
+Suggested answer is sufficient
 
 
 3. Should a GitHub-only outage block an otherwise valid daily signal?
@@ -68,8 +70,7 @@ nonessential authority changes until off-machine replication catches up.
 Reasoning. A backup-provider outage should be visible, but it should not silently
 turn into a trading rule or suppress a valid time-sensitive instruction.
 
-Max's answer.
-
+Max's answer. No and Suggested answer is sufficient
 
 4. What disaster data-loss promise should 3.0 make while GitHub is the only
 off-machine backup?
@@ -90,8 +91,7 @@ the beginning, as already answered.
 Reasoning. This turns “no data loss” into a promise the hardware can actually
 support and names the one residual exception instead of hiding it.
 
-Max's answer.
-
+Max's answer. Suggested answer is sufficient
 
 5. Must the dead-man alert be independent of Montauk's Slack/Buzz workspace?
 
@@ -107,7 +107,7 @@ deadline is missed.
 Reasoning. This adds no second authority channel; it only reports the absence of
 the primary system.
 
-Max's answer.
+Max's answer. This is out of scope
 
 
 6. Can a later search-accounting discovery make an existing Gold certificate stale?
@@ -128,7 +128,7 @@ Reasoning. An immutable certificate should preserve what was claimed and why; it
 should not remain current Gold after evidence shows that one mandatory plank was
 computed incorrectly.
 
-Max's answer.
+Max's answer.  Suggested answer is sufficient
 
 
 7. How should TECL cash distributions be handled for the strategy and matched B&H?
@@ -149,7 +149,7 @@ separate data views so distributions can never be omitted or counted twice.
 Reasoning. “Adjusted total return” needs one explicit, symmetric convention before
 Gold can honestly claim to beat matched B&H.
 
-Max's answer.
+Max's answer. Dividends should be reinvested at the time they are given out
 
 
 8. May a signed core or validator release reset Montauk's search-history penalty?
@@ -168,7 +168,7 @@ feature source is not enough.
 Reasoning. Versioning should identify changed methodology, not manufacture a fresh
 untested history.
 
-Max's answer.
+Max's answer. Suggested answer is sufficient
 
 
 9. What exact confirmation interaction should an opposite-state Active switch use?
@@ -186,7 +186,7 @@ the switch. No default acceptance, timeout acceptance, or hidden second trade.
 Reasoning. This preserves the requested one-button action without making a real
 opposite-state instruction look like a harmless leaderboard pointer update.
 
-Max's answer.
+Max's answer. Suggested answer is sufficient. I may also ask to see states that improve upon the active strategy (the one ive chosen)
 
 
 10. When should a dismissed or deferred recommendation be shown again?
@@ -204,7 +204,7 @@ than installing the research report's arbitrary “50% of threshold or 20 bars.�
 Reasoning. This preserves a quiet interface without allowing dismissal to hide a
 meaningfully changed decision.
 
-Max's answer.
+Max's answer. Suggested answer is sufficient
 
 
 11. Does a material TECL product change merely alert Max, or also suspend trusted
@@ -224,7 +224,7 @@ automatically substitute another ETF.
 Reasoning. A material fund change alters the object Montauk certified, not merely
 one more daily observation.
 
-Max's answer.
+Max's answer. Alert human. 
 
 
 12. May Montauk perform a clean-machine restore drill even though production and
@@ -244,8 +244,7 @@ authority. Destroy or reseal it after the drill.
 Reasoning. This tests disaster recovery without creating off-machine production
 testing or a hot standby.
 
-Max's answer.
-
+Max's answer. Yes but this would need human approval before beginning this process or even planning that. 
 
 Part B - Consequential settings Phase 1 must return with evidence
 
