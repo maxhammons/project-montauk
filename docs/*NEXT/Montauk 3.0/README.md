@@ -1,6 +1,6 @@
 # Montauk 3.0 — The Always-On TECL Research Appliance
 
-**Status: RATIFIED VISION / IMPLEMENTATION CONTRACT (updated 2026-07-21).** This folder
+**Status: RATIFIED VISION / IMPLEMENTATION CONTRACT (updated 2026-07-25).** This folder
 defines the next TECL-only iteration of Project Montauk. The governing contract is
 [charter.md](charter.md); settled decisions and superseded decisions are recorded
 in [decisions.md](decisions.md). Existing questionnaire answers are source
@@ -179,7 +179,20 @@ one of those boxes, it needs explicit justification or removal.
 - **Everything durable has an off-machine GitHub path.** Code, specifications,
   manifests, authority state, Gold artifacts, and partitioned database snapshots
   are backed up without forcing high-volume live databases into ordinary Git
-  blobs. No acknowledged durable result may be silently lost.
+  blobs. No acknowledged durable result may be silently lost. The promise is
+  scoped honestly: zero loss against ordinary process/disk failure via a local
+  journal plus a second local device, and an explicitly accepted
+  physical-disaster recovery point equal to the last verified GitHub sync.
+- **A backup outage is not a trading rule.** If everything is healthy except
+  off-machine replication, Montauk journals locally, shows `degraded_backup`,
+  alerts Max, and still delivers the valid signal on time — while blocking Gold
+  publication, Active changes, and other non-essential authority mutations.
+- **TECL is a product, not just a price series.** Observed history spans a TYH
+  era (2008-12-17 → 2012-06-28, Russell 1000 Technology) and the current
+  Technology Select Sector era; both seams are labelled. A material product
+  change — benchmark, leverage objective, ticker/CUSIP, closure, prolonged halt —
+  alerts Max immediately, suspends new trusted signals, and stales affected
+  certificates.
 
 ## What Gold means
 
@@ -273,6 +286,8 @@ duplicate is a documentation defect.
 | [validation-audit-findings.md](validation-audit-findings.md) | Preserve defects found in legacy validation code so they are not repeated. | Reference evidence only; not an architecture or threshold source |
 | [decisions.md](decisions.md) | Explain how the current policy emerged, including superseded calls. | Historical rationale only; never implement directly |
 | `Questionnaires/` | Preserve Max's answers and the wording that produced them. | Frozen source evidence; do not edit or implement directly |
+| `research/rd1/` | Ten-stream Phase 1 evidence package plus the research lead's conclusion. | Reference evidence and hypothesis inventory; **not** a requirements source. Nothing here is policy until the charter adopts it |
+| `research/rd2/` | Independent review of the rd1 package; eleven follow-up research prompts. | Open research backlog. R3/R5 (TECL-TYH data, distributions, synthetic overlap), R1/R4 (search honesty, low-sample inference), and R2 (null worlds) are live; R6/R9's broker and dead-man portions are out of scope per the charter |
 | [2026-06-10-ios-companion-app.md](../Montauk%204.0/2026-06-10-ios-companion-app.md) | Historical mobile-app proposal. | Deferred to 4.x/5.x; not a 3.0 completion requirement |
 
 OS/editor/session metadata—including `.DS_Store` and
@@ -289,8 +304,11 @@ decision; no uptime duration or soak test automatically advances the project.
 [Questionnaire 2](Questionnaires/Questionnaire%202.txt),
 [Questionnaire 3 — Final Operating Contract](Questionnaires/Questionnaire%203%20-%20Final%20Operating%20Contract.rtf),
 [Questionnaire 4 — Backtest and Validation Contract](Questionnaires/Questionnaire%204%20-%20Backtest%20and%20Validation%20Contract.rtf)
+[Questionnaire 5 — Remaining 3.0 Decisions and Research Mandate](Questionnaires/Questionnaire%205%20-%20Remaining%203.0%20Decisions%20and%20Research%20Mandate.rtf),
+[Questionnaire 6 — Operational Edge Cases and Owner Decisions](Questionnaires/Questionnaire%206%20-%20Operational%20Edge%20Cases%20and%20Owner%20Decisions.txt)
 and
-[Questionnaire 5 — Remaining 3.0 Decisions and Research Mandate](Questionnaires/Questionnaire%205%20-%20Remaining%203.0%20Decisions%20and%20Research%20Mandate.rtf)
+[Questionnaire 7 — Research Reconciliation Decisions](Questionnaires/Questionnaire%207%20-%20Research%20Reconciliation%20Decisions.txt)
+(Part A only)
 are complete and preserved as owner evidence. They resolve agent authority,
 candidate isolation, Pending Gold, recommendation/fallback behavior,
 recertification, current-contract-only Gold, storage, GitHub backup, channel
@@ -306,6 +324,31 @@ details remain evidence-driven Phase 1 design work and may not be represented as
 personal statistical judgments by Max. Questionnaire 5 leaves its Gold-first
 priority confirmation and final open-ended product check blank, so the prior
 Gold-first plan remains and no new product requirement is inferred.
+
+Questionnaire 6 and Questionnaire 7 Part A were promoted on 2026-07-25
+(decisions D65–D78). Two answers required interpretation and are flagged in the
+decision log rather than transcribed: Questionnaire 6 question 2 reads
+“off-machine replication” as “off-machine testing” and is superseded by
+Questionnaire 7 question 3; Questionnaire 6 question 1 gives an alert-severity
+answer rather than the state-machine choice it was asked for, so that decision
+stays open.
+
+**Questionnaire 7 Part B (items 13–20) is unanswered**, along with Questionnaire
+6 question 1. Those are open owner authority, listed in
+[decisions.md](decisions.md#open-owner-authority--must-not-be-inferred). No Phase
+1 report, suggested answer, or implementation convenience may resolve them.
+
+They are carried into
+[Questionnaire 8 — Intent Alignment and Remaining Technical Decisions](Questionnaires/Questionnaire%208%20-%20Intent%20Alignment%20and%20Remaining%20Technical%20Decisions.txt),
+which restates each in plain language with a worked example (Part B), adds the
+eight alignment items found when auditing the plan against Max's stated intent
+(Part A), and closes the four older un-carried-forward blanks plus four
+never-asked decisions found in the 2026-07-25 completeness audit (Part C).
+
+**Questionnaire 8 is the last blocking owner input before Phase 1 coding
+begins.** With it answered, every open owner decision is closed; what remains is
+the measured Phase 1 values Max ratifies from plain-language reports under
+Questionnaire 5 items 15–19.
 
 The remaining work is **methodology and engineering calibration**, not permission
 for a coding agent to choose policy. Phase 1 must produce evidence for:
@@ -336,6 +379,14 @@ for a coding agent to choose policy. Phase 1 must produce evidence for:
 - the achievable annual appliance-level false-Gold/false-reject frontier, using
   1% probability of any false Gold as an aspirational reference rather than an
   unexamined cutoff;
+- a primary-source TECL distribution ledger and the symmetric
+  ex-date-entitlement / pay-date-availability reinvestment convention for both
+  the strategy and matched B&H;
+- whether the TYH product era (2008-12-17 → 2012-06-28) is a hard economic
+  sub-gate or a required stress gate, and whether the 2018 GICS reconstitution is
+  a further seam;
+- explicit RPO/RTO per failure scope, the `degraded_backup` signal path, and the
+  owner-approved non-authoritative restore drill;
 - the meaning and forward calibration of Validation Score;
 - the simplest Montauk Score/ranking formula that gives evidentiary strength
   priority over marginal performance and admits no extra pillar without measured

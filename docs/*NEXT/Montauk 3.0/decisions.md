@@ -1,7 +1,7 @@
 # Montauk 3.0 — Decision Log
 
 **Status: HISTORICAL RATIONALE / NON-AUTHORITATIVE FOR IMPLEMENTATION (updated
-2026-07-21).**
+2026-07-25).**
 
 Running ledger of **resolved** decisions for the Montauk 3.0 always-on strategy
 factory. Pairs with [charter.md](charter.md): the charter holds the integrated
@@ -522,7 +522,7 @@ a failed plank. An empty current board is valid.
 **Why.** Max's trust depends on every row making the same complete promise. A
 false Gold row is worse than a missed opportunity.
 
-### D29 — Real-data superiority is broad, recent, margin-bearing, and versioned (REFINED by D46–D47)
+### D29 — Real-data superiority is broad, recent, margin-bearing, and versioned (REFINED by D46–D47, D65–D66)
 
 **Call.** Gold must beat matched TECL B&H over complete real history, a fixed
 recent horizon initially centered on trailing five years, and a small
@@ -638,7 +638,7 @@ variations.
 **Why.** Max cares about finding viable configurations, not maintaining a rigid
 taxonomy, while the system still needs dependence control and efficient memory.
 
-### D34 — Pending Gold, recommendation stability, and normal owner authority (REFINED by D49)
+### D34 — Pending Gold, recommendation stability, and normal owner authority (REFINED by D49, D73, and D74)
 
 **Call.** A historical-suite survivor becomes Gold and joins the one leaderboard
 automatically with activation status `Pending Gold`; D49 later defines
@@ -678,7 +678,7 @@ instruction,” not “current position.”
 **Why.** Continuous Gold governance and Max's authority over a state-changing
 trade are both preserved without pretending Montauk controls the brokerage.
 
-### D36 — Current data and the latest contract are mandatory; recertification preempts discovery
+### D36 — Current data and the latest contract are mandatory; recertification preempts discovery (EXTENDED by D67 and D71)
 
 **Call.** Missing or failed current data freezes trusted signals, Gold mutation,
 and promotion. Low-priority deterministic discovery may continue only against
@@ -703,7 +703,7 @@ may preserve compatible certificates under a named rank version.
 **Why.** Max wants the time during which any Gold claim is uncertain or stale
 minimized, with Active safety ahead of research throughput.
 
-### D37 — Durable state has zero-silent-loss semantics and a GitHub recovery path
+### D37 — Durable state has zero-silent-loss semantics and a GitHub recovery path (CURRENT-SIGNAL PORTION SUPERSEDED by D68; SCOPED by D69)
 
 **Call.** Use a transactional control database, compressed partitioned experiment
 ledger, content-addressed artifacts, and Git/GitHub-managed code/specs/manifests.
@@ -727,7 +727,7 @@ evidence to prevent wasteful retesting.
 **Why.** “Everything backed up” is achieved without turning Git history into a
 multi-billion-row database or ignoring GitHub's actual storage constraints.
 
-### D38 — Slack is conversational but has a narrow authority allowlist (REFINED by D54, D61, and D63)
+### D38 — Slack is conversational but has a narrow authority allowlist (REFINED by D54, D61, D63, D73, and D74)
 
 **Call.** Slack may query/explain status, request a named ideation/research
 campaign, trigger recertification, and approve one exact pending Active switch.
@@ -934,7 +934,7 @@ are scientifically meaningful. The purge/embargo and lockbox rules were not
 direct owner answers; they are conservative methodological consequences of D45
 and remain subject to independent Phase 1 implementation review.
 
-### D49 — Gold is published in daily frozen cohorts
+### D49 — Gold is published in daily frozen cohorts (HARDENED by D71 and D72)
 
 **Call.** Discovery and backtesting run continuously. Once per day, the pipeline
 freezes the complete eligible survivor cohort and search-ledger snapshot, runs
@@ -954,7 +954,7 @@ discoveries nor independent Chimera votes.
 auditable while preserving continuous research, one row per exact Gold
 configuration, and automatic board admission.
 
-### D50 — Evidence sufficiency replaces a universal trade-count cliff
+### D50 — Evidence sufficiency replaces a universal trade-count cliff (REFINED by D76)
 
 **Call.** Gold has no fixed minimum number of trades. It reports trades, state
 transitions, exposure episodes, effective observations, regimes, uncertainty
@@ -1019,7 +1019,7 @@ keeping actual order size and account size outside 3.0.
 economic comparison without pretending Max disclosed a financial value he did
 not provide.
 
-### D54 — Personal fill tracking and mandatory outside-human review are out of scope
+### D54 — Personal fill tracking and mandatory outside-human review are out of scope (EXTENDED by D78)
 
 **Call.** 3.0 does not require Max to record brokerage time, price, quantity, or
 execution acknowledgement, and it does not reconcile modeled fills with his
@@ -1052,7 +1052,7 @@ incremental protection.
 **Why.** The research bottleneck is now proving this exact always-on examiner,
 not accumulating a longer list of respected statistical names.
 
-### D56 — Synthetic TECL must walk forward through the real overlap
+### D56 — Synthetic TECL must walk forward through the real overlap (REFINED by D65)
 
 **Call.** Extend the frozen XLK-based synthetic transformation through the actual
 TECL era and compare the modeled path with observed TECL. Use rolling/forward
@@ -1231,6 +1231,273 @@ architecture and slow the clean Rust conveyor without improving Gold. Safe
 cutover requires continuity for the actual trusted signal and reference
 controls—not a compatibility museum.
 
+## 2026-07-25 — Questionnaires 6 and 7 Part A
+
+Questionnaire 6 (operational edge cases) and Questionnaire 7 Part A (research
+reconciliation) are preserved unchanged in `Questionnaires/`. Both were written
+as source evidence pending an explicit reconciliation pass; this section is that
+pass. Questionnaire 7 **Part B (items 13–20) contains no answers** and therefore
+creates no decisions — those items are registered as open owner authority at the
+end of this file and may not be filled in by an implementation agent.
+
+Two answers required interpretation rather than direct transcription, and both
+are called out explicitly below: Questionnaire 6 question 2 (Max read
+“off-machine replication” as “off-machine testing”) and Questionnaire 6
+question 1 (the answer states an alert severity, not the state-machine choice
+the question asked about).
+
+### D65 — TECL and TYH are distinguishable product eras
+
+**Call.** The fund now trading as TECL launched 2008-12-17 as **TYH** tracking
+the Russell 1000 Technology Index and changed ticker and benchmark to the
+Technology Select Sector Index around 2012-06-29. Montauk treats 2008-12-17
+through 2012-06-28 as **real observed fund evidence in a separate product era**,
+not as an interchangeable part of one continuous TECL contract.
+
+The TYH era keeps its own era-specific matched-B&H result, must avoid
+catastrophic failure there, and may **not** be used to calibrate the XLK-based
+synthetic reconstruction. Phase 1 determines from controls whether it becomes a
+hard economic sub-gate or a required stress/generalization gate, after measuring
+how much the benchmark change moves otherwise sound controls. The 2018 GICS
+reconstitution is evaluated in the same study as a possible additional
+product/composition seam. **D65 refines D29, D46, D47, and D56.**
+
+**Why.** Silently treating the fund as one unchanged product is wrong; discarding
+3.5 years of genuinely tradeable history throws away scarce real evidence.
+
+**Implications.** “Complete observed TECL history” must be expressed as an
+era-labelled series, and `data/manifest.json` must record both seams.
+
+### D66 — One symmetric distribution and total-return convention
+
+**Call.** Montauk uses one complete, primary-source TECL distribution ledger.
+Entitlement is recognized on the ex-date and cash becomes available on the
+pay-date. **Distributions are reinvested when they are paid out**, at the same
+first obtainable price and cost convention, for both the invested strategy and
+matched B&H — except when the strategy is risk-off on the reinvestment date, in
+which case the cash joins the zero-return risk-off balance.
+
+Tradable OHLC, causally split-adjusted feature prices, and total-return wealth
+accounting are three separate data views so distributions can never be omitted
+or double-counted. **D66 refines D29.**
+
+**Why.** “Adjusted total return” needs one explicit symmetric convention before
+Gold can honestly claim to beat matched B&H.
+
+**Implications.** The current runtime ledger (`data/TECL_distributions.csv`) is
+insufficient as-is: it begins 2021-12-09, credits cash by ex-date, and does not
+reinvest. Phase 1 must rebuild it from primary sources and add tests that detect
+missing distributions, early cash availability, and double-counting against a
+total-return price series.
+
+### D67 — A material TECL product change suspends trusted signals
+
+**Call.** Splits and ordinary distributions follow the tested corporate-action
+path. A **benchmark change, leverage-objective change, ticker/CUSIP
+discontinuity, closure, prolonged halt, or other material prospectus event**
+triggers an immediate critical alert to Max, suspends new trusted signals once
+effective, stales every affected certificate, and requires an owner-approved
+data/execution contract update plus full recertification. Montauk never
+automatically substitutes another leveraged ETF or ticker.
+
+Montauk must therefore monitor TECL product news on a recurring schedule and
+escalate material events to Max immediately.
+
+**Why.** Montauk is TECL-specific. Product drift changes the object being
+traded, not merely one more daily observation.
+
+**Implications.** This adds a monitoring input and an alert class; it does not
+add a new authority state beyond the existing stale/recertify machinery.
+
+### D68 — A GitHub-only outage does not suppress a valid signal
+
+**Call.** When the host, control database, verified data, engine, and strategy
+are all healthy but off-machine replication alone is unavailable, Montauk
+durably journals the signal locally, enters a visible `degraded_backup` state,
+alerts Max, and **delivers the valid signal on time**. It blocks Gold
+publication, Active changes, methodology changes, and other non-essential
+authority mutations until off-machine replication catches up, then reconciles
+the queued events.
+
+**D68 supersedes D37's inclusion of the current signal in the
+replicate-before-acknowledgement rule.** Authority, approval, and Gold lifecycle
+mutations still replicate before acknowledgement; the current trusted signal does
+not.
+
+**Why.** A backup-provider outage should be visible, but it must not silently
+become a trading rule or suppress a time-sensitive instruction Max can still act
+on.
+
+**Note on Questionnaire 6 question 2.** That answer (“are we doing off machine
+testing? I dont believe so”) reads the question as being about off-machine
+*testing* rather than off-machine *replication*. Questionnaire 7 question 3 asks
+the intended question and is the governing answer. A future reconciler must not
+take Q6 #2 literally.
+
+### D69 — The durability promise is scoped to what the hardware can support
+
+**Call.** For 3.0, Montauk promises **zero loss of already-acknowledged Active,
+approval, signal, and Gold mutations against ordinary process and disk failure**,
+using a proven local journal plus a second local device. It **explicitly accepts
+a bounded physical-disaster recovery point equal to the last verified GitHub
+sync** until a second offsite backup exists. Re-runnable in-progress research may
+restart from the beginning of the pipeline. **D69 refines D37.**
+
+Questionnaire 6 question 3 keeps GitHub as the only *off-machine* path for now,
+with additional wired deep-backup drives possible later. The second local device
+required here is on-site redundancy, not a second off-machine domain, so the two
+answers are compatible.
+
+**Why.** The earlier “no data loss” intent cannot be met by a GitHub-only design
+if the whole tower is destroyed between syncs. Naming the one residual exception
+is more honest than an unachievable promise.
+
+### D70 — Restore drills are permitted but owner-initiated
+
+**Call.** Montauk may perform a periodic, isolated, **non-authoritative**
+clean-machine restore onto a spare machine or temporary VM using only documented
+backups. It may verify hashes, reconstruct the last trusted state, and run
+acceptance fixtures. It may not run live discovery, publish Gold, emit trusted
+signals, or become a second authority, and it is destroyed or resealed after the
+drill.
+
+**Max's approval is required before beginning or even planning a drill.** No
+scheduler may start one autonomously.
+
+**Why.** Recovery cannot be proven on the same computer that would be lost, but
+production and strategy testing stay contained on one machine by owner decision.
+
+### D71 — A search-accounting defect stales affected certificates
+
+**Call.** Ordinary future searching never changes an already-issued Gold
+certificate. However, a **material search-ledger, holdout-reveal, lineage, or
+multiplicity defect** — omitted prior searches, mis-clustered near-twins, a
+leaked holdout, or an invalid correction method — immediately stales every
+affected certificate and triggers prioritized recertification under a corrected
+signed contract, exactly like a material data or engine correctness defect.
+**D71 refines D36 and D49.**
+
+**Why.** An immutable certificate should preserve what was claimed and why. It
+should not remain current Gold after evidence shows one mandatory plank was
+computed incorrectly.
+
+### D72 — No release resets lifetime search history
+
+**Call.** A signed core or validator release **never** resets Montauk's
+search-history penalty. Every release retains lifetime search and holdout
+provenance. A new signed epoch may use a separately justified allocation only
+when the statistical contract explains why the old and new questions differ; it
+never erases or hides earlier search. A renamed optimizer, campaign, or feature
+source is not sufficient justification.
+
+**Why.** Versioning should identify changed methodology, not manufacture a fresh
+untested history. This closes the easiest available loophole in the Search
+Honesty plank.
+
+**Implications.** Confirms and hardens D49 against a reset path that the round-1
+research package had left open.
+
+### D73 — Defer and dismiss are a fourth channel action
+
+**Call.** Max may durably **defer or dismiss one exact Recommended-versus-Active
+proposal** without changing Active. The reason is optional, the action is
+audited, and it never changes Gold, rank, Recommended, Active, or the trusted
+signal.
+
+A **deferral** resurfaces at its chosen expiry or on a material Gold/integrity
+event. A **dismissal** stays quiet until the proposal clears a versioned
+material-improvement threshold beyond the evidence already dismissed, the current
+Active strategy weakens materially, or Max asks for it. Phase 1 calibrates that
+improvement threshold from recommendation-churn tests; the research package's
+“50% of threshold or 20 bars” is not adopted. **D73 refines D38.**
+
+**Why.** Quiet-by-default requires a way to say “not now” that does not read as a
+methodology decision or a training signal.
+
+### D74 — An Active switch is approved from one complete review card
+
+**Call.** Before confirmation, Montauk presents **one review card** showing exact
+old and new strategy IDs, both current signals, whether approval changes the
+target state immediately, the resulting next-open instruction,
+performance/confidence differences, drawdown and catastrophe evidence,
+data/certification timestamps, and the expiry. After that information is already
+visible, **one explicit button confirms the switch**. There is no default
+acceptance, no timeout acceptance, and no hidden second trade.
+
+An opposite-state switch must make its trade impact conspicuous rather than
+reusing the generic pointer-change acknowledgement. Max may also request a view
+of candidates that improve on the currently selected Active strategy, not only on
+Montauk Recommended. **D74 refines D34 and D38.**
+
+**Why.** Max executes manually, so the practical consequence of an authority
+change must be impossible to miss — while still being one button once the
+evidence has been read.
+
+### D75 — Active losing Gold is the highest alert class; the integrity state remains OPEN
+
+**Call.** Loss of Gold by the **Active** strategy is Montauk's highest-severity
+alert class and escalates immediately and unmistakably.
+
+Questionnaire 6 question 1 asked whether a *correctness/causality/data/artifact
+defect* should enter a **separate** `integrity_emergency` state distinct from
+ordinary performance deterioration. The answer supplied an alert-severity
+statement rather than a state-machine choice, so **no decision is recorded here
+and D35's existing same-state/opposing-state machine stands unchanged.** The
+question is registered as open owner authority below.
+
+**Why.** The distinction between “the edge may have weakened” and “the signal may
+be wrong” is real and load-bearing, but it must not be resolved by inference.
+
+### D76 — The false-Gold promise is stated over the appliance's real horizon
+
+**Call.** Phase 1 must present the false-Gold operating point over **annual,
+five-year, ten-year, and lifetime** interpretations under explicitly stated
+dependence assumptions, alongside the planted-signal recovery cost at each. It
+must state whether the chosen online policy spends a finite lifetime error
+budget, controls a rolling annual risk, or offers another guarantee. Max approves
+the understandable long-run promise, not only the one-year number. The 1% annual
+figure remains an aspirational plotting reference. **D76 refines D50.**
+
+**Why.** Montauk runs continuously. A stable 1% annual risk is not a 1% lifetime
+risk, and the safety claim should use the product's own time horizon.
+
+### D77 — A catastrophic-loss floor is studied, not installed
+
+**Call.** Phase 1 tests whether a **narrow catastrophic-loss/ruin veto** adds
+distinct protection on real and validated stress controls without rejecting sound
+trend strategies. No preferred maximum drawdown is installed now. Ordinary
+drawdown remains a disclosed ranking and decision input. If no defensible
+catastrophic boundary emerges, no veto is installed and the limitation stays
+prominent in every activation review.
+
+The adoption rule itself (Questionnaire 7 item 20) is unanswered, so installing
+any veto remains a separate owner decision.
+
+**Why.** A Gold strategy may have high drawdown by earlier decision, but “high
+drawdown” and “structural near-ruin” may not be the same thing. The check must
+not become a disguised preference for smooth backtests.
+
+### D78 — Broker verification, dead-man alerting, and paid execution data are out of 3.0
+
+**Call.** Naming the broker and verifying opening-auction participation
+(Questionnaire 7 item 1), an independent outbound dead-man/heartbeat service
+(Questionnaire 7 item 5), and any paid official-close/auction/quote dataset
+(Questionnaire 7 item 16, unanswered) are **outside Montauk 3.0**.
+Questionnaire 6 question 4's read-only update channels and command DM are
+delivered inside the one selected channel; they are not an independent dead-man
+path. **D78 refines D54 and D58.**
+
+**Disclosed consequence.** Gold's execution claim is therefore limited to the
+**modeled** signal-after-verified-close/next-regular-session-open contract across
+the fixed $10,000–$100,000 band using a documented conservative cost range. The
+research package identified broker auction participation as the top live-trading
+blocker; with it out of scope, no Gold row may be described as
+broker-verified-tradeable, and precise execution cost is reported as
+`insufficient` rather than as a point estimate.
+
+**Why.** Max explicitly scoped all three out. Recording the consequence keeps the
+scope reduction honest instead of silently weakening the execution claim.
+
 ## Calibration / implementation work still required
 
 - calibrate slippage/fees from market evidence within the fixed next-open,
@@ -1257,7 +1524,55 @@ controls—not a compatibility museum.
   resource-preemption policy, Tailscale/SSH recovery path, bounded provider
   adapter, and one selected private typed channel under the dedicated operations
   [plan](debian-host-agent-and-channel-operations.md), including the bounded
-  Slack/Buzz bake-off.
+  Slack/Buzz bake-off;
+- rebuild the primary-source TECL distribution ledger, implement the symmetric
+  ex-date/pay-date reinvestment convention, and add omission/double-count tests
+  (D66);
+- determine from controls whether the TYH product era is a hard economic
+  sub-gate or a required stress gate, and record both product seams in
+  `data/manifest.json` (D65);
+- calibrate the dismissal retrigger threshold from recommendation-churn tests
+  (D73); and
+- produce the annual/5-year/10-year/lifetime false-Gold frontier with
+  planted-signal recovery at each horizon (D76).
 
-These are bounded studies and engineering deliverables under D28–D64. They are
+These are bounded studies and engineering deliverables under D28–D78. They are
 not unresolved owner authority that a coding agent may fill in implicitly.
+
+## Open owner authority — must not be inferred
+
+These remain unanswered. No implementation agent, and no Phase 1 report, may
+resolve them by implication, by choosing a convenient default, or by treating a
+suggested answer in a questionnaire as ratified.
+
+| Source | Question | Blocks |
+|---|---|---|
+| Q6 #1 | Does an integrity/correctness defect enter a separate `integrity_emergency` state, or reuse the ordinary loss-of-Gold machine? (D75) | Authority state tables |
+| Q7 #13 | Which long-run false-Gold promise should Phase 1 optimize for, once annual/5y/10y/lifetime behavior is visible? | Search-honesty plank |
+| Q7 #14 | Does every hard real-data horizon require its own uncertainty-aware lower bound, and does `insufficient` on one horizon block Gold? | Economic passage plank |
+| Q7 #15 | Final confidence level and evidence-sufficiency floors (90% vs 95%, regime/block/MinTRL floors) | Economic passage plank |
+| Q7 #16 | May Phase 1 buy official-close/auction/quote data if free sources cannot support the execution claim? (currently out of scope per D78) | Execution study |
+| Q7 #17 | On what basis may a third Montauk Score pillar be admitted? | Ranking study |
+| Q7 #18 | How is the `leader not clearly separated` confidence level selected? | Ranking study |
+| Q7 #19 | When may the custom Rust escape hatch be enabled, and by what owner ceremony? | Containment study |
+| Q7 #20 | When may a catastrophic real-data risk veto be installed? (D77) | Gold contract |
+
+A completeness audit on 2026-07-25 found four further blanks that earlier rounds
+never carried forward, and four decisions the plan requires that no questionnaire
+had ever asked. All are now in Questionnaire 8 Part C:
+
+| Source | Question | Blocks |
+|---|---|---|
+| Q3 #24 | Explicit confirmation of the declarative-Rust representation path. The plan treats it as DECIDED and non-reopenable on the strength of the adjacent items 25/26 answers, which presuppose it. | Core architecture |
+| Q4 #9 | May Montauk keep one permanent untouched historical lockbox? Charter §4.2 currently states "no" as a conservative consequence of D45, not as an owner answer. | Generalization plank |
+| Q5 #8 | Confirm the Gold-exam-first build order over factory-first. | Phase sequencing |
+| Q5 #21 | Open-ended check for a missing product-level outcome. | Product scope |
+| **new** | Which legacy strategies migrate into 3.0? The plan requires "any legacy strategy Max explicitly selects" in five places and the list has never been requested. | Phase 2 parity scope |
+| **new** | Must cutover be blocked until at least one activation-eligible 3.0 Gold row exists? Nothing currently prevents retiring the legacy signal into an empty 3.0 board. | Cutover safety |
+| **new** | Is there a review trigger if the Gold board stays empty for a long period? Needed to distinguish a correctly high bar from a mis-implemented over-strict gate. | Validator governance |
+| **new** | What time must the daily signal be delivered, and what time constitutes a missed-deadline alert? Charter §12 alerts on "a missed required-signal deadline" that is never defined. | Operations + alerting |
+| **new** | Which additional data streams does Phase 1 actually acquire and wire up? D39 permits VIX/volume/options/macro/idiosyncratic inputs but schedules none, converting Max's Questionnaire 3 closing request into a permission rather than a deliverable. | Data contract |
+
+Questionnaire 4 item 8 (purge/embargo derivation) is also blank and is
+deliberately **not** returned to Max: it has one defensible answer, the charter
+already implements it, and no owner preference would improve it.

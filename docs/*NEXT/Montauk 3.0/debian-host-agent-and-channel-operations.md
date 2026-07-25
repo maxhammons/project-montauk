@@ -90,8 +90,14 @@ contract.
   partitions, build artifacts, and active logs on SSD.
 - An HDD is acceptable for cold compressed snapshots, bulk historical archives,
   and a local secondary backup. It is not the hot database or scratch device.
-- Keep an off-machine GitHub recovery path and at least one backup copy that a
-  disk failure cannot destroy.
+- Keep an off-machine GitHub recovery path and **a second local device** holding
+  a copy that a single-disk failure cannot destroy. Zero loss of acknowledged
+  Active/approval/signal/Gold mutations is promised against ordinary process and
+  disk failure; the physical-disaster recovery point is explicitly bounded by the
+  last verified GitHub sync until a second offsite domain exists.
+- A GitHub-only outage must not suppress a valid daily signal. Journal locally,
+  enter `degraded_backup`, alert Max, deliver the signal on time, and block Gold
+  publication and Active changes until replication catches up.
 - Begin with a conventional, well-supported filesystem such as `ext4`. Change
   mount options or filesystems only after profiling demonstrates a real problem.
 - Monitor free space and SSD health. Storage-pressure thresholds must pause new
@@ -465,11 +471,26 @@ Every mutation must:
 8. reply and update status in the same conversation thread; and
 9. make denial or failure visible rather than silently falling back.
 
+The allowlisted mutations are: request a named research campaign, trigger
+recertification, approve one exact pending Active switch, and defer or dismiss
+one exact Recommended-versus-Active proposal. Approving a switch first renders
+one complete review card — exact old/new IDs, both signals, whether the target
+state changes immediately, the resulting next-open instruction, performance and
+confidence differences, drawdown/catastrophe evidence, timestamps, expiry — and
+only then accepts one explicit confirmation. An opposite-state switch shows its
+trade impact conspicuously instead of reusing the generic acknowledgement.
+
 Free-form conversation can never approve an Active switch, change Gold,
 acknowledge a brokerage fill, edit methodology, enter maintenance mode, or run a
 shell command outside the bounded agent/candidate capability set. Channel
 history is not the audit log and message delivery is not proof that the
 controller committed a change.
+
+Read-only update rooms plus a command DM live inside this one selected channel.
+They are **not** an independent dead-man path: if the host, home internet, or the
+channel provider fails completely, Montauk cannot report its own absence. An
+independent outbound heartbeat service is out of scope for 3.0 by owner
+decision, and that residual risk is accepted rather than mitigated.
 
 ### 7.5 Reliability
 
@@ -612,8 +633,14 @@ Before unattended cutover, retain evidence that:
   that a process-alive check misses;
 - Max can recover through Tailscale/SSH when the channel and model are both down;
   and
-- a clean-machine restore reproduces the last acknowledged authority and Gold
-  state.
+- a GitHub-only outage produces `degraded_backup` and still delivers the valid
+  signal on time while blocking Gold publication and Active changes; queued
+  events reconcile correctly on recovery;
+- a material TECL product-change event alerts immediately, suspends new trusted
+  signals, and stales affected certificates without auto-substituting a ticker;
+  and
+- an owner-approved, isolated, non-authoritative clean-machine restore reproduces
+  the last acknowledged authority and Gold state, then is destroyed or resealed.
 
 ## 11. Deployment calibration still required
 

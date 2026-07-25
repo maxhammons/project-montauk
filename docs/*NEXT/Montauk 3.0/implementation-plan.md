@@ -1,9 +1,9 @@
 # Montauk 3.0 Idea-to-Gold Pipeline
 
 **Status: REQUIRED CODING HANDOFF PLAN / CHARTER-SUBORDINATE; CALIBRATION PHASE
-READY (updated 2026-07-21).** This replaces the earlier rare-authoring/nightly-
+READY (updated 2026-07-25).** This replaces the earlier rare-authoring/nightly-
 drain plan. It implements the
-Questionnaires 3–5 operating contract in
+Questionnaires 3–7 Part A operating contract in
 [charter.md](charter.md) and [decisions.md](decisions.md): continuous
 model-agnostic ideation, untrusted candidate containment, deterministic
 evaluation, automatic Gold-to-leaderboard publication, and human authority over
@@ -290,7 +290,15 @@ contract:
 - signal only after the official daily bar verifies, with certification at the
   next regular-session open plus calibrated slippage and fees; Max submits the
   manual order after close for that opening execution;
-- matched B&H start, first purchase, costs, distributions, and unrounded values;
+- matched B&H start, first purchase, costs, and unrounded values;
+- one primary-source distribution ledger: entitlement on the ex-date, cash on the
+  pay-date, reinvested at payout at the same first obtainable price and cost
+  convention for both the strategy and B&H, with risk-off cash joining the
+  zero-return balance; tradable OHLC, split-adjusted feature prices, and
+  total-return wealth kept as three separate views;
+- era-labelled observed history: the TYH/Russell-1000-Technology era
+  (2008-12-17 → 2012-06-28) reports its own matched-B&H result, must avoid
+  catastrophic failure, and never calibrates the synthetic reconstruction;
 - fees, spreads/slippage, zero initial risk-off cash return, and missing-bar
   behavior;
 - tax-advantaged-account/pre-tax treatment; tax modeling and an active SGOV leg
@@ -526,7 +534,9 @@ needs.
 
 The durability contract is zero **silent** loss of acknowledged completed state,
 not preservation of every CPU instruction in flight. Authority, signal,
-approval, and Gold mutations replicate before acknowledgement. In-flight compute
+approval, and Gold mutations replicate off-machine before acknowledgement — but
+the **current trusted signal is deliberately excluded**, so a replication-only
+outage produces `degraded_backup` and an on-time signal rather than silence. In-flight compute
 may rerun. Every evaluated configuration keeps a compact permanent identity,
 version, parameter, verdict, reason, and dedup record. Full Gold/historical-Gold
 and audit-sample artifacts are permanent; near-Gold is retained at least one
@@ -793,9 +803,23 @@ environment Gold/activation-status reproduction under the latest contract only.
   control-store verification, data catch-up, Active recertification, the current
   signal, and top-cohort refresh; replay any survivor on repaired verified data
   before it may affect current Gold.
-- Implement the minimum critical alert path, dead-man/health indication,
+- Implement the minimum critical alert path, internal health/liveness indication,
   kill/disable control, and notification outbox before unattended research is
-  possible.
+  possible. An *independent* outbound dead-man service on a route outside
+  Montauk's own channel is out of scope for 3.0; do not build one.
+- Implement `degraded_backup`: when the host, control store, data, engine, and
+  Active strategy are healthy but off-machine replication alone is unavailable,
+  journal the signal locally, alert Max, deliver the signal on time, and block
+  Gold publication, Active changes, and other non-essential authority mutations
+  until replication catches up and queued events reconcile.
+- Implement the material-TECL-product-change path: recurring product-news
+  monitoring, immediate critical alert, suspension of new trusted signals once
+  effective, staleness for affected certificates, and a required owner-approved
+  contract update before the board is current again. Never auto-substitute
+  another ticker.
+- Make restore drills owner-initiated only: isolated, non-authoritative, unable
+  to publish Gold or emit trusted signals, destroyed or resealed afterwards, and
+  never started by a scheduler.
 
 **Checkpoint:** exhaustive state-transition tests prove that only the allowed Active
 state can emit a trusted instruction; same-state fallback cannot create a trade;
@@ -854,10 +878,24 @@ runaway backlog, and provider failure are visible and safe.
   relay events and agent rooms remain transport receipts—not Montauk audit or
   authority—and its shell/file agent has no protected credentials or writes.
 - Channel mutations are limited to: request a named research campaign, trigger
-  recertification, and approve one exact pending Active switch. They require
-  Max's stable allowlisted identity, immutable ID, confirmation, expiry,
-  idempotency, replay protection, and durable audit. Free-form text never changes
-  authority.
+  recertification, approve one exact pending Active switch, and defer or dismiss
+  one exact Recommended-versus-Active proposal. They require Max's stable
+  allowlisted identity, immutable ID, confirmation, expiry, idempotency, replay
+  protection, and durable audit. Free-form text never changes authority.
+- Build the switch **review card**: exact old/new strategy IDs, both current
+  signals, whether approval changes the target state immediately, the resulting
+  next-open instruction, performance/confidence differences, drawdown and
+  catastrophe evidence, timestamps, and expiry — then one explicit confirmation
+  button. No default acceptance, no timeout acceptance, no hidden second trade.
+  An opposite-state switch must show its trade impact conspicuously rather than
+  reusing the generic pointer-change acknowledgement. Support a view of
+  candidates that improve on the selected Active strategy, not only on Montauk
+  Recommended.
+- Defer/dismiss changes no Gold, rank, Recommended, Active, or signal state. A
+  deferral resurfaces at expiry or on a material Gold/integrity event; a
+  dismissal stays quiet until a versioned material-improvement threshold is
+  cleared, Active weakens materially, or Max asks. Calibrate that threshold from
+  churn tests rather than adopting a fixed default.
 - Do not permit the channel to acknowledge alerts, enter or exit maintenance,
   modify methodology/core, or run arbitrary host commands.
 - Support multiple rooms within the selected provider when useful, but treat the
@@ -968,7 +1006,9 @@ field. Keep three decisions distinct:
 
 ## 11. Ratified policy versus calibration work
 
-Questionnaires 3–5 resolve the owner-visible operating policy. Max's
+Questionnaires 3–7 Part A resolve the owner-visible operating policy.
+Questionnaire 7 Part B and Questionnaire 6 question 1 remain open owner
+authority and may not be resolved by an implementation agent. Max's
 plain-language Gold guiding light controls any technical ambiguity. A coding
 agent may not reopen the Rust representation, origin-neutral complete gate,
 next-open execution timing, primary terminal relative-wealth target, complete/

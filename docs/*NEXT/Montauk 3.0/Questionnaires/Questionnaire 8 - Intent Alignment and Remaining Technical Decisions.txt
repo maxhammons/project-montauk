@@ -1,0 +1,815 @@
+Questionnaire 8 - Intent Alignment and Remaining Technical Decisions
+
+Prepared 2026-07-25, after the Questionnaire 6 / Questionnaire 7 Part A
+reconciliation pass (decisions D65-D78).
+
+Why this round exists. Three things came out of reviewing the whole plan against
+everything you have said so far:
+
+  1. A small number of places where the plan quietly decided something different
+     from what you actually wrote, or where you asked a question that was never
+     answered back to you. Those are Part A. They are alignment issues, not
+     technical ones, and you can answer them from preference.
+
+  2. Questionnaire 7 Part B (items 13-20) was never answered. Reading it back, it
+     was written in exactly the statistical language you already told us does not
+     work for you. That is our failure, not yours. Part B below restates each of
+     those eight decisions in plain language with a concrete example, per the
+     charter rule (section 0.1) that your plain-language goal outranks technical
+     phrasing.
+
+  3. Four older questions left blank in Questionnaires 3, 4, and 5 that were
+     never carried forward, plus four decisions the plan genuinely needs from you
+     that no questionnaire has ever asked. Those are Part C. Two of them - C5 and
+     C6 - have real trading consequences that were never surfaced to you.
+
+Completeness claim. With Parts A, B, and C answered, every open OWNER decision in
+the Montauk 3.0 plan is closed. What remains is a defined set of MEASURED values -
+the exact margin, confidence level, window design, correction method, and
+operating thresholds - which by your own answers in Questionnaire 5 items 15
+through 19 come back to you as plain-language Phase 1 reports with a
+recommendation and a measured tradeoff. That is by design, not a gap: those
+numbers cannot be chosen honestly before the controls run. No other owner input
+is required to begin building.
+
+You do not need to become a statistician to answer any of this. If a suggested
+answer matches your intent, "accept suggested answer" is enough. If a question
+still does not make sense, say so and describe the real-world outcome you want
+instead - that is a valid answer and we will translate it.
+
+Workflow note. This file is source evidence. After you answer, the reviewing
+agent must promote the full answer set into charter.md, decisions.md, README.md,
+and every affected pillar plan before any coding handoff. This file is preserved
+unchanged.
+
+
+================================================================================
+PART A - ALIGNMENT ITEMS (answer from preference)
+================================================================================
+
+
+A1. The performance margin: should it climb on its own?
+
+Context. In Questionnaire 3 item 9 you wrote: "I think there should be a
+threshold above 1. not sure how much. And maybe its dynamic so we start it at 1.1
+and if we consistently beat that we bump to 1.2 keeping an eye on confidence
+scores."
+
+The plan currently does NOT do that. The charter says the margin "never
+auto-ratchets merely because the search found more winners" - raising it requires
+your explicit approval and re-certifies the whole board. This is a real departure
+from what you wrote, and it should be your call rather than ours.
+
+Simple example. Say the bar is 1.10x B&H and after six months eleven strategies
+are clearing 1.30x. An automatic ratchet would raise the bar to 1.20x by itself.
+The risk: the bar would then be set by whatever the search happened to find,
+which is the same feedback loop that creates overfitting. It would also
+invalidate every existing Gold row each time it moved.
+
+Question. Should the economic margin ever rise automatically, or only when you
+approve a new contract version?
+
+Suggested answer. Only with your approval. Keep a standing report in the daily
+digest showing the current margin and the distribution of Gold rows above it, so
+you can see when a bump is warranted and trigger it deliberately.
+
+Reasoning. You get the outcome you wanted - a bar that rises as the system proves
+itself - without letting the search set its own passing grade or silently
+de-certifying the board.
+
+Your answer:
+
+
+
+A2. How many near-identical configurations should actually reach the board?
+
+Context. Two of your answers pull in slightly different directions.
+Questionnaire 2 item 36: "Configurations on their own row but collapseable."
+Questionnaire 3 item 2: "it is a bit ridiculous and would clog up the leaderboard
+if there are millions of configurations that are .1 or .01 off from the main
+configuration so I dont want that."
+
+The plan resolved this as a display problem: every qualifying configuration gets
+a row, and the default view collapses families. It does not currently stop
+behaviorally identical twins from being admitted in the first place.
+
+Simple example. A family sweeps EMA(50) through EMA(54). All five produce the
+exact same trades on the same days. Today all five would become five Gold rows,
+collapsed under one family heading.
+
+Question. Should behaviorally identical configurations all become rows, or should
+only one representative be admitted with the others recorded as equivalents?
+
+Suggested answer. Admit one representative per identical trade path and record
+the equivalent parameter set on that row ("also achieved by 4 nearby settings").
+Keep genuinely different configurations as their own rows.
+
+Reasoning. Five rows that emit one trade history are one discovery, not five. You
+already agreed similar rows must not count as independent evidence; this applies
+the same logic to the board itself and directly addresses the clog you flagged.
+Nothing is lost - the equivalent settings stay queryable.
+
+Your answer:
+
+
+
+A3. Is the economic exam getting too complicated?
+
+Context. In Questionnaire 3 item 4 you wrote: "How I have it now is pretty good,
+but it can probably be improved. I dont want the backtest testing to be too
+complicated."
+
+Since then the required economic exam has grown to: complete observed history,
+trailing five years, a small rolling-window suite with an aggregate rule, a
+catastrophic-window veto, a named-moment suite (2001 / 2008 / 2020 / 2022 /
+tariffs), and now a separate TYH product era. Each addition came from one of your
+answers, but the total is larger than "pretty good, slightly improved."
+
+Question. Is that the right size, or should some of these be demoted from
+required gates to reported diagnostics?
+
+Suggested answer. Keep exactly two hard economic gates - complete observed
+history and trailing five years. Report everything else (rolling windows, named
+moments, TYH era, synthetic stress) prominently as diagnostics that inform your
+activation decision and the strategy's score, but do not let them independently
+block Gold unless Phase 1 proves a specific one catches failures the two hard
+gates miss.
+
+Reasoning. Every extra hard gate is another chance to reject a sound strategy for
+a reason we never validated, and more windows do not add more independent
+history. You keep full visibility into crisis behavior without turning the exam
+into a maze.
+
+Your answer:
+
+
+
+A4. What should the confidence number actually mean?
+
+Context. You raised this yourself in Questionnaire 3 item 12 and it was never
+answered back to you: "how might we make that number be accurate and trustable?
+Do we get scores from definitely not overfit strategies (like ema crossovers or
+simple RSI strategies) and while they have bad performance they would capably be
+consistent. Is consistence in the performance what we mean by confidence? Just
+thinking about it now that sounds right."
+
+That instinct is close to how the plan works, with one correction worth stating
+plainly: a simple EMA crossover is a useful reference point, but it is not proof
+of "definitely not overfit" - a simple rule found after millions of attempts can
+still be a lucky one. So simple strategies are used as controls, not as ground
+truth.
+
+Simple example. Validation Score 78 today means "this cleared our evidence
+checks with room to spare." It does not yet mean "78% chance this keeps working."
+It can only mean the second after we have watched enough frozen strategies play
+out forward to check whether 78s really do survive more often than 60s.
+
+Question. Is this the right definition: Validation Score = how much
+evidence supports this edge and how consistently it held up across time,
+parameters, and stresses - with the word "confidence" and any percentage sign
+withheld until forward results prove that reading?
+
+Suggested answer. Yes. Display "Validation Score: 78" with no percent sign until
+a calibration study earns it. Show alongside it, in plain English, the two or
+three specific things that cost the strategy points.
+
+Reasoning. This is your own instinct, made precise and honest. It also protects
+the thing you said matters most: not getting a false sense of confidence.
+
+Your answer:
+
+
+
+A5. Should synthetic (pre-2009) history carry any weight?
+
+Context. In Questionnaire 3 item 6 you wrote that the synthetic data is "pretty
+accurate," asked whether there is a write-up of how it was built, and floated
+"some kind of weighted backtesting" so older eras count for something but less
+than recent ones.
+
+Two updates. First, the write-up you asked for now exists at
+research/rd1/synthetic-tecl-reconstruction.md, and the construction is close to
+your memory but not identical: it is 3x the S&P technology index for 1993-1998,
+3x XLK for 1998-2008, plus expenses and a financing/tracking drag, spliced to
+real TECL at inception. Second, prior audits found it has materially different
+volatility and tracking behavior from real TECL, so the plan currently gives it
+zero weight in Gold and uses it only as a diagnostic and stress test.
+
+Question. Should synthetic history stay diagnostic-only, or should it be allowed
+a small weight once the overlap study (the XLK-vs-real-TECL walk-forward you
+asked for in Questionnaire 5) shows how accurate it really is?
+
+Suggested answer. Diagnostic-only for now, revisited once the overlap study
+reports. If that study shows the model tracks real TECL well, we bring you a
+specific proposal for a limited role; if it shows meaningful error, it stays
+diagnostic permanently. Either way it never substitutes for real-data passage.
+
+Reasoning. You said you want confidence that the synthetic data is as accurate as
+possible before it matters. Letting the measurement decide its weight is the
+version of "weighted backtesting" that cannot flatter a strategy by accident.
+
+Your answer:
+
+
+
+A6. Confirming how the core gets sealed
+
+Context. You called the no-pipeline-edits rule "the number 1 most important rule
+for the agent," then asked in Questionnaire 3 item 33: "is there a way to make
+changes and then I seal it with a password or something. Or maybe thats
+overthinking and its just a git repo and the history has to be clean or have
+verified edits?"
+
+The plan answered this without confirming it with you. It chose: a signing key
+that only you hold (not a password), the deployed pipeline mounted read-only, the
+agent running under an account with no permission to write it, and every
+certification job re-checking the signature and failing shut if anything does not
+match. Git history is kept for rollback but is explicitly NOT the seal.
+
+Simple example. If the agent somehow rewrote a validation threshold, the file
+hash would stop matching your signed manifest and the next Gold job would refuse
+to run and alert you - rather than certifying strategies against altered rules
+and being discovered later in the Git log.
+
+Question. Is a hardware-held signing key that you physically control the right
+mechanism, versus a password?
+
+Suggested answer. Yes, a signing key. A password can be typed by anything that
+can reach a prompt; a key you hold cannot be used by a process running on the
+machine.
+
+Reasoning. This is the one control that makes your number-one rule mechanical
+rather than aspirational. It is worth the small extra setup.
+
+Your answer:
+
+
+
+A7. Three things you scoped out - please confirm the consequences
+
+Context. You put three items out of scope. Each is a fine decision, but each
+leaves a specific gap that should be recorded with your eyes open rather than
+discovered later.
+
+  (a) Broker and opening-auction verification (Questionnaire 7 item 1). Gold
+      assumes you sell/buy at the next morning's opening price. Whether an order
+      you submit the night before actually joins that opening auction is
+      broker-specific and currently unverified. Consequence: Gold's execution
+      claim stays "modeled," no row can be called broker-verified-tradeable, and
+      the true cost is reported as a conservative range rather than a number.
+      The research package called this the top live-trading blocker.
+
+  (b) Independent dead-man alert (Questionnaire 7 item 5). Consequence: if the
+      machine, your home internet, or Slack goes down, Montauk cannot tell you it
+      is down. You would notice on your own.
+
+  (c) Paid market data (Questionnaire 7 item 16). Consequence: execution cost
+      stays a documented range, not a precise figure.
+
+Question. Confirm all three stay out of 3.0 with those consequences recorded, or
+pull any back in.
+
+Suggested answer. Keep (b) and (c) out. Reconsider (a) - not as a build item, but
+as one afternoon of checking your broker's order-type documentation, because it
+determines whether the number on the leaderboard is the number you can actually
+get. It costs almost nothing and it is the difference between "beats B&H on
+paper" and "beats B&H when followed," which is your own definition of Gold.
+
+Reasoning. (b) and (c) are conveniences. (a) sits directly underneath the
+guiding light you wrote for the whole testing pipeline.
+
+Your answer:
+
+
+
+A8. Integrity failure vs. a strategy simply getting worse
+
+Context. Questionnaire 6 item 1 asked whether a corrupted-data / lookahead /
+engine-bug failure should enter a different emergency state than a strategy that
+merely stopped beating B&H. Your answer - "the most important alerts have to do
+with the active strategy. If that drops from gold status then that should ring
+all alarm bells" - set the alert severity but did not answer the state question,
+so nothing was decided and the plan still treats both the same.
+
+Simple example. Case 1: the active strategy has quietly fallen behind B&H for
+months. Yesterday's risk_on signal is still trustworthy; the edge is just
+decaying. Case 2: we discover the data feed was feeding tomorrow's prices into
+today's decision. Now yesterday's signal itself may be wrong. Today the system
+responds to both by revoking Gold and either handing off to the next strategy or
+asking you.
+
+Question. Should case 2 get its own response - quarantine affected certificates,
+issue no new trusted instruction, show the last instruction marked
+"possibly invalid," and require you to decide?
+
+Suggested answer. Yes. "The edge may have weakened" and "the signal may be wrong"
+deserve different responses. In case 2, automatically sliding to a fallback
+strategy is dangerous because the fallback may have been certified by the same
+broken machinery.
+
+Reasoning. This is the one place where automatic fallback could actively hurt
+you, and it is cheap to separate.
+
+Your answer:
+
+
+
+================================================================================
+PART B - QUESTIONNAIRE 7 PART B, IN PLAIN LANGUAGE
+================================================================================
+
+These eight were left blank. Each is restated with an example. For several, the
+honest answer is "decide after Phase 1 measures it" - in those cases you are
+approving the decision process now, not picking a number blind.
+
+
+B1. (was Q7 #13) Is the false-Gold promise per year, or for all time?
+
+Plain version. We want to keep the odds low that a worthless strategy ever
+sneaks onto the board by luck. The plan currently uses "about 1% chance per
+year." But the machine runs forever, and a steady 1% per year is roughly a 10%
+chance over ten years. That is a different promise.
+
+Simple example. Two ways to run it:
+  - Per-year budget: every year gets a fresh 1% allowance. Simple and stable, but
+    the risk quietly accumulates over the appliance's life.
+  - Lifetime budget: 1% total, ever. Much stricter - but because the budget is
+    spent down every time we certify anything, the bar keeps rising and after
+    enough years almost nothing can pass.
+
+Question. Which promise do you want Montauk to make?
+
+Suggested answer. Use a per-year control, and make the accumulated multi-year
+risk visible rather than hidden - the digest states "at the current setting, the
+chance that at least one false Gold has ever been admitted is now about X%." Have
+Phase 1 show you annual, 5-year, 10-year, and lifetime numbers before you fix the
+level.
+
+Reasoning. A true lifetime budget on a system meant to run indefinitely
+eventually strangles the board - it would stop finding anything, which is not what
+you want either. Disclosure gives you the honest number without that trap. Note
+also that the "FDR" method the research package proposed does not actually deliver
+an any-false-Gold guarantee; if you want that specific promise, it needs a
+different method, which is part of what Phase 1 must compare.
+
+Your answer:
+
+
+
+B2. (was Q7 #14) When a required test cannot say anything, is that a pass?
+
+Plain version. Two tests are mandatory: all of real history, and the last five
+years. Sometimes a window is too short or has too few trades for the math to
+reach a conclusion either way.
+
+Simple example. A strategy trades twice in five years and both trades won. Is
+that "passed the five-year test," or "the five-year test could not tell us
+anything"? They are very different, and calling the second one a pass would make
+"hard gate" meaningless.
+
+Question. Should both required tests be held to the same standard, and should
+"not enough evidence" block Gold - while being displayed differently from
+"failed"?
+
+Suggested answer. Yes to both. The row would read "insufficient evidence
+(trailing 5y)" rather than "failed," and it stays off the board until more
+history accumulates. Phase 1 may recommend demoting a window from hard gate to
+diagnostic if it proves that window can never give a usable answer - but it may
+never silently treat "insufficient" as a pass.
+
+Reasoning. This is your own rule from Questionnaire 3 item 13 applied to
+horizons: no strategy is Gold without actually passing every required test.
+
+Your answer:
+
+
+
+B3. (was Q7 #15) How sure is "sure enough"?
+
+Plain version. When Montauk says a strategy beats B&H, there is always a
+confidence level behind that statement. Researchers suggested 90% mainly because
+95% would probably leave the board empty for a long time.
+
+Simple example. At 90%, roughly one in ten strategies that clear the bar could
+still be there by chance. At 95%, one in twenty - but far fewer strategies ever
+clear it, and you might wait a long time for a first Gold row.
+
+Question. Should we pick the level now, or after Phase 1 measures what each
+choice actually costs in missed good strategies?
+
+Suggested answer. After. Phase 1 tests both on data where we already know the
+right answer, then shows you: at each level, how often a worthless strategy got
+through, and how often a genuinely good one was rejected. You pick from that
+picture. One principle to fix now regardless: "the board would be empty" is never
+by itself a reason to lower the bar.
+
+Reasoning. You said false Gold is worse than a missed opportunity. That
+preference is only meaningful once you can see the price of the stricter setting.
+
+Your answer:
+
+
+
+B4. (was Q7 #16) Buy market data if free sources are not enough?
+
+Plain version. To state execution cost precisely we would need paid data on
+opening auctions and quotes. Without it we can only give a conservative range.
+
+Question. Should Phase 1 be able to propose a purchase, or stay with the range?
+
+Suggested answer. Stay with the range for 3.0, consistent with A7 above. If a
+specific unresolved Gold claim genuinely requires paid data, Phase 1 brings you
+the exact dataset, price, and the one decision it would settle - and buys nothing
+without your approval.
+
+Reasoning. A documented conservative range is honest and cheap. Being
+conservative on cost can only understate a strategy, never flatter it.
+
+Your answer:
+
+
+
+B5. (was Q7 #17) Should Montauk Score ever get a third ingredient?
+
+Plain version. The score that ranks the board is built from two things:
+Validation Score (confidence) and Performance. A proposal exists to add a third,
+such as "durability."
+
+Simple example. A third ingredient is only worth adding if it helps you choose
+between two strategies that are BOTH already Gold. It must never be the reason a
+strategy does or does not become Gold - that would make it a hidden sixth gate
+that never went through the evidence process.
+
+Question. What should it take to admit a third ingredient?
+
+Suggested answer. It must demonstrably improve ranking or switch decisions among
+strategies that are already Gold, without duplicating something the two existing
+ingredients already measure. Never admit it because it changes who gets Gold - if
+information matters for eligibility, it belongs in an explicit Gold gate instead.
+
+Reasoning. Ranking and certification answer different questions. Keeping them
+separate is what stops the score zoo from growing back.
+
+Your answer:
+
+
+
+B6. (was Q7 #18) When should the board admit it cannot pick a winner?
+
+Plain version. Sometimes #1 and #2 are so close that the evidence genuinely
+cannot separate them. The board would show "leader not clearly separated."
+
+Simple example. #1 scores 74 and #2 scores 73. Displaying a confident #1 there is
+false precision. The concern: if that note appears constantly, there will be a
+temptation to loosen the rule until it appears less - which manufactures
+confidence rather than earning it.
+
+Question. How should that threshold be set?
+
+Suggested answer. Phase 1 calibrates it against cases where we already know
+whether two strategies are truly equal or truly different, and reports how often
+it wrongly flags a clear leader and how often it wrongly clears an ambiguous one.
+Alert volume may change how it is displayed; it may never change the level.
+
+Reasoning. The flag is disclosure only - it never blocks a recommendation - so
+its job is accuracy, not comfort.
+
+Your answer:
+
+
+
+B7. (was Q7 #19) When can the AI write raw Rust?
+
+Plain version. Normally the agent describes a strategy using approved building
+blocks, and Montauk turns that into code. For a genuinely new mechanism the
+blocks may not be enough, so there is a planned escape hatch where the agent
+writes real Rust. That is more expressive and more dangerous.
+
+Note this does not contradict your Questionnaire 3 item 26 answer. You said you
+should not have to approve each generated module, and you will not. This is about
+switching the capability on once.
+
+Simple example. Turning it on means untrusted generated code executes on your
+machine. The containment tests can show that specific attacks failed; they cannot
+prove no attack exists. So a green test suite should not flip the switch by
+itself.
+
+Question. What should it take to enable it?
+
+Suggested answer. Keep it off by default. After the full containment,
+determinism, resource-limit, and parity suite passes, you receive one review
+package and explicitly enable that exact signed version. From then on individual
+modules flow through automatically with no approval from you.
+
+Reasoning. This preserves your creative freedom and your no-per-module-approval
+requirement while keeping the single riskiest capability behind one deliberate
+decision.
+
+Your answer:
+
+
+
+B8. (was Q7 #20) Is there a loss so bad it disqualifies a strategy outright?
+
+Plain version. You already decided a Gold strategy may have big drawdowns as long
+as they are disclosed and reflected in its score. This asks whether there is an
+outer limit.
+
+Simple example. A strategy beats B&H over 17 years and passes every overfit test,
+but at one point it was down 95% and took four years to recover. Technically
+qualified. Would you actually hold it? If not, that boundary should be written
+down rather than discovered during the drawdown.
+
+Question. Should Phase 1 study a narrow catastrophic-loss floor, with installing
+it as a separate decision by you afterwards?
+
+Suggested answer. Yes - study it, do not install any number now. Phase 1 must
+show how many real defects such a floor catches, how many sound trend strategies
+it wrongly rejects, and why ordinary drawdown disclosure is not enough. If no
+defensible boundary emerges, none is installed and the limitation is stated
+prominently every time you activate a strategy.
+
+Reasoning. "High drawdown" and "structural near-ruin" may not be the same thing,
+but a floor picked from intuition would just be a hidden preference for
+smooth-looking backtests - which is the exact bias the rest of the system exists
+to prevent.
+
+Your answer:
+
+
+
+================================================================================
+PART C - GAPS FOUND IN THE COMPLETENESS AUDIT
+================================================================================
+
+Part C exists because of a direct question: "once I answer Questionnaire 8, will
+you have everything needed to align the plan with my intent?" Checking that
+honestly turned up four older blanks that were never carried forward, and four
+decisions the plan needs from you that NO questionnaire has ever asked. They are
+below.
+
+One item is deliberately NOT asked. Questionnaire 4 item 8 (how to choose purge
+and embargo lengths) is also blank, but it is a pure implementation question with
+one defensible answer - derive the gap from each feature's actual information
+interval rather than copying a percentage - and the plan already does that. No
+owner preference would improve it. Flagging it here so its absence is a choice
+rather than an oversight.
+
+
+C1. (was Q3 #24, blank) Confirm the core architecture decision
+
+Context. This is the single largest build decision and it was never explicitly
+confirmed. The plan treats it as settled and forbids a coding agent from
+reopening it, on the strength of your nearby answers to items 25 and 26 - which
+both assume it. It deserves a direct yes.
+
+Plain version. The AI does not write strategy code for normal work. It fills out
+a structured form: "use these building blocks, wired this way, sweep these
+parameter ranges." Rust checks the form, then generates and tests millions of
+exact parameter combinations itself as data. Raw AI-written Rust exists only as
+the later escape hatch discussed in B7.
+
+Simple example. Instead of the AI writing 40,000 near-identical programs for
+40,000 parameter settings - each of which could have a typo - it writes one form,
+and Rust expands it. Fewer errors, far fewer tokens, one execution engine.
+
+Question. Confirm this is the normal path?
+
+Suggested answer. Yes.
+
+Reasoning. It is the direct expression of your two stated priorities - accuracy
+first, then speed as quantity-of-strategies-tested - and it removes the failure
+mode you worried about in Questionnaire 2 item 69, where the agent burns its time
+and tokens fighting the compiler.
+
+Your answer:
+
+
+
+C2. (was Q4 #9, blank) Should we keep a chunk of history sealed forever?
+
+Plain version. One classic safeguard is to lock away a slice of history - say
+2019-2021 - never look at it during research, and use it as a final exam. The
+problem with an always-on agent that learns from its own failures: the moment it
+sees any result from that slice, even just pass/fail, later ideas start bending
+toward it. Ask enough times and the sealed exam is no longer sealed.
+
+Simple example. Strategy A is tested against the locked years and fails. The
+agent reads "failed," adjusts, and submits Strategy B. Strategy B has now been
+shaped by the locked years even though it never read them directly. After a
+hundred rounds of that, the "untouched" exam is thoroughly touched.
+
+Question. Should Montauk keep a permanent sealed block, or treat a sealed block
+as one-time evidence that is marked "spent" once its result is revealed?
+
+Suggested answer. Spent-once. The only genuinely untouched evidence for a given
+strategy is market days that happened AFTER that exact strategy was frozen -
+which Montauk already tracks per row.
+
+Reasoning. A permanent lockbox would give false comfort. The forward record you
+already asked for is the real version of the same idea, and it gets stronger
+every day on its own.
+
+Your answer:
+
+
+
+C3. (was Q5 #8, blank) What gets built first - the grader, or the factory?
+
+Plain version. This decides the build order, so it directly affects how soon you
+have something running.
+
+  - Grader first: prove the Gold exam is correct and calibrated, then turn on
+    high-volume strategy generation. Slower to your first Gold row, but every row
+    means something when it arrives.
+  - Factory first: get the machine generating and testing at scale quickly, tune
+    the exam as you go. Faster to visible activity, but a fast factory with a
+    wrong grader produces confident nonsense at high speed - and you would not
+    know which rows to distrust later.
+
+Simple example. If the exam has a subtle lookahead bug, the factory-first path
+produces 400 Gold rows before you find it, and all 400 have to be thrown away
+along with the confidence you had built in them.
+
+Question. Confirm grader first?
+
+Suggested answer. Yes - grader first, which is what the plan currently assumes.
+Limited prototype strategies still run during Phase 1 as test subjects, so it is
+not a dark period with nothing happening.
+
+Reasoning. Your stated failure condition for the whole project was "if it
+produced strategy calls that were wrong - essentially if the validation process
+failed." That risk is highest if the search scales before the exam is proven.
+
+Your answer:
+
+
+
+C4. Which existing strategies should carry over?
+
+Context. The plan requires this input in five separate places and it has never
+been asked. Rust must be proven to reproduce certain existing strategies exactly
+before cutover, and that list determines real build work.
+
+Plain version. Three groups are needed no matter what: your current live strategy
+(so the new engine can be run side-by-side against the old one before switching),
+the buy-and-hold comparison, and the validator's test controls. Beyond those, is
+there any strategy from the current leaderboard you specifically want carried into
+3.0 as a candidate?
+
+Important: carrying one over does NOT make it Gold. It gets a new identity and
+must pass the full 3.0 contract from scratch like everything else.
+
+Question. Any specific strategies to migrate, or just the three required groups?
+
+Suggested answer. Just the required three. Let the 3.0 search rediscover anything
+worth having, rather than importing old winners that were certified under rules
+you no longer trust.
+
+Reasoning. You already said no legacy row is grandfathered. Reproducing old
+implementations is build effort that does not improve Gold - and if a legacy
+strategy really is good, the new pipeline will find it again.
+
+Your answer:
+
+
+
+C5. What drives your signal on cutover day?
+
+Context. This gap has real trading consequences and was never surfaced. The plan
+says (a) the new system runs in shadow first without touching your live signal,
+(b) at cutover no legacy row is grandfathered, and (c) with an empty Gold board
+Montauk shows "no certified strategy" and asks you to decide. Nothing currently
+requires at least one 3.0 Gold row to exist BEFORE cutover happens.
+
+Simple example. You approve cutover, the old system stands down, and the 3.0
+board is still empty because nothing has cleared the new exam yet. You now have
+no automated signal at all until one does.
+
+Question. Should cutover be blocked until at least one 3.0 Gold row exists and
+has cleared its cooling period - and should the legacy signal keep running until
+that moment?
+
+Suggested answer. Yes to both. Add a hard cutover precondition: at least one
+activation-eligible 3.0 Gold row exists, and you have approved it as Active in
+the same step that retires the legacy signal. No gap.
+
+Reasoning. There is never a good reason to be between two systems with no signal.
+This costs nothing to specify now and is very unpleasant to discover on the day.
+
+Your answer:
+
+
+
+C6. What if nothing ever earns Gold?
+
+Context. The independent research package found a hard limit that no amount of
+statistical work removes: about 17.5 years of real TECL history containing only
+three or four genuinely different market regimes, with low-frequency strategies
+producing few trades. Its honest warning is that "insufficient evidence" may be a
+common verdict, not a rare one.
+
+You have already said an empty board is an honest result and never a reason to
+lower the bar. That stands. This asks the practical follow-up: what happens if
+the empty board persists.
+
+Simple example. Six months in, the machine has tested hundreds of millions of
+configurations and zero have cleared Gold. Nothing is broken - the bar is simply
+above what this data can support. What should Montauk do?
+
+Question. Should there be a defined review trigger - not an automatic loosening,
+but a scheduled "here is exactly which gate is rejecting everything and why"
+report that you can act on?
+
+Suggested answer. Yes. After a set period with an empty board (suggest 90 days),
+Montauk produces a rejection-analysis report: which specific gate rejected the
+most near-misses, whether those rejections were correct on the control worlds, and
+what the closest candidates looked like. It recommends nothing and changes
+nothing. It is diagnostic information for your decision, not permission to weaken
+anything.
+
+Reasoning. This distinguishes "the bar is correctly high" from "one gate is
+mis-implemented and rejecting everything," which look identical from the outside.
+Without it, an invalid over-strict gate could hide behind a legitimately empty
+board indefinitely - the exact failure you flagged from Montauk 2.0.
+
+Your answer:
+
+
+
+C7. What time do you want the signal?
+
+Context. Never asked, and needed to build. Your workflow is: Montauk verifies the
+official close, then you submit an order for the next morning's open.
+
+Question. What time in the evening do you want the message, and how late is too
+late to be useful?
+
+Suggested answer. Deliver by 6:00 PM Pacific on trading days, with a hard alert
+if the signal has not been produced by 8:00 PM Pacific.
+
+Reasoning. Late enough for the official close to settle and be verified, early
+enough that you can place the order the same evening. The second number defines
+what "missed signal deadline" means in the alerting rules, which currently
+reference a deadline that is never specified.
+
+Your answer:
+
+
+
+C8. Which extra data streams should actually be built?
+
+Context. At the end of Questionnaire 3 you wrote: "I think more strategies with
+data and metrics pulled from other assets is important. We already pull VIX data
+but what about other things? Volume, options, an idiosyncratic component, etc."
+
+The plan responded by making these PERMITTED rather than DELIVERED. Strategies
+may use them, but nothing schedules acquiring, verifying, and wiring any of them
+up, so in practice the agent would have only what already exists. Your request
+quietly became a permission slip.
+
+Question. Which streams should Phase 1 actually acquire and make available?
+
+Suggested answer. Build three: TECL and XLK volume (free, already partly
+present), the existing VIX, and one idiosyncratic-component measure derived from
+TECL versus its underlying. Treat options-derived data as a later addition,
+because clean point-in-time options history generally has to be purchased and
+that runs into the no-paid-data decision in B4.
+
+Reasoning. Volume and an idiosyncratic component are genuinely new information at
+no cost. Options data is the only one with a real price tag, so it should be a
+deliberate separate decision rather than an assumed part of 3.0.
+
+Your answer:
+
+
+
+C9. (was Q5 #21, blank) Anything still missing?
+
+Context. The final catch-all. The current contract is: Montauk runs continuously,
+sends a quiet daily digest, alerts immediately on failures or material changes,
+recommends but never activates a new leader without you, and leaves every
+brokerage trade to you.
+
+Question. Is anything about how you actually want to live with Montauk still
+missing from that description?
+
+Suggested answer. If it is complete, "No; use the current contract." Otherwise
+describe the missing real-world outcome in your own words - no implementation
+detail needed.
+
+Reasoning. Everything else in this file is a decision inside a design that
+already exists. This is the only question that can catch something the design
+never accounted for, which is why it should not stay blank a second time.
+
+Your answer:
+
+
+
+================================================================================
+
+End of Questionnaire 8.
+
+After you answer, the reviewing agent promotes the complete round into
+charter.md, decisions.md, README.md, and every affected pillar plan before any
+coding handoff. This file stays unchanged as source evidence.

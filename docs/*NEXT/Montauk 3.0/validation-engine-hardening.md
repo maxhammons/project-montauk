@@ -62,7 +62,7 @@ Montauk's sample size is worse than omitting it honestly. PBO/CSCV, SPA/Reality
 Check, bootstrap, walk-forward, sensitivity analysis, and every other named
 technique are candidate instruments—not articles of faith.
 
-### 1b. Owner contract ratified through Questionnaire 5 on 2026-07-21
+### 1b. Owner contract ratified through Questionnaire 7 Part A on 2026-07-25
 
 Max reported that technical language was often unclear. His plain-language goal
 therefore outranks an inferred preference for any named statistical method.
@@ -87,6 +87,21 @@ answers do not create new policy and must earn any role through Phase 1 controls
   board/lifetime comparisons remain observable. Correction must model effective
   dependence; it may neither treat every near-twin as independent nor erase
   legitimate exact configurations.
+- Observed history spans two product eras. The fund traded as **TYH** against the
+  Russell 1000 Technology Index from 2008-12-17 until roughly 2012-06-29. That
+  era is real, tradeable evidence exposed as a separate product era with its own
+  matched-B&H result; it may not calibrate the synthetic reconstruction, and
+  Phase 1 decides whether it is a hard sub-gate or a required stress gate. The
+  2018 GICS reconstitution is evaluated as a possible further seam.
+- Distributions use one primary-source ledger with entitlement on the ex-date,
+  cash on the pay-date, and **reinvestment at payout** for both the invested
+  strategy and matched B&H (risk-off cash joins the zero-return balance).
+  Tradable OHLC, split-adjusted feature prices, and total-return wealth stay
+  separate views so a distribution is neither omitted nor double-counted.
+- The false-Gold operating point is reported over annual, five-year, ten-year,
+  and lifetime horizons with planted-signal recovery at each. No signed release
+  resets the lifetime search ledger, and a material search-accounting, holdout,
+  lineage, or multiplicity defect stales every affected certificate.
 - Economic eligibility uses matched TECL B&H across complete real history, a
   fixed trailing-five-year horizon, and a small predeclared rolling/window
   design. Complete history and trailing five years are hard gates; Phase 1
@@ -386,6 +401,7 @@ of the five planks, diagnostic-only, fixed outside the validator, or removed.
 | **G12** | **Gold execution policy and modeled scale are decided; numerical costs and comparator fixtures are not yet calibrated.** Signal-after-verified-close/manual-next-open and the $10,000–$100,000 modeled order band are fixed, but slippage, fees, B&H dates/distributions, and parity artifacts still need proof. | A statistically strong result under an impossible fill is not fit to trade. A rounded point estimate barely above 1.0 is weak evidence of superiority. | **Critical implementation** | Implement the fixed next-open workflow net of market-calibrated costs across the modeled band, matched B&H, terminal relative wealth/share multiple, and a lower bound above 1.0; keep close-fill as diagnostic. Do not require personal fill, balance, or actual-order-size logging. |
 | **G13** | **Composite/gate semantics may not match “passes every validation.”** Skipped/missing dimensions can be renormalized, warnings may not affect verdicts, and weighted strength can offset a failed plank. | A score is not a probability and cannot rescue absent mandatory evidence. | **High** | Define mandatory minima and explicit `not_applicable` equivalents; fail Gold on missing/unverifiable required evidence; label uncalibrated composite values as scores, not probabilities. |
 | **G14** | **The validator's false-positive and false-negative operating characteristics are unmeasured.** Passing known defects and rejecting valid controls are both possible. | “Stricter” can hide a powerless or biased grader just as easily as a permissive one. | **Critical evidence** | Build a validation-of-validation harness with randomized nulls, seeded leakage/overfit defects, simple frozen controls, simulation, power reporting, and per-row forward outcomes. Freeze expected sensitivity/specificity ranges per contract version. |
+| **G20** | **Product-era and distribution accounting are unresolved.** The 2008-12-17→2012-06-28 TYH/Russell-1000-Tech era is treated as ordinary TECL history, and `data/TECL_distributions.csv` starts 2021-12-09, credits cash by ex-date, and never reinvests. | A benchmark change alters the object certified; an incomplete or asymmetric distribution ledger makes "beats matched total-return B&H" unverifiable and can double-count against an adjusted price series. | **Critical implementation** | Forensically rebuild TECL/TYH from primary sources; label both product seams in `data/manifest.json`; implement the symmetric ex-date/pay-date reinvestment convention for both legs; keep tradable OHLC, feature prices, and total-return wealth as three views; add omission/early-cash/double-count tests. |
 | **G15** | **Synthetic TECL diagnostic validity is not independently calibrated.** The builder is reproducible, but its index/ETF proxies, leverage model, expenses, seam, and financing haircut are not equivalent to observed TECL behavior. | An uncalibrated synthetic vote or veto can create false confidence or reject a sound real-era strategy. | **High** | Extend the frozen XLK transformation through observed TECL; calibrate assumptions on earlier overlap blocks and test later blocks without refitting; quantify daily-return bias, tracking error, volatility, terminal path, drawdowns, expenses/financing error, and event behavior; version every assumption; permit a weight/veto only after this time-separated review. |
 | **G16** | **Recent/rolling structure is decided; its aggregate, veto, and demotion rules remain uncalibrated.** Complete observed history and trailing five years are hard gates, but a hand-picked rolling exam can still manufacture passage or rejection. | Retrospective windows manufacture robustness; excessively many correlated windows can make Gold impossible without adding independent evidence. | **Critical calibration** | Freeze a small rolling design; calibrate its aggregate/catastrophic rules, provisional 1.10 point margin, lower bound above 1.0, and two-renewal warning/demotion behavior on controls. |
 | **G17** | **External-input point-in-time contracts are incomplete.** 3.0 may use VIX, volume, options, related assets, macro series, and idiosyncratic components while trading TECL only. | Revision, publication-lag, same-bar, survivorship, timezone, and missing-data mistakes can create invisible lookahead. | **High** | Require a versioned source registry with provenance, publication/market timestamp, revision policy, missing semantics, and causal feature APIs; verify with prefix replay and as-of fixtures. |
@@ -492,8 +508,10 @@ fresh certification pass.
    [legacy findings log](validation-audit-findings.md) supplies prior evidence;
    it is not a substitute for auditing the final implementation.
 2. **Implement and calibrate correctness and economic truth
-   (G8/G12/G16/G17).** Prove causal point-in-time inputs; implement the fixed
-   next-open fill and matched B&H contracts; calibrate costs, the rolling
+   (G8/G12/G16/G17/G20).** Prove causal point-in-time inputs; implement the fixed
+   next-open fill and matched B&H contracts; rebuild the primary-source
+   distribution ledger and its symmetric reinvestment convention; label the
+   TYH and post-2012 product eras; calibrate costs, the rolling
    aggregate/catastrophic rules, provisional 1.10 point margin, lower bound above
    1.0, and warning/demotion behavior; and freeze a source-labelled named-moment
    suite.

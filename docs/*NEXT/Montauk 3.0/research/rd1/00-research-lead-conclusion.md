@@ -19,16 +19,16 @@ Ten specialist research streams were run, each as a three‑stage pipeline: (1) 
 
 | # | Stream | File | Skeptic verdict (pre‑fix) |
 |---|--------|------|---------------------------|
-| 1 | Phase 1 program design | [`1-Phase 1 program design/phase-1-program-design.md`](1-Phase%201%20program%20design/phase-1-program-design.md) | needs_revision |
-| 2 | Continuous adaptive multiple testing | [`2-Continuous adaptive multiple testing/continuous-adaptive-multiple-testing.md`](2-Continuous%20adaptive%20multiple%20testing/continuous-adaptive-multiple-testing.md) | needs_revision |
-| 3 | Validator‑of‑validator laboratory | [`3-Validator-of-validator laboratory/validator-of-validator-laboratory.md`](3-Validator-of-validator%20laboratory/validator-of-validator-laboratory.md) | needs_revision |
-| 4 | Economic gate & low‑sample inference | [`4-Economic gate and low-sample inference/economic-gate-and-low-sample-inference.md`](4-Economic%20gate%20and%20low-sample%20inference/economic-gate-and-low-sample-inference.md) | needs_revision |
-| 5 | TECL data, B&H & opening execution | [`5-TECL data, B&H, and opening execution/tecl-data-bah-and-opening-execution.md`](5-TECL%20data%2C%20B%26H%2C%20and%20opening%20execution/tecl-data-bah-and-opening-execution.md) | needs_revision |
-| 6 | Synthetic TECL reconstruction | [`6-Synthetic TECL reconstruction/synthetic-tecl-reconstruction.md`](6-Synthetic%20TECL%20reconstruction/synthetic-tecl-reconstruction.md) | needs_revision |
-| 7 | Rust sandbox & software supply chain | [`7-Rust sandbox and software supply chain/rust-sandbox-and-software-supply-chain.md`](7-Rust%20sandbox%20and%20software%20supply%20chain/rust-sandbox-and-software-supply-chain.md) | **major_gaps** |
-| 8 | Independent reproduction & numerical determinism | [`8-Independent reproduction and numerical determinism/independent-reproduction-and-numerical-determinism.md`](8-Independent%20reproduction%20and%20numerical%20determinism/independent-reproduction-and-numerical-determinism.md) | needs_revision |
-| 9 | Durability, availability & dead‑man monitoring | [`9-Durability, availability, and dead-man monitoring/durability-availability-and-dead-man-monitoring.md`](9-Durability%2C%20availability%2C%20and%20dead-man%20monitoring/durability-availability-and-dead-man-monitoring.md) | needs_revision |
-| 10 | Ranking & human decision quality | [`10-Ranking and human decision quality/ranking-and-human-decision-quality.md`](10-Ranking%20and%20human%20decision%20quality/ranking-and-human-decision-quality.md) | needs_revision |
+| 1 | Phase 1 program design | [`1-Phase 1 program design/phase-1-program-design.md`](phase-1-program-design.md) | needs_revision |
+| 2 | Continuous adaptive multiple testing | [`2-Continuous adaptive multiple testing/continuous-adaptive-multiple-testing.md`](continuous-adaptive-multiple-testing.md) | needs_revision |
+| 3 | Validator‑of‑validator laboratory | [`3-Validator-of-validator laboratory/validator-of-validator-laboratory.md`](validator-of-validator-laboratory.md) | needs_revision |
+| 4 | Economic gate & low‑sample inference | [`4-Economic gate and low-sample inference/economic-gate-and-low-sample-inference.md`](economic-gate-and-low-sample-inference.md) | needs_revision |
+| 5 | TECL data, B&H & opening execution | [`5-TECL data, B&H, and opening execution/tecl-data-bah-and-opening-execution.md`](tecl-data-bah-and-opening-execution.md) | needs_revision |
+| 6 | Synthetic TECL reconstruction | [`6-Synthetic TECL reconstruction/synthetic-tecl-reconstruction.md`](synthetic-tecl-reconstruction.md) | needs_revision |
+| 7 | Rust sandbox & software supply chain | [`7-Rust sandbox and software supply chain/rust-sandbox-and-software-supply-chain.md`](rust-sandbox-and-software-supply-chain.md) | **major_gaps** |
+| 8 | Independent reproduction & numerical determinism | [`8-Independent reproduction and numerical determinism/independent-reproduction-and-numerical-determinism.md`](independent-reproduction-and-numerical-determinism.md) | needs_revision |
+| 9 | Durability, availability & dead‑man monitoring | [`9-Durability, availability, and dead-man monitoring/durability-availability-and-dead-man-monitoring.md`](durability-availability-and-dead-man-monitoring.md) | needs_revision |
+| 10 | Ranking & human decision quality | [`10-Ranking and human decision quality/ranking-and-human-decision-quality.md`](ranking-and-human-decision-quality.md) | needs_revision |
 
 ---
 

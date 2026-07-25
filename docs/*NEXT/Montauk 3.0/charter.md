@@ -1,7 +1,7 @@
 # Project Montauk 3.0 Charter — The Always-On TECL Research Appliance
 
-**Status: RATIFIED OPERATING POLICY THROUGH QUESTIONNAIRE 5; CALIBRATION PENDING
-(updated 2026-07-21).** This document captures the owner's clarified intent and
+**Status: RATIFIED OPERATING POLICY THROUGH QUESTIONNAIRE 7 PART A; CALIBRATION
+PENDING (updated 2026-07-25).** This document captures the owner's clarified intent and
 is the governing 3.0 planning contract. It defines a rewrite target and
 **supersedes conflicting behavior in current code, documentation outside this
 folder, and legacy Gold artifacts**. Those sources remain migration evidence
@@ -137,6 +137,19 @@ or fault.
 - Mandatory review by an outside human expert. Independent implementation,
   adversarial review, primary-source audit, and control evidence remain required,
   but a paid/credentialed external reviewer is not a 3.0 gate.
+- Naming the brokerage and verifying that an after-close order demonstrably
+  reaches the NYSE Arca Core Open Auction. **Disclosed consequence:** Gold's
+  execution claim is therefore limited to the *modeled* next-open contract across
+  the fixed order band using a documented conservative cost range. No Gold row
+  may be described as broker-verified-tradeable, and precise execution cost is
+  reported as `insufficient` rather than as a point estimate.
+- An independent outbound dead-man/heartbeat service on a route outside Montauk's
+  own channel. Read-only update rooms and a command DM live inside the one
+  selected channel and are not an independent absence alarm. **Disclosed
+  consequence:** if the host, home internet, or the channel provider fails
+  completely, Montauk cannot report its own absence.
+- Purchasing official-close, opening-auction, or quote data. Phase 1 exhausts
+  free primary records and documents a conservative range instead.
 - Hardware procurement, provider/budget selection, and a strategies-per-hour or
   throughput acceptance target. Rust correctness and efficient implementation
   remain in scope; these deployment choices do not define completion.
@@ -243,6 +256,16 @@ pass the final 3.0 contract from scratch before entering the current board.
   contract uses a calibrated aggregate passage rule plus a calibrated
   catastrophic-window veto; it does not require every arbitrary slice to win and
   cannot grow candidate by candidate.
+- **Observed history spans two product eras and must be labelled as such.** The
+  fund launched 2008-12-17 as **TYH** against the Russell 1000 Technology Index
+  and changed ticker and benchmark to the Technology Select Sector Index around
+  2012-06-29. The 2008-12-17 → 2012-06-28 era is real, tradeable fund evidence
+  in a **separate product era**: it reports its own era-specific matched-B&H
+  result, must avoid catastrophic failure, and may never be used to calibrate the
+  XLK-based synthetic reconstruction. Phase 1 determines from controls whether it
+  is a hard economic sub-gate or a required stress/generalization gate, and
+  whether the 2018 GICS reconstitution is a further product/composition seam.
+  Both seams are recorded in `data/manifest.json`.
 - **The economic margin is greater than 1.0.** The owner's provisional intuition
   is to begin with 1.10 as the unrounded full/recent point-estimate hypothesis.
   Separately, an uncertainty-aware lower bound must exceed no edge (1.0), or the
@@ -302,6 +325,15 @@ pass the final 3.0 contract from scratch before entering the current board.
   timing, explicit costs, and unrounded decisions. Risk-off cash receives zero
   return in the 3.0 Gold comparison. SGOV or another active cash substitute is
   later-version work.
+- **Distributions use one symmetric convention.** A single complete
+  primary-source distribution ledger recognizes entitlement on the ex-date and
+  makes cash available on the pay-date. **Distributions are reinvested when they
+  are paid out**, at the same first obtainable price and cost convention, for
+  both the invested strategy and matched B&H — except when the strategy is
+  risk-off on the reinvestment date, in which case the cash joins the zero-return
+  risk-off balance. Tradable OHLC, causally split-adjusted feature prices, and
+  total-return wealth accounting are three separate data views so a distribution
+  can be neither omitted nor double-counted against an adjusted price series.
 - **Taxes are out of scope.** The primary account is tax-advantaged. Gold
   therefore compares pre-tax returns net of the frozen execution costs and does
   not model tax lots, holding-period rates, or wash sales.
@@ -405,6 +437,21 @@ versus the recovery rate for planted economically meaningful signals. A 1%
 annual probability of any false Gold is the aspirational reference, not an
 already-ratified cutoff; Max approves the final achievable operating point after
 seeing its false-rejection cost.
+
+Because Montauk is intended to run continuously, that frontier must be reported
+over the product's real horizon: **annual, five-year, ten-year, and lifetime**
+interpretations under explicitly stated dependence assumptions, each with its
+planted-signal recovery cost. The report must state whether the chosen online
+policy spends a finite lifetime error budget, controls a rolling annual risk, or
+offers another guarantee, and must not represent an FDR/mFDR construction as an
+any-false-Gold guarantee. A stable annual rate is not a lifetime rate. Max
+approves the understandable long-run promise, not only the one-year number.
+
+Lifetime search history is never reset. A signed core or validator release
+identifies changed methodology; it does not erase or hide earlier searching, and
+a renamed optimizer, campaign, or feature source is not a justification for a
+fresh allocation. A new signed epoch may use a separately justified allocation
+only when the statistical contract explains why the old and new questions differ.
 
 Historical generalization uses nested rolling-origin reconstruction as its
 required chronological spine. Phase 1 compares expanding and fixed rolling
@@ -607,12 +654,23 @@ hard limit (with an earlier internal warning). Split repositories only when a
 measured size, access-control, or recovery requirement demands it. A live mutable
 database is never treated as a normal Git file.
 
-The target is no silent loss of acknowledged durable state. Authority, current
-signal, approvals, and Gold lifecycle mutations are durably journaled and
-replicated before acknowledgement. Each batch has a pre-batch recovery point and
+The target is no silent loss of acknowledged durable state. Authority,
+approvals, and Gold lifecycle mutations are durably journaled and replicated
+off-machine before acknowledgement. Each batch has a pre-batch recovery point and
 an end-of-batch commit/snapshot; the maximum background sync interval is one
 hour. In-flight computations may be rerun after a crash, but completed durable
 results cannot disappear without an integrity failure and immediate alert.
+
+**The current trusted signal is deliberately excluded from that
+replicate-before-acknowledgement rule.** When the host, control database,
+verified data, engine, and Active strategy are all healthy but off-machine
+replication alone is unavailable, Montauk durably journals the signal locally,
+enters a visible `degraded_backup` state, alerts Max, and **delivers the valid
+signal on time**. It blocks Gold publication, Active changes, methodology
+changes, and other non-essential authority mutations until replication catches
+up, then reconciles the queued events. A backup-provider outage must be visible;
+it must never silently become a trading rule or suppress a time-sensitive
+instruction Max can still act on.
 
 The operational shell around these three trust zones is deliberately small:
 
@@ -830,6 +888,18 @@ strategy. When Active or a manual override loses Gold:
    risk-off for Max's consideration, preserve the last instruction until Max
    decides, and perform no brokerage action.
 
+Loss of Gold by the **Active** strategy is Montauk's highest-severity alert
+class and escalates immediately and unmistakably.
+
+**OPEN — owner authority.** Whether a correctness, causality, engine, data, or
+artifact defect that may have contaminated the current signal should enter a
+*separate* `integrity_emergency` state — quarantining affected certificates,
+issuing no new trusted instruction, and labelling the last instruction
+potentially invalid — rather than reusing the ordinary loss-of-Gold machine above
+is **not yet decided**. Questionnaire 6 question 1 supplied an alert-severity
+answer, not a state-machine choice. The steps above stand unchanged until Max
+resolves it; no implementation may infer the separate state.
+
 Montauk never claims to know the actual brokerage position in 3.0 because
 personal fill acknowledgement and reconciliation are out of scope. It displays
 the current trusted strategy state and last issued instruction, clearly labelled
@@ -855,7 +925,30 @@ If current data fails verification:
 
 On recovery after downtime: catch up and verify data first, then recertify the
 active strategy before trusting a new signal; only then resume lower-priority
-research and board maintenance.
+research and board maintenance. Exploratory compute stays paused while the system
+catches up, and work interrupted mid-pipeline restarts from the beginning rather
+than resuming from a partial state.
+
+A verified-data failure is distinct from a **loss of off-machine replication
+alone**, which does not suppress the signal; see the `degraded_backup` rule in §7.
+
+### 10.1a Material TECL product change
+
+Montauk is TECL-specific, so a change to the traded product is not one more
+daily observation. Splits and ordinary distributions follow the tested
+corporate-action path. A **benchmark change, leverage-objective change,
+ticker/CUSIP discontinuity, closure, prolonged halt, or other material
+prospectus event**:
+
+- raises an immediate critical alert to Max;
+- suspends new trusted signals once the change is effective;
+- stales every affected certificate; and
+- requires an owner-approved data/execution contract update and full
+  recertification before the board is current again.
+
+Montauk never automatically substitutes another leveraged ETF or ticker. This
+requires recurring monitoring of TECL product news, with material events
+escalated to Max immediately rather than held for the daily digest.
 
 ### 10.2 Forward evidence and recertification
 
@@ -881,6 +974,13 @@ The initial scheduling contract is:
 These values are versioned commissioning defaults and may be recalibrated only
 through an owner-approved core release. Repeating unchanged data proves replay,
 not new evidence.
+
+Ordinary future searching never changes an already-issued Gold certificate. A
+**material search-ledger, holdout-reveal, lineage, or multiplicity defect** does:
+omitted prior searches, mis-clustered near-twins, a leaked holdout, or an invalid
+correction method means the Search Honesty plank may never have been valid, so
+every affected certificate stales immediately and recertifies under a corrected
+signed contract — exactly like a material data or engine correctness defect.
 
 A core data, engine, execution, validator, threshold, or eligibility change
 creates a new methodology version and immediately makes every incompatible
@@ -937,6 +1037,26 @@ Backup corruption, GitHub sync failure past its bound, or any lost acknowledged
 state is a critical alert. Restore drills must prove the copies, not merely prove
 that a push command ran.
 
+The durability promise is scoped to what the hardware can actually support:
+
+- **Zero loss** of already-acknowledged Active, approval, signal, and Gold
+  mutations against ordinary process and disk failure, using a proven local
+  journal plus a second local device.
+- **A bounded physical-disaster recovery point equal to the last verified GitHub
+  sync** while GitHub is the only off-machine path. This residual is explicitly
+  accepted for 3.0 rather than hidden; additional wired deep-backup drives or a
+  second offsite domain may close it later.
+- **Re-runnable in-progress research restarts from the beginning of the
+  pipeline** after an interruption.
+
+Recovery cannot be proven on the machine that would be lost, so Montauk may run a
+periodic **isolated, non-authoritative** clean-machine restore onto a spare
+machine or temporary VM using only documented backups. It may verify hashes,
+reconstruct the last trusted state, and run acceptance fixtures. It may not run
+live discovery, publish Gold, emit trusted signals, or become a second authority,
+and it is destroyed or resealed afterwards. **Max's approval is required before
+beginning or planning a drill; no scheduler starts one autonomously.**
+
 ## 12. User experience
 
 The primary experience should answer:
@@ -971,7 +1091,27 @@ changing 3.0 commands:
 
 - request a named ideation/research campaign;
 - trigger recertification;
-- approve one exact pending Active-strategy switch.
+- approve one exact pending Active-strategy switch;
+- defer or dismiss one exact Recommended-versus-Active proposal.
+
+**Approving a switch uses one complete review card, then one button.** Before
+confirmation Montauk shows the exact old and new strategy IDs, both current
+signals, whether approval changes the target state immediately, the resulting
+next-open instruction, performance and confidence differences, drawdown and
+catastrophe evidence, data/certification timestamps, and the expiry. Only after
+that information is visible does one explicit button confirm. There is no default
+acceptance, no timeout acceptance, and no hidden second trade. An opposite-state
+switch must make its trade impact conspicuous rather than reusing the generic
+pointer-change acknowledgement. Max may also ask to see candidates that improve
+on the currently selected Active strategy, not only on Montauk Recommended.
+
+**Deferring or dismissing never changes Gold, rank, Recommended, Active, or the
+trusted signal.** The reason is optional and the action is audited. A deferral
+resurfaces at its chosen expiry or on a material Gold/integrity event. A
+dismissal stays quiet until the proposal clears a versioned material-improvement
+threshold beyond the evidence already dismissed, the Active strategy weakens
+materially, or Max asks for it. Phase 1 calibrates that threshold from
+recommendation-churn tests.
 
 Status/explanation queries are read-only. Every mutation requires Max's
 allowlisted identity, an immutable request/strategy ID, explicit confirmation,
@@ -1095,8 +1235,12 @@ after a separate explicit instruction from Max.
 
 ## 16. Required calibration and design evidence
 
-Questionnaires 3–5 settled the owner-visible policy. Max explicitly noted that
-technical language was often unclear; §0.1 therefore governs all interpretation.
+Questionnaires 3–7 Part A settled the owner-visible policy. Questionnaire 7
+**Part B (items 13–20) is unanswered**; those items are open owner authority
+recorded in the decision log and may not be resolved by a Phase 1 report, a
+convenient default, or a suggested answer treated as ratified. Max explicitly
+noted that technical language was often unclear; §0.1 therefore governs all
+interpretation.
 Every decision report starts with a simple explanation and a simple example,
 then states the recommendation, measured false-Gold/false-reject consequences,
 and known limits. Formulas, papers, and implementation details belong in an
@@ -1114,7 +1258,21 @@ statistical opinions to Max:
    catastrophic-veto rules, the provisional 1.10 point-estimate margin, and the
    one-sided lower bound above 1.0; and show both missed-good and admitted-bad
    behavior. The primary estimand is terminal deployable TECL wealth/share
-   multiple versus matched B&H.
+   multiple versus matched B&H. Determine from controls whether the TYH product
+   era is a hard economic sub-gate or a required stress gate. Separately test
+   whether a **narrow catastrophic-loss/ruin veto** adds distinct protection
+   without rejecting sound trend strategies; report its caught-defect rate,
+   false-rejection rate, and economic interpretation. Installing any such veto is
+   a separate owner decision, and if no defensible boundary emerges none is
+   installed and the limitation stays prominent in activation review.
+2a. **Distribution/total-return study:** rebuild the TECL distribution ledger
+   from primary sources (the current `data/TECL_distributions.csv` begins
+   2021-12-09, credits cash by ex-date, and does not reinvest); implement the
+   symmetric ex-date-entitlement/pay-date-availability reinvestment convention
+   for both legs; keep tradable OHLC, split-adjusted feature prices, and
+   total-return wealth as separate views; and add tests that detect missing
+   distributions, early cash availability, future-action leakage, and
+   double-counting against an adjusted price series.
 3. **Synthetic-data study:** independently reproduce and overlap-calibrate the
    technology-index/XLK construction, financing drag, volatility/tracking error,
    weights, and any catastrophic veto. Extend the XLK-based synthetic
@@ -1123,7 +1281,12 @@ statistical opinions to Max:
    and actual daily returns, terminal path, volatility, drawdowns, tracking
    error, and named-event behavior. Build a predeclared named-moment suite and
    label every result observed-real or reconstructed/synthetic; pre-inception
-   episodes never count as real TECL passage.
+   episodes never count as real TECL passage. The TYH product era may **not** be
+   used to calibrate the reconstruction, XLK's own expenses/tracking/distributions
+   must not be blended into the inferred TECL drag, and the 2018 GICS
+   reconstitution is evaluated as a possible further seam. State explicitly what
+   happens after the one credible held-out block has been inspected and the model
+   revised; it does not become untouched evidence again.
 4. **Validation-of-validation study:** audit every final admitted method and
    threshold; distinguish frozen historical replay, nested rolling-origin
    reconstruction, spent/reused holdouts, and genuinely post-freeze forward
@@ -1143,18 +1306,30 @@ statistical opinions to Max:
    neighbors from identical signal/trade behavior using behavioral hashes; and
    select an independently reviewed within-family plus board/lifetime method that
    handles correlated configurations and continuous adaptive feedback without
-   treating raw row count as independence.
+   treating raw row count as independence. Report the error target over annual,
+   five-year, ten-year, and lifetime horizons; prove that no signed release
+   resets the lifetime ledger; and specify exactly when a newly discovered
+   search-accounting defect stales prior Gold.
 6. **Containment/seal study:** demonstrate the resident identity has no core-write
    credential, the signed read-only core fails closed, causal workers remain
    contained, resource failures quarantine/repair safely, and the acceptance
    suite can enable automatic isolated-module intake.
 7. **Recovery/storage study:** prove no loss of acknowledged authority/Gold state,
    bounded batch recovery, measured artifact-size/restore topology, corruption
-   detection, and clean GitHub-hosted restore.
+   detection, and clean GitHub-hosted restore. Return explicit RPO/RTO per
+   failure scope — process kill, single-disk loss, whole-tower loss, GitHub-only
+   outage, total internet outage — and prove the `degraded_backup` signal path
+   and the owner-approved non-authoritative restore drill. Do not equate `fsync`,
+   a copied database file, or a successful push with a transactionally valid
+   replica.
 8. **Ranking study:** freeze the smallest Montauk Score formula from Validation
    Score and deployable Performance, prove any additional input is independently
    useful, calibrate recommendation churn, and define when the board shows
-   `leader not clearly separated` without creating another headline score.
+   `leader not clearly separated` without creating another headline score. Design
+   and test the single switch review card and its one explicit confirmation for
+   both pointer-only and opposite-state changes, and calibrate the dismissal
+   retrigger threshold rather than adopting an arbitrary default. Do not lower a
+   separation confidence level merely to make the warning appear less often.
 9. **Acceptance matrix:** attach a stable test ID, invariant, fixture, threshold,
    artifact, safe failure state, rollback, and Max sign-off field to every phase
    exit and safety-critical operating invariant.
