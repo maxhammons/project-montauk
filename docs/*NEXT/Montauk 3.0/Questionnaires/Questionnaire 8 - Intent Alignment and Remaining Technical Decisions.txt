@@ -78,6 +78,7 @@ itself - without letting the search set its own passing grade or silently
 de-certifying the board.
 
 Your answer:
+yes only with my approval that question should be sumbitted to me from the model over slack or whatever
 
 
 
@@ -110,6 +111,7 @@ the same logic to the board itself and directly addresses the clog you flagged.
 Nothing is lost - the equivalent settings stay queryable.
 
 Your answer:
+suggested anssweer good but we need to keep track of all configurations that are gold. so they are gold status but they are "hidden" on the leaderbaord. i dont want to lose stratgies or not record them because they have the same trade path as other ones. 
 
 
 
@@ -141,6 +143,7 @@ history. You keep full visibility into crisis behavior without turning the exam
 into a maze.
 
 Your answer:
+look i want whatever gives gold status to the stratgies that are most robust and the ones that i can have the most possible confidence in. whaever back testing regime is needed ill go with. what i dont want is the kind of "AI slop" style of requriements and paths and just so convoluted and confusing. when i say beat bxh i mean: from when the stratgy started trading- if you bought $1000 of TECL and held it to current vs followed that stratgy with $1000 would you have more money with the strategy or with the bxh? why do i care about this? i want to know that following the stratgey is more sucessful than just buying and holding (i want alpha). now secondarily seeing how well it perfeormed against buy and hold through different times (2001, 2008, etc.) is interesting and maybe should be included into that somehow but i dont want things to get too confusing and convoluded. 
 
 
 
@@ -583,6 +586,7 @@ mode you worried about in Questionnaire 2 item 69, where the agent burns its tim
 and tokens fighting the compiler.
 
 Your answer:
+yes so long as there is a multitude of building blocks to choose from. i dont want it to be the case that there are not enoguh building blocks so that it is constricting and the model cannot be inventive and imaginative. there should be some kind of report that gets generated about this- i want to know if the model is out of ideas due to only having limite building blocks
 
 
 
@@ -611,6 +615,7 @@ already asked for is the real version of the same idea, and it gets stronger
 every day on its own.
 
 Your answer:
+i mean its a good idea. i guess where i land is that i want the testing and validiations to be as robuts as possible (in that i want to have as much confidence as possible in gold status strategies) 
 
 
 
@@ -642,6 +647,7 @@ produced strategy calls that were wrong - essentially if the validation process
 failed." That risk is highest if the search scales before the exam is proven.
 
 Your answer:
+grader first. confirmed. 
 
 
 
@@ -671,6 +677,7 @@ implementations is build effort that does not improve Gold - and if a legacy
 strategy really is good, the new pipeline will find it again.
 
 Your answer:
+like i say in this doc- lets start with those but they still need to pass all the validations that any stategey needs to do to get to gold status. 
 
 
 
@@ -698,6 +705,7 @@ Reasoning. There is never a good reason to be between two systems with no signal
 This costs nothing to specify now and is very unpleasant to discover on the day.
 
 Your answer:
+what is cutover? if youre referring to when we switch stratgies we can have all these stratgeies in the leaderboard and each one will have what signal in or out. in theory (and hopefully) there wouldnt be a time where choosing the new stratgy would mean a flip in position. but if it does then i will handle that when i make the decsion to change the active stratgey. 
 
 
 
@@ -734,6 +742,7 @@ Without it, an invalid over-strict gate could hide behind a legitimately empty
 board indefinitely - the exact failure you flagged from Montauk 2.0.
 
 Your answer:
+your answer is good. lets run it as it is for 90 days. There are strategies that are currently "gold status" in the current montauk 2.0. let's start testing and validating those (and configurations around those stratgies) first. that should be a good starting point. 
 
 
 
@@ -754,6 +763,8 @@ what "missed signal deadline" means in the alerting rules, which currently
 reference a deadline that is never specified.
 
 Your answer:
+lets say 5pm pacific on trading days, with a hard alert
+if the signal has not been produced by 6:00 PM Pacific.
 
 
 
@@ -781,6 +792,7 @@ no cost. Options data is the only one with a real price tag, so it should be a
 deliberate separate decision rather than an assumed part of 3.0.
 
 Your answer:
+i mean look- that was just a queue that the model that is dreaming up the statgies has the abiloty to pull other stream of info other than TECL. it can pull any info it wants. that comment was there to prompt and let that model know that it can pull any stream of data and that it should not be limited to just TECL or VIX. in my mind there are correlated assets so the montauk should find those connection through exploration and testing.
 
 
 
@@ -803,7 +815,11 @@ already exists. This is the only question that can catch something the design
 never accounted for, which is why it should not stay blank a second time.
 
 Your answer:
-
+This is the overview statement:
+The current contract is: Montauk runs continuously, exploring and searching for new statgies. It runs those strategies thgough backtesting and anti over-fitting testing (to make sure it beats bxh and is not overfit to TECL).
+Every day it sends a daily digest (which includes how money statgeies it found, tested, and how many if any passed through to the gold status/leaderboard), alerts immediately on failures or material changes,
+recommends but never activates a new leader without you, and leaves every
+brokerage trade to you.
 
 
 ================================================================================
