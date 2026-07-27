@@ -1576,3 +1576,66 @@ had ever asked. All are now in Questionnaire 8 Part C:
 Questionnaire 4 item 8 (purge/embargo derivation) is also blank and is
 deliberately **not** returned to Max: it has one defensible answer, the charter
 already implements it, and no owner preference would improve it.
+
+## 2026-07-26 — agent runtime billing and the gateway build/rent line
+
+### D79 — Subscription-first for the resident agent; API billing is a documented fallback
+
+**Call.** The resident agent runs on Max's Claude subscription
+(`claude setup-token`) rather than metered API billing. API billing is permitted
+where a needed capability requires it, under the migration triggers recorded in
+[channel-gateway-and-agent-runtime.md](channel-gateway-and-agent-runtime.md) §7.
+This is a cost and operations preference, not a Gold or completion criterion, and
+it is reversible without reopening the strategy or validation contract.
+
+The consequence is architectural, not merely financial: Managed Agents is
+API-key-only, so the resident runtime is the **Claude Agent SDK** (preferred over
+a bare `claude -p` subprocess because it supplies sessions, permission gating,
+and lifecycle hooks as library features). Server-side session context,
+cron-driven deployments, webhook notifications, and a first-class interrupt event
+all return to Montauk's own plate. Two of those four — scheduling and
+notifications — were already Montauk's job under D61 and §5.2, so the genuinely
+new work is thread context and cooperative steering.
+
+This does not relax D61 or §5.1. The surviving rule is the one that matters: no
+permanently privileged interactive session is kept alive to imitate a daemon.
+An SDK-hosted invocation is still bounded, supervised, non-interactive, and run
+under the `montauk-agent` identity with a timeout, a turn limit, and a
+candidate-only working directory.
+
+**Why.** Routine operation should not meter. The three-path design in D80 keeps
+digests and mutations model-free, so the subscription allowance is consumed only
+by genuine conversation and research restocking — which is exactly the workload a
+subscription suits. Recording the fallback triggers now means a later cost or
+reliability finding is a planned migration rather than a redesign.
+
+### D80 — Build the channel gateway; rent only the agent runtime. The authority path is model-free
+
+**Call.** Montauk builds the Slack adapter, the typed command schema, the review
+card, the confirmation components, the outbox renderer, and the controller. It
+does not build the agent loop, session/context management, model retry, or
+streaming. The channel carries three paths with different trust levels, and the
+two that carry authority never invoke a model:
+
+1. **digests and alerts** render directly from the durable notification outbox;
+2. **mutations** are initiated by a slash command or a Slack interactive
+   component carrying the immutable proposal ID — never by prose a model
+   interprets;
+3. **free-form chat** routes to a bounded agent task that may explain, inspect,
+   propose, and *surface* a review card, but cannot approve one.
+
+This settles the previously undefined ingress rule: **slash command or button =
+typed mutation; anything else = advisory.**
+
+**Why.** The charter forbids any gateway from owning command semantics, task
+state, or audit truth, so items 1–5 of the build list could never have been
+delegated — adopting OpenClaw would have removed none of them (D62, §8.2). What a
+general gateway actually saves is the runtime, which the Agent SDK supplies
+anyway. Meanwhile the button-based mutation path converts §7.4's rule that
+free-form conversation can never approve an Active switch from an instruction the
+model is asked to honor into a property of the transport: a signed interactive
+payload cannot be produced by anything that merely writes text into the channel,
+and therefore cannot be prompt-injected. General gateways are built on the
+assumption that the model is the interface; Montauk's charter assumes the
+opposite, which is why the narrower purpose-built adapter is the better fit here
+despite being more code.
