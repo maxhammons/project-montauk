@@ -1181,7 +1181,7 @@ must enforce the Montauk boundary.
 agent operation, but Montauk needs a much smaller trusted computing base. The
 useful UX does not justify importing a general-purpose agent's blast radius.
 
-### D63 — One channel contract; Slack is the default and Buzz must earn replacement
+### D63 — One channel contract; Slack is the default and Buzz must earn replacement (REFINED by D81)
 
 **Call.** Montauk owns one provider-neutral typed conversation-channel adapter
 and runs only one primary provider in production. Slack Socket Mode is the
@@ -1523,8 +1523,9 @@ scope reduction honest instead of silently weakening the execution claim.
 - commission the minimal Debian/`systemd` service topology, SSD hot-storage and
   resource-preemption policy, Tailscale/SSH recovery path, bounded provider
   adapter, and one selected private typed channel under the dedicated operations
-  [plan](debian-host-agent-and-channel-operations.md), including the bounded
-  Slack/Buzz bake-off;
+  [plan](debian-host-agent-and-channel-operations.md) — the channel provider is
+  settled (Slack, D81), so this is adapter implementation rather than provider
+  comparison;
 - rebuild the primary-source TECL distribution ledger, implement the symmetric
   ex-date/pay-date reinvestment convention, and add omission/double-count tests
   (D66);
@@ -1639,3 +1640,133 @@ and therefore cannot be prompt-injected. General gateways are built on the
 assumption that the model is the interface; Montauk's charter assumes the
 opposite, which is why the narrower purpose-built adapter is the better fit here
 despite being more code.
+
+## 2026-07-30 — channel provider selected
+
+### D81 — Slack is the selected primary channel; the Buzz bake-off is closed by decision, not by measurement
+
+**Call.** Slack is the one primary conversational channel for Montauk 3.0,
+deployed as a workspace-scoped custom Slack app on Socket Mode exactly as
+[debian-host-agent-and-channel-operations.md](debian-host-agent-and-channel-operations.md)
+§7.2 specifies. The Slack-versus-Buzz bake-off that D63 and §7.3 *authorized* is
+**closed without being run**. Buzz is not implemented, is not retained as a
+parallel command path, and is removed from the commissioning sequence as a
+budgeted task.
+
+This is a decision taken on cost and maturity evidence already on record, **not**
+a measurement result. Nothing in this entry should be read as reporting a
+bake-off outcome — no comparative measurements were taken. §7.3's eight criteria
+are retired unrun.
+
+The deployed shape:
+
+- a free Slack workspace, with no paid plan at any point;
+- one workspace-scoped **custom** app — created by Max, installed only into his
+  own workspace, never submitted to the public App Directory — built from a
+  versioned minimal app manifest retained with protected operations code (§7.2
+  step 1);
+- **Socket Mode**: `montauk-channel.service` opens an outbound WebSocket to
+  Slack and events return on that connection. No public request URL, no TLS
+  termination, no port forwarding, no dynamic DNS, and no inbound listener on the
+  appliance;
+- an app-level `xapp-…` token scoped to `connections:write`, and a bot `xoxb-…`
+  token scoped to `chat:write`, `commands`, and `app_mentions:read`;
+- an official Bolt SDK for reconnection and envelope acknowledgement rather than
+  hand-written socket handling (§7.2).
+
+**Why — the recurring cost is zero and stays zero.** Free workspace; free app
+install against a free-plan ceiling of ten apps and a requirement of one; Socket
+Mode is a standard platform feature rather than a paid tier; the Bolt SDK is open
+source; phone push is built into the stock Slack client; and the adapter is a
+`systemd` service on an appliance Montauk already owns. The free plan's 90-day
+history window is not a constraint here, because §7.2 already establishes that
+Slack history is never Montauk's durable memory — the control database is. Under
+D79 and D80 the subscription allowance is likewise untouched by routine
+operation: Paths 1 and 2 are model-free, so digests and every mutation cost
+nothing, and only free-form chat consumes the subscription Max already pays for.
+
+**Why — Buzz's true cost is capacity, not dollars.** A tempting shorthand is that
+Buzz was rejected because it has no free hosting. That is not accurate and should
+not enter the record: Buzz is Apache-2.0 and could be self-hosted on the
+appliance for zero dollars. What it actually costs is the appliance. §7.3 records
+that its full self-hosted architecture wants a relay **plus PostgreSQL, Redis,
+and S3/MinIO-style object storage** — four resident services on a two-core
+i3-6100 with 120 GB of storage. That collides with §2.3, which grants research
+only *spare* CPU precisely because capacity must stay reserved for the
+controller and the channel adapter, and with §2.2, which requires storage
+pressure to pause research before it threatens the control database, Gold
+artifacts, or backup. Bake-off criterion 5 — overhead while Rust research is
+saturated — is answerable from the specification sheet without instrumentation.
+
+**Why — maturity outranks cost, and would survive a free managed Buzz.** Cost is
+the weakest of the three arguments, and a hypothetical free managed Buzz would
+erase it. These objections, all already recorded in §7.3 from the 2026-07-21
+snapshot, would survive it: Buzz is pre-1.0 and fully supports only `main`;
+mobile clients, push notifications, and workflow approval gates are described as
+still being wired up; rate limiting is not enforced; and channel membership is
+the primary access gate, which §7.3 judged "not fine-grained enough to replace
+Montauk's typed mutation allowlist." Buzz is weakest exactly where Montauk is
+most dependent — §7.2 selects on mature phone clients and push delivery, because
+the daily digest and critical alerts are the channel's primary job. A managed
+offering would also remove owner-controlled conversation data, which is Buzz's
+principal stated advantage.
+
+**Why — Socket Mode is load-bearing, not an implementation detail.** The default
+Slack ingress is an Events API **Request URL**: Slack delivers events by making
+an inbound HTTPS POST, which for a home appliance behind NAT means a domain, a
+certificate, an open port, router forwarding, and a public path to the machine
+holding the signed core, the Gold database, and the Active switch. Socket Mode
+inverts the direction, so nothing on the internet can initiate a connection to
+the host. This is the identical property credited to D79's migration target in
+[channel-gateway-and-agent-runtime.md](channel-gateway-and-agent-runtime.md) §7
+— an outbound-polling worker with no inbound port, no forwarding, behind NAT.
+It is also what makes D80's model-free mutation path reachable without exposing
+the host: a Block Kit button click would otherwise POST to a public
+Interactivity Request URL, and under Socket Mode that signed payload arrives on
+the socket the appliance already opened.
+
+**Not to be confused with Claude-in-Slack.** The app in this decision is
+Montauk's own custom app driving Montauk's own adapter. It is unrelated to
+Anthropic's Claude-in-Slack / Claude Tag product, which the charter separately
+excludes because it does not authorize the local appliance. Claude Tag's paid
+Slack plan requirement therefore never applies to Montauk, and the zero-cost
+claim above is unaffected by it.
+
+**Conditions that reopen the choice.** All four must hold together; any one alone
+is insufficient:
+
+1. Buzz reaches a stable release with `main` no longer the only fully supported
+   configuration;
+2. mobile clients, push notifications, and workflow approval gates are shipped
+   rather than in progress, and measurably match Slack for Max's phone/digest
+   workflow;
+3. per-action authorization exists that can carry the typed mutation allowlist,
+   rather than channel membership as the access gate; and
+4. the resident footprint fits the appliance without displacing reserved
+   controller/adapter capacity or threatening the §2.2 storage floor — or the
+   appliance is replaced by a host where that is no longer binding.
+
+Should all four hold, the reopened comparison runs §7.3's criteria as written.
+Because D80's three-path architecture is transport-independent — Paths 1 and 2
+are model-free, and only the interactive-component mechanism is Slack-specific —
+a later migration does not invalidate the adapter contract, the command schema,
+the review card, or the outbox renderer.
+
+**Implications.**
+
+- §7.2's Slack setup steps become the commissioning procedure rather than one
+  branch of a comparison.
+- §9 step 10 no longer budgets a bake-off; it records this decision and deploys
+  the Slack adapter.
+- Open item 4 of the gateway document is closed.
+- Email is separately evaluated and rejected as a conversational channel in a new
+  §7.6; it is not an alternative that survives this decision.
+- No paid Slack plan may be introduced as a dependency without a new decision.
+  If a future requirement can only be met on a paid tier, that is a cost decision
+  Max takes explicitly, not an implementation choice.
+
+**D81 refines D63.** D63 made the bake-off *permission*, not obligation — "a
+time-boxed Slack-versus-Buzz bake-off **may** select Buzz" — and assigned the
+final UX call to Max. Declining to exercise that permission and taking the
+recorded default is consistent with D63 and with the charter's matching
+permissive language, so neither is amended by this entry.

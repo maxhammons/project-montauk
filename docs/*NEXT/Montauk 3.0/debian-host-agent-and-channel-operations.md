@@ -338,13 +338,20 @@ approve_active_switch(exact_strategy_id)
 
 `status` is read-only. The last three are the charter's mutation allowlist.
 
-### 7.2 Slack is the conservative commissioning default
+### 7.2 Slack is the selected channel
 
-Unless Buzz passes the bake-off below before channel implementation begins, use
-one workspace-scoped custom Montauk Slack app. Slack is the lower-operational-
-risk default because mature mobile clients and push delivery already cover the
-daily-digest and critical-alert use case. This is a commissioning default, not a
-permanent product dependency or a claim that Slack is architecturally better.
+**Selected 2026-07-30 by D81.** This section was written as a conservative
+default pending the §7.3 bake-off; that bake-off is now closed unrun and these
+steps are the commissioning procedure. Slack remains a replaceable outer
+transport, not a permanent product dependency or a claim that it is
+architecturally better — D81 records the conditions that would reopen the choice.
+
+Use one workspace-scoped custom Montauk Slack app. Slack is the lower-operational-
+risk choice because mature mobile clients and push delivery already cover the
+daily-digest and critical-alert use case, and because the deployment carries no
+recurring cost: a free workspace, a free app install, Socket Mode as a standard
+platform feature, and an adapter hosted on the appliance. No paid Slack plan may
+become a dependency without a new owner decision.
 
 For a single home server behind NAT, use Slack Socket Mode: the Debian process
 opens an outbound WebSocket and no public request URL is required. Use an
@@ -391,6 +398,16 @@ reevaluate Slack's signed HTTP Request URL transport rather than stretching the
 single-host choice into a scaling architecture.
 
 ### 7.3 Buzz is a strong candidate, not an assumed replacement
+
+> **CLOSED 2026-07-30 by D81 — retained as rationale, not as an open task.** Max
+> selected Slack and declined to run the bake-off specified below. The decision
+> rests on evidence already in this section — Buzz's four-service resident
+> footprint against a two-core/120 GB appliance (§2.2, §2.3), and its pre-1.0
+> status with mobile push and approval gates still being wired up — not on
+> measurements, which were never taken. The eight criteria below are retired
+> unrun and are preserved because D81's reopening conditions invoke them by
+> reference. **Do not budget bake-off work from this section.** Email was
+> evaluated in the same decision and rejected; see §7.6.
 
 Buzz is unusually well aligned with the desired interaction model: it is an
 Apache-2.0 self-hostable workspace where people and agents share rooms; messages
@@ -505,6 +522,69 @@ decision, and that residual risk is accepted rather than mitigated.
 - Critical undelivered alerts remain visible in local status and are retried;
   Tailscale/SSH remains the repair path.
 
+### 7.6 Email is not a candidate for the primary channel
+
+Email was raised as a primary conversational channel on 2026-07-30 — Max mails
+Montauk, the host is notified, and the resident agent reads the mailbox — and is
+**rejected** (D81). The rejection is not a preference between comfortable
+options. Email fails §7.1's adapter requirements at the transport layer, and two
+of the failures are unfixable without rebuilding the property that makes the
+channel safe.
+
+**1. No identity that maps only to Max.** §7.1 requires "a stable cryptographic
+or provider-issued identity that maps only to Max," and §7.2 has already ruled
+that "display names, **email addresses**, and natural-language claims of
+identity are not authorization." A `From:` header is trivially forged. Reaching a
+defensible identity means implementing inbound DKIM/SPF/DMARC verification —
+building a mail authentication stack as a precondition of the channel — and even
+a DMARC pass authenticates a *sending domain*, not Max. Slack supplies an
+immutable `U…` user ID inside a signed payload with no equivalent work.
+
+**2. No typed mutation envelope — the disqualifying failure.** §7.4 requires
+every mutation to parse against a typed schema and never be inferred from
+free-form prose, and D80 fixes the ingress rule as *slash command or button =
+typed; anything else = advisory*. Email offers no typed component, so it degrades
+to exactly one of two prohibited shapes:
+
+- **prose approval**, which requires a model to interpret intent and so violates
+  the rule that free-form conversation can never approve an Active switch; or
+- **a click-through approval link**, which is an HTTP endpoint — reintroducing
+  the public inbound ingress that Socket Mode was chosen to eliminate (§7.2), and
+  pointing it at the host holding the signed core, the Gold database, and the
+  Active switch.
+
+There is no third option. The property D80 obtained mechanically — a signed
+interactive payload that cannot be produced by anything that merely writes text
+into the channel, and therefore cannot be prompt-injected — has no email
+equivalent.
+
+**3. Delivery semantics are adversarial to the mutation contract.** Email is
+at-least-once, unordered, arbitrarily delayed, and silently spam-filed. An
+approval that arrives hours late, past its expiry, and is then re-delivered by a
+retrying MTA is precisely the failure §7.4 steps 3 and 5 exist to prevent. Those
+guarantees would have to be rebuilt on top of a transport that actively works
+against them.
+
+**4. The blast radius inverts.** Ingress means IMAP against Max's personal
+mailbox, so the channel service holds a credential far broader than §7.2's least
+privilege set. Compromise of the Slack adapter exposes one private channel;
+compromise of a mail-reading adapter exposes the mailbox that holds the
+password-reset path for the brokerage account this system generates signals for.
+"It could read all the emails" is the liability, not the feature.
+
+**5. The address is an open namespace.** Anyone who learns it can inject content
+into Path 3's model context. A private Slack channel is a closed room in which
+only invited members can post.
+
+**Where email is still appropriate.** Email's one recorded strength is that it
+depends on nothing Montauk built, which makes it a natural **out-of-band alert
+path** of the kind the durability research contemplates — a notification route
+outside Tailscale and GitHub. That is not a 3.0 deliverable: §7.4 records that an
+independent outbound heartbeat service is out of scope for 3.0 by owner decision
+and the residual risk is accepted. Email is therefore retained as the obvious
+candidate *if* that scope decision is ever revisited, and is admitted for nothing
+else. It is not a conversational channel, and it never carries a mutation.
+
 ## 8. What Montauk should borrow from OpenClaw
 
 OpenClaw is a useful analogy because it puts an always-on gateway between chat
@@ -596,8 +676,8 @@ This is the commissioning order, not a shell script:
    state, artifact, log, and backup paths outside it.
 9. Install and harden the `systemd` services/timers; test boot start, bounded
    restart, no-overlap leases, resource limits, and trusted-work preemption.
-10. Run the bounded Slack/Buzz bake-off if it has not already been resolved,
-    record Max's selection, and deploy only the winning private channel adapter.
+10. Deploy the Slack private-channel adapter per §7.2. The provider choice is
+    already resolved by D81 — no bake-off is run, and no second adapter is built.
 11. Add the three mutating channel commands one by one only after identity,
     confirmation, expiry, idempotency, replay, and audit tests pass.
 12. Configure one provider adapter and auth path; test bounded non-interactive

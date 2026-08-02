@@ -249,10 +249,15 @@ These must be closed before the command schema is written.
 3. **Steering semantics.** §8.1 promises a running agent can receive guidance or
    stop after its current tool boundary. The cooperative-cancellation substitute
    in §5 needs a concrete contract and a test.
-4. **Slack-versus-Buzz bake-off** remains formally unrun (§7.3, §9 step 10). This
-   document assumes the Slack default and does not pre-empt that comparison;
+4. ~~**Slack-versus-Buzz bake-off** remains formally unrun.~~ **CLOSED
+   2026-07-30 by D81.** Slack is the selected primary channel; the bake-off is
+   closed by owner decision on cost and maturity grounds rather than by
+   measurement, and is not run. Email was evaluated in the same decision and
+   rejected at the transport layer (§7.6). The observation this item made still
+   holds and now describes migration cost rather than an open comparison:
    nothing in §3 or §4 is Slack-specific except the interactive-component
-   mechanism, which would need a Buzz equivalent.
+   mechanism, so a future transport change would need only an equivalent signed
+   typed-payload primitive.
 
 ## 9. Facts that must be rechecked at commissioning
 

@@ -12,8 +12,8 @@ normal active-strategy changes.
 The appliance shell around this conveyor is specified separately in
 [debian-host-agent-and-channel-operations.md](debian-host-agent-and-channel-operations.md):
 minimal Debian, `systemd`, resource preemption, private Tailscale/SSH, a bounded
-provider adapter, one selected typed conversation channel, the Slack/Buzz
-bake-off, and the intentionally limited interaction patterns Montauk borrows.
+provider adapter, one selected typed conversation channel (Slack, settled by
+D81), and the intentionally limited interaction patterns Montauk borrows.
 
 This is a safe handoff for **Phase 1 contract research and protected-boundary
 prototyping**, not blanket permission to build the autonomous appliance around
@@ -867,16 +867,17 @@ runaway backlog, and provider failure are visible and safe.
 - Define and test one provider-neutral channel adapter against a fake controller
   and notification outbox. It owns transport only; the controller owns command
   schemas, task state, authority, and audit.
-- Before building a full provider integration, run the time-boxed Slack/Buzz
-  bake-off from the operations policy. Compare phone/push reliability, thread
-  continuity, identity and mutation safety, restart reconciliation, Debian
-  resource cost, install/TLS/backup/update burden, and provider-neutral agent
-  continuity. Max chooses from the evidence. Build and deploy only the winner;
-  do not preserve a second live command path.
-- Slack Socket Mode is the conservative default if Buzz does not pass in time or
-  does not clearly earn its heavier self-hosted stack. If Buzz wins, its signed
-  relay events and agent rooms remain transport receipts—not Montauk audit or
-  authority—and its shell/file agent has no protected credentials or writes.
+- The provider choice is settled: **Slack Socket Mode**, selected by D81 on
+  2026-07-30. The Slack/Buzz bake-off is closed unrun, Buzz is not implemented,
+  and email was evaluated and rejected at the transport layer (operations policy
+  §7.6). Do not budget comparison work; build the single Slack adapter per §7.2.
+- Deploy it as a free-tier workspace-scoped custom app: Socket Mode outbound
+  WebSocket (no public request URL, no port forwarding, no inbound listener),
+  `connections:write` on the app-level token, and `chat:write` / `commands` /
+  `app_mentions:read` on the bot token. Use an official Bolt SDK rather than
+  hand-written reconnection and envelope acknowledgement. Socket Mode is
+  load-bearing, not cosmetic: it is what delivers signed interactive-component
+  payloads for the model-free mutation path without exposing the host.
 - Channel mutations are limited to: request a named research campaign, trigger
   recertification, approve one exact pending Active switch, and defer or dismiss
   one exact Recommended-versus-Active proposal. They require Max's stable
