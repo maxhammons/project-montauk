@@ -1,0 +1,511 @@
+Questionnaire 9 - Final Build Readiness Clarifications
+
+Prepared 2026-07-27 after reviewing the completed Questionnaire 8 against the
+research package, prior questionnaires, and the active Montauk 3.0 planning
+documents.
+
+Why this round exists. Questionnaire 8 resolved most of the remaining owner
+decisions, but four answers were blank or did not answer the choice being asked,
+three answers need a precise implementation boundary to avoid changing their
+meaning, one older answer was promoted into the active plan more strongly than
+Max actually stated, one execution assumption was promoted without an actual
+band selection, and the channel plan still reserves a later owner choice.
+
+This is a narrow correction round, not a redesign. It is the final broad
+clarification questionnaire for Montauk 3.0. It contains the ten substantive
+clarifications needed to prevent an implementation agent from guessing owner
+policy, followed by one final decision-boundary confirmation. If a suggested
+answer matches your intent, "accept suggested answer" is enough.
+
+Finality rule. After this questionnaire is answered and promoted into the active
+planning documents, implementation must not generate another general product,
+architecture, or build-readiness questionnaire. Later owner involvement is
+limited to the specific evidence-based approvals listed in item 11, unless Max
+changes scope, gives a materially conflicting new instruction, or an unforeseen
+external constraint would materially change owner-visible behavior, safety,
+authority, spending, or credentials.
+
+Known limitations that are already decided and are NOT being asked again:
+
+  - Brokerage and opening-auction verification remain out of 3.0. Gold can
+    establish modeled next-open performance but cannot be described as
+    broker-verified tradeable.
+  - An independent dead-man notification path remains out of 3.0.
+  - Paid market data remains out of 3.0. Montauk uses free, verified,
+    authoritative sources and fails visibly when those sources are insufficient.
+  - Brokerage execution remains manual.
+
+
+================================================================================
+1. WHAT DOES VALIDATION SCORE MEAN?
+================================================================================
+
+Context. Questionnaire 8 A4 was left blank. Earlier answers said the score
+should not show a percentage unless that percentage has been proved trustworthy.
+The plan still needs a clear statement of what the number means before the score
+and leaderboard are built.
+
+Plain version. A strategy might show:
+
+  Validation Score: 78
+
+That should not imply "78% chance of future success." Montauk does not yet have
+enough frozen forward outcomes to support that interpretation.
+
+Question. Should Validation Score initially mean the strength and consistency of
+the evidence supporting a strategy, without a percent sign or probability claim?
+
+Suggested answer. Yes. Validation Score measures how strongly and consistently
+the strategy passed the evidence checks across time, parameter neighborhoods,
+correctness tests, and relevant stresses. Show no percent sign. Show the two or
+three main reasons the strategy lost points. Montauk may use probability or
+"confidence" language only after enough frozen forward results demonstrate that
+the score is calibrated, followed by an owner-approved contract change.
+
+Reasoning. This gives the number a useful and honest meaning without creating a
+false impression of certainty.
+
+Your answer:
+
+
+
+================================================================================
+2. HOW SHOULD MONTAUK CHOOSE ITS LONG-RUN FALSE-GOLD PROTECTION?
+================================================================================
+
+Context. Questionnaire 8 B1 was not answered because the underlying risk was not
+clear. A candidate must pass both the economic backtest and the anti-overfitting
+suite, but those layers are tests rather than guarantees. They use the same
+limited TECL history and can share blind spots.
+
+Simple example. If Montauk searches an enormous number of worthless strategies,
+one can look unusually good by luck. The same lucky historical shape can
+sometimes also pass an anti-overfitting test. Requiring both layers makes this
+less likely, but it does not make the probability zero. The entire conveyor must
+therefore be tested on known-worthless and planted-good control worlds.
+
+Two possible long-run policies are:
+
+  - Annual control: keep the chance low each year, while disclosing that the
+    chance of ever admitting at least one false Gold grows over many years.
+  - Lifetime control: keep one finite risk budget for the appliance's whole
+    life, which is stricter but can make new Gold increasingly difficult to earn.
+
+Question. Should Phase 1 measure both policies and bring Max the real tradeoff
+before any final false-Gold contract is enabled?
+
+Suggested answer. Yes. Do not choose annual versus lifetime or a numerical level
+blindly now. Phase 1 must test the complete pipeline on known controls and show,
+in plain language:
+
+  - how often a worthless strategy becomes Gold;
+  - how often a genuinely useful planted strategy is rejected;
+  - annual, five-year, ten-year, and lifetime interpretations;
+  - how the bar changes as Montauk searches more strategies; and
+  - the assumptions and limitations behind each result.
+
+Max approves the final operating policy before Gold certification is enabled.
+Until then, no method may be described as guaranteeing that a false Gold can
+never occur.
+
+Reasoning. This preserves all the backtesting and anti-overfitting layers while
+measuring whether the combined system actually delivers the protection they are
+supposed to provide.
+
+Your answer:
+
+
+
+================================================================================
+3. WHAT HAPPENS TO A SEALED HISTORICAL HOLDOUT AFTER IT IS USED?
+================================================================================
+
+Context. Questionnaire 8 C2 asked whether Montauk should maintain a permanently
+sealed historical block or treat it as one-time evidence. The answer stated the
+goal of maximum robustness but did not choose between the two.
+
+Simple example. Montauk hides 2019-2021 from Strategy A. Strategy A fails that
+exam, and the agent learns only the word "failed." Strategy B is then designed
+in response. Strategy B has indirectly learned from 2019-2021 even if it never
+read those prices. After repeated attempts, the block is no longer untouched.
+
+Question. Should a historical holdout be marked spent as soon as any result from
+it is revealed?
+
+Suggested answer. Yes. A sealed historical block supplies one-time evidence.
+After any pass/fail result, score, rank, or metric is revealed, label it
+spent/reused and include the reveal in Montauk's lifetime search accounting.
+Only market bars arriving after an exact strategy was frozen may be called
+genuinely untouched forward evidence for that strategy.
+
+Reasoning. A permanent historical lockbox in a lifelong feedback loop creates
+false comfort. Spent-on-reveal accounting and the growing live-forward record are
+the more honest safeguards.
+
+Your answer:
+
+
+
+================================================================================
+4. WHEN DOES MONTAUK 3.0 REPLACE MONTAUK 2.0 AS THE SIGNAL AUTHORITY?
+================================================================================
+
+Context. Questionnaire 8 C5 used the word "cutover," which was understandably
+read as switching from one Active strategy to another. Here, cutover means the
+different event where Montauk 3.0 replaces Montauk 2.0 as the system that
+produces the trusted daily signal.
+
+Simple example. Montauk 3.0 is running correctly in shadow, but no strategy has
+yet earned activation-eligible 3.0 Gold. If 2.0 is retired at that point, there
+is no system producing a certified signal.
+
+Question. Should Montauk 2.0 continue producing the clearly labelled legacy
+signal until a 3.0 strategy is ready and Max explicitly switches authority?
+
+Suggested answer. Yes. Run 3.0 in shadow while 2.0 remains the legacy signal
+source. Block authority cutover until:
+
+  1. at least one strategy has earned 3.0 Gold;
+  2. it has completed the required cooling/forward-evidence period;
+  3. it is activation-eligible;
+  4. the shadow and recovery checks have passed; and
+  5. Max approves that exact strategy as Active in the same action that retires
+     the 2.0 signal authority.
+
+Until then, the interface must clearly distinguish "legacy 2.0 signal" from
+"3.0 shadow recommendation." This is separate from later switches between two
+3.0 Gold strategies.
+
+Reasoning. This prevents a gap with no signal while preserving the rule that no
+2.0 strategy is grandfathered into 3.0 Gold.
+
+Your answer:
+
+
+
+================================================================================
+5. EXACTLY HOW MAY SYNTHETIC PRE-2009 HISTORY AFFECT GOLD?
+================================================================================
+
+Context. Questionnaire 8 A5 said to treat the reconstruction as essentially real
+data with less weight, while also recognizing that it is not official TECL and
+that weak performance there is not a dealbreaker. Those statements express a
+clear practical instinct, but the implementation needs one exact authority
+boundary.
+
+Plain version. The historical technology-market movements are real. The TECL
+price path is reconstructed rather than observed, because TECL did not yet
+exist. Calling the series "observed TECL" would therefore be inaccurate even if
+the reconstruction proves very good.
+
+Question. Is the following the intended boundary?
+
+Suggested answer. Use the synthetic history after the overlap/reconstruction
+study validates and versions it. It may:
+
+  - appear in every relevant diagnostic report;
+  - test behavior in older markets and named events;
+  - contribute a limited, empirically calibrated amount to Validation Score and
+    ranking; and
+  - help Max compare already-Gold strategies.
+
+It may not:
+
+  - substitute for passing either required real-TECL economic gate;
+  - rescue a strategy that fails real-data Gold requirements;
+  - independently deny Gold merely because older synthetic performance was
+    weak; or
+  - be labelled observed or official TECL.
+
+Any exact weight is proposed from the time-separated overlap study and approved
+as part of the signed validation contract; it is not chosen to help favored
+strategies.
+
+Reasoning. This uses the older information rather than discarding it, while
+honoring the asterisk and the instruction that failure there is not a
+dealbreaker.
+
+Your answer:
+
+
+
+================================================================================
+6. HOW DOES A PASSWORD SEAL THE PROTECTED CORE?
+================================================================================
+
+Context. Questionnaire 8 A6 selected a password. A password can be the human
+interaction, but a password check implemented inside writable Montauk code is
+not a security boundary: an agent with permission to rewrite that code could
+rewrite the check.
+
+Plain version. Max should be able to experience the release process as "I enter
+my password and seal this version." Underneath that interaction, the system still
+needs permissions and cryptographic verification that the resident agent cannot
+bypass.
+
+Question. Is this password-based release ceremony acceptable?
+
+Suggested answer. Yes:
+
+  1. The resident agent runs as an unprivileged account that cannot write the
+     protected core.
+  2. Max enters the password only into a local, separate privileged maintenance
+     process—never Slack, another chat channel, or an AI prompt.
+  3. The password unlocks an encrypted signing credential or equivalent
+     privileged promotion mechanism.
+  4. That process signs and installs one exact reviewed release read-only.
+  5. Startup, Gold certification, and signal generation verify the signed
+     manifest and fail closed if anything differs.
+  6. The agent cannot read the password, signing credential, or a decrypted
+     maintenance session.
+
+Reasoning. Max gets the password-controlled sealing workflow he requested, while
+the number-one no-pipeline-edits rule remains mechanically enforceable. A plain
+password prompt inside the application, Git history, or later rollback is not
+sufficient by itself.
+
+Your answer:
+
+
+
+================================================================================
+7. DOES A MATERIAL TECL PRODUCT CHANGE STOP TRUSTED SIGNALS?
+================================================================================
+
+Context. Questionnaire 7 item 11 asked whether a material TECL change should
+only alert Max or should also suspend trusted signals and stale Gold. The answer
+was "Alert human." The active plan interpreted that more strongly: alert,
+suspend signals, stale certificates, and recertify. That interpretation was
+never explicitly confirmed.
+
+Ordinary splits and distributions are not the issue; they follow the tested
+corporate-action path.
+
+Simple example. Direxion changes TECL's benchmark or leverage objective. Every
+Gold certificate was earned for the old product contract. Continuing to issue a
+trusted signal would treat the changed product as if it were the same thing that
+Montauk tested.
+
+Question. After a benchmark change, leverage-objective change, ticker/CUSIP
+discontinuity, closure, prolonged halt, or similarly material prospectus event,
+should Montauk only alert Max, or should it also suspend trusted signals?
+
+Suggested answer. Immediately alert Max. Once the change becomes effective,
+suspend new trusted signals, mark every affected Gold certificate stale, and
+require an owner-approved contract update and full recertification. Never
+automatically substitute another ETF. Max remains responsible for any brokerage
+position decision during the suspension.
+
+Reasoning. A material product change alters what was certified. Suspending does
+not make a trade or choose a replacement; it prevents Montauk from describing an
+untested instruction as trusted.
+
+Your answer:
+
+
+
+================================================================================
+8. ON WHAT DATE DOES THE $1,000 STRATEGY-VERSUS-B&H COMPARISON BEGIN?
+================================================================================
+
+Context. Questionnaire 8 A3 defined the desired comparison as investing $1,000
+in the strategy versus $1,000 in TECL B&H "from when the strategy started
+trading." That could mean either the first date the strategy was capable of
+making a decision or its first actual risk-on trade. Those produce materially
+different results.
+
+Simple example. A strategy has all its inputs in 2015 but remains risk-off until
+after a large TECL decline in 2018. If the comparison starts only at the first
+2018 purchase, the strategy receives no credit or penalty for its 2015-2018 cash
+decision and avoids the B&H decline by redefining the start date after seeing
+the path.
+
+Question. Should the comparison begin on the first date the strategy was
+eligible to make a causal decision, rather than its first actual TECL purchase?
+
+Suggested answer. Yes. For each strategy:
+
+  - freeze the first date on which every required point-in-time input and
+    warm-up period is available and the strategy can causally emit risk-on or
+    risk-off;
+  - give both the strategy and matched B&H the same $1,000 on that date;
+  - use the same first obtainable next-open timing, costs, distribution
+    convention, and unrounded arithmetic;
+  - let B&H buy and hold TECL;
+  - let the strategy follow its actual signal, including earning zero while
+    risk-off; and
+  - treat inadequate remaining history as insufficient evidence rather than
+    moving the start date.
+
+Reasoning. This directly answers whether following the complete strategy was
+better than buying and holding over the same opportunity period, without letting
+the strategy choose a flattering comparison start through its first trade.
+
+Your answer:
+
+
+
+================================================================================
+9. CONFIRM THE MODELED ORDER-SIZE RANGE
+================================================================================
+
+Context. Questionnaire 5 asked which normal order-size band the execution study
+should model. Its suggested answer listed several alternatives but did not
+recommend one specific band. The response "Your answer is good" therefore
+accepted the principle of using a band without actually selecting one. The active
+plan later introduced $10,000-$100,000 as if it had been explicitly selected.
+
+Plain version. Montauk does not need to know Max's account balance or actual
+order size. It does need one frozen scale for testing whether the next-open
+slippage and cost assumptions remain conservative at plausible retail order
+sizes.
+
+Question. Should Montauk use $10,000-$100,000 as its fixed modeled
+position-change order range?
+
+Suggested answer. Yes. Model every Gold backtest and execution study across the
+$10,000-$100,000 notional range and use the conservative result where estimated
+costs differ materially within it. This is only the range over which Montauk
+makes its modeled execution claim. It is not an account-size disclosure, an
+instruction to trade that amount, or permission to collect, infer, enforce, or
+reconcile actual balances, positions, orders, or fills.
+
+If this range does not safely cover the largest normal TECL position-change
+order the model should contemplate, state the preferred upper band. If orders
+materially below $10,000 also need their own cost treatment, state that here.
+
+Reasoning. The plan cannot calibrate a reproducible execution claim against a
+range that was never actually selected by the owner.
+
+Your answer:
+
+
+
+================================================================================
+10. SHOULD 3.0 USE SLACK OR REQUIRE A SLACK-VERSUS-BUZZ BAKE-OFF?
+================================================================================
+
+Context. The active plan defines one provider-neutral conversation-channel
+contract, uses Slack Socket Mode as the conservative default, and proposes a
+time-boxed Slack-versus-Buzz bake-off before full channel implementation. It
+currently says Max will make the final UX choice from that evidence. No
+questionnaire has asked whether that comparison is worth making.
+
+Plain version. The deterministic Montauk controller, permissions, commands, and
+audit rules are the same either way. The choice affects only the private
+conversation surface. Supporting and operating two live command paths is not
+allowed.
+
+Question. Should Montauk 3.0 commit to Slack now, or preserve the bake-off and a
+later owner selection?
+
+Suggested answer. Commit to one private custom Slack app using Socket Mode for
+Montauk 3.0. Keep the internal adapter provider-neutral so Slack can be replaced
+later without changing Montauk authority, but do not make a Buzz deployment or
+bake-off a 3.0 build gate. Reconsider Buzz only through a later owner-directed
+change if Slack demonstrates a concrete reliability, phone UX, continuity, or
+operational deficiency.
+
+Alternative. Preserve the time-boxed bake-off. If chosen, Montauk first builds
+and tests the provider-neutral adapter, then presents a short evidence report on
+phone/push reliability, thread continuity, identity and confirmation safety,
+restart recovery, Debian resource cost, and operating burden. Max selects one
+winner; the rejected adapter is not left running.
+
+Reasoning. Fixing Slack now removes a nonessential comparison and a future owner
+decision. Preserving the bake-off may produce a better conversation experience,
+but deliberately retains one later decision before the channel is complete.
+
+Your answer:
+
+
+
+================================================================================
+11. CONFIRM THE FINAL DECISION BOUNDARY
+================================================================================
+
+Context. "The last questionnaire" cannot mean Montauk may make future
+owner-authority decisions autonomously. It means the intended product,
+architecture, scope, and build behavior are sufficiently specified that no more
+broad clarification questionnaire is needed. Some later choices can only be made
+honestly after Phase 1 or commissioning produces evidence.
+
+Question. Is the following the complete boundary between later owner approvals
+and decisions the implementation team may make without asking another broad
+questionnaire?
+
+Suggested answer. Yes.
+
+Later Max approval is still required only for:
+
+  1. the final measured Phase 1 Gold/validation package, including the
+     understandable false-Gold operating policy, confidence/evidence-sufficiency
+     settings, provisional performance margin, activation/renewal thresholds,
+     ranking ambiguity rules, and any empirically justified synthetic weight;
+  2. any later proposal to add a third Montauk Score ingredient or turn a
+     disclosed risk into a new Gold-disqualifying veto;
+  3. reviewing the agent's capability-gap report and personally writing or
+     directing any missing protected Rust building block, followed by the
+     password-controlled reviewed-release sealing process;
+  4. planning and beginning each non-authoritative clean-machine restore drill;
+  5. each exact Active-strategy switch, including the one-time Montauk 2.0 to
+     Montauk 3.0 signal-authority cutover;
+  6. declaring Montauk 3.0 operationally complete or authorizing later-version
+     work; and
+  7. explicitly scheduling the optional Chimera study after its prerequisites
+     exist.
+
+If item 10 preserves the Slack-versus-Buzz bake-off, selecting its one production
+winner is also a later Max approval. If item 10 fixes Slack, it is not.
+
+Everything else that does not change those owner-visible boundaries is delegated
+to evidence-driven implementation. This includes exact schemas, parser caps,
+numeric tolerances derived from fixtures, queue and resource settings measured
+on the actual host, database/index layouts, retry mechanics, test fixtures,
+provider API details, command-envelope fields, idempotency construction,
+cooperative cancellation, documentation corrections, and other reversible
+engineering details.
+
+The accepted implementation baseline also remains: one dedicated native Debian
+appliance supervised by systemd; private Tailscale/SSH administration; a
+subscription-first model adapter with a documented API fallback; one
+provider-neutral conversation gateway; free verified authoritative market data
+only; manual brokerage execution; and GitHub as the current off-machine recovery
+path. Exact hardware purchase, personal portfolio information, provider spending
+budgets, and throughput targets remain outside the Gold definition and are
+commissioning concerns rather than new product questionnaires.
+
+Escalation rule. An implementation agent asks one focused question—not a new
+questionnaire—only if an unforeseen issue would materially change owner-visible
+behavior, the Gold promise, protected-core authority, real-money safety,
+external spending, credentials, or the explicit scope above. Otherwise it makes
+the smallest defensible reversible engineering choice, records it, and proceeds.
+
+Reasoning. This preserves Max's actual authority while preventing ordinary
+technical choices, calibration work, or documentation defects from causing
+another round of broad planning questions.
+
+Your answer:
+
+
+
+================================================================================
+
+End of Questionnaire 9.
+
+After this file is answered, the reviewing agent must reconcile the complete
+Questionnaire 8 and Questionnaire 9 answer sets into charter.md, decisions.md,
+README.md, implementation-plan.md, and every affected pillar document before a
+coding handoff. The questionnaires remain unchanged as source evidence.
+
+That reconciliation must also remove obsolete "pending" markers, resolve
+cross-document contradictions, and distinguish:
+
+  - owner policy fixed by these answers;
+  - Phase 1 values that Max approves only after seeing measured tradeoffs; and
+  - implementation details the engineering team may resolve without asking Max.
+
+Once that reconciliation and one final contradiction audit are complete,
+Questionnaire 9 closes the Montauk 3.0 clarification-questionnaire process.
+Future Max decisions use focused evidence reports, review cards, or explicit
+approval prompts under item 11—not Questionnaire 10.

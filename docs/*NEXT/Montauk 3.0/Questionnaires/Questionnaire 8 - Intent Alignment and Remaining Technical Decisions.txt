@@ -212,6 +212,7 @@ possible before it matters. Letting the measurement decide its weight is the
 version of "weighted backtesting" that cannot flatter a strategy by accident.
 
 Your answer:
+I think we treat it as real data. It will and should have less weight as the market moves differently now than it did awhile ago but essentially its real data. Re: ddifferent vol and price movements yes ad so did the market as a whole. I am in favor of using it but with an asterisk for a couple reasons: 1- it is synthetic data and not officially TECL no matter how accurate it is. 2-the market moves much differently now, more vol and excitement and meme trading around AI. So it would make sense that the price moves didifferently in the synthetic data than the real TECL data but that doesnt mean that we should ignore the synthetic data. But maybe that it should be weighted a little less in the backtests, failure or lack of great performance back there isn't a deal breaker. 
 
 
 
@@ -245,6 +246,7 @@ Reasoning. This is the one control that makes your number-one rule mechanical
 rather than aspirational. It is worth the small extra setup.
 
 Your answer:
+I think a password is good
 
 
 
@@ -282,6 +284,7 @@ Reasoning. (b) and (c) are conveniences. (a) sits directly underneath the
 guiding light you wrote for the whole testing pipeline.
 
 Your answer:
+Confirm all 
 
 
 
@@ -314,6 +317,7 @@ Reasoning. This is the one place where automatic fallback could actively hurt
 you, and it is cheap to separate.
 
 Your answer:
+Your answer is good 
 
 
 
@@ -356,6 +360,11 @@ an any-false-Gold guarantee; if you want that specific promise, it needs a
 different method, which is part of what Phase 1 must compare.
 
 Your answer:
+What do you mean? How would a worthless strategy sneak onto the board. There are several layers stopping this: 
+it cannot be on the board (gold status) if it does not pass backtest (beats bxh)
+it cannot be on the board (gold status) if it does not pass anti-overfitting testing
+In order for any configuration to be on the board (gold status) it must pass BOTH backtesting testing AND anti-overfitting testing
+Likelihood of a configuration sneaking onto the board is slim.
 
 
 
@@ -384,6 +393,7 @@ Reasoning. This is your own rule from Questionnaire 3 item 13 applied to
 horizons: no strategy is Gold without actually passing every required test.
 
 Your answer:
+Yes to both\. Your answer is good
 
 
 
@@ -410,6 +420,7 @@ Reasoning. You said false Gold is worse than a missed opportunity. That
 preference is only meaningful once you can see the price of the stricter setting.
 
 Your answer:
+Your answer is good
 
 
 
@@ -429,6 +440,7 @@ Reasoning. A documented conservative range is honest and cheap. Being
 conservative on cost can only understate a strategy, never flatter it.
 
 Your answer:
+Free data only for now. Stick with anything we can get for free from verified and authoritative sources
 
 
 
@@ -454,6 +466,7 @@ Reasoning. Ranking and certification answer different questions. Keeping them
 separate is what stops the score zoo from growing back.
 
 Your answer:
+Maybe, this would happen manually by me. Not something that it should build and implement itself
 
 
 
@@ -478,6 +491,7 @@ Reasoning. The flag is disclosure only - it never blocks a recommendation - so
 its job is accuracy, not comfort.
 
 Your answer:
+Your answer is good
 
 
 
@@ -509,6 +523,7 @@ requirement while keeping the single riskiest capability behind one deliberate
 decision.
 
 Your answer:
+Have it compile a list of things that it wants to write and I will review and write those blocks. That would be another slack channel or similar
 
 
 
@@ -538,6 +553,7 @@ smooth-looking backtests - which is the exact bias the rest of the system exists
 to prevent.
 
 Your answer:
+Not at the moment. It should penalize its rank in the leaderboard but not outright disqualify 
 
 
 
