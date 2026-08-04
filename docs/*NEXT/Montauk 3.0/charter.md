@@ -11,7 +11,7 @@ is the governing 3.0 planning contract. It defines a rewrite target and
 folder, and legacy Gold artifacts**. Those sources remain migration evidence
 only. A behavior becomes a 3.0 requirement only when this charter or an active
 charter-subordinate pillar in this folder states it; the rewrite must reconcile
-tests and implementation to this contract before cutover.
+tests and implementation to this contract as it is built.
 
 Terms marked **DECIDED** are owner decisions. Terms marked **POLICY DECIDED,
 CALIBRATION PENDING** have a fixed safety/authority outcome but still require a
@@ -1120,13 +1120,19 @@ The durability promise is scoped to what the hardware can actually support:
 - **Re-runnable in-progress research restarts from the beginning of the
   pipeline** after an interruption.
 
-Recovery cannot be proven on the machine that would be lost, so Montauk may run a
-periodic **isolated, non-authoritative** clean-machine restore onto a spare
-machine or temporary VM using only documented backups. It may verify hashes,
-reconstruct the last trusted state, and run acceptance fixtures. It may not run
-live discovery, publish Gold, emit trusted signals, or become a second authority,
-and it is destroyed or resealed afterwards. **Max's approval is required before
-beginning or planning a drill; no scheduler starts one autonomously.**
+Recovery cannot be proven on the machine that would be lost. **Clean-machine
+restore drills are out of scope for Montauk 3.0** (2026-08-03): Max removed them
+from planning consideration and will run one himself if and when he wants to.
+Montauk does not plan, schedule, prompt for, or track drills, and no scheduler
+starts one.
+
+What this does **not** remove: the backup machinery itself, the durability
+promises above, the critical alerts on backup corruption or lost acknowledged
+state, and the requirement that backups be documented well enough that a restore
+is *possible*. Only the rehearsal is descoped. If Max ever runs a drill it stays
+isolated and non-authoritative — it may verify hashes, reconstruct the last
+trusted state, and run acceptance fixtures, but never run live discovery, publish
+Gold, emit trusted signals, or become a second authority.
 
 ## 12. User experience
 
@@ -1166,7 +1172,9 @@ It supports conversation plus exactly these state-changing 3.0 commands:
 
 - request a named ideation/research campaign;
 - trigger recertification;
-- approve one exact pending Active-strategy switch;
+- *(struck 2026-08-03 by D124: approving an Active-strategy switch is no longer a
+  channel mutation. Montauk emits the top-ranked Gold strategy's signal; there is
+  no approval ceremony and no authority handover.)*
 - defer or dismiss one exact Recommended-versus-Active proposal.
 
 **Approving a switch uses one complete review card, then one button.** Before
@@ -1305,7 +1313,9 @@ Montauk 3.0 is ready for Max to call complete when:
 - Max decides the evidence is sufficient.
 
 An unattended soak test is evidence for Max's decision, not an automatic project
-transition. Only Max declares 3.0 complete, and later-version work begins only
+transition. Only Max declares 3.0 complete — and as of 2026-08-03 that declaration
+is out of planning scope entirely: Montauk defines no completion criteria, tracks
+no completion checklist, and never asks whether it is done. Later-version work begins only
 after a separate explicit instruction from Max.
 
 ## 16. Required calibration and design evidence
@@ -1390,14 +1400,18 @@ statistical opinions to Max:
    search-accounting defect stales prior Gold.
 6. **Containment/seal study:** demonstrate the resident identity has no core-write
    credential, the signed read-only core fails closed, causal workers remain
-   contained, resource failures quarantine/repair safely, and the acceptance
-   suite can enable automatic isolated-module intake.
+   contained, and resource failures quarantine/repair safely. There is no
+   isolated-module intake to enable — D96 replaced the escape hatch with a
+   per-block owner approval gate; the suite instead gates whether an
+   owner-approved custom building block may be sealed into the primitive
+   library.
 7. **Recovery/storage study:** prove no loss of acknowledged authority/Gold state,
    bounded batch recovery, measured artifact-size/restore topology, corruption
    detection, and clean GitHub-hosted restore. Return explicit RPO/RTO per
    failure scope — process kill, single-disk loss, whole-tower loss, GitHub-only
-   outage, total internet outage — and prove the `degraded_backup` signal path
-   and the owner-approved non-authoritative restore drill. Do not equate `fsync`,
+   outage, total internet outage — and prove the `degraded_backup` signal path.
+   The clean-machine restore drill is out of scope (D123); the study must still
+   leave backups documented well enough that a restore is possible. Do not equate `fsync`,
    a copied database file, or a successful push with a transactionally valid
    replica.
 8. **Ranking study:** freeze the smallest Montauk Score formula from Validation

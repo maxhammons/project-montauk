@@ -379,8 +379,9 @@ inside the same workspace, served by the same adapter: an **operational** channe
 carrying the daily digest, alerts, and status — the things Max reads — and an
 **approvals** channel carrying every item blocking on his decision: new-block
 proposals (D96), the Phase 1 package, a third score pillar or new veto, restore
-drills, Active switches including the 2.0→3.0 cutover, the completion declaration,
-and Chimera scheduling. Everything in the approvals channel is by definition
+and Chimera scheduling. (Restore drills, Active switches, the 2.0→3.0 cutover,
+and the completion declaration were struck from the approval set on 2026-08-03 by
+D123/D124.) Everything in the approvals channel is by definition
 blocking something, so its unread count is a real work queue rather than noise.
 
 This is **not** a second command path and does not weaken the one-provider rule
@@ -406,11 +407,15 @@ mutation maps to exactly one controller operation:
 status()
 request_research(named_campaign)
 request_recertification(scope)
-approve_active_switch(exact_strategy_id)
 defer_or_dismiss_proposal(exact_proposal_id)
 ```
 
-`status` is read-only. The last **four** are the charter's mutation allowlist.
+`status` is read-only. The last **three** are the charter's mutation allowlist.
+
+`approve_active_switch` was removed on 2026-08-03 by D124: there is no
+Active-strategy approval ceremony and no 2.0→3.0 authority handover. Montauk emits
+the top-ranked Gold strategy's signal as an operational fact, and Max decides
+separately — outside Montauk — what he does about it.
 
 Corrected 2026-08-03: this list previously omitted `defer_or_dismiss_proposal`,
 contradicting §7.4 and the charter's own four-item allowlist. The charter governs;
@@ -568,7 +573,7 @@ Every mutation must:
 9. make denial or failure visible rather than silently falling back.
 
 The allowlisted mutations are: request a named research campaign, trigger
-recertification, approve one exact pending Active switch, and defer or dismiss
+recertification, and defer or dismiss
 one exact Recommended-versus-Active proposal. Approving a switch first renders
 one complete review card — exact old/new IDs, both signals, whether the target
 state changes immediately, the resulting next-open instruction, performance and

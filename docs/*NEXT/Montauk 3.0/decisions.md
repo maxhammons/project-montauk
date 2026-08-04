@@ -1369,6 +1369,12 @@ scheduler may start one autonomously.
 **Why.** Recovery cannot be proven on the same computer that would be lost, but
 production and strategy testing stay contained on one machine by owner decision.
 
+**DESCOPED 2026-08-03 by D123.** Max removed restore drills from planning
+consideration entirely. Montauk does not plan, schedule, prompt for, or track
+them; he runs one himself if and when he wants. The backup machinery, durability
+promises, and corruption alerts are unaffected — only the rehearsal is out of
+scope. The isolation constraints above still govern any drill he does run.
+
 ### D71 — A search-accounting defect stales affected certificates
 
 **Call.** Ordinary future searching never changes an already-issued Gold
@@ -2324,7 +2330,7 @@ this paragraph. It closes Q5 #21 (the open-ended check for a missing product
 outcome) and it names one digest content requirement not previously specified:
 **counts of strategies found, tested, and promoted to Gold, every day.**
 
-### D104 — Montauk 2.0 keeps signal authority until Max declares the cutover
+### D104 — (SUPERSEDED by D124 — cutover ceremony removed entirely) Montauk 2.0 keeps signal authority until Max declares the cutover
 
 **Call.** 3.0 runs in shadow while 2.0 remains the labelled legacy signal source.
 Authority cutover is blocked until: (1) at least one strategy has earned 3.0 Gold;
@@ -2439,12 +2445,11 @@ finality rule failing; see D111–D118.)*
 3. approving or declining each proposed new Rust building block **before** it is
    created, then writing or directing its authoring, followed by acceptance tests
    and the D108 sealing ceremony (D96);
-4. planning and beginning each non-authoritative clean-machine restore drill;
-5. each exact Active-strategy switch, including the one-time 2.0→3.0
-   signal-authority cutover;
-6. declaring Montauk 3.0 operationally complete, or authorizing later-version
-   work; and
-7. explicitly scheduling the optional Chimera study once its prerequisites exist.
+4. explicitly scheduling the optional Chimera study once its prerequisites exist.
+
+*(Items 4, 5, and 6 of the original seven — restore drills, the Active-strategy
+switch and 2.0→3.0 cutover, and the completion declaration — were struck on
+2026-08-03 by D123 and D124. Four approvals remain.)*
 
 Because D81/Q9 #10 fixed Slack, selecting a channel provider is **not** on this
 list.
@@ -2547,7 +2552,7 @@ from generating a broad clarification round unprompted, which this was not.
 
 Two of these questions existed only because Max retired Montauk 2.0 on 2026-08-02.
 
-### D111 — Montauk 2.0 keeps emitting the daily signal, frozen, until 3.0 replaces it
+### D111 — (AMENDED by D124 — no handover event) Montauk 2.0 keeps emitting the daily signal, frozen
 
 **Call.** Retiring 2.0 froze its **development**, not its **signal**. 2.0 continues
 to emit `risk_on` / `risk_off` every trading day from whatever strategy is Active
@@ -2682,7 +2687,7 @@ urgent. Splitting by *read* versus *act* matches how the channel is actually use
 this is two channels inside the same Slack workspace served by the same adapter,
 not two providers. The D80 model-free mutation path serves both.
 
-### D117 — The five cutover conditions are Max's written checklist (CONFIRMS D104)
+### D117 — (SUPERSEDED by D124 — there are no cutover conditions) The five cutover conditions are Max's written checklist
 
 **Call.** Q10 B1 confirms the reading recorded in D104: Max accepts the five
 conditions and reserves the declaration to himself. Nothing enforces them against
@@ -2815,3 +2820,79 @@ JSON bundle (as it does today), queries the 3.0 control database directly over t
 tailnet, or receives a generated static bundle is an implementation choice for
 whoever builds it — provided the app stays read-only and holds no credential that
 can mutate Gold or Active.
+
+## 2026-08-03 — scope reduction: three D107 approvals removed
+
+Max removed three of D107's seven owner approvals from planning consideration.
+Two are simple descopes. The third is a correction to something this planning
+process invented and then treated as settled policy.
+
+### D123 — Restore drills and the completion declaration are out of planning scope
+
+**Call.** Montauk does not plan, schedule, prompt for, or track either of these.
+Max handles both himself, if and when he wants.
+
+- **Clean-machine restore drills (was D107 #4, D70).** Removed as a Montauk
+  concern. The backup machinery is **not** affected: durability promises, the
+  local journal plus second local device, GitHub replication, corruption alerts,
+  and `degraded_backup` all stand, and backups must stay documented well enough
+  that a restore is possible. Only the rehearsal is descoped. Any drill Max runs
+  stays isolated and non-authoritative.
+- **The completion declaration (was D107 #6).** Montauk defines no completion
+  criteria, keeps no completion checklist, and never asks whether it is done.
+  Objective operational acceptance evidence is still collected — that is useful
+  engineering output — but nothing converts it into a "are we finished" prompt.
+
+### D124 — The 2.0→3.0 cutover ceremony is removed entirely (SUPERSEDES D104, D111's handover clause, and D117)
+
+**Call.** **The entire cutover concept is deleted from Montauk 3.0 planning.**
+There is no signal-authority handover event, no five-condition checklist, no
+shadow-versus-legacy labelling contract, no approval ceremony, and no
+`approve_active_switch` channel mutation. Max is never asked to confirm it, and no
+document may reintroduce it.
+
+**Max's words, 2026-08-03:** *"2.0 is running now and i dont look at it. 3.0 will
+be the official build. this whole claude asking me to confirm the completion of
+2.0 before we move to 3.0 is borderline ai slop and somehow has become a big and
+official deal. it is out of scope completly… i do not need or want to be asked
+about it again. i will decide separely from montauk when i can stat trusting it.
+montauk and the angents in there just should be focused on being the best they can
+be and not worry about whether there is live money or not in there. just be
+accurate and everything that i ask them to be."*
+
+**What this corrects.** The cutover apparatus was not an owner requirement. It
+originated in a planning question (Q9 #4), grew through D104, D111, and D117 across
+successive rounds, and hardened into a formal authority-transfer ceremony that Max
+never asked for. It is removed rather than trimmed.
+
+**What Montauk does instead.** It builds, tests, validates, ranks, and publishes.
+The top-ranked Gold strategy's signal is what Montauk emits. That is an
+operational fact, not an authority grant, and it requires no approval. **Montauk
+does not model, track, or reason about whether real money is following it.**
+
+**Trading trust is decided outside Montauk.** Max decides separately, on his own
+terms, when and whether he trusts a strategy enough to act on it. That decision is
+not a Montauk state, not a Montauk prompt, and not a Montauk deliverable. Montauk's
+job is to be **accurate** and to be what he asked it to be — nothing in the system
+should be shaped by whether live money is involved.
+
+**What survives from the superseded entries.**
+
+- **D111/D121:** Montauk 2.0 keeps running as it does today, on its own data
+  pipeline, unchanged. This needs no ceremony and no retirement event — it simply
+  runs until Max stops caring about it. The "labelled legacy signal until formal
+  handover" framing is withdrawn.
+- **D112:** unaffected and still valuable. The 2.0 Gold strategies are the first
+  corpus the 3.0 pipeline evaluates, to find out whether they hold up under the
+  rebuilt data pipeline and validation system.
+- **D101:** unaffected. No 2.0 strategy is grandfathered into 3.0 Gold.
+- **D103:** Max's operating-contract statement stands, including *"recommends but
+  never activates a new leader without you."* Montauk ranking a leader is a
+  recommendation; it has never had the ability to move money, and removing the
+  approval ceremony does not give it one. What is gone is the machinery that
+  pretended an approval workflow was needed for a system that cannot trade.
+
+**D107 is amended.** Item 5 is struck along with items 4 and 6 (D123). The
+remaining owner approvals are four: the measured Phase 1 package, a third score
+pillar or new veto, each proposed new Rust building block, and scheduling the
+optional Chimera study.

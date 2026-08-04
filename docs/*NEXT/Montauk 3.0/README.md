@@ -382,10 +382,19 @@ open — six genuine items and two interpretations, all now answered and promote
 agent from generating a broad clarification round unprompted.
 
 Of those eight, two existed only because Max retired Montauk 2.0 on 2026-08-02:
-**D111** keeps 2.0 emitting its frozen daily signal until a 3.0 strategy replaces
-it (retiring 2.0 froze development, not the signal), and **D112** preserves 2.0
-runnable with its artifacts and archived code — and makes testing the 2.0 Gold
-strategies against the rebuilt pipeline the *first* thing 3.0 does.
+**D111/D121** keep 2.0 running as it does today on its own data pipeline, and
+**D112** preserves it runnable with its artifacts and archived code — and makes
+testing the 2.0 Gold strategies against the rebuilt pipeline the *first* thing 3.0
+does.
+
+**D124 then removed the 2.0→3.0 cutover concept entirely.** There is no
+signal-authority handover, no condition checklist, no approval ceremony, and no
+`approve_active_switch` mutation. That apparatus was invented by the planning
+process rather than requested, and Max struck it: Montauk emits the top-ranked
+Gold strategy's signal as an operational fact and **does not model whether real
+money is following it**. He decides separately, outside Montauk, what he trusts.
+**D123** likewise removed restore drills and the completion declaration from
+planning scope. Four owner approvals remain, not seven.
 
 Later owner involvement is the seven named approvals in D107, requested as focused
 evidence reports or review cards. An implementation agent that hits an unforeseen

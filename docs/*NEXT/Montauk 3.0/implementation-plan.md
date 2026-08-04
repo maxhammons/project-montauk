@@ -900,7 +900,7 @@ runaway backlog, and provider failure are visible and safe.
   load-bearing, not cosmetic: it is what delivers signed interactive-component
   payloads for the model-free mutation path without exposing the host.
 - Channel mutations are limited to: request a named research campaign, trigger
-  recertification, approve one exact pending Active switch, and defer or dismiss
+  recertification, and defer or dismiss
   one exact Recommended-versus-Active proposal. They require Max's stable
   allowlisted identity, immutable ID, confirmation, expiry, idempotency, replay
   protection, and durable audit. Free-form text never changes authority.
@@ -964,10 +964,11 @@ parity; discovery load cannot violate data/signal/recertification deadlines;
 the available host remains stable under sustained load. No numerical discovery-
 throughput target gates completion.
 
-#### Workstream 5B — commissioning and authority cutover
+#### Workstream 5B — commissioning
 
 - Do **not** migrate Montauk 2.0 onto the appliance (D121). It stays where it runs
-  today, on its own existing data pipeline, emitting the frozen daily signal. Two
+  today, on its own existing data pipeline, and keeps running for as long as Max
+  cares about it — there is no retirement event and no handover (D124). Two
   data pipelines coexist deliberately: D112's test of the 2.0 strategies against the
   rebuilt pipeline is only meaningful while the old one still exists.
 - Provision **Debian 13 `trixie`** minimally on the target always-on host from a
@@ -981,12 +982,12 @@ throughput target gates completion.
   sessions running as Max's administrative login. Prove it is refused from the LAN
   and public interfaces, and prove SSH recovery survives the graphical stack being
   stopped or broken.
-- Run the new system in shadow without changing legacy Active authority. Montauk
-  2.0 stays runnable and keeps emitting its frozen daily signal throughout (D111),
-  labelled "legacy 2.0 signal — no further development"; its Gold artifacts and
-  trade ledgers are preserved as parity fixtures and the code is archived, not
-  deleted (D112). Shadow deadline misses are recorded to the digest rather than
-  firing the hard alert, and must be clean before cutover (D115).
+- Run the new system and compare its output against the frozen 2.0 reference.
+  Montauk 2.0 stays runnable throughout; its Gold artifacts and trade ledgers are
+  preserved as parity fixtures and the code is archived, not deleted (D112).
+  Deadline misses during this period are recorded to the digest rather than firing
+  the hard alert (D115). **There is no authority-handover event to gate** — D124
+  removed it; comparison exists to prove 3.0 is accurate, not to earn a promotion.
 - **Evaluate the Montauk 2.0 Gold strategies first**, ahead of novel
   agent-generated candidates (D112, sharpening D101). The question is whether they
   still hold up under the rebuilt data pipeline and validation system. They receive
@@ -994,20 +995,20 @@ throughput target gates completion.
   artifact of the old pipeline; a failure is evidence about one of the two systems
   and must be investigated to determine which — never waved off as the new
   validator merely being stricter. Report both outcomes to Max.
-- Rehearse database restore, data divergence, candidate escape, agent/provider
-  outage, channel/Tailscale outage, service kill/restart, resource exhaustion,
-  thermal throttling, disk pressure/failure, active-Gold loss, no-Gold, and
-  notification failure.
-- Compare shadow signals/artifacts to the frozen reference and investigate every
-  divergence.
-- Perform an explicit reversible legacy-authority cutover.
+- Rehearse data divergence, candidate escape, agent/provider outage,
+  channel/Tailscale outage, service kill/restart, resource exhaustion, thermal
+  throttling, disk pressure/failure, loss-of-Gold, no-Gold, and notification
+  failure. (Clean-machine restore drills are out of scope under D123; database
+  restore is still proven as an engineering test, not staged as a drill.)
+- Compare 3.0 signals and artifacts to the frozen reference and investigate every
+  divergence. The goal is accuracy, not authority.
 - Run an unattended soak long enough to exercise the acceptance matrix and
-  produce an owner-review package. Its duration and results inform Max; neither a
-  timer nor a passing suite declares the release complete.
+  produce an owner-review package.
 
-**Phase 5 exit:** every acceptance-matrix row has evidence and rollback instructions;
-Max alone explicitly approves autonomous 3.0 operation. This approval does not
-begin 4.x; only a separate later instruction from Max may do that.
+**Phase 5 exit:** every acceptance-matrix row has evidence and rollback
+instructions. Under D123 Montauk does not define completion criteria or ask
+whether it is done — the acceptance evidence is engineering output, and Max
+decides separately, on his own terms, what he makes of it.
 
 ## 10. End-to-end acceptance evidence
 
@@ -1047,9 +1048,13 @@ test ID, invariant, fixture/workload, measurable threshold or SLA, expected
 artifact, failure severity/safe state, rollback procedure, and owner-sign-off
 field. Keep three decisions distinct:
 
-1. objective operational acceptance evidence is complete;
+1. objective operational acceptance evidence is complete — this is the only one
+   Montauk tracks;
 2. Max declares Montauk 3.0 complete; and
 3. Max separately authorizes work on 4.x.
+
+Items 2 and 3 are **out of planning scope** (D123). Montauk defines no completion
+criteria, keeps no completion checklist, and never asks whether it is done.
 
 ## 11. Ratified policy versus calibration work
 
