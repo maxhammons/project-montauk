@@ -9,10 +9,11 @@ Gold or completion criteria.
 
 The short version is:
 
-> **Run Montauk natively on a minimal Debian host; let `systemd` supervise the
+> **Run Montauk natively on a minimal Debian 13 host; let `systemd` supervise the
 > deterministic controller, low-priority Rust research workers, bounded remote
 > model calls, backup, and one private conversation-channel adapter; reach the
-> machine through Tailscale/SSH; and copy the useful interaction patterns from
+> machine through Tailscale/SSH, with an on-demand graphical desktop on the same
+> tailnet when the work is visual; and copy the useful interaction patterns from
 > OpenClaw and Buzz without giving either product—or any conversational
 > agent—authority over Montauk's core.**
 
@@ -22,8 +23,9 @@ The short version is:
                               MAX
                  +-------------+-------------+
                  |                           |
-      private conversation              Tailscale / SSH
-       status, chat, commands        deliberate administration
+      private conversation         Tailscale: SSH + on-demand
+       status, chat, commands        XFCE/RDP desktop (D83)
+                 |                    deliberate administration
                  |                           |
                  v                           v
        deterministic channel        optional local-agent session
@@ -57,11 +59,17 @@ outer gateway—owns every accepted command and state transition.
 
 ### 2.1 Native Debian is the production default
 
-The 3.0 deployment baseline is the current Debian Stable release on the old
-Windows tower, installed natively rather than through WSL or a virtual machine.
-At the time of this research that is Debian 13 `trixie`. Install the minimal
-64-bit system without a desktop environment unless a hardware-management tool
-proves a desktop is genuinely required.
+The 3.0 deployment baseline is **Debian 13 `trixie`** on the old Windows tower,
+installed natively rather than through WSL or a virtual machine. Max confirmed
+the release on 2026-08-02 (D82), so this is a settled commissioning fact rather
+than "whatever Stable happens to be."
+
+Install the minimal 64-bit system. Debian's own installer offers no desktop
+environment at this step and none is selected here: the base appliance is
+headless, and every resident service — controller, research workers, channel
+adapter — runs without a display. The XFCE desktop that D83 requires for
+graphical remote administration is added afterward as a deliberate, on-demand
+surface under §6, not as part of the base install and not as a running default.
 
 Why this is the default:
 
@@ -118,6 +126,11 @@ contract.
   configuration objects or files at once.
 - Keep a small emergency swap area so one spike does not instantly kill the
   host, but alert and shed research load before sustained swapping becomes normal.
+- The §6 graphical desktop is **not** reserved capacity. It is an on-demand
+  administration surface: when Max is not connected, its units are idle and its
+  cost is disk plus a few megabytes of resident state. When he does connect, the
+  desktop and its session take priority over research the same way any other
+  administration path does — research sheds load, the trusted signal does not.
 - Clean the machine, verify fans, replace failing thermal components, and run a
   sustained CPU/RAM/disk soak. A benchmark that lasts one minute is not evidence
   of 24/7 throughput.
@@ -128,7 +141,12 @@ contract.
 
 ### 2.4 Power, firmware, and unattended behavior
 
-- Use wired Ethernet where practical.
+- **Wired Ethernet to the home LAN is the confirmed baseline** (D82, 2026-08-02).
+  Wi-Fi is not the deployed transport and its power-save/reassociation failure
+  modes therefore do not apply. If the machine is ever moved to Wi-Fi, that is a
+  commissioning change requiring disabled NetworkManager power-save, verified
+  reassociation after an access-point reboot, and a re-run of the §10 unattended
+  reboot evidence.
 - Use a UPS if the machine and local network equipment will support trusted
   unattended operation.
 - Configure firmware to restore power after an outage.
@@ -272,20 +290,31 @@ controller, deterministic command authorization, or Montauk audit truth.
 
 ## 6. Remote administration
 
-Use three distinct surfaces:
+Use four distinct surfaces:
 
 1. **Selected private channel:** daily operation, explanations, status, alerts,
    and the three narrow mutations allowed by the charter.
 2. **Tailscale + SSH:** reliable private administration, logs, service state,
    upgrades, recovery, and emergency diagnosis. Do not expose SSH directly to
    the public internet; restrict tailnet access to Max's devices/account.
-3. **Provider Remote Control:** optional conversational access to a deliberately
+3. **Tailscale + graphical desktop:** an XFCE session reached over RDP from Max's
+   Mac, for work that is genuinely visual — reading a chart, driving a GUI tool,
+   watching a long run, or any diagnosis where a terminal is the wrong shape.
+   Required by D83. It is an *administration* surface only: it carries no
+   authority SSH does not already carry, and it is never a path for approving an
+   Active switch.
+4. **Provider Remote Control:** optional conversational access to a deliberately
    launched local coding-agent session for diagnosis or repair.
 
 Tailscale is the default remote network because it avoids router port forwarding
 and gives the server a stable private identity. SSH remains independently usable
 over the tailnet even if the channel or model provider is down. Recovery must never
 depend on the same AI or chat surface that is failing.
+
+**Surface 3 must never weaken surface 2.** SSH is the recovery path and its
+availability is load-bearing; the desktop is a convenience layered on the same
+tailnet. If the graphical stack is broken, wedged, or mid-upgrade, SSH recovery
+must still work. Commissioning proves that ordering explicitly (§10).
 
 Commissioning sequence:
 
@@ -298,9 +327,40 @@ Commissioning sequence:
 4. disable router port forwarding and reject public-interface SSH in the host
    firewall;
 5. test access, reboot recovery, key/device revocation, and an emergency login
-   from a second approved device; and
+   from a second approved device;
 6. do not enable Tailscale Funnel or another public publishing feature for the
-   Montauk control surface.
+   Montauk control surface; and
+7. build the graphical surface per §6.1.
+
+### 6.1 Graphical remote administration (D83)
+
+The shape:
+
+- **Desktop:** XFCE, installed on top of the minimal system. It is chosen over
+  GNOME/KDE because the appliance is a two-core i3-6100 whose capacity is
+  committed elsewhere (§2.3), and because a compositing desktop buys nothing for
+  remote administration.
+- **Protocol:** RDP via `xrdp`, with each connection starting its own X session.
+  RDP is preferred over VNC here because it degrades far better over a home
+  uplink and because it does not require a display to already exist on a headless
+  box. macOS connects with Microsoft's free Windows App client.
+- **Reachability:** `xrdp` binds to the **tailnet interface only** — never
+  `0.0.0.0`, never the LAN interface, never a forwarded router port. The host
+  firewall rejects RDP on every other interface. Reaching the desktop requires
+  already being on the tailnet, so it inherits Tailscale's device authorization
+  rather than introducing a second, weaker front door.
+- **On-demand, not resident:** the `xrdp` units are installed but **not**
+  enabled at boot. Max starts the surface over SSH when he wants it and stops it
+  when done. This keeps §2.3's capacity reservation honest and keeps the idle
+  attack surface at zero listening sockets.
+- **Identity:** the desktop session runs as Max's ordinary administrative login,
+  never as a Montauk service identity. It gets no protected-core write access, no
+  service credentials, and no ability to mutate Gold or Active — §3's separation
+  is not relaxed to make a GUI convenient.
+
+What it is explicitly not: a display for Montauk to render anything to, a
+substitute for the Slack digest, or a supported place for the resident agent to
+run interactive graphical tools. Montauk's own output surfaces are unchanged.
 
 ## 7. Conversation-channel contract and provider choice
 
@@ -313,6 +373,19 @@ signal. Only **one primary conversational adapter runs in production at a time**
 Do not build and operate two complete command paths indefinitely “for
 flexibility.” The unselected implementation is removed or retained only as a
 non-running test fixture.
+
+**One adapter, one provider, two rooms (D116).** Montauk uses two Slack channels
+inside the same workspace, served by the same adapter: an **operational** channel
+carrying the daily digest, alerts, and status — the things Max reads — and an
+**approvals** channel carrying every item blocking on his decision: new-block
+proposals (D96), the Phase 1 package, a third score pillar or new veto, restore
+drills, Active switches including the 2.0→3.0 cutover, the completion declaration,
+and Chimera scheduling. Everything in the approvals channel is by definition
+blocking something, so its unread count is a real work queue rather than noise.
+
+This is **not** a second command path and does not weaken the one-provider rule
+above: same workspace, same adapter, same typed mutation envelope, same D80
+model-free path. Both rooms appear in the approved room/channel identifier list.
 
 Every adapter must provide:
 
@@ -334,9 +407,15 @@ status()
 request_research(named_campaign)
 request_recertification(scope)
 approve_active_switch(exact_strategy_id)
+defer_or_dismiss_proposal(exact_proposal_id)
 ```
 
-`status` is read-only. The last three are the charter's mutation allowlist.
+`status` is read-only. The last **four** are the charter's mutation allowlist.
+
+Corrected 2026-08-03: this list previously omitted `defer_or_dismiss_proposal`,
+contradicting §7.4 and the charter's own four-item allowlist. The charter governs;
+this was a documentation defect, and it closes open item 1 of
+[channel-gateway-and-agent-runtime.md](channel-gateway-and-agent-runtime.md).
 
 ### 7.2 Slack is the selected channel
 
@@ -660,33 +739,39 @@ This is the commissioning order, not a shell script:
 
 1. Inventory CPU, RAM layout, disks/SMART health, motherboard, firmware,
    networking, and remote-power behavior; preserve a Windows recovery image.
-2. Install current Debian Stable amd64 minimally and apply firmware/security
-   updates. Do not install a desktop by default.
-3. Configure time synchronization, wired networking, no-sleep behavior,
-   power-loss restart, controlled reboot windows, and UPS shutdown if available.
+2. Install Debian 13 `trixie` amd64 minimally and apply firmware/security
+   updates. Do not select a desktop task at install time; the D83 desktop is
+   added at step 6a, after the trust boundaries exist.
+3. Configure time synchronization, wired Ethernet to the home LAN, no-sleep
+   behavior, power-loss restart, controlled reboot windows, and UPS shutdown if
+   available.
 4. Put OS/hot data on SSD; mount any HDD only for cold archive/backup; enable
    free-space and health alerts.
 5. Create the separated service identities, SSH keys, directory ownership,
    writable-path allowlists, and human-only release/signing process.
 6. Install Tailscale, restrict access to Max, verify SSH from a second device,
    and confirm there is no public SSH/control port.
-7. Install the pinned Rust/build/runtime toolchain and reproduce the protected
+7. Install XFCE and `xrdp` per §6.1: bind `xrdp` to the tailnet interface only,
+   leave its units disabled at boot, run sessions as Max's administrative login,
+   and verify from the Mac that the desktop is reachable over the tailnet and
+   refused from the LAN and the public interface.
+8. Install the pinned Rust/build/runtime toolchain and reproduce the protected
    release from a clean checkout.
-8. Deploy the signed content-addressed core read-only and create candidate,
+9. Deploy the signed content-addressed core read-only and create candidate,
    state, artifact, log, and backup paths outside it.
-9. Install and harden the `systemd` services/timers; test boot start, bounded
-   restart, no-overlap leases, resource limits, and trusted-work preemption.
-10. Deploy the Slack private-channel adapter per §7.2. The provider choice is
+10. Install and harden the `systemd` services/timers; test boot start, bounded
+    restart, no-overlap leases, resource limits, and trusted-work preemption.
+11. Deploy the Slack private-channel adapter per §7.2. The provider choice is
     already resolved by D81 — no bake-off is run, and no second adapter is built.
-11. Add the three mutating channel commands one by one only after identity,
+12. Add the three mutating channel commands one by one only after identity,
     confirmation, expiry, idempotency, replay, and audit tests pass.
-12. Configure one provider adapter and auth path; test bounded non-interactive
+13. Configure one provider adapter and auth path; test bounded non-interactive
     failure, timeout, rate limit, invalid output, and credential expiry. Add a
     second provider only to prove the seam when useful—not as standing complexity.
-13. Configure GitHub/off-machine backup and prove restore on a clean environment.
-14. Run sustained CPU/RAM/disk/thermal benchmarks; tune worker count, batch size,
+14. Configure GitHub/off-machine backup and prove restore on a clean environment.
+15. Run sustained CPU/RAM/disk/thermal benchmarks; tune worker count, batch size,
     memory cap, and research priority from evidence.
-15. Run shadow operation and the Phase 5 commissioning drills before Max
+16. Run shadow operation and the Phase 5 commissioning drills before Max
     authorizes the new appliance.
 
 ## 10. Required operational acceptance evidence
@@ -712,7 +797,10 @@ Before unattended cutover, retain evidence that:
 - `systemd` catches a wedged/restarting service and the doctor detects failures
   that a process-alive check misses;
 - Max can recover through Tailscale/SSH when the channel and model are both down;
-  and
+- the graphical surface is reachable from the Mac over the tailnet, is refused on
+  the LAN and public interfaces, does not start itself at boot, and — the
+  ordering that matters — **SSH recovery still works with the graphical stack
+  stopped, broken, or mid-upgrade**; and
 - a GitHub-only outage produces `degraded_backup` and still delivers the valid
   signal on time while blocking Gold publication and Active changes; queued
   events reconcile correctly on recovery;

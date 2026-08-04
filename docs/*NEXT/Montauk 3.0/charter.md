@@ -1,7 +1,11 @@
 # Project Montauk 3.0 Charter — The Always-On TECL Research Appliance
 
-**Status: RATIFIED OPERATING POLICY THROUGH QUESTIONNAIRE 7 PART A; CALIBRATION
-PENDING (updated 2026-07-25).** This document captures the owner's clarified intent and
+**Status: RATIFIED OPERATING POLICY THROUGH QUESTIONNAIRE 10; CALIBRATION PENDING
+(updated 2026-08-03).** All owner policy is settled — Questionnaires 8 and 9 closed
+every open owner decision (D84–D110), D107 closed the questionnaire process itself,
+and Questionnaire 10 closed the six items and two interpretations that the
+reconciliation surfaced afterward (D111–D118). What remains is measured Phase 1 calibration Max ratifies from evidence
+reports, plus the seven standing approvals named in D107. This document captures the owner's clarified intent and
 is the governing 3.0 planning contract. It defines a rewrite target and
 **supersedes conflicting behavior in current code, documentation outside this
 folder, and legacy Gold artifacts**. Those sources remain migration evidence
@@ -95,16 +99,26 @@ or fault.
 
 ### 2.1 In scope
 
-- TECL, with the existing long/flat or risk-on/risk-off action space.
+- TECL, with a **strictly binary long/flat action space** (D119). Risk-on is
+  100% invested in TECL; risk-off is 100% cash. **No partial positions, no scaling
+  in or out, no pyramiding, no shorting, and no leverage beyond TECL's own 3x.**
+  A daily instruction is always "be in" or "be out" — never a size. Changing this
+  is a contract change under D107, never an implementation choice.
+- **A Gold strategy must be executable by hand: at most ~12 round trips per year**
+  (D120). Every trade is one Max places manually, so a strategy that trades weekly
+  is unusable regardless of its statistics. Phase 1 fixes the exact form of the
+  rule; the ceiling is owner policy. This is one-sided — there is no minimum trade
+  count (D50) and **low trade frequency is never penalized**.
 - Point-in-time, provenance-verified explanatory inputs from other markets or
   data streams—including VIX, TECL/underlying volume, options-derived measures,
   macro series, related assets, and an idiosyncratic TECL component—provided the
   strategy still trades only TECL and every input passes the same causal/data
   contract.
 - A single user: Max.
-- An always-on dedicated host. The deployment baseline is native current Debian
-  Stable on the dedicated tower, installed minimally without a desktop and
-  supervised by `systemd`; hot state lives on SSD and trusted work preempts
+- An always-on dedicated host. The deployment baseline is native **Debian 13
+  `trixie`** on the dedicated i3-6100 tower over wired Ethernet (D82), installed
+  minimally and supervised by `systemd`, with an on-demand tailnet-only XFCE/RDP
+  desktop for graphical administration (D83); hot state lives on SSD and trusted work preempts
   research. Hardware procurement, model-provider choice, spending policy, and a
   numerical throughput target remain deployment concerns rather than Gold or
   completion gates.
@@ -252,19 +266,31 @@ pass the final 3.0 contract from scratch before entering the current board.
 
 - **Real market data determines economic eligibility.** Gold must beat the
   frozen B&H comparator over complete observed TECL history and a fixed
-  trailing-five-year horizon as hard gates. A small predeclared rolling-window
-  contract uses a calibrated aggregate passage rule plus a calibrated
-  catastrophic-window veto; it does not require every arbitrary slice to win and
-  cannot grow candidate by candidate.
+  trailing-five-year horizon. **These two are the only hard economic gates**
+  (D86). A small predeclared rolling-window contract uses a calibrated aggregate
+  passage rule; it does not require every arbitrary slice to win and cannot grow
+  candidate by candidate. Rolling windows, named moments, the TYH era, and
+  synthetic stress are reported prominently as **diagnostics** that inform
+  Validation Score and Max's activation decision, and do not independently block
+  Gold unless Phase 1 proves a specific one catches failures the two hard gates
+  miss. **There is no catastrophic-window veto** (D97).
+- **"Beats B&H" has one owner definition, and one start date.** From the first
+  date the strategy could causally emit a signal — every required point-in-time
+  input available and warm-up complete, **not** its first actual purchase — put
+  $1,000 into the strategy and $1,000 into TECL B&H, with the same next-open
+  timing, costs, distribution convention, and unrounded arithmetic. The strategy
+  follows its actual signal and earns zero while risk-off. More money at the end
+  is alpha; that is the question Gold answers (D86). Inadequate remaining history
+  is **insufficient evidence**, never a moved start date.
 - **Observed history spans two product eras and must be labelled as such.** The
   fund launched 2008-12-17 as **TYH** against the Russell 1000 Technology Index
   and changed ticker and benchmark to the Technology Select Sector Index around
   2012-06-29. The 2008-12-17 → 2012-06-28 era is real, tradeable fund evidence
   in a **separate product era**: it reports its own era-specific matched-B&H
-  result, must avoid catastrophic failure, and may never be used to calibrate the
-  XLK-based synthetic reconstruction. Phase 1 determines from controls whether it
-  is a hard economic sub-gate or a required stress/generalization gate, and
-  whether the 2018 GICS reconstitution is a further product/composition seam.
+  result and may never be used to calibrate the XLK-based synthetic
+  reconstruction. Under D86 it is a **diagnostic**; Phase 1 determines from
+  controls whether it earns promotion to a required stress/generalization gate,
+  and whether the 2018 GICS reconstitution is a further product/composition seam.
   Both seams are recorded in `data/manifest.json`.
 - **The economic margin is greater than 1.0.** The owner's provisional intuition
   is to begin with 1.10 as the unrounded full/recent point-estimate hypothesis.
@@ -277,23 +303,30 @@ pass the final 3.0 contract from scratch before entering the current board.
   horizon, a ranking input through its margin of passage, and a live warning/
   revocation input under a persistent sequential rule. A single bad trade or
   week does not revoke Gold.
-- **Synthetic history is diagnostic and stress evidence.** The present series is
-  deterministically derived from 3x daily S&P technology-index returns
-  (1993–1998), 3x daily XLK returns (1998–2008), expenses, and a loader-time
-  financing/tracking-drag haircut before the real TECL seam. It reproduces from
-  checked-in sources, but prior overlap audits found structural tracking and
-  volatility differences from real TECL. It may influence diagnostics and
-  confidence only under a separately audited weighting/stress contract; it never
-  substitutes for real TECL passage. Repeated ruin, invalid behavior, or a
-  predeclared catastrophic safety breach may veto Gold only after the synthetic
-  model and veto rule are independently recalibrated.
+- **Synthetic history carries a limited, empirically calibrated weight** (D106,
+  revised 2026-08-02 — it was previously diagnostic-only with zero weight in
+  Gold). The present series is deterministically derived from 3x daily S&P
+  technology-index returns (1993–1998), 3x daily XLK returns (1998–2008),
+  expenses, and a loader-time financing/tracking-drag haircut before the real TECL
+  seam. It reproduces from checked-in sources, but prior overlap audits found
+  structural tracking and volatility differences from real TECL.
+
+  Once the time-separated overlap study validates and versions it, it **may**
+  appear in every relevant diagnostic report, test behavior in older markets and
+  named events, contribute a limited calibrated amount to Validation Score and
+  ranking, and help compare strategies that are already Gold. It **may not**
+  substitute for passing either required real-TECL gate, rescue a strategy that
+  fails real-data requirements, independently deny Gold because older synthetic
+  performance was weak, or be labelled observed or official TECL. The exact weight
+  is proposed from the overlap study and approved as part of the signed validation
+  contract — never chosen to help a favored strategy.
 - **Named moments remain visible and source-labelled.** The fixed diagnostic
   suite includes the owner's examples—2001/dot-com, 2008, 2020, 2022, tariff
   announcements—and future events added only through a methodology version.
   Pre-TECL episodes such as 2001 and most of 2008 are reconstructed/synthetic
   stress evidence, never “real TECL” passage; episodes within observed TECL
-  history use verified real data. A predeclared catastrophic veto may become
-  hard only after Phase 1 calibrates it on controls.
+  history use verified real data. Named moments are diagnostics under D86 and do
+  not block Gold.
 - **Untouched forward evidence is distinct.** Bars occurring after a strategy was
   frozen and certified could not have been used to design that frozen version.
   Montauk must track this evidence separately from historical validation.
@@ -301,10 +334,14 @@ pass the final 3.0 contract from scratch before entering the current board.
   retrospective or pseudo-OOS when the family, parameter space, or selection
   policy was designed using later history; they do not become untouched evidence
   merely because the engine partitions old dates.
-- **There is no permanently untouched historical lockbox.** A sealed campaign
-  block supplies one-time evidence; after any metric, rank, or verdict is
-  revealed, that block is marked spent/reused and the disclosure enters lifetime
-  adaptive-search accounting. Only post-freeze bars in the exact row's immutable
+- **There is no permanently untouched historical lockbox** (owner-ratified by D99
+  on 2026-08-02; this was previously a conservative consequence of D45 rather than
+  an owner answer). A sealed campaign block supplies one-time evidence; after any
+  metric, rank, or verdict is revealed, that block is marked spent/reused and the
+  disclosure enters lifetime adaptive-search accounting. A permanent lockbox
+  inside a lifelong feedback loop is false comfort: a strategy designed in
+  response to "the previous one failed" has learned from the block without reading
+  it. Only post-freeze bars in the exact row's immutable
   live-forward ledger are untouched for that row. A reusable-holdout mechanism
   may be added only after independent review proves that Montauk needs and
   implements it correctly.
@@ -519,8 +556,11 @@ Before a family can enter executable research it must include:
 - required inputs, warm-up, and signal timing;
 - point-in-time source, publication-lag, missingness, and provenance requirements
   for every non-TECL input;
-- deterministic smoke tests;
-- static/lookahead/safety-check results; and
+- deterministic smoke tests, run by the agent before submission (D96);
+- static/lookahead/safety-check results;
+- a **binary-exposure check** proving the family emits only fully-invested or
+  fully-cash states, with no partial sizing, scaling, pyramiding, or shorting
+  (D119); and
 - immutable identity and version metadata.
 
 ### 5.3 Ordered gates
@@ -774,17 +814,41 @@ unsafe strategy implementations and invalid parameter combinations. It cannot
 make the economic hypothesis correct; backtesting and validation still decide
 that.
 
-A genuinely novel mechanism may eventually use one isolated Rust module compiled
-once for that immutable family version, then sweep its parameter space without
-recompilation. That escape hatch is disabled until its containment, causality,
-determinism, resource, and parity acceptance tests pass. After Max approves the
-escape-hatch policy and signed core release, individual generated modules do not
-need case-by-case approval: conforming modules automatically enter untrusted
-intake, and the unchanged deterministic pipeline decides their outcome. Adding a
-new shared primitive still changes protected core and therefore requires a signed
-owner release. Python may remain a readable
-reference/parity oracle, but it is not a production strategy format or an
-independent source of trading truth.
+**Two obligations attach to this path** (D98), because with the escape hatch
+withdrawn the declarative vocabulary is the *only* way the agent can express an
+idea:
+
+- **Block breadth is a requirement.** The primitive library must be broad enough
+  that the declarative form is not the binding constraint on what the agent can
+  imagine. A vocabulary that quietly limits inventiveness is a defect, not an
+  acceptable simplification.
+- **An idea-starvation report is a deliverable.** Montauk must surface when the
+  agent is running out of expressible ideas *because of vocabulary limits* rather
+  than because the search space is genuinely exhausted. That report is the input
+  feeding a D96 new-block proposal.
+
+**Build freely from existing blocks; a new block needs prior approval** (D96,
+2026-08-02 — the Lego principle). Using the **existing** primitive library the
+agent composes strategies, wires them, declares parameter ranges, runs a
+deterministic smoke test to confirm the family executes, and submits it to the
+pipeline. **None of that requires owner approval**, and Max never reviews an
+individual generated module.
+
+Creating a **new custom building block** is the one action that requires Max's
+approval **first**. The agent proposes the primitive and what it unlocks; Max
+approves or declines; only on approval is it authored — by Max or by his direction
+— and it must pass containment, determinism, resource-limit, and parity acceptance
+tests before entering the primitive library through the D108 password-controlled
+signed release. The resident agent cannot perform that ceremony, so no primitive
+reaches the running system without passing the owner gate.
+
+The withdrawn escape hatch would instead have had Max approve an acceptance policy
+once, after which conforming agent-authored modules entered intake unreviewed.
+Approval is now **per block, before creation**.
+
+Adding a new shared primitive changes protected core and requires a signed owner
+release. Python may remain a readable reference/parity oracle, but it is not a
+production strategy format or an independent source of trading truth.
 
 ## 9. Leaderboard, recommendation, and active authority
 
@@ -868,8 +932,10 @@ the agent to tune the rule after seeing a preferred candidate.
 Phase 1 must freeze the simplest Montauk Score formula that ranks already-Gold
 rows from Validation Score and deployable Performance while giving validation
 strength greater influence. A third pillar is admitted only if controls show
-distinct, incremental decision value; relabeling or recombining existing inputs
-does not qualify. The score cannot double-count a Gold method or hide a weakness.
+distinct, incremental decision value **and Max installs it himself** — under D94
+Montauk may report evidence bearing on the question but may never build or enable
+a third pillar on its own, and it is never admitted because it changes who gets
+Gold. Relabeling or recombining existing inputs does not qualify. The score cannot double-count a Gold method or hide a weakness.
 
 ### 9.3 Emergency loss of Gold
 
@@ -896,9 +962,14 @@ artifact defect that may have contaminated the current signal should enter a
 *separate* `integrity_emergency` state — quarantining affected certificates,
 issuing no new trusted instruction, and labelling the last instruction
 potentially invalid — rather than reusing the ordinary loss-of-Gold machine above
-is **not yet decided**. Questionnaire 6 question 1 supplied an alert-severity
-answer, not a state-machine choice. The steps above stand unchanged until Max
-resolves it; no implementation may infer the separate state.
+is **DECIDED (D90, 2026-08-02)**: it does get its own state. Questionnaire 6
+question 1 supplied an alert-severity answer rather than a state-machine choice,
+so the question was reasked as Questionnaire 8 A8 and answered there. An
+integrity or correctness defect quarantines affected certificates, issues no new
+trusted instruction, labels the last instruction potentially invalid, and requires
+Max to decide — it does **not** automatically slide to a fallback, because the
+fallback was certified by the same machinery now known to be broken. Ordinary
+loss-of-Gold (edge decay) keeps the machine described above.
 
 Montauk never claims to know the actual brokerage position in 3.0 because
 personal fill acknowledgement and reconciliation are out of scope. It displays
@@ -1086,8 +1157,12 @@ sandbox escape attempt. Three consecutive research-cycle failures or one systemi
 pipeline defect also alert; isolated candidate failures remain in the digest.
 Max may route these classes into separate rooms in the selected channel.
 
-The selected private channel supports conversation plus exactly these state-
-changing 3.0 commands:
+The selected private channel runs as **two Slack rooms served by one adapter**
+(D116): an operational room for the daily digest, alerts, and status, and an
+approvals room for everything blocking on Max's decision. This is one provider and
+one command path, not two.
+
+It supports conversation plus exactly these state-changing 3.0 commands:
 
 - request a named ideation/research campaign;
 - trigger recertification;
@@ -1235,12 +1310,13 @@ after a separate explicit instruction from Max.
 
 ## 16. Required calibration and design evidence
 
-Questionnaires 3–7 Part A settled the owner-visible policy. Questionnaire 7
-**Part B (items 13–20) is unanswered**; those items are open owner authority
-recorded in the decision log and may not be resolved by a Phase 1 report, a
-convenient default, or a suggested answer treated as ratified. Max explicitly
-noted that technical language was often unclear; §0.1 therefore governs all
-interpretation.
+Questionnaires 3–9 settled the owner-visible policy in full. **Questionnaire 7
+Part B was answered by Questionnaire 8 Part B, and every remaining open item was
+closed by Questionnaire 9** (decisions D84–D110, promoted 2026-08-02). No open
+owner authority remains, and under D107 no further clarification questionnaire may
+be generated — later owner involvement is the seven named approvals in that entry.
+Max explicitly noted that technical language was often unclear; §0.1 therefore
+governs all interpretation.
 Every decision report starts with a simple explanation and a simple example,
 then states the recommendation, measured false-Gold/false-reject consequences,
 and known limits. Formulas, papers, and implementation details belong in an
@@ -1254,17 +1330,19 @@ statistical opinions to Max:
    order band; and freeze the matched B&H comparator. Personal fill, balance,
    and actual-order-size capture or reconciliation are out of scope.
 2. **Economic-gate study:** retain complete observed TECL history and trailing
-   five years as hard gates; calibrate the small rolling-window aggregate and
-   catastrophic-veto rules, the provisional 1.10 point-estimate margin, and the
+   five years as **the only hard gates** (D86); calibrate the small rolling-window
+   aggregate reporting rule, the provisional 1.10 point-estimate margin, and the
    one-sided lower bound above 1.0; and show both missed-good and admitted-bad
    behavior. The primary estimand is terminal deployable TECL wealth/share
-   multiple versus matched B&H. Determine from controls whether the TYH product
-   era is a hard economic sub-gate or a required stress gate. Separately test
-   whether a **narrow catastrophic-loss/ruin veto** adds distinct protection
-   without rejecting sound trend strategies; report its caught-defect rate,
-   false-rejection rate, and economic interpretation. Installing any such veto is
-   a separate owner decision, and if no defensible boundary emerges none is
-   installed and the limitation stays prominent in activation review.
+   multiple versus matched B&H, measured from the causal-eligibility start date
+   fixed by D86. Determine from controls whether the TYH product era earns
+   promotion from diagnostic to required stress gate. **No catastrophic-loss veto
+   is installed** (D97): near-ruin penalizes leaderboard rank and is disclosed at
+   activation, but does not deny Gold. Phase 1 may still *study* whether a
+   defensible boundary exists and report its caught-defect rate, false-rejection
+   rate, and economic interpretation; installing one would be a new owner decision
+   under D107 item 2. If none is installed, the limitation stays prominent in
+   every activation review.
 2a. **Distribution/total-return study:** rebuild the TECL distribution ledger
    from primary sources (the current `data/TECL_distributions.csv` begins
    2021-12-09, credits cash by ex-date, and does not reinvest); implement the
@@ -1275,7 +1353,7 @@ statistical opinions to Max:
    double-counting against an adjusted price series.
 3. **Synthetic-data study:** independently reproduce and overlap-calibrate the
    technology-index/XLK construction, financing drag, volatility/tracking error,
-   weights, and any catastrophic veto. Extend the XLK-based synthetic
+   and the limited empirical weight it earns under D106. Extend the XLK-based synthetic
    transformation through the observed TECL era, calibrate only on earlier
    overlap blocks, and evaluate later blocks without refitting. Compare modeled
    and actual daily returns, terminal path, volatility, drawdowns, tracking

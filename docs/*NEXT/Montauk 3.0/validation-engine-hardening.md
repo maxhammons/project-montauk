@@ -1,7 +1,18 @@
 # Montauk 3.0 — The Validation Engine (North Star) + Hardening Plan
 
 **Status: REQUIRED PHASE 1 IMPLEMENTATION PILLAR / CHARTER-SUBORDINATE (opened
-2026-06-17; owner contract updated 2026-07-21).** This document owns the research,
+2026-06-17; owner contract updated 2026-07-21; reconciled against Questionnaires 8
+and 9 on 2026-08-02).**
+
+> **Owner-ratification note (2026-08-02).** Several positions this document had
+> proposed on its own reasoning are now owner-ratified rather than provisional:
+> Validation Score as evidence strength with no percent sign (D105); spent-on-reveal
+> holdout accounting (D99); annual/5y/10y/lifetime false-Gold reporting with the 1%
+> figure as an aspirational reference (D91); "insufficient" never counting as a pass
+> (D92); and the confidence level chosen only after measured cost, with an empty
+> board never justifying a lower bar (D93). Two positions **changed**: the
+> catastrophic-window veto is not installed (D97), and synthetic history moves from
+> zero weight to a limited empirically calibrated weight (D106). This document owns the research,
 control experiments, and evidence needed to freeze the five-plank Gold exam. It
 cannot change the product, Gold promise, or authority policy in
 [charter.md](charter.md). The audit below is
@@ -62,7 +73,7 @@ Montauk's sample size is worse than omitting it honestly. PBO/CSCV, SPA/Reality
 Check, bootstrap, walk-forward, sensitivity analysis, and every other named
 technique are candidate instruments—not articles of faith.
 
-### 1b. Owner contract ratified through Questionnaire 7 Part A on 2026-07-25
+### 1b. Owner contract ratified through Questionnaire 10 (2026-08-03; Q7 Part A baseline 2026-07-25)
 
 Max reported that technical language was often unclear. His plain-language goal
 therefore outranks an inferred preference for any named statistical method.
@@ -90,9 +101,10 @@ answers do not create new policy and must earn any role through Phase 1 controls
 - Observed history spans two product eras. The fund traded as **TYH** against the
   Russell 1000 Technology Index from 2008-12-17 until roughly 2012-06-29. That
   era is real, tradeable evidence exposed as a separate product era with its own
-  matched-B&H result; it may not calibrate the synthetic reconstruction, and
-  Phase 1 decides whether it is a hard sub-gate or a required stress gate. The
-  2018 GICS reconstitution is evaluated as a possible further seam.
+  matched-B&H result; it may not calibrate the synthetic reconstruction. Under
+  D86 it is a diagnostic, and Phase 1 decides whether it earns promotion to a
+  required stress gate. The 2018 GICS reconstitution is evaluated as a possible
+  further seam.
 - Distributions use one primary-source ledger with entitlement on the ex-date,
   cash on the pay-date, and **reinvestment at payout** for both the invested
   strategy and matched B&H (risk-off cash joins the zero-return balance).
@@ -104,16 +116,21 @@ answers do not create new policy and must earn any role through Phase 1 controls
   lineage, or multiplicity defect stales every affected certificate.
 - Economic eligibility uses matched TECL B&H across complete real history, a
   fixed trailing-five-year horizon, and a small predeclared rolling/window
-  design. Complete history and trailing five years are hard gates; Phase 1
-  calibrates an aggregate rolling rule plus a catastrophic-window veto. The
-  point-estimate margin begins from Max's provisional 1.10 intuition, while an
-  uncertainty-aware lower bound must exceed 1.0 or return insufficient evidence.
+  design. Complete history and trailing five years are **the only hard gates**
+  (D86); Phase 1 calibrates an aggregate rolling rule, reported as a diagnostic.
+  **No catastrophic-window veto is installed** (D97) — near-ruin penalizes rank
+  and is disclosed at activation instead. The point-estimate margin begins from
+  Max's provisional 1.10 intuition, while an uncertainty-aware lower bound must
+  exceed 1.0 or return insufficient evidence. Both horizons are measured from the
+  causal-eligibility start date — first date the strategy could emit a signal, not
+  first trade (D86).
 - The primary economic result is terminal deployable TECL wealth/share multiple
   versus matched B&H. Daily net log-wealth differences support inference; path,
   risk, and trade metrics remain explanations.
-- Synthetic history is diagnostic and never substitutes for real passage. Its
-  current model and any weight/catastrophic veto require independent overlap and
-  model-error calibration. Extend the XLK-based transformation through observed
+- Synthetic history carries a limited empirically calibrated weight (D106) and
+  never substitutes for real passage; it cannot rescue a failing strategy or
+  independently deny Gold. Its current model and that weight require independent
+  overlap and model-error calibration. Extend the XLK-based transformation through observed
   TECL, calibrate only on earlier overlap blocks, and test later blocks without
   refitting so the model is not graded on the same full period that tuned it.
 - Gold observes the verified official daily close and models execution at the

@@ -188,7 +188,7 @@ meet that goal.
 - The agent should review recent outcomes before generating the next batch.
 - Subscription and API access should both be evaluated for reliability and cost.
 
-### D12 — One Gold leaderboard; no staging board or Trade Roster
+### D12 — One Gold leaderboard; no staging board or Trade Roster (REFINED by D85)
 
 **Call.** Every configuration that satisfies the current Gold contract
 automatically enters the current leaderboard. There is no staging leaderboard,
@@ -1120,6 +1120,8 @@ personal portfolio tracking to 3.0.
 
 **Call.** Montauk 3.0 is planned to run natively on current Debian Stable on the
 dedicated tower, without a desktop unless hardware evidence requires one.
+*(Settled by D82/D83 on 2026-08-02: Debian 13 `trixie`, wired Ethernet, plus an
+on-demand tailnet-only XFCE/RDP desktop for owner administration.)*
 `systemd` supervises the controller, low-priority Rust research, bounded model
 invocations, the selected channel adapter, health, and backup. Hot state requires SSD/NVMe; HDD is for
 cold archive/backup. Research may use all spare compute, but verified data,
@@ -1433,7 +1435,7 @@ Montauk Recommended. **D74 refines D34 and D38.**
 change must be impossible to miss — while still being one button once the
 evidence has been read.
 
-### D75 — Active losing Gold is the highest alert class; the integrity state remains OPEN
+### D75 — (COMPLETED by D90) Active losing Gold is the highest alert class; the integrity state remains OPEN
 
 **Call.** Loss of Gold by the **Active** strategy is Montauk's highest-severity
 alert class and escalates immediately and unmistakably.
@@ -1461,7 +1463,7 @@ figure remains an aspirational plotting reference. **D76 refines D50.**
 **Why.** Montauk runs continuously. A stable 1% annual risk is not a 1% lifetime
 risk, and the safety claim should use the product's own time horizon.
 
-### D77 — A catastrophic-loss floor is studied, not installed
+### D77 — A catastrophic-loss floor is studied, not installed (AMENDED by D97 — no veto)
 
 **Call.** Phase 1 tests whether a **narrow catastrophic-loss/ruin veto** adds
 distinct protection on real and validated stress controls without rejecting sound
@@ -1470,8 +1472,10 @@ drawdown remains a disclosed ranking and decision input. If no defensible
 catastrophic boundary emerges, no veto is installed and the limitation stays
 prominent in every activation review.
 
-The adoption rule itself (Questionnaire 7 item 20) is unanswered, so installing
-any veto remains a separate owner decision.
+**ANSWERED 2026-08-02 by D97.** Questionnaire 8 B8 declined the veto: near-ruin
+penalizes leaderboard rank and is disclosed, but does not deny Gold. The study
+described above may still run as research; installing any veto is a separate owner
+decision under D107 item 2.
 
 **Why.** A Gold strategy may have high drawdown by earlier decision, but “high
 drawdown” and “structural near-ruin” may not be the same thing. The check must
@@ -1540,43 +1544,43 @@ scope reduction honest instead of silently weakening the execution claim.
 These are bounded studies and engineering deliverables under D28–D78. They are
 not unresolved owner authority that a coding agent may fill in implicitly.
 
-## Open owner authority — must not be inferred
+## Open owner authority — CLOSED 2026-08-02
 
-These remain unanswered. No implementation agent, and no Phase 1 report, may
-resolve them by implication, by choosing a convenient default, or by treating a
-suggested answer in a questionnaire as ratified.
+**This section is closed.** Every row below was open owner authority that no
+implementation agent could resolve by implication. Questionnaires 8 and 9 answered
+all of them, and the answers are promoted as D84–D103 in the 2026-08-02 section.
+The table is retained as an audit trail — what was open, and exactly what closed
+it — not as outstanding work.
 
-| Source | Question | Blocks |
-|---|---|---|
-| Q6 #1 | Does an integrity/correctness defect enter a separate `integrity_emergency` state, or reuse the ordinary loss-of-Gold machine? (D75) | Authority state tables |
-| Q7 #13 | Which long-run false-Gold promise should Phase 1 optimize for, once annual/5y/10y/lifetime behavior is visible? | Search-honesty plank |
-| Q7 #14 | Does every hard real-data horizon require its own uncertainty-aware lower bound, and does `insufficient` on one horizon block Gold? | Economic passage plank |
-| Q7 #15 | Final confidence level and evidence-sufficiency floors (90% vs 95%, regime/block/MinTRL floors) | Economic passage plank |
-| Q7 #16 | May Phase 1 buy official-close/auction/quote data if free sources cannot support the execution claim? (currently out of scope per D78) | Execution study |
-| Q7 #17 | On what basis may a third Montauk Score pillar be admitted? | Ranking study |
-| Q7 #18 | How is the `leader not clearly separated` confidence level selected? | Ranking study |
-| Q7 #19 | When may the custom Rust escape hatch be enabled, and by what owner ceremony? | Containment study |
-| Q7 #20 | When may a catastrophic real-data risk veto be installed? (D77) | Gold contract |
+| Source | Question | Closed by | Decision |
+|---|---|---|---|
+| Q6 #1 | Separate `integrity_emergency` state, or reuse loss-of-Gold? (D75) | Q8 A8 | D90 |
+| Q7 #13 | Annual versus lifetime false-Gold promise | Q8 B1 → Q9 #2 | D91 |
+| Q7 #14 | Does `insufficient` on a required horizon block Gold? | Q8 B2 | D92 |
+| Q7 #15 | Final confidence level and evidence-sufficiency floors | Q8 B3 | D93 |
+| Q7 #16 | May Phase 1 buy market data? | Q8 B4 | D89 |
+| Q7 #17 | On what basis may a third Montauk Score pillar be admitted? | Q8 B5 | D94 |
+| Q7 #18 | How is `leader not clearly separated` selected? | Q8 B6 | D95 |
+| Q7 #19 | When may the custom Rust escape hatch be enabled? | Q8 B7 | **D96 — replaced by a per-block approval gate** |
+| Q7 #20 | When may a catastrophic real-data risk veto be installed? (D77) | Q8 B8 | **D97 — no veto** |
+| Q3 #24 | Confirm the declarative-Rust representation path | Q8 C1 | D98 |
+| Q4 #9 | One permanent untouched historical lockbox? | Q8 C2 → Q9 #3 | **D99 — spent on reveal** |
+| Q5 #8 | Gold-exam-first build order | Q8 C3 | D100 |
+| Q5 #21 | Missing product-level outcome | Q8 C9 | D103 |
+| new | Which legacy strategies migrate into 3.0? | Q8 C4 | D101 |
+| new | Must cutover block until a 3.0 Gold row exists? | Q8 C5 → Q9 #4 | D104 |
+| new | Review trigger if the Gold board stays empty? | Q8 C6 | D102 |
+| new | Daily signal deadline and missed-deadline alert time | Q8 C7 | D87 |
+| new | Which additional data streams does Phase 1 acquire? | Q8 C8 | D88 |
 
-A completeness audit on 2026-07-25 found four further blanks that earlier rounds
-never carried forward, and four decisions the plan requires that no questionnaire
-had ever asked. All are now in Questionnaire 8 Part C:
+Questionnaire 4 item 8 (purge/embargo derivation) was deliberately **not**
+returned to Max: it has one defensible answer, the charter already implements it,
+and no owner preference would improve it. That remains true and is now covered by
+D107's delegation of reversible engineering detail.
 
-| Source | Question | Blocks |
-|---|---|---|
-| Q3 #24 | Explicit confirmation of the declarative-Rust representation path. The plan treats it as DECIDED and non-reopenable on the strength of the adjacent items 25/26 answers, which presuppose it. | Core architecture |
-| Q4 #9 | May Montauk keep one permanent untouched historical lockbox? Charter §4.2 currently states "no" as a conservative consequence of D45, not as an owner answer. | Generalization plank |
-| Q5 #8 | Confirm the Gold-exam-first build order over factory-first. | Phase sequencing |
-| Q5 #21 | Open-ended check for a missing product-level outcome. | Product scope |
-| **new** | Which legacy strategies migrate into 3.0? The plan requires "any legacy strategy Max explicitly selects" in five places and the list has never been requested. | Phase 2 parity scope |
-| **new** | Must cutover be blocked until at least one activation-eligible 3.0 Gold row exists? Nothing currently prevents retiring the legacy signal into an empty 3.0 board. | Cutover safety |
-| **new** | Is there a review trigger if the Gold board stays empty for a long period? Needed to distinguish a correctly high bar from a mis-implemented over-strict gate. | Validator governance |
-| **new** | What time must the daily signal be delivered, and what time constitutes a missed-deadline alert? Charter §12 alerts on "a missed required-signal deadline" that is never defined. | Operations + alerting |
-| **new** | Which additional data streams does Phase 1 actually acquire and wire up? D39 permits VIX/volume/options/macro/idiosyncratic inputs but schedules none, converting Max's Questionnaire 3 closing request into a permission rather than a deliverable. | Data contract |
-
-Questionnaire 4 item 8 (purge/embargo derivation) is also blank and is
-deliberately **not** returned to Max: it has one defensible answer, the charter
-already implements it, and no owner preference would improve it.
+**Nothing replaces this table.** Under D107 the questionnaire process is closed;
+later owner involvement is the seven named approvals in that entry, requested as
+focused evidence reports rather than a new round.
 
 ## 2026-07-26 — agent runtime billing and the gateway build/rent line
 
@@ -1756,7 +1760,8 @@ the review card, or the outbox renderer.
 
 - §7.2's Slack setup steps become the commissioning procedure rather than one
   branch of a comparison.
-- §9 step 10 no longer budgets a bake-off; it records this decision and deploys
+- §9's Slack adapter step (step 11 after the D83 renumbering; step 10 as
+  originally written) no longer budgets a bake-off; it records this decision and deploys
   the Slack adapter.
 - Open item 4 of the gateway document is closed.
 - Email is separately evaluated and rejected as a conversational channel in a new
@@ -1770,3 +1775,1043 @@ time-boxed Slack-versus-Buzz bake-off **may** select Buzz" — and assigned the
 final UX call to Max. Declining to exercise that permission and taking the
 recorded default is consistent with D63 and with the charter's matching
 permissive language, so neither is amended by this entry.
+
+**Owner confirmation, 2026-08-02.** D81 was recorded on documentary evidence
+ahead of the questionnaire that asks the same question. Questionnaire 9 item 10
+put the choice to Max directly and he answered "lets stick to slack," ratifying
+the entry. Q9 #10 is therefore closed as a confirmation, not as a new decision,
+and D81 stands unamended.
+
+## 2026-08-02 — host commissioning baseline and graphical remote administration
+
+### D82 — The appliance is Debian 13 `trixie` on wired Ethernet; both are settled commissioning facts
+
+**Call.** The Montauk appliance runs **Debian 13 `trixie`**, amd64, installed
+natively on the i3-6100 tower, and reaches the home LAN over **wired Ethernet**.
+Neither is a placeholder or a research question any longer.
+
+**Why this needed an entry.** The operations document previously named Debian 13
+only as "the current Debian Stable release … at the time of this research," which
+is a moving target that an implementation agent could reasonably resolve to a
+later release, and it specified networking as "wired Ethernet where practical" —
+a hedge that leaves the actual deployment unstated. Both are now facts about a
+machine that exists, and §2.1/§2.4 record them as such.
+
+**What follows.**
+
+- Package availability, `systemd` behavior, and toolchain pinning are pinned
+  against `trixie` specifically. A Debian major-version upgrade is a
+  commissioning change, not routine patching.
+- Wi-Fi's failure modes — NetworkManager power-save silently dropping the Socket
+  Mode connection, and reassociation racing the 5pm signal deadline after an
+  unattended reboot — are **out of scope**, because Wi-Fi is not deployed. §2.4
+  records what a later move to Wi-Fi would require so the omission is deliberate
+  rather than forgotten.
+- The §10 unattended-reboot evidence is collected on Ethernet.
+
+**Provenance note.** Max first described the machine as being "on home wifi" and
+corrected it to Ethernet in the same exchange. The corrected statement is the
+decision; the earlier one is recorded here only so a future reader does not treat
+the correction as a silent change of plan.
+
+### D83 — Graphical remote administration over Tailscale, on demand, subordinate to SSH
+
+**Call.** Max gets a real graphical desktop on the appliance, reachable from his
+Mac: **XFCE plus `xrdp`, bound to the tailnet interface only, with its units
+disabled at boot.** He starts it over SSH when he wants it. The full shape is
+specified in [debian-host-agent-and-channel-operations.md](debian-host-agent-and-channel-operations.md)
+§6.1, which adds it as a fourth remote surface in §6.
+
+**Why this is a decision and not an implementation detail.** It contradicts the
+operations baseline as written. §2.1 said to install "without a desktop
+environment unless a hardware-management tool proves a desktop is genuinely
+required," and no such tool was ever going to prove it — the requirement is the
+owner's, not the hardware's. Recording it as a decision is what keeps §2.1 from
+being quietly violated later by whoever commissions the box.
+
+**Why XFCE and RDP specifically.** The appliance is a two-core i3-6100 whose
+capacity is already committed by §2.3, so a compositing desktop spends resources
+on nothing an administrator needs. RDP is preferred over VNC because it degrades
+better over a home uplink and because `xrdp` starts its own X session, which a
+headless machine with no attached display requires. macOS reaches it with
+Microsoft's free Windows App client, so the Mac side adds no cost and no license.
+
+**The three constraints that keep it from eroding the security posture.**
+
+1. **Tailnet-only.** `xrdp` binds to the Tailscale interface, never `0.0.0.0`,
+   never the LAN, never a forwarded router port. This is the same property D81
+   credits Socket Mode with: nothing on the internet can initiate a connection to
+   the host. A desktop reachable from the LAN, or worse via port forwarding,
+   would be a materially weaker front door than everything else in the design and
+   is prohibited.
+2. **On demand, not resident.** The units are installed and disabled. Idle cost
+   is disk plus a few megabytes; idle listening sockets are zero. This is what
+   keeps §2.3's reservation honest — research may use spare CPU precisely because
+   capacity is reserved for the controller and channel adapter, and a resident
+   desktop would quietly eat into that on a two-core box.
+3. **No authority.** The session runs as Max's ordinary administrative login, not
+   a Montauk service identity. It carries no protected-core write access, no
+   service credentials, and no ability to mutate Gold or Active. §3's identity
+   separation is not relaxed to make a GUI convenient, and the graphical surface
+   is never a path for approving an Active switch — that stays on the model-free
+   channel path under D80.
+
+**Ordering against SSH.** Surface 2 (Tailscale + SSH) remains the recovery path
+and outranks surface 3. The desktop is a convenience layered on the same tailnet;
+if the graphical stack is broken, wedged, or mid-upgrade, SSH recovery must still
+work. §10 requires evidence of exactly that, because the failure this guards
+against is a routine desktop upgrade taking out the only way back into the
+machine.
+
+**What this does not change.** Montauk renders nothing to this display. The daily
+digest, alerts, and the three narrow mutations stay on Slack; the desktop is not
+a substitute surface for any of them, and the resident agent gains no graphical
+capability from its existence.
+
+## 2026-08-02 — Questionnaires 8 and 9 promoted; the owner-decision process closes
+
+Questionnaire 8 (24 of 25 answered) and Questionnaire 9 (11 of 11) are promoted
+here in full. Together they close every row of the open-owner-authority table
+above. Q8 A4 was left blank and is answered by Q9 #1, so no owner item remains
+outstanding.
+
+Three of these entries **change decisions already recorded** rather than filling a
+gap — D96, D97, and D99 are marked accordingly. Two ratify an interpretation the
+plan had already adopted without authority (D109, D110). Read those five before
+assuming the prior text still holds.
+
+### D84 — The economic margin never auto-ratchets; a bump is proposed to Max over the channel
+
+**Call.** The margin above B&H rises only when Max approves a new contract
+version. It never rises because the search found more winners. The daily digest
+carries a standing report of the current margin and the distribution of Gold rows
+above it, and when the evidence supports a bump **the model asks Max directly over
+Slack** rather than waiting to be noticed.
+
+**Why.** Max floated an auto-ratchet in Questionnaire 3 item 9 ("start it at 1.1
+and if we consistently beat that we bump to 1.2"). Q8 A1 put the consequence to
+him and he chose approval-gated: *"yes only with my approval that question should
+be sumbitted to me from the model over slack or whatever."* An automatic ratchet
+would let the search set its own passing grade — the same feedback loop the
+anti-overfitting machinery exists to break — and would de-certify the entire board
+each time it moved.
+
+**Implication.** The proposal is a channel message under D80's model-free digest
+path, not a mutation. Approving it is a contract-version change and triggers full
+re-certification of the board.
+
+### D85 — One Gold record; the leaderboard is a deduplicated view over it (REFINES D12)
+
+**Call.** Every configuration that earns Gold is **recorded permanently** with its
+full artifact bundle. Nothing is ever discarded, dropped, or left uncertified
+because it shares a trade path with another row. The leaderboard is a *view* over
+that record which collapses behaviorally identical configurations to one
+representative row, with the equivalents expandable underneath ("also achieved by
+4 nearby settings") and queryable in full.
+
+**Why.** Q8 A2 accepted the one-representative-per-trade-path suggestion and then
+added a constraint: *"we need to keep track of all configurations that are gold.
+so they are gold status but they are 'hidden' on the leaderbaord. i dont want to
+lose stratgies or not record them because they have the same trade path as other
+ones."*
+
+**How this stays consistent with D12.** D12 forbids a staging board and a second
+tier. This entry does not create either. There is still exactly **one Gold set,
+one certification standard, and one ranking**. "Hidden" means *folded into its
+representative row in the default view*, not *held in a lesser tier*. A collapsed
+configuration is fully Gold: same certification, same artifacts, same
+activation-eligibility if Max expands the family and selects it. Max confirmed
+this reading on 2026-08-02 when asked to choose between a deduplicated view, an
+explicit second tier, and no deduplication at all.
+
+**What this protects.** Five configurations emitting one trade history are one
+discovery, not five — which is why they collapse for *ranking* and why they must
+never count as independent evidence (the family-concentration sensitivity). But
+they are five real certified artifacts, and losing them would destroy search
+history Max explicitly wants kept.
+
+### D86 — Two hard economic gates; everything else is a diagnostic; the $1,000 question is the north star
+
+**Call.** The required economic exam is **complete observed real history** and
+**trailing five years**. Rolling windows, named moments (2001 / 2008 / 2020 /
+2022 / tariffs), the TYH product era, and synthetic stress are reported
+prominently as diagnostics that inform Validation Score and Max's activation
+decision, but do not independently block Gold unless Phase 1 proves a specific one
+catches failures the two hard gates miss.
+
+**The plain-language definition that governs.** Q8 A3, verbatim: *"when i say beat
+bxh i mean: from when the stratgy started trading- if you bought $1000 of TECL and
+held it to current vs followed that stratgy with $1000 would you have more money
+with the strategy or with the bxh? why do i care about this? i want to know that
+following the stratgey is more sucessful than just buying and holding (i want
+alpha)."* Crisis-era comparison is *"interesting and maybe should be included into
+that somehow but i dont want things to get too confusing and convoluded."*
+
+**The comparison start date (Q9 #8).** "From when the strategy started trading"
+means the first date the strategy could **causally emit a signal** — every
+required point-in-time input available and warm-up complete — **not** its first
+actual TECL purchase. For each strategy: freeze that date; give the strategy and
+matched B&H the same $1,000 on it; use the same next-open timing, costs,
+distribution convention, and unrounded arithmetic; let B&H buy and hold; let the
+strategy follow its actual signal including earning zero while risk-off; and treat
+inadequate remaining history as **insufficient evidence rather than moving the
+start date**.
+
+Without that rule a strategy could sit in cash through a decline and then claim
+the recovery as alpha by defining its start date after seeing the path.
+
+**The governing instruction on complexity.** Max did not pick a gate count. He
+wrote: *"i want whatever gives gold status to the stratgies that are most robust
+and the ones that i can have the most possible confidence in. whaever back testing
+regime is needed ill go with. what i dont want is the kind of 'AI slop' style of
+requriements and paths and just so convoluted and confusing."* Robustness wins
+over minimalism; **incomprehensibility is a defect**. Any Phase 1 proposal to
+promote a diagnostic to a hard gate must be explainable in one plain sentence.
+
+### D87 — The daily signal is due 5:00 PM Pacific; a hard alert fires at 6:00 PM Pacific
+
+**Call.** On trading days the trusted daily signal must be delivered by **5:00 PM
+Pacific**. If it has not been produced by **6:00 PM Pacific**, a hard alert fires.
+
+**Why this needed asking.** Charter §12 alerted on "a missed required-signal
+deadline" that was never defined anywhere, making the alert unimplementable. Q8 C7
+supplies both numbers.
+
+**Implication.** The one-hour gap between due time and alert time is deliberate
+slack for retry, not a second deadline. §2.4's controlled-reboot policy and D82's
+Ethernet baseline both exist to protect this window.
+
+**Which signal it applies to (D115).** The hard alert attaches to whichever signal
+is currently **authoritative** — the frozen legacy 2.0 signal today under D111,
+3.0's after the D104 cutover. 3.0 shadow output records deadline misses to the
+daily digest without firing the hard alarm, and those misses must be clean before
+cutover.
+
+### D88 — Data-stream acquisition is exploration-driven, not a fixed acquisition list
+
+**Call.** Montauk is not handed a schedule of data streams to wire up. The
+strategy-authoring model **may pull any data stream it wants** and is expected to
+discover correlated inputs through exploration and testing. D39's permission
+stands as a genuine permission.
+
+**Why.** The audit had flagged that D39 permits VIX/volume/options/macro inputs
+but schedules none, and proposed asking which to build. Q8 C8 rejected the framing:
+*"that was just a queue that the model that is dreaming up the statgies has the
+abiloty to pull other stream of info other than TECL. it can pull any info it
+wants… in my mind there are correlated assets so the montauk should find those
+connection through exploration and testing."*
+
+**Bounded by D89.** "Any stream it wants" means any stream obtainable from free,
+verified, authoritative sources. It is not authority to spend money, and every
+stream still passes the same data-quality verification as TECL before it can
+influence a Gold decision.
+
+### D89 — Three exclusions confirmed; free verified authoritative data only
+
+**Call.** All three stay out of Montauk 3.0, with consequences recorded:
+
+1. **Broker and opening-auction verification.** Gold's execution claim remains
+   *modeled*. No row may be described as broker-verified tradeable. True cost is
+   reported as a conservative range.
+2. **Independent dead-man alert.** If the host, home internet, or Slack is down,
+   Montauk cannot tell Max it is down. He notices on his own.
+3. **Paid market data.** Execution cost stays a documented range, not a precise
+   figure.
+
+**Data sourcing is a standing constraint, not a deferral.** Q8 B4: *"Free data
+only for now. Stick with anything we can get for free from verified and
+authoritative sources."* Phase 1 may not propose a purchase. Where free sources
+cannot support a claim, Montauk **fails visibly** rather than weakening the claim.
+
+**Note on (a).** Q8 A7's suggested answer urged reconsidering broker verification
+— not as a build item but as an afternoon of reading broker order-type
+documentation — because it determines whether the leaderboard number is achievable.
+Max answered *"Confirm all"*, and Q9's preamble restated all three as already
+excluded without objection. It is therefore out. The consequence stands recorded:
+Gold means "beats B&H on modeled next-open execution," and the gap between that
+and "beats B&H when followed" is unmeasured in 3.0. This confirms and completes
+D78.
+
+### D90 — Integrity failures get their own quarantine state, separate from edge decay
+
+**Call.** "The edge may have weakened" and "the signal may be wrong" get different
+responses. A corrupted-data, lookahead, or engine-defect discovery enters a
+distinct integrity state that quarantines affected certificates, issues **no new
+trusted instruction**, displays the last instruction marked *possibly invalid*,
+and requires Max to decide. It does **not** automatically slide to a fallback
+strategy.
+
+**Why automatic fallback is the specific danger.** The fallback was certified by
+the same machinery now known to be broken. Automatically promoting it converts a
+detected defect into an undetected one.
+
+**Provenance.** This closes Q6 #1, which Q8 A8 answered *"Your answer is good."*
+Questionnaire 6 item 1 had asked for the state-machine choice and received an
+alert-severity answer instead, leaving D75 incomplete; that gap is now closed.
+Ordinary loss-of-Gold (edge decay) keeps the existing machine.
+
+### D91 — False-Gold protection is measured both ways on control worlds before any policy is fixed
+
+**Call.** Neither an annual nor a lifetime false-Gold budget is chosen now. Phase 1
+must run the **complete conveyor on known-worthless and planted-good control
+worlds** and report in plain language: how often a worthless strategy becomes
+Gold; how often a genuinely useful planted strategy is rejected; annual, 5-year,
+10-year, and lifetime interpretations; how the bar moves as search volume grows;
+and the assumptions behind each result. **Max approves the operating policy before
+Gold certification is enabled.**
+
+Until then no method may be described as guaranteeing a false Gold can never
+occur. The research package's FDR proposal does not deliver an any-false-Gold
+guarantee and may not be presented as one.
+
+**Why this was asked twice.** Q8 B1 did not answer the question — Max pushed back
+on the premise: *"How would a worthless strategy sneak onto the board. There are
+several layers stopping this… Likelihood of a configuration sneaking onto the
+board is slim."* That is a reasonable challenge and the answer is recorded: the
+two layers are **tests, not guarantees**, they run against the same limited TECL
+history, and they can share blind spots — which is precisely why the conveyor
+itself must be tested on control worlds rather than assumed. Q9 #2 put that back
+to him and he accepted.
+
+### D92 — "Insufficient evidence" is never a pass, and it blocks Gold
+
+**Call.** Both required horizons are held to the same standard. A window that
+cannot reach a conclusion reads **"insufficient evidence (trailing 5y)"** — shown
+distinctly from "failed" — and the strategy stays off the board until more history
+accumulates. Phase 1 may recommend demoting a window from hard gate to diagnostic
+if it proves the window can never give a usable answer. It may **never** silently
+treat insufficient as a pass.
+
+**Provenance.** Q8 B2: *"Yes to both. Your answer is good."* This applies Max's
+Questionnaire 3 item 13 rule — no strategy is Gold without actually passing every
+required test — to time horizons.
+
+### D93 — The confidence level is chosen from measured cost; an empty board never justifies lowering it
+
+**Call.** The 90%-versus-95% confidence level and the evidence-sufficiency floors
+are set **after** Phase 1 measures both on data with known answers and shows, at
+each level, how often a worthless strategy passed and how often a good one was
+rejected. Max picks from that picture.
+
+**One principle fixed now regardless:** *"the board would be empty" is never by
+itself a reason to lower the bar.* This is the operational form of Max's standing
+preference that a false Gold is worse than a missed opportunity, and it is what
+keeps D102's empty-board review from becoming a ratchet downward.
+
+**Provenance.** Q8 B3, accepted.
+
+### D94 — A third Montauk Score pillar is installed by Max, never proposed into existence by the system
+
+**Call.** The score keeps two ingredients. A third may be added only if it
+demonstrably improves ranking or switch decisions **among strategies that are
+already Gold**, without duplicating what the existing two measure — and it is
+**never** admitted because it changes who gets Gold. Information that matters for
+eligibility belongs in an explicit Gold gate that went through the evidence
+process.
+
+**Owner-installed only.** Q8 B5: *"Maybe, this would happen manually by me. Not
+something that it should build and implement itself."* Montauk may report evidence
+bearing on the question; it may not implement a third pillar. Q9 #11 item 2 makes
+this one of the seven remaining owner approvals.
+
+**Why the boundary matters.** Ranking and certification answer different
+questions. Collapsing them is how the score zoo grew the first time.
+
+### D95 — The ranking-ambiguity threshold is calibrated for accuracy; display may flex, the level may not
+
+**Call.** The "leader not clearly separated" threshold is calibrated by Phase 1
+against cases where the truth is known, reporting how often it wrongly flags a
+clear leader and how often it wrongly clears an ambiguous one. **Alert volume may
+change how the flag is displayed; it may never change the level.**
+
+**Why.** The flag is disclosure and never blocks a recommendation, so its job is
+accuracy, not comfort. Tuning the level because the flag appears too often would
+manufacture confidence rather than earn it. Q8 B6, accepted.
+
+### D96 — Free composition from existing blocks; a NEW building block needs Max's approval first (SUPERSEDES the escape-hatch plan)
+
+**Call — the Lego principle.** Max's framing, verbatim: *"The idea is like a kid
+with legos. They build anything they want with the existing building blocks."*
+
+**Normal work is unconstrained and needs no approval.** The agent:
+
+1. builds a strategy from the **existing** Rust building blocks;
+2. wires them together and declares parameter ranges;
+3. runs a **smoke test** to confirm the thing actually executes; and
+4. submits it to the pipeline.
+
+No owner approval at any step. No per-strategy review, no per-module review, no
+throttle. Millions of configurations per family flow through automatically and the
+deterministic pipeline decides their fate. This preserves Max's Questionnaire 3
+item 26 requirement that he never approve generated work.
+
+**A new building block is the one thing that requires prior approval.** If the
+agent wants a **custom building block** — a primitive that does not yet exist — it
+must obtain Max's approval **before** it is created. The sequence is:
+
+1. the agent proposes the block: what it should do, why existing blocks cannot
+   express it, and what it unlocks;
+2. the proposal reaches Max on its own channel surface (Q8 B7: *"another slack
+   channel or similar"*);
+3. **Max approves or declines.** Nothing is built on a declined proposal, and
+   silence is not approval;
+4. on approval the block is authored — Max may write it himself or direct its
+   writing — and must pass the containment, determinism, resource-limit, and
+   parity acceptance tests before it is eligible to be sealed; and
+5. it enters the primitive library **only** through the D108 password-controlled
+   signed release. The agent cannot perform that ceremony.
+
+**The approval is per block, before creation — not a one-time capability switch.**
+This is the specific difference from the withdrawn escape hatch, which would have
+had Max approve an acceptance *policy* once and then let conforming modules flow
+into intake forever without further review. Under this entry every new primitive is
+its own decision.
+
+**Why the seal is what carries the safety property.** A new building block enters
+the **protected core** and is then available to every future strategy — higher
+stakes than the old escape hatch, which isolated one module to one family. What
+makes agent-drafted primitive code acceptable is not who typed it but that it
+cannot reach the running system without passing Max's review, the acceptance
+suite, and the D108 ceremony that the resident agent is structurally unable to
+perform. Authorship and execution stay separated by an owner gate.
+
+**Correcting an earlier reading of this decision.** Q8 B7 says *"I will review and
+write those blocks,"* which was first promoted as an authorship transfer — the
+agent may only file a report, and Max personally writes every primitive. Max
+clarified on 2026-08-02 that the intent is an **approval gate**, not an authorship
+transfer: *"If it wants to do something (make its own custom building blocks) then
+it needs my approval first."* The gate is what he cares about; who types the code
+is a practical matter he may delegate, including back to the agent, provided the
+approval, acceptance tests, and seal are all satisfied.
+
+Consequently the containment/determinism/resource/parity suite is **still
+required** for custom blocks. It is not descoped. What *is* gone is the
+"approve once, then arbitrary modules flow unreviewed" model.
+
+**Interaction with D98.** The idea-starvation report is what tells Max the
+vocabulary has become the binding constraint, and it is the natural input to a
+block proposal. Block breadth still matters enormously: the wider the starting
+vocabulary, the more the agent can build without ever needing to ask, and the
+closer the system stays to the Lego principle in practice.
+
+### D97 — No catastrophic-loss veto; near-ruin penalizes rank instead (AMENDS D77)
+
+**Call.** There is no outer drawdown limit that disqualifies a strategy from Gold.
+A catastrophic historical loss **penalizes the strategy's rank** on the
+leaderboard and is disclosed, but does not by itself deny certification.
+
+**Provenance.** Q8 B8, verbatim: *"Not at the moment. It should penalize its rank
+in the leaderboard but not outright disqualify."* This closes Q7 #20 and amends
+D77, which had reserved the veto as a possible later installation.
+
+**What survives from D77.** Phase 1 may still *study* whether a defensible
+catastrophic boundary exists and report what such a floor would catch and wrongly
+reject. Installing one is a new owner decision under Q9 #11 item 2 — turning a
+disclosed risk into a Gold-disqualifying veto requires Max's explicit approval. If
+no boundary is ever installed, the limitation is stated prominently every time Max
+activates a strategy.
+
+**Why the answer is defensible.** A floor picked from intuition is a hidden
+preference for smooth-looking backtests — the exact bias the rest of the system
+exists to prevent. Rank penalty keeps the information visible in the decision Max
+actually makes (which strategy to activate) without inventing an unvalidated gate.
+
+### D98 — The declarative building-block path is confirmed, conditional on block breadth and an idea-starvation report
+
+**Call.** Confirmed as the normal path: the agent fills out a structured form —
+building blocks, wiring, parameter sweep ranges — Rust validates the form and
+expands it into millions of exact configurations as data. This is the single
+largest build decision and it is now explicitly ratified rather than inferred from
+adjacent answers.
+
+**Two conditions Max attached.** Q8 C1: *"yes so long as there is a multitude of
+building blocks to choose from. i dont want it to be the case that there are not
+enoguh building blocks so that it is constricting and the model cannot be
+inventive and imaginative. there should be some kind of report that gets generated
+about this- i want to know if the model is out of ideas due to only having limite
+building blocks."*
+
+1. **Block breadth is a requirement, not a nice-to-have.** The initial vocabulary
+   must be broad enough that the declarative form is not the binding constraint on
+   what the agent can imagine.
+2. **An idea-starvation report is a deliverable.** Montauk must surface when the
+   agent is running out of expressible ideas *because of vocabulary limits* rather
+   than because the search space is genuinely exhausted. This is the input that
+   feeds a D96 new-block proposal.
+
+**Why the path is right.** It avoids the agent authoring 40,000 near-identical
+programs each of which could carry a typo, it removes the failure mode where the
+agent burns its budget fighting the compiler, and it expresses Max's stated
+priority order — accuracy first, then quantity of strategies tested.
+
+### D99 — A sealed historical holdout is spent on reveal (OVERTURNS charter §4.2's standing "no")
+
+**Call.** A sealed historical block supplies **one-time evidence**. As soon as any
+pass/fail result, score, rank, or metric from it is revealed, it is labelled
+**spent/reused** and the reveal enters Montauk's lifetime search accounting. Only
+market bars arriving **after an exact strategy was frozen** may be called genuinely
+untouched forward evidence for that strategy.
+
+**Why a permanent lockbox is false comfort.** Hide 2019–2021 from Strategy A;
+Strategy A fails; the agent learns the word "failed"; Strategy B is designed in
+response. Strategy B has learned from 2019–2021 without reading a single price.
+After enough attempts the block is untouched in name only. In a lifelong feedback
+loop, spent-on-reveal accounting plus the growing live-forward record are the
+honest safeguards.
+
+**Status change.** Charter §4.2 currently states "no permanent lockbox" as a
+conservative *consequence of D45*, not as an owner answer — the audit flagged
+exactly this. Q8 C2 expressed the goal (*"i want the testing and validiations to be
+as robuts as possible"*) without choosing; Q9 #3 put the choice directly and Max
+accepted. §4.2's position is now owner-ratified **and** given a mechanism it did
+not previously have.
+
+### D100 — Grader before factory
+
+**Call.** Build the Gold exam first, then the strategy factory. Q8 C3: *"grader
+first. confirmed."* This closes Q5 #8 and confirms the existing phase sequencing.
+
+### D101 — Legacy 2.0 Gold strategies are the seed corpus, with no grandfathering
+
+**Call.** The strategies currently holding Gold status in Montauk 2.0 — and
+configurations around them — are the **first corpus** tested and validated by the
+3.0 pipeline. They receive no credit for their 2.0 status: *"they still need to
+pass all the validations that any stategey needs to do to get to gold status."*
+
+**Provenance.** Q8 C4 and C6. This closes the five places in the plan that
+required "any legacy strategy Max explicitly selects" without the list ever having
+been requested.
+
+**Why this is the right seed.** It gives Phase 2 parity work a concrete corpus
+with known behavior, and it makes the 2.0-versus-3.0 comparison meaningful — if the
+new pipeline rejects a strategy 2.0 called Gold, that is information about one of
+the two pipelines and must be investigated rather than explained away.
+
+**Sharpened by D112 (2026-08-03).** This is an explicit **ordering** requirement,
+not merely a permission: the 2.0 Gold strategies are the **first** corpus the 3.0
+pipeline evaluates, ahead of novel agent-generated candidates. Max's stated purpose
+is to find out whether they *"are still good with the updated data pipeline and
+validation system."*
+
+### D102 — A 90-day empty board triggers a review of the validator, not a lowering of the bar
+
+**Call.** Run the pipeline as specified for **90 days**. If no strategy has earned
+Gold in that window, that triggers a review to distinguish a correctly high bar
+from a mis-implemented over-strict gate.
+
+**Provenance.** Q8 C6: *"your answer is good. lets run it as it is for 90 days."*
+
+**The review may not lower the bar to produce rows.** Under D93, an empty board is
+never by itself a reason to loosen a threshold. The review looks for defects —
+a gate computing the wrong thing, a data problem, an impossible combination — and
+fixes those. "Nothing passed and nothing is broken" is a valid outcome, consistent
+with the standing principle that fewer rows is correct behavior, never failure.
+
+### D103 — The operating contract, in Max's words
+
+**Call.** This is the product statement of record. Q8 C9, verbatim:
+
+> Montauk runs continuously, exploring and searching for new statgies. It runs
+> those strategies thgough backtesting and anti over-fitting testing (to make sure
+> it beats bxh and is not overfit to TECL). Every day it sends a daily digest
+> (which includes how money statgeies it found, tested, and how many if any passed
+> through to the gold status/leaderboard), alerts immediately on failures or
+> material changes, recommends but never activates a new leader without you, and
+> leaves every brokerage trade to you.
+
+**Use.** Any owner-facing description of what Montauk is must be consistent with
+this paragraph. It closes Q5 #21 (the open-ended check for a missing product
+outcome) and it names one digest content requirement not previously specified:
+**counts of strategies found, tested, and promoted to Gold, every day.**
+
+### D104 — Montauk 2.0 keeps signal authority until Max declares the cutover
+
+**Call.** 3.0 runs in shadow while 2.0 remains the labelled legacy signal source.
+Authority cutover is blocked until: (1) at least one strategy has earned 3.0 Gold;
+(2) it has completed the required cooling/forward-evidence period; (3) it is
+activation-eligible; (4) shadow and recovery checks pass; and (5) **Max approves
+that exact strategy as Active in the same action that retires 2.0 signal
+authority.** Until then the interface must clearly distinguish *legacy 2.0 signal*
+from *3.0 shadow recommendation*.
+
+**Provenance and reading.** Q8 C5 read "cutover" as an Active-strategy switch and
+asked what was meant; Q9 #4 clarified it as the 2.0→3.0 authority handover. Max
+answered **"I will declare it."**
+
+**Owner clarification, 2026-08-02.** Max clarified the answer's scope directly:
+*"what i mean by i will declare is that im the only one who can say 2.0 is done.
+which it is. thats on pause/retired etc."*
+
+Two things follow, and they are separate:
+
+1. **Sole authority, confirmed.** No condition, report, drill, elapsed period, or
+   implementation agent may declare Montauk 2.0 finished. Only Max, and the five
+   conditions above are his own checklist rather than a gate anything else
+   enforces against him. Q9 #11 item 5 stands.
+2. **He has exercised it.** 2.0 is declared done — paused/retired as an object of
+   further development. No feature work, tuning, or strategy development happens
+   on 2.0.
+
+**Open point separating development from signal authority.** "Done" as
+*development is finished* and "done" as *it stops emitting the daily
+risk_on/risk_off signal* have very different consequences, because 3.0 does not
+yet exist and cannot produce a certified signal for some time. If the 2.0 signal
+stops now, there is no trusted signal at all in the interval — which is precisely
+the gap Q9 #4 was written to surface. This entry records development as retired
+and leaves the signal question flagged for Max rather than resolving it by
+inference in either direction.
+
+**Distinct from later switches.** Ordinary Active changes between two 3.0 Gold
+strategies follow D18. Q8 C5 also recorded Max's expectation for those: every
+leaderboard row carries its own in/out signal, so a switch usually will not flip
+position — and if it does, *"i will handle that when i make the decsion to change
+the active stratgey."*
+
+### D105 — Validation Score means evidence strength, not probability
+
+**Call.** Validation Score measures **how strongly and consistently a strategy
+passed the evidence checks** across time, parameter neighborhoods, correctness
+tests, and relevant stresses. It is displayed **without a percent sign** and makes
+no probability claim. Every score shows the two or three main reasons the strategy
+lost points.
+
+Montauk may use probability or "confidence" language **only after** enough frozen
+forward results demonstrate the score is calibrated, and only after an
+owner-approved contract change.
+
+**Why.** "Validation Score: 78" must not imply "78% chance of future success" —
+Montauk does not have enough frozen forward outcomes to support that reading. Max
+raised this himself in Questionnaire 3 item 12, left Q8 A4 blank, and accepted the
+answer at Q9 #1.
+
+**A correction that belongs in the record.** Max's instinct was that
+definitely-not-overfit reference strategies (simple EMA crossover, simple RSI)
+could anchor the scale. They are used as **controls, not ground truth**: a simple
+rule found after millions of attempts can still be a lucky one.
+
+### D106 — Synthetic pre-2009 history carries a limited, empirically calibrated weight
+
+**Call.** Once the time-separated overlap/reconstruction study validates and
+versions it, synthetic history **may**: appear in every relevant diagnostic report;
+test behavior in older markets and named events; contribute a **limited,
+empirically calibrated** amount to Validation Score and ranking; and help Max
+compare strategies that are already Gold.
+
+It **may not**: substitute for passing either required real-TECL economic gate;
+rescue a strategy that fails real-data Gold requirements; independently deny Gold
+because older synthetic performance was weak; or be labelled observed or official
+TECL.
+
+Any exact weight is proposed from the overlap study and approved as part of the
+signed validation contract. It is never chosen to help a favored strategy.
+
+**This changes the prior position.** The plan gave synthetic history **zero**
+weight in Gold, diagnostic-only, on the strength of audits showing materially
+different volatility and tracking behavior. Q8 A5 disagreed: *"I think we treat it
+as real data… essentially its real data… I am in favor of using it but with an
+asterisk… maybe that it should be weighted a little less in the backtests, failure
+or lack of great performance back there isn't a deal breaker."* Q9 #5 converted
+that instinct into the authority boundary above and Max accepted it.
+
+Both halves of his answer are honored: the data is used rather than discarded, and
+the asterisk is mechanical — never called real TECL, never able to rescue or sink a
+strategy on its own.
+
+### D107 — The decision boundary, and the end of the questionnaire process
+
+**Call.** Montauk 3.0's product, architecture, scope, and build behavior are now
+sufficiently specified that **no further broad clarification questionnaire may be
+generated.** No implementation agent may open a broad clarification round on its
+own initiative.
+
+*(Max requested Questionnaire 10 himself on 2026-08-03 as an accounting of what the
+reconciliation left open. That is the owner exercising his own authority, not the
+finality rule failing; see D111–D118.)*
+
+**Later Max approval is required only for:**
+
+1. the final measured Phase 1 Gold/validation package — false-Gold operating
+   policy, confidence and evidence-sufficiency settings, provisional performance
+   margin, activation/renewal thresholds, ranking-ambiguity rules, and any
+   empirically justified synthetic weight;
+2. adding a third Montauk Score ingredient, or turning a disclosed risk into a new
+   Gold-disqualifying veto;
+3. approving or declining each proposed new Rust building block **before** it is
+   created, then writing or directing its authoring, followed by acceptance tests
+   and the D108 sealing ceremony (D96);
+4. planning and beginning each non-authoritative clean-machine restore drill;
+5. each exact Active-strategy switch, including the one-time 2.0→3.0
+   signal-authority cutover;
+6. declaring Montauk 3.0 operationally complete, or authorizing later-version
+   work; and
+7. explicitly scheduling the optional Chimera study once its prerequisites exist.
+
+Because D81/Q9 #10 fixed Slack, selecting a channel provider is **not** on this
+list.
+
+**Everything else is delegated** to evidence-driven implementation: exact schemas,
+parser caps, numeric tolerances derived from fixtures, queue and resource settings
+measured on the actual host, database and index layouts, retry mechanics, test
+fixtures, provider API details, command-envelope fields, idempotency construction,
+cooperative cancellation, documentation corrections, and other reversible
+engineering detail.
+
+**The accepted implementation baseline** also stands and is not reopened: one
+dedicated native Debian appliance under `systemd`; private Tailscale/SSH
+administration; subscription-first model adapter with documented API fallback; one
+provider-neutral conversation gateway; free verified authoritative market data
+only; manual brokerage execution; GitHub as the current off-machine recovery path.
+Hardware purchases, personal portfolio information, provider spending budgets, and
+throughput targets are commissioning concerns outside the Gold definition.
+
+**Escalation rule.** An implementation agent asks **one focused question — never a
+new questionnaire** — only if an unforeseen issue would materially change
+owner-visible behavior, the Gold promise, protected-core authority, real-money
+safety, external spending, credentials, or the scope above. Otherwise it makes the
+smallest defensible reversible engineering choice, records it, and proceeds.
+
+### D108 — The core is sealed by a password-controlled privileged ceremony (REFINES the signing-key plan)
+
+**Call.** Max seals a release with a **password**, as he asked. Underneath that
+interaction the seal is permissions plus cryptography, not a password check in
+application code:
+
+1. The resident agent runs as an unprivileged account that **cannot write the
+   protected core**.
+2. Max enters the password only into a **local, separate, privileged maintenance
+   process** — never Slack, never another chat channel, never an AI prompt.
+3. The password unlocks an encrypted signing credential or equivalent privileged
+   promotion mechanism.
+4. That process signs and installs one exact reviewed release, read-only.
+5. Startup, Gold certification, and signal generation verify the signed manifest
+   and **fail closed** on any mismatch.
+6. The agent cannot read the password, the signing credential, or a decrypted
+   maintenance session.
+
+**Provenance.** The plan had chosen a hardware-held signing key without confirming
+it. Q8 A6 chose differently — *"I think a password is good"* — and Q9 #6 supplied
+the boundary that makes a password sufficient. Max gets the workflow he asked for;
+the no-pipeline-edits rule stays mechanically enforceable.
+
+**What is explicitly not sufficient.** A password prompt inside the application, a
+clean Git history, or later rollback. Git remains available for rollback and is
+**not** the seal.
+
+### D109 — A material TECL product change suspends trusted signals (RATIFIES the plan's stronger reading)
+
+**Call.** On a benchmark change, leverage-objective change, ticker/CUSIP
+discontinuity, closure, prolonged halt, or similar material prospectus event:
+alert Max **immediately**; once the change is effective, **suspend new trusted
+signals**, mark every affected Gold certificate **stale**, and require an
+owner-approved contract update plus full recertification. **Never** automatically
+substitute another ETF. Max remains responsible for any brokerage position
+decision during the suspension.
+
+Ordinary splits and distributions are unaffected — they follow the tested
+corporate-action path.
+
+**Why this entry exists.** Questionnaire 7 item 11 asked whether such an event
+should only alert or should also suspend. Max answered *"Alert human."* The active
+plan implemented the stronger reading — alert **and** suspend, stale, recertify —
+which was never confirmed. Q9 #7 put it to him directly and he accepted. The plan
+was right; it is now authorized.
+
+**Why suspension is not overreach.** Every Gold certificate was earned against the
+old product contract. Suspending makes no trade and picks no replacement; it stops
+Montauk from describing an untested instruction as trusted.
+
+### D110 — The modeled order band is $10,000–$100,000 (RATIFIES an unselected assumption)
+
+**Call.** Every Gold backtest and execution study is modeled across the
+**$10,000–$100,000** notional range, using the conservative result where estimated
+costs differ materially within it.
+
+**What it is not.** Not an account-size disclosure, not an instruction to trade
+that amount, and not permission to collect, infer, enforce, or reconcile actual
+balances, positions, orders, or fills. It is only the range over which Montauk
+makes its modeled execution claim.
+
+**Why this entry exists.** Questionnaire 5 asked which order band to model and its
+suggested answer listed alternatives without recommending one; "Your answer is
+good" accepted the *principle* of a band without selecting it, and the plan later
+introduced $10,000–$100,000 as though chosen. Q9 #9 asked directly and Max
+accepted. The number is unchanged; its authority is now real.
+
+## 2026-08-03 — Questionnaire 10: open items after the Q8/Q9 reconciliation
+
+Questionnaire 10 exists because Max asked for a full accounting of what was still
+open after D84–D110 were promoted. It found six genuinely open owner decisions and
+two interpretations awaiting confirmation. All eight are answered and promoted
+here. It does **not** reopen D107: that entry forbids an *implementation agent*
+from generating a broad clarification round unprompted, which this was not.
+
+Two of these questions existed only because Max retired Montauk 2.0 on 2026-08-02.
+
+### D111 — Montauk 2.0 keeps emitting the daily signal, frozen, until 3.0 replaces it
+
+**Call.** Retiring 2.0 froze its **development**, not its **signal**. 2.0 continues
+to emit `risk_on` / `risk_off` every trading day from whatever strategy is Active
+today, clearly labelled **"legacy 2.0 signal — no further development."**
+
+Frozen means frozen: no new strategies, no parameter tuning, no recertification,
+no leaderboard changes, no data-pipeline rework. It emits and nothing else.
+
+It retires the day Max approves a 3.0 strategy as Active, **in the same action**,
+exactly as D104 specifies.
+
+**Why this needed its own decision.** D104 recorded Max's declaration that 2.0 is
+"done… on pause/retired etc." and deliberately left the signal question open rather
+than inferring it. Development-finished and signal-stopped are separable, and the
+asymmetry is stark: a frozen 2.0 costs nothing to leave running, while stopping it
+leaves Max with **no certified daily instruction from any system** until 3.0 earns
+its first Gold row, cools, and is activated — realistically months. Q10 A1 chose to
+keep it printing.
+
+**What this obligates.** 2.0 must stay runnable and its daily job must keep
+executing — see D112. Under D87 the 5:00 PM Pacific deadline and 6:00 PM hard alert
+attach to whichever signal is **authoritative**, which for now is this one (D115).
+
+### D112 — Montauk 2.0 is preserved in full: runnable, artifacts intact, code archived
+
+**Call.** All three, and nothing is removed:
+
+1. **Runnable in place** as the legacy signal source and reference, until 3.0
+   replaces it. Required by D111.
+2. **Every Gold artifact, trade ledger, and leaderboard row preserved** as
+   migration evidence and as parity fixtures the 3.0 engine must be able to
+   reproduce.
+3. **The code archived rather than deleted.** The archive survives cutover.
+
+**Why.** The most dangerous moment in 3.0's life is the first time it disagrees
+with 2.0 about a trade. A runnable second implementation turns that from an
+argument into a measurement. The appliance has 120 GB and 2.0's footprint is
+trivial against it, so there is no reclaim argument on the other side.
+
+**Max's addition — legacy strategies are tested first, and for a specific reason.**
+Q10 A2, verbatim: *"i think its in there but i want to test the montauk 2.0
+strategies first to see if they are still good with the updated data pipeline and
+validation system."*
+
+This sharpens D101 from *seed corpus* to an explicit **ordering requirement with a
+stated purpose**. The 2.0 Gold strategies are the **first** thing the 3.0 pipeline
+evaluates, before novel agent-generated candidates, and the question being asked of
+them is not "do they deserve grandfathering" — they do not, D101 is unchanged — but
+**"do they still hold up once the data pipeline and validation system are
+rebuilt?"**
+
+That makes the first run a two-sided test. A 2.0 strategy that survives is genuine
+evidence the edge was real rather than an artifact of the old pipeline. A 2.0
+strategy that fails is evidence about **one of the two systems** and must be
+investigated to determine which — never waved off as the new validator simply being
+stricter. Both outcomes are informative and both must be reported to Max.
+
+### D113 — The starting Rust primitive registry is deliberately over-provisioned and fine-grained
+
+**Call.** Build a **wide** initial library of **small composable** primitives —
+typed arithmetic and boolean logic, lag and rolling operations, moving averages,
+momentum, RSI/MACD, ATR, volatility and bands, crossover and threshold events,
+approved external inputs, explicit position state, and more — rather than the
+minimal registry the Rust policy previously described.
+
+Every primitive still ships with fixtures and deterministic tests. "Fixture-heavy"
+was protecting correctness and that part stands; **"intentionally small" is
+withdrawn.**
+
+**Why this follows directly from D96.** With the escape hatch replaced by an
+approval gate, the vocabulary is the *only* way the agent can express an idea, and
+every gap becomes an approval request sitting in Slack waiting on Max. While it
+waits, the search runs on the old vocabulary — if Max is busy for three weeks, the
+machine explores a frozen idea space for three weeks.
+
+**Granularity matters more than count.** Fine-grained blocks recombine into an
+enormous space; coarse blocks (whole strategy templates) barely compose at all and
+make nearly every new idea require a new template. Writing sixty primitives once
+during the build is far cheaper than writing five every few weeks forever.
+
+**This is what makes the Lego principle real rather than nominal.** A kid with six
+Lego pieces is not building anything they want.
+
+### D114 — The 90-day empty-board clock starts when Gold certification is enabled
+
+**Call.** D102's 90-day window begins on the **first day Gold certification is
+enabled** — after Max approves the measured Phase 1 package and the signed
+validation contract is in force. Not at the start of Phase 1, and not when the
+conveyor first runs end to end.
+
+**Why.** Before that moment the pipeline is not *capable* of producing Gold, so an
+empty board carries no information. The review exists to distinguish "correctly
+strict" from "mis-implemented," and neither is diagnosable while the exam is still
+being calibrated. A clock started earlier would expire mid-build and trigger a
+review of nothing.
+
+### D115 — Shadow deadline misses are digest-level; the hard alert follows authority
+
+**Call.** During 3.0 shadow operation, a missed signal deadline is recorded and
+reported in the **daily digest as a missed shadow deadline**. It does not fire
+D87's hard 6:00 PM Pacific alarm.
+
+The **hard alert attaches to whichever signal is currently authoritative** — 2.0's
+today under D111, 3.0's after the D104 cutover.
+
+**Shadow deadline misses are commissioning evidence and must be clean before
+cutover.** A persistent shadow timing problem blocks the handover under D104
+condition 4 rather than surfacing the day after 3.0 becomes authoritative.
+
+**Why.** Alerting hard on a signal Max is not acting on trains him to ignore the
+alarm, and early-build 3.0 will miss deadlines often. Not tracking it at all means
+discovering the problem on the worst possible day. Recording without alarming gets
+the information without the false alarms.
+
+### D116 — Two Slack channels, split by read versus act
+
+**Call.** Montauk uses **two** channels:
+
+1. **Operational** — the daily digest, alerts, and status. Things Max *reads*.
+2. **Approvals** — everything waiting on a decision from him: new-block proposals
+   (D96), the Phase 1 package, a third score pillar or new veto, restore drills,
+   Active switches including the 2.0→3.0 cutover, the completion declaration, and
+   Chimera scheduling. Things Max *acts on*.
+
+**Why.** Everything in the approvals channel is by definition blocking something,
+so its unread count is a real work queue rather than noise. Mixing a digest Max
+skims with approvals that block the machine produces one of two failures: the
+digest trains him to ignore the channel, or the approvals make the digest feel
+urgent. Splitting by *read* versus *act* matches how the channel is actually used.
+
+**Not a second command path.** D63's one-provider, one-adapter rule is untouched —
+this is two channels inside the same Slack workspace served by the same adapter,
+not two providers. The D80 model-free mutation path serves both.
+
+### D117 — The five cutover conditions are Max's written checklist (CONFIRMS D104)
+
+**Call.** Q10 B1 confirms the reading recorded in D104: Max accepts the five
+conditions and reserves the declaration to himself. Nothing enforces them against
+him — they are written down so that cutover before 3.0 has certified anything
+cannot happen **by drift**.
+
+### D118 — Broker and opening-auction verification stays out; the broker check is personal, not a deliverable (CONFIRMS D89)
+
+**Call.** Q10 B2 confirms D89 for the third time. Broker and opening-auction
+verification remain out of Montauk 3.0.
+
+**The consequence stands recorded.** Gold means "beats B&H on **modeled**
+next-open execution." Whether an order submitted the night before actually joins
+the next morning's opening auction is broker-specific and unverified, so the gap
+between "beats B&H on paper" and "beats B&H when followed" is **unmeasured in
+3.0** — and the second phrasing is Max's own definition of what Gold should mean.
+
+Reading his broker's order-type documentation remains a personal task he may do
+whenever he likes. It is **not** a Montauk deliverable, produces no code, and
+gates nothing.
+
+## 2026-08-03 — congruence audit of the 3.0 folder
+
+Max asked for a pass over the whole 3.0 folder looking for anything inconsistent
+with his stated intent, and anything so underspecified that a building agent would
+have to guess. Three contradictions were corrected without asking (charter §2.1
+still described a desktop-less "current Debian Stable" host after D82/D83; D64
+carried the same stale language; charter §9.2 let controls alone admit a third
+Montauk Score pillar, which D94 reserves to Max). Four genuine gaps needed owner
+answers and are promoted below.
+
+### D119 — Strategies are strictly binary: 100% in TECL or 100% in cash
+
+**Call.** A Montauk strategy holds **one position or no position**. Risk-on means
+fully invested in TECL; risk-off means fully in cash. **No partial positions, no
+scaling in or out, no pyramiding, no shorting, and no leverage beyond TECL's own
+3x.** A daily instruction is always "be in" or "be out" and never a size.
+
+**Why this needed to be written down.** The action space appeared exactly once in
+the entire 3.0 folder — charter §2.1's *"TECL, with the existing long/flat or
+risk-on/risk-off action space"* — inside a scope bullet rather than as a guardrail.
+In Montauk 2.0 the rule was explicit and load-bearing (100% equity per trade, no
+pyramiding), but it lived in the 2.0 project instructions, not in this charter. D113
+then made the situation worse by requiring a broad fine-grained primitive library
+that explicitly includes position-state blocks: an agent would have had everything
+it needed to compose a scaling strategy without violating a single written rule.
+
+**What it protects.** Manual execution is one order, not a sizing calculation. The
+matched-B&H comparator, the $1,000 alpha question in D86, and the share-accumulation
+north star all assume a binary exposure path; fractional positions would silently
+change what "beats B&H" measures.
+
+**Reopening it is a contract change**, on the same footing as adding a third score
+pillar or installing a new veto — an explicit owner decision under D107, never an
+implementation choice.
+
+### D120 — Gold requires manual executability: roughly 12 round trips per year, maximum
+
+**Call.** A strategy averaging more than **~12 round trips per year** is not
+eligible for Gold. Phase 1 fixes the exact form of the rule — the averaging window,
+whether it is a hard cliff or a rate measured over the evaluation period — but the
+ceiling itself is owner policy and the intent is monthly-ish, not weekly.
+
+**Why a ceiling exists at all.** Every trade is one Max places by hand in a
+brokerage account. A strategy trading twice a week could pass every statistical
+gate in the system and still be unusable. This is an **executability** guardrail,
+not a statistical one, and it belongs in the charter for that reason.
+
+**Why it is not 2.0's ≤5 per year.** Five is tight enough to reject a sound trend
+system that merely had a whipsaw year. Twelve preserves the quiet character Max
+wants while leaving headroom for a legitimately choppy period.
+
+**This does not reintroduce a trade-count floor.** D50's rule stands unchanged:
+there is no universal *minimum* trade count, evidence sufficiency governs the low
+end, and **low trade frequency is never penalized**. A strategy that holds through
+a year of new highs without trading is a success. The cap is one-sided.
+
+### D121 — The frozen Montauk 2.0 stays exactly where it runs today
+
+**Call.** 2.0 is not migrated. It keeps running wherever it runs now, on its own
+existing data pipeline, and keeps emitting the daily signal per D111. It is not
+moved onto the 3.0 appliance, before or after commissioning.
+
+**"Frozen" is scoped to strategy and logic, not to operation.** The data refresh
+and signal generation must keep running — without them 2.0 cannot emit anything,
+which would defeat D111. What is frozen: strategy development, parameter tuning,
+recertification, leaderboard changes, validation-pipeline changes.
+
+**Two data pipelines coexist, deliberately.** 2.0 keeps its current loader; 3.0
+builds the rebuilt one. That is a feature rather than duplication — D112 requires
+testing the 2.0 Gold strategies against the *rebuilt* pipeline, and that comparison
+is only meaningful if the old pipeline still exists to compare against.
+
+**Why not migrate.** Moving 2.0 onto the appliance would put legacy code beside the
+protected core and risk the signal Max is actually following, in exchange for tidiness
+during a window that ends at cutover anyway. The appliance can be commissioned and
+stress-tested on 3.0 workloads without borrowing the live signal to do it.
+
+### D122 — The existing Tauri app is retrofitted as the 3.0 visual surface (REVERSES "dashboards are superseded")
+
+**Call.** Montauk 3.0 does **not** build a new interface. The existing Mac Tauri app
+in `app/` is retrofitted to consume 3.0 data. Max's words: *"we will need to use the
+current montauk app. i think there is a tauri app in there that we can feed the new
+data into. we may need to retrofit it."*
+
+**What exists today** (verified 2026-08-03): a Tauri shell (`app/src-tauri/`), the
+ops dashboard (`app/src/main.js`), and the shared render engine
+`app/public/lib/viz-engine.js` with vendored TradingView Lightweight Charts. It
+currently reads `spike/leaderboard.json`. The same engine is embedded into the
+standalone `viz/montauk-viz.html`, so a single renderer serves both surfaces.
+
+**The retrofit is a data-contract change, not a rewrite.** 3.0 must publish what the
+app reads. The board the charter §9.1 describes — database-backed, paginated,
+filtered, indexed, collapsed by family with expandable siblings, four fields per row
+— is the app's job to render, and 3.0's job to serve.
+
+**Why this reverses prior text.** The README listed existing "dashboards" among the
+things the rewrite supersedes. That stands corrected: scripts, tests, scores, and
+folder layouts are superseded; **the app is not.**
+
+**Division of surfaces.** Slack (D116) carries the daily digest, alerts, and every
+approval — it is the surface that reaches Max's phone and the only place mutations
+happen. The Tauri app is the **read-only** in-depth view: the board, equity curves,
+trade charts, and per-strategy detail. It mutates nothing and holds no authority.
+This is also what the D83 graphical desktop is for when Max is working on the
+appliance rather than his Mac.
+
+**Open engineering detail, delegated under D107.** Whether the app reads a published
+JSON bundle (as it does today), queries the 3.0 control database directly over the
+tailnet, or receives a generated static bundle is an implementation choice for
+whoever builds it — provided the app stays read-only and holds no credential that
+can mutate Gold or Active.

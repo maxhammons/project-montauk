@@ -11,9 +11,11 @@ normal active-strategy changes.
 
 The appliance shell around this conveyor is specified separately in
 [debian-host-agent-and-channel-operations.md](debian-host-agent-and-channel-operations.md):
-minimal Debian, `systemd`, resource preemption, private Tailscale/SSH, a bounded
-provider adapter, one selected typed conversation channel (Slack, settled by
-D81), and the intentionally limited interaction patterns Montauk borrows.
+minimal Debian 13 `trixie` on wired Ethernet (D82), `systemd`, resource
+preemption, private Tailscale/SSH plus an on-demand tailnet-only graphical
+desktop (D83), a bounded provider adapter, one selected typed conversation
+channel (Slack, settled by D81 and owner-confirmed 2026-08-02), and the
+intentionally limited interaction patterns Montauk borrows.
 
 This is a safe handoff for **Phase 1 contract research and protected-boundary
 prototyping**, not blanket permission to build the autonomous appliance around
@@ -308,12 +310,13 @@ contract:
   primary target, with daily net log-wealth differences retained for inference;
 - complete observed TECL history and trailing five years as hard gates;
 - a small predeclared rolling-window design with a calibrated aggregate passage
-  rule plus calibrated catastrophic-window veto; and
+  rule, reported as a **diagnostic** rather than a gate (D86); no
+  catastrophic-window veto is installed (D97); and
 - a provisional 1.10 point-estimate hypothesis plus an uncertainty-aware lower
   bound above no edge (1.0), with insufficient evidence as an explicit result.
 
 Configurations that fail required B&H/performance gates stop here. The exact
-slippage/fees, rolling aggregate/veto rule, uncertainty floor, and final margin
+slippage/fees, rolling aggregate rule, uncertainty floor, and final margin
 are bounded Phase 1 calibration studies; the implementation agent may not choose
 convenient values. The fixed backtesting assumption is a $10,000–$100,000
 notional order band; costs come from market evidence and use conservative values
@@ -322,14 +325,15 @@ actual account or order size. Same-close and alternative OHLC results are
 diagnostics/stresses only. CAGR, drawdown, Sharpe, and trade statistics explain
 performance; they cannot replace the primary Gold target.
 
-Synthetic history runs as a diagnostic/confidence input, not as real passage. Its
-present construction uses 3x daily S&P technology-sector-index returns
+Synthetic history carries a limited, empirically calibrated weight (D106) and
+never substitutes for real passage. Its present construction uses 3x daily S&P technology-sector-index returns
 (1993–1998), 3x daily XLK returns (1998–2008), expenses, daily compounding, a
 real-TECL seam, and a loader-time 189.7 bps/year financing/tracking haircut. The
 builder is reproducible, but prior audits found material volatility/tracking
-differences from actual TECL. Phase 1 must independently recalibrate any weight or
-catastrophic veto on overlap and model-error controls before either can affect
-Gold.
+differences from actual TECL. Phase 1 must independently calibrate its weight on
+overlap and model-error controls before it can affect Gold. Under D106 that weight
+may inform Validation Score and ranking but may never substitute for a required
+real-TECL gate, rescue a failing strategy, or independently deny Gold.
 
 The synthetic study must extend the XLK-based transformation through observed
 TECL. It calibrates only on earlier overlap blocks and evaluates later blocks
@@ -607,15 +611,17 @@ The build has five phases:
   or reconciliation.
 - Freeze terminal deployable TECL wealth/share multiple versus matched B&H as the
   primary estimand and daily net log-wealth difference as the inference series.
-  Keep complete observed TECL history and trailing five years as hard gates;
-  calibrate the small rolling aggregate/catastrophic-veto design, provisional
+  Keep complete observed TECL history and trailing five years as **the only**
+  hard gates (D86); measure both from the causal-eligibility start date, not first
+  trade. Calibrate the small rolling aggregate design, provisional
   1.10 point-estimate margin, lower bound above 1.0, evidence sufficiency, and
-  persistent warning/demotion behavior. Do not install a universal trade-count
+  persistent warning/demotion behavior. "Insufficient evidence" is displayed
+  distinctly from "failed" and blocks Gold (D92); it is never treated as a pass. Do not install a universal trade-count
   cliff or invent retrospective “reasonable slices.”
 - Independently audit the synthetic TECL model against its real overlap and
-  model-error controls. Freeze its construction/version and decide from evidence
-  whether it has a diagnostic weight or catastrophic veto; it never substitutes
-  for real passage. Extend the XLK transformation through actual TECL; calibrate
+  model-error controls. Freeze its construction/version and propose from evidence
+  the limited weight it carries in Validation Score and ranking (D106); it never
+  substitutes for real passage and cannot independently deny Gold. Extend the XLK transformation through actual TECL; calibrate
   only on earlier overlap blocks and test later blocks without refitting against
   return bias, tracking error, volatility, terminal path, drawdown, financing/
   expense, and named-event measures. Freeze a source-labelled named-moment suite
@@ -656,10 +662,13 @@ The build has five phases:
   persistence rule, stale data, same/opposing-state fallback, no Gold,
   `human_decision_required`, and the exact states permitted to emit a trusted
   instruction.
-- Design the minimum cryptographic protected-core seal: resident-agent OS
-  identity without core-write access, read-only content-addressed release,
-  generated work outside it, Max-held signing key, and fail-closed startup/Gold/
-  signal checks. Choose repository topology only if the threat/recovery tests
+- Design the minimum cryptographic protected-core seal per D108: resident-agent
+  OS identity without core-write access, read-only content-addressed release,
+  generated work outside it, and fail-closed startup/Gold/signal checks. The owner
+  interaction is a **password** entered into a local privileged maintenance
+  process — never Slack, another chat channel, or an AI prompt — which unlocks an
+  encrypted signing credential. A password check inside application code, a clean
+  Git history, or rollback is explicitly not the seal. Choose repository topology only if the threat/recovery tests
   require it. Candidate code receives no core or provider credentials.
 - Freeze recertification triggers: Active replay each verified bar and formal
   renewal every 20 new bars/event/warning/pre-activation; top cohort weekly; rest
@@ -857,7 +866,19 @@ runaway backlog, and provider failure are visible and safe.
 
 #### Workstream 4B — read-mostly surfaces
 
-- Build the daily digest and critical alerts.
+- Build the daily digest and critical alerts, split across the two Slack rooms
+  D116 defines: operational (digest, alerts, status) and approvals (everything
+  blocking on Max).
+- **Retrofit the existing Mac Tauri app in `app/` as the 3.0 read-only visual
+  surface (D122)** rather than building a new interface. It already carries the
+  shared render engine `app/public/lib/viz-engine.js` and vendored Lightweight
+  Charts, and today reads `spike/leaderboard.json`. 3.0 must publish what it reads:
+  the charter §9.1 board — database-backed, paginated, filtered, family-collapsed
+  with expandable siblings, four fields per row — plus equity curves and trade
+  detail. The app mutates nothing and holds no credential that can change Gold or
+  Active; every mutation stays on the Slack path. How 3.0 serves it (published
+  bundle, direct database read over the tailnet, generated static payload) is
+  delegated engineering under D107.
 - Expose Montauk Score, Validation Score (or calibrated Confidence only when
   justified), terminal deployable wealth/share multiple as a simple
   strategy-versus-B&H expression, forward-evidence status/age, exact rank plus
@@ -908,7 +929,10 @@ runaway backlog, and provider failure are visible and safe.
   redacted logs, failure-ledger context, and candidate-workspace access. It may
   explain, diagnose within that boundary, or author research; it cannot silently
   escalate into protected maintenance or unrestricted host control.
-- Provide private Tailscale/SSH administration as the independent recovery path.
+- Provide private Tailscale/SSH administration as the independent recovery path,
+  with the D83 graphical desktop as a subordinate convenience surface on the same
+  tailnet — it carries no authority SSH does not already carry and is never a path
+  for approving an Active switch.
   Direct Claude-in-Slack, Buzz's relay/agent runtime, and OpenClaw are not Montauk
   authority paths. Borrow useful typed-gateway, task-state, queuing, identity,
   idempotency, and health patterns without importing broad host tools, plugins,
@@ -942,12 +966,34 @@ throughput target gates completion.
 
 #### Workstream 5B — commissioning and authority cutover
 
-- Provision current Debian Stable minimally on the target always-on host from a
-  documented clean build. Put live state on SSD, configure no-sleep/power-loss
-  recovery, controlled updates/reboots, wired networking and UPS behavior where
-  available, separated service identities, `systemd` supervision, Tailscale/SSH,
-  the selected channel adapter, health/doctor checks, and off-machine backup.
-- Run the new system in shadow without changing legacy Active authority.
+- Do **not** migrate Montauk 2.0 onto the appliance (D121). It stays where it runs
+  today, on its own existing data pipeline, emitting the frozen daily signal. Two
+  data pipelines coexist deliberately: D112's test of the 2.0 strategies against the
+  rebuilt pipeline is only meaningful while the old one still exists.
+- Provision **Debian 13 `trixie`** minimally on the target always-on host from a
+  documented clean build (D82). Put live state on SSD, configure
+  no-sleep/power-loss recovery, controlled updates/reboots, wired Ethernet and UPS
+  behavior where available, separated service identities, `systemd` supervision,
+  Tailscale/SSH, the selected channel adapter, health/doctor checks, and
+  off-machine backup.
+- Add the D83 graphical administration surface after the trust boundaries exist:
+  XFCE plus `xrdp` bound to the tailnet interface only, units disabled at boot,
+  sessions running as Max's administrative login. Prove it is refused from the LAN
+  and public interfaces, and prove SSH recovery survives the graphical stack being
+  stopped or broken.
+- Run the new system in shadow without changing legacy Active authority. Montauk
+  2.0 stays runnable and keeps emitting its frozen daily signal throughout (D111),
+  labelled "legacy 2.0 signal — no further development"; its Gold artifacts and
+  trade ledgers are preserved as parity fixtures and the code is archived, not
+  deleted (D112). Shadow deadline misses are recorded to the digest rather than
+  firing the hard alert, and must be clean before cutover (D115).
+- **Evaluate the Montauk 2.0 Gold strategies first**, ahead of novel
+  agent-generated candidates (D112, sharpening D101). The question is whether they
+  still hold up under the rebuilt data pipeline and validation system. They receive
+  no grandfathering. A survivor is evidence the edge was real rather than an
+  artifact of the old pipeline; a failure is evidence about one of the two systems
+  and must be investigated to determine which — never waved off as the new
+  validator merely being stricter. Report both outcomes to Max.
 - Rehearse database restore, data divergence, candidate escape, agent/provider
   outage, channel/Tailscale outage, service kill/restart, resource exhaustion,
   thermal throttling, disk pressure/failure, active-Gold loss, no-Gold, and
@@ -1007,9 +1053,11 @@ field. Keep three decisions distinct:
 
 ## 11. Ratified policy versus calibration work
 
-Questionnaires 3–7 Part A resolve the owner-visible operating policy.
-Questionnaire 7 Part B and Questionnaire 6 question 1 remain open owner
-authority and may not be resolved by an implementation agent. Max's
+Questionnaires 3–9 resolve the owner-visible operating policy **in full**.
+Questionnaire 7 Part B was answered by Questionnaire 8 Part B, Questionnaire 6
+question 1 by Questionnaire 8 A8, and every remaining item by Questionnaire 9
+(D84–D110, promoted 2026-08-02). **No open owner authority remains**, and under
+D107 no further clarification questionnaire may be generated. Max's
 plain-language Gold guiding light controls any technical ambiguity. A coding
 agent may not reopen the Rust representation, origin-neutral complete gate,
 next-open execution timing, primary terminal relative-wealth target, complete/
@@ -1023,8 +1071,9 @@ values and mechanisms:
 
 - calibrated slippage/fees and matched-B&H fixtures inside the fixed next-open
   and $10,000–$100,000 modeled-order contract;
-- rolling aggregate/catastrophic rules, the provisional 1.10 point margin,
-  uncertainty/evidence sufficiency, and rolling-demotion calibration;
+- the rolling aggregate reporting rule (no catastrophic veto, D97), the
+  provisional 1.10 point margin, uncertainty/evidence sufficiency, and
+  rolling-demotion calibration;
 - expanding versus fixed rolling training windows, CPCV's scientifically
   applicable role, and interval-derived purge/embargo rules;
 - the source-labelled named-moment suite;

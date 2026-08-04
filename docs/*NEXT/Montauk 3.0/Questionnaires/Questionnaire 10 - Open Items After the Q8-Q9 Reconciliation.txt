@@ -1,0 +1,369 @@
+Questionnaire 10 - Open Items After the Q8/Q9 Reconciliation
+
+Prepared 2026-08-03 at Max's request, after promoting Questionnaires 8 and 9 into
+the active planning documents (decisions D84-D110) and running the contradiction
+audit those answers required.
+
+WHY THIS EXISTS, AND WHAT IT IS NOT
+
+D107 closed the questionnaire process: no implementation agent may generate
+another broad clarification round. This file does not reopen that. It exists
+because Max asked "what are all the open questions?" and then asked for them in
+one place. It is the honest accounting.
+
+It is deliberately short. After the reconciliation, most of what looks open is
+either already decided, delegated to implementation under D107, or a future
+evidence-gated approval that cannot be answered before Phase 1 measures something.
+Part C lists all of those explicitly so the shortness of Part A is verifiable
+rather than something you have to take on faith.
+
+Two of these questions exist only because Max retired Montauk 2.0 on 2026-08-02.
+They did not exist before that.
+
+If a suggested answer matches your intent, "accept suggested answer" is enough.
+
+
+================================================================================
+PART A - GENUINELY OPEN OWNER DECISIONS
+================================================================================
+
+
+A1. Does the Montauk 2.0 daily signal keep printing?
+
+Context. On 2026-08-02 you said: "im the only one who can say 2.0 is done. which
+it is. thats on pause/retired etc." That is recorded in D104 as your sole
+authority, exercised. What it does not settle is whether "retired" means
+development stopped, or the daily signal stopped too.
+
+Plain version. Montauk 3.0 does not exist yet. Phase 1 has not started. The
+earliest a 3.0 strategy could earn Gold, complete its cooling period, and be
+activated is months away.
+
+  - If "retired" means DEVELOPMENT is done, 2.0 keeps emitting risk_on/risk_off
+    every day, frozen, until a 3.0 strategy replaces it. You are covered
+    throughout.
+
+  - If "retired" means the SIGNAL stops now, you have no trusted daily signal at
+    all until 3.0 earns its first Gold row. That is the exact no-signal gap
+    Questionnaire 9 item 4 was written to prevent.
+
+Both are legitimate. You may simply not want to follow a 2.0 signal you no longer
+trust, and that is your call to make - but it should be made deliberately rather
+than inherited from an ambiguous word.
+
+Question. Does 2.0 keep producing the daily signal until you activate a 3.0
+strategy, or does it stop now?
+
+Suggested answer. Keep it printing, frozen and clearly labelled "legacy 2.0
+signal - no further development." No new strategies, no tuning, no
+recertification, no leaderboard changes. It simply keeps emitting the signal from
+the strategy that is Active today, so you are never without one. It retires the
+day you approve a 3.0 strategy as Active, in the same action, exactly as D104
+describes.
+
+Reasoning. Freezing development and freezing the signal are separable, and the
+cost of separating them is nearly zero: a frozen 2.0 needs no attention. The cost
+of NOT separating them is months with no certified daily instruction. If you have
+decided you no longer trust the 2.0 signal enough to follow it, say so here and
+the answer changes - but then that distrust should be recorded as its own reason,
+not as a side effect of retiring the codebase.
+
+Your answer:
+Keep printing, frozen. Suggested answer accepted.
+
+
+
+A2. What happens to the Montauk 2.0 code and its Gold artifacts?
+
+Context. D101 already decided that the strategies currently holding 2.0 Gold are
+the first corpus the 3.0 pipeline tests, with no grandfathering - they must earn
+3.0 Gold on their own. What was never asked is what happens to the 2.0 SYSTEM: the
+Python engine, the leaderboard, the viz surfaces, the spike runs.
+
+Plain version. Three things could happen to it, and they are not mutually
+exclusive:
+
+  (a) It stays runnable in place as the legacy signal source and reference, until
+      3.0 replaces it. Required if A1 keeps the signal printing.
+  (b) Its Gold artifacts, trade ledgers, and leaderboard are preserved as
+      migration evidence and as fixtures the 3.0 engine must reproduce during
+      parity testing.
+  (c) The code itself is archived rather than deleted, so a 3.0 defect can always
+      be diagnosed against a working reference implementation.
+
+Question. Confirm what is preserved and what, if anything, is removed.
+
+Suggested answer. All three. Keep 2.0 runnable in place, preserve every Gold
+artifact and trade ledger as parity fixtures and migration evidence, and archive
+rather than delete the code. Nothing is removed until after 3.0 cutover, and even
+then the archive stays. Storage on the appliance is 120 GB and the 2.0 footprint
+is trivial against that; there is no reason to reclaim it and a real reason not
+to - a second implementation is the only independent check on a 3.0 engine bug.
+
+Reasoning. The most dangerous moment for 3.0 is the first time it disagrees with
+2.0 on a trade. Having 2.0 runnable turns that from an argument into a
+measurement.
+
+Your answer:
+Preserve all of it. Suggested answer accepted. Added: "and then i think its
+in there but i want to test the montauk 2.0 strategies first to see if they are
+still good with the updated data pipeline and validation system"
+
+
+
+A3. How broad should the starting Rust building-block library be?
+
+Context. You settled D96 with the Lego principle: the agent builds anything it
+wants from existing blocks, and needs your approval before creating a new one.
+That makes the size of the initial block set the single biggest driver of how
+often you get interrupted.
+
+The Rust policy document currently says the first primitive registry is
+"intentionally small and fixture-heavy." That was written before D96, when the
+escape hatch meant a missing primitive was not a hard stop. It now pulls directly
+against the Lego principle: a small registry means a kid with six Lego pieces.
+
+Plain version. Every gap in the library becomes an approval request sitting in
+your Slack waiting on you. While it waits, the search keeps running on the old
+vocabulary. If you are busy for three weeks, the machine explores a frozen idea
+space for three weeks.
+
+Granularity matters more than raw count. Fine-grained blocks (EMA, ATR,
+crossover, comparison, lookback, boolean AND/OR, position state) recombine into an
+enormous space. Coarse blocks (whole strategy templates) barely compose at all,
+and nearly every new idea needs a new template.
+
+Question. Should the initial registry be deliberately over-provisioned with
+fine-grained composable primitives, accepting more up-front build work, rather
+than starting minimal?
+
+Suggested answer. Over-provision, and build the registry fine-grained. Writing 60
+primitives once while you are already in build mode is far cheaper than writing 5
+more every few weeks in response to proposals, and it is what makes the Lego
+principle real rather than nominal. Correctness is not sacrificed: every primitive
+still ships with fixtures and tests, which is what "fixture-heavy" was protecting
+and that part should stay.
+
+Reasoning. The whole cost of D96 is measured in how often you become the
+bottleneck. Registry breadth is the one lever that reduces it, and it is cheapest
+to pull at the start.
+
+Your answer:
+Over-provision, fine-grained. Suggested answer accepted.
+
+
+
+A4. When does the 90-day empty-board clock start?
+
+Context. D102 says: run the pipeline as specified for 90 days, and if nothing has
+earned Gold in that window, review whether the bar is correctly high or a gate is
+mis-implemented. The start date was never specified.
+
+Plain version. The clock could start when the validator is first built, when the
+full conveyor first runs end to end, or when Phase 1's measured contract is signed
+and Gold certification is actually enabled. These are potentially months apart. A
+clock that starts too early will expire while the system is still half-built and
+trigger a review of nothing.
+
+Question. When does the 90-day window begin?
+
+Suggested answer. On the first day Gold certification is ENABLED - that is, after
+you approve the measured Phase 1 package and the signed validation contract is in
+force. Before that moment the pipeline is not capable of producing Gold, so an
+empty board carries no information.
+
+Reasoning. The review is meant to distinguish "correctly strict" from "broken."
+Neither is diagnosable while the exam itself is still being calibrated.
+
+Your answer:
+When Gold certification is enabled. Suggested answer accepted.
+
+
+
+A5. Does the 5:00 PM Pacific signal deadline apply during 3.0 shadow operation?
+
+Context. D87 fixed the daily signal deadline at 5:00 PM Pacific with a hard alert
+at 6:00 PM. D104 has 3.0 running in shadow alongside the legacy 2.0 signal for
+some period before cutover.
+
+Plain version. During shadow, 3.0 is producing a recommendation you are not
+following. If the deadline and hard alert apply to shadow output, a 3.0 hiccup
+wakes you up about a signal you were not going to act on. If they do not apply,
+you also will not find out that 3.0 misses its deadline until the day it becomes
+authoritative - which is the worst possible day to discover it.
+
+Question. Does the hard alert fire for shadow signals, or only for the
+authoritative one?
+
+Suggested answer. Track and record the deadline during shadow, but alert at a
+lower severity - it appears in the daily digest as a missed shadow deadline rather
+than firing the hard 6:00 PM alarm. The hard alert attaches to whichever signal is
+currently authoritative: 2.0's today, 3.0's after cutover. Shadow deadline misses
+are commissioning evidence and must be clean before you approve cutover.
+
+Reasoning. You get the information without the false alarms, and a persistent
+shadow-deadline problem blocks cutover under D104 condition 4 rather than
+surfacing after it.
+
+Your answer:
+Track it, alert softly. Suggested answer accepted.
+
+
+
+A6. Where do block proposals and approval requests arrive?
+
+Context. On D96 you said the block-proposal surface would be "another slack
+channel or similar." Under D107 there are also seven standing approval types that
+need to reach you (Phase 1 package, third score pillar or new veto, block
+proposals, restore drills, Active switches, completion declaration, Chimera
+scheduling).
+
+Plain version. Either these get their own Slack channels, or they arrive in one
+channel as differently-shaped cards. The daily digest and alerts already have to
+live somewhere too.
+
+Question. Separate channels per surface, or one channel with typed cards?
+
+Suggested answer. Two channels. One operational channel carries the daily digest,
+alerts, and status - the things you read. One approvals channel carries every item
+that is waiting on a decision from you - the things you act on. Everything in the
+second channel is by definition blocking something, so its unread count is a real
+work queue rather than noise.
+
+Reasoning. Mixing a daily digest you skim with approvals that block the machine
+means either the digest trains you to ignore the channel, or the approvals make
+the digest feel urgent. Splitting by "read" versus "act" is the split that matches
+how you will actually use it.
+
+Your answer:
+Two channels: read vs act. Suggested answer accepted.
+
+
+
+================================================================================
+PART B - INTERPRETATIONS TO CONFIRM OR OVERRULE
+================================================================================
+
+These are places where I resolved an ambiguity in order to finish the
+reconciliation. Each is recorded in the decision log as an interpretation rather
+than as your words. Overruling any of them costs nothing now and is expensive
+later.
+
+
+B1. D104 - the five cutover conditions
+
+I read "I will declare it" as: you accept the five conditions listed in
+Questionnaire 9 item 4 (a 3.0 Gold row exists, it has cooled, it is
+activation-eligible, shadow and recovery checks pass, and you approve that exact
+strategy in the same action that retires 2.0), and you reserve the declaration
+itself to yourself.
+
+The alternative reading is that your declaration alone is sufficient and the five
+conditions are advisory.
+
+Suggested answer. The first reading. The conditions are your own checklist, not a
+gate anything enforces against you - but they are written down so that "we
+switched to 3.0 before it had produced a single certified strategy" cannot happen
+by drift.
+
+Your answer:
+My checklist - keep them written. Suggested answer accepted.
+
+
+
+B2. D89 - the broker verification consequence
+
+Questionnaire 8 A7 asked you to confirm three exclusions. The suggested answer
+recommended keeping two out but RECONSIDERING broker/opening-auction verification
+- not as a build item, but as one afternoon reading your broker's order-type
+documentation. You answered "Confirm all," and Questionnaire 9's preamble restated
+all three as excluded without objection. I recorded all three as out of scope.
+
+The recorded consequence: Gold means "beats B&H on modeled next-open execution."
+Whether an order you submit the night before actually joins the next morning's
+opening auction is broker-specific and unverified, so the gap between "beats B&H
+on paper" and "beats B&H when followed" is unmeasured in 3.0. Your own Gold
+definition is the second one.
+
+Suggested answer. Leave it out of 3.0 as decided, and treat the broker
+documentation check as a personal task outside the build rather than a Montauk
+deliverable. It costs you an afternoon whenever you feel like it and changes no
+code.
+
+Your answer:
+Stays out; personal task, not a deliverable. Suggested answer accepted.
+
+
+
+================================================================================
+PART C - DELIBERATELY NOT ASKED
+================================================================================
+
+This is the rest of the accounting. Nothing below is a question for you, and each
+line says why.
+
+ALREADY DECIDED - do not reopen without a deliberate contract change:
+
+  - Channel provider: Slack, Socket Mode, free workspace (D81, Q9 #10).
+  - Host: Debian 13 trixie, wired Ethernet, i3-6100 tower (D82).
+  - Remote access: Tailscale/SSH plus on-demand tailnet-only XFCE/RDP (D83).
+  - Two hard economic gates; everything else diagnostic (D86).
+  - No catastrophic-loss veto; near-ruin penalizes rank (D97).
+  - Holdouts spent on reveal (D99).
+  - Synthetic history carries limited calibrated weight, never substitutes for
+    real passage (D106).
+  - Password-controlled sealing ceremony (D108).
+  - Material TECL product change suspends trusted signals (D109).
+  - Modeled order band $10,000-$100,000 (D110).
+  - Free verified authoritative data only; no purchases (D89).
+  - Grader before factory (D100).
+  - One Gold record, deduplicated board view (D85).
+
+DELEGATED TO IMPLEMENTATION under D107 - reversible engineering detail:
+
+  - The typed command schema: field types, expiry semantics, idempotency-key
+    derivation, schema versioning (channel-gateway open item 2).
+  - Steering and cooperative-cancellation contract (channel-gateway open item 3).
+  - Purge/embargo derivation - one defensible answer, already implemented
+    (Questionnaire 4 item 8, deliberately never returned to you).
+  - Database and index layout, retry mechanics, parser caps, queue and resource
+    settings measured on the actual host, test fixtures, provider API details.
+  - Commissioning values: worker counts, batch sizes, memory caps, thermal
+    tuning - all measured on the box, none of them owner policy.
+
+FUTURE OWNER APPROVALS under D107 - real, but not answerable yet because each
+needs evidence that does not exist:
+
+  1. The measured Phase 1 Gold/validation package: false-Gold operating policy,
+     confidence and evidence-sufficiency floors, the final economic margin,
+     activation/renewal thresholds, ranking-ambiguity rules, and the empirical
+     synthetic weight.
+  2. Adding a third Montauk Score ingredient, or installing any new
+     Gold-disqualifying veto.
+  3. Each proposed new Rust building block, before it is created.
+  4. Each non-authoritative clean-machine restore drill.
+  5. Each exact Active-strategy switch, including the one-time 2.0-to-3.0
+     signal-authority cutover.
+  6. Declaring Montauk 3.0 operationally complete.
+  7. Scheduling the optional Chimera study once its prerequisites exist.
+
+DOCUMENTATION DEFECTS FIXED WITHOUT ASKING on 2026-08-03 - recorded here so the
+corrections are visible rather than silent:
+
+  - The operations document listed three channel mutations where the charter and
+    section 7.4 list four; defer_or_dismiss_proposal was missing. The charter
+    governs and the list was corrected. This closed channel-gateway open item 1.
+  - The charter still described the integrity/quarantine state as "not yet
+    decided" after D90 had decided it.
+  - The charter status header still read "through Questionnaire 7 Part A."
+
+
+================================================================================
+
+End of Questionnaire 10.
+
+This file does not reopen D107. It records genuinely open items, two
+interpretations awaiting confirmation, and the full accounting of what is not
+being asked. Once Part A and Part B are answered, promote them into decisions.md
+and the affected documents, and this file becomes source evidence like its
+predecessors.

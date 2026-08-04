@@ -66,6 +66,7 @@ Reasoning. This gives the number a useful and honest meaning without creating a
 false impression of certainty.
 
 Your answer:
+Your answer is good
 
 
 
@@ -113,7 +114,7 @@ measuring whether the combined system actually delivers the protection they are
 supposed to provide.
 
 Your answer:
-
+Your answer is good
 
 
 ================================================================================
@@ -143,7 +144,7 @@ false comfort. Spent-on-reveal accounting and the growing live-forward record ar
 the more honest safeguards.
 
 Your answer:
-
+Your answer is good
 
 
 ================================================================================
@@ -180,7 +181,7 @@ Reasoning. This prevents a gap with no signal while preserving the rule that no
 2.0 strategy is grandfathered into 3.0 Gold.
 
 Your answer:
-
+I will declare it
 
 
 ================================================================================
@@ -226,7 +227,7 @@ honoring the asterisk and the instruction that failure there is not a
 dealbreaker.
 
 Your answer:
-
+Suggested answer is good
 
 
 ================================================================================
@@ -265,6 +266,7 @@ password prompt inside the application, Git history, or later rollback is not
 sufficient by itself.
 
 Your answer:
+Suggested answer is good
 
 
 
@@ -301,6 +303,7 @@ not make a trade or choose a replacement; it prevents Montauk from describing an
 untested instruction as trusted.
 
 Your answer:
+Suggested answer is good
 
 
 
@@ -342,6 +345,7 @@ better than buying and holding over the same opportunity period, without letting
 the strategy choose a flattering comparison start through its first trade.
 
 Your answer:
+Suggested answer is good
 
 
 
@@ -378,6 +382,7 @@ Reasoning. The plan cannot calibrate a reproducible execution claim against a
 range that was never actually selected by the owner.
 
 Your answer:
+Suggested answer is good
 
 
 
@@ -417,7 +422,7 @@ decision. Preserving the bake-off may produce a better conversation experience,
 but deliberately retains one later decision before the channel is complete.
 
 Your answer:
-
+Using slack. Confirmed
 
 
 ================================================================================
@@ -486,6 +491,7 @@ technical choices, calibration work, or documentation defects from causing
 another round of broad planning questions.
 
 Your answer:
+Suggested answer is good
 
 
 

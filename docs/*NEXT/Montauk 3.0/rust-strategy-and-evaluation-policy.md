@@ -60,11 +60,19 @@ Rust then:
 7. compiles one optimized internal execution plan for the family; and
 8. shares/precomputes common features and batch-evaluates configurations.
 
-This is the default 3.0 path. The isolated Rust family-module path is staged and
-disabled until its containment, causal-access, determinism, resource, and parity
-acceptance tests pass.
+This is the only 3.0 authoring path. The isolated agent-authored Rust
+family-module lane was withdrawn on 2026-08-02 (D96); the way to reach a mechanism
+the primitives cannot express is to propose a new building block for Max's
+approval, not to write a module.
 
-The first primitive registry is intentionally small and fixture-heavy. Before
+The first primitive registry is **deliberately over-provisioned and
+fine-grained** (D113, 2026-08-03 — it previously read "intentionally small"). With
+the escape hatch replaced by an approval gate (D96), the vocabulary is the only way
+the agent can express an idea, so every gap becomes an owner interruption and the
+search runs on a frozen vocabulary until Max answers. Granularity matters more than
+raw count: fine-grained blocks recombine into an enormous space, whole-strategy
+templates barely compose at all. It remains fixture-heavy — every primitive ships
+with fixtures and deterministic tests. Before
 cutover it must reproduce the legacy Active strategy needed for shadow safety,
 the matched B&H/execution reference, every control/benchmark admitted to the
 final 3.0 validator, and any legacy strategy Max explicitly selects as a
@@ -73,8 +81,11 @@ coverage requirements. Its initial coverage matrix includes typed
 arithmetic and boolean logic; lag/rolling operations; moving averages; momentum;
 RSI/MACD; ATR, volatility, and bands; crossover/threshold events; approved
 external inputs; and explicit position state. Missing a primitive does not prove
-an idea invalid: the agent may use the isolated-module lane, or propose a shared
-primitive for a later Max-authorized core release.
+an idea invalid: the agent proposes a new building block for Max's approval (D96),
+which on approval is authored, acceptance-tested, and sealed into the library
+through a Max-authorized core release. The initial registry should be
+over-provisioned rather than minimal — every gap the agent hits becomes an owner
+interruption.
 
 Production architecture
 -----------------------
@@ -90,15 +101,30 @@ Production architecture
    Python strategy wrapper and no compile step are needed for each family or
    configuration.
 
-3. NOVEL-MECHANISM ESCAPE HATCH: ISOLATED RUST FAMILY MODULE
-   If the primitive library cannot express a genuinely new mechanism, the agent
-   may write one Rust module against a frozen Montauk Strategy SDK. It is compiled
-   once for that immutable family version, sandboxed and conformance-tested, then
-   reused for every configuration in its parameter sweep. The module begins in
-   the generated-research “pool of chaos.” The escape hatch is disabled until Max
-   approves its signed acceptance policy. After that one policy approval, any
-   module that passes it automatically enters untrusted pipeline intake; Max does
-   not review each module individually.
+3. NEW BUILDING BLOCKS: OWNER APPROVAL BEFORE CREATION
+   REVISED 2026-08-02 by D96. The governing image is Max's: a kid with Legos
+   builds anything they want from the blocks in the box.
+
+   NORMAL WORK, NO APPROVAL. From the EXISTING primitive library the agent
+   composes a strategy, wires the logic graph, declares parameter ranges, runs a
+   deterministic smoke test to confirm the family executes, and submits it to the
+   pipeline. There is no owner approval at any step and no per-module review.
+
+   A NEW CUSTOM BLOCK REQUIRES APPROVAL FIRST. If the primitive library cannot
+   express a mechanism, the agent PROPOSES the block — what it does, why existing
+   blocks cannot express it, what it unlocks — on its own channel surface. Max
+   approves or declines; silence is not approval. Only on approval is the block
+   authored (by Max or by his direction), and it must pass containment,
+   determinism, resource-limit, and parity acceptance tests before entering the
+   primitive library through the D108 password-controlled signed release. The
+   resident agent cannot perform that ceremony.
+
+   DIFFERENCE FROM THE WITHDRAWN ESCAPE HATCH. The hatch would have had Max
+   approve an acceptance POLICY once, after which every conforming agent-authored
+   module entered untrusted intake without further review. Approval is now PER
+   BLOCK and BEFORE CREATION. A new primitive also enters the PROTECTED CORE and
+   is available to every future strategy, which is higher stakes than the hatch's
+   one-module-one-family isolation — so it earns more scrutiny, not less.
 
 4. REFERENCE ORACLE
    Readable fixtures and, where useful, a Python reference implementation verify
@@ -135,10 +161,13 @@ Why this is fast
 
 Protected-core boundary
 -----------------------
-The autonomous agent may create:
-- declarative family specifications; and
-- isolated Rust family modules against the frozen SDK, if that escape hatch is
-  enabled.
+The autonomous agent may create, without approval:
+- declarative family specifications over the EXISTING primitive library; and
+- proposals requesting a new custom building block (D96).
+
+It may NOT add a primitive to the library on its own authority. A proposed block
+is created only after Max approves it, passes the acceptance suite, and enters the
+protected core through the D108 signed release.
 
 It may not modify:
 - the protected Rust engine;
@@ -176,10 +205,18 @@ Successful Rust compilation can catch syntax, type, and memory-safety classes of
 failure. It does not prove causal data access, correct fill timing,
 determinism, a valid economic mechanism, or freedom from overfitting.
 
-Every isolated Rust family module remains untrusted before intake. It must compile
+Every generated strategy artifact remains untrusted before intake. It must compile
 and execute in a disposable worker with no credentials, no network, no protected-
 repository writes, no unrestricted subprocesses, causal typed inputs,
 deterministic seeds, and strict CPU, memory, time, and output limits.
+
+This containment requirement survives D96 unchanged, and applies in both
+directions. Declarative specs expanding into millions of configurations are
+generated code running on the appliance, and a defective primitive combination can
+exhaust resources or produce a non-deterministic result. Custom building blocks
+approved under D96 are subject to the same suite before they may be sealed — the
+approval gate governs WHETHER a block is built, not whether it must be proven
+safe.
 
 Compilation, timeout, OOM, or another resource failure is an implementation/
 operations verdict, not an economic verdict on the hypothesis. Use one original

@@ -235,14 +235,11 @@ work if the trigger fires.
 
 These must be closed before the command schema is written.
 
-1. **Mutation count is inconsistent between two sections of the operations
-   document.** §7.1 lists three mutations after `status()` and calls them "the
-   charter's mutation allowlist." §7.4 states the allowlist is *"request a named
-   research campaign, trigger recertification, approve one exact pending Active
-   switch, and defer or dismiss one exact Recommended-versus-Active proposal"* —
-   four. The defer/dismiss operation is missing from §7.1's envelope list. The
-   charter's own count governs; the losing section is a documentation defect and
-   must be corrected rather than reconciled by inference.
+1. ~~**Mutation count is inconsistent between two sections of the operations
+   document.**~~ **CLOSED 2026-08-03.** §7.1 listed three mutations after
+   `status()` while §7.4 and the charter both list four. The charter governs, so
+   §7.1 was the defect: `defer_or_dismiss_proposal(exact_proposal_id)` has been
+   added to its envelope list. The allowlist is four operations.
 2. **The typed command schema itself** — field types, expiry semantics,
    idempotency-key derivation, and schema versioning — is named but not
    specified anywhere.
