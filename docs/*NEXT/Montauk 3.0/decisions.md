@@ -323,7 +323,7 @@ versions, seeds/provenance, and artifacts.
 **Why.** Millions or billions of configurations cannot be represented honestly or
 operated safely as scattered scripts and JSON files.
 
-### D18 — Recommended and Active are separate authority states (REFINED by D34–D35)
+### D18 — (SUPERSEDED by D125 — authority states deleted) Recommended and Active are separate authority states (REFINED by D34–D35)
 
 **Call.** Montauk automatically computes its recommended strategy, but a normal
 active-strategy change requires Max's explicit approval. Ignoring or declining a
@@ -638,7 +638,7 @@ variations.
 **Why.** Max cares about finding viable configurations, not maintaining a rigid
 taxonomy, while the system still needs dependence control and efficient memory.
 
-### D34 — Pending Gold, recommendation stability, and normal owner authority (REFINED by D49, D73, and D74)
+### D34 — (authority portion SUPERSEDED by D125; Pending Gold and stability survive) Pending Gold, recommendation stability, and normal owner authority (REFINED by D49, D73, and D74)
 
 **Call.** A historical-suite survivor becomes Gold and joins the one leaderboard
 automatically with activation status `Pending Gold`; D49 later defines
@@ -660,7 +660,7 @@ only Max approves the exact switch.
 **Why.** This gives new configurations a cooling/evidence period and prevents
 trivial rank noise from demanding repeated active-strategy changes.
 
-### D35 — Emergency fallback never silently authorizes an opposing trade (EXECUTION-ACKNOWLEDGEMENT PORTION SUPERSEDED by D54)
+### D35 — (rephrased for D125: "Active" = the leader) Emergency fallback never silently authorizes an opposing trade (EXECUTION-ACKNOWLEDGEMENT PORTION SUPERSEDED by D54)
 
 **Call.** Loss of Gold immediately revokes Active authority and any manual
 override. If the top compatible Gold fallback has the same current risk state as
@@ -727,7 +727,7 @@ evidence to prevent wasteful retesting.
 **Why.** “Everything backed up” is achieved without turning Git history into a
 multi-billion-row database or ignoring GitHub's actual storage constraints.
 
-### D38 — Slack is conversational but has a narrow authority allowlist (REFINED by D54, D61, D63, D73, and D74)
+### D38 — Slack is conversational but has a narrow authority allowlist (REFINED by D54, D61, D63, D73, D74; allowlist reduced to two by D124/D125)
 
 **Call.** Slack may query/explain status, request a named ideation/research
 campaign, trigger recertification, and approve one exact pending Active switch.
@@ -1405,7 +1405,7 @@ Honesty plank.
 **Implications.** Confirms and hardens D49 against a reset path that the round-1
 research package had left open.
 
-### D73 — Defer and dismiss are a fourth channel action
+### D73 — (SUPERSEDED by D125 — defer/dismiss removed; allowlist is two) Defer and dismiss are a fourth channel action
 
 **Call.** Max may durably **defer or dismiss one exact Recommended-versus-Active
 proposal** without changing Active. The reason is optional, the action is
@@ -1422,7 +1422,7 @@ improvement threshold from recommendation-churn tests; the research package's
 **Why.** Quiet-by-default requires a way to say “not now” that does not read as a
 methodology decision or a training signal.
 
-### D74 — An Active switch is approved from one complete review card
+### D74 — (SUPERSEDED by D125 — no switch, no review card) An Active switch is approved from one complete review card
 
 **Call.** Before confirmation, Montauk presents **one review card** showing exact
 old and new strategy IDs, both current signals, whether approval changes the
@@ -1441,7 +1441,7 @@ Montauk Recommended. **D74 refines D34 and D38.**
 change must be impossible to miss — while still being one button once the
 evidence has been read.
 
-### D75 — (COMPLETED by D90) Active losing Gold is the highest alert class; the integrity state remains OPEN
+### D75 — (COMPLETED by D90; "Active" now reads "the leader" per D125) Active losing Gold is the highest alert class; the integrity state remains OPEN
 
 **Call.** Loss of Gold by the **Active** strategy is Montauk's highest-severity
 alert class and escalates immediately and unmistakably.
@@ -2896,3 +2896,69 @@ should be shaped by whether live money is involved.
 remaining owner approvals are four: the measured Phase 1 package, a third score
 pillar or new veto, each proposed new Rust building block, and scheduling the
 optional Chimera study.
+
+### D125 — No authority states: Montauk ranks and emits the leader (SUPERSEDES D18, D34, D74; AMENDS D35, D75)
+
+**Call.** **Montauk Recommended, Active Strategy, and Manual Override are deleted
+as authority states.** Montauk ranks the Gold board by Montauk Score and publishes
+the top row's daily signal. That is an operational output, not an authority grant,
+and it requires no approval from anyone.
+
+Removed along with them:
+
+- the **`defer_or_dismiss_proposal` mutation** — there are no
+  Recommended-versus-Active proposals left to defer. The channel mutation
+  allowlist falls to **two**: `request_research(named_campaign)` and
+  `request_recertification(scope)`, plus read-only `status()`.
+- the **switch review card** and its one-button confirmation ceremony (D74), and
+  the Phase 1 deliverable that would have designed and tested it.
+- **manual-override display rules** and the requirement that the interface make an
+  override impossible to mistake for a recommendation. There is no override state
+  to display.
+
+**Why this follows from D124.** D124 removed the approval ceremony; §9.2 still
+defined Active as *"the owner-authorized strategy currently allowed to produce the
+trusted signal"* — a definition pointing at an authorization step that no longer
+exists. Rather than leave a dangling authority vocabulary for a building agent to
+reconstruct machinery around, the states go.
+
+**What replaces them.** One word: **leader**. The leader is the top-ranked Gold
+row. Montauk emits the leader's signal. Max reads it, or does not, and decides
+independently what he does with his own money — that decision lives entirely
+outside Montauk (D124).
+
+**Leader changes apply hysteresis, not immediacy.** The churn rules already in the
+charter are **repointed** rather than discarded: a candidate must clear the entry
+threshold for **five verified trading bars**, with a lower exit threshold supplying
+hysteresis. Previously these governed *when to propose a switch to Max*; they now
+govern *when the emitted signal changes which strategy it comes from*. The
+underlying comparisons are unchanged — a Validation Score gain of ≥10 absolute
+points without material performance loss, a ≥10% relative improvement in the
+lower-bound performance estimate without a Validation Score decline, or a ≥5-point
+Montauk Score gain with neither component materially worse — and Phase 1 still
+calibrates them against churn. Without this, two near-tied strategies would trade
+the published signal back and forth, which is exactly what the *leader not clearly
+separated* flag already warns is possible.
+
+**Pending Gold survives with a narrowed job.** It still means a Gold row inside its
+20-bar cooling/forward-evidence window. What it now gates is **eligibility to
+become the leader** — a Pending row may rank anywhere on the board but its signal
+is not published until it has cooled. It no longer gates an "authority state."
+
+**Amendments rather than deletions.**
+
+- **D75** — the highest alert class attaches to **the leader** losing Gold rather
+  than "Active" losing Gold. The severity is unchanged.
+- **D35** — the emergency-fallback rule still applies, now phrased as: when the
+  leader loses Gold, Montauk does not silently begin publishing an opposing
+  signal from the next-ranked strategy. Under D90 an *integrity* failure
+  additionally publishes nothing at all and marks the last instruction possibly
+  invalid.
+- **D103** is untouched and still governs. *"Recommends but never activates a new
+  leader without you"* is satisfied more plainly than before: Montauk has no
+  activation concept at all, and has never been able to move money.
+
+**Digest content changes.** Override status is removed. The digest reports the
+current leader, any leader change and why, Pending Gold rows and their cooling
+progress, honest funnel counts, new Gold rows, board movement, forward-evidence
+and recertification status, and actionable failures.

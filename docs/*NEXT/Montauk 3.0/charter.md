@@ -77,7 +77,7 @@ A complete 3.0 must be able to run unattended through the whole loop:
 
 1. acquire and verify current data;
 2. protect the last trusted signal when current data or operations fail;
-3. recertify the active strategy with priority;
+3. recertify the leader with priority;
 4. generate or accept executable strategy ideas;
 5. perform pre-execution safety and correctness checks;
 6. cheaply screen exact parameter configurations;
@@ -199,7 +199,7 @@ artifacts are defects.
 | Backtest result | Versioned deterministic engine and execution contract |
 | Gold eligibility | Versioned deterministic validation contract |
 | Rank and recommendation | Versioned deterministic Montauk Score/ranking contract |
-| Active strategy | Explicit owner selection, except a separately specified emergency rule |
+| The leader | Top-ranked Gold row under the five-bar hysteresis rule; no owner selection step (D125) |
 | Current trusted signal | Active Gold strategy evaluated on last verified data |
 | Autonomous research priorities | Agent/scheduler policy, never certification authority |
 | Core methodology changes | Explicit owner-directed, signed core release |
@@ -573,7 +573,7 @@ The implementation preserves the one-slide conveyor while ordering work by cost:
 4. run the remaining four correctness/anti-overfit planks, including artifact
    reproduction;
 5. publish every passing row to the Gold leaderboard; and
-6. rank it without changing Active authority.
+6. rank it; becoming the leader follows from rank and the hysteresis rule, not from an authority grant.
 
 Failure is terminal for that exact attempt at that version; later expensive
 stages do not run. A simple two-EMA family may pass correctness and anti-overfit
@@ -703,7 +703,7 @@ results cannot disappear without an integrity failure and immediate alert.
 
 **The current trusted signal is deliberately excluded from that
 replicate-before-acknowledgement rule.** When the host, control database,
-verified data, engine, and Active strategy are all healthy but off-machine
+verified data, engine, and the leader are all healthy but off-machine
 replication alone is unavailable, Montauk durably journals the signal locally,
 enters a visible `degraded_backup` state, alerts Max, and **delivers the valid
 signal on time**. It blocks Gold publication, Active changes, methodology
@@ -850,7 +850,7 @@ Adding a new shared primitive changes protected core and requires a signed owner
 release. Python may remain a readable reference/parity oracle, but it is not a
 production strategy format or an independent source of trading truth.
 
-## 9. Leaderboard, recommendation, and active authority
+## 9. Leaderboard, the leader, and emergency loss of Gold
 
 ### 9.1 Leaderboard
 
@@ -898,24 +898,29 @@ meaningfully distinguish the leading group, it also displays **leader not
 clearly separated**. That warning does not create another score or prevent
 Montauk from naming one recommendation; it makes rank precision honest.
 
-### 9.2 Recommended versus active
+### 9.2 The leader
 
-- **Montauk Recommended:** the highest-ranked activation-eligible Gold strategy
-  under the current recommendation/switch contract. A Pending Gold row may rank
-  highly on the board but cannot yet hold this authority state.
-- **Active Strategy:** the owner-authorized strategy currently allowed to produce
-  the trusted signal.
-- **Manual Override:** an explicit persistent state showing that Active differs
-  from Recommended.
+**Montauk has no authority states** (D125). Recommended, Active, and Manual
+Override are deleted. There is one concept:
 
-A normal recommendation change does not change Active. Max may approve or
-decline it; ignoring it leaves the incumbent active. The interface must make a
-manual override impossible to mistake for the recommendation.
+- **The leader:** the top-ranked Gold row on the board. Montauk publishes the
+  leader's daily signal. This is an operational output, not an authority grant,
+  and it requires no approval.
+
+A **Pending Gold** row — one still inside its 20-bar cooling/forward-evidence
+window — may rank anywhere on the board, but its signal is not published until it
+has cooled. That is the only eligibility rule.
+
+Max reads the signal, or does not, and decides independently what he does with his
+own money. **That decision lives entirely outside Montauk** (D124). Montauk does
+not model, track, or reason about whether anything is following it; its job is to
+be accurate.
 
 Confidence gains matter more than equally sized performance gains. A small score
-improvement should not create churn. The initial versioned recommendation rule
-flags owner review when any one of these holds while every Gold and secondary
-non-degradation floor remains satisfied:
+improvement should not change the leader. The versioned rule below governs **when
+the published signal changes which strategy it comes from** — it applies when any
+one of these holds while every Gold and secondary non-degradation floor remains
+satisfied:
 
 - Validation Score improves by at least 10 absolute points without a material
   deployable-performance loss;
@@ -925,8 +930,10 @@ non-degradation floor remains satisfied:
   materially worse.
 
 The candidate must remain above the entry threshold for five new verified
-trading bars; a lower exit threshold supplies hysteresis. These are provisional
-operating values to calibrate against recommendation churn, not permission for
+trading bars; a lower exit threshold supplies hysteresis. Without this, two
+near-tied strategies would trade the published signal back and forth — the
+condition the *leader not clearly separated* flag already warns about. These are
+provisional operating values to calibrate against churn, not permission for
 the agent to tune the rule after seeing a preferred candidate.
 
 Phase 1 must freeze the simplest Montauk Score formula that ranks already-Gold
@@ -939,16 +946,15 @@ Gold. Relabeling or recombining existing inputs does not qualify. The score cann
 
 ### 9.3 Emergency loss of Gold
 
-**DECIDED.** A normal leaderboard/recommendation change never activates a
-strategy. When Active or a manual override loses Gold:
+**DECIDED.** When **the leader** loses Gold:
 
-1. revoke its Active authority and any manual override immediately;
+1. it stops being the leader immediately;
 2. if the highest-ranked compatible Gold fallback emits the **same** current
-   risk state as the last verified Montauk instruction, transfer the Active
-   pointer automatically as a named emergency fallback, preserve the instruction,
-   and send a critical alert;
-3. if the fallback disagrees, preserve the last issued instruction, leave no
-   strategy labeled Active, enter `human_decision_required`, display both states,
+   risk state as the last published instruction, it becomes the leader
+   automatically as a named emergency fallback, the instruction is preserved, and
+   a critical alert is sent;
+3. if the fallback disagrees, preserve the last published instruction, leave no
+   leader, enter `human_decision_required`, display both states,
    and alert Max immediately; and
 4. if no Gold fallback exists, display `no_certified_strategy`, recommend
    risk-off for Max's consideration, preserve the last instruction until Max
@@ -995,7 +1001,7 @@ If current data fails verification:
   until replayed through the complete pipeline on repaired, verified data.
 
 On recovery after downtime: catch up and verify data first, then recertify the
-active strategy before trusting a new signal; only then resume lower-priority
+leader before publishing a new signal; only then resume lower-priority
 research and board maintenance. Exploratory compute stays paused while the system
 catches up, and work interrupted mid-pipeline restarts from the beginning rather
 than resuming from a partial state.
@@ -1136,12 +1142,20 @@ Gold, emit trusted signals, or become a second authority.
 
 ## 12. User experience
 
+Montauk 3.0 has two owner-facing surfaces and builds no new interface. **Slack**
+(D116) carries the daily digest, alerts, status, and every approval, in two rooms
+split by read-versus-act; it is the surface that reaches Max's phone and the only
+place mutations happen. The **existing Mac Tauri app** in `app/` is retrofitted
+(D122) as the read-only in-depth view — the §9.1 board, equity curves, trade
+charts, per-strategy detail. It mutates nothing and holds no credential that can
+change Gold. 3.0's obligation is to publish what that app reads.
+
 The primary experience should answer:
 
-1. What is the current trusted TECL state?
-2. Which strategy is active, is it still Gold, and is it a manual override?
-3. Why is it still the most defensible active choice?
-4. Is a materially better recommendation waiting?
+1. What is the current published TECL state?
+2. Which strategy is the leader, and is it still Gold?
+3. Why is it still the most defensible choice?
+4. Is a materially better strategy closing in on it?
 5. Is anything broken or stale?
 6. Is research making useful progress?
 
@@ -1151,13 +1165,15 @@ historical advantage came from one event,” with detailed evidence available on
 demand.
 
 The notification surface begins with one daily digest because Montauk does not
-trade intraday. The digest includes the trusted state and any change, Active
-Gold/override status, Pending Gold and recommendation changes, honest funnel
-counts, new Gold rows, important board movement, forward-evidence/
-recertification status, and actionable failures.
+trade intraday. The digest includes the published signal and any change, the current
+**leader** and any leader change with its reason, Pending Gold rows and their
+cooling progress, honest funnel counts (strategies found, tested, and promoted to
+Gold), new Gold rows, important board movement, forward-evidence/
+recertification status, and actionable failures. There is no override status to
+report — D125 deleted the authority states.
 
 Within five minutes of detection, attempt immediate delivery for verified-data
-failure, a missed required-signal deadline, Active losing Gold, no compatible
+failure, a missed required-signal deadline, the leader losing Gold, no compatible
 fallback, authority/control-store corruption, artifact-integrity failure, or a
 sandbox escape attempt. Three consecutive research-cycle failures or one systemic
 pipeline defect also alert; isolated candidate failures remain in the digest.
@@ -1171,30 +1187,14 @@ one command path, not two.
 It supports conversation plus exactly these state-changing 3.0 commands:
 
 - request a named ideation/research campaign;
-- trigger recertification;
-- *(struck 2026-08-03 by D124: approving an Active-strategy switch is no longer a
-  channel mutation. Montauk emits the top-ranked Gold strategy's signal; there is
-  no approval ceremony and no authority handover.)*
-- defer or dismiss one exact Recommended-versus-Active proposal.
+- trigger recertification.
 
-**Approving a switch uses one complete review card, then one button.** Before
-confirmation Montauk shows the exact old and new strategy IDs, both current
-signals, whether approval changes the target state immediately, the resulting
-next-open instruction, performance and confidence differences, drawdown and
-catastrophe evidence, data/certification timestamps, and the expiry. Only after
-that information is visible does one explicit button confirm. There is no default
-acceptance, no timeout acceptance, and no hidden second trade. An opposite-state
-switch must make its trade impact conspicuous rather than reusing the generic
-pointer-change acknowledgement. Max may also ask to see candidates that improve
-on the currently selected Active strategy, not only on Montauk Recommended.
-
-**Deferring or dismissing never changes Gold, rank, Recommended, Active, or the
-trusted signal.** The reason is optional and the action is audited. A deferral
-resurfaces at its chosen expiry or on a material Gold/integrity event. A
-dismissal stays quiet until the proposal clears a versioned material-improvement
-threshold beyond the evidence already dismissed, the Active strategy weakens
-materially, or Max asks for it. Phase 1 calibrates that threshold from
-recommendation-churn tests.
+That is the complete mutation allowlist — **two operations** (D125). The
+Active-switch approval was struck by D124 and the defer/dismiss proposal by D125,
+because neither has anything left to act on: Montauk publishes the leader's signal
+with no approval step, so there is no switch to confirm and no proposal to defer.
+There is likewise **no switch review card**, no confirmation button, and no
+manual-override display.
 
 Status/explanation queries are read-only. Every mutation requires Max's
 allowlisted identity, an immutable request/strategy ID, explicit confirmation,
@@ -1229,7 +1229,7 @@ lived gateway boundary, typed messages, stable thread/session routing, per-sessi
 and global backpressure, exact scheduled jobs separated from health checks,
 durable task/audit state, immediate run status, idempotent side effects, private
 remote access, and health/doctor probes. It does not adopt OpenClaw as Gold,
-queue, audit, signal, or Active authority; nor does it import broad computer
+queue, audit, signal, or which strategy leads; nor does it import broad computer
 control, plugin breadth, inferred conversational authority, or host-level agent
 execution. Neither OpenClaw nor Buzz is trusted as Montauk's authority; OpenClaw
 is not a required 3.0 dependency, while Buzz is only the bounded Slack
@@ -1416,12 +1416,11 @@ statistical opinions to Max:
    replica.
 8. **Ranking study:** freeze the smallest Montauk Score formula from Validation
    Score and deployable Performance, prove any additional input is independently
-   useful, calibrate recommendation churn, and define when the board shows
-   `leader not clearly separated` without creating another headline score. Design
-   and test the single switch review card and its one explicit confirmation for
-   both pointer-only and opposite-state changes, and calibrate the dismissal
-   retrigger threshold rather than adopting an arbitrary default. Do not lower a
-   separation confidence level merely to make the warning appear less often.
+   useful, calibrate leader-change churn under the five-bar hysteresis rule, and
+   define when the board shows `leader not clearly separated` without creating
+   another headline score. Do not lower a separation confidence level merely to
+   make the warning appear less often. (The switch review card and dismissal
+   retrigger threshold were removed from this study by D124/D125.)
 9. **Acceptance matrix:** attach a stable test ID, invariant, fixture, threshold,
    artifact, safe failure state, rollback, and Max sign-off field to every phase
    exit and safety-critical operating invariant.

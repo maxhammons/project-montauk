@@ -407,15 +407,16 @@ mutation maps to exactly one controller operation:
 status()
 request_research(named_campaign)
 request_recertification(scope)
-defer_or_dismiss_proposal(exact_proposal_id)
 ```
 
-`status` is read-only. The last **three** are the charter's mutation allowlist.
+`status` is read-only. The last **two** are the charter's complete mutation
+allowlist.
 
-`approve_active_switch` was removed on 2026-08-03 by D124: there is no
-Active-strategy approval ceremony and no 2.0→3.0 authority handover. Montauk emits
-the top-ranked Gold strategy's signal as an operational fact, and Max decides
-separately — outside Montauk — what he does about it.
+Both removals happened on 2026-08-03. `approve_active_switch` went with D124:
+there is no approval ceremony and no authority handover — Montauk publishes the
+leader's signal as an operational fact. `defer_or_dismiss_proposal` went with
+D125, which deleted the Recommended/Active/Override states, leaving no proposals
+to defer. Max decides what he does about the signal entirely outside Montauk.
 
 Corrected 2026-08-03: this list previously omitted `defer_or_dismiss_proposal`,
 contradicting §7.4 and the charter's own four-item allowlist. The charter governs;
@@ -572,16 +573,14 @@ Every mutation must:
 8. reply and update status in the same conversation thread; and
 9. make denial or failure visible rather than silently falling back.
 
-The allowlisted mutations are: request a named research campaign, trigger
-recertification, and defer or dismiss
-one exact Recommended-versus-Active proposal. Approving a switch first renders
-one complete review card — exact old/new IDs, both signals, whether the target
-state changes immediately, the resulting next-open instruction, performance and
-confidence differences, drawdown/catastrophe evidence, timestamps, expiry — and
-only then accepts one explicit confirmation. An opposite-state switch shows its
-trade impact conspicuously instead of reusing the generic acknowledgement.
+The allowlisted mutations are exactly two: **request a named research campaign**
+and **trigger recertification** (D125). There is no switch approval, no proposal
+to defer or dismiss, and no review card — D124 removed the approval ceremony and
+D125 removed the authority states it operated on. Montauk publishes the leader's
+signal as an operational fact; nothing in the channel confirms, authorizes, or
+changes that.
 
-Free-form conversation can never approve an Active switch, change Gold,
+Free-form conversation can never change Gold, change which strategy is the leader,
 acknowledge a brokerage fill, edit methodology, enter maintenance mode, or run a
 shell command outside the bounded agent/candidate capability set. Channel
 history is not the audit log and message delivery is not proof that the
@@ -631,7 +630,7 @@ typed; anything else = advisory*. Email offers no typed component, so it degrade
 to exactly one of two prohibited shapes:
 
 - **prose approval**, which requires a model to interpret intent and so violates
-  the rule that free-form conversation can never approve an Active switch; or
+  the rule that free-form conversation can never invoke a mutation; or
 - **a click-through approval link**, which is an HTTP endpoint — reintroducing
   the public inbound ingress that Socket Mode was chosen to eliminate (§7.2), and
   pointing it at the host holding the signed core, the Gold database, and the

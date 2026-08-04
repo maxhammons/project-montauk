@@ -412,11 +412,13 @@ transactional:
 6. carry all disclosures into later epochs rather than resetting search history;
 7. accrue 20 verified trading bars under each exact frozen identity;
 8. run a fresh complete certification;
-9. if it still passes, mark it activation-eligible and evaluate Recommended; and
+9. if it still passes, mark it leader-eligible and re-evaluate the leader under
+   the five-bar hysteresis rule; and
 10. emit the appropriate digest/event.
 
-Pending Gold cannot be Recommended or Active. Max may explicitly override the
-waiting delay, but the exception is conspicuous and audited. Only the latest compatible
+A Pending Gold row may rank anywhere on the board but cannot be the leader until
+it has cooled (D125). Max may explicitly override the waiting delay, but the
+exception is conspicuous and audited. Only the latest compatible
 validation contract appears on the current Gold board; incompatible older rows
 become stale and must recertify rather than remain grandfathered.
 
@@ -563,7 +565,7 @@ The autonomous agent's write credentials must be incapable of changing:
 - search accounting;
 - validation and Gold thresholds;
 - score/ranking;
-- board/active authority;
+- board/leader selection;
 - signal generation;
 - operations safety and recovery;
 - protected tests/golden fixtures; and
@@ -598,7 +600,7 @@ The build has five phases:
 |---|---|
 | 1. Prove the exam | Max approves the executable Gold, execution, and authority contracts |
 | 2. Build the sealed evaluator | Rust families/configurations run causally and durable state restores cleanly |
-| 3. Build the conveyor | Backtest → remaining Gold validation → leaderboard → ranking → Active authority works deterministically |
+| 3. Build the conveyor | Backtest → remaining Gold validation → leaderboard → ranking → leader selection works deterministically |
 | 4. Add autonomy | The model restocks the bucket and one selected private channel reports/accepts only narrow commands |
 | 5. Optimize and cut over | Measured speed work, shadow operation, recovery drills, and Max's final approval |
 
@@ -611,6 +613,8 @@ The build has five phases:
   or reconciliation.
 - Freeze terminal deployable TECL wealth/share multiple versus matched B&H as the
   primary estimand and daily net log-wealth difference as the inference series.
+  Enforce the binary-exposure check (D119) and the ~12-round-trips-per-year
+  executability ceiling (D120) as cheap hard gates ahead of the statistical work.
   Keep complete observed TECL history and trailing five years as **the only**
   hard gates (D86); measure both from the causal-eligibility start date, not first
   trade. Calibrate the small rolling aggregate design, provisional
@@ -796,7 +800,7 @@ environment Gold/activation-status reproduction under the latest contract only.
   verified instruction, and modeled execution identities. Do not create a
   brokerage-position or personal-fill authority record in 3.0.
 - Implement the 20-bar Pending Gold cooling period, owner delay override,
-  recommendation thresholds, five-bar persistence/hysteresis, manual override,
+  leader-change thresholds, five-bar persistence/hysteresis,
   and audited exact-switch approval.
 - Implement current/stale/revoked/archive certification states and the latest-
   compatible-contract-only current board.
@@ -899,25 +903,14 @@ runaway backlog, and provider failure are visible and safe.
   hand-written reconnection and envelope acknowledgement. Socket Mode is
   load-bearing, not cosmetic: it is what delivers signed interactive-component
   payloads for the model-free mutation path without exposing the host.
-- Channel mutations are limited to: request a named research campaign, trigger
-  recertification, and defer or dismiss
-  one exact Recommended-versus-Active proposal. They require Max's stable
-  allowlisted identity, immutable ID, confirmation, expiry, idempotency, replay
-  protection, and durable audit. Free-form text never changes authority.
-- Build the switch **review card**: exact old/new strategy IDs, both current
-  signals, whether approval changes the target state immediately, the resulting
-  next-open instruction, performance/confidence differences, drawdown and
-  catastrophe evidence, timestamps, and expiry — then one explicit confirmation
-  button. No default acceptance, no timeout acceptance, no hidden second trade.
-  An opposite-state switch must show its trade impact conspicuously rather than
-  reusing the generic pointer-change acknowledgement. Support a view of
-  candidates that improve on the selected Active strategy, not only on Montauk
-  Recommended.
-- Defer/dismiss changes no Gold, rank, Recommended, Active, or signal state. A
-  deferral resurfaces at expiry or on a material Gold/integrity event; a
-  dismissal stays quiet until a versioned material-improvement threshold is
-  cleared, Active weakens materially, or Max asks. Calibrate that threshold from
-  churn tests rather than adopting a fixed default.
+- Channel mutations are limited to **two**: request a named research campaign and
+  trigger recertification (D125). They require Max's stable allowlisted identity,
+  immutable ID, confirmation, expiry, idempotency, replay protection, and durable
+  audit. Free-form text never invokes one.
+- **Do not build a switch review card, a confirmation ceremony, or defer/dismiss
+  machinery.** D124 removed the approval ceremony and D125 removed the
+  Recommended/Active/Override states it operated on. Montauk publishes the
+  leader's signal as an operational fact; nothing confirms or authorizes it.
 - Do not permit the channel to acknowledge alerts, enter or exit maintenance,
   modify methodology/core, or run arbitrary host commands.
 - Support multiple rooms within the selected provider when useful, but treat the

@@ -397,7 +397,7 @@ money is following it**. He decides separately, outside Montauk, what he trusts.
 planning scope. Four owner approvals remain, not seven.
 
 Later owner involvement is the seven named approvals in D107, requested as focused
-evidence reports or review cards. An implementation agent that hits an unforeseen
+evidence reports or approval cards. An implementation agent that hits an unforeseen
 issue asks one focused question — never a new questionnaire — and only when
 owner-visible behavior, the Gold promise, protected-core authority, real-money
 safety, external spending, or credentials would materially change.

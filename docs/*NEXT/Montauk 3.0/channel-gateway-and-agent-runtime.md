@@ -11,7 +11,7 @@ Gold, authority, and safety policy.
 The short version is:
 
 > **Build the gateway; rent the agent runtime. Montauk owns the Slack adapter,
-> the typed command schema, the review card, and the outbox renderer, because the
+> the typed command schema, the command cards, and the outbox renderer, because the
 > charter forbids any third party from owning command semantics. Montauk does not
 > own the agent loop, session context, or model retry. The authority path —
 > digests out, mutations in — never touches a model at all.**
@@ -107,7 +107,7 @@ a **Slack interactive component** — a button carrying the immutable proposal I
 never by prose a model interprets. A button click arrives as a typed, signed
 payload; it cannot be prompt-injected, and it cannot be produced by anything that
 merely writes text into the channel. This is the mechanical form of §7.4's rule
-that free-form conversation can never approve an Active switch, and it resolves
+that free-form conversation can never trigger a mutation, and it resolves
 the ambiguity about how typed commands are separated from ordinary conversation
 at ingress: **slash command or button = typed; anything else = advisory.**
 
@@ -115,14 +115,20 @@ at ingress: **slash command or button = typed; anything else = advisory.**
 task with read-only status/report views, redacted logs, the failure ledger, and
 the generated candidate workspace. It may explain a verdict, inspect a
 non-sensitive failure, propose or author a candidate family, and *surface* a
-review card — but surfacing a card is not approving one. The card's button is
+typed command card — but surfacing a card is not invoking it. The card's button is
 Path 2.
 
-The review card §7.4 requires — exact old/new IDs, both signals, whether the
-target state changes immediately, the resulting next-open instruction,
-performance and confidence differences, drawdown/catastrophe evidence,
-timestamps, expiry — is Block Kit rendered from the controller's own records. No
-general gateway can render it, because none of them know what Gold is.
+**Revised 2026-08-03.** This section previously centred on an Active-switch review
+card. D124 removed the approval ceremony and D125 removed the authority states, so
+there is no switch to confirm, no proposal to defer, and no review card. Path 2
+now carries exactly two mutations: `request_research(named_campaign)` and
+`request_recertification(scope)`. The three-path architecture is unaffected — the
+point was always that a mutation must arrive as a signed typed payload rather than
+as text, and that holds for two operations as firmly as it did for four.
+
+Path 2 still renders from the controller's own records via Block Kit, and no
+general gateway can render Montauk's status or funnel views, because none of them
+know what Gold is.
 
 ## 4. Build / rent boundary
 
@@ -130,7 +136,7 @@ general gateway can render it, because none of them know what Gold is.
 
 - the Slack Socket Mode adapter (`montauk-channel.service`)
 - the typed command schema and its validation
-- the review card and confirmation components
+- the typed command cards and confirmation components
 - the notification outbox renderer
 - the controller: queue leases, idempotency, replay protection, durable ledger
 

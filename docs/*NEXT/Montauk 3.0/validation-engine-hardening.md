@@ -114,6 +114,15 @@ answers do not create new policy and must earn any role through Phase 1 controls
   and lifetime horizons with planted-signal recovery at each. No signed release
   resets the lifetime search ledger, and a material search-accounting, holdout,
   lineage, or multiplicity defect stales every affected certificate.
+- **Exposure and executability are hard Layer-1 gates, checked before any
+  statistics run.** A family must emit only fully-invested or fully-cash states —
+  no partial sizing, scaling, pyramiding, or shorting (D119) — and must average no
+  more than **~12 round trips per year** to remain manually executable (D120).
+  Phase 1 fixes the exact form of the frequency rule (averaging window, cliff
+  versus rate) but not the ceiling, which is owner policy. These are correctness
+  and usability constraints, not evidence questions, so they fail fast and cheap.
+  The frequency rule is **one-sided**: there is no minimum trade count (D50) and
+  low trade frequency is never penalized.
 - Economic eligibility uses matched TECL B&H across complete real history, a
   fixed trailing-five-year horizon, and a small predeclared rolling/window
   design. Complete history and trailing five years are **the only hard gates**
@@ -512,7 +521,7 @@ another per-strategy score.
 `Pending Gold` appears on the Gold leaderboard automatically when the next
 daily frozen certification epoch publishes its passing cohort. It describes
 activation eligibility, not weaker certification. Its forward counters remain
-explicit, and it cannot be Recommended or Active until the cooling rule and
+explicit, and it cannot become the leader until the cooling rule and
 fresh certification pass.
 
 ---
