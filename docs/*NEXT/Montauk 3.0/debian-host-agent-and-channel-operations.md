@@ -46,7 +46,7 @@ The short version is:
                    +--- candidate inbox / generated workspace
 
 All processes are supervised by systemd. Research can use spare CPU, but
-verified data, the trusted signal, Active recertification, recovery, and alerts
+verified data, the trusted signal, leader recertification, recovery, and alerts
 always preempt it.
 ```
 
@@ -100,12 +100,12 @@ contract.
   and a local secondary backup. It is not the hot database or scratch device.
 - Keep an off-machine GitHub recovery path and **a second local device** holding
   a copy that a single-disk failure cannot destroy. Zero loss of acknowledged
-  Active/approval/signal/Gold mutations is promised against ordinary process and
+  leader/approval/signal/Gold mutations is promised against ordinary process and
   disk failure; the physical-disaster recovery point is explicitly bounded by the
   last verified GitHub sync until a second offsite domain exists.
 - A GitHub-only outage must not suppress a valid daily signal. Journal locally,
   enter `degraded_backup`, alert Max, deliver the signal on time, and block Gold
-  publication and Active changes until replication catches up.
+  publication and leader changes until replication catches up.
 - Begin with a conventional, well-supported filesystem such as `ext4`. Change
   mount options or filesystems only after profiling demonstrates a real problem.
 - Monitor free space and SSD health. Storage-pressure thresholds must pause new
@@ -117,7 +117,7 @@ contract.
   firmware and OS. Memory bandwidth and avoiding swap are more valuable than
   cosmetic OS tuning.
 - Research workers may consume all **spare** CPU, not all CPU unconditionally.
-  Reserve or preempt capacity for verified data, the current signal, Active
+  Reserve or preempt capacity for verified data, the current signal, leader
   recertification, recovery, the controller, and the channel adapter.
 - Benchmark physical-core-only and logical-thread worker counts. On an older CPU,
   maximum logical concurrency is not automatically the fastest or most
@@ -166,9 +166,9 @@ Linux users and permissions enforce the charter; prompts do not.
 |---|---|---|
 | Max/admin | Deliberate maintenance, release review, deployment, recovery | Routine unattended ownership of agent tasks |
 | `montauk-core` | Run the signed deterministic controller and trusted jobs | Max's release-signing key; arbitrary candidate writes |
-| `montauk-agent` | Invoke the model adapter and write candidate specs/modules | Protected-core write access, Gold/Active DB mutation, validator secrets, `sudo` |
+| `montauk-agent` | Invoke the model adapter and write candidate specs/modules | Protected-core write access, Gold or leader DB mutation, validator secrets, `sudo` |
 | candidate worker | Disposable execution of one untrusted intake job | Network, credentials, host filesystem, subprocess freedom, core writes |
-| `montauk-channel` | Receive events from the one selected private channel and write typed requests/replies to the command inbox/outbox | Shell access, core writes, direct Gold/Active mutation |
+| `montauk-channel` | Receive events from the one selected private channel and write typed requests/replies to the command inbox/outbox | Shell access, core writes, direct Gold or leader mutation |
 
 The exact count of Unix users can be simplified if the same effective capability
 separation is proven. The non-negotiable properties are:
@@ -301,8 +301,8 @@ Use four distinct surfaces:
    Mac, for work that is genuinely visual — reading a chart, driving a GUI tool,
    watching a long run, or any diagnosis where a terminal is the wrong shape.
    Required by D83. It is an *administration* surface only: it carries no
-   authority SSH does not already carry, and it is never a path for approving an
-   Active switch.
+   authority SSH does not already carry, and it is never a path for changing the
+   leader.
 4. **Provider Remote Control:** optional conversational access to a deliberately
    launched local coding-agent session for diagnosis or repair.
 
@@ -355,7 +355,8 @@ The shape:
   attack surface at zero listening sockets.
 - **Identity:** the desktop session runs as Max's ordinary administrative login,
   never as a Montauk service identity. It gets no protected-core write access, no
-  service credentials, and no ability to mutate Gold or Active — §3's separation
+  service credentials, and no ability to mutate Gold or the leader — §3's
+  separation
   is not relaxed to make a GUI convenient.
 
 What it is explicitly not: a display for Montauk to render anything to, a
@@ -368,7 +369,7 @@ run interactive graphical tools. Montauk's own output surfaces are unchanged.
 
 Montauk implements one small, versioned request/reply adapter contract. Slack
 and Buzz are replaceable outer transports; neither is allowed to define command
-semantics, task state, audit truth, Gold, recommendation, Active, or the trusted
+semantics, task state, audit truth, Gold, ranking, the leader, or the trusted
 signal. Only **one primary conversational adapter runs in production at a time**.
 Do not build and operate two complete command paths indefinitely “for
 flexibility.” The unselected implementation is removed or retained only as a
@@ -398,7 +399,7 @@ Every adapter must provide:
   replay protection, and visible failure;
 - restart reconciliation against the controller ledger; and
 - no credential or capability that can write the protected core or directly
-  mutate Gold/Active.
+  mutate Gold or the leader.
 
 Free-form conversation is advisory. Provider syntax may differ, but every
 mutation maps to exactly one controller operation:
@@ -601,7 +602,7 @@ decision, and that residual risk is accepted rather than mitigated.
 - Store pending replies in the durable outbox so a bridge restart does not erase
   the underlying event.
 - Keep notification delivery separate from state mutation: a channel outage cannot
-  change Gold or Active.
+  change Gold or the leader.
 - Critical undelivered alerts remain visible in local status and are retried;
   Tailscale/SSH remains the repair path.
 
@@ -634,7 +635,7 @@ to exactly one of two prohibited shapes:
 - **a click-through approval link**, which is an HTTP endpoint — reintroducing
   the public inbound ingress that Socket Mode was chosen to eliminate (§7.2), and
   pointing it at the host holding the signed core, the Gold database, and the
-  Active switch.
+  leader.
 
 There is no third option. The property D80 obtained mechanically — a signed
 interactive payload that cannot be produced by anything that merely writes text
@@ -713,7 +714,7 @@ Montauk 3.0 should not import:
 - conversational memory as product truth;
 - multiple gateways, multi-user tenancy, or swarms without a measured need;
 - OpenClaw's task ledger as a second Montauk queue or audit authority;
-- OpenClaw as the backtest, validator, Gold, leaderboard, rank, signal, or Active
+- OpenClaw as the backtest, validator, Gold, leaderboard, rank, signal, or leader
   controller; or
 - complexity whose only justification is that OpenClaw implements it.
 
@@ -724,7 +725,7 @@ measured value not supplied by the selected channel.
 
 If OpenClaw is trialed, it runs under `montauk-agent` or a stricter container with
 candidate/inbox access only. It receives no protected-core write access, signing
-key, validator/Gold database credential, or direct Active mutation capability.
+key, validator/Gold database credential, or direct leader mutation capability.
 Its ACP/external-agent feature is especially important to contain: current
 OpenClaw documentation states that ACP sessions execute on the **host runtime**
 under the external CLI's permissions and are not wrapped by the OpenClaw
@@ -780,13 +781,13 @@ This is the commissioning order, not a shell script:
 
 ## 10. Required operational acceptance evidence
 
-Before unattended cutover, retain evidence that:
+Before unattended operation, retain evidence that:
 
 - the host boots after power loss and every required unit reaches the correct
   state without duplicate jobs;
 - killing each service at every important transition produces recovery rather
   than silent loss or double mutation;
-- research saturation cannot delay verified data, the trusted signal, Active
+- research saturation cannot delay verified data, the trusted signal, leader
   recertification, recovery, or critical notification work;
 - sustained load does not thermally throttle into missed deadlines or corrupt
   results;
@@ -794,7 +795,7 @@ Before unattended cutover, retain evidence that:
   outage, channel outage, Tailscale outage, and GitHub outage reach explicit safe
   states;
 - the resident model, channel process, and candidate worker cannot write protected
-  core, read forbidden secrets, or directly mutate Gold/Active;
+  core, read forbidden secrets, or directly mutate Gold or the leader;
 - channel identity spoofing, replay, expired confirmation, duplicate delivery,
   malformed command, and free-form “approval” are rejected visibly;
 - conversation status and the durable ledger reconcile after adapter restart;
@@ -806,7 +807,7 @@ Before unattended cutover, retain evidence that:
   ordering that matters — **SSH recovery still works with the graphical stack
   stopped, broken, or mid-upgrade**; and
 - a GitHub-only outage produces `degraded_backup` and still delivers the valid
-  signal on time while blocking Gold publication and Active changes; queued
+  signal on time while blocking Gold publication and leader changes; queued
   events reconcile correctly on recovery;
 - a material TECL product-change event alerts immediately, suspends new trusted
   signals, and stales affected certificates without auto-substituting a ticker;

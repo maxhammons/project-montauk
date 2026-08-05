@@ -128,7 +128,7 @@ answers do not create new policy and must earn any role through Phase 1 controls
   design. Complete history and trailing five years are **the only hard gates**
   (D86); Phase 1 calibrates an aggregate rolling rule, reported as a diagnostic.
   **No catastrophic-window veto is installed** (D97) — near-ruin penalizes rank
-  and is disclosed at activation instead. The point-estimate margin begins from
+  and is disclosed on the row instead. The point-estimate margin begins from
   Max's provisional 1.10 intuition, while an uncertainty-aware lower bound must
   exceed 1.0 or return insufficient evidence. Both horizons are measured from the
   causal-eligibility start date — first date the strategy could emit a signal, not
@@ -160,10 +160,11 @@ answers do not create new policy and must earn any role through Phase 1 controls
   untouched for that exact row.
 - Backtest/B&H passage precedes the expensive validation suite. Candidate-code
   containment and correctness preflight precede execution.
-- A historical-suite survivor joins the one Gold leaderboard with activation
-  status `Pending Gold`, normally accumulates 20 verified bars, and must pass a
-  fresh certification before it can be Recommended or Active. Only the latest
-  compatible contract appears on the current board; no legacy grandfathering.
+- A historical-suite survivor joins the one Gold leaderboard with
+  leader-eligibility status `Pending Gold`, normally accumulates 20 verified
+  bars, and must pass a fresh certification before it can become the leader
+  (D125). Only the latest compatible contract appears on the current board; no
+  legacy grandfathering.
 - The validator must measure both false-Gold and false-rejection behavior. A
   validator that rejects everything is not robust merely because it is strict.
 - There is no universal minimum trade-count cliff. Evidence sufficiency follows
@@ -375,7 +376,7 @@ named test.
 | Event concentration and regime views | Expose reliance on a crash, rally, or hand-labeled interval. | **Plain-English diagnostic; veto only if a predeclared calibrated catastrophic rule earns it.** |
 | Synthetic TECL and other assets | Stress mechanisms outside observed TECL history. | **Diagnostic only in 3.0.** Correlated assets and modeled history are not independent TECL evidence. |
 | Model Confidence Set | Express when several leaders may be statistically indistinguishable. | **Ranking diagnostic candidate, not the board-wide multiplicity fix.** Published financial simulations warn it may need very high signal-to-noise and is not robust to multiple testing. |
-| Twenty post-certification bars | Operational cooling, replay monitoring, and time for obvious defects to surface. | **Activation policy, not statistical proof by itself.** Report state transitions/trades/regimes separately from elapsed bars. |
+| Twenty post-certification bars | Operational cooling, replay monitoring, and time for obvious defects to surface. | **Leader-eligibility policy, not statistical proof by itself.** Report state transitions/trades/regimes separately from elapsed bars. |
 
 At scale, search honesty is necessarily **cohort evidence**, not a billion copies
 of a row-local test. An exact Gold row should reference an immutable shared
@@ -520,7 +521,7 @@ another per-strategy score.
 
 `Pending Gold` appears on the Gold leaderboard automatically when the next
 daily frozen certification epoch publishes its passing cohort. It describes
-activation eligibility, not weaker certification. Its forward counters remain
+leader eligibility, not weaker certification. Its forward counters remain
 explicit, and it cannot become the leader until the cooling rule and
 fresh certification pass.
 
@@ -553,7 +554,8 @@ fresh certification pass.
    controls the stated appliance-level error without making related valid
    configurations impossible.
 5. **Make evidence fail-closed and current (G11/G13).** Implement immutable
-   per-row forward records, Pending Gold activation status, clean reproduction,
+   per-row forward records, Pending Gold leader-eligibility status, clean
+   reproduction,
    no missing required evidence, and latest-contract-only current Gold.
 
 ---

@@ -72,12 +72,11 @@ the agent can express an idea, so every gap becomes an owner interruption and th
 search runs on a frozen vocabulary until Max answers. Granularity matters more than
 raw count: fine-grained blocks recombine into an enormous space, whole-strategy
 templates barely compose at all. It remains fixture-heavy — every primitive ships
-with fixtures and deterministic tests. Before
-cutover it must reproduce the legacy Active strategy needed for shadow safety,
-the matched B&H/execution reference, every control/benchmark admitted to the
-final 3.0 validator, and any legacy strategy Max explicitly selects as a
-migration candidate. Historical Gold rows and legacy scripts are not blanket
-coverage requirements. Its initial coverage matrix includes typed
+with fixtures and deterministic tests. It must reproduce the Montauk 2.0 Gold
+strategies preserved as parity fixtures (D112), the matched B&H/execution
+reference, and every control/benchmark admitted to the final 3.0 validator.
+Historical Gold rows and legacy scripts are not blanket coverage requirements.
+Its initial coverage matrix includes typed
 arithmetic and boolean logic; lag/rolling operations; moving averages; momentum;
 RSI/MACD; ATR, volatility, and bands; crossover/threshold events; approved
 external inputs; and explicit position state. Missing a primitive does not prove
@@ -154,8 +153,8 @@ Why this is fast
 - Parameter sets can be evaluated in cache-friendly batches.
 - The agent spends tokens describing one family/search space rather than emitting
   millions of source variants.
-- The compiler runs when the protected engine changes or, at most, once for a
-  genuinely novel family—not once per configuration.
+- The compiler runs when the protected engine changes or a new owner-approved
+  primitive is sealed in—never once per configuration.
 - The engine can control memory layout, allocation, parallelism, SIMD/native
   kernels, and work partitioning consistently.
 
@@ -237,7 +236,7 @@ The language is decided; the precise Rust design is not. Profiling is ordinary
 engineering after correctness, not a hardware-procurement study or numerical
 throughput gate for 3.0. Representative workloads may compare:
 
-- primitive-coverage parity for the legacy Active migration fixture, final
+- primitive-coverage parity for the Montauk 2.0 Gold parity fixtures (D112), final
   controls/benchmarks, and explicitly selected migration candidates;
 - declarative interpreter versus compiled execution plan;
 - primitive caching and batched parameter layouts;
@@ -264,7 +263,7 @@ Gold semantics.
 
 - Hot market data, control state, experiment partitions, builds, and logs live
   on SSD/NVMe. HDD is cold archive/backup only.
-- The scheduler gives verified data, signal generation, Active recertification,
+- The scheduler gives verified data, signal generation, leader recertification,
   recovery, and alerts first claim on CPU and I/O. Discovery workers use all
   spare capacity at lower priority and must be preemptible.
 - Benchmark physical-core and logical-thread counts rather than assuming the

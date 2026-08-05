@@ -71,8 +71,8 @@ subprocess.
 ## 3. The three-path architecture
 
 Every general-purpose gateway assumes **the model is the interface**. The charter
-assumes the opposite: free-form conversation is advisory and can never approve an
-Active switch. Building the adapter rather than adopting one lets that be a
+assumes the opposite: free-form conversation is advisory and can never change the
+leader. Building the adapter rather than adopting one lets that be a
 property of the transport instead of an instruction the model is asked to honor.
 
 Three paths share one Slack channel. They have different trust levels and the
@@ -192,9 +192,10 @@ reason is specific rather than stylistic:
 
 The capability that makes such a gateway convenient — driving a coding agent on
 the host — is precisely what places the signed core, the Gold database, and the
-Active switch inside its blast radius. Recovering the boundary means rebuilding
+leader inside its blast radius. Recovering the boundary means rebuilding
 containment at the OS layer and owning it across upstream releases. For a
-single-user bot on one private channel with four typed commands, the attack
+single-user bot on one private channel with two typed mutations plus read-only
+status, the attack
 surface of a purpose-built adapter is smaller than the containment work avoided.
 
 This is not a claim that a purpose-built adapter is better engineering in

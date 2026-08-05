@@ -19,8 +19,8 @@ and preserving its Gold artifacts as parity fixtures, until 3.0 replaces it
 (D111/D112/D121).
 No coding agent may fill a gap by copying a contradictory legacy behavior. In
 particular, legacy rules such as synthetic-inclusive Gold, family row caps,
-automatic activation of the top row, author-tier shortcuts, and the old Python
-pipeline do not survive unless restated here.
+author-tier shortcuts, and the old Python pipeline do not survive unless
+restated here.
 
 ## Questionnaire promotion rule
 
@@ -37,8 +37,7 @@ not complete merely because an answered file exists.
 > model-agnostic frontier agent continuously invents executable strategy
 > candidates, a protected deterministic pipeline backtests and validates them,
 > every qualifying Gold configuration automatically joins the leaderboard, and
-> Montauk recommends—but does not normally activate—a new leader without Max's
-> approval.**
+> Montauk publishes the top-ranked row's daily signal as the leader.**
 
 The purpose of all of this machinery is simple: make the most defensible
 available TECL `risk_on` / `risk_off` call, explain why it deserves trust, and
@@ -88,7 +87,7 @@ Model or Max generates a typed strategy family
                     ranking
                        |
                        v
-             Max chooses the Active row
+          Montauk emits the leader's signal
 
 All day in the background: verified data, recertification, recovery,
 research feedback, and a quiet daily digest.
@@ -96,8 +95,9 @@ research feedback, and a quiet daily digest.
 
 That is the product. One family definition may yield millions of configuration
 records; compiling a separate script for each configuration would be slower,
-harder to reproduce, and unnecessary. A genuinely new mechanism that the shared
-library cannot express may use one isolated Rust module for its whole family.
+harder to reproduce, and unnecessary. A mechanism the shared library cannot
+express is reached by proposing a new building block for Max's approval (D96),
+never by the agent writing its own module.
 At very large scales, the bucket is logical: Rust can expand a family in
 deterministic shards/batches just before evaluation instead of first writing
 billions of tiny files or database jobs. Every configuration actually evaluated
@@ -154,19 +154,22 @@ one of those boxes, it needs explicit justification or removal.
   recertification consequences. A human-held signing key seals an exact core
   release; autonomous startup and evaluation fail closed if its signed manifest,
   permissions, or protected hashes do not verify.
-- **Pending Gold is an activation status, not a second certification board.** A
+- **Pending Gold is a cooling status, not a second certification board.** A
   configuration that clears every candidate-local historical requirement enters
   the next daily frozen certification epoch. The epoch adds the cohort-wide
   search correction, assembles the final five-plank verdict, and automatically
   publishes passing rows to the Gold leaderboard with a `Pending Gold` badge.
-  It is not eligible to become Recommended or Active until the cooling/forward-
-  evidence rule and a fresh certification pass. There is still one leaderboard
-  and no Trade Roster.
+  A Pending row may rank anywhere on the board, but its signal is not published
+  as the leader's until it clears the cooling/forward-evidence rule and a fresh
+  certification pass (D125). There is still one leaderboard and no Trade Roster.
   Every exact row remains queryable, while the normal view starts with families
   collapsed so near-identical variants do not bury unrelated strategies.
-- **Recommended is not active.** Montauk can name a new recommended leader, but a
-  normal active-strategy change requires Max's approval. Manual brokerage
-  execution remains the rule throughout 3.x.
+- **Montauk ranks and emits the leader (D125).** There are no authority states —
+  no Recommended, no Active, no Manual Override. The leader is the top-ranked
+  Gold row, and a leader change applies five-bar hysteresis. Publishing that
+  signal is an operational fact requiring no approval, and Montauk does not
+  model whether real money is following it (D124). Manual brokerage execution
+  remains the rule throughout 3.x.
 - **Execution is after-close to next-open.** Max manually submits a position-
   change order after the verified close for execution at the next regular-
   session market open. Gold models that workflow plus calibrated costs across a
@@ -196,7 +199,7 @@ one of those boxes, it needs explicit justification or removal.
 - **A backup outage is not a trading rule.** If everything is healthy except
   off-machine replication, Montauk journals locally, shows `degraded_backup`,
   alerts Max, and still delivers the valid signal on time — while blocking Gold
-  publication, Active changes, and other non-essential authority mutations.
+  publication, leader changes, and other non-essential authority mutations.
 - **TECL is a product, not just a price series.** Observed history spans a TYH
   era (2008-12-17 → 2012-06-28, Russell 1000 Technology) and the current
   Technology Select Sector era; both seams are labelled. A material product
@@ -241,9 +244,9 @@ that the exact strategy passed a small, complete, independently tested contract
 and remains current—not that Montauk accumulated the largest possible number of
 tests or scores.
 
-No existing or legacy “Gold” label is presumed to satisfy this 3.0 promise. At
-cutover, every row starts outside the current 3.0 board until it passes the final
-3.0 contract from scratch.
+No existing or legacy “Gold” label is presumed to satisfy this 3.0 promise.
+Every row starts outside the 3.0 board until it passes the final 3.0 contract
+from scratch.
 
 ## Read in this order
 
@@ -396,8 +399,9 @@ money is following it**. He decides separately, outside Montauk, what he trusts.
 **D123** likewise removed restore drills and the completion declaration from
 planning scope. Four owner approvals remain, not seven.
 
-Later owner involvement is the seven named approvals in D107, requested as focused
-evidence reports or approval cards. An implementation agent that hits an unforeseen
+Later owner involvement is the four named approvals in D107 as amended by D123
+and D124, requested as focused evidence reports or approval cards. An
+implementation agent that hits an unforeseen
 issue asks one focused question — never a new questionnaire — and only when
 owner-visible behavior, the Gold promise, protected-core authority, real-money
 safety, external spending, or credentials would materially change.

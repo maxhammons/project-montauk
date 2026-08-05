@@ -6,8 +6,8 @@ drain plan. It implements the
 Questionnaires 3–7 Part A operating contract in
 [charter.md](charter.md) and [decisions.md](decisions.md): continuous
 model-agnostic ideation, untrusted candidate containment, deterministic
-evaluation, automatic Gold-to-leaderboard publication, and human authority over
-normal active-strategy changes.
+evaluation, automatic Gold-to-leaderboard publication, and deterministic leader
+selection under hysteresis.
 
 The appliance shell around this conveyor is specified separately in
 [debian-host-agent-and-channel-operations.md](debian-host-agent-and-channel-operations.md):
@@ -56,16 +56,16 @@ Montauk 3.0 has three trust zones:
 2. **Sealed Montauk core.** Verified data, execution/backtest semantics, the
    five-plank Gold exam, scoring/ranking, leaderboard, recertification, and
    trusted signal generation.
-3. **Max authority.** Recommended/Active state, exact approvals, maintenance
-   releases, alerts, and manual brokerage action.
+3. **Max authority.** The four remaining owner approvals (D107 as amended by
+   D123/D124), maintenance releases, alerts, and manual brokerage action.
 
 Information may flow from deterministic results back to ideation. Write authority
-never flows from ideation or candidate code into the protected or active-authority
-zones.
+never flows from ideation or candidate code into the protected core or the
+trusted signal.
 
 The agent decides what to propose. The scheduler decides what receives compute.
-The protected pipeline decides what the evidence says. Max decides normal active
-strategy changes.
+The protected pipeline decides what the evidence says. Max decides what he does
+with his own money, entirely outside Montauk (D124).
 
 ## 3. Canonical terms and counts
 
@@ -76,7 +76,7 @@ strategy changes.
 | Configuration | One family version plus one exact parameter set |
 | Candidate | A configuration that completed the required backtest |
 | Gold row | One exact configuration that passed the complete historical Gold contract and joined the leaderboard |
-| Pending Gold | The activation status of a Gold row still inside its cooling/forward-evidence period |
+| Pending Gold | The leader-eligibility status of a Gold row still inside its cooling/forward-evidence period |
 
 Owner-facing copy may call a configuration a “strategy.” Operational metrics must
 name the stage:
@@ -117,9 +117,7 @@ the implementation language. The high-throughput distinction is:
 - **normal family:** the agent submits a compact schema-constrained definition
   over a versioned prebuilt Rust primitive registry. The definition is
   declarative data, not Python code. Unknown primitives, invalid types, causal
-  violations, and malformed constraints fail before evaluation;
-- **novel family:** the agent may emit one isolated Rust module, compiled once for
-  that immutable family version; and
+  violations, and malformed constraints fail before evaluation; and
 - **configuration:** the trusted evaluator supplies exact parameters to the
   already-built family evaluator. It never compiles a new program per
   configuration.
@@ -127,11 +125,10 @@ the implementation language. The high-throughput distinction is:
 This is how millions or billions of configurations can share one compiled
 execution plan, precomputed indicators, memory layouts, and batched execution.
 Python may remain a reference/parity oracle and test harness, but not a production
-family or configuration representation. The isolated Rust-module route is staged
-and disabled until its signed containment, causality, determinism, resource, and
-reference-parity acceptance suite passes. Once Max approves that **policy**, each
-conforming module may enter untrusted intake automatically; Max does not approve
-modules one by one. Shared primitives and the module SDK remain protected core.
+family or configuration representation. The isolated agent-authored Rust-module
+route was **withdrawn by D96**: the way to reach a mechanism the primitives
+cannot express is to propose a new building block for Max's approval before it is
+created, not to write a module. Shared primitives remain protected core.
 
 Illustrative manifest only—the final schema remains to be chosen:
 
@@ -189,7 +186,7 @@ Model or Max -> typed family definition -> protected Rust library
                                            ranking
                                              |
                                              v
-                                  Max normally chooses Active
+                             Montauk emits the leader's signal
 ```
 
 Schema checks, sandboxing, deduplication, artifact verification, forward
@@ -206,12 +203,12 @@ Before trusted work:
   human-held release key, all protected hashes and permissions match, and the
   resident agent cannot access that key;
 - required market data is complete, verified, and fingerprinted;
-- active-strategy signal and recertification deadlines have resource priority;
+- leader signal and recertification deadlines have resource priority;
 - the most recent durable recovery point is healthy and its off-machine GitHub
   replication is inside the allowed window; and
 - the experiment worker has enforced CPU, memory, temperature, and disk limits.
 
-Research may be preempted at any point by data, trusted-signal, active
+Research may be preempted at any point by data, trusted-signal, leader
 recertification, recovery, or notification work.
 
 During a current-data failure, spare capacity may continue deterministic
@@ -225,7 +222,7 @@ On a tunable schedule, initially imagined as roughly hourly:
 
 1. read aggregate results from the last completed interval;
 2. read exact-duplicate summaries, family histories, failure-reason aggregates,
-   leaderboard composition, and active-champion weaknesses;
+   leaderboard composition, and leader weaknesses;
 3. choose work across promising, weakness-repair, and exploratory lanes;
 4. author one or more ready families/search spaces;
 5. run local schema/static/smoke tooling;
@@ -392,7 +389,7 @@ The pipeline does not “give everything its due diligence” by wasting full
 validation compute on candidates that already failed. It does so by applying the
 correct decisive test at every stage and recording why work stopped.
 
-### Stage 6 — Gold publication, Pending activation, and recommendation
+### Stage 6 — Gold publication, cooling, and leader selection
 
 A historical-suite survivor becomes eligible for the next daily frozen Gold
 epoch; this is not a human Trade Roster or a second certification tier.
@@ -408,7 +405,7 @@ transactional:
 4. freeze every passing definition, exact parameters, artifact, fingerprint, and
    shared family/campaign/epoch search-honesty certificate;
 5. atomically create each Gold certificate with
-   `activation_status=pending`, publish it, and rerank the board;
+   `leader_eligibility=pending`, publish it, and rerank the board;
 6. carry all disclosures into later epochs rather than resetting search history;
 7. accrue 20 verified trading bars under each exact frozen identity;
 8. run a fresh complete certification;
@@ -417,8 +414,7 @@ transactional:
 10. emit the appropriate digest/event.
 
 A Pending Gold row may rank anywhere on the board but cannot be the leader until
-it has cooled (D125). Max may explicitly override the waiting delay, but the
-exception is conspicuous and audited. Only the latest compatible
+it has cooled (D125). Only the latest compatible
 validation contract appears on the current Gold board; incompatible older rows
 become stale and must recertify rather than remain grandfathered.
 
@@ -428,20 +424,22 @@ wealth/share expression such as “1.14× B&H,” and forward-evidence status. E
 rank remains deterministic, with `leader not clearly separated` when calibrated
 uncertainty cannot distinguish the leading group.
 
-Gold publication and recommendation changes never alter Active. Normal
-activation requires Max's audited approval of one exact configuration. Initial
-review thresholds are +10 absolute Validation Score points with no material
-performance loss, +10% relative lower-bound deployable performance with no
-Validation decline, or +5 Montauk Score points with neither component materially
-worse; the advantage persists for five verified bars with hysteresis. These are
-versioned calibration defaults, not agent-tunable values.
+Gold publication and rank changes never change the leader by themselves. A
+challenger becomes the leader only by clearing one of the initial thresholds —
++10 absolute Validation Score points with no material performance loss, +10%
+relative lower-bound deployable performance with no Validation decline, or +5
+Montauk Score points with neither component materially worse — and sustaining
+that advantage for five verified bars, with a lower exit threshold supplying
+hysteresis (D125). These are versioned calibration defaults, not agent-tunable
+values.
 
-If Active loses Gold, its authority and any override end immediately. A same-
-state top Gold fallback may take the Active pointer automatically without
-authorizing a new trade. An opposing-state fallback leaves no Active, preserves
-the last verified instruction, enters `human_decision_required`, and alerts Max.
-If no Gold remains, Montauk enters `no_certified_strategy`, recommends risk-off
-for human consideration, and takes no brokerage action.
+If the leader loses Gold it stops being the leader immediately. A same-state
+next-ranked Gold row may become the leader automatically, because that publishes
+no new instruction. An opposing-state successor never takes over silently:
+Montauk leaves no leader, preserves the last verified instruction, enters
+`human_decision_required`, and alerts Max (D35 as amended by D125). If no Gold
+remains, Montauk enters `no_certified_strategy`, reports risk-off for human
+consideration, and takes no brokerage action.
 
 ### Stage 7 — feedback and memory
 
@@ -479,17 +477,17 @@ repeating the same work.
 
 Priority order:
 
-1. **P0:** verified-data refresh, active-signal generation, active-strategy
-   forward replay/recertification;
+1. **P0:** verified-data refresh, trusted-signal generation, leader forward
+   replay/recertification;
 2. **P1:** recovery, integrity failures, critical notifications;
-3. **P2:** recommendation/top-cohort and rolling full-board recertification;
+3. **P2:** top-cohort and rolling full-board recertification;
 4. **P3:** candidate validation and Gold finalization;
 5. **P4:** preemptible discovery research and low-priority repair.
 
 Initial discovery planning uses approximately:
 
 - 70% promising families/regions;
-- up to 20% active-champion weakness work when useful; and
+- up to 20% leader weakness work when useful; and
 - at least 10% unusual exploration.
 
 These are adaptive allocations, not scientific facts. In autonomous steady
@@ -513,7 +511,7 @@ design should begin with one logical authority and as few physical stores as
 measured scale permits. It should include:
 
 - a transactional control database for families, versions, configurations, jobs,
-  certifications, recommendation/active state, recertification state, and a
+  certifications, leader state, recertification state, and a
   notification outbox;
 - append-only, compressed, partitioned experiment results for high-volume
   screens;
@@ -590,7 +588,7 @@ work into one shared monolithic strategy file.
 ## 9. Delivery sequence for a coding agent
 
 Do not build the hourly agent first. Build the truth and containment boundaries
-it will depend on. Every phase needs named artifacts, tests, rollback/cutover
+it will depend on. Every phase needs named artifacts, tests, rollback
 instructions, and a blocking exit review; a phase title is not permission to
 invent the empirical calibration values inside it.
 
@@ -602,7 +600,7 @@ The build has five phases:
 | 2. Build the sealed evaluator | Rust families/configurations run causally and durable state restores cleanly |
 | 3. Build the conveyor | Backtest → remaining Gold validation → leaderboard → ranking → leader selection works deterministically |
 | 4. Add autonomy | The model restocks the bucket and one selected private channel reports/accepts only narrow commands |
-| 5. Optimize and cut over | Measured speed work, shadow operation, recovery drills, and Max's final approval |
+| 5. Optimize and commission | Measured speed work, host commissioning, comparison against the frozen 2.0 reference, and the acceptance-evidence package |
 
 ### Phase 1 — prove the exam and authority contract
 
@@ -662,8 +660,8 @@ The build has five phases:
   epochs, shared immutable cohort artifacts, lifetime disclosure carry-forward,
   and signal/position/trade-path hashes.
 - Write transition tables and invariants for jobs/candidates, certifications,
-  Gold activation status (Pending/eligible), Recommended/Active/override, the five-bar switch
-  persistence rule, stale data, same/opposing-state fallback, no Gold,
+  Gold leader-eligibility status (Pending/eligible), the leader and its five-bar
+  hysteresis rule, stale data, same/opposing-state fallback, no Gold,
   `human_decision_required`, and the exact states permitted to emit a trusted
   instruction.
 - Design the minimum cryptographic protected-core seal per D108: resident-agent
@@ -674,8 +672,8 @@ The build has five phases:
   encrypted signing credential. A password check inside application code, a clean
   Git history, or rollback is explicitly not the seal. Choose repository topology only if the threat/recovery tests
   require it. Candidate code receives no core or provider credentials.
-- Freeze recertification triggers: Active replay each verified bar and formal
-  renewal every 20 new bars/event/warning/pre-activation; top cohort weekly; rest
+- Freeze recertification triggers: leader replay each verified bar and formal
+  renewal every 20 new bars/event/warning/pre-leader-change; top cohort weekly; rest
   after 63 new bars; incompatible contract change stales rows immediately.
 - Calibrate when exact rank must carry `leader not clearly separated`; expose
   that status without adding a headline score.
@@ -697,9 +695,9 @@ The build has five phases:
 **Exit:** Max ratifies the calibrated contract package; the validation audit,
 false-positive/false-negative study, synthetic/execution studies, multiplicity
 design, core-seal threat model, and state tables have review evidence; no
-canonical doc/test says “top row is automatically active,” labels an
-uncalibrated score as probability, permits a skipped Gold plank, or preserves an
-incompatible validation route.
+canonical doc/test reintroduces an authority state, a cutover, or an approval
+ceremony (D124/D125), labels an uncalibrated score as probability, permits a
+skipped Gold plank, or preserves an incompatible validation route.
 
 ### Phase 2 — build the sealed evaluator and durable state
 
@@ -707,11 +705,10 @@ incompatible validation route.
 
 - Prototype the prebuilt Rust evaluator and primitive library with typed
   strategy definitions on representative current and novel families.
-- Build a primitive coverage matrix and reproduce the legacy Active strategy
-  needed for shadow/cutover safety, matched B&H/execution references, every
-  final validation control/benchmark, and any legacy strategy Max explicitly
-  selects as a migration candidate. Do not rebuild the historical board as a
-  compatibility exercise.
+- Build a primitive coverage matrix and reproduce the Montauk 2.0 Gold strategies
+  preserved as parity fixtures (D112), matched B&H/execution references, and
+  every final validation control/benchmark. Do not rebuild the historical board
+  as a compatibility exercise.
   The initial small fixture-tested registry covers arithmetic/boolean operations,
   lag/rolling access, moving averages, momentum, RSI/MACD, ATR/volatility/bands,
   crossover/threshold events, approved external inputs, and explicit position
@@ -748,7 +745,7 @@ to design storage honestly.
 
 - Introduce the control database and migrations.
 - Define immutable family/configuration/campaign/certification identities.
-- Import or reference existing queues, hash history, leaderboard, active pointer,
+- Import or reference existing queues, hash history, leaderboard, leader pointer,
   and artifacts without creating dual authorities.
 - Add transactional jobs, leases, idempotent transitions, and notification
   outbox.
@@ -786,13 +783,13 @@ exactly one operational source for each concern.
 - Implement daily frozen certification cohorts with complete search-ledger
   snapshots, shared multiplicity artifacts, lifetime disclosure carry-forward,
   and transactional multi-row publication.
-- Make Gold publication with Pending activation, row-specific forward-bar
-  attribution, fresh activation eligibility, revocation, and historical archive
+- Make Gold publication with Pending cooling, row-specific forward-bar
+  attribution, fresh leader eligibility, revocation, and historical archive
   transitions atomic and fully reproducible.
 
 **Checkpoint:** every stage has deterministic replay, no missing/skipped mandatory
 plank, fail-closed behavior, fault injection, durable provenance, and clean-
-environment Gold/activation-status reproduction under the latest contract only.
+environment Gold/leader-eligibility reproduction under the latest contract only.
 
 #### Workstream 3B — leader selection, forward evidence, recovery, and minimum alerts
 
@@ -813,7 +810,7 @@ environment Gold/activation-status reproduction under the latest contract only.
   immediate stale/revoke rules for integrity failures.
 - Give recovery absolute priority. Permit only explicitly labeled low-priority
   research against the immutable last-good snapshot when it cannot delay
-  control-store verification, data catch-up, Active recertification, the current
+  control-store verification, data catch-up, leader recertification, the current
   signal, and top-cohort refresh; replay any survivor on repaired verified data
   before it may affect current Gold.
 - Implement the minimum critical alert path, internal health/liveness indication,
@@ -821,9 +818,9 @@ environment Gold/activation-status reproduction under the latest contract only.
   possible. An *independent* outbound dead-man service on a route outside
   Montauk's own channel is out of scope for 3.0; do not build one.
 - Implement `degraded_backup`: when the host, control store, data, engine, and
-  Active strategy are healthy but off-machine replication alone is unavailable,
+  the leader are healthy but off-machine replication alone is unavailable,
   journal the signal locally, alert Max, deliver the signal on time, and block
-  Gold publication, Active changes, and other non-essential authority mutations
+  Gold publication, leader changes, and other non-essential authority mutations
   until replication catches up and queued events reconcile.
 - Implement the material-TECL-product-change path: recurring product-news
   monitoring, immediate critical alert, suspension of new trusted signals once
@@ -834,8 +831,9 @@ environment Gold/activation-status reproduction under the latest contract only.
   to publish Gold or emit trusted signals, destroyed or resealed afterwards, and
   never started by a scheduler.
 
-**Checkpoint:** exhaustive state-transition tests prove that only the allowed Active
-state can emit a trusted instruction; same-state fallback cannot create a trade;
+**Checkpoint:** exhaustive state-transition tests prove that only a cooled,
+leader-eligible Gold row can emit a trusted instruction; same-state fallback
+cannot create a trade;
 opposing-state and no-Gold cases require Max; fault, stale-data, restart,
 notification, Pending Gold, recertification, and owner-override drills reach the
 specified safe state.
@@ -880,14 +878,14 @@ runaway backlog, and provider failure are visible and safe.
   the charter §9.1 board — database-backed, paginated, filtered, family-collapsed
   with expandable siblings, four fields per row — plus equity curves and trade
   detail. The app mutates nothing and holds no credential that can change Gold or
-  Active; every mutation stays on the Slack path. How 3.0 serves it (published
+  the leader; every mutation stays on the Slack path. How 3.0 serves it (published
   bundle, direct database read over the tailnet, generated static payload) is
   delegated engineering under D107.
 - Expose Montauk Score, Validation Score (or calibrated Confidence only when
   justified), terminal deployable wealth/share multiple as a simple
   strategy-versus-B&H expression, forward-evidence status/age, exact rank plus
   `leader not clearly separated` when warranted, current signal,
-  active/override/recommendation status, gate lights, and plain-English weakness
+  leader status, gate lights, and plain-English weakness
   explanations.
 - Define and test one provider-neutral channel adapter against a fake controller
   and notification outbox. It owns transport only; the controller owns command
@@ -925,19 +923,19 @@ runaway backlog, and provider failure are visible and safe.
 - Provide private Tailscale/SSH administration as the independent recovery path,
   with the D83 graphical desktop as a subordinate convenience surface on the same
   tailnet — it carries no authority SSH does not already carry and is never a path
-  for approving an Active switch.
+  for changing the leader.
   Direct Claude-in-Slack, Buzz's relay/agent runtime, and OpenClaw are not Montauk
   authority paths. Borrow useful typed-gateway, task-state, queuing, identity,
   idempotency, and health patterns without importing broad host tools, plugins,
   multiple gateways/agents, or conversationally inferred mutations.
 
-**Checkpoint:** every headline value traces to one authoritative record; stale,
-override, Recommended/Active disagreement, and actionable failures are
+**Checkpoint:** every headline value traces to one authoritative record; stale
+data, leader changes, and actionable failures are
 unmistakable; privileged channel commands pass identity, confirmation,
 idempotency, replay, restart-reconciliation, and audit tests; every forbidden
 command fails visibly.
 
-### Phase 5 — optimize, commission, and cut over
+### Phase 5 — optimize and commission
 
 #### Workstream 5A — measured performance work
 
@@ -1016,13 +1014,13 @@ The implemented conveyor must demonstrate:
   wrong OS identity, lost signature, and attempted resident-agent escalation;
 - atomic recovery from termination at each job transition;
 - Gold reproduction from a clean environment;
-- Pending-to-eligible activation transition, latest-contract board publication,
-  and recommendation changes without active-strategy mutation;
-- owner approval/override behavior with audit and replay protection;
+- Pending-to-leader-eligible transition, latest-contract board publication, and
+  rank changes that do not by themselves change the leader;
+- owner approval behavior with audit and replay protection;
 - same-state, opposing-state, and empty-board fallback behavior without an
   unauthorized brokerage instruction;
 - safe current-data failure and offline recovery;
-- active recertification preemption under full research load;
+- leader recertification preemption under full research load;
 - bounded storage growth, zero-silent-loss acknowledgement semantics, GitHub-
   hosted off-machine recovery, and clean-machine restore;
 - provider replacement at the agent seam;
@@ -1060,8 +1058,9 @@ plain-language Gold guiding light controls any technical ambiguity. A coding
 agent may not reopen the Rust representation, origin-neutral complete gate,
 next-open execution timing, primary terminal relative-wealth target, complete/
 trailing-five-year hard periods, required rolling-origin spine, daily
-certification epochs, one current Gold board, Pending Gold concept, human normal
-activation, emergency state machine, signed-core boundary, channel allowlist,
+certification epochs, one current Gold board, Pending Gold concept, leader
+selection and hysteresis, emergency state machine, signed-core boundary, channel
+allowlist,
 durability semantics, provider authority, or Max-only release authority.
 
 Implementation beyond Phase 1 is blocked only on evidence-derived contract

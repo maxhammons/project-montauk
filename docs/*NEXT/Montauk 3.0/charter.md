@@ -69,9 +69,8 @@ for causal, reproducible, calibrated evidence.
 > A personal, always-on TECL research appliance where a model-agnostic frontier
 > agent continuously invents executable strategy candidates, a protected
 > deterministic pipeline backtests and validates them, every qualifying Gold
-> configuration automatically joins the leaderboard, and Montauk
-> recommends—but does not normally activate—a new leader without Max's
-> approval.
+> configuration automatically joins the leaderboard, and Montauk publishes the
+> top-ranked row's daily signal as the leader.
 
 A complete 3.0 must be able to run unattended through the whole loop:
 
@@ -84,8 +83,7 @@ A complete 3.0 must be able to run unattended through the whole loop:
 7. fully backtest survivors under frozen execution semantics;
 8. run the complete versioned validation suite;
 9. publish every Gold configuration to the current leaderboard;
-10. update the Montauk recommendation without silently changing the active
-    strategy;
+10. update the ranking and the leader under the hysteresis rule;
 11. generate the current trusted TECL state;
 12. retain enough evidence to reproduce every important verdict; and
 13. send concise digests, change notifications, and actionable failures.
@@ -128,7 +126,6 @@ or fault.
 - Automated strategy authoring, experiment scheduling, result analysis, bounded
   candidate repair, backtesting, validation, Gold publication, recertification,
   ranking, signal generation, and reporting.
-- Manual owner approval for normal active-strategy changes.
 - Manual brokerage execution for all of 3.x.
 - A tax-advantaged primary trading account. Gold is net of modeled trading costs
   but does not include an after-tax performance model.
@@ -200,7 +197,7 @@ artifacts are defects.
 | Gold eligibility | Versioned deterministic validation contract |
 | Rank and recommendation | Versioned deterministic Montauk Score/ranking contract |
 | The leader | Top-ranked Gold row under the five-bar hysteresis rule; no owner selection step (D125) |
-| Current trusted signal | Active Gold strategy evaluated on last verified data |
+| Current trusted signal | The leader's signal, evaluated on last verified data |
 | Autonomous research priorities | Agent/scheduler policy, never certification authority |
 | Core methodology changes | Explicit owner-directed, signed core release |
 | Durable recovery state | Transactional authority record plus verified off-machine backup |
@@ -217,8 +214,7 @@ The minimum conceptual system is:
 - one deterministic backtest contract;
 - one deterministic Gold exam;
 - one Gold leaderboard;
-- one Recommended configuration;
-- one owner-controlled Active configuration; and
+- one leader — the top-ranked Gold row (D125); and
 - one trusted signal/outbox.
 
 Implementation details may scale each component, but may not create parallel
@@ -259,8 +255,8 @@ means Montauk has not found a configuration that earns certification; it never
 authorizes lowering the standard.
 
 No certificate produced by an earlier Montauk contract is automatically 3.0
-Gold. During cutover, legacy rows are evidence inputs only; each exact row must
-pass the final 3.0 contract from scratch before entering the current board.
+Gold. Legacy rows are evidence inputs only; each exact row must pass the final
+3.0 contract from scratch before entering the current board.
 
 ### 4.2 Evidence roles
 
@@ -271,9 +267,9 @@ pass the final 3.0 contract from scratch before entering the current board.
   passage rule; it does not require every arbitrary slice to win and cannot grow
   candidate by candidate. Rolling windows, named moments, the TYH era, and
   synthetic stress are reported prominently as **diagnostics** that inform
-  Validation Score and Max's activation decision, and do not independently block
-  Gold unless Phase 1 proves a specific one catches failures the two hard gates
-  miss. **There is no catastrophic-window veto** (D97).
+  Validation Score and Max's own reading of the board, and do not independently
+  block Gold unless Phase 1 proves a specific one catches failures the two hard
+  gates miss. **There is no catastrophic-window veto** (D97).
 - **"Beats B&H" has one owner definition, and one start date.** From the first
   date the strategy could causally emit a signal — every required point-in-time
   input available and warm-up complete, **not** its first actual purchase — put
@@ -664,7 +660,7 @@ MODEL OR MAX -> typed family definition using protected Rust primitives
                               rank
                                 |
                                 v
-                    Max normally chooses Active
+              Montauk emits the leader's signal
                                 |
                                 v
               protected signal -> manual brokerage action
@@ -677,12 +673,12 @@ The architecture has three trust zones:
 2. **Sealed Montauk core:** verified data, causal execution, backtesting, the
    five-plank Gold exam, leaderboard, recertification, and trusted signal
    generation.
-3. **Max authority:** Recommended/Active decisions, manual brokerage actions,
-   maintenance release approval, and the read-only/chat surfaces that carry exact
-   authenticated commands.
+3. **Max authority:** the four remaining owner approvals (D107 as amended by
+   D123/D124), manual brokerage actions, maintenance release approval, and the
+   read-only/chat surfaces that carry exact authenticated commands.
 
 Information may flow from protected results back to ideation, but ideation's
-write authority never flows into the protected core or Active state.
+write authority never flows into the protected core or the trusted signal.
 
 The high-volume experiment ledger belongs in a queryable local database, not in
 millions of committed JSON files. Every durable data class nevertheless has a
@@ -706,7 +702,7 @@ replicate-before-acknowledgement rule.** When the host, control database,
 verified data, engine, and the leader are all healthy but off-machine
 replication alone is unavailable, Montauk durably journals the signal locally,
 enters a visible `degraded_backup` state, alerts Max, and **delivers the valid
-signal on time**. It blocks Gold publication, Active changes, methodology
+signal on time**. It blocks Gold publication, leader changes, methodology
 changes, and other non-essential authority mutations until replication catches
 up, then reconciles the queued events. A backup-provider outage must be visible;
 it must never silently become a trading rule or suppress a time-sensitive
@@ -758,7 +754,7 @@ The agent may not change:
 - the backtest/search engine;
 - the validation suite or Gold thresholds;
 - Montauk Score, confidence, performance, or ranking formulas;
-- recertification, demotion, active-strategy, or signal-authority rules;
+- recertification, demotion, leader-selection, or signal rules;
 - operations safety, sandbox policy, notification authority, or recovery rules;
 - protected tests, fixtures, golden artifacts, or audit logs; or
 - permissions that enforce these boundaries.
@@ -784,7 +780,7 @@ spawning, credential access, and protected-repository mutation should be denied
 by default.
 
 The agent's generated-research area is deliberately a “pool of chaos”: it may
-write arbitrary candidate specifications or isolated modules there. Nothing in
+write arbitrary candidate specifications there. Nothing in
 that area becomes trusted because it exists or compiles. Deterministic intake,
 causal access, containment, full backtesting, validation, and certification are
 the only route out.
@@ -860,17 +856,17 @@ production strategy format or an independent source of trading truth.
   complete eligible survivor cohort and lifetime search-ledger snapshot,
   completes the cohort-dependent search-honesty correction, assembles the final
   five-plank verdict from immutable candidate and shared artifacts, and publishes
-  every passing configuration automatically with activation status **Pending
-  Gold**. Candidate-local validation is not rerun under another name. The daily
-  epoch does not reset prior disclosures or search history. This is automatic
-  publication, not a second board, weaker exam, staging approval, or Trade
-  Roster.
+  every passing configuration automatically with leader-eligibility status
+  **Pending Gold**. Candidate-local validation is not rerun under another name.
+  The daily epoch does not reset prior disclosures or search history. This is
+  automatic publication, not a second board, weaker exam, staging approval, or
+  Trade Roster.
 - Pending Gold normally accumulates 20 verified trading bars, maintains every
   required gate, and receives a fresh certification before becoming eligible to
-  be Recommended or Active. Bars, trades/signals, regimes, and relative
-  performance are shown separately; elapsed bars are never described as strong
-  forward proof when no relevant event occurred. Max may explicitly override the
-  activation delay, and that exception is conspicuous and audited.
+  be the leader (D125). A Pending row may rank anywhere on the board; only its
+  eligibility to have its signal published is withheld. Bars, trades/signals,
+  regimes, and relative performance are shown separately; elapsed bars are never
+  described as strong forward proof when no relevant event occurred.
 - There is one current Gold leaderboard, not a staging board or Trade Roster.
 - Every current Gold configuration is eligible for its own row.
 - Rows are collapsed by family by default, showing the leading row and the count
@@ -960,7 +956,7 @@ Gold. Relabeling or recombining existing inputs does not qualify. The score cann
    risk-off for Max's consideration, preserve the last instruction until Max
    decides, and perform no brokerage action.
 
-Loss of Gold by the **Active** strategy is Montauk's highest-severity alert
+Loss of Gold by the **leader** is Montauk's highest-severity alert
 class and escalates immediately and unmistakably.
 
 **OPEN — owner authority.** Whether a correctness, causality, engine, data, or
@@ -1040,10 +1036,11 @@ Montauk must track, per Gold row:
 
 The initial scheduling contract is:
 
-- replay Active after every verified daily bar;
-- formally renew Active after 20 new verified bars, any new signal/trade event,
-  any live-warning threshold, or before an activation/fallback decision;
-- renew Recommended and the top cohort weekly or before activation eligibility;
+- replay the leader after every verified daily bar;
+- formally renew the leader after 20 new verified bars, any new signal/trade
+  event, any live-warning threshold, or before a leader-change or fallback
+  decision;
+- renew the top cohort weekly or before leader eligibility;
 - renew the remaining board after 63 new verified bars, with spare compute
   permitted to pull work forward; and
 - preempt discovery whenever verification, renewal, or recovery needs resources.
@@ -1116,7 +1113,7 @@ that a push command ran.
 
 The durability promise is scoped to what the hardware can actually support:
 
-- **Zero loss** of already-acknowledged Active, approval, signal, and Gold
+- **Zero loss** of already-acknowledged leader, approval, signal, and Gold
   mutations against ordinary process and disk failure, using a proven local
   journal plus a second local device.
 - **A bounded physical-disaster recovery point equal to the last verified GitHub
@@ -1256,13 +1253,12 @@ The preferred direction is:
 
 - a legible reference implementation and frozen behavioral fixtures;
 - a prebuilt high-performance Rust evaluator and reusable primitive library;
-- a coverage matrix proving exact reproduction of the legacy Active strategy
-  needed for safe shadow/cutover, the matched B&H/execution reference, every
-  final validation control/benchmark, and any legacy strategy Max explicitly
-  selects for migration;
+- a coverage matrix proving exact reproduction of the Montauk 2.0 Gold
+  strategies preserved as parity fixtures (D112), the matched B&H/execution
+  reference, and every final validation control/benchmark;
 - compact strategy definitions for normal composition;
-- at most one isolated compiled Rust module per genuinely novel family, not a
-  newly compiled program for every parameter configuration;
+- one compiled execution plan per family version, not a newly compiled program
+  for every parameter configuration;
 - profiling on representative workloads;
 - shared/vectorized/precomputed indicator work where semantics allow;
 - optimized Rust kernels and evaluator paths only for measured bottlenecks; and
@@ -1298,9 +1294,9 @@ Montauk 3.0 is ready for Max to call complete when:
 - the Gold contract and search-breadth correction are versioned, tested, and
   defensible;
 - every published Gold row is reproducible;
-- data failure, restart, offline recovery, stale evidence, and active-Gold loss
-  enter explicit safe states and escalate correctly;
-- the recommendation/active distinction and owner authority are unambiguous;
+- data failure, restart, offline recovery, stale evidence, and loss of Gold by
+  the leader enter explicit safe states and escalate correctly;
+- leader selection and owner authority are unambiguous;
 - the system can continuously generate, test, learn from, and revisit strategy
   research without queue starvation or silent failure;
 - the minimal Debian host, `systemd` supervision, service identities, SSD/hot-
@@ -1324,7 +1320,8 @@ Questionnaires 3–9 settled the owner-visible policy in full. **Questionnaire 7
 Part B was answered by Questionnaire 8 Part B, and every remaining open item was
 closed by Questionnaire 9** (decisions D84–D110, promoted 2026-08-02). No open
 owner authority remains, and under D107 no further clarification questionnaire may
-be generated — later owner involvement is the seven named approvals in that entry.
+be generated — later owner involvement is the four named approvals in that entry,
+as amended by D123 and D124.
 Max explicitly noted that technical language was often unclear; §0.1 therefore
 governs all interpretation.
 Every decision report starts with a simple explanation and a simple example,
@@ -1347,12 +1344,12 @@ statistical opinions to Max:
    multiple versus matched B&H, measured from the causal-eligibility start date
    fixed by D86. Determine from controls whether the TYH product era earns
    promotion from diagnostic to required stress gate. **No catastrophic-loss veto
-   is installed** (D97): near-ruin penalizes leaderboard rank and is disclosed at
-   activation, but does not deny Gold. Phase 1 may still *study* whether a
+   is installed** (D97): near-ruin penalizes leaderboard rank and is disclosed on
+   the row, but does not deny Gold. Phase 1 may still *study* whether a
    defensible boundary exists and report its caught-defect rate, false-rejection
    rate, and economic interpretation; installing one would be a new owner decision
-   under D107 item 2. If none is installed, the limitation stays prominent in
-   every activation review.
+   under D107 item 2. If none is installed, the limitation stays prominent
+   wherever the affected row is displayed.
 2a. **Distribution/total-return study:** rebuild the TECL distribution ledger
    from primary sources (the current `data/TECL_distributions.csv` begins
    2021-12-09, credits cash by ex-date, and does not reinvest); implement the
@@ -1426,9 +1423,9 @@ statistical opinions to Max:
    exit and safety-critical operating invariant.
 
 The performance margin, false-Gold operating point, validation package,
-activation/renewal schedule, ranking ambiguity, and switch thresholds remain
-provisional until these reports exist. Max approves the recommended package in
-plain language. Later fine-tuning requires a new versioned control study and
+leader-eligibility/renewal schedule, ranking ambiguity, and leader-change
+thresholds remain provisional until these reports exist. Max approves the
+recommended package in plain language. Later fine-tuning requires a new versioned control study and
 owner approval; it is never an autonomous adjustment to preserve or remove a
 particular strategy.
 
