@@ -771,7 +771,7 @@ authority state while rerunning only declared in-flight work; GitHub recovery is
 proven from a clean machine; rollback to the legacy read path is tested; there is
 exactly one operational source for each concern.
 
-### Phase 3 — build the deterministic conveyor and authority states
+### Phase 3 — build the deterministic conveyor and leader selection
 
 #### Workstream 3A — deterministic funnel
 
@@ -794,21 +794,21 @@ exactly one operational source for each concern.
 plank, fail-closed behavior, fault injection, durable provenance, and clean-
 environment Gold/activation-status reproduction under the latest contract only.
 
-#### Workstream 3B — authority, forward evidence, recovery, and minimum alerts
+#### Workstream 3B — leader selection, forward evidence, recovery, and minimum alerts
 
-- Separate Gold certification, activation status, Recommended, Active, last-
-  verified instruction, and modeled execution identities. Do not create a
-  brokerage-position or personal-fill authority record in 3.0.
+- Separate Gold certification, cooling status, leader selection, last-published
+  instruction, and modeled execution identities (D125). Do not create a
+  brokerage-position or personal-fill record in 3.0.
 - Implement the 20-bar Pending Gold cooling period, owner delay override,
-  leader-change thresholds, five-bar persistence/hysteresis,
-  and audited exact-switch approval.
+  leader-change thresholds, and five-bar persistence/hysteresis. There is **no**
+  switch-approval step to build (D124/D125).
 - Implement current/stale/revoked/archive certification states and the latest-
   compatible-contract-only current board.
 - Implement data-failure, restart, offline catch-up, recertification, and
-  active-Gold-loss state machines, including automatic same-state pointer
-  fallback, opposing-state `human_decision_required`, and no-Gold risk-off
+  leader-loses-Gold state machines, including automatic same-state fallback,
+  opposing-state `human_decision_required`, and no-Gold risk-off
   recommendation without brokerage action.
-- Implement Active-per-bar replay, formal renewal triggers, weekly top-cohort and
+- Implement leader-per-bar replay, formal renewal triggers, weekly top-cohort and
   63-bar remainder renewal, two-renewal rolling-underperformance demotion, and
   immediate stale/revoke rules for integrity failures.
 - Give recovery absolute priority. Permit only explicitly labeled low-priority
