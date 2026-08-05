@@ -254,6 +254,17 @@ There is no obligation to keep the board populated. An empty current Gold board
 means Montauk has not found a configuration that earns certification; it never
 authorizes lowering the standard.
 
+**The empty-board review is a 90-day clock** (D102). If no strategy has earned
+Gold in 90 days, that triggers a review to distinguish a correctly high bar from
+a mis-implemented over-strict gate. The clock starts on the **first day Gold
+certification is enabled** — after Max approves the measured Phase 1 package and
+the signed validation contract is in force — not at the start of Phase 1 and not
+when the conveyor first runs end to end (D114). Before that moment the pipeline
+cannot produce Gold, so an empty board carries no information. The review looks
+for defects: a gate computing the wrong thing, a data problem, an impossible
+combination. It may **not** lower the bar to produce rows (D93), and "nothing
+passed and nothing is broken" is a valid outcome.
+
 No certificate produced by an earlier Montauk contract is automatically 3.0
 Gold. Legacy rows are evidence inputs only; each exact row must pass the final
 3.0 contract from scratch before entering the current board.
@@ -1168,6 +1179,12 @@ cooling progress, honest funnel counts (strategies found, tested, and promoted t
 Gold), new Gold rows, important board movement, forward-evidence/
 recertification status, and actionable failures. There is no override status to
 report — D125 deleted the authority states.
+
+**The required-signal deadline has fixed values** (D87). On trading days the
+trusted daily signal is due by **5:00 PM Pacific**. If it has not been produced
+by **6:00 PM Pacific**, the hard alert fires. The one-hour gap is deliberate
+slack for retry, not a second deadline; §2.4's controlled-reboot policy and
+D82's Ethernet baseline both exist to protect that window.
 
 Within five minutes of detection, attempt immediate delivery for verified-data
 failure, a missed required-signal deadline, the leader losing Gold, no compatible

@@ -206,6 +206,12 @@ The initial logical units are:
 These names are implementation defaults, not six new product stages. They operate
 the one conveyor documented in the charter.
 
+`montauk-core.service`'s "trusted deadline" has fixed values (D87): on trading
+days the daily signal is due by **5:00 PM Pacific**, and `montauk-doctor` raises
+the hard alert if it has not been produced by **6:00 PM Pacific**. The hour
+between them is retry slack. Timer scheduling, retry counts, and backoff are
+delegated engineering; the two clock times are not.
+
 Service requirements:
 
 - start on boot and restart with bounded backoff;
@@ -824,7 +830,8 @@ These are measured commissioning values, not open product-policy questions:
 - sustainable physical/logical worker count, batch size, memory limit, reserve
   capacity, and thermal ceiling;
 - exact `systemd` resource-control and service-hardening directives;
-- post-close trusted-job deadline and controlled update/reboot window;
+- the controlled update/reboot window around the post-close trusted job (the
+  deadline itself is fixed owner policy under D87, not a measured value);
 - selected channel, stable Max identity, room IDs, required scopes, notification
   routing, and the rejected provider's removal/non-running state;
 - provider selected by Max, subscription/API authentication, usage budget, token
