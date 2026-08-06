@@ -1,0 +1,12 @@
+# Survivors the sweep accepts, one per line: file:line find replace
+# Every entry must carry an argument in docs/kento-equivalent-mutants.md.
+# Line numbers move when the file does; the sweep fails on any survivor not
+# listed here, and warns about entries that did not survive, so drift is loud
+# in both directions.
+src/app.rs:439 false true
+src/app.rs:451 false true
+src/lint.rs:226 < >=
+src/lint.rs:737 true false
+src/lint.rs:740 && ||
+src/toolchain.rs:103 false true
+src/toolchain.rs:124 != ==

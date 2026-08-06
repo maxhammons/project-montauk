@@ -1,0 +1,5 @@
+[toolchain]
+# Pinned so `clippy -D warnings` cannot fail on an unattended day because a new
+# Rust release added a lint. Raise this deliberately, with the suite green.
+channel = "1.97.1"
+components = ["rustfmt", "clippy"]
