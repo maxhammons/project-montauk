@@ -2962,3 +2962,66 @@ is not published until it has cooled. It no longer gates an "authority state."
 current leader, any leader change and why, Pending Gold rows and their cooling
 progress, honest funnel counts, new Gold rows, board movement, forward-evidence
 and recertification status, and actionable failures.
+
+## 2026-08-07 — owner clarification: the appliance desktop is a real screen
+
+### D126 — The graphical desktop is a first-class surface Max sees and controls (AMENDS D83)
+
+**Call.** The XFCE/`xrdp` desktop is **not** administration-only. Max's words:
+*"i want to be able to see and control the screen on the debian computer."* He
+uses it to view Montauk's own output — the board, equity curves, trade charts —
+and to operate the machine, exactly as if he were sitting at it.
+
+**What this removes.** D83's write-up ended with a prohibition the planning
+process added on its own: *"What it is explicitly not: a display for Montauk to
+render anything to … or a supported place for the resident agent to run
+interactive graphical tools."* That was never an owner requirement and it
+forbids the thing Max actually asked for. It is struck.
+
+**What survives from D83, unchanged.** Every security and capacity property
+holds:
+
+- `xrdp` binds to the **tailnet interface only**; the firewall rejects RDP
+  everywhere else. Reaching the desktop still requires being on the tailnet.
+- The units stay **installed but disabled at boot**. Max starts the surface over
+  SSH when he wants it. Idle attack surface remains zero listening sockets and
+  §2.3's capacity reservation stays honest — a desktop nobody is looking at
+  consumes nothing on a two-core box.
+- The session runs as Max's ordinary administrative login, never a Montauk
+  service identity. No protected-core write access, no service credentials, no
+  ability to mutate Gold or the leader.
+- SSH remains the independent recovery path and must survive the graphical
+  stack being broken or mid-upgrade.
+
+**How the visuals get there.** No new build is required. The standalone
+`viz/montauk-viz.html` surface opens in a browser on the appliance desktop. The
+D122 Tauri app remains the Mac-side view and is unaffected; the two are
+alternative windows onto the same published data, not competing surfaces. Which
+one Max opens is his choice on the day.
+
+**This does not make the appliance a rendering service.** Montauk still does not
+require a display to operate, every resident service still runs headless, and
+nothing in the conveyor depends on a desktop session existing. The desktop is a
+window Max opens, not a component Montauk needs.
+
+### D127 — Remote access is commissioned early, not in Phase 5
+
+**Call.** Debian 13 is already installed on the target tower (owner-confirmed
+2026-08-07). Tailscale, SSH, and the on-demand XFCE/`xrdp` desktop are therefore
+stood up **now**, in parallel with Phase 1, rather than waiting for Phase 5
+commissioning.
+
+**Why this is safe to pull forward.** Remote access has no dependency on the
+Gold exam, the evaluator, or any calibrated value. It touches no protected core
+— there is no core yet. It is pure host setup whose acceptance tests (refused
+from LAN and public interfaces, SSH survives a broken graphical stack) are
+self-contained.
+
+**Why it is worth pulling forward.** Every later phase is easier to build and
+debug against a machine Max can actually reach and see. Discovering a remote
+access defect during Phase 5 — after the conveyor exists — is strictly worse
+than discovering it now, when nothing depends on it.
+
+**What is *not* pulled forward.** The rest of Phase 5 stays where it is:
+performance work, resource tuning, the 2.0 comparison, and the soak. This moves
+one self-contained workstream, not the phase.

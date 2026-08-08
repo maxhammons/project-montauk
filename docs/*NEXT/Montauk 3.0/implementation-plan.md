@@ -957,6 +957,13 @@ throughput target gates completion.
 
 #### Workstream 5B — commissioning
 
+> **Remote access is pulled forward to run alongside Phase 1** (D127). Debian 13
+> is already installed on the tower, and Tailscale/SSH plus the on-demand
+> XFCE/`xrdp` desktop depend on nothing else in this plan — there is no
+> protected core yet for them to touch. Standing them up now means every later
+> phase is built and debugged against a machine Max can reach and see. The two
+> bullets below marked **(early)** move; the rest of 5B stays here.
+
 - Do **not** migrate Montauk 2.0 onto the appliance (D121). It stays where it runs
   today, on its own existing data pipeline, and keeps running for as long as Max
   cares about it — there is no retirement event and no handover (D124). Two
@@ -968,11 +975,15 @@ throughput target gates completion.
   behavior where available, separated service identities, `systemd` supervision,
   Tailscale/SSH, the selected channel adapter, health/doctor checks, and
   off-machine backup.
-- Add the D83 graphical administration surface after the trust boundaries exist:
-  XFCE plus `xrdp` bound to the tailnet interface only, units disabled at boot,
-  sessions running as Max's administrative login. Prove it is refused from the LAN
-  and public interfaces, and prove SSH recovery survives the graphical stack being
-  stopped or broken.
+- **(early)** Stand up Tailscale and hardened SSH on the existing Debian 13
+  install. No public port forwarding, no Tailscale Funnel, tailnet restricted to
+  Max's devices. This is the independent recovery path everything else assumes.
+- **(early)** Add the D83 graphical surface: XFCE plus `xrdp` bound to the
+  tailnet interface only, units installed but disabled at boot, sessions running
+  as Max's administrative login. It is a real screen Max sees and controls, not
+  an admin-only terminal (D126). Prove it is refused from the LAN and public
+  interfaces, and prove SSH recovery survives the graphical stack being stopped
+  or broken.
 - Run the new system and compare its output against the frozen 2.0 reference.
   Montauk 2.0 stays runnable throughout; its Gold artifacts and trade ledgers are
   preserved as parity fixtures and the code is archived, not deleted (D112).

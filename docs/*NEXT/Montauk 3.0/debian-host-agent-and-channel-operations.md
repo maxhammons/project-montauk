@@ -358,16 +358,26 @@ The shape:
 - **On-demand, not resident:** the `xrdp` units are installed but **not**
   enabled at boot. Max starts the surface over SSH when he wants it and stops it
   when done. This keeps §2.3's capacity reservation honest and keeps the idle
-  attack surface at zero listening sockets.
+  attack surface at zero listening sockets. A desktop nobody is connected to
+  costs nothing on a two-core box.
+- **A real screen, not an admin-only terminal** (D126). Max sees and controls
+  this desktop as if sitting at the machine, including viewing Montauk's own
+  output — the board, equity curves, and trade charts. The standalone
+  `viz/montauk-viz.html` surface opens in a browser here; the D122 Tauri app
+  remains the Mac-side window onto the same published data. They are
+  alternatives, not competitors.
 - **Identity:** the desktop session runs as Max's ordinary administrative login,
   never as a Montauk service identity. It gets no protected-core write access, no
   service credentials, and no ability to mutate Gold or the leader — §3's
   separation
   is not relaxed to make a GUI convenient.
 
-What it is explicitly not: a display for Montauk to render anything to, a
-substitute for the Slack digest, or a supported place for the resident agent to
-run interactive graphical tools. Montauk's own output surfaces are unchanged.
+What it is explicitly not: a **substitute for the Slack digest**, which remains
+the surface that reaches Max's phone and the only place mutations happen; and
+not a component Montauk depends on. Every resident service still runs headless,
+nothing in the conveyor requires a display to exist, and no signal, digest, or
+Gold decision waits on a desktop session. The desktop is a window Max opens, not
+a service Montauk needs (D126).
 
 ## 7. Conversation-channel contract and provider choice
 
