@@ -592,6 +592,14 @@ it will depend on. Every phase needs named artifacts, tests, rollback
 instructions, and a blocking exit review; a phase title is not permission to
 invent the empirical calibration values inside it.
 
+> **Naming warning.** There is a separate track called **Build Phase 1 —
+> appliance readiness**, specified in `montauk3/host/README.md`. It is *not*
+> Phase 1 below. Phase 1 proves the Gold exam and runs on Max's Mac; Build Phase
+> 1 provisions the Debian box. They run in parallel under D127 and neither gates
+> the other. Build Phase 1 is done when `montauk3/host/provision/50-verify.sh`
+> exits zero and the only outstanding items are ones requiring physical access to
+> the machine. Keep the two names apart in every report.
+
 The build has five phases:
 
 | Phase | Outcome |
