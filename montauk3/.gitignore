@@ -1,0 +1,7 @@
+# The install marker lives at /etc/montauk/install.toml, deliberately outside
+# this tree so it cannot be committed. This entry is belt-and-braces in case
+# anyone ever relocates it under the checkout.
+install.toml
+__pycache__/
+*.pyc
+.pytest_cache/
